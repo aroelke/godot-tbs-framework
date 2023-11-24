@@ -11,9 +11,6 @@ public partial class BattleMap : TileMap
     /// <summary>Grid dimensions. Both elements should be positive.</summary>
     [Export] public Vector2I Size { get; private set; } = Vector2I.Zero;
 
-    /// <summary>Color to draw the grid bounds in the editor.</summary>
-    [Export] public Color GridColor { get; private set; } = Colors.Black;
-
     public Vector2I CellSize => TileSet?.TileSize ?? Vector2I.Zero;
 
     /// <summary>Find the cell index closest to the given one inside the grid.</summary>
@@ -47,10 +44,14 @@ public partial class BattleMap : TileMap
         return warnings.ToArray();
     }
 
-    public override void _Draw()
+    public override void _Ready()
     {
-        base._Draw();
-        if (Engine.IsEditorHint())
-            DrawRect(new Rect2I(Vector2I.Zero, Size*CellSize), GridColor, filled:false);
+        base._Ready();
+        if (!Engine.IsEditorHint())
+        {
+            Camera2D camera = GetNode<Camera2D>("Cursor/Camera");
+            (camera.LimitTop, camera.LimitLeft) = Vector2I.Zero;
+            (camera.LimitRight, camera.LimitBottom) = Size*CellSize;
+        }
     }
 }
