@@ -1,6 +1,7 @@
-[gd_scene load_steps=23 format=3 uid="uid://nqtncwui0dii"]
+[gd_scene load_steps=24 format=3 uid="uid://nqtncwui0dii"]
 
 [ext_resource type="Texture2D" uid="uid://b4ptnu3mt3rjh" path="res://assets/battle/map/pipo-map001.png" id="1_6n6tf"]
+[ext_resource type="Script" path="res://src/battle/BattleMap.cs" id="2_xrcdx"]
 
 [sub_resource type="TileMapPattern" id="TileMapPattern_e78rg"]
 tile_data = PackedInt32Array(0, 0, 2, 65536, 0, 3)
@@ -205,3 +206,4 @@ layer_2/y_sort_enabled = false
 layer_2/y_sort_origin = 0
 layer_2/z_index = 1
 layer_2/tile_data = PackedInt32Array()
+script = ExtResource("2_xrcdx")
