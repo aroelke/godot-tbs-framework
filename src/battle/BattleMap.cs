@@ -1,4 +1,5 @@
 using Godot;
+using System;
 using System.Collections.Generic;
 using System.Transactions;
 
@@ -11,9 +12,12 @@ public partial class BattleMap : TileMap
     /// <summary>Grid dimensions. Both elements should be positive.</summary>
     [Export] public Vector2I Size { get; private set; } = Vector2I.Zero;
 
+    /// <summary>Color to draw the grid bounds in the editor.</summary>
+    [Export] public Color GridColor { get; private set; } = Colors.Black;
+
     public override string[] _GetConfigurationWarnings()
     {
-        List<string> warnings = new(base._GetConfigurationWarnings());
+        List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
 
         // Size dimensions should be nonnegative
         if (Size.X <= 0 || Size.Y <= 0)
@@ -26,5 +30,12 @@ public partial class BattleMap : TileMap
                     warnings.Add($"There is a tile on layer {GetLayerName(i)} placed outside the grid bounds at {cell}");
 
         return warnings.ToArray();
+    }
+
+    public override void _Draw()
+    {
+        base._Draw();
+        if (Engine.IsEditorHint())
+            DrawRect(new Rect2I(Vector2I.Zero, Size*(TileSet?.TileSize ?? Vector2I.Zero)), GridColor, filled:false);
     }
 }

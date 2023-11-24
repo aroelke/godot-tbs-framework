@@ -5,4 +5,4 @@
 [node name="TestMap" type="Node2D"]
 
 [node name="BattleMap" parent="." instance=ExtResource("1_ge76j")]
-Size = Vector2i(20, 10)
+Size = Vector2i(20, 15)
