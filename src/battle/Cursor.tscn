@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://bcawk5qkns65o"]
+
+[ext_resource type="Script" path="res://src/battle/Cursor.cs" id="1_souw2"]
+[ext_resource type="Texture2D" uid="uid://dhxxyboxchr67" path="res://assets/battle/ui/cursor.png" id="1_ykvm7"]
+
+[node name="Cursor" type="Sprite2D"]
+texture = ExtResource("1_ykvm7")
+offset = Vector2(16, 16)
+script = ExtResource("1_souw2")

@@ -15,6 +15,22 @@ public partial class BattleMap : TileMap
     /// <summary>Color to draw the grid bounds in the editor.</summary>
     [Export] public Color GridColor { get; private set; } = Colors.Black;
 
+    public Vector2I CellSize => TileSet?.TileSize ?? Vector2I.Zero;
+
+    /// <summary>Find the cell index closest to the given one inside the grid.</summary>
+    /// <returns>The cell index clamped to be inside the grid bounds using <c>Vector2I.Clamp</c></returns>
+    public Vector2I Clamp(Vector2I position) => position.Clamp(Vector2I.Zero, Size - Vector2I.One);
+
+    /// <summary>Find the position in pixels of a cell offset.</summary>
+    /// <param name="offset">Cell offset to use for calculation (can be outside grid bounds).</param>
+    /// <returns>The position, in pixels of the upper-left corner of the grid cell.</returns>
+    public Vector2I PositionOf(Vector2I offset) => offset*CellSize;
+
+    /// <summary>Find the cell offset of a pixel position.</summary>
+    /// <param name="pixels">Position in pixels.</param>
+    /// <returns>The coordinates of the cell containing the pixel point (can be outside grid bounds).</returns>
+    public Vector2I CellOf(Vector2 point) => (Vector2I)(point/CellSize);
+
     public override string[] _GetConfigurationWarnings()
     {
         List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
@@ -36,6 +52,6 @@ public partial class BattleMap : TileMap
     {
         base._Draw();
         if (Engine.IsEditorHint())
-            DrawRect(new Rect2I(Vector2I.Zero, Size*(TileSet?.TileSize ?? Vector2I.Zero)), GridColor, filled:false);
+            DrawRect(new Rect2I(Vector2I.Zero, Size*CellSize), GridColor, filled:false);
     }
 }
