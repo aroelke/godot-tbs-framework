@@ -1,9 +1,10 @@
-[gd_scene load_steps=26 format=3 uid="uid://nqtncwui0dii"]
+[gd_scene load_steps=27 format=3 uid="uid://nqtncwui0dii"]
 
 [ext_resource type="Texture2D" uid="uid://b4ptnu3mt3rjh" path="res://assets/battle/map/pipo-map001.png" id="1_6n6tf"]
 [ext_resource type="Script" path="res://src/battle/BattleMap.cs" id="2_xrcdx"]
 [ext_resource type="Script" path="res://src/battle/Limits.cs" id="3_gjscv"]
-[ext_resource type="PackedScene" uid="uid://bcawk5qkns65o" path="res://src/battle/Cursor.tscn" id="3_vm78g"]
+[ext_resource type="Texture2D" uid="uid://dhxxyboxchr67" path="res://assets/battle/ui/cursor.png" id="4_5beqv"]
+[ext_resource type="Script" path="res://src/battle/Cursor.cs" id="5_nelru"]
 
 [sub_resource type="TileMapPattern" id="TileMapPattern_e78rg"]
 tile_data = PackedInt32Array(0, 0, 2, 65536, 0, 3)
@@ -215,8 +216,10 @@ process_mode = 4
 top_level = true
 script = ExtResource("3_gjscv")
 
-[node name="Cursor" parent="." instance=ExtResource("3_vm78g")]
-z_index = 2
+[node name="Cursor" type="Sprite2D" parent="."]
+texture = ExtResource("4_5beqv")
+offset = Vector2(16, 16)
+script = ExtResource("5_nelru")
 
 [node name="Camera" type="Camera2D" parent="Cursor"]
 zoom = Vector2(2, 2)
