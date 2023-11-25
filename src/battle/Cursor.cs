@@ -8,6 +8,8 @@ public partial class Cursor : Sprite2D
     private BattleMap _map = null;
     private Vector2I _cell = Vector2I.Zero;
     private Vector2I _mask = Vector2I.Zero;
+    private bool _canMoveWithMouse = false;
+    private bool _moveWithMouse = false;
 
     private BattleMap Map { get => GetParent<BattleMap>(); }
 
@@ -26,11 +28,22 @@ public partial class Cursor : Sprite2D
         }
     }
 
+    public override void _Notification(int what)
+    {
+        base._Notification(what);
+        _canMoveWithMouse = (long)what switch {
+            NotificationWMMouseEnter or NotificationVpMouseEnter => true,
+            NotificationWMMouseExit  or NotificationVpMouseExit  => false,
+            _ => _canMoveWithMouse
+        };
+    }
+
     public override void _Input(InputEvent @event)
     {
         base._Input(@event);
 
-        if (@event is InputEventMouseMotion mm)
+        _moveWithMouse = _canMoveWithMouse && (@event is InputEventMouseMotion);
+        if (_moveWithMouse)
         {
             // Another way to do this would be to multiply the mouse's position by a canvas transform, but that would probably
             // also have to be the map's canvas transform anyway
@@ -59,6 +72,17 @@ public partial class Cursor : Sprite2D
                 else
                     _mask = Vector2I.Zero;
             }
+        }
+    }
+
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+        if (_canMoveWithMouse && _moveWithMouse)
+        {
+            Vector2I mouseCell = Map.CellOf(Map.GetLocalMousePosition());
+            if (mouseCell != Cell)
+                Cell = mouseCell;
         }
     }
 }
