@@ -31,7 +31,11 @@ public partial class Cursor : Sprite2D
         base._Input(@event);
 
         if (@event is InputEventMouseMotion mm)
-            Cell = Map.CellOf(mm.Position);
+        {
+            // Another way to do this would be to multiply the mouse's position by a canvas transform, but that would probably
+            // also have to be the map's canvas transform anyway
+            Cell = Map.CellOf(Map.GetLocalMousePosition());
+        }
         else
         {
             Vector2I skip = (Vector2I)Input.GetVector("cursor_skip_left", "cursor_skip_right", "cursor_skip_up", "cursor_skip_down").Round();
