@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://b1xv7rk0hfr2t"]
+
+[ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://assets/ui/mouse.png" id="1_jdtiq"]
+[ext_resource type="Script" path="res://src/ui/VirtualMouse.cs" id="2_cmw42"]
+
+[node name="VirtualMouse" type="Sprite2D"]
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("1_jdtiq")
+offset = Vector2(24, 24)
+script = ExtResource("2_cmw42")

@@ -49,7 +49,7 @@ public partial class BattleMap : TileMap
         base._Ready();
         if (!Engine.IsEditorHint())
         {
-            Camera2D camera = GetNode<Camera2D>("Cursor/Camera");
+            Camera2D camera = GetNode<Camera2D>("VirtualMouse/Camera");
             (camera.LimitTop, camera.LimitLeft) = Vector2I.Zero;
             (camera.LimitRight, camera.LimitBottom) = Size*CellSize;
         }

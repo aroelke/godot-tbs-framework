@@ -1,10 +1,11 @@
-[gd_scene load_steps=27 format=3 uid="uid://nqtncwui0dii"]
+[gd_scene load_steps=28 format=3 uid="uid://nqtncwui0dii"]
 
 [ext_resource type="Texture2D" uid="uid://b4ptnu3mt3rjh" path="res://assets/battle/map/pipo-map001.png" id="1_6n6tf"]
 [ext_resource type="Script" path="res://src/battle/BattleMap.cs" id="2_xrcdx"]
 [ext_resource type="Script" path="res://src/battle/Limits.cs" id="3_gjscv"]
 [ext_resource type="Texture2D" uid="uid://dhxxyboxchr67" path="res://assets/battle/ui/cursor.png" id="4_5beqv"]
 [ext_resource type="Script" path="res://src/battle/Cursor.cs" id="5_nelru"]
+[ext_resource type="PackedScene" uid="uid://b1xv7rk0hfr2t" path="res://src/ui/VirtualMouse.tscn" id="6_p5t0b"]
 
 [sub_resource type="TileMapPattern" id="TileMapPattern_e78rg"]
 tile_data = PackedInt32Array(0, 0, 2, 65536, 0, 3)
@@ -221,7 +222,10 @@ texture = ExtResource("4_5beqv")
 offset = Vector2(16, 16)
 script = ExtResource("5_nelru")
 
-[node name="Camera" type="Camera2D" parent="Cursor"]
+[node name="VirtualMouse" parent="." instance=ExtResource("6_p5t0b")]
+
+[node name="Camera" type="Camera2D" parent="VirtualMouse"]
+scale = Vector2(4, 4)
 zoom = Vector2(2, 2)
 limit_left = 0
 limit_top = 0
@@ -230,6 +234,8 @@ drag_horizontal_enabled = true
 drag_vertical_enabled = true
 drag_left_margin = 0.7
 drag_top_margin = 0.6
-drag_right_margin = 0.6
-drag_bottom_margin = 0.47
+drag_right_margin = 0.7
+drag_bottom_margin = 0.6
 editor_draw_drag_margin = true
+
+[connection signal="Moved" from="VirtualMouse" to="Cursor" method="OnMouseMoved"]
