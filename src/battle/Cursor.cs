@@ -8,7 +8,7 @@ public partial class Cursor : Sprite2D
     private BattleMap _map = null;
     private Vector2I _cell = Vector2I.Zero;
 
-    private BattleMap Map { get => GetParent<BattleMap>(); }
+    private BattleMap Map => _map ??= GetParent<BattleMap>();
 
     /// <summary>Grid cell containing the cursor.</summary>
     public Vector2I Cell

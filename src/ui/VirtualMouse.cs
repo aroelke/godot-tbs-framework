@@ -47,6 +47,9 @@ public partial class VirtualMouse : Sprite2D
 
         if (@event is InputEventMouseMotion)
         {
+            // This is matrix math, so the order of operations matters!
+            if (MoveMode != Mode.Mouse && Position != MousePosition())
+                Input.WarpMouse(Map.GetGlobalTransform()*Map.GetCanvasTransform()*Position);
             if (_tracking)
             {
                 Position = MousePosition();
