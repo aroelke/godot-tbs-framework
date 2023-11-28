@@ -22,15 +22,13 @@ public partial class VirtualMouse : Sprite2D
     /// <param name="mode">New input mode.</param>
     [Signal] public delegate void ModeChangedEventHandler(Mode mode);
 
+    private BattleMap _map = null;
     private Mode _mode = Mode.Mouse;
     private bool _tracking = false;
     private Vector2 _previous = Vector2.Zero;
-    private BattleMap _map = null;
     private Vector2I _mask = Vector2I.Zero;
 
     private BattleMap Map => _map ??= GetParent<BattleMap>();
-
-    private Vector2 MousePosition() => GetParent<CanvasItem>()?.GetLocalMousePosition() ?? GetGlobalMousePosition();
 
     /// <summary>Current mode used for moving the virtual mouse.</summary>
     public Mode MoveMode
@@ -42,8 +40,11 @@ public partial class VirtualMouse : Sprite2D
             _mode = value;
             if (old != _mode)
                 EmitSignal(SignalName.ModeChanged, Variant.CreateTakingOwnershipOfDisposableValue(VariantUtils.CreateFrom(_mode)));
+            Visible = _mode == Mode.Digital;
         }
     }
+
+    private Vector2 MousePosition() => GetParent<CanvasItem>()?.GetLocalMousePosition() ?? GetGlobalMousePosition();
 
     public override void _Notification(int what)
     {
@@ -64,7 +65,7 @@ public partial class VirtualMouse : Sprite2D
     {
         base._Input(@event);
 
-        if (@event is InputEventMouseMotion)
+        if (@event is InputEventMouseMotion mm && mm.Velocity.Length() > 0)
         {
             // This is matrix math, so the order of operations matters!
             if (MoveMode != Mode.Mouse && Position != MousePosition())
@@ -105,7 +106,7 @@ public partial class VirtualMouse : Sprite2D
                 target = move + current;
             }
 
-            if (target != null)
+            if (target != null && target != current)
             {
                 Position = Map.PositionOf(Map.Clamp(target.Value)) + Map.CellSize/2;
                 MoveMode = Mode.Digital;
