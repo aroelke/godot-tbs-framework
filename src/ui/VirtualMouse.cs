@@ -1,19 +1,28 @@
 using battle;
 using Godot;
+using Godot.NativeInterop;
 
 namespace ui;
 
 /// <summary>Virtual cursor that can be moved via mouse movement, digitally, or via analog.</summary>
 public partial class VirtualMouse : Sprite2D
 {
-    [Signal] public delegate void MovedEventHandler(Vector2 previous, Vector2 current);
-
     /// <summary>
     /// Method used for moving the virtual mouse cursor: the real mouse, using digital input (e.g. keyboard keys, controller dpad), or
     /// using analog inputs (e.g. controller analog sticks).
     /// </summary>
     public enum Mode { Mouse, Digital, Analog }
 
+    /// <summary>Signals that the cursor has moved.</summary>
+    /// <param name="previous">Previous position of the cursor.</param>
+    /// <param name="current">Current position of the cursor.</param>
+    [Signal] public delegate void MovedEventHandler(Vector2 previous, Vector2 current);
+
+    /// <summary>Signals that the input mode of the cursor has changed.</summary>
+    /// <param name="mode">New input mode.</param>
+    [Signal] public delegate void ModeChangedEventHandler(Mode mode);
+
+    private Mode _mode = Mode.Mouse;
     private bool _tracking = false;
     private Vector2 _previous = Vector2.Zero;
     private BattleMap _map = null;
@@ -24,7 +33,17 @@ public partial class VirtualMouse : Sprite2D
     private Vector2 MousePosition() => GetParent<CanvasItem>()?.GetLocalMousePosition() ?? GetGlobalMousePosition();
 
     /// <summary>Current mode used for moving the virtual mouse.</summary>
-    public Mode MoveMode { get; private set; } = Mode.Mouse;
+    public Mode MoveMode
+    {
+        get => _mode;
+        private set
+        {
+            Mode old = _mode;
+            _mode = value;
+            if (old != _mode)
+                EmitSignal(SignalName.ModeChanged, Variant.CreateTakingOwnershipOfDisposableValue(VariantUtils.CreateFrom(_mode)));
+        }
+    }
 
     public override void _Notification(int what)
     {
