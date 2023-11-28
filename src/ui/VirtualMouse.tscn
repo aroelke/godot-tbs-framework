@@ -8,3 +8,8 @@ scale = Vector2(0.25, 0.25)
 texture = ExtResource("1_jdtiq")
 offset = Vector2(24, 24)
 script = ExtResource("2_cmw42")
+
+[node name="EchoTimer" type="Timer" parent="."]
+one_shot = true
+
+[connection signal="timeout" from="EchoTimer" to="." method="OnEchoTimeout"]
