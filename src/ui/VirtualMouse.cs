@@ -17,7 +17,7 @@ public partial class VirtualMouse : Sprite2D
     [Signal] public delegate void InputModeChangedEventHandler(InputMode mode);
 
     private BattleMap _map = null;
-    private Timer _echoTimer = null;
+    private Timer _echoTimer;
     private bool _echoing = false;
     private InputMode _mode = InputMode.Mouse;
     private bool _tracking = false;
@@ -26,7 +26,6 @@ public partial class VirtualMouse : Sprite2D
     private bool _accelerate = false;
 
     private BattleMap Map => _map ??= GetParent<BattleMap>();
-    private Timer EchoTimer => _echoTimer ??= GetNode<Timer>("EchoTimer");
 
     private Vector2 MousePosition() => GetParent<CanvasItem>()?.GetLocalMousePosition() ?? GetGlobalMousePosition();
 
@@ -67,8 +66,8 @@ public partial class VirtualMouse : Sprite2D
         Jump(Map.CellOf(Position) + _direction);
         if (EchoInterval > GetProcessDeltaTime())
         {
-            EchoTimer.WaitTime = EchoInterval;
-            EchoTimer.Start();
+            _echoTimer.WaitTime = EchoInterval;
+            _echoTimer.Start();
         }
         else
             _echoing = true;
@@ -129,7 +128,7 @@ public partial class VirtualMouse : Sprite2D
                 Vector2I dir = (Vector2I)Input.GetVector("cursor_digital_left", "cursor_digital_right", "cursor_digital_up", "cursor_digital_down").Round();
                 if (dir != _direction)
                 {
-                    EchoTimer.Stop();
+                    _echoTimer.Stop();
                     _echoing = false;
 
                     if (dir != Vector2I.Zero)
@@ -141,8 +140,8 @@ public partial class VirtualMouse : Sprite2D
                         _direction = dir;
                         InputMode = InputMode.Digital;
 
-                        EchoTimer.WaitTime = EchoDelay;
-                        EchoTimer.Start();
+                        _echoTimer.WaitTime = EchoDelay;
+                        _echoTimer.Start();
                     }
                     else
                         _direction = Vector2I.Zero;
@@ -157,6 +156,9 @@ public partial class VirtualMouse : Sprite2D
     public override void _Ready()
     {
         base._Ready();
+
+        AddChild(_echoTimer = new Timer());
+        _echoTimer.Timeout += OnEchoTimeout;
         Input.MouseMode = Input.MouseModeEnum.Hidden;
     }
 
