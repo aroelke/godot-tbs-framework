@@ -12,12 +12,17 @@ public partial class BattleMap : TileMap
     /// <summary>Grid dimensions. Both elements should be positive.</summary>
     [Export] public Vector2I Size { get; private set; } = Vector2I.Zero;
 
+    /// <summary>Grid cell dimensions derived from the tile set.  If there is no tileset, the size is zero.</summary>
     public Vector2I CellSize => TileSet?.TileSize ?? Vector2I.Zero;
 
     /// <summary>Find the cell index closest to the given one inside the grid.</summary>
+    /// <param name="position">Cell index to clamp.
     /// <returns>The cell index clamped to be inside the grid bounds using <c>Vector2I.Clamp</c></returns>
     public Vector2I Clamp(Vector2I position) => position.Clamp(Vector2I.Zero, Size - Vector2I.One);
 
+    /// <summary>Constrain a position to somewhere within the grid (not necessarily snapped to a cell).</summary>
+    /// <param name="position">Position to clamp.</param>
+    /// <returns>The world position clamped to be inside the grid using <c>Vector2.Clamp</c></returns>
     public Vector2 Clamp(Vector2 position) => position.Clamp(Vector2.Zero, Size*CellSize - Vector2.One);
 
     /// <summary>Find the position in pixels of a cell offset.</summary>
