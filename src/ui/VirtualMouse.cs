@@ -5,8 +5,7 @@ using Godot.NativeInterop;
 namespace ui;
 
 /// <summary>Virtual cursor that can be moved via mouse movement, digitally, or via analog.</summary>
-[GlobalClass]
-public partial class VirtualMouse : Sprite2D
+public abstract partial class VirtualMouse : Sprite2D
 {
     /// <summary>Signals that the cursor has moved.</summary>
     /// <param name="previous">Previous position of the cursor.</param>
@@ -26,8 +25,6 @@ public partial class VirtualMouse : Sprite2D
     private Vector2I _direction = Vector2I.Zero;
     private bool _accelerate = false;
 
-    private BattleMap Map => _map ??= GetParent<BattleMap>();
-
     private Vector2 MousePosition() => GetParent<CanvasItem>()?.GetLocalMousePosition() ?? GetGlobalMousePosition();
 
     /// <summary>Speed in pixels/second the cursor moves when in analog mode.</summary>
@@ -39,6 +36,19 @@ public partial class VirtualMouse : Sprite2D
 
     /// <summary>Delay between movement echoes while holding a digital movement key/button down.</summary>
     [Export] public double EchoInterval = 0.03;
+
+    /// <summary>Jump the cursor in a direction. Where it actually goes is implementation-defined.</summary>
+    /// <param name="direction">Direction to jump, which will be either 1, 0, or -1 in the X- or Y-axes.</param>
+    public abstract void Jump(Vector2I direction);
+
+    /// <summary>Skip to the edge of the world in a direction.</summary>
+    /// <param name="direction">Edge to jump to. On each axis, 1 represents the edge in the positive direction and -1 represents the one in the negative direction.</param>
+    public abstract void Skip(Vector2I direction);
+
+    /// <summary>Clamp a position within an implementation-defined bounding box.</summary>
+    /// <param name="position">Position to clamp.</param>
+    /// <returns>A new position computed by clamping the given one within the bounding box.</returns>
+    public abstract Vector2 Clamp(Vector2 position);
 
     /// <summary>Current input mode used for moving the virtual mouse.</summary>
     public InputMode InputMode
@@ -54,17 +64,10 @@ public partial class VirtualMouse : Sprite2D
         }
     }
 
-    /// <summary>Move the cursor to a new cell on the map.</summary>
-    /// <param name="cell">Cell to jump to.</param>
-    public void Jump(Vector2I cell)
-    {
-        Position = Map.PositionOf(Map.Clamp(cell)) + Map.CellSize/2;
-    }
-
     /// <summary>Start/continue echo movement of the cursor.</summary>
     public void OnEchoTimeout()
     {
-        Jump(Map.CellOf(Position) + _direction);
+        Jump(_direction);
         if (EchoInterval > GetProcessDeltaTime())
         {
             _echoTimer.WaitTime = EchoInterval;
@@ -99,7 +102,10 @@ public partial class VirtualMouse : Sprite2D
             {
                 // This is matrix math, so the order of operations matters!
                 if (InputMode != InputMode.Mouse && Position != MousePosition())
-                    Input.WarpMouse(Map.GetGlobalTransform()*Map.GetCanvasTransform()*Position);
+                {
+                    CanvasItem parent = GetParent<CanvasItem>();
+                    Input.WarpMouse(parent.GetGlobalTransform()*parent.GetCanvasTransform()*Position);
+                }
                 if (_tracking)
                 {
                     Position = MousePosition();
@@ -109,15 +115,10 @@ public partial class VirtualMouse : Sprite2D
         }
         else
         {
-            Vector2I current = Map.CellOf(Position);
-
             Vector2I skip = (Vector2I)Input.GetVector("cursor_skip_left", "cursor_skip_right", "cursor_skip_up", "cursor_skip_down").Round();
             if (skip != Vector2.Zero)
             {
-                Jump(new(
-                    skip.X < 0 ? 0 : skip.X > 0 ? Map.Size.X - 1 : current.X,
-                    skip.Y < 0 ? 0 : skip.Y > 0 ? Map.Size.Y - 1 : current.Y
-                ));
+                Skip(skip);
                 InputMode = InputMode.Digital;
             }
             else if (Input.GetVector("cursor_analog_left", "cursor_analog_right", "cursor_analog_up", "cursor_analog_down") != Vector2.Zero)
@@ -135,9 +136,9 @@ public partial class VirtualMouse : Sprite2D
                     if (dir != Vector2I.Zero)
                     {
                         if (dir.Abs().X + dir.Abs().Y > _direction.Abs().X + _direction.Abs().Y)
-                            Jump(current + (dir - _direction));
+                            Jump(dir - _direction);
                         else
-                            Jump(current + dir);
+                            Jump(dir);
                         _direction = dir;
                         InputMode = InputMode.Digital;
 
@@ -175,11 +176,11 @@ public partial class VirtualMouse : Sprite2D
             break;
         case InputMode.Digital:
             if (_echoing)
-                Jump(Map.CellOf(Position) + _direction);
+                Jump(_direction);
             break;
         case InputMode.Analog:
             double speed = _accelerate ? (CursorSpeed*Acceleration) : CursorSpeed;
-            Position = Map.Clamp(Position + Input.GetVector("cursor_analog_left", "cursor_analog_right", "cursor_analog_up", "cursor_analog_down")*(float)(speed*delta));
+            Position = Clamp(Position + Input.GetVector("cursor_analog_left", "cursor_analog_right", "cursor_analog_up", "cursor_analog_down")*(float)(speed*delta));
             break;
         default:
             break;
