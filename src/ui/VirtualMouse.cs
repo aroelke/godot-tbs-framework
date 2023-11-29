@@ -166,9 +166,6 @@ public partial class VirtualMouse : Sprite2D
             break;
         }
 
-        if (MoveMode == Mode.Mouse && _tracking && Position != MousePosition())
-            Position = MousePosition();
-
         if (Position != _previous)
         {
             EmitSignal(SignalName.Moved, _previous, Position);
