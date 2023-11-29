@@ -16,21 +16,25 @@ public abstract partial class VirtualMouse : Sprite2D
     /// <param name="mode">New input mode.</param>
     [Signal] public delegate void InputModeChangedEventHandler(InputMode mode);
 
-    private BattleMap _map = null;
+    private CanvasItem _parent = null;
     private Timer _echoTimer;
     private bool _echoing = false;
-    private InputMode _mode = InputMode.Mouse;
-    private bool _tracking = false;
+    private InputMode _mode = InputMode.Digital;
+    private Vector2? _lastKnownPointerPosition = null;
     private Vector2 _previous = Vector2.Zero;
     private Vector2I _direction = Vector2I.Zero;
     private bool _accelerate = false;
+
+    private CanvasItem Parent => _parent ??= GetParent<CanvasItem>();
 
     private Vector2 MousePosition() => GetParent<CanvasItem>()?.GetLocalMousePosition() ?? GetGlobalMousePosition();
 
     /// <summary>Speed in pixels/second the cursor moves when in analog mode.</summary>
     [Export] public double CursorSpeed = 400;
+
     /// <summary>Multiplier applied to the cursor speed when the accelerate button is held down in analog mode.</summary>
     [Export] public double Acceleration = 3;
+
     /// <summary>Initial delay after pressing a digital movement key/button to start echoing the movement.</summary>
     [Export] public double EchoDelay = 0.3;
 
@@ -84,10 +88,10 @@ public abstract partial class VirtualMouse : Sprite2D
         {
         case NotificationWMMouseEnter: case NotificationVpMouseEnter:
             Position = MousePosition();
-            _tracking = true;
+            _lastKnownPointerPosition = null;
             break;
         case NotificationWMMouseExit: case NotificationVpMouseExit:
-            _tracking = false;
+            _lastKnownPointerPosition = GetViewport().GetMousePosition().Clamp(Vector2.Zero, GetViewportRect().Size);
             break;
         }
     }
@@ -98,19 +102,13 @@ public abstract partial class VirtualMouse : Sprite2D
 
         if (@event is InputEventMouseMotion mm)
         {
-            if (mm.Velocity.Length() > 0)
+            if (mm.Velocity.Length() > 0 && _lastKnownPointerPosition == null)
             {
                 // This is matrix math, so the order of operations matters!
                 if (InputMode != InputMode.Mouse && Position != MousePosition())
-                {
-                    CanvasItem parent = GetParent<CanvasItem>();
-                    Input.WarpMouse(parent.GetGlobalTransform()*parent.GetCanvasTransform()*Position);
-                }
-                if (_tracking)
-                {
-                    Position = MousePosition();
-                    InputMode = InputMode.Mouse;
-                }
+                    Input.WarpMouse(Parent.GetGlobalTransform()*Parent.GetCanvasTransform()*Position);
+                Position = MousePosition();
+                InputMode = InputMode.Mouse;
             }
         }
         else
@@ -171,8 +169,10 @@ public abstract partial class VirtualMouse : Sprite2D
         switch (InputMode)
         {
         case InputMode.Mouse:
-            if (_tracking && Position != MousePosition())
-                Position = MousePosition();
+            Position = _lastKnownPointerPosition switch {
+                Vector2 pos => Clamp((Parent.GetGlobalTransform()*Parent.GetCanvasTransform()).AffineInverse()*pos),
+                null => MousePosition()
+            };
             break;
         case InputMode.Digital:
             if (_echoing)
