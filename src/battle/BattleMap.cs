@@ -9,6 +9,9 @@ namespace battle;
 [Tool]
 public partial class BattleMap : TileMap
 {
+    private Camera2D _camera;
+    private Camera2D Camera => _camera ??= GetNode<Camera2D>("Pointer/Camera");
+
     /// <summary>Grid dimensions. Both elements should be positive.</summary>
     [Export] public Vector2I Size { get; private set; } = Vector2I.Zero;
 
@@ -39,7 +42,7 @@ public partial class BattleMap : TileMap
     /// <param name="mode">Cursor input mode being switched to.</param>
     public void OnInputModeChanged(InputMode mode)
     {
-        GetNode<Camera2D>("VirtualMouse/Camera").PositionSmoothingEnabled = mode == InputMode.Mouse;
+        Camera.PositionSmoothingEnabled = mode == InputMode.Mouse;
     }
 
     public override string[] _GetConfigurationWarnings()
@@ -64,9 +67,8 @@ public partial class BattleMap : TileMap
         base._Ready();
         if (!Engine.IsEditorHint())
         {
-            Camera2D camera = GetNode<Camera2D>("VirtualMouse/Camera");
-            (camera.LimitTop, camera.LimitLeft) = Vector2I.Zero;
-            (camera.LimitRight, camera.LimitBottom) = Size*CellSize;
+            (Camera.LimitTop, Camera.LimitLeft) = Vector2I.Zero;
+            (Camera.LimitRight, Camera.LimitBottom) = Size*CellSize;
         }
     }
 }

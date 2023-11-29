@@ -5,6 +5,7 @@ using Godot.NativeInterop;
 namespace ui;
 
 /// <summary>Virtual cursor that can be moved via mouse movement, digitally, or via analog.</summary>
+[GlobalClass]
 public partial class VirtualMouse : Sprite2D
 {
     /// <summary>Signals that the cursor has moved.</summary>
