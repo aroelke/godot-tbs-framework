@@ -23,7 +23,7 @@ public partial class VirtualMouse : Sprite2D
     [Signal] public delegate void ModeChangedEventHandler(Mode mode);
 
     private BattleMap _map = null;
-    private Timer _echo = null;
+    private Timer _echoTimer = null;
     private bool _echoing = false;
     private Mode _mode = Mode.Mouse;
     private bool _tracking = false;
@@ -31,9 +31,14 @@ public partial class VirtualMouse : Sprite2D
     private Vector2I _direction = Vector2I.Zero;
 
     private BattleMap Map => _map ??= GetParent<BattleMap>();
-    private Timer EchoTimer => _echo ??= GetNode<Timer>("EchoTimer");
+    private Timer EchoTimer => _echoTimer ??= GetNode<Timer>("EchoTimer");
 
+    private Vector2 MousePosition() => GetParent<CanvasItem>()?.GetLocalMousePosition() ?? GetGlobalMousePosition();
+
+    /// <summary>Initial delay after pressing a digital movement key/button to start echoing the movement.</summary>
     [Export] public double EchoDelay = 0.3;
+
+    /// <summary>Delay between movement echoes while holding a digital movement key/button down.</summary>
     [Export] public double EchoInterval = 0.03;
 
     /// <summary>Current mode used for moving the virtual mouse.</summary>
@@ -50,7 +55,25 @@ public partial class VirtualMouse : Sprite2D
         }
     }
 
-    private Vector2 MousePosition() => GetParent<CanvasItem>()?.GetLocalMousePosition() ?? GetGlobalMousePosition();
+    /// <summary>Move the cursor to a new cell on the map.</summary>
+    /// <param name="cell">Cell to jump to.</param>
+    public void Jump(Vector2I cell)
+    {
+        Position = Map.PositionOf(Map.Clamp(cell)) + Map.CellSize/2;
+    }
+
+    /// <summary>Start/continue echo movement of the cursor.</summary>
+    public void OnEchoTimeout()
+    {
+        Jump(Map.CellOf(Position) + _direction);
+        if (EchoInterval > GetProcessDeltaTime())
+        {
+            EchoTimer.WaitTime = EchoInterval;
+            EchoTimer.Start();
+        }
+        else
+            _echoing = true;
+    }
 
     public override void _Notification(int what)
     {
@@ -65,23 +88,6 @@ public partial class VirtualMouse : Sprite2D
                 _tracking = false;
                 break;
         }
-    }
-
-    public void Jump(Vector2I cell)
-    {
-        Position = Map.PositionOf(Map.Clamp(cell)) + Map.CellSize/2;
-    }
-
-    public void OnEchoTimeout()
-    {
-        Jump(Map.CellOf(Position) + _direction);
-        if (EchoInterval > GetProcessDeltaTime())
-        {
-            EchoTimer.WaitTime = EchoInterval;
-            EchoTimer.Start();
-        }
-        else
-            _echoing = true;
     }
 
     public override void _Input(InputEvent @event)
