@@ -23,12 +23,17 @@ public partial class VirtualMouse : Sprite2D
     private bool _tracking = false;
     private Vector2 _previous = Vector2.Zero;
     private Vector2I _direction = Vector2I.Zero;
+    private bool _accelerate = false;
 
     private BattleMap Map => _map ??= GetParent<BattleMap>();
     private Timer EchoTimer => _echoTimer ??= GetNode<Timer>("EchoTimer");
 
     private Vector2 MousePosition() => GetParent<CanvasItem>()?.GetLocalMousePosition() ?? GetGlobalMousePosition();
 
+    /// <summary>Speed in pixels/second the cursor moves when in analog mode.</summary>
+    [Export] public double CursorSpeed = 400;
+    /// <summary>Multiplier applied to the cursor speed when the accelerate button is held down in analog mode.</summary>
+    [Export] public double Acceleration = 3;
     /// <summary>Initial delay after pressing a digital movement key/button to start echoing the movement.</summary>
     [Export] public double EchoDelay = 0.3;
 
@@ -74,13 +79,13 @@ public partial class VirtualMouse : Sprite2D
         base._Notification(what);
         switch ((long)what)
         {
-            case NotificationWMMouseEnter: case NotificationVpMouseEnter:
-                Position = MousePosition();
-                _tracking = true;
-                break;
-            case NotificationWMMouseExit: case NotificationVpMouseExit:
-                _tracking = false;
-                break;
+        case NotificationWMMouseEnter: case NotificationVpMouseEnter:
+            Position = MousePosition();
+            _tracking = true;
+            break;
+        case NotificationWMMouseExit: case NotificationVpMouseExit:
+            _tracking = false;
+            break;
         }
     }
 
@@ -115,9 +120,13 @@ public partial class VirtualMouse : Sprite2D
                 ));
                 InputMode = InputMode.Digital;
             }
+            else if (Input.GetVector("cursor_analog_left", "cursor_analog_right", "cursor_analog_up", "cursor_analog_down") != Vector2.Zero)
+            {
+                InputMode = InputMode.Analog;
+            }
             else
             {
-                Vector2I dir = (Vector2I)Input.GetVector("cursor_left", "cursor_right", "cursor_up", "cursor_down").Round();
+                Vector2I dir = (Vector2I)Input.GetVector("cursor_digital_left", "cursor_digital_right", "cursor_digital_up", "cursor_digital_down").Round();
                 if (dir != _direction)
                 {
                     EchoTimer.Stop();
@@ -139,6 +148,9 @@ public partial class VirtualMouse : Sprite2D
                         _direction = Vector2I.Zero;
                 }
             }
+
+            if (InputMode == InputMode.Analog)
+                _accelerate = Input.IsActionPressed("cursor_analog_accelerate");
         }
     }
 
@@ -154,15 +166,19 @@ public partial class VirtualMouse : Sprite2D
 
         switch (InputMode)
         {
-          case InputMode.Mouse:
+        case InputMode.Mouse:
             if (_tracking && Position != MousePosition())
                 Position = MousePosition();
             break;
-          case InputMode.Digital:
+        case InputMode.Digital:
             if (_echoing)
                 Jump(Map.CellOf(Position) + _direction);
             break;
-          default:
+        case InputMode.Analog:
+            double speed = _accelerate ? (CursorSpeed*Acceleration) : CursorSpeed;
+            Position = Map.Clamp(Position + Input.GetVector("cursor_analog_left", "cursor_analog_right", "cursor_analog_up", "cursor_analog_down")*(float)(speed*delta));
+            break;
+        default:
             break;
         }
 

@@ -17,6 +17,8 @@ public partial class BattleMap : TileMap
     /// <returns>The cell index clamped to be inside the grid bounds using <c>Vector2I.Clamp</c></returns>
     public Vector2I Clamp(Vector2I position) => position.Clamp(Vector2I.Zero, Size - Vector2I.One);
 
+    public Vector2 Clamp(Vector2 position) => position.Clamp(Vector2.Zero, Size*CellSize - Vector2.One);
+
     /// <summary>Find the position in pixels of a cell offset.</summary>
     /// <param name="offset">Cell offset to use for calculation (can be outside grid bounds).</param>
     /// <returns>The position, in pixels of the upper-left corner of the grid cell.</returns>
