@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using ui;
 
 namespace battle;
 
@@ -28,6 +29,13 @@ public partial class BattleMap : TileMap
     /// <param name="pixels">Position in pixels.</param>
     /// <returns>The coordinates of the cell containing the pixel point (can be outside grid bounds).</returns>
     public Vector2I CellOf(Vector2 point) => (Vector2I)(point/CellSize);
+
+    /// <summary>Only enable smooth scrolling when the mouse is used for control.</summary>
+    /// <param name="mode">Cursor input mode being switched to.</param>
+    public void OnInputModeChanged(InputMode mode)
+    {
+        GetNode<Camera2D>("VirtualMouse/Camera").PositionSmoothingEnabled = mode == InputMode.Mouse;
+    }
 
     public override string[] _GetConfigurationWarnings()
     {
