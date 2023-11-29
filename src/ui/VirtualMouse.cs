@@ -7,8 +7,6 @@ namespace ui;
 /// <summary>Virtual cursor that can be moved via mouse movement, digitally, or via analog.</summary>
 public partial class VirtualMouse : Sprite2D
 {
-    private static Vector2I MoveTarget() => (Vector2I)Input.GetVector("cursor_left", "cursor_right", "cursor_up", "cursor_down").Round();
-
     /// <summary>
     /// Method used for moving the virtual mouse cursor: the real mouse, using digital input (e.g. keyboard keys, controller dpad), or
     /// using analog inputs (e.g. controller analog sticks).
@@ -26,11 +24,11 @@ public partial class VirtualMouse : Sprite2D
 
     private BattleMap _map = null;
     private Timer _echo = null;
+    private bool _echoing = false;
     private Mode _mode = Mode.Mouse;
     private bool _tracking = false;
     private Vector2 _previous = Vector2.Zero;
-    private Vector2I _mask = Vector2I.Zero;
-    private bool _echoing = false;
+    private Vector2I _direction = Vector2I.Zero;
 
     private BattleMap Map => _map ??= GetParent<BattleMap>();
     private Timer EchoTimer => _echo ??= GetNode<Timer>("EchoTimer");
@@ -76,7 +74,7 @@ public partial class VirtualMouse : Sprite2D
 
     public void OnEchoTimeout()
     {
-        Jump(Map.CellOf(Position) + MoveTarget());
+        Jump(Map.CellOf(Position) + _direction);
         if (EchoInterval > GetProcessDeltaTime())
         {
             EchoTimer.WaitTime = EchoInterval;
@@ -90,15 +88,18 @@ public partial class VirtualMouse : Sprite2D
     {
         base._Input(@event);
 
-        if (@event is InputEventMouseMotion mm && mm.Velocity.Length() > 0)
+        if (@event is InputEventMouseMotion mm)
         {
-            // This is matrix math, so the order of operations matters!
-            if (MoveMode != Mode.Mouse && Position != MousePosition())
-                Input.WarpMouse(Map.GetGlobalTransform()*Map.GetCanvasTransform()*Position);
-            if (_tracking)
+            if (mm.Velocity.Length() > 0)
             {
-                Position = MousePosition();
-                MoveMode = Mode.Mouse;
+                // This is matrix math, so the order of operations matters!
+                if (MoveMode != Mode.Mouse && Position != MousePosition())
+                    Input.WarpMouse(Map.GetGlobalTransform()*Map.GetCanvasTransform()*Position);
+                if (_tracking)
+                {
+                    Position = MousePosition();
+                    MoveMode = Mode.Mouse;
+                }
             }
         }
         else
@@ -116,27 +117,26 @@ public partial class VirtualMouse : Sprite2D
             }
             else
             {
-                Vector2I move = MoveTarget();
-                if (!@event.IsEcho())
+                Vector2I dir = (Vector2I)Input.GetVector("cursor_left", "cursor_right", "cursor_up", "cursor_down").Round();
+                if (dir != _direction)
                 {
-                    if (move != _mask)
-                        move = new Vector2I(_mask.X == 0 ? move.X : 0, _mask.Y == 0 ? move.Y : 0);
-                    if (@event.IsPressed())
+                    EchoTimer.Stop();
+                    _echoing = false;
+
+                    if (dir != Vector2I.Zero)
                     {
-                        _mask = new(_mask.X | move.Abs().X, _mask.Y | move.Abs().Y);
+                        if (dir.Abs().X + dir.Abs().Y > _direction.Abs().X + _direction.Abs().Y)
+                            Jump(current + (dir - _direction));
+                        else
+                            Jump(current + dir);
+                        _direction = dir;
+                        MoveMode = Mode.Digital;
+
                         EchoTimer.WaitTime = EchoDelay;
                         EchoTimer.Start();
                     }
-                    else if (@event.IsReleased())
-                    {
-                        _mask = new(_mask.X & move.Abs().X, _mask.Y & move.Abs().Y);
-                        EchoTimer.Stop();
-                        _echoing = false;
-                    }
                     else
-                        _mask = Vector2I.Zero;
-                    Jump(move + current);
-                    MoveMode = Mode.Digital;
+                        _direction = Vector2I.Zero;
                 }
             }
         }
@@ -160,7 +160,7 @@ public partial class VirtualMouse : Sprite2D
             break;
           case Mode.Digital:
             if (_echoing)
-                Jump(Map.CellOf(Position) + MoveTarget());
+                Jump(Map.CellOf(Position) + _direction);
             break;
           default:
             break;
