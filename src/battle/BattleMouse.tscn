@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://dksjatjeua7re"]
+
+[ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://assets/ui/mouse.png" id="1_qcgtn"]
+[ext_resource type="Script" path="res://src/battle/BattleMouse.cs" id="2_qhwhm"]
+
+[node name="BattleMouse" type="Sprite2D"]
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("1_qcgtn")
+offset = Vector2(24, 24)
+script = ExtResource("2_qhwhm")
