@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://nqtncwui0dii"]
+[gd_scene load_steps=35 format=3 uid="uid://nqtncwui0dii"]
 
 [ext_resource type="Texture2D" uid="uid://b4ptnu3mt3rjh" path="res://assets/battle/map/pipo-map001.png" id="1_6n6tf"]
 [ext_resource type="Script" path="res://src/battle/BattleMap.cs" id="2_xrcdx"]
@@ -6,6 +6,13 @@
 [ext_resource type="Texture2D" uid="uid://dhxxyboxchr67" path="res://assets/battle/ui/cursor.png" id="4_5beqv"]
 [ext_resource type="Script" path="res://src/battle/Cursor.cs" id="5_nelru"]
 [ext_resource type="PackedScene" uid="uid://dksjatjeua7re" path="res://src/battle/BattleMouse.tscn" id="6_l87kl"]
+[ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://assets/ui/HUD.tres" id="7_0oqlv"]
+[ext_resource type="Script" path="res://src/battle/UserInterface.cs" id="7_wm36a"]
+[ext_resource type="Texture2D" uid="uid://dta424ill3x4v" path="res://assets/ui/icons/controls/keyboard/wasd.png" id="8_ck2wj"]
+[ext_resource type="Texture2D" uid="uid://xnouovy7cud3" path="res://assets/ui/icons/controls/mouse/mouse.png" id="8_dnsx7"]
+[ext_resource type="Texture2D" uid="uid://dhje1olgsfhge" path="res://assets/ui/icons/controls/keyboard/arrows.png" id="9_44b33"]
+[ext_resource type="Texture2D" uid="uid://dwrg3c6m2yegj" path="res://assets/ui/icons/controls/playstation/dpad.png" id="11_lnhys"]
+[ext_resource type="Texture2D" uid="uid://cgyr5p8sm8ypi" path="res://assets/ui/icons/controls/playstation/left_stick.png" id="13_witgm"]
 
 [sub_resource type="TileMapPattern" id="TileMapPattern_e78rg"]
 tile_data = PackedInt32Array(0, 0, 2, 65536, 0, 3)
@@ -238,6 +245,118 @@ drag_top_margin = 0.5
 drag_right_margin = 0.5
 drag_bottom_margin = 0.5
 editor_draw_drag_margin = true
+
+[node name="UserInterface" type="CanvasLayer" parent="."]
+script = ExtResource("7_wm36a")
+
+[node name="HUD" type="Control" parent="UserInterface"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Mouse" type="Control" parent="UserInterface/HUD"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("7_0oqlv")
+
+[node name="Container" type="HBoxContainer" parent="UserInterface/HUD/Mouse"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -28.0
+offset_right = 15.0
+grow_vertical = 0
+
+[node name="Mouse" type="TextureRect" parent="UserInterface/HUD/Mouse/Container"]
+layout_mode = 2
+texture = ExtResource("8_dnsx7")
+
+[node name="Label" type="Label" parent="UserInterface/HUD/Mouse/Container"]
+layout_mode = 2
+text = ": Move Cursor"
+
+[node name="Keyboard" type="Control" parent="UserInterface/HUD"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("7_0oqlv")
+
+[node name="Container" type="HBoxContainer" parent="UserInterface/HUD/Keyboard"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -32.0
+offset_right = 222.0
+grow_vertical = 0
+
+[node name="WASD" type="TextureRect" parent="UserInterface/HUD/Keyboard/Container"]
+layout_mode = 2
+texture = ExtResource("8_ck2wj")
+stretch_mode = 3
+
+[node name="Or" type="Label" parent="UserInterface/HUD/Keyboard/Container"]
+layout_mode = 2
+text = "/"
+
+[node name="Arrows" type="TextureRect" parent="UserInterface/HUD/Keyboard/Container"]
+layout_mode = 2
+texture = ExtResource("9_44b33")
+stretch_mode = 3
+
+[node name="Move" type="Label" parent="UserInterface/HUD/Keyboard/Container"]
+layout_mode = 2
+text = ": Move Cursor"
+
+[node name="Playstation" type="Control" parent="UserInterface/HUD"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("7_0oqlv")
+
+[node name="Container" type="HBoxContainer" parent="UserInterface/HUD/Playstation"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -28.0
+offset_right = 139.0
+grow_vertical = 0
+
+[node name="DirectionalPad" type="TextureRect" parent="UserInterface/HUD/Playstation/Container"]
+layout_mode = 2
+texture = ExtResource("11_lnhys")
+stretch_mode = 3
+
+[node name="Or" type="Label" parent="UserInterface/HUD/Playstation/Container"]
+layout_mode = 2
+text = "/"
+
+[node name="TextureRect" type="TextureRect" parent="UserInterface/HUD/Playstation/Container"]
+layout_mode = 2
+texture = ExtResource("13_witgm")
+stretch_mode = 3
+
+[node name="Move" type="Label" parent="UserInterface/HUD/Playstation/Container"]
+layout_mode = 2
+text = ": Move Cursor"
 
 [connection signal="InputModeChanged" from="Pointer" to="." method="OnInputModeChanged"]
 [connection signal="Moved" from="Pointer" to="Cursor" method="OnMouseMoved"]

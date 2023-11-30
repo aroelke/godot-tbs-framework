@@ -7,6 +7,8 @@ namespace ui;
 /// <summary>Virtual cursor that can be moved via mouse movement, digitally, or via analog.</summary>
 public abstract partial class VirtualMouse : Sprite2D
 {
+    public static Vector2 GetAnalogVector() => Input.GetVector("cursor_analog_left", "cursor_analog_right", "cursor_analog_up", "cursor_analog_down");
+
     /// <summary>Signals that the cursor has moved.</summary>
     /// <param name="previous">Previous position of the cursor.</param>
     /// <param name="current">Current position of the cursor.</param>
@@ -86,11 +88,11 @@ public abstract partial class VirtualMouse : Sprite2D
         base._Notification(what);
         switch ((long)what)
         {
-        case NotificationWMMouseEnter: case NotificationVpMouseEnter:
+        case NotificationWMMouseEnter or NotificationVpMouseEnter:
             Position = MousePosition();
             _lastKnownPointerPosition = null;
             break;
-        case NotificationWMMouseExit: case NotificationVpMouseExit:
+        case NotificationWMMouseExit or NotificationVpMouseExit:
             _lastKnownPointerPosition = GetViewport().GetMousePosition().Clamp(Vector2.Zero, GetViewportRect().Size);
             break;
         }
@@ -119,7 +121,7 @@ public abstract partial class VirtualMouse : Sprite2D
                 Skip(skip);
                 InputMode = InputMode.Digital;
             }
-            else if (Input.GetVector("cursor_analog_left", "cursor_analog_right", "cursor_analog_up", "cursor_analog_down") != Vector2.Zero)
+            else if (GetAnalogVector() != Vector2.Zero)
             {
                 InputMode = InputMode.Analog;
             }
