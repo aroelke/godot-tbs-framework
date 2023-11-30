@@ -7,6 +7,7 @@ namespace ui;
 /// <summary>Virtual cursor that can be moved via mouse movement, digitally, or via analog.</summary>
 public abstract partial class VirtualMouse : Sprite2D
 {
+    /// <returns>A vector representing the movement of the left control stick of the game pad.</returns>
     public static Vector2 GetAnalogVector() => Input.GetVector("cursor_analog_left", "cursor_analog_right", "cursor_analog_up", "cursor_analog_down");
 
     /// <summary>Signals that the cursor has moved.</summary>
