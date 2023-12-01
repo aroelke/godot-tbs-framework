@@ -10,6 +10,8 @@ namespace battle;
 public partial class BattleMap : TileMap
 {
     private Camera2D _camera;
+    private readonly Dictionary<Vector2I, Unit> _units = new();
+
     private Camera2D Camera => _camera ??= GetNode<Camera2D>("Pointer/Camera");
 
     /// <summary>Grid dimensions. Both elements should be positive.</summary>
@@ -45,6 +47,14 @@ public partial class BattleMap : TileMap
         Camera.PositionSmoothingEnabled = mode == InputMode.Mouse;
     }
 
+    /// <summary>Act on the selected cell.</summary>
+    /// <param name="cell">Cell to select.</param>
+    public void OnCellCelected(Vector2I cell)
+    {
+        if (_units.ContainsKey(cell))
+            _units[cell].IsSelected = !_units[cell].IsSelected;
+    }
+
     public override string[] _GetConfigurationWarnings()
     {
         List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
@@ -69,6 +79,11 @@ public partial class BattleMap : TileMap
         {
             (Camera.LimitTop, Camera.LimitLeft) = Vector2I.Zero;
             (Camera.LimitRight, Camera.LimitBottom) = Size*CellSize;
+
+            _units.Clear();
+            foreach (Node child in GetChildren())
+                if (child is Unit unit)
+                    _units[unit.Cell] = unit;
         }
     }
 }

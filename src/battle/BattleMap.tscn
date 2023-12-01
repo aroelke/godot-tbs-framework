@@ -203,19 +203,20 @@ pattern_18 = SubResource("TileMapPattern_v5qja")
 tile_set = SubResource("TileSet_a5ma3")
 format = 2
 layer_0/name = "ground"
+layer_0/z_index = -2
 layer_1/name = "terrain"
 layer_1/enabled = true
 layer_1/modulate = Color(1, 1, 1, 1)
 layer_1/y_sort_enabled = false
 layer_1/y_sort_origin = 0
-layer_1/z_index = 1
+layer_1/z_index = -1
 layer_1/tile_data = PackedInt32Array()
 layer_2/name = "walls"
 layer_2/enabled = true
 layer_2/modulate = Color(1, 1, 1, 1)
 layer_2/y_sort_enabled = false
 layer_2/y_sort_origin = 0
-layer_2/z_index = 1
+layer_2/z_index = -1
 layer_2/tile_data = PackedInt32Array()
 script = ExtResource("2_xrcdx")
 
@@ -230,6 +231,8 @@ offset = Vector2(16, 16)
 script = ExtResource("5_nelru")
 
 [node name="Pointer" parent="." instance=ExtResource("6_l87kl")]
+top_level = true
+z_index = 10
 
 [node name="Camera" type="Camera2D" parent="Pointer"]
 scale = Vector2(4, 4)
@@ -358,5 +361,7 @@ stretch_mode = 3
 layout_mode = 2
 text = ": Move Cursor"
 
+[connection signal="CellSelected" from="Cursor" to="." method="OnCellCelected"]
+[connection signal="Clicked" from="Pointer" to="Cursor" method="OnMouseClicked"]
 [connection signal="InputModeChanged" from="Pointer" to="." method="OnInputModeChanged"]
 [connection signal="Moved" from="Pointer" to="Cursor" method="OnMouseMoved"]
