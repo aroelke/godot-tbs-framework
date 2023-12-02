@@ -66,7 +66,7 @@ public abstract partial class VirtualMouse : Sprite2D
             InputMode old = _mode;
             _mode = value;
             if (old != _mode)
-                EmitSignal(SignalName.InputModeChanged, Variant.CreateTakingOwnershipOfDisposableValue(VariantUtils.CreateFrom(_mode)));
+                EmitSignal(SignalName.InputModeChanged, Variant.From(_mode));
             Visible = _mode != InputMode.Digital;
         }
     }
