@@ -4,57 +4,40 @@ using ui;
 
 namespace battle;
 
-public enum ControlType
-{
-    Mouse,
-    Keyboard,
-    Playstation
-}
-
-[Tool]
+/// <summary>Main user interface of the battle screen for displaying control information and menus.</summary>
 public partial class UserInterface : CanvasLayer
 {
-    private CanvasItem _mouse = null, _keyboard = null, _playstation = null;
-    private ControlType _controlType = ControlType.Mouse;
+    private Controller _controller = null;
+    private InputController _controlType = InputController.Mouse;
 
-    private Dictionary<ControlType, CanvasItem> _hints = null;
+    private Dictionary<InputController, CanvasItem> _hints = null;
 
-    private Dictionary<ControlType, CanvasItem> Hints => _hints ??= new()
+    private Controller Controller => _controller ??= GetNode<Controller>("/root/Controller");
+    private Dictionary<InputController, CanvasItem> Hints => _hints ??= new()
     {
-        { ControlType.Mouse,       GetNode<CanvasItem>("HUD/Mouse") },
-        { ControlType.Keyboard,    GetNode<CanvasItem>("HUD/Keyboard") },
-        { ControlType.Playstation, GetNode<CanvasItem>("HUD/Playstation") }
+        { InputController.Mouse,       GetNode<CanvasItem>("HUD/Mouse") },
+        { InputController.Keyboard,    GetNode<CanvasItem>("HUD/Keyboard") },
+        { InputController.Playstation, GetNode<CanvasItem>("HUD/Playstation") }
     };
 
-    /// <summary>Last type of controller used to control the game.  For displaying control information.</summary>
-    [Export] public ControlType ControlType
+    /// <summary>When the input controller changes, update the controls hints to show the right buttons.</summary>
+    /// <param name="controller">New input controller.</param>
+    public void OnControllerChanged(InputController controller)
     {
-        get => _controlType;
-        set
-        {
-            _controlType = value;
-            foreach ((ControlType type, CanvasItem controls) in Hints)
-                controls.Visible = type == _controlType;
-        }
+        foreach ((InputController option, CanvasItem hint) in Hints)
+            hint.Visible = option == controller;
     }
 
-    public override void _Input(InputEvent @event)
+    public override void _Ready()
     {
-        base._Input(@event);
-        switch (@event)
-        {
-        case InputEventMouse:
-            ControlType = ControlType.Mouse;
-            break;
-        case InputEventKey:
-            ControlType = ControlType.Keyboard;
-            break;
-        case InputEventJoypadButton:
-            ControlType = ControlType.Playstation;
-            break;
-        case InputEventJoypadMotion when VirtualMouse.GetAnalogVector() != Vector2.Zero:
-            ControlType = ControlType.Playstation;
-            break;
-        }
+        base._Ready();
+        Controller.ControllerChanged += OnControllerChanged;
+        OnControllerChanged(Controller.InputController);
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+        Controller.ControllerChanged -= OnControllerChanged;
     }
 }
