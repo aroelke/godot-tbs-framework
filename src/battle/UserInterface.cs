@@ -1,15 +1,42 @@
+using System.Collections.Generic;
 using Godot;
 using ui;
 
 namespace battle;
 
+public enum ControlType
+{
+    Mouse,
+    Keyboard,
+    Playstation
+}
+
+[Tool]
 public partial class UserInterface : CanvasLayer
 {
     private CanvasItem _mouse = null, _keyboard = null, _playstation = null;
+    private ControlType _controlType = ControlType.Mouse;
 
-    private CanvasItem MouseControls => _mouse ??= GetNode<CanvasItem>("HUD/Mouse");
-    private CanvasItem KeyboardControls => _keyboard ??= GetNode<CanvasItem>("HUD/Keyboard");
-    private CanvasItem PlaystationControls => _playstation ??= GetNode<CanvasItem>("HUD/Playstation");
+    private Dictionary<ControlType, CanvasItem> _hints = null;
+
+    private Dictionary<ControlType, CanvasItem> Hints => _hints ??= new()
+    {
+        { ControlType.Mouse,       GetNode<CanvasItem>("HUD/Mouse") },
+        { ControlType.Keyboard,    GetNode<CanvasItem>("HUD/Keyboard") },
+        { ControlType.Playstation, GetNode<CanvasItem>("HUD/Playstation") }
+    };
+
+    /// <summary>Last type of controller used to control the game.  For displaying control information.</summary>
+    [Export] public ControlType ControlType
+    {
+        get => _controlType;
+        set
+        {
+            _controlType = value;
+            foreach ((ControlType type, CanvasItem controls) in Hints)
+                controls.Visible = type == _controlType;
+        }
+    }
 
     public override void _Input(InputEvent @event)
     {
@@ -17,24 +44,16 @@ public partial class UserInterface : CanvasLayer
         switch (@event)
         {
         case InputEventMouse:
-            MouseControls.Visible = true;
-            KeyboardControls.Visible = false;
-            PlaystationControls.Visible = false;
+            ControlType = ControlType.Mouse;
             break;
         case InputEventKey:
-            MouseControls.Visible = false;
-            KeyboardControls.Visible = true;
-            PlaystationControls.Visible = false;
+            ControlType = ControlType.Keyboard;
             break;
         case InputEventJoypadButton:
-            MouseControls.Visible = false;
-            KeyboardControls.Visible = false;
-            PlaystationControls.Visible = true;
+            ControlType = ControlType.Playstation;
             break;
         case InputEventJoypadMotion when VirtualMouse.GetAnalogVector() != Vector2.Zero:
-            MouseControls.Visible = false;
-            KeyboardControls.Visible = false;
-            PlaystationControls.Visible = true;
+            ControlType = ControlType.Playstation;
             break;
         }
     }
