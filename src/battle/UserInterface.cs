@@ -11,12 +11,20 @@ public enum ControlType
     Playstation
 }
 
+[Tool]
 public partial class UserInterface : CanvasLayer
 {
     private CanvasItem _mouse = null, _keyboard = null, _playstation = null;
     private ControlType _controlType = ControlType.Mouse;
 
-    private Dictionary<ControlType, CanvasItem> _hints = new();
+    private Dictionary<ControlType, CanvasItem> _hints = null;
+
+    private Dictionary<ControlType, CanvasItem> Hints => _hints ??= new()
+    {
+        { ControlType.Mouse,       GetNode<CanvasItem>("HUD/Mouse") },
+        { ControlType.Keyboard,    GetNode<CanvasItem>("HUD/Keyboard") },
+        { ControlType.Playstation, GetNode<CanvasItem>("HUD/Playstation") }
+    };
 
     /// <summary>Last type of controller used to control the game.  For displaying control information.</summary>
     [Export] public ControlType ControlType
@@ -25,7 +33,7 @@ public partial class UserInterface : CanvasLayer
         set
         {
             _controlType = value;
-            foreach ((ControlType type, CanvasItem controls) in _hints)
+            foreach ((ControlType type, CanvasItem controls) in Hints)
                 controls.Visible = type == _controlType;
         }
     }
@@ -48,15 +56,5 @@ public partial class UserInterface : CanvasLayer
             ControlType = ControlType.Playstation;
             break;
         }
-    }
-
-    public override void _Ready()
-    {
-        _hints = new()
-        {
-            { ControlType.Mouse,       GetNode<CanvasItem>("HUD/Mouse") },
-            { ControlType.Keyboard,    GetNode<CanvasItem>("HUD/Keyboard") },
-            { ControlType.Playstation, GetNode<CanvasItem>("HUD/Playstation") }
-        };
     }
 }
