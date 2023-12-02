@@ -204,17 +204,9 @@ tile_set = SubResource("TileSet_a5ma3")
 format = 2
 layer_0/name = "ground"
 layer_1/name = "terrain"
-layer_1/enabled = true
-layer_1/modulate = Color(1, 1, 1, 1)
-layer_1/y_sort_enabled = false
-layer_1/y_sort_origin = 0
 layer_1/z_index = 1
 layer_1/tile_data = PackedInt32Array()
 layer_2/name = "walls"
-layer_2/enabled = true
-layer_2/modulate = Color(1, 1, 1, 1)
-layer_2/y_sort_enabled = false
-layer_2/y_sort_origin = 0
 layer_2/z_index = 1
 layer_2/tile_data = PackedInt32Array()
 script = ExtResource("2_xrcdx")
@@ -258,7 +250,6 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Mouse" type="Control" parent="UserInterface/HUD"]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
