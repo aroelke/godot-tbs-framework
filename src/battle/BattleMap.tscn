@@ -1,10 +1,12 @@
-[gd_scene load_steps=38 format=3 uid="uid://nqtncwui0dii"]
+[gd_scene load_steps=42 format=3 uid="uid://nqtncwui0dii"]
 
 [ext_resource type="Texture2D" uid="uid://b4ptnu3mt3rjh" path="res://assets/battle/map/pipo-map001.png" id="1_6n6tf"]
 [ext_resource type="Script" path="res://src/battle/BattleMap.cs" id="2_xrcdx"]
 [ext_resource type="Script" path="res://src/battle/Limits.cs" id="3_gjscv"]
+[ext_resource type="Texture2D" uid="uid://cwfbg66yc6xed" path="res://assets/battle/overlay.png" id="4_3fgc2"]
 [ext_resource type="Texture2D" uid="uid://dhxxyboxchr67" path="res://assets/battle/ui/cursor.png" id="4_5beqv"]
 [ext_resource type="Script" path="res://src/battle/Cursor.cs" id="5_nelru"]
+[ext_resource type="Script" path="res://src/battle/Overlay.cs" id="5_vflpr"]
 [ext_resource type="PackedScene" uid="uid://dksjatjeua7re" path="res://src/battle/BattleMouse.tscn" id="6_l87kl"]
 [ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://assets/ui/HUD.tres" id="7_0oqlv"]
 [ext_resource type="Script" path="res://src/battle/UserInterface.cs" id="7_wm36a"]
@@ -202,6 +204,16 @@ pattern_16 = SubResource("TileMapPattern_bttla")
 pattern_17 = SubResource("TileMapPattern_r21ka")
 pattern_18 = SubResource("TileMapPattern_v5qja")
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_2glgp"]
+texture = ExtResource("4_3fgc2")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+1:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_0t06k"]
+tile_size = Vector2i(32, 32)
+sources/0 = SubResource("TileSetAtlasSource_2glgp")
+
 [node name="BattleMap" type="TileMap"]
 tile_set = SubResource("TileSet_a5ma3")
 format = 2
@@ -219,6 +231,12 @@ script = ExtResource("2_xrcdx")
 process_mode = 4
 top_level = true
 script = ExtResource("3_gjscv")
+
+[node name="Overlay" type="TileMap" parent="."]
+modulate = Color(1, 1, 1, 0.392157)
+tile_set = SubResource("TileSet_0t06k")
+format = 2
+script = ExtResource("5_vflpr")
 
 [node name="Cursor" type="Sprite2D" parent="."]
 texture = ExtResource("4_5beqv")

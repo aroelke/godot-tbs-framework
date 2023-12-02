@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ui;
 
 namespace battle;
@@ -9,10 +10,15 @@ namespace battle;
 [Tool]
 public partial class BattleMap : TileMap
 {
+    private static Vector2I[] Directions = { Vector2I.Up, Vector2I.Right, Vector2I.Down, Vector2I.Left };
+
     private Camera2D _camera;
     private readonly Dictionary<Vector2I, Unit> _units = new();
+    private Unit _selected;
+    private Overlay _overlay = null;
 
     private Camera2D Camera => _camera ??= GetNode<Camera2D>("Pointer/Camera");
+    private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
 
     /// <summary>Grid dimensions. Both elements should be positive.</summary>
     [Export] public Vector2I Size { get; private set; } = Vector2I.Zero;
@@ -20,10 +26,17 @@ public partial class BattleMap : TileMap
     /// <summary>Grid cell dimensions derived from the tile set.  If there is no tileset, the size is zero.</summary>
     public Vector2I CellSize => TileSet?.TileSize ?? Vector2I.Zero;
 
-    /// <summary>Find the cell index closest to the given one inside the grid.</summary>
-    /// <param name="position">Cell index to clamp.
-    /// <returns>The cell index clamped to be inside the grid bounds using <c>Vector2I.Clamp</c></returns>
-    public Vector2I Clamp(Vector2I position) => position.Clamp(Vector2I.Zero, Size - Vector2I.One);
+    /// <summary>
+    /// Check if a cell offset is in the grid.
+    /// </summary>
+    /// <param name="offset">offset to check.</param>
+    /// <returns><c>true</c> if the offset is within the grid bounds, and <c>false</c> otherwise.</returns>
+    public bool Contains(Vector2I offset) => offset.X >= 0 && offset.X < Size.X && offset.Y >= 0 && offset.Y < Size.Y;
+
+    /// <summary>Find the cell offset closest to the given one inside the grid.</summary>
+    /// <param name="cell">Cell offset to clamp.
+    /// <returns>The cell offset clamped to be inside the grid bounds using <c>Vector2I.Clamp</c></returns>
+    public Vector2I Clamp(Vector2I cell) => cell.Clamp(Vector2I.Zero, Size - Vector2I.One);
 
     /// <summary>Constrain a position to somewhere within the grid (not necessarily snapped to a cell).</summary>
     /// <param name="position">Position to clamp.</param>
@@ -40,6 +53,34 @@ public partial class BattleMap : TileMap
     /// <returns>The coordinates of the cell containing the pixel point (can be outside grid bounds).</returns>
     public Vector2I CellOf(Vector2 point) => (Vector2I)(point/CellSize);
 
+    /// <summary>Get all grid cells that a unit can walk on or pass through.</summary>
+    /// <param name="unit">Unit compute traversable cells for.</param>
+    /// <returns>The list of cells, in any order, that the unit can traverse.</returns>
+    public Vector2I[] GetTraversableCells(Unit unit)
+    {
+        Dictionary<Vector2I, int> cells = new() {{ unit.Cell, 0 }};
+        Queue<Vector2I> potential = new();
+
+        potential.Enqueue(unit.Cell);
+        while (potential.Count > 0)
+        {
+            Vector2I current = potential.Dequeue();
+
+            foreach (Vector2I direction in Directions)
+            {
+                Vector2I neighbor = current + direction;
+                int cost = cells[current] + 1;
+                if (Contains(neighbor) && !cells.ContainsKey(neighbor) && cost <= unit.MoveRange)
+                {
+                    cells[neighbor] = cost;
+                    potential.Enqueue(neighbor);
+                }
+            }
+        }
+
+        return cells.Keys.ToArray();
+    }
+
     /// <summary>Only enable smooth scrolling when the mouse is used for control.</summary>
     /// <param name="mode">Cursor input mode being switched to.</param>
     public void OnInputModeChanged(InputMode mode)
@@ -47,12 +88,23 @@ public partial class BattleMap : TileMap
         Camera.PositionSmoothingEnabled = mode == InputMode.Mouse;
     }
 
-    /// <summary>Act on the selected cell.</summary>
+    /// <summary>Act on the selected cell. If the cell contains a unit, display its traversable cells. Otherwise, cancel display if there is one.</summary>
     /// <param name="cell">Cell to select.</param>
     public void OnCellCelected(Vector2I cell)
     {
-        if (_units.ContainsKey(cell))
-            _units[cell].IsSelected = !_units[cell].IsSelected;
+        if (_selected != null)
+        {
+            _selected.IsSelected = false;
+            Overlay.Clear();
+        }
+        if (_units.ContainsKey(cell) && _units[cell] != _selected)
+        {
+            _selected = _units[cell];
+            _selected.IsSelected = true;
+            Overlay.DrawOverlay(GetTraversableCells(_selected));
+        }
+        else
+            _selected = null;
     }
 
     public override string[] _GetConfigurationWarnings()

@@ -10,5 +10,8 @@ layer_0/tile_data = PackedInt32Array(0, 0, 0, 65536, 0, 0, 131072, 0, 0, 196608,
 layer_1/tile_data = PackedInt32Array(786447, 0, 4, 851983, 0, 5, 786448, 65536, 4, 851984, 65536, 5)
 Size = Vector2i(30, 25)
 
-[node name="Unit" parent="BattleMap" instance=ExtResource("2_lwk8m")]
+[node name="Unit1" parent="BattleMap" instance=ExtResource("2_lwk8m")]
 position = Vector2(256, 224)
+
+[node name="Unit2" parent="BattleMap" instance=ExtResource("2_lwk8m")]
+position = Vector2(192, 320)

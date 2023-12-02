@@ -16,6 +16,9 @@ public partial class Unit : Path2D
     private BattleMap Map => _map ??= GetParent<BattleMap>();
     private AnimatedSprite2D Sprite => _sprite ??= GetNode<AnimatedSprite2D>("PathFollow/Sprite");
 
+    /// <summary>Movement range of the unit, in grid cells.</summary>
+    [Export] public int MoveRange = 5;
+
     /// <summary>Cell on the grid that this unit currently occupies.</summary>
     public Vector2I Cell
     {
