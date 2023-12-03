@@ -62,7 +62,7 @@ public partial class Overlay : TileMap
 	{
 		TraversableCells = GetTraversableCells(map, unit);
 		DrawOverlay(TraversableCells);
-		_path.Add(unit.Cell);
+		AddToPath(map, unit.Cell);
 	}
 
 	/// <summary>In addition to clearing the overlay tiles, also clear the list of traversable cells.</summary>
@@ -73,14 +73,11 @@ public partial class Overlay : TileMap
 		_path.Clear();
 	}
 
-	/// <summary>When the cursor moves while a move range is being displayed, update the drawn path.</summary>
-	/// <param name="previous">Previous cell containing the cursor.</param>
-	/// <param name="current">Current cell containing the cursor.</param>
-	public void OnCursorMoved(Vector2I previous, Vector2I current)
+	public void AddToPath(BattleMap map, Vector2I cell)
 	{
+		_path.Add(cell);
 		if (_path.Count > 0)
 		{
-			_path.Add(current);
 			ClearLayer(1);
 			if (_path.Count > 1)
 				SetCellsTerrainConnect(1, new(_path), 1, 0);

@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace battle;
 
@@ -53,7 +54,20 @@ public partial class BattleMap : TileMap
     /// <returns>The coordinates of the cell containing the pixel point (can be outside grid bounds).</returns>
     public Vector2I CellOf(Vector2 point) => (Vector2I)(point/CellSize);
 
+    /// <returns>The linear ID of the grid cell.</returns>
+    public int CellId(Vector2I cell) => cell.X*Size.X + cell.Y;
+
+    /// <returns>The terrain information for a cell, or <c>DefaultTerrain</c> if the terrain hasn't been set.</returns>
     public Terrain GetTerrain(Vector2I cell) => GetCellTileData(_terrainLayer, cell)?.GetCustomData("terrain").As<Terrain>() ?? DefaultTerrain;
+
+    /// <summary>When the cursor moves, if there's a selected unit, draw its path.</summary>
+    /// <param name="previous">Previous location of the cursor.</param>
+    /// <param name="current">Current location of the cursor.</param>
+    public void OnCursorMoved(Vector2I previous, Vector2I current)
+    {
+        if (_selected != null && Overlay.TraversableCells.Contains(current))
+            Overlay.AddToPath(this, current);
+    }
 
     /// <summary>Act on the selected cell. If the cell contains a unit, display its traversable cells. Otherwise, cancel display if there is one.</summary>
     /// <param name="cell">Cell to select.</param>
