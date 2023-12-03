@@ -5,4 +5,4 @@
 [resource]
 resource_name = "plain"
 script = ExtResource("1_ohj3d")
-cost = 1
+Cost = 1
