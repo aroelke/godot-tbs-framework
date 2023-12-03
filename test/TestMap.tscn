@@ -14,6 +14,3 @@ DefaultTerrain = ExtResource("2_hj78m")
 
 [node name="Unit1" parent="BattleMap" instance=ExtResource("2_lwk8m")]
 position = Vector2(256, 224)
-
-[node name="Unit2" parent="BattleMap" instance=ExtResource("2_lwk8m")]
-position = Vector2(192, 320)
