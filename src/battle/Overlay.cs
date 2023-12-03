@@ -8,8 +8,6 @@ namespace battle;
 /// <summary>Map overlay tile set for computing and displaying traversable and attackable cells and managing unit movement.</summary>
 public partial class Overlay : TileMap
 {
-	private static readonly Vector2I MoveCoords = new(0, 0);
-
 	/// <summary>Directions to look when finding cell neighbors.</summary>
 	public static readonly Vector2I[] Directions = { Vector2I.Up, Vector2I.Right, Vector2I.Down, Vector2I.Left };
 
