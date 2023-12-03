@@ -52,8 +52,7 @@ public partial class Overlay : TileMap
 	public void DrawOverlay(Vector2I[] cells)
 	{
 		base.Clear();
-		foreach (Vector2I cell in cells)
-			SetCell(0, cell, 0, MoveCoords);
+		SetCellsTerrainConnect(0, new(cells), 0, 0);
 	}
 
 	/// <summary>Compute and draw the cells that a unit can traverse.</summary>
