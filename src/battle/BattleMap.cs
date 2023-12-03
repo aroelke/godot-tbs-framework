@@ -1,8 +1,6 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using ui;
 
 namespace battle;
 
@@ -10,12 +8,11 @@ namespace battle;
 [Tool]
 public partial class BattleMap : TileMap
 {
-    private static Vector2I[] Directions = { Vector2I.Up, Vector2I.Right, Vector2I.Down, Vector2I.Left };
-
     private Camera2D _camera;
     private readonly Dictionary<Vector2I, Unit> _units = new();
     private Unit _selected;
     private Overlay _overlay = null;
+    private int _terrainLayer = -1;
 
     private Camera2D Camera => _camera ??= GetNode<Camera2D>("Pointer/BattleCamera");
     private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
@@ -56,53 +53,25 @@ public partial class BattleMap : TileMap
     /// <returns>The coordinates of the cell containing the pixel point (can be outside grid bounds).</returns>
     public Vector2I CellOf(Vector2 point) => (Vector2I)(point/CellSize);
 
-    /// <summary>Get all grid cells that a unit can walk on or pass through.</summary>
-    /// <param name="unit">Unit compute traversable cells for.</param>
-    /// <returns>The list of cells, in any order, that the unit can traverse.</returns>
-    public Vector2I[] GetTraversableCells(Unit unit)
-    {
-        Dictionary<Vector2I, int> cells = new() {{ unit.Cell, 0 }};
-        Queue<Vector2I> potential = new();
-
-        potential.Enqueue(unit.Cell);
-        while (potential.Count > 0)
-        {
-            Vector2I current = potential.Dequeue();
-
-            foreach (Vector2I direction in Directions)
-            {
-                Vector2I neighbor = current + direction;
-                Terrain terrain = GetCellTileData(1, neighbor)?.GetCustomData("terrain").As<Terrain>() ?? DefaultTerrain;
-
-                int cost = cells[current] + terrain.Cost;
-                if (Contains(neighbor) && (!cells.ContainsKey(neighbor) || cells[neighbor] > cost) && cost <= unit.MoveRange)
-                {
-                    cells[neighbor] = cost;
-                    potential.Enqueue(neighbor);
-                }
-            }
-        }
-
-        return cells.Keys.ToArray();
-    }
+    public Terrain GetTerrain(Vector2I cell) => GetCellTileData(_terrainLayer, cell)?.GetCustomData("terrain").As<Terrain>() ?? DefaultTerrain;
 
     /// <summary>Act on the selected cell. If the cell contains a unit, display its traversable cells. Otherwise, cancel display if there is one.</summary>
     /// <param name="cell">Cell to select.</param>
     public void OnCellCelected(Vector2I cell)
     {
         if (_selected != null)
-        {
             _selected.IsSelected = false;
-            Overlay.Clear();
-        }
         if (_units.ContainsKey(cell) && _units[cell] != _selected)
         {
             _selected = _units[cell];
             _selected.IsSelected = true;
-            Overlay.DrawOverlay(GetTraversableCells(_selected));
+            Overlay.DrawMoveRange(this, _selected);
         }
         else
+        {
             _selected = null;
+            Overlay.Clear();
+        }
     }
 
     public override string[] _GetConfigurationWarnings()
@@ -138,7 +107,15 @@ public partial class BattleMap : TileMap
             foreach (Node child in GetChildren())
                 if (child is Unit unit)
                     _units[unit.Cell] = unit;
-            
+
+            for (int i = 0; i < GetLayersCount(); i++)
+            {
+                if (GetLayerName(i) == "terrain")
+                {
+                    _terrainLayer = i;
+                    break;
+                }
+            }
             DefaultTerrain ??= ResourceLoader.Load<Terrain>("res://assets/battle/terrain/Plain.tres");
         }
     }
