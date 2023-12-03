@@ -5,6 +5,11 @@ namespace battle;
 /// <summary>The cursor on the map that allows the player to interact with it.</summary>
 public partial class Cursor : Sprite2D
 {
+    /// <summary>Signals that the cursor has moved to a new cell.</summary>
+    /// <param name="previous">Coordinates of the cell containing the cursor before it moved.</param>
+    /// <param name="current">Coordinates of the current cell containing the cursor.</param>
+    [Signal] public delegate void CursorMovedEventHandler(Vector2I previous, Vector2I current);
+
     /// <summary>Signal that the cell containing the cursor has been selected.</summary>
     /// <param name="cell">Coordinates of the cell containing the cursor.</param>
     [Signal] public delegate void CellSelectedEventHandler(Vector2I cell);
@@ -23,8 +28,10 @@ public partial class Cursor : Sprite2D
             Vector2I clamped = Map.Clamp(value);
             if (clamped != _cell)
             {
+                Vector2I previous = _cell;
                 _cell = clamped;
                 Position = Map.PositionOf(_cell);
+                EmitSignal(SignalName.CursorMoved, previous, _cell);
             }
         }
     }

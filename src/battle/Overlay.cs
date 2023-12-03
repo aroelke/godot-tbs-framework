@@ -13,6 +13,8 @@ public partial class Overlay : TileMap
 	/// <summary>Directions to look when finding cell neighbors.</summary>
 	public static readonly Vector2I[] Directions = { Vector2I.Up, Vector2I.Right, Vector2I.Down, Vector2I.Left };
 
+	private readonly List<Vector2I> _path = new();
+
 	/// <summary>Get all grid cells that a unit can walk on or pass through.</summary>
 	/// <param name="map">Map the unit is walking on.</param>
     /// <param name="unit">Unit compute traversable cells for.</param>
@@ -62,6 +64,7 @@ public partial class Overlay : TileMap
 	{
 		TraversableCells = GetTraversableCells(map, unit);
 		DrawOverlay(TraversableCells);
+		_path.Add(unit.Cell);
 	}
 
 	/// <summary>In addition to clearing the overlay tiles, also clear the list of traversable cells.</summary>
@@ -69,5 +72,20 @@ public partial class Overlay : TileMap
 	{
 		base.Clear();
 		TraversableCells = Array.Empty<Vector2I>();
+		_path.Clear();
+	}
+
+	/// <summary>When the cursor moves while a move range is being displayed, update the drawn path.</summary>
+	/// <param name="previous">Previous cell containing the cursor.</param>
+	/// <param name="current">Current cell containing the cursor.</param>
+	public void OnCursorMoved(Vector2I previous, Vector2I current)
+	{
+		if (_path.Count > 0)
+		{
+			_path.Add(current);
+			ClearLayer(1);
+			if (_path.Count > 1)
+				SetCellsTerrainConnect(1, new(_path), 1, 0);
+		}
 	}
 }
