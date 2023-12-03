@@ -23,6 +23,9 @@ public partial class BattleMap : TileMap
     /// <summary>Grid dimensions. Both elements should be positive.</summary>
     [Export] public Vector2I Size { get; private set; } = Vector2I.Zero;
 
+    /// <summary>Default terrain to use when it isn't placed explicitly on the map.</summary>
+    [Export] public Terrain DefaultTerrain;
+
     /// <summary>Grid cell dimensions derived from the tile set.  If there is no tileset, the size is zero.</summary>
     public Vector2I CellSize => TileSet?.TileSize ?? Vector2I.Zero;
 
@@ -69,8 +72,14 @@ public partial class BattleMap : TileMap
             foreach (Vector2I direction in Directions)
             {
                 Vector2I neighbor = current + direction;
-                int cost = cells[current] + 1;
-                if (Contains(neighbor) && !cells.ContainsKey(neighbor) && cost <= unit.MoveRange)
+                Terrain terrain = GetCellTileData(1, neighbor) switch
+                {
+                    TileData data => data.GetCustomData("terrain").As<Terrain>(),
+                    _ => DefaultTerrain
+                };
+
+                int cost = cells[current] + terrain.Cost;
+                if (Contains(neighbor) && (!cells.ContainsKey(neighbor) || cells[neighbor] > cost) && cost <= unit.MoveRange)
                 {
                     cells[neighbor] = cost;
                     potential.Enqueue(neighbor);
@@ -120,6 +129,10 @@ public partial class BattleMap : TileMap
             foreach (Vector2I cell in GetUsedCells(i))
                 if (cell.X < 0 || cell.X >= Size.X || cell.Y < 0 || cell.Y >= Size.Y)
                     warnings.Add($"There is a tile on layer {GetLayerName(i)} placed outside the grid bounds at {cell}");
+        
+        // A default terrain should be set
+        if (DefaultTerrain == null)
+            warnings.Add("There is no default terrain");
 
         return warnings.ToArray();
     }
@@ -136,6 +149,8 @@ public partial class BattleMap : TileMap
             foreach (Node child in GetChildren())
                 if (child is Unit unit)
                     _units[unit.Cell] = unit;
+            
+            DefaultTerrain ??= ResourceLoader.Load<Terrain>("res://assets/battle/terrain/Plain.tres");
         }
     }
 }
