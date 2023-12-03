@@ -17,7 +17,7 @@ public partial class BattleMap : TileMap
     private Unit _selected;
     private Overlay _overlay = null;
 
-    private Camera2D Camera => _camera ??= GetNode<Camera2D>("Pointer/Camera");
+    private Camera2D Camera => _camera ??= GetNode<Camera2D>("Pointer/BattleCamera");
     private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
 
     /// <summary>Grid dimensions. Both elements should be positive.</summary>
@@ -88,13 +88,6 @@ public partial class BattleMap : TileMap
         }
 
         return cells.Keys.ToArray();
-    }
-
-    /// <summary>Only enable smooth scrolling when the mouse is used for control.</summary>
-    /// <param name="mode">Cursor input mode being switched to.</param>
-    public void OnInputModeChanged(InputMode mode)
-    {
-        Camera.PositionSmoothingEnabled = mode == InputMode.Mouse;
     }
 
     /// <summary>Act on the selected cell. If the cell contains a unit, display its traversable cells. Otherwise, cancel display if there is one.</summary>

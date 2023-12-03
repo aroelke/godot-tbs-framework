@@ -1,4 +1,4 @@
-[gd_scene load_steps=45 format=3 uid="uid://nqtncwui0dii"]
+[gd_scene load_steps=46 format=3 uid="uid://nqtncwui0dii"]
 
 [ext_resource type="Texture2D" uid="uid://b4ptnu3mt3rjh" path="res://assets/battle/map/pipo-map001.png" id="1_6n6tf"]
 [ext_resource type="Resource" uid="uid://3oymelk4qh3v" path="res://assets/battle/terrain/Plain.tres" id="1_lnldi"]
@@ -18,6 +18,7 @@
 [ext_resource type="Texture2D" uid="uid://dhje1olgsfhge" path="res://assets/ui/icons/controls/keyboard/arrows.png" id="9_44b33"]
 [ext_resource type="Texture2D" uid="uid://lepqc5fe8xw4" path="res://assets/ui/icons/controls/mouse/left.png" id="10_sq8gy"]
 [ext_resource type="Texture2D" uid="uid://dwrg3c6m2yegj" path="res://assets/ui/icons/controls/playstation/dpad.png" id="11_lnhys"]
+[ext_resource type="Script" path="res://src/battle/BattleCamera.cs" id="12_e5hk8"]
 [ext_resource type="Texture2D" uid="uid://b3vori1d0m2s7" path="res://assets/ui/icons/controls/keyboard/space.png" id="12_rw376"]
 [ext_resource type="Texture2D" uid="uid://cgyr5p8sm8ypi" path="res://assets/ui/icons/controls/playstation/left_stick.png" id="13_witgm"]
 [ext_resource type="Texture2D" uid="uid://ctvir25bpi7e1" path="res://assets/ui/icons/controls/playstation/cross.png" id="14_6hb6f"]
@@ -258,7 +259,7 @@ script = ExtResource("5_nelru")
 top_level = true
 z_index = 10
 
-[node name="Camera" type="Camera2D" parent="Pointer"]
+[node name="BattleCamera" type="Camera2D" parent="Pointer"]
 scale = Vector2(4, 4)
 zoom = Vector2(2, 2)
 limit_left = 0
@@ -272,6 +273,7 @@ drag_top_margin = 0.5
 drag_right_margin = 0.5
 drag_bottom_margin = 0.5
 editor_draw_drag_margin = true
+script = ExtResource("12_e5hk8")
 
 [node name="UserInterface" type="CanvasLayer" parent="."]
 script = ExtResource("7_wm36a")
@@ -426,5 +428,5 @@ text = ": Select"
 
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellCelected"]
 [connection signal="Clicked" from="Pointer" to="Cursor" method="OnMouseClicked"]
-[connection signal="InputModeChanged" from="Pointer" to="." method="OnInputModeChanged"]
+[connection signal="InputModeChanged" from="Pointer" to="Pointer/BattleCamera" method="OnInputModeChanged"]
 [connection signal="Moved" from="Pointer" to="Cursor" method="OnMouseMoved"]
