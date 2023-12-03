@@ -72,11 +72,7 @@ public partial class BattleMap : TileMap
             foreach (Vector2I direction in Directions)
             {
                 Vector2I neighbor = current + direction;
-                Terrain terrain = GetCellTileData(1, neighbor) switch
-                {
-                    TileData data => data.GetCustomData("terrain").As<Terrain>(),
-                    _ => DefaultTerrain
-                };
+                Terrain terrain = GetCellTileData(1, neighbor)?.GetCustomData("terrain").As<Terrain>() ?? DefaultTerrain;
 
                 int cost = cells[current] + terrain.Cost;
                 if (Contains(neighbor) && (!cells.ContainsKey(neighbor) || cells[neighbor] > cost) && cost <= unit.MoveRange)
