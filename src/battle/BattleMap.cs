@@ -66,7 +66,7 @@ public partial class BattleMap : TileMap
     public void OnCursorMoved(Vector2I previous, Vector2I current)
     {
         if (_selected != null && Overlay.TraversableCells.Contains(current))
-            Overlay.AddToPath(this, current);
+            Overlay.AddToPath(this, _selected, current);
     }
 
     /// <summary>Act on the selected cell. If the cell contains a unit, display its traversable cells. Otherwise, cancel display if there is one.</summary>

@@ -12,6 +12,7 @@ public partial class Overlay : TileMap
 	public static readonly Vector2I[] Directions = { Vector2I.Up, Vector2I.Right, Vector2I.Down, Vector2I.Left };
 
 	private readonly List<Vector2I> _path = new();
+	private AStar2D _astar = new();
 
 	/// <summary>Get all grid cells that a unit can walk on or pass through.</summary>
 	/// <param name="map">Map the unit is walking on.</param>
@@ -61,8 +62,21 @@ public partial class Overlay : TileMap
 	public void DrawMoveRange(BattleMap map, Unit unit)
 	{
 		TraversableCells = GetTraversableCells(map, unit);
+		_astar.Clear();
+		foreach (Vector2I cell in TraversableCells)
+			_astar.AddPoint(map.CellId(cell), cell, map.GetTerrain(cell).Cost);
+		foreach (Vector2I cell in TraversableCells)
+		{
+			foreach (Vector2I direction in Directions)
+			{
+				Vector2I neighbor = cell + direction;
+				if (!_astar.ArePointsConnected(map.CellId(cell), map.CellId(neighbor)) && TraversableCells.Contains(neighbor))
+					_astar.ConnectPoints(map.CellId(cell), map.CellId(neighbor));
+			}
+		}
+
 		DrawOverlay(TraversableCells);
-		AddToPath(map, unit.Cell);
+		AddToPath(map, unit, unit.Cell);
 	}
 
 	/// <summary>In addition to clearing the overlay tiles, also clear the list of traversable cells.</summary>
@@ -71,11 +85,19 @@ public partial class Overlay : TileMap
 		base.Clear();
 		TraversableCells = Array.Empty<Vector2I>();
 		_path.Clear();
+		_astar.Clear();
 	}
 
-	public void AddToPath(BattleMap map, Vector2I cell)
+	public void AddToPath(BattleMap map, Unit unit, Vector2I cell)
 	{
 		_path.Add(cell);
+		if (_path.Select((c) => map.GetTerrain(c).Cost).Sum() - map.GetTerrain(_path[0]).Cost > unit.MoveRange)
+		{
+			Vector2I start = _path[0];
+			_path.Clear();
+			_path.AddRange(_astar.GetPointPath(map.CellId(start), map.CellId(cell)).Select((c) => (Vector2I)c));
+		}
+
 		if (_path.Count > 0)
 		{
 			ClearLayer(1);
