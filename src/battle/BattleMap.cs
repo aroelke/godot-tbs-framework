@@ -69,22 +69,44 @@ public partial class BattleMap : TileMap
             Overlay.AddToPath(this, _selected, current);
     }
 
-    /// <summary>Act on the selected cell. If the cell contains a unit, display its traversable cells. Otherwise, cancel display if there is one.</summary>
+    /// <summary>
+    /// Act on the selected cell: If there isn't a unit selected, select one. If there is and the selected cell is one it can move to,
+    /// move it to that cell.  Afterwards or otherwise, deselect the unit.
+    /// </summary>
     /// <param name="cell">Cell to select.</param>
-    public void OnCellCelected(Vector2I cell)
+    public async void OnCellCelected(Vector2I cell)
     {
         if (_selected != null)
-            _selected.IsSelected = false;
-        if (_units.ContainsKey(cell) && _units[cell] != _selected)
         {
-            _selected = _units[cell];
-            _selected.IsSelected = true;
-            Overlay.DrawMoveRange(this, _selected);
+            if (cell != _selected.Cell && Overlay.TraversableCells.Contains(cell))
+            {
+                _units.Remove(_selected.Cell);
+                _selected.MoveAlong(Overlay.Path);
+                _units[_selected.Cell] = _selected;
+                Overlay.Clear();
+                await ToSignal(_selected, Unit.SignalName.DoneMoving);
+                _selected.IsSelected = false;
+                _selected = null;
+            }
+            else
+            {
+                _selected = null;
+                Overlay.Clear();
+            }
         }
         else
         {
-            _selected = null;
-            Overlay.Clear();
+            if (_units.ContainsKey(cell) && _units[cell] != _selected)
+            {
+                _selected = _units[cell];
+                _selected.IsSelected = true;
+                Overlay.DrawMoveRange(this, _selected);
+            }
+            else
+            {
+                _selected = null;
+                Overlay.Clear();
+            }
         }
     }
 

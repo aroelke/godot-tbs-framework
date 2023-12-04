@@ -1,3 +1,4 @@
+using System.Linq;
 using Godot;
 
 namespace battle;
@@ -8,16 +9,25 @@ namespace battle;
 /// </summary>
 public partial class Unit : Path2D
 {
+    /// <summary>Signal that the unit is done moving along its path.</summary>
+    [Signal] public delegate void DoneMovingEventHandler();
+
     private BattleMap _map = null;
     private Vector2I _cell = Vector2I.Zero;
     private AnimatedSprite2D _sprite = null;
     private bool _selected = false;
+    private PathFollow2D _follow = null;
+    private bool _moving = false;
 
     private BattleMap Map => _map ??= GetParent<BattleMap>();
     private AnimatedSprite2D Sprite => _sprite ??= GetNode<AnimatedSprite2D>("PathFollow/Sprite");
+    private PathFollow2D PathFollow => _follow ??= GetNode<PathFollow2D>("PathFollow");
 
     /// <summary>Movement range of the unit, in grid cells.</summary>
     [Export] public int MoveRange = 5;
+
+    /// <summary>Speed, in world pixels/second, to move along the path while moving.</summary>
+    [Export] public double MoveSpeed = 480;
 
     /// <summary>Cell on the grid that this unit currently occupies.</summary>
     public Vector2I Cell
@@ -40,6 +50,26 @@ public partial class Unit : Path2D
         }
     }
 
+    /// <summary>Whether or not the unit is currently moving along the path.</summary>
+    public bool IsMoving
+    {
+        get => _moving;
+        set => SetProcess(_moving = value);
+    }
+
+    /// <summary>Move the unit along a path of map cells.  Cells should be contiguous.</summary>
+    /// <param name="path">Coordinates of the cells to move along.</param>
+    public void MoveAlong(Vector2I[] path)
+    {
+        if (path.Length > 0)
+        {
+            foreach (Vector2I cell in path)
+                Curve.AddPoint(Map.PositionOf(cell) - Position);
+            Cell = path.Last();
+            IsMoving = true;
+        }
+    }
+
     public override void _Ready()
     {
         base._Ready();
@@ -47,6 +77,24 @@ public partial class Unit : Path2D
         Cell = Map.CellOf(Position);
         Position = Map.PositionOf(Cell);
 
+        if (!Engine.IsEditorHint())
+            Curve = new();
+
         SetProcess(false);
+    }
+
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+
+        PathFollow.Progress += (float)(MoveSpeed*delta);
+        if (PathFollow.ProgressRatio >= 1)
+        {
+            IsMoving = false;
+            PathFollow.Progress = 0;
+            Position = Map.PositionOf(Cell);
+            Curve.ClearPoints();
+            EmitSignal(SignalName.DoneMoving);
+        }
     }
 }

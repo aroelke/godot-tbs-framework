@@ -167,6 +167,8 @@ animations = [{
 script = ExtResource("1_kj1ve")
 
 [node name="PathFollow" type="PathFollow2D" parent="."]
+rotates = false
+loop = false
 
 [node name="Sprite" type="AnimatedSprite2D" parent="PathFollow"]
 scale = Vector2(2, 2)

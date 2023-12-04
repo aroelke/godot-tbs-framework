@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Godot;
 
@@ -107,6 +108,9 @@ public partial class Overlay : TileMap
 
 	/// <summary>Most recently computed list of cells that can be traversed.</summary>
 	public Vector2I[] TraversableCells { get; private set; } = Array.Empty<Vector2I>();
+
+	/// <summary>The current path being drawn on the screen.</summary>
+	public Vector2I[] Path => _path.ToArray();
 
 	/// <summary>Draw the cells that can be traversed.</summary>
 	/// <param name="cells">List of cells that can be traversed, in any order.</param>
