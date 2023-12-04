@@ -11,6 +11,14 @@ public partial class Overlay : TileMap
 	/// <summary>Directions to look when finding cell neighbors.</summary>
 	public static readonly Vector2I[] Directions = { Vector2I.Up, Vector2I.Right, Vector2I.Down, Vector2I.Left };
 
+	public static bool IsAdjacent(Vector2I a, Vector2I b)
+	{
+		foreach (Vector2I direction in Directions)
+			if (b - a == direction || a - b == direction)
+				return true;
+		return false;
+	}
+
 	private readonly List<Vector2I> _path = new();
 	private AStar2D _astar = new();
 
@@ -90,7 +98,13 @@ public partial class Overlay : TileMap
 
 	public void AddToPath(BattleMap map, Unit unit, Vector2I cell)
 	{
-		_path.Add(cell);
+		List<Vector2I> extension = new();
+		if (_path.Count == 0 || IsAdjacent(cell, _path.Last()))
+			extension.Add(cell);
+		else
+			extension.AddRange(_astar.GetPointPath(map.CellId(_path.Last()), map.CellId(cell)).Select((c) => (Vector2I)c));
+
+		_path.AddRange(extension);
 		if (_path.Select((c) => map.GetTerrain(c).Cost).Sum() - map.GetTerrain(_path[0]).Cost > unit.MoveRange)
 		{
 			Vector2I start = _path[0];
