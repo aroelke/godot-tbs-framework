@@ -102,7 +102,7 @@ public partial class Overlay : TileMap
 		{
 			ClearLayer(1);
 			if (_path.Count > 1)
-				SetCellsTerrainConnect(1, new(_path), 1, 0);
+				SetCellsTerrainPath(1, new(_path), 1, 0);
 		}
 	}
 }
