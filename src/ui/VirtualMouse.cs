@@ -34,6 +34,7 @@ public abstract partial class VirtualMouse : Sprite2D
 
     private CanvasItem Parent => _parent ??= GetParent<CanvasItem>();
 
+    /// <returns>The mouse position in the world.</returns>
     private Vector2 MousePosition() => GetParent<CanvasItem>()?.GetLocalMousePosition() ?? GetGlobalMousePosition();
 
     /// <summary>Speed in pixels/second the cursor moves when in analog mode.</summary>

@@ -16,7 +16,11 @@ public partial class Overlay : TileMap
 	private static readonly Vector2I UpArrow = new(6, 1);
 	private static readonly Vector2I LeftArrow = new(7, 1);
 
-	// Get the index of a string property in a list of properties, such as a tile set layer name
+	/// <summary>Get the index of a string property in a list of properties, such as a tile set layer name.</summary>
+	/// <param name="property">Function for getting the string element of each item in the list.</param>
+	/// <param name="count">Number of items in the list.</param>
+	/// <param name="name">String to search for.</param>
+	/// <returns>The index in the list property of the item whose string element matches the desired value.</returns>
 	private static int GetIndex(Func<int, string> property, int count, string name)
 	{
 		for (int i = 0; i < count; i++)
@@ -25,7 +29,10 @@ public partial class Overlay : TileMap
 		return -1;
 	}
 
-	// Join two lists of cell coordinates, removing loops
+	/// <summary>Join two lists of cell coordinates, removing the first loop if there is one.</summary>
+	/// <param name="a">First coordinate list to join.</param>
+	/// <param name="b">Second coordinate list to join.</param>
+	/// <returns>A list of coordinates consisting of the two lists concatenated, but with the first loop removed.</returns>
 	private static List<Vector2I> Join(IList<Vector2I> a, IList<Vector2I> b)
 	{
 		List<Vector2I> result = new();
