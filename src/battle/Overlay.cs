@@ -8,6 +8,26 @@ namespace battle;
 /// <summary>Map overlay tile set for computing and displaying traversable and attackable cells and managing unit movement.</summary>
 public partial class Overlay : TileMap
 {
+	private static List<Vector2I> Join(IList<Vector2I> a, IList<Vector2I> b)
+	{
+		List<Vector2I> result = new();
+		for (int i = 0; i < a.Count; i++)
+		{
+			for (int j = 0; j < b.Count; j++)
+			{
+				if (a[i] == b[j])
+				{
+					result.AddRange(a.Take(i));
+					result.AddRange(b.TakeLast(b.Count - j));
+					return result;
+				}
+			}
+		}
+		result.AddRange(a);
+		result.AddRange(b);
+		return result;
+	}
+
 	/// <summary>Directions to look when finding cell neighbors.</summary>
 	public static readonly Vector2I[] Directions = { Vector2I.Up, Vector2I.Right, Vector2I.Down, Vector2I.Left };
 
@@ -19,7 +39,7 @@ public partial class Overlay : TileMap
 		return false;
 	}
 
-	private readonly List<Vector2I> _path = new();
+	private List<Vector2I> _path = new();
 	private AStar2D _astar = new();
 
 	/// <summary>Get all grid cells that a unit can walk on or pass through.</summary>
@@ -104,7 +124,7 @@ public partial class Overlay : TileMap
 		else
 			extension.AddRange(_astar.GetPointPath(map.CellId(_path.Last()), map.CellId(cell)).Select((c) => (Vector2I)c));
 
-		_path.AddRange(extension);
+		_path = Join(_path, extension);
 		if (_path.Select((c) => map.GetTerrain(c).Cost).Sum() - map.GetTerrain(_path[0]).Cost > unit.MoveRange)
 		{
 			Vector2I start = _path[0];
@@ -112,11 +132,8 @@ public partial class Overlay : TileMap
 			_path.AddRange(_astar.GetPointPath(map.CellId(start), map.CellId(cell)).Select((c) => (Vector2I)c));
 		}
 
-		if (_path.Count > 0)
-		{
-			ClearLayer(1);
-			if (_path.Count > 1)
-				SetCellsTerrainPath(1, new(_path), 1, 0);
-		}
+		ClearLayer(1);
+		if (_path.Count > 1)
+			SetCellsTerrainPath(1, new(_path), 1, 0);
 	}
 }
