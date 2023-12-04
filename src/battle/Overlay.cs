@@ -8,6 +8,15 @@ namespace battle;
 /// <summary>Map overlay tile set for computing and displaying traversable and attackable cells and managing unit movement.</summary>
 public partial class Overlay : TileMap
 {
+	// TileSet source ID for the path arrows and indices containing arrowheads.
+	// XXX: DEPENDS STRONGLY ON TILESET ORGANIZATION
+	private const int PathSourceId = 3;
+	private static readonly Vector2I RightArrow = new(6, 0);
+	private static readonly Vector2I DownArrow = new(7, 0);
+	private static readonly Vector2I UpArrow = new(6, 1);
+	private static readonly Vector2I LeftArrow = new(7, 1);
+
+	// Get the index of a string property in a list of properties, such as a tile set layer name
 	private static int GetIndex(Func<int, string> property, int count, string name)
 	{
 		for (int i = 0; i < count; i++)
@@ -16,6 +25,7 @@ public partial class Overlay : TileMap
 		return -1;
 	}
 
+	// Join two lists of cell coordinates, removing loops
 	private static List<Vector2I> Join(IList<Vector2I> a, IList<Vector2I> b)
 	{
 		List<Vector2I> result = new();
@@ -39,6 +49,10 @@ public partial class Overlay : TileMap
 	/// <summary>Directions to look when finding cell neighbors.</summary>
 	public static readonly Vector2I[] Directions = { Vector2I.Up, Vector2I.Right, Vector2I.Down, Vector2I.Left };
 
+	/// <summary>Determine if two cell coordinate pairs are adjacent.</summary>
+	/// <param name="a">First pair for comparison.</param>
+	/// <param name="b">Second pair for comparison.</param>
+	/// <returns><c>true</c> if the two coordinate pairs are adjacent, and <c>false</c> otherwise.</returns>
 	public static bool IsAdjacent(Vector2I a, Vector2I b)
 	{
 		foreach (Vector2I direction in Directions)
@@ -118,6 +132,13 @@ public partial class Overlay : TileMap
 		AddToPath(map, unit, unit.Cell);
 	}
 
+	/// <summary>
+	/// Add a point to the end of the walking path.  If this results in the cost of the path being too long for the unit, recompute
+	/// the entire path to be the shortest distance to the point.  Also remove any loops in the resulting path.
+	/// </summary>
+	/// <param name="map">Map containing the cells to move on.</param>
+	/// <param name="unit">Unit the path is being computed for.</param>
+	/// <param name="cell">Cell to add to the end of the path.</param>
 	public void AddToPath(BattleMap map, Unit unit, Vector2I cell)
 	{
 		List<Vector2I> extension = new();
@@ -134,9 +155,19 @@ public partial class Overlay : TileMap
 			_path.AddRange(_astar.GetPointPath(map.CellId(start), map.CellId(cell)).Select((c) => (Vector2I)c));
 		}
 
-		ClearLayer(1);
+		ClearLayer(_pathLayer);
 		if (_path.Count > 1)
-			SetCellsTerrainPath(_pathLayer, new(_path), 1, 0);
+		{
+			SetCellsTerrainPath(_pathLayer, new(_path), _pathSet, _pathTerrain);
+			SetCell(_pathLayer, _path.Last(), PathSourceId, (_path[^1] - _path[^2]) switch
+			{
+				Vector2I(0, >0) => DownArrow,
+				Vector2I(>0, 0) => RightArrow,
+				Vector2I(0, <0) => UpArrow,
+				Vector2I(<0, 0) => LeftArrow,
+				_ => new(8, 0)
+			});
+		}
 	}
 
 	/// <summary>In addition to clearing the overlay tiles, also clear the list of traversable cells.</summary>
