@@ -8,6 +8,14 @@ namespace battle;
 /// <summary>Map overlay tile set for computing and displaying traversable and attackable cells and managing unit movement.</summary>
 public partial class Overlay : TileMap
 {
+	private static int GetIndex(Func<int, string> property, int count, string name)
+	{
+		for (int i = 0; i < count; i++)
+			if (property(i) == name)
+				return i;
+		return -1;
+	}
+
 	private static List<Vector2I> Join(IList<Vector2I> a, IList<Vector2I> b)
 	{
 		List<Vector2I> result = new();
@@ -38,9 +46,6 @@ public partial class Overlay : TileMap
 				return true;
 		return false;
 	}
-
-	private List<Vector2I> _path = new();
-	private AStar2D _astar = new();
 
 	/// <summary>Get all grid cells that a unit can walk on or pass through.</summary>
 	/// <param name="map">Map the unit is walking on.</param>
@@ -73,6 +78,12 @@ public partial class Overlay : TileMap
         return cells.Keys.ToArray();
     }
 
+	private int _moveLayer = -1;
+	private int _selectionSet = -1, _selectionTerrain = -1;
+	private int _pathLayer = -1, _pathSet = 1, _pathTerrain = -1;
+	private List<Vector2I> _path = new();
+	private AStar2D _astar = new();
+
 	/// <summary>Most recently computed list of cells that can be traversed.</summary>
 	public Vector2I[] TraversableCells { get; private set; } = Array.Empty<Vector2I>();
 
@@ -81,7 +92,7 @@ public partial class Overlay : TileMap
 	public void DrawOverlay(Vector2I[] cells)
 	{
 		base.Clear();
-		SetCellsTerrainConnect(0, new(cells), 0, 0);
+		SetCellsTerrainConnect(_moveLayer, new(cells), _selectionSet, _selectionTerrain);
 	}
 
 	/// <summary>Compute and draw the cells that a unit can traverse.</summary>
@@ -107,15 +118,6 @@ public partial class Overlay : TileMap
 		AddToPath(map, unit, unit.Cell);
 	}
 
-	/// <summary>In addition to clearing the overlay tiles, also clear the list of traversable cells.</summary>
-	public new void Clear()
-	{
-		base.Clear();
-		TraversableCells = Array.Empty<Vector2I>();
-		_path.Clear();
-		_astar.Clear();
-	}
-
 	public void AddToPath(BattleMap map, Unit unit, Vector2I cell)
 	{
 		List<Vector2I> extension = new();
@@ -134,6 +136,40 @@ public partial class Overlay : TileMap
 
 		ClearLayer(1);
 		if (_path.Count > 1)
-			SetCellsTerrainPath(1, new(_path), 1, 0);
+			SetCellsTerrainPath(_pathLayer, new(_path), 1, 0);
 	}
+
+	/// <summary>In addition to clearing the overlay tiles, also clear the list of traversable cells.</summary>
+	public new void Clear()
+	{
+		base.Clear();
+		TraversableCells = Array.Empty<Vector2I>();
+		_path.Clear();
+		_astar.Clear();
+	}
+
+    public override void _Ready()
+    {
+        base._Ready();
+		_moveLayer = GetIndex(GetLayerName, GetLayersCount(), "move");
+		for (int i = 0; i < TileSet.GetTerrainSetsCount(); i++)
+		{
+			_selectionTerrain = GetIndex((t) => TileSet.GetTerrainName(i, t), TileSet.GetTerrainsCount(i), "selection");
+			if (_selectionTerrain != -1)
+			{
+				_selectionSet = i;
+				break;
+			}
+		}
+		_pathLayer = GetIndex(GetLayerName, GetLayersCount(), "path");
+		for (int i = 0; i < TileSet.GetTerrainSetsCount(); i++)
+		{
+			_pathTerrain = GetIndex((t) => TileSet.GetTerrainName(i, t), TileSet.GetTerrainsCount(i), "path");
+			if (_pathTerrain != -1)
+			{
+				_pathSet = i;
+				break;
+			}
+		}
+    }
 }
