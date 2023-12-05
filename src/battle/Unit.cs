@@ -14,13 +14,13 @@ public partial class Unit : Path2D
 
     private BattleMap _map = null;
     private Vector2I _cell = Vector2I.Zero;
-    private AnimatedSprite2D _sprite = null;
+    private AnimationPlayer _animation = null;
     private bool _selected = false;
     private PathFollow2D _follow = null;
     private bool _moving = false;
 
     private BattleMap Map => _map ??= GetParent<BattleMap>();
-    private AnimatedSprite2D Sprite => _sprite ??= GetNode<AnimatedSprite2D>("PathFollow/Sprite");
+    private AnimationPlayer Animation => _animation ??= GetNode<AnimationPlayer>("Animation");
     private PathFollow2D PathFollow => _follow ??= GetNode<PathFollow2D>("PathFollow");
 
     /// <summary>Movement range of the unit, in grid cells.</summary>
@@ -44,9 +44,9 @@ public partial class Unit : Path2D
         {
             _selected = value;
             if (_selected)
-                Sprite.Play("selected");
+                Animation.Play("selected");
             else
-                Sprite.Play("idle");
+                Animation.Play("idle");
         }
     }
 
@@ -89,19 +89,16 @@ public partial class Unit : Path2D
 
         Vector2 prev = PathFollow.Position;
         PathFollow.Progress += (float)(MoveSpeed*delta);
-        (string animation, bool flip) = (PathFollow.Position - prev) switch
+        string animation = (PathFollow.Position - prev) switch
         {
-            Vector2(_, <0) => ("up", false),
-            Vector2(<0, _) => ("side", false),
-            Vector2(_, >0) => ("down", false),
-            Vector2(>0, _) => ("side", true),
-            _ => ("idle", false)
+            Vector2(_, <0) => "up",
+            Vector2(<0, _) => "left",
+            Vector2(_, >0) => "down",
+            Vector2(>0, _) => "right",
+            _ => "idle"
         };
-        if (Sprite.Animation != animation)
-        {
-            Sprite.Play(animation);
-            Sprite.FlipH = flip;
-        }
+        if (Animation.CurrentAnimation != animation)
+            Animation.Play(animation);
 
         if (PathFollow.ProgressRatio >= 1)
         {
