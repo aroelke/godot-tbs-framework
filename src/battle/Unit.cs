@@ -27,7 +27,7 @@ public partial class Unit : Path2D
     [Export] public int MoveRange = 5;
 
     /// <summary>Speed, in world pixels/second, to move along the path while moving.</summary>
-    [Export] public double MoveSpeed = 480;
+    [Export] public double MoveSpeed = 320;
 
     /// <summary>Cell on the grid that this unit currently occupies.</summary>
     public Vector2I Cell
@@ -87,7 +87,22 @@ public partial class Unit : Path2D
     {
         base._Process(delta);
 
+        Vector2 prev = PathFollow.Position;
         PathFollow.Progress += (float)(MoveSpeed*delta);
+        (string animation, bool flip) = (PathFollow.Position - prev) switch
+        {
+            Vector2(_, <0) => ("up", false),
+            Vector2(<0, _) => ("side", false),
+            Vector2(_, >0) => ("down", false),
+            Vector2(>0, _) => ("side", true),
+            _ => ("idle", false)
+        };
+        if (Sprite.Animation != animation)
+        {
+            Sprite.Play(animation);
+            Sprite.FlipH = flip;
+        }
+
         if (PathFollow.ProgressRatio >= 1)
         {
             IsMoving = false;

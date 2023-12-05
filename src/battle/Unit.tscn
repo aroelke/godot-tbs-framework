@@ -168,11 +168,12 @@ script = ExtResource("1_kj1ve")
 
 [node name="PathFollow" type="PathFollow2D" parent="."]
 rotates = false
+cubic_interp = false
 loop = false
 
 [node name="Sprite" type="AnimatedSprite2D" parent="PathFollow"]
 scale = Vector2(2, 2)
 sprite_frames = SubResource("SpriteFrames_pg0aa")
-animation = &"idle"
+animation = &"side"
 autoplay = "idle"
 offset = Vector2(8, 0)
