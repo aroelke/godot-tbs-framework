@@ -26,6 +26,9 @@ public partial class Unit : Path2D
     /// <summary>Movement range of the unit, in grid cells.</summary>
     [Export] public int MoveRange = 5;
 
+    /// <summary>Distances from the unit's occupied cell that it can attack.</summary>
+    [Export] public int[] AttackRange = new[] { 1, 2 };
+
     /// <summary>Speed, in world pixels/second, to move along the path while moving.</summary>
     [Export] public double MoveSpeed = 320;
 

@@ -103,24 +103,72 @@ public partial class Overlay : TileMap
         return cells.Keys;
     }
 
-	private int _moveLayer = -1;
+	/// <summary>Find all the cells that can be attacked from a position.</summary>
+	/// <param name="map">Map on which the attack is to be made.</param>
+	/// <param name="ranges">Distances from the source position that can be attacked.</param>
+	/// <param name="source">Source position to attack from.</param>
+	/// <returns>A collection of grid cells containing all the cells that are exactly the given distances away from the source.</returns>
+	public static IEnumerable<Vector2I> GetCellsInRange(BattleMap map, IEnumerable<int> ranges, Vector2I source)
+	{
+		HashSet<Vector2I> cells = new();
+		foreach (int range in ranges)
+		{
+			for (int i = 0; i < range; i++)
+			{
+				Vector2I target;
+				if (map.Contains(target = source + new Vector2I(-range + i, -i)))
+					cells.Add(target);
+				if (map.Contains(target = source + new Vector2I(i, -range + i)))
+					cells.Add(target);
+				if (map.Contains(target = source + new Vector2I(range - i, i)))
+					cells.Add(target);
+				if (map.Contains(target = source + new Vector2I(-i, range - i)))
+					cells.Add(target);
+			}
+		}
+		return cells;
+	}
+
+	/// <summary>Find all the cells that can be attacked from a collection of source cells.</summary>
+	/// <param name="map">Map containing the cells to be attacked.</param>
+	/// <param name="ranges">Distances from each source cell that can be attacked.</param>
+	/// <param name="traversable">Source cells.</param>
+	/// <returns>A collection of grid cells containing all the cells that are exactly the given distances away from any of the source cells.</returns>
+	public static IEnumerable<Vector2I> GetCellsInRange(BattleMap map, IEnumerable<int> ranges, IEnumerable<Vector2I> traversable)
+	{
+		HashSet<Vector2I> cells = new();
+		foreach (Vector2I source in traversable)
+			foreach (Vector2I target in GetCellsInRange(map, ranges, source))
+				cells.Add(target);
+		return cells;
+	}
+
 	private int _selectionSet = -1, _selectionTerrain = -1;
 	private int _pathLayer = -1, _pathSet = 1, _pathTerrain = -1;
 	private List<Vector2I> _path = new();
 	private AStar2D _astar = new();
 
+	/// <summary>TileMap layer index to draw traversable cells on.</summary>
+	public int TraverseLayer { get; private set; } = -1;
+
+	/// <summary>TileMap layer index to draw attackable cells on.</summary>
+	public int AttackLayer { get; private set; }= -1;
+
 	/// <summary>Most recently computed list of cells that can be traversed.</summary>
 	public HashSet<Vector2I> TraversableCells { get; private set; } = new();
+
+	/// <summary>Most recently computed list of cells that can be attacked.</summary>
+	public HashSet<Vector2I> AttackableCells { get; private set; } = new();
 
 	/// <summary>The current path being drawn on the screen.</summary>
 	public Vector2I[] Path => _path.ToArray();
 
 	/// <summary>Draw the cells that can be traversed.</summary>
 	/// <param name="cells">List of cells that can be traversed, in any order.</param>
-	public void DrawOverlay(IEnumerable<Vector2I> cells)
+	public void DrawOverlay(int layer, IEnumerable<Vector2I> cells)
 	{
-		base.Clear();
-		SetCellsTerrainConnect(_moveLayer, new(cells), _selectionSet, _selectionTerrain);
+		ClearLayer(layer);
+		SetCellsTerrainConnect(layer, new(cells), _selectionSet, _selectionTerrain);
 	}
 
 	/// <summary>Compute and draw the cells that a unit can traverse.</summary>
@@ -141,8 +189,10 @@ public partial class Overlay : TileMap
 					_astar.ConnectPoints(map.CellId(cell), map.CellId(neighbor));
 			}
 		}
+		AttackableCells = new(GetCellsInRange(map, unit.AttackRange, TraversableCells));
 
-		DrawOverlay(TraversableCells);
+		DrawOverlay(TraverseLayer, TraversableCells);
+		DrawOverlay(AttackLayer, AttackableCells.Where((c) => !TraversableCells.Contains(c)));
 		AddToPath(map, unit, unit.Cell);
 	}
 
@@ -196,7 +246,8 @@ public partial class Overlay : TileMap
     public override void _Ready()
     {
         base._Ready();
-		_moveLayer = GetIndex(GetLayerName, GetLayersCount(), "move");
+		TraverseLayer = GetIndex(GetLayerName, GetLayersCount(), "move");
+		AttackLayer = GetIndex(GetLayerName, GetLayersCount(), "attack");
 		for (int i = 0; i < TileSet.GetTerrainSetsCount(); i++)
 		{
 			_selectionTerrain = GetIndex((t) => TileSet.GetTerrainName(i, t), TileSet.GetTerrainsCount(i), "selection");
