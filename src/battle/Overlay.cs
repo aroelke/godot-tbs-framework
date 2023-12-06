@@ -151,13 +151,19 @@ public partial class Overlay : TileMap
     public int TraverseLayer { get; private set; } = -1;
 
     /// <summary>TileMap layer index to draw attackable cells on.</summary>
-    public int AttackLayer { get; private set; }= -1;
+    public int AttackLayer { get; private set; } = -1;
+
+    /// <summary>TileMap layer index to draw supportable cells on.</summary>
+    public int SupportLayer { get; private set; } = -1;
 
     /// <summary>Most recently computed list of cells that can be traversed.</summary>
     public HashSet<Vector2I> TraversableCells { get; private set; } = new();
 
     /// <summary>Most recently computed list of cells that can be attacked.</summary>
     public HashSet<Vector2I> AttackableCells { get; private set; } = new();
+
+    /// <summary>Most recelty computed list of cells that can be supported.</summary>
+    public HashSet<Vector2I> SupportableCells { get; private set; } = new();
 
     /// <summary>The current path being drawn on the screen.</summary>
     public Vector2I[] Path => _path.ToArray();
@@ -189,9 +195,11 @@ public partial class Overlay : TileMap
             }
         }
         AttackableCells = new(GetCellsInRange(map, unit.AttackRange, TraversableCells));
+        SupportableCells = new(GetCellsInRange(map, unit.SupportRange, TraversableCells));
 
         DrawOverlay(TraverseLayer, TraversableCells);
         DrawOverlay(AttackLayer, AttackableCells.Where((c) => !TraversableCells.Contains(c)));
+        DrawOverlay(SupportLayer, SupportableCells.Where((c) => !TraversableCells.Contains(c) && !AttackableCells.Contains(c)));
         AddToPath(map, unit, unit.Cell);
     }
 
@@ -245,8 +253,10 @@ public partial class Overlay : TileMap
     public override void _Ready()
     {
         base._Ready();
+
         TraverseLayer = GetIndex(GetLayerName, GetLayersCount(), "move");
         AttackLayer = GetIndex(GetLayerName, GetLayersCount(), "attack");
+        SupportLayer = GetIndex(GetLayerName, GetLayersCount(), "support");
         for (int i = 0; i < TileSet.GetTerrainSetsCount(); i++)
         {
             _selectionTerrain = GetIndex((t) => TileSet.GetTerrainName(i, t), TileSet.GetTerrainsCount(i), "selection");
@@ -256,6 +266,7 @@ public partial class Overlay : TileMap
                 break;
             }
         }
+
         _pathLayer = GetIndex(GetLayerName, GetLayersCount(), "path");
         for (int i = 0; i < TileSet.GetTerrainSetsCount(); i++)
         {

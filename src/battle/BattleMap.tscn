@@ -642,9 +642,12 @@ layer_0/modulate = Color(0, 0, 1, 0.392157)
 layer_1/name = "attack"
 layer_1/modulate = Color(1, 0, 0, 0.392157)
 layer_1/tile_data = PackedInt32Array()
-layer_2/name = "path"
-layer_2/z_index = 1
+layer_2/name = "support"
+layer_2/modulate = Color(0, 1, 0, 0.392157)
 layer_2/tile_data = PackedInt32Array()
+layer_3/name = "path"
+layer_3/z_index = 1
+layer_3/tile_data = PackedInt32Array()
 script = ExtResource("5_vflpr")
 
 [node name="Cursor" type="Sprite2D" parent="."]
