@@ -98,8 +98,10 @@ public partial class BattleMap : TileMap
                     _units[_selected.Cell] = _selected;
                     Overlay.Clear();
                     await ToSignal(_selected, Unit.SignalName.DoneMoving);
+                    Overlay.DrawOverlay(Overlay.AttackLayer, Overlay.GetCellsInRange(this, _selected.AttackRange, _selected.Cell).Where((c) => c != _selected.Cell));
                 }
-                DeselectUnit();
+                else
+                    DeselectUnit();
             }
         }
         else

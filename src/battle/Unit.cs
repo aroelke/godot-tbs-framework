@@ -109,6 +109,7 @@ public partial class Unit : Path2D
             PathFollow.Progress = 0;
             Position = Map.PositionOf(Cell);
             Curve.ClearPoints();
+            IsSelected = _selected; // Go back to standing animation (idle/selected)
             EmitSignal(SignalName.DoneMoving);
         }
     }
