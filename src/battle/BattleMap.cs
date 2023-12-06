@@ -89,15 +89,18 @@ public partial class BattleMap : TileMap
     {
         if (_selected != null)
         {
-            if (cell != _selected.Cell && Overlay.TraversableCells.Contains(cell))
+            if (!_selected.IsMoving)
             {
-                _units.Remove(_selected.Cell);
-                _selected.MoveAlong(Overlay.Path);
-                _units[_selected.Cell] = _selected;
-                Overlay.Clear();
-                await ToSignal(_selected, Unit.SignalName.DoneMoving);
+                if (cell != _selected.Cell && Overlay.TraversableCells.Contains(cell))
+                {
+                    _units.Remove(_selected.Cell);
+                    _selected.MoveAlong(Overlay.Path);
+                    _units[_selected.Cell] = _selected;
+                    Overlay.Clear();
+                    await ToSignal(_selected, Unit.SignalName.DoneMoving);
+                }
+                DeselectUnit();
             }
-            DeselectUnit();
         }
         else
         {
