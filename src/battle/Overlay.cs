@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using Godot;
 
 namespace battle;
@@ -72,11 +72,13 @@ public partial class Overlay : TileMap
 	/// <summary>Get all grid cells that a unit can walk on or pass through.</summary>
 	/// <param name="map">Map the unit is walking on.</param>
     /// <param name="unit">Unit compute traversable cells for.</param>
-    /// <returns>The list of cells, in any order, that the unit can traverse.</returns>
-	public static Vector2I[] GetTraversableCells(BattleMap map, Unit unit)
+    /// <returns>The set of cells, in any order, that the unit can traverse.</returns>
+	public static IEnumerable<Vector2I> GetTraversableCells(BattleMap map, Unit unit)
     {
-        Dictionary<Vector2I, int> cells = new() {{ unit.Cell, 0 }};
-        Queue<Vector2I> potential = new();
+		int max = 2*(unit.MoveRange + 1)*(unit.MoveRange + 1) - 2*unit.MoveRange - 1;
+
+		Dictionary<Vector2I, int> cells = new(max) {{ unit.Cell, 0 }};
+        Queue<Vector2I> potential = new(max);
 
         potential.Enqueue(unit.Cell);
         while (potential.Count > 0)
@@ -86,18 +88,19 @@ public partial class Overlay : TileMap
             foreach (Vector2I direction in Directions)
             {
                 Vector2I neighbor = current + direction;
-                Terrain terrain = map.GetTerrain(neighbor);
-
-                int cost = cells[current] + terrain.Cost;
-                if (map.Contains(neighbor) && (!cells.ContainsKey(neighbor) || cells[neighbor] > cost) && cost <= unit.MoveRange)
-                {
-                    cells[neighbor] = cost;
-                    potential.Enqueue(neighbor);
-                }
+				if (map.Contains(neighbor))
+				{
+					int cost = cells[current] + map.GetTerrain(neighbor).Cost;
+					if ((!cells.ContainsKey(neighbor) || cells[neighbor] > cost) && cost <= unit.MoveRange)
+					{
+						cells[neighbor] = cost;
+						potential.Enqueue(neighbor);
+					}
+				}
             }
         }
 
-        return cells.Keys.ToArray();
+        return cells.Keys;
     }
 
 	private int _moveLayer = -1;
@@ -107,14 +110,14 @@ public partial class Overlay : TileMap
 	private AStar2D _astar = new();
 
 	/// <summary>Most recently computed list of cells that can be traversed.</summary>
-	public Vector2I[] TraversableCells { get; private set; } = Array.Empty<Vector2I>();
+	public HashSet<Vector2I> TraversableCells { get; private set; } = new();
 
 	/// <summary>The current path being drawn on the screen.</summary>
 	public Vector2I[] Path => _path.ToArray();
 
 	/// <summary>Draw the cells that can be traversed.</summary>
 	/// <param name="cells">List of cells that can be traversed, in any order.</param>
-	public void DrawOverlay(Vector2I[] cells)
+	public void DrawOverlay(IEnumerable<Vector2I> cells)
 	{
 		base.Clear();
 		SetCellsTerrainConnect(_moveLayer, new(cells), _selectionSet, _selectionTerrain);
@@ -125,7 +128,7 @@ public partial class Overlay : TileMap
 	/// <param name="unit">Unit traversing the cells.</param>
 	public void DrawMoveRange(BattleMap map, Unit unit)
 	{
-		TraversableCells = GetTraversableCells(map, unit);
+		TraversableCells = new(GetTraversableCells(map, unit));
 		_astar.Clear();
 		foreach (Vector2I cell in TraversableCells)
 			_astar.AddPoint(map.CellId(cell), cell, map.GetTerrain(cell).Cost);
@@ -185,7 +188,7 @@ public partial class Overlay : TileMap
 	public new void Clear()
 	{
 		base.Clear();
-		TraversableCells = Array.Empty<Vector2I>();
+		TraversableCells.Clear();
 		_path.Clear();
 		_astar.Clear();
 	}
