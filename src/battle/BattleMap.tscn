@@ -542,6 +542,13 @@ texture_region_size = Vector2i(32, 32)
 15:15/0/terrains_peering_bit/top_left_corner = 0
 15:15/0/terrains_peering_bit/top_side = 0
 15:15/0/terrains_peering_bit/top_right_corner = 0
+10:3/0 = 0
+10:3/0/terrain_set = 0
+10:3/0/terrain = 0
+10:3/0/terrains_peering_bit/right_side = 0
+10:3/0/terrains_peering_bit/bottom_right_corner = 0
+10:3/0/terrains_peering_bit/bottom_side = 0
+10:3/0/terrains_peering_bit/top_side = 0
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_qo1xq"]
 texture = ExtResource("8_bq0s0")
@@ -632,9 +639,12 @@ tile_set = SubResource("TileSet_0t06k")
 format = 2
 layer_0/name = "move"
 layer_0/modulate = Color(0, 0, 1, 0.392157)
-layer_1/name = "path"
-layer_1/z_index = 1
+layer_1/name = "attack"
+layer_1/modulate = Color(1, 0, 0, 0.392157)
 layer_1/tile_data = PackedInt32Array()
+layer_2/name = "path"
+layer_2/z_index = 1
+layer_2/tile_data = PackedInt32Array()
 script = ExtResource("5_vflpr")
 
 [node name="Cursor" type="Sprite2D" parent="."]
