@@ -18,6 +18,16 @@ public partial class BattleMap : TileMap
     private Camera2D Camera => _camera ??= GetNode<Camera2D>("Pointer/BattleCamera");
     private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
 
+    private void DeselectUnit()
+    {
+        if (_selected != null)
+        {
+            _selected.IsSelected = false;
+            _selected = null;
+            Overlay.Clear();
+        }
+    }
+
     /// <summary>Grid dimensions. Both elements should be positive.</summary>
     [Export] public Vector2I Size { get; private set; } = Vector2I.Zero;
 
@@ -58,6 +68,7 @@ public partial class BattleMap : TileMap
     public int CellId(Vector2I cell) => cell.X*Size.X + cell.Y;
 
     /// <returns>The terrain information for a cell, or <c>DefaultTerrain</c> if the terrain hasn't been set.</returns>
+    /// <exception cref="IndexOutOfRangeException">If the cell is outside the grid.</exception>
     public Terrain GetTerrain(Vector2I cell) => GetCellTileData(_terrainLayer, cell)?.GetCustomData("terrain").As<Terrain>() ?? DefaultTerrain;
 
     /// <summary>When the cursor moves, if there's a selected unit, draw its path.</summary>
@@ -85,14 +96,8 @@ public partial class BattleMap : TileMap
                 _units[_selected.Cell] = _selected;
                 Overlay.Clear();
                 await ToSignal(_selected, Unit.SignalName.DoneMoving);
-                _selected.IsSelected = false;
-                _selected = null;
             }
-            else
-            {
-                _selected = null;
-                Overlay.Clear();
-            }
+            DeselectUnit();
         }
         else
         {
@@ -102,11 +107,8 @@ public partial class BattleMap : TileMap
                 _selected.IsSelected = true;
                 Overlay.DrawMoveRange(this, _selected);
             }
-            else
-            {
-                _selected = null;
-                Overlay.Clear();
-            }
+            else if (_selected != null)
+                DeselectUnit();
         }
     }
 
