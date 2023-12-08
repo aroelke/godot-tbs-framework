@@ -19,6 +19,10 @@ public abstract partial class VirtualMouse : Sprite2D
     /// <param name="mode">New input mode.</param>
     [Signal] public delegate void InputModeChangedEventHandler(InputMode mode);
 
+    /// <summary>Signal that the virtual mouse has been "clicked" (which can mean a key or gamepad button was pressed as well as the mouse being clicked).</summary>
+    /// <param name="position">Position in the world of the mouse "click."</param>
+    [Signal] public delegate void ClickedEventHandler(Vector2 position);
+
     private CanvasItem _parent = null;
     private Timer _echoTimer;
     private bool _echoing = false;
@@ -30,6 +34,7 @@ public abstract partial class VirtualMouse : Sprite2D
 
     private CanvasItem Parent => _parent ??= GetParent<CanvasItem>();
 
+    /// <returns>The mouse position in the world.</returns>
     private Vector2 MousePosition() => GetParent<CanvasItem>()?.GetLocalMousePosition() ?? GetGlobalMousePosition();
 
     /// <summary>Speed in pixels/second the cursor moves when in analog mode.</summary>
@@ -103,6 +108,13 @@ public abstract partial class VirtualMouse : Sprite2D
     {
         base._Input(@event);
 
+        if (@event.IsActionReleased("cursor_select"))
+        {
+            EmitSignal(SignalName.Clicked, Position);
+            GetViewport().SetInputAsHandled();
+            return;
+        }
+
         if (@event is InputEventMouseMotion mm)
         {
             if (mm.Velocity.Length() > 0 && _lastKnownPointerPosition == null)
@@ -113,47 +125,46 @@ public abstract partial class VirtualMouse : Sprite2D
                 Position = MousePosition();
                 InputMode = InputMode.Mouse;
             }
+            return;
+        }
+
+        Vector2I skip = (Vector2I)Input.GetVector("cursor_skip_left", "cursor_skip_right", "cursor_skip_up", "cursor_skip_down").Round();
+        if (skip != Vector2.Zero)
+        {
+            Skip(skip);
+            InputMode = InputMode.Digital;
+        }
+        else if (GetAnalogVector() != Vector2.Zero)
+        {
+            InputMode = InputMode.Analog;
         }
         else
         {
-            Vector2I skip = (Vector2I)Input.GetVector("cursor_skip_left", "cursor_skip_right", "cursor_skip_up", "cursor_skip_down").Round();
-            if (skip != Vector2.Zero)
+            Vector2I dir = (Vector2I)Input.GetVector("cursor_digital_left", "cursor_digital_right", "cursor_digital_up", "cursor_digital_down").Round();
+            if (dir != _direction)
             {
-                Skip(skip);
-                InputMode = InputMode.Digital;
-            }
-            else if (GetAnalogVector() != Vector2.Zero)
-            {
-                InputMode = InputMode.Analog;
-            }
-            else
-            {
-                Vector2I dir = (Vector2I)Input.GetVector("cursor_digital_left", "cursor_digital_right", "cursor_digital_up", "cursor_digital_down").Round();
-                if (dir != _direction)
+                _echoTimer.Stop();
+                _echoing = false;
+
+                if (dir != Vector2I.Zero)
                 {
-                    _echoTimer.Stop();
-                    _echoing = false;
-
-                    if (dir != Vector2I.Zero)
-                    {
-                        if (dir.Abs().X + dir.Abs().Y > _direction.Abs().X + _direction.Abs().Y)
-                            Jump(dir - _direction);
-                        else
-                            Jump(dir);
-                        _direction = dir;
-                        InputMode = InputMode.Digital;
-
-                        _echoTimer.WaitTime = EchoDelay;
-                        _echoTimer.Start();
-                    }
+                    if (dir.Abs().X + dir.Abs().Y > _direction.Abs().X + _direction.Abs().Y)
+                        Jump(dir - _direction);
                     else
-                        _direction = Vector2I.Zero;
-                }
-            }
+                        Jump(dir);
+                    _direction = dir;
+                    InputMode = InputMode.Digital;
 
-            if (InputMode == InputMode.Analog)
-                _accelerate = Input.IsActionPressed("cursor_analog_accelerate");
+                    _echoTimer.WaitTime = EchoDelay;
+                    _echoTimer.Start();
+                }
+                else
+                    _direction = Vector2I.Zero;
+            }
         }
+
+        if (InputMode == InputMode.Analog)
+            _accelerate = Input.IsActionPressed("cursor_analog_accelerate");
     }
 
     public override void _Ready()
