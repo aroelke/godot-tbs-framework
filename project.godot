@@ -16,7 +16,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-Controller="*res://src/ui/Controller.cs"
+InputManager="*res://src/ui/input/InputManager.cs"
 
 [display]
 
