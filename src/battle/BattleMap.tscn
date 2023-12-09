@@ -1,9 +1,6 @@
-[gd_scene load_steps=48 format=3 uid="uid://nqtncwui0dii"]
+[gd_scene load_steps=45 format=3 uid="uid://nqtncwui0dii"]
 
 [ext_resource type="Texture2D" uid="uid://b4ptnu3mt3rjh" path="res://assets/battle/map/pipo-map001.png" id="1_6n6tf"]
-[ext_resource type="Resource" uid="uid://3oymelk4qh3v" path="res://assets/battle/terrain/Plain.tres" id="1_lnldi"]
-[ext_resource type="Resource" uid="uid://bb41frfvr6dbt" path="res://assets/battle/terrain/Bush.tres" id="2_d61kg"]
-[ext_resource type="Resource" uid="uid://bjelmi10hjduk" path="res://assets/battle/terrain/Mountain.tres" id="2_jov3n"]
 [ext_resource type="Script" path="res://src/battle/BattleMap.cs" id="2_xrcdx"]
 [ext_resource type="Script" path="res://src/battle/Limits.cs" id="3_gjscv"]
 [ext_resource type="Texture2D" uid="uid://dhxxyboxchr67" path="res://assets/battle/ui/cursor.png" id="4_5beqv"]
@@ -86,9 +83,7 @@ resource_name = "elements"
 texture = ExtResource("1_6n6tf")
 texture_region_size = Vector2i(32, 32)
 0:0/0 = 0
-0:0/0/custom_data_0 = ExtResource("1_lnldi")
 0:1/0 = 0
-0:1/0/custom_data_0 = ExtResource("2_d61kg")
 1:1/0 = 0
 2:1/0 = 0
 3:1/0 = 0
@@ -113,9 +108,7 @@ texture_region_size = Vector2i(32, 32)
 6:3/0 = 0
 7:3/0 = 0
 0:4/0 = 0
-0:4/0/custom_data_0 = ExtResource("2_jov3n")
 1:4/0 = 0
-1:4/0/custom_data_0 = ExtResource("2_jov3n")
 2:4/0 = 0
 3:4/0 = 0
 4:4/0 = 0
@@ -123,9 +116,7 @@ texture_region_size = Vector2i(32, 32)
 6:4/0 = 0
 7:4/0 = 0
 0:5/0 = 0
-0:5/0/custom_data_0 = ExtResource("2_jov3n")
 1:5/0 = 0
-1:5/0/custom_data_0 = ExtResource("2_jov3n")
 2:5/0 = 0
 3:5/0 = 0
 4:5/0 = 0

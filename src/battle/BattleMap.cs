@@ -1,4 +1,5 @@
 using Godot;
+using level.environment;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -162,7 +163,6 @@ public partial class BattleMap : TileMap
                     break;
                 }
             }
-            DefaultTerrain ??= ResourceLoader.Load<Terrain>("res://assets/battle/terrain/Plain.tres");
         }
     }
 }

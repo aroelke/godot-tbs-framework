@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="Terrain" load_steps=2 format=3 uid="uid://ryxx30gb4grd"]
+
+[ext_resource type="Script" path="res://src/level/environment/Terrain.cs" id="1_kgqdx"]
+
+[resource]
+resource_name = "bush"
+script = ExtResource("1_kgqdx")
+Cost = 1

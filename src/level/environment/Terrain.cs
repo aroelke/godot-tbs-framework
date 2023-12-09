@@ -1,8 +1,8 @@
 using Godot;
 
-namespace battle;
+namespace level.environment;
 
-/// <summary>Represents a piece of terrain on the battlefield, which can hinder movement modify stats.</summary>
+/// <summary>Represents a piece of terrain on the battlefield, which can hinder movement and  modify stats.</summary>
 [GlobalClass, Tool]
 public partial class Terrain : Resource
 {

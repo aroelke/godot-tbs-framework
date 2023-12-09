@@ -1,8 +1,0 @@
-[gd_resource type="Resource" script_class="Terrain" load_steps=2 format=3 uid="uid://bjelmi10hjduk"]
-
-[ext_resource type="Script" path="res://src/battle/Terrain.cs" id="1_184o7"]
-
-[resource]
-resource_name = "mountain"
-script = ExtResource("1_184o7")
-Cost = 5
