@@ -1,15 +1,15 @@
 [gd_scene load_steps=3 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/level/manager/LevelManager.cs" id="1_cgt2i"]
-[ext_resource type="Script" path="res://src/level/ui/CursorProjection.cs" id="2_13870"]
+[ext_resource type="Script" path="res://src/level/ui/PointerProjection.cs" id="2_wcsqo"]
 
 [node name="LevelManager" type="Node2D"]
 script = ExtResource("1_cgt2i")
 
-[node name="CursorProjection" type="Node2D" parent="."]
-script = ExtResource("2_13870")
+[node name="PointerProjection" type="Node2D" parent="."]
+script = ExtResource("2_wcsqo")
 
-[node name="LevelCamera" type="Camera2D" parent="CursorProjection"]
+[node name="LevelCamera" type="Camera2D" parent="PointerProjection"]
 z_index = 255
 zoom = Vector2(2, 2)
 limit_left = 0

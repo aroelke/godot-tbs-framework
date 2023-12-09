@@ -5,7 +5,7 @@ using ui.input;
 namespace level.ui;
 
 /// <summary>Projection of the pointer (virtual or real) onto the map, for controlling the cursor.</summary>
-public partial class CursorProjection : Node2D, ILevelManaged
+public partial class PointerProjection : Node2D, ILevelManaged
 {
     private InputManager _inputManager = null;
     private LevelManager _levelManager = null;

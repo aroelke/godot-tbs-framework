@@ -17,7 +17,7 @@ public partial class LevelManager : Node2D
     private Camera2D _camera = null;
 
     private LevelMap Map => _map ??= GetNode<LevelMap>("LevelMap");
-    private Camera2D Camera => _camera ??= GetNode<Camera2D>("CursorProjection/LevelCamera");
+    private Camera2D Camera => _camera ??= GetNode<Camera2D>("PointerProjection/LevelCamera");
 
     public override string[] _GetConfigurationWarnings()
     {
