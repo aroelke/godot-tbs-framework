@@ -4,5 +4,5 @@ namespace level.manager;
 public interface ILevelManaged
 {
     /// <summary>The <c>LevelManager</c> in which this object is instantiated and is managing the level.</summary>
-    public LevelManager Manager { get; protected set; }
+    public LevelManager LevelManager { get; }
 }

@@ -13,6 +13,12 @@ namespace level.manager;
 [Tool]
 public partial class LevelManager : Node2D
 {
+    private LevelMap _map;
+    private Camera2D _camera = null;
+
+    private LevelMap Map => _map ??= GetNode<LevelMap>("LevelMap");
+    private Camera2D Camera => _camera ??= GetNode<Camera2D>("CursorProjection/LevelCamera");
+
     public override string[] _GetConfigurationWarnings()
     {
         List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
@@ -24,5 +30,16 @@ public partial class LevelManager : Node2D
             warnings.Add($"Level contains too many maps ({maps}).");
 
         return warnings.ToArray();
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+
+        if (!Engine.IsEditorHint())
+        {
+            (Camera.LimitTop, Camera.LimitLeft) = Vector2I.Zero;
+            (Camera.LimitRight, Camera.LimitBottom) = Map.Size*Map.CellSize;
+        }
     }
 }
