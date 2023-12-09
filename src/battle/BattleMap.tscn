@@ -817,8 +817,6 @@ stretch_mode = 3
 layout_mode = 2
 text = ": Select"
 
-[connection signal="CellSelected" from="Cursor" to="." method="OnCellCelected"]
-[connection signal="CursorMoved" from="Cursor" to="." method="OnCursorMoved"]
 [connection signal="Clicked" from="Pointer" to="Cursor" method="OnMouseClicked"]
 [connection signal="InputModeChanged" from="Pointer" to="Pointer/BattleCamera" method="OnInputModeChanged"]
 [connection signal="Moved" from="Pointer" to="Cursor" method="OnMouseMoved"]

@@ -1,10 +1,10 @@
 [gd_scene load_steps=27 format=3 uid="uid://dgsv1t18thon5"]
 
-[ext_resource type="Resource" uid="uid://bn6uq3ysywt60" path="res://assets/environment/terrain/plain.tres" id="1_3nhgp"]
-[ext_resource type="Texture2D" uid="uid://ct5iy7vuwoof3" path="res://assets/environment/tiles/objects.png" id="1_bwrpj"]
-[ext_resource type="Resource" uid="uid://ryxx30gb4grd" path="res://assets/environment/terrain/bush.tres" id="2_xbmuj"]
-[ext_resource type="Resource" uid="uid://matpnfv7cs4l" path="res://assets/environment/terrain/mountain.tres" id="3_p1hc4"]
-[ext_resource type="Script" path="res://src/level/environment/Environment.cs" id="5_4d247"]
+[ext_resource type="Resource" uid="uid://bn6uq3ysywt60" path="res://assets/environment/terrain/plain.tres" id="1_th7be"]
+[ext_resource type="Resource" uid="uid://ryxx30gb4grd" path="res://assets/environment/terrain/bush.tres" id="2_8gjav"]
+[ext_resource type="Resource" uid="uid://matpnfv7cs4l" path="res://assets/environment/terrain/mountain.tres" id="3_0n2fa"]
+[ext_resource type="Texture2D" uid="uid://ct5iy7vuwoof3" path="res://assets/environment/tiles/objects.png" id="4_yrfs1"]
+[ext_resource type="Script" path="res://src/level/map/LevelMap.cs" id="5_ngukb"]
 
 [sub_resource type="TileMapPattern" id="TileMapPattern_m8dcu"]
 tile_data = PackedInt32Array(0, 0, 2, 65536, 0, 3)
@@ -64,12 +64,12 @@ tile_data = PackedInt32Array(0, 65536, 6, 1, 131072, 6)
 tile_data = PackedInt32Array(0, 65536, 7, 1, 131072, 7)
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_5enfu"]
-texture = ExtResource("1_bwrpj")
+texture = ExtResource("4_yrfs1")
 texture_region_size = Vector2i(32, 32)
 0:0/0 = 0
-0:0/0/custom_data_0 = ExtResource("1_3nhgp")
+0:0/0/custom_data_0 = ExtResource("1_th7be")
 0:1/0 = 0
-0:1/0/custom_data_0 = ExtResource("2_xbmuj")
+0:1/0/custom_data_0 = ExtResource("2_8gjav")
 1:1/0 = 0
 2:1/0 = 0
 3:1/0 = 0
@@ -94,9 +94,9 @@ texture_region_size = Vector2i(32, 32)
 6:3/0 = 0
 7:3/0 = 0
 0:4/0 = 0
-0:4/0/custom_data_0 = ExtResource("3_p1hc4")
+0:4/0/custom_data_0 = ExtResource("3_0n2fa")
 1:4/0 = 0
-1:4/0/custom_data_0 = ExtResource("3_p1hc4")
+1:4/0/custom_data_0 = ExtResource("3_0n2fa")
 2:4/0 = 0
 3:4/0 = 0
 4:4/0 = 0
@@ -104,9 +104,9 @@ texture_region_size = Vector2i(32, 32)
 6:4/0 = 0
 7:4/0 = 0
 0:5/0 = 0
-0:5/0/custom_data_0 = ExtResource("3_p1hc4")
+0:5/0/custom_data_0 = ExtResource("3_0n2fa")
 1:5/0 = 0
-1:5/0/custom_data_0 = ExtResource("3_p1hc4")
+1:5/0/custom_data_0 = ExtResource("3_0n2fa")
 2:5/0 = 0
 3:5/0 = 0
 4:5/0 = 0
@@ -198,11 +198,10 @@ pattern_16 = SubResource("TileMapPattern_xr276")
 pattern_17 = SubResource("TileMapPattern_sikpy")
 pattern_18 = SubResource("TileMapPattern_v7el4")
 
-[node name="Environment" type="TileMap"]
+[node name="LevelMap" type="TileMap"]
 tile_set = SubResource("TileSet_s2otx")
 format = 2
 layer_0/name = "ground"
 layer_1/name = "terrain"
 layer_1/tile_data = PackedInt32Array()
-script = ExtResource("5_4d247")
-DefaultTerrain = ExtResource("1_3nhgp")
+script = ExtResource("5_ngukb")

@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using Godot;
 
-namespace level.environment;
+namespace level.map;
 
 /// <summary>Represents the environment on which a level is played, defining its grid dimensions, tiles, and terrain.</summary>
 [Tool]
-public partial class Environment : TileMap
+public partial class LevelMap : TileMap
 {
     /// <summary><c>TileSet</c> layer containing ground tiles.</summary>
     public int GroundLayer { get; private set; } = -1;
