@@ -23,8 +23,8 @@ public partial class InputManager : Node2D
     /// <returns>A vector representing the movement of the left control stick of the game pad.</returns>
     public static Vector2 GetAnalogVector() => Input.GetVector("cursor_analog_left", "cursor_analog_right", "cursor_analog_up", "cursor_analog_down");
 
-    private InputDevice _device = InputDevice.Mouse;
-    private InputMode _mode = InputMode.Mouse;
+    private InputDevice _device = InputDevice.Keyboard;
+    private InputMode _mode = InputMode.Digital;
 
     /// <summary>The current input device.</summary>
     [Export] public InputDevice Device
