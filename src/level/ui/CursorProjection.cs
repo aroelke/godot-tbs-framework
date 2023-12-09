@@ -18,6 +18,12 @@ public partial class CursorProjection : Node2D, ILevelManaged
     {
         base._Process(delta);
         if (InputManager.Mode == InputMode.Mouse)
-            Position = LevelManager.GetLocalMousePosition();
+        {
+            Position = InputManager.LastKnownPointerPosition switch
+            {
+                Vector2 pos => (LevelManager.GetGlobalTransform()*LevelManager.GetCanvasTransform()).AffineInverse()*pos,
+                _ => LevelManager.GetLocalMousePosition()
+            };
+        }
     }
 }

@@ -2,7 +2,7 @@ using Godot;
 
 namespace ui.input;
 
-public partial class InputManager : Node
+public partial class InputManager : Node2D
 {
     /// <summary>Signals that the input method has changed.</summary>
     /// <param name="device">New method of input.</param>
@@ -11,6 +11,14 @@ public partial class InputManager : Node
     /// <summary>Signals that the input mode has changed.</summary>
     /// <param name="mode">New input mode</param>
     [Signal] public delegate void InputModeChangedEventHandler(InputMode mode);
+
+    /// <summary>Signals that the mouse has entered the screen.</summary>
+    /// <param name="position">Position the mouse entered the screen on (depending on the mouse speed, it might not be on the edge).</param>
+    [Signal] public delegate void MouseEnteredEventHandler(Vector2 position);
+
+    /// <summary>Signals that the mouse has exited the screen.</summary>
+    /// <param name="position">Position on the edge of the screen the mouse exited.</param>
+    [Signal] public delegate void MouseExitedEventHandler(Vector2 position);
 
     /// <returns>A vector representing the movement of the left control stick of the game pad.</returns>
     public static Vector2 GetAnalogVector() => Input.GetVector("cursor_analog_left", "cursor_analog_right", "cursor_analog_up", "cursor_analog_down");
@@ -41,6 +49,25 @@ public partial class InputManager : Node
             _mode = value;
             if (_mode != old)
                 EmitSignal(SignalName.InputModeChanged, Variant.From(_mode));
+        }
+    }
+
+    /// <summary>Last known position the mouse was on the screen if it's off the screen, or <c>null</c> if it's on the screen.</summary>
+    public Vector2? LastKnownPointerPosition { get; private set; } = null;
+
+    public override void _Notification(int what)
+    {
+        base._Notification(what);
+        switch ((long)what)
+        {
+        case NotificationWMMouseEnter or NotificationVpMouseEnter:
+            LastKnownPointerPosition = null;
+            EmitSignal(SignalName.MouseEntered, GetViewport().GetMousePosition());
+            break;
+        case NotificationWMMouseExit or NotificationVpMouseExit:
+            LastKnownPointerPosition = GetViewport().GetMousePosition().Clamp(Vector2.Zero, GetViewportRect().Size);
+            EmitSignal(SignalName.MouseExited, LastKnownPointerPosition.Value);
+            break;
         }
     }
 
