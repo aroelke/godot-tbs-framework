@@ -22,6 +22,9 @@ public partial class LevelManager : Node2D
     /// <summary>The size of the level's grid.</summary>
     public Vector2I GridSize => Map.Size;
 
+    /// <summary>Size of the grid cells in world pixels.</summary>
+    public Vector2 CellSize => Map.CellSize;
+
     /// <summary>Find the cell offset closest to the given one inside the grid.</summary>
     /// <param name="cell">Cell offset to clamp.
     /// <returns>The cell offset clamped to be inside the grid bounds using <c>Vector2I.Clamp</c></returns>
@@ -57,7 +60,7 @@ public partial class LevelManager : Node2D
         if (!Engine.IsEditorHint())
         {
             (Camera.LimitTop, Camera.LimitLeft) = Vector2I.Zero;
-            (Camera.LimitRight, Camera.LimitBottom) = Map.Size*Map.CellSize;
+            (Camera.LimitRight, Camera.LimitBottom) = (Vector2I)(Map.Size*Map.CellSize);
         }
     }
 }

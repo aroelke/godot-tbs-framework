@@ -30,7 +30,11 @@ texture = ExtResource("3_siwep")
 offset = Vector2(16, 16)
 script = ExtResource("4_pq0pp")
 
+[node name="EchoTimer" type="Timer" parent="Cursor"]
+one_shot = true
+
 [node name="UserInterface" type="CanvasLayer" parent="."]
 
 [connection signal="PointerMoved" from="PointerProjection" to="Cursor" method="OnPointerMoved"]
 [connection signal="DirectionPressed" from="Cursor" to="PointerProjection" method="Warp"]
+[connection signal="timeout" from="Cursor/EchoTimer" to="Cursor" method="OnEchoTimeout"]

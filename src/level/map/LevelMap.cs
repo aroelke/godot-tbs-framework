@@ -18,7 +18,7 @@ public partial class LevelMap : TileMap
     [Export] public Terrain DefaultTerrain = null;
 
     /// <summary>Grid cell dimensions derived from the tile set.  If there is no tileset, the size is zero.</summary>
-    public Vector2I CellSize => TileSet?.TileSize ?? Vector2I.Zero;
+    public Vector2 CellSize => TileSet?.TileSize ?? Vector2.Zero;
 
     /// <summary>Grid dimensions. Both elements should be positive.</summary>
     public Vector2I Size => GetUsedRect().End;
@@ -36,7 +36,7 @@ public partial class LevelMap : TileMap
     /// <summary>Find the position in pixels of a cell offset.</summary>
     /// <param name="offset">Cell offset to use for calculation (can be outside grid bounds).</param>
     /// <returns>The position, in pixels of the upper-left corner of the grid cell.</returns>
-    public Vector2I PositionOf(Vector2I offset) => offset*CellSize;
+    public Vector2 PositionOf(Vector2I offset) => offset*CellSize;
 
     /// <summary>Find the cell offset of a pixel position.</summary>
     /// <param name="position">Position in world pixels.</param>
