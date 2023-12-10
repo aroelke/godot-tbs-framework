@@ -70,9 +70,9 @@ public partial class Cursor : Sprite2D, ILevelManaged
             _echoing = true;
     }
 
-    public override void _Input(InputEvent @event)
+    public override void _UnhandledInput(InputEvent @event)
     {
-        base._Input(@event);
+        base._UnhandledInput(@event);
         if (InputManager.Mode == InputMode.Digital)
         {
             Vector2I dir = InputManager.GetDigitalVector();
