@@ -75,7 +75,7 @@ public partial class Cursor : Sprite2D, ILevelManaged
         base._Input(@event);
         if (InputManager.Mode == InputMode.Digital)
         {
-            Vector2I dir = (Vector2I)Input.GetVector("cursor_digital_left", "cursor_digital_right", "cursor_digital_up", "cursor_digital_down").Round();
+            Vector2I dir = InputManager.GetDigitalVector();
             if (dir != _direction)
             {
                 EchoTimer.Stop();

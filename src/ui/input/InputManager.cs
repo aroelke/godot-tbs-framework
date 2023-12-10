@@ -20,6 +20,9 @@ public partial class InputManager : Node2D
     /// <param name="position">Position on the edge of the screen the mouse exited.</param>
     [Signal] public delegate void MouseExitedEventHandler(Vector2 position);
 
+    /// <returns>A vector representing the digital direction(s) being held down. Elements have values 0, 1, or -1.</returns>
+    public static Vector2I GetDigitalVector() => (Vector2I)Input.GetVector("cursor_digital_left", "cursor_digital_right", "cursor_digital_up", "cursor_digital_down").Round();
+
     /// <returns>A vector representing the movement of the left control stick of the game pad.</returns>
     public static Vector2 GetAnalogVector() => Input.GetVector("cursor_analog_left", "cursor_analog_right", "cursor_analog_up", "cursor_analog_down");
 
