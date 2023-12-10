@@ -1,9 +1,11 @@
-[gd_scene load_steps=5 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=7 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/level/manager/LevelManager.cs" id="1_cgt2i"]
 [ext_resource type="Script" path="res://src/level/ui/PointerProjection.cs" id="2_wcsqo"]
 [ext_resource type="Texture2D" uid="uid://dhxxyboxchr67" path="res://assets/battle/ui/cursor.png" id="3_siwep"]
 [ext_resource type="Script" path="res://src/level/ui/Cursor.cs" id="4_pq0pp"]
+[ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://assets/ui/mouse.png" id="5_wkats"]
+[ext_resource type="Script" path="res://src/ui/VirtualPointer.cs" id="6_op0r2"]
 
 [node name="LevelManager" type="Node2D"]
 script = ExtResource("1_cgt2i")
@@ -34,6 +36,10 @@ script = ExtResource("4_pq0pp")
 one_shot = true
 
 [node name="UserInterface" type="CanvasLayer" parent="."]
+
+[node name="VirtualPointer" type="TextureRect" parent="UserInterface"]
+texture = ExtResource("5_wkats")
+script = ExtResource("6_op0r2")
 
 [connection signal="PointerMoved" from="PointerProjection" to="Cursor" method="OnPointerMoved"]
 [connection signal="DirectionPressed" from="Cursor" to="PointerProjection" method="Warp"]
