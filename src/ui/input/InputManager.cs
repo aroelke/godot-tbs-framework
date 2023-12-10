@@ -79,18 +79,22 @@ public partial class InputManager : Node2D
         case InputEventMouse:
             Device = InputDevice.Mouse;
             Mode = InputMode.Mouse;
+            Input.MouseMode = Input.MouseModeEnum.Visible;
             break;
         case InputEventKey:
             Device = InputDevice.Keyboard;
             Mode = InputMode.Digital;
+            Input.MouseMode = Input.MouseModeEnum.Hidden;
             break;
         case InputEventJoypadButton:
             Device = InputDevice.Playstation;
             Mode = InputMode.Digital;
+            Input.MouseMode = Input.MouseModeEnum.Hidden;
             break;
         case InputEventJoypadMotion when GetAnalogVector() != Vector2.Zero:
             Device = InputDevice.Playstation;
             Mode = InputMode.Analog;
+            Input.MouseMode = Input.MouseModeEnum.Hidden;
             break;
         }
     }
