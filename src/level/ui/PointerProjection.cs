@@ -19,20 +19,32 @@ public partial class PointerProjection : Node2D, ILevelManaged
 
     public LevelManager LevelManager => _levelManager ??= GetParent<LevelManager>();
 
+    /// <summary>
+    /// Move the pointer projection to a new position. This does not affect the actual mouse pointer or any virtual pointers
+    /// the projection is subscribed to, but does update things that are subscribed to it.
+    /// </summary>
+    /// <param name="position">Position to jump to.</param>
+    public void Warp(Vector2 position)
+    {
+        if (Position != position)
+        {
+            Vector2 old = Position;
+            Position = position;
+            EmitSignal(SignalName.PointerMoved, old, Position);
+        }
+    }
+
     public override void _Process(double delta)
     {
         base._Process(delta);
 
-        Vector2 old = Position;
         if (InputManager.Mode == InputMode.Mouse)
         {
-            Position = InputManager.LastKnownPointerPosition switch
+            Warp(InputManager.LastKnownPointerPosition switch
             {
                 Vector2 pos => (LevelManager.GetGlobalTransform()*LevelManager.GetCanvasTransform()).AffineInverse()*pos,
                 _ => LevelManager.GetLocalMousePosition()
-            };
+            });
         }
-        if (Position != old)
-            EmitSignal(SignalName.PointerMoved, old, Position);
     }
 }

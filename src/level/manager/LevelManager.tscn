@@ -33,3 +33,4 @@ script = ExtResource("4_pq0pp")
 [node name="UserInterface" type="CanvasLayer" parent="."]
 
 [connection signal="PointerMoved" from="PointerProjection" to="Cursor" method="OnPointerMoved"]
+[connection signal="DirectionPressed" from="Cursor" to="PointerProjection" method="Warp"]

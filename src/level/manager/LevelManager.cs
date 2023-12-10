@@ -19,6 +19,9 @@ public partial class LevelManager : Node2D
     private LevelMap Map => _map ??= GetNode<LevelMap>("LevelMap");
     private Camera2D Camera => _camera ??= GetNode<Camera2D>("PointerProjection/LevelCamera");
 
+    /// <summary>The size of the level's grid.</summary>
+    public Vector2I GridSize => Map.Size;
+
     /// <summary>Find the cell offset closest to the given one inside the grid.</summary>
     /// <param name="cell">Cell offset to clamp.
     /// <returns>The cell offset clamped to be inside the grid bounds using <c>Vector2I.Clamp</c></returns>
