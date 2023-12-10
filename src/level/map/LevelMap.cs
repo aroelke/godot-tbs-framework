@@ -61,7 +61,6 @@ public partial class LevelMap : TileMap
         for (int i = 0; i < GetLayersCount(); i++)
             if (GetLayerName(i) == "ground")
                 ground = i;
-        GD.Print(ground);
         if (ground == -1)
             warnings.Add("No ground layer");
         else
