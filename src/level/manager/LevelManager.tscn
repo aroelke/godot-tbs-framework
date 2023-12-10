@@ -11,7 +11,7 @@ script = ExtResource("1_cgt2i")
 [node name="PointerProjection" type="Node2D" parent="."]
 script = ExtResource("2_wcsqo")
 
-[node name="LevelCamera" type="Camera2D" parent="PointerProjection"]
+[node name="Camera" type="Camera2D" parent="PointerProjection"]
 zoom = Vector2(2, 2)
 limit_left = 0
 limit_top = 0

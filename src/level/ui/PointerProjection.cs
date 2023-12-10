@@ -4,7 +4,7 @@ using ui.input;
 
 namespace level.ui;
 
-/// <summary>Projection of the pointer (virtual or real) onto the map, for controlling the cursor.</summary>
+/// <summary>Projection of the pointer (virtual or real) onto the map, for controlling the cursor and the camera.</summary>
 public partial class PointerProjection : Node2D, ILevelManaged
 {
     /// <summary>Signals that the pointer projection has moved on the map.</summary>
@@ -13,9 +13,11 @@ public partial class PointerProjection : Node2D, ILevelManaged
     [Signal] public delegate void PointerMovedEventHandler(Vector2 previous, Vector2 current);
 
     private InputManager _inputManager = null;
+    private Camera2D _camera = null;
     private LevelManager _levelManager = null;
 
     private InputManager InputManager => _inputManager ??= GetNode<InputManager>("/root/InputManager");
+    private Camera2D Camera => _camera ??= GetNode<Camera2D>("Camera");
 
     public LevelManager LevelManager => _levelManager ??= GetParent<LevelManager>();
 
@@ -34,6 +36,17 @@ public partial class PointerProjection : Node2D, ILevelManaged
         }
     }
 
+    public void OnInputModeChanged(InputMode mode) => Camera.PositionSmoothingEnabled = mode == InputMode.Mouse;
+
+    public override void _Ready()
+    {
+        base._Ready();
+
+        (Camera.LimitTop, Camera.LimitLeft) = Vector2I.Zero;
+        (Camera.LimitRight, Camera.LimitBottom) = (Vector2I)(LevelManager.GridSize*LevelManager.CellSize);
+        InputManager.InputModeChanged += OnInputModeChanged;
+    }
+
     public override void _Process(double delta)
     {
         base._Process(delta);
@@ -46,5 +59,11 @@ public partial class PointerProjection : Node2D, ILevelManaged
                 _ => LevelManager.GetLocalMousePosition()
             });
         }
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+        InputManager.InputModeChanged -= OnInputModeChanged;
     }
 }

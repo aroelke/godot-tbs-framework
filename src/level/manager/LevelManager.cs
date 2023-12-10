@@ -14,10 +14,7 @@ namespace level.manager;
 public partial class LevelManager : Node2D
 {
     private LevelMap _map;
-    private Camera2D _camera = null;
-
     private LevelMap Map => _map ??= GetNode<LevelMap>("LevelMap");
-    private Camera2D Camera => _camera ??= GetNode<Camera2D>("PointerProjection/LevelCamera");
 
     /// <summary>The size of the level's grid.</summary>
     public Vector2I GridSize => Map.Size;
@@ -51,16 +48,5 @@ public partial class LevelManager : Node2D
             warnings.Add($"Level contains too many maps ({maps}).");
 
         return warnings.ToArray();
-    }
-
-    public override void _Ready()
-    {
-        base._Ready();
-
-        if (!Engine.IsEditorHint())
-        {
-            (Camera.LimitTop, Camera.LimitLeft) = Vector2I.Zero;
-            (Camera.LimitRight, Camera.LimitBottom) = (Vector2I)(Map.Size*Map.CellSize);
-        }
     }
 }

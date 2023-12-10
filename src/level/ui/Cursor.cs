@@ -11,6 +11,8 @@ namespace level.ui;
 /// </summary>
 public partial class Cursor : Sprite2D, ILevelManaged
 {
+    /// <summary>Emitted when a direction is pressed to request movement in that direction.</summary>
+    /// <param name="position">Center of the cell to move to.</param>
     [Signal] public delegate void DirectionPressedEventHandler(Vector2 position);
 
     private InputManager _inputManager = null;
