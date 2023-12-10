@@ -15,6 +15,7 @@ public partial class PointerProjection : Node2D, ILevelManaged
     private InputManager _inputManager = null;
     private Camera2D _camera = null;
     private LevelManager _levelManager = null;
+    private Vector2 _virtualPosition = Vector2.Zero;
 
     private InputManager InputManager => _inputManager ??= GetNode<InputManager>("/root/InputManager");
     private Camera2D Camera => _camera ??= GetNode<Camera2D>("Camera");
@@ -36,7 +37,14 @@ public partial class PointerProjection : Node2D, ILevelManaged
         }
     }
 
-    public void OnInputModeChanged(InputMode mode) => Camera.PositionSmoothingEnabled = mode == InputMode.Mouse;
+    /// <summary>Only smooth the camera when the cursor is controlled by the mouse.</summary>
+    /// <param name="mode">Current input mode.</param>
+    public void OnInputModeChanged(InputMode mode) => Camera.PositionSmoothingEnabled = mode != InputMode.Digital;
+
+    /// <summary>When the virtual pointer moves, move to its location projected onto the map.</summary>
+    /// <param name="previous">Previous location of the virtual pointer on the viewport.</param>
+    /// <param name="current">Next location of the virtual pointer on the viewport.</param>
+    public void OnVirtualPointerMoved(Vector2 previous, Vector2 current) => _virtualPosition = current;
 
     public override void _Ready()
     {
@@ -50,6 +58,20 @@ public partial class PointerProjection : Node2D, ILevelManaged
     public override void _Process(double delta)
     {
         base._Process(delta);
+
+        switch (InputManager.Mode)
+        {
+        case InputMode.Mouse:
+            Warp(InputManager.LastKnownPointerPosition switch
+            {
+                Vector2 pos => (LevelManager.GetGlobalTransform()*LevelManager.GetCanvasTransform()).AffineInverse()*pos,
+                _ => LevelManager.GetLocalMousePosition()
+            });
+            break;
+        case InputMode.Analog:
+            Warp(InputManager.GetGlobalTransformWithCanvas().AffineInverse()*_virtualPosition);
+            break;
+        }
 
         if (InputManager.Mode == InputMode.Mouse)
         {
