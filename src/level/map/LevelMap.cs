@@ -26,12 +26,12 @@ public partial class LevelMap : TileMap
     /// <summary>Check if a cell offset is in the grid.</summary>
     /// <param name="offset">offset to check.</param>
     /// <returns><c>true</c> if the offset is within the grid bounds, and <c>false</c> otherwise.</returns>
-    public bool Contains(Vector2I offset) => offset.X >= 0 && offset.X < Size.X && offset.Y >= 0 && offset.Y < Size.Y;
+    public bool Contains(Vector2I offset) => new Rect2I(Vector2I.Zero, Size).HasPoint(offset);
 
     /// <summary>Find the cell offset closest to the given one inside the grid.</summary>
     /// <param name="cell">Cell offset to clamp.
     /// <returns>The cell offset clamped to be inside the grid bounds using <c>Vector2I.Clamp</c></returns>
-    public Vector2I Clamp(Vector2I offset) => offset.Clamp(Vector2I.Zero, Size);
+    public Vector2I Clamp(Vector2I offset) => offset.Clamp(Vector2I.Zero, Size - Vector2I.One);
 
     /// <summary>Find the position in pixels of a cell offset.</summary>
     /// <param name="offset">Cell offset to use for calculation (can be outside grid bounds).</param>

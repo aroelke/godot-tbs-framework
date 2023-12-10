@@ -199,6 +199,7 @@ pattern_17 = SubResource("TileMapPattern_sikpy")
 pattern_18 = SubResource("TileMapPattern_v7el4")
 
 [node name="LevelMap" type="TileMap"]
+z_index = -1
 tile_set = SubResource("TileSet_s2otx")
 format = 2
 layer_0/name = "ground"

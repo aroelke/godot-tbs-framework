@@ -19,6 +19,21 @@ public partial class LevelManager : Node2D
     private LevelMap Map => _map ??= GetNode<LevelMap>("LevelMap");
     private Camera2D Camera => _camera ??= GetNode<Camera2D>("PointerProjection/LevelCamera");
 
+    /// <summary>Find the cell offset closest to the given one inside the grid.</summary>
+    /// <param name="cell">Cell offset to clamp.
+    /// <returns>The cell offset clamped to be inside the grid bounds using <c>Vector2I.Clamp</c></returns>
+    public Vector2I Clamp(Vector2I cell) => Map.Clamp(cell);
+
+    /// <summary>Find the cell containing a pixel position.</summary>
+    /// <param name="position">Position in world pixels.</param>
+    /// <returns>The coordinates of the cell containing the pixel point (can be outside grid bounds).</returns>
+    public Vector2I CellOf(Vector2 position) => Map.CellOf(position);
+
+    /// <summary>Find the position in world pixels of a cell.</summary>
+    /// <param name="cell">Cell to use for calculation (can be outside grid bounds).</param>
+    /// <returns>The position, in pixels of the upper-left corner of the grid cell.</returns>
+    public Vector2 PositionOf(Vector2I cell) => Map.PositionOf(cell);
+
     public override string[] _GetConfigurationWarnings()
     {
         List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
