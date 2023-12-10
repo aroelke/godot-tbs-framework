@@ -1,8 +1,7 @@
-[gd_scene load_steps=8 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=7 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/level/manager/LevelManager.cs" id="1_cgt2i"]
 [ext_resource type="Script" path="res://src/level/ui/PointerProjection.cs" id="2_wcsqo"]
-[ext_resource type="Texture2D" uid="uid://cm1l7k8w18s36" path="res://assets/ui/icons/controls/playstation/circle.png" id="3_qprd6"]
 [ext_resource type="Texture2D" uid="uid://dhxxyboxchr67" path="res://assets/battle/ui/cursor.png" id="3_siwep"]
 [ext_resource type="Script" path="res://src/level/ui/Cursor.cs" id="4_pq0pp"]
 [ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://assets/ui/mouse.png" id="5_wkats"]
@@ -27,10 +26,6 @@ drag_top_margin = 0.5
 drag_right_margin = 0.5
 drag_bottom_margin = 0.5
 editor_draw_drag_margin = true
-
-[node name="Sprite2D" type="Sprite2D" parent="PointerProjection"]
-visible = false
-texture = ExtResource("3_qprd6")
 
 [node name="Cursor" type="Sprite2D" parent="."]
 texture = ExtResource("3_siwep")
