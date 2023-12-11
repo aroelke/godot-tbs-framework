@@ -15,7 +15,7 @@ public partial class PointerProjection : Node2D, ILevelManaged
     private InputManager _inputManager = null;
     private Camera2D _camera = null;
     private LevelManager _levelManager = null;
-    private Vector2 _virtualPosition = Vector2.Zero;
+    private Vector2 _viewportPosition = Vector2.Zero;
 
     private InputManager InputManager => _inputManager ??= GetNode<InputManager>("/root/InputManager");
     private Camera2D Camera => _camera ??= GetNode<Camera2D>("Camera");
@@ -37,6 +37,11 @@ public partial class PointerProjection : Node2D, ILevelManaged
         }
     }
 
+    /// <summary>Only smooth the camera when the cursor is controlled by the mouse.</summary>
+    /// <param name="previous">Previous input mode.</param>
+    /// <param name="current">Current input mode.</param>
+    public void OnInputModeChanged(InputMode previous, InputMode current) => Camera.PositionSmoothingEnabled = current != InputMode.Digital;
+
     /// <summary>When the cursor moves during digital control, move the projection to the center of the cell.</summary>
     /// <param name="cell">Cell to jump to.</param>
     public void OnCursorMoved(Vector2I cell)
@@ -45,15 +50,17 @@ public partial class PointerProjection : Node2D, ILevelManaged
             Warp(LevelManager.PositionOf(cell) + LevelManager.CellSize/2);
     }
 
-    /// <summary>Only smooth the camera when the cursor is controlled by the mouse.</summary>
-    /// <param name="previous">Previous input mode.</param>
-    /// <param name="current">Current input mode.</param>
-    public void OnInputModeChanged(InputMode previous, InputMode current) => Camera.PositionSmoothingEnabled = current != InputMode.Digital;
-
-    /// <summary>When the virtual pointer moves, move to its location projected onto the map.</summary>
+    /// <summary>When the virtual pointer moves using analog input, move to its location projected onto the map.</summary>
     /// <param name="previous">Previous location of the virtual pointer on the viewport.</param>
     /// <param name="current">Next location of the virtual pointer on the viewport.</param>
-    public void OnVirtualPointerMoved(Vector2 previous, Vector2 current) => _virtualPosition = current;
+    public void OnVirtualPointerMoved(Vector2 previous, Vector2 current) => _viewportPosition = current;
+
+    public override void _UnhandledInput(InputEvent @event)
+    {
+        base._UnhandledInput(@event);
+        if (@event is InputEventMouseMotion)
+            Warp(LevelManager.GetLocalMousePosition());
+    }
 
     public override void _Ready()
     {
@@ -74,11 +81,11 @@ public partial class PointerProjection : Node2D, ILevelManaged
             Warp(InputManager.LastKnownPointerPosition switch
             {
                 Vector2 pos => (LevelManager.GetGlobalTransform()*LevelManager.GetCanvasTransform()).AffineInverse()*pos,
-                _ => LevelManager.GetLocalMousePosition()
+                null => LevelManager.GetLocalMousePosition()
             });
             break;
         case InputMode.Analog:
-            Warp(InputManager.GetGlobalTransformWithCanvas().AffineInverse()*_virtualPosition);
+            Warp(InputManager.GetGlobalTransformWithCanvas().AffineInverse()*_viewportPosition);
             break;
         }
 
