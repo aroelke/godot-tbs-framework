@@ -6,11 +6,11 @@ public partial class InputManager : Node2D
 {
     /// <summary>Signals that the input method has changed.</summary>
     /// <param name="device">New method of input.</param>
-    [Signal] public delegate void InputDeviceChangedEventHandler(InputDevice device);
+    [Signal] public delegate void InputDeviceChangedEventHandler(InputDevice previous, InputDevice current);
 
     /// <summary>Signals that the input mode has changed.</summary>
     /// <param name="mode">New input mode</param>
-    [Signal] public delegate void InputModeChangedEventHandler(InputMode mode);
+    [Signal] public delegate void InputModeChangedEventHandler(InputMode previous, InputMode current);
 
     /// <summary>Signals that the mouse has entered the screen.</summary>
     /// <param name="position">Position the mouse entered the screen on (depending on the mouse speed, it might not be on the edge).</param>
@@ -38,7 +38,7 @@ public partial class InputManager : Node2D
             InputDevice old = _device;
             _device = value;
             if (_device != old)
-                EmitSignal(SignalName.InputDeviceChanged, Variant.From(_device));
+                EmitSignal(SignalName.InputDeviceChanged, Variant.From(old), Variant.From(_device));
         }
     }
 
@@ -51,7 +51,7 @@ public partial class InputManager : Node2D
             InputMode old = _mode;
             _mode = value;
             if (_mode != old)
-                EmitSignal(SignalName.InputModeChanged, Variant.From(_mode));
+                EmitSignal(SignalName.InputModeChanged, Variant.From(old), Variant.From(_mode));
         }
     }
 

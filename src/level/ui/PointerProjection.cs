@@ -38,8 +38,9 @@ public partial class PointerProjection : Node2D, ILevelManaged
     }
 
     /// <summary>Only smooth the camera when the cursor is controlled by the mouse.</summary>
-    /// <param name="mode">Current input mode.</param>
-    public void OnInputModeChanged(InputMode mode) => Camera.PositionSmoothingEnabled = mode != InputMode.Digital;
+    /// <param name="previous">Previous input mode.</param>
+    /// <param name="current">Current input mode.</param>
+    public void OnInputModeChanged(InputMode previous, InputMode current) => Camera.PositionSmoothingEnabled = current != InputMode.Digital;
 
     /// <summary>When the virtual pointer moves, move to its location projected onto the map.</summary>
     /// <param name="previous">Previous location of the virtual pointer on the viewport.</param>

@@ -22,6 +22,29 @@ public partial class VirtualPointer : TextureRect
     /// <summary>Multiplier applied to the pointer speed when the accelerate button is held down in analog mode.</summary>
     [Export] public double Acceleration = 3;
 
+    public void Warp(Vector2 position)
+    {
+        Vector2 old = Position;
+        Position = position;
+        if (old != Position)
+            EmitSignal(SignalName.PointerMoved, old, Position);
+    }
+
+    public void OnInputModeChanged(input.InputMode previous, input.InputMode current)
+    {
+        SetProcess(Visible = current == input.InputMode.Analog);
+        if (Visible)
+        {
+            Warp(previous switch
+            {
+                input.InputMode.Mouse => GetViewport().GetMousePosition(),
+                _ => Position
+            });
+        }
+        else if (previous == input.InputMode.Analog && current == input.InputMode.Mouse)
+            Input.WarpMouse(Position);
+    }
+
     public override void _Input(InputEvent @event)
     {
         base._Input(@event);
@@ -40,17 +63,26 @@ public partial class VirtualPointer : TextureRect
         }
     }
 
+    public override void _Ready()
+    {
+        base._Ready();
+        InputManager.InputModeChanged += OnInputModeChanged;
+    }
+
     public override void _Process(double delta)
     {
         base._Process(delta);
 
-        Vector2 old = Position;
         if (InputManager.Mode == input.InputMode.Analog)
         {
             double speed = _accelerate ? (Speed*Acceleration) : Speed;
-            Position = (Position + (InputManager.GetAnalogVector()*(float)(speed*delta))).Clamp(GetViewportRect().Position, GetViewportRect().End);
+            Warp((Position + (InputManager.GetAnalogVector()*(float)(speed*delta))).Clamp(GetViewportRect().Position, GetViewportRect().End));
         }
-        if (Position != old)
-            EmitSignal(SignalName.PointerMoved, old, Position);
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+        InputManager.InputModeChanged -= OnInputModeChanged;
     }
 }
