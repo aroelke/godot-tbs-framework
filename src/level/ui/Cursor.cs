@@ -11,9 +11,9 @@ namespace level.ui;
 /// </summary>
 public partial class Cursor : Sprite2D, ILevelManaged
 {
-    /// <summary>Emitted when a direction is pressed to request movement in that direction.</summary>
-    /// <param name="position">Center of the cell to move to.</param>
-    [Signal] public delegate void DirectionPressedEventHandler(Vector2 position);
+    /// <summary>Emitted when the cursor moves to a new cel.</summary>
+    /// <param name="cell">Cell moved to.</param>
+    [Signal] public delegate void CursorMovedEventHandler(Vector2I cell);
 
     private InputManager _inputManager = null;
     private LevelManager _levelManager = null;
@@ -44,23 +44,24 @@ public partial class Cursor : Sprite2D, ILevelManaged
             {
                 _cell = next;
                 Position = LevelManager.PositionOf(_cell);
+                EmitSignal(SignalName.CursorMoved, _cell);
             }
         }
     }
 
-    /// <summary>Move the cursor in a direction.</summary>
-    /// <param name="direction">Direction to move. Multiplied by the grid size to get the new position.</param>
-    public void Move(Vector2I direction) => EmitSignal(SignalName.DirectionPressed, Position + direction*LevelManager.GridSize + LevelManager.CellSize/2);
-
-    /// <summary>Update the grid cell when the pointer signals it has moved.</summary>
+    /// <summary>Update the grid cell when the pointer signals it has moved, unless the cursor is what's controlling movement.</summary>
     /// <param name="previous">Previous position of the pointer.</param>
     /// <param name="current">Next position of the pointer.</param>
-    public void OnPointerMoved(Vector2 previous, Vector2 current) => Cell = LevelManager.CellOf(current);
+    public void OnPointerMoved(Vector2 previous, Vector2 current)
+    {
+        if (InputManager.Mode != InputMode.Digital)
+            Cell = LevelManager.CellOf(current);
+    }
 
     /// <summary>Start/continue echo movement of the cursor.</summary>
     public void OnEchoTimeout()
     {
-        Move(_direction);
+        Cell += _direction;
         if (EchoInterval > GetProcessDeltaTime())
         {
             EchoTimer.WaitTime = EchoInterval;
@@ -84,9 +85,9 @@ public partial class Cursor : Sprite2D, ILevelManaged
                 if (dir != Vector2I.Zero)
                 {
                     if (dir.Abs().X + dir.Abs().Y > _direction.Abs().X + _direction.Abs().Y)
-                        Move(dir - _direction);
+                        Cell += dir - _direction;
                     else
-                        Move(dir);
+                        Cell += dir;
                     _direction = dir;
 
                     EchoTimer.WaitTime = EchoDelay;
@@ -102,6 +103,6 @@ public partial class Cursor : Sprite2D, ILevelManaged
     {
         base._Process(delta);
         if (InputManager.Mode == InputMode.Digital && _echoing)
-            Move(_direction);
+            Cell += _direction;
     }
 }

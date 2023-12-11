@@ -37,6 +37,14 @@ public partial class PointerProjection : Node2D, ILevelManaged
         }
     }
 
+    /// <summary>When the cursor moves during digital control, move the projection to the center of the cell.</summary>
+    /// <param name="cell">Cell to jump to.</param>
+    public void OnCursorMoved(Vector2I cell)
+    {
+        if (InputManager.Mode == InputMode.Digital)
+            Warp(LevelManager.PositionOf(cell) + LevelManager.CellSize/2);
+    }
+
     /// <summary>Only smooth the camera when the cursor is controlled by the mouse.</summary>
     /// <param name="previous">Previous input mode.</param>
     /// <param name="current">Current input mode.</param>
