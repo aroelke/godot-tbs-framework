@@ -111,12 +111,4 @@ public partial class VirtualPointer : TextureRect
             break;
         }
     }
-
-    public override void _ExitTree()
-    {
-        base._ExitTree();
-        InputManager.MouseExited -= OnMouseExited;
-        InputManager.MouseEntered -= OnMouseEntered;
-        InputManager.InputModeChanged -= OnInputModeChanged;
-    }
 }

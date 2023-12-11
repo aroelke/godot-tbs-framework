@@ -108,10 +108,4 @@ public partial class PointerProjection : Node2D, ILevelManaged
             break;
         }
     }
-
-    public override void _ExitTree()
-    {
-        base._ExitTree();
-        InputManager.InputModeChanged -= OnInputModeChanged;
-    }
 }

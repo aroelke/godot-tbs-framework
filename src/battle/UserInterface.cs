@@ -34,10 +34,4 @@ public partial class UserInterface : CanvasLayer
         Controller.ControllerChanged += OnControllerChanged;
         OnControllerChanged(Controller.InputController);
     }
-
-    public override void _ExitTree()
-    {
-        base._ExitTree();
-        Controller.ControllerChanged -= OnControllerChanged;
-    }
 }
