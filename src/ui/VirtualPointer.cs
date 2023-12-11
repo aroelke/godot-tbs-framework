@@ -1,4 +1,5 @@
 using Godot;
+using level.ui;
 using ui.input;
 
 namespace ui;
@@ -7,30 +8,34 @@ namespace ui;
 public partial class VirtualPointer : TextureRect
 {
     /// <summary>Signals that the virtual pointer has moved in the canvas.</summary>
-    /// <param name="previous">Previous position of the virtual pointer.</param>
-    /// <param name="current">Next position of the virtual pointer.</param>
-    [Signal] public delegate void PointerMovedEventHandler(Vector2 previous, Vector2 current);
+    /// <param name="position">Position of the virtual pointer.</param>
+    [Signal] public delegate void PointerMovedEventHandler(Vector2 position);
 
     private InputManager _inputManager = null;
     private bool _accelerate = false;
-    private Vector2 _projectionPosition = Vector2.Zero;
 
     private InputManager InputManager => _inputManager ??= GetNode<InputManager>("/root/InputManager");
 
+    /// <summary>Projection of the pointer's screen position onto the world.</summary>
+    [Export] public PointerProjection Projection = null;
+
     /// <summary>Speed in pixels/second the pointer moves when in analog mode.</summary>
+    [ExportGroup("Analog Movement")]
     [Export] public double Speed = 600;
 
     /// <summary>Multiplier applied to the pointer speed when the accelerate button is held down in analog mode.</summary>
+    [ExportGroup("Analog Movement")]
     [Export] public double Acceleration = 3;
 
     /// <summary>Move the virtual pointer to a position on the viewport and signal the move.</summary>
-    /// <param name="position">Position to move to.</param>
-    public void Warp(Vector2 position)
+    /// <param name="target">Position to move to.</param>
+    public void Warp(Vector2 target)
     {
-        Vector2 old = Position;
-        Position = position;
-        if (old != Position)
-            EmitSignal(SignalName.PointerMoved, old, Position);
+        if (Position != target)
+        {
+            Position = target;
+            EmitSignal(SignalName.PointerMoved, Position);
+        }
     }
 
     /// <summary>When switching between mouse and non-mouse input, warp the mouse and virtual pointer around to appear seamless.</summary>
@@ -50,7 +55,7 @@ public partial class VirtualPointer : TextureRect
     public void OnProjectionMoved(Vector2 viewport, Vector2 world)
     {
         if (InputManager.Mode == input.InputMode.Digital)
-            Position = _projectionPosition = viewport;
+            Position = viewport;
     }
 
     public override void _Input(InputEvent @event)
@@ -89,7 +94,8 @@ public partial class VirtualPointer : TextureRect
         switch (InputManager.Mode)
         {
         case input.InputMode.Digital:
-            Warp(_projectionPosition);
+            if (Projection != null)
+                Warp(Projection.ViewportPosition);
             break;
         case input.InputMode.Analog:
             double speed = _accelerate ? (Speed*Acceleration) : Speed;

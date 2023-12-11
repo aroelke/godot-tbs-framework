@@ -11,9 +11,9 @@ namespace level.ui;
 /// </summary>
 public partial class Cursor : Sprite2D, ILevelManaged
 {
-    /// <summary>Emitted when the cursor moves to a new cel.</summary>
-    /// <param name="cell">Cell moved to.</param>
-    [Signal] public delegate void CursorMovedEventHandler(Vector2I cell);
+    /// <summary>Emitted when the cursor moves to a new cell.</summary>
+    /// <param name="cell">Position of the center of the cell moved to.</param>
+    [Signal] public delegate void CursorMovedEventHandler(Vector2 position);
 
     private InputManager _inputManager = null;
     private LevelManager _levelManager = null;
@@ -25,13 +25,15 @@ public partial class Cursor : Sprite2D, ILevelManaged
     private InputManager InputManager => _inputManager ??= GetNode<InputManager>("/root/InputManager");
     private Timer EchoTimer => _echo ??= GetNode<Timer>("EchoTimer");
 
+    [Export] public PointerProjection Projection = null;
+
     /// <summary>Initial delay after pressing a button to begin echoing the input.</summary>
+    [ExportGroup("Echo Control")]
     [Export] public double EchoDelay = 0.3;
 
     /// <summary>Delay between moves while holding an input down.</summary>
+    [ExportGroup("Echo Control")]
     [Export] public double EchoInterval = 0.03;
-
-    public LevelManager LevelManager => _levelManager ??= GetParent<LevelManager>();
 
     /// <summary>Grid cell the cursor occupies. Is always inside the grid managed by the <c>LevelManager</c>.</summary>
     public Vector2I Cell
@@ -44,7 +46,7 @@ public partial class Cursor : Sprite2D, ILevelManaged
             {
                 _cell = next;
                 Position = LevelManager.PositionOf(_cell);
-                EmitSignal(SignalName.CursorMoved, _cell);
+                EmitSignal(SignalName.CursorMoved, Position + LevelManager.CellSize/2);
             }
         }
     }
@@ -70,6 +72,8 @@ public partial class Cursor : Sprite2D, ILevelManaged
         else
             _echoing = true;
     }
+
+    public LevelManager LevelManager => _levelManager ??= GetParent<LevelManager>();
 
     public override void _UnhandledInput(InputEvent @event)
     {
