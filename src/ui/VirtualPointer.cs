@@ -22,6 +22,8 @@ public partial class VirtualPointer : TextureRect
     /// <summary>Multiplier applied to the pointer speed when the accelerate button is held down in analog mode.</summary>
     [Export] public double Acceleration = 3;
 
+    /// <summary>Move the virtual pointer to a position on the viewport and signal the move.</summary>
+    /// <param name="position">Position to move to.</param>
     public void Warp(Vector2 position)
     {
         Vector2 old = Position;
@@ -30,26 +32,26 @@ public partial class VirtualPointer : TextureRect
             EmitSignal(SignalName.PointerMoved, old, Position);
     }
 
+    /// <summary>When switching between mouse and non-mouse input, warp the mouse and virtual pointer around to appear seamless.</summary>
+    /// <param name="previous">Previous input mode.</param>
+    /// <param name="current">Current input mode.</param>
     public void OnInputModeChanged(input.InputMode previous, input.InputMode current)
     {
-        SetProcess(Visible = current == input.InputMode.Analog);
-        if (Visible)
-        {
-            Warp(previous switch
-            {
-                input.InputMode.Mouse => GetViewport().GetMousePosition(),
-                _ => Position
-            });
-        }
-        else if (previous == input.InputMode.Analog && current == input.InputMode.Mouse)
+        if (current == input.InputMode.Mouse)
             Input.WarpMouse(Position);
+        else
+            Warp(GetViewport().GetMousePosition());
     }
 
     public override void _Input(InputEvent @event)
     {
         base._Input(@event);
-        if (InputManager.Mode == input.InputMode.Analog)
+        switch (InputManager.Mode)
         {
+        case input.InputMode.Mouse:
+            Warp(GetViewport().GetMousePosition());
+            break;
+        case input.InputMode.Analog:
             if (Input.IsActionJustPressed("cursor_analog_accelerate"))
             {
                 _accelerate = true;
@@ -60,6 +62,7 @@ public partial class VirtualPointer : TextureRect
                 _accelerate = false;
                 GetViewport().SetInputAsHandled();
             }
+            break;
         }
     }
 

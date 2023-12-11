@@ -23,7 +23,6 @@ InputManager="*res://src/ui/input/InputManager.cs"
 window/size/viewport_width=1280
 window/size/viewport_height=960
 window/stretch/mode="canvas_items"
-mouse_cursor/custom_image="res://assets/ui/mouse.png"
 
 [dotnet]
 
