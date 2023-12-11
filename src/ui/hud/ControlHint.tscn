@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://dmn2f5jkb8qhy"]
+
+[ext_resource type="Script" path="res://src/ui/hud/ControlHint.cs" id="1_ipmf0"]
+
+[node name="ControlHint" type="HBoxContainer"]
+script = ExtResource("1_ipmf0")
+
+[node name="Icons" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+text = ": "
