@@ -59,9 +59,8 @@ public partial class PointerProjection : Node2D, ILevelManaged
     public Vector2 WorldToViewport(Vector2 world) => LevelManager.GetGlobalTransform()*LevelManager.GetCanvasTransform()*world;
 
     /// <summary>Only smooth the camera when the cursor is controlled by the mouse.</summary>
-    /// <param name="previous">Previous input mode.</param>
-    /// <param name="current">Current input mode.</param>
-    public void OnInputModeChanged(InputMode previous, InputMode current) => Camera.PositionSmoothingEnabled = current != InputMode.Digital;
+    /// <param name="mode">Current input mode.</param>
+    public void OnInputModeChanged(InputMode mode) => Camera.PositionSmoothingEnabled = mode != InputMode.Digital;
 
     /// <summary>When the cursor moves during digital control, move the projection to the center of the cell.</summary>
     /// <param name="position">Position of the center of the cell to jump to.</param>

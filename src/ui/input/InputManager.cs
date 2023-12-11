@@ -6,11 +6,11 @@ public partial class InputManager : Node2D
 {
     /// <summary>Signals that the input method has changed.</summary>
     /// <param name="device">New method of input.</param>
-    [Signal] public delegate void InputDeviceChangedEventHandler(InputDevice previous, InputDevice current);
+    [Signal] public delegate void InputDeviceChangedEventHandler(InputDevice device);
 
     /// <summary>Signals that the input mode has changed.</summary>
     /// <param name="mode">New input mode</param>
-    [Signal] public delegate void InputModeChangedEventHandler(InputMode previous, InputMode current);
+    [Signal] public delegate void InputModeChangedEventHandler(InputMode mode);
 
     /// <summary>Signals that the mouse has entered the screen.</summary>
     /// <param name="position">Position the mouse entered the screen on (depending on the mouse speed, it might not be on the edge).</param>
@@ -38,7 +38,7 @@ public partial class InputManager : Node2D
             InputDevice old = _device;
             _device = value;
             if (_device != old)
-                EmitSignal(SignalName.InputDeviceChanged, Variant.From(old), Variant.From(_device));
+                EmitSignal(SignalName.InputDeviceChanged, Variant.From(_device));
         }
     }
 
@@ -51,12 +51,12 @@ public partial class InputManager : Node2D
             InputMode old = _mode;
             _mode = value;
             if (_mode != old)
-                EmitSignal(SignalName.InputModeChanged, Variant.From(old), Variant.From(_mode));
+                EmitSignal(SignalName.InputModeChanged, Variant.From(_mode));
         }
     }
 
     /// <summary>Last known position the mouse was on the screen if it's off the screen, or <c>null</c> if it's on the screen.</summary>
-    public Vector2? LastKnownPointerPosition { get; private set; } = null;
+    public Vector2? LastKnownPointerPosition { get; private set; } = Vector2.Zero;
 
     public override void _Notification(int what)
     {

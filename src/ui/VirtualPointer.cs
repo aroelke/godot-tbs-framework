@@ -1,3 +1,4 @@
+using System.Collections;
 using Godot;
 using level.ui;
 using ui.input;
@@ -39,14 +40,11 @@ public partial class VirtualPointer : TextureRect
     }
 
     /// <summary>When switching between mouse and non-mouse input, warp the mouse and virtual pointer around to appear seamless.</summary>
-    /// <param name="previous">Previous input mode.</param>
-    /// <param name="current">Current input mode.</param>
-    public void OnInputModeChanged(input.InputMode previous, input.InputMode current)
+    /// <param name="mode">Current input mode.</param>
+    public void OnInputModeChanged(input.InputMode mode)
     {
-        if (current == input.InputMode.Mouse)
+        if (mode == input.InputMode.Mouse)
             Input.WarpMouse(Position);
-        else
-            Warp(GetViewport().GetMousePosition());
     }
 
     /// <summary>When the mouse enters the screen, warp to its entry position.</summary>
