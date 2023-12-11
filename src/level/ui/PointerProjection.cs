@@ -80,13 +80,6 @@ public partial class PointerProjection : Node2D, ILevelManaged
             Warp(ViewportToWorld(_viewportPosition));
     }
 
-    public override void _UnhandledInput(InputEvent @event)
-    {
-        base._UnhandledInput(@event);
-        if (@event is InputEventMouseMotion)
-            Warp(LevelManager.GetLocalMousePosition());
-    }
-
     public LevelManager LevelManager => _levelManager ??= GetParent<LevelManager>();
 
     public override void _Ready()
