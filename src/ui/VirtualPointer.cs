@@ -63,7 +63,7 @@ public partial class VirtualPointer : TextureRect
     public void OnProjectionMoved(Vector2 viewport, Vector2 world)
     {
         if (InputManager.Mode == input.InputMode.Digital)
-            Position = viewport;
+            Warp(viewport);
     }
 
     public override void _Input(InputEvent @event)
@@ -71,7 +71,7 @@ public partial class VirtualPointer : TextureRect
         base._Input(@event);
         switch (InputManager.Mode)
         {
-        case input.InputMode.Mouse:
+        case input.InputMode.Mouse when @event is InputEventMouseMotion:
             Warp(GetViewport().GetMousePosition());
             break;
         case input.InputMode.Analog:
