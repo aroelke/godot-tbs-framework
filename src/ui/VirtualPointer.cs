@@ -49,6 +49,14 @@ public partial class VirtualPointer : TextureRect
             Warp(GetViewport().GetMousePosition());
     }
 
+    /// <summary>When the mouse enters the screen, warp to its entry position.</summary>
+    /// <param name="position">Position the mouse entered the screen on.</param>
+    public void OnMouseEntered(Vector2 position) => Warp(position);
+
+    /// <summary>When the mouse exits the screen, warp to edge of the screen near where it exited.</summary>
+    /// <param name="position">Position on screen close to where the mouse exited.</param>
+    public void OnMouseExited(Vector2 position) => Warp(position);
+
     /// <summary>When the projection moves during digital input, move the virtual pointer to where it is on the screen.</summary>
     /// <param name="viewport">Projection's position in the viewport.</param>
     /// <param name="world">Projection's position in the world.</param>
@@ -85,6 +93,8 @@ public partial class VirtualPointer : TextureRect
     {
         base._Ready();
         InputManager.InputModeChanged += OnInputModeChanged;
+        InputManager.MouseEntered += OnMouseEntered;
+        InputManager.MouseExited += OnMouseExited;
     }
 
     public override void _Process(double delta)
@@ -107,6 +117,8 @@ public partial class VirtualPointer : TextureRect
     public override void _ExitTree()
     {
         base._ExitTree();
+        InputManager.MouseExited -= OnMouseExited;
+        InputManager.MouseEntered -= OnMouseEntered;
         InputManager.InputModeChanged -= OnInputModeChanged;
     }
 }
