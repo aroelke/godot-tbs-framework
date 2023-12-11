@@ -8,9 +8,9 @@ namespace level.ui;
 public partial class PointerProjection : Node2D, ILevelManaged
 {
     /// <summary>Signals that the pointer projection has moved on the map.</summary>
-    /// <param name="previous">Previous position on the map.</param>
-    /// <param name="current">Current position on the map.</param>
-    [Signal] public delegate void PointerMovedEventHandler(Vector2 previous, Vector2 current);
+    /// <param name="viewport">Current position on the viewport.</param>
+    /// <param name="world">Current position on the map.</param>
+    [Signal] public delegate void PointerMovedEventHandler(Vector2 viewport, Vector2 world);
 
     private InputManager _inputManager = null;
     private Camera2D _camera = null;
@@ -31,9 +31,8 @@ public partial class PointerProjection : Node2D, ILevelManaged
     {
         if (Position != position)
         {
-            Vector2 old = Position;
             Position = position;
-            EmitSignal(SignalName.PointerMoved, old, Position);
+            EmitSignal(SignalName.PointerMoved, LevelManager.GetGlobalTransform()*LevelManager.GetCanvasTransform()*Position, Position);
         }
     }
 

@@ -13,6 +13,7 @@ public partial class VirtualPointer : TextureRect
 
     private InputManager _inputManager = null;
     private bool _accelerate = false;
+    private Vector2 _projectionPosition = Vector2.Zero;
 
     private InputManager InputManager => _inputManager ??= GetNode<InputManager>("/root/InputManager");
 
@@ -41,6 +42,15 @@ public partial class VirtualPointer : TextureRect
             Input.WarpMouse(Position);
         else
             Warp(GetViewport().GetMousePosition());
+    }
+
+    /// <summary>When the projection moves during digital input, move the virtual pointer to where it is on the screen.</summary>
+    /// <param name="viewport">Projection's position in the viewport.</param>
+    /// <param name="world">Projection's position in the world.</param>
+    public void OnProjectionMoved(Vector2 viewport, Vector2 world)
+    {
+        if (InputManager.Mode == input.InputMode.Digital)
+            Position = _projectionPosition = viewport;
     }
 
     public override void _Input(InputEvent @event)
@@ -76,10 +86,15 @@ public partial class VirtualPointer : TextureRect
     {
         base._Process(delta);
 
-        if (InputManager.Mode == input.InputMode.Analog)
+        switch (InputManager.Mode)
         {
+        case input.InputMode.Digital:
+            Warp(_projectionPosition);
+            break;
+        case input.InputMode.Analog:
             double speed = _accelerate ? (Speed*Acceleration) : Speed;
             Warp((Position + (InputManager.GetAnalogVector()*(float)(speed*delta))).Clamp(GetViewportRect().Position, GetViewportRect().End));
+            break;
         }
     }
 

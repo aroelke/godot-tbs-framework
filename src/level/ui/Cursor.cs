@@ -50,12 +50,12 @@ public partial class Cursor : Sprite2D, ILevelManaged
     }
 
     /// <summary>Update the grid cell when the pointer signals it has moved, unless the cursor is what's controlling movement.</summary>
-    /// <param name="previous">Previous position of the pointer.</param>
-    /// <param name="current">Next position of the pointer.</param>
-    public void OnPointerMoved(Vector2 previous, Vector2 current)
+    /// <param name="viewport">Position of the point in the viewport.</param>
+    /// <param name="world">Position of the pointer in the world.</param>
+    public void OnPointerMoved(Vector2 viewport, Vector2 world)
     {
         if (InputManager.Mode != InputMode.Digital)
-            Cell = LevelManager.CellOf(current);
+            Cell = LevelManager.CellOf(world);
     }
 
     /// <summary>Start/continue echo movement of the cursor.</summary>
