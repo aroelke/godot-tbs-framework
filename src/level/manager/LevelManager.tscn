@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=8 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/level/manager/LevelManager.cs" id="1_cgt2i"]
 [ext_resource type="Script" path="res://src/level/ui/PointerProjection.cs" id="2_wcsqo"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://src/level/ui/Cursor.cs" id="4_pq0pp"]
 [ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://assets/ui/mouse.png" id="5_wkats"]
 [ext_resource type="Script" path="res://src/ui/VirtualPointer.cs" id="6_op0r2"]
+[ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://src/ui/hud/HUD.tres" id="7_12lpk"]
 
 [node name="LevelManager" type="Node2D"]
 script = ExtResource("1_cgt2i")
@@ -42,6 +43,16 @@ one_shot = true
 texture = ExtResource("5_wkats")
 script = ExtResource("6_op0r2")
 Projection = NodePath("../../PointerProjection")
+
+[node name="HUD" type="Control" parent="UserInterface"]
+layout_mode = 3
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -40.0
+offset_right = 40.0
+grow_vertical = 0
+theme = ExtResource("7_12lpk")
 
 [connection signal="PointerMoved" from="PointerProjection" to="Cursor" method="OnPointerMoved"]
 [connection signal="PointerMoved" from="PointerProjection" to="UserInterface/VirtualPointer" method="OnProjectionMoved"]

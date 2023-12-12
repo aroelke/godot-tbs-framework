@@ -7,7 +7,7 @@
 [ext_resource type="Script" path="res://src/battle/Cursor.cs" id="5_nelru"]
 [ext_resource type="Script" path="res://src/battle/Overlay.cs" id="5_vflpr"]
 [ext_resource type="PackedScene" uid="uid://dksjatjeua7re" path="res://src/battle/BattleMouse.tscn" id="6_l87kl"]
-[ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://assets/ui/HUD.tres" id="7_0oqlv"]
+[ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://src/ui/hud/HUD.tres" id="7_0oqlv"]
 [ext_resource type="Script" path="res://src/battle/UserInterface.cs" id="7_wm36a"]
 [ext_resource type="Texture2D" uid="uid://cybgq10hqektj" path="res://assets/battle/ui/overlay.png" id="8_34cv6"]
 [ext_resource type="Texture2D" uid="uid://dfppi0pjsv5ut" path="res://assets/battle/ui/arrow.png" id="8_bq0s0"]
