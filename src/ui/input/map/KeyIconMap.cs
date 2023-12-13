@@ -9,15 +9,7 @@ namespace ui.input.map;
 [GlobalClass, Tool]
 public partial class KeyIconMap : IconMap
 {
-    private IEnumerable<StringName> _names = null;
+    public Texture2D this[Key k] => this[Enum.GetName(k).ToLower()];
 
-    /// <param name="k">Key to search for an icon.</param>
-    /// <returns>The icon to display corresponding to the key</returns>
-    public Texture2D this[Key k] => Icons[Enum.GetName(k)];
-
-    /// <param name="k">Key to check.</param>
-    /// <returns><c>true</c> if the key has been mapped to an icon, and <c>false</c> otherwise.</returns>
-    public bool Contains(Key k) => Contains(Enum.GetName(k));
-
-    public override IEnumerable<StringName> Names => _names ??= (Enum.GetValues(typeof(Key)) as Key[]).Select((i) => new StringName(Enum.GetName(i)));
+    public bool Contains(Key k) => Contains(Enum.GetName(k).ToLower());
 }

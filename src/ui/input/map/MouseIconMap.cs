@@ -9,21 +9,10 @@ namespace ui.input.map;
 [GlobalClass, Tool]
 public partial class MouseIconMap : IconMap
 {
-    private IEnumerable<StringName> _names = null;
+    /// <summary>Name of the file containing the mouse-motion icon (without extension). Works with <c>Contains</c> and <c>this[]</c>.</summary>
+    [Export] public string Motion = "mouse";
 
-    /// <summary>Icon to display indicating mouse motion.</summary>
-    [Export] public Texture2D Motion = null;
+    public Texture2D this[MouseButton b] => this[Enum.GetName(b).ToLower()];
 
-    /// <param name="mb">Mouse button to get the icon for.</param>
-    /// <returns>The icon corresponding to the mouse button to display.</returns>
-    public Texture2D this[MouseButton mb] => Icons[Enum.GetName(mb)];
-
-    /// <param name="mb">Mouse button to check.</param>
-    /// <returns><c>true</c> if the mouse button has been mapped to an icon, and <c>false</c> otherwise.</returns>
-    public bool Contains(MouseButton mb) => Contains(Enum.GetName(mb));
-
-    /// <returns><c>true</c> if mouse motion has been mapped to an icon, and <c>false</c> otherwise.</returns>
-    public bool ContainsMotion() => Motion is not null;
-
-    public override IEnumerable<StringName> Names => _names ??= (Enum.GetValues(typeof(MouseButton)) as MouseButton[]).Select((i) => new StringName(Enum.GetName(i)));
+    public bool Contains(MouseButton b) => Contains(Enum.GetName(b).ToLower());
 }

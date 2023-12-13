@@ -6,56 +6,17 @@ using Godot;
 namespace ui.input.map;
 
 /// <summary>Resource representing a mapping from some set of values onto a set of <c>Texture2D</c> icons.</summary>
-[Tool]
-public abstract partial class IconMap : Resource
+[GlobalClass, Tool]
+public partial class IconMap : Resource
 {
-    private Godot.Collections.Array<Godot.Collections.Dictionary> Properties = null;
+    private string GetPath(string img) => $"{IconPath}/{img}{IconExt}";
 
-    /// <summary>Mapping from value names to corresponding icons.</summary>
-    protected readonly Dictionary<StringName, Texture2D> Icons = new();
+    [Export(PropertyHint.Dir)] public string IconPath = null;
 
-    /// <summary>Names used for representing the values in the property editor.</summary>
-    public abstract IEnumerable<StringName> Names { get; }
+    [Export(PropertyHint.EnumSuggestion, ".bmp,.dds,.ktx,.exr,.hdr,.jpg,.jpeg,.png,.tga,.svg,.webp")]
+    public string IconExt = ".png";
 
-    /// <param name="name">Name of the item to check.</param>
-    /// <returns><c>true</c> if an icon has been mapped to the item name, and <c>false</c> otherwise.</returns>
-    public bool Contains(StringName name) => Icons.ContainsKey(name);
+    public Texture2D this[string k] => ResourceLoader.Load<Texture2D>(GetPath(k));
 
-    public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList() => Properties ??= new(Names.Select((s) => new Godot.Collections.Dictionary()
-    {
-        { "name", s },
-        { "type", (int)Variant.Type.Object },
-        { "hint", (int)PropertyHint.ResourceType },
-        { "hint_string", "Texture2D" }
-    }));
-
-    public override Variant _Get(StringName property)
-    {
-        if (Icons.ContainsKey(property))
-            return Icons[property];
-        else
-            return base._Get(property);
-    }
-
-    public override bool _Set(StringName property, Variant value)
-    {
-        if (Names.Contains(property))
-        {
-            if (value.Equals(default(Variant)) && Icons.ContainsKey(property))
-                Icons.Remove(property);
-            else
-                Icons[property] = value.As<Texture2D>();
-            return true;
-        }
-        return base._Set(property, value);
-    }
-
-    public override bool _PropertyCanRevert(StringName property) => Icons.ContainsKey(property) || base._PropertyCanRevert(property);
-
-    public override Variant _PropertyGetRevert(StringName property)
-    {
-        if (Names.Contains(property))
-            return default;
-        return base._PropertyGetRevert(property);
-    }
+    public bool Contains(string k) => ResourceLoader.Exists(GetPath(k));
 }

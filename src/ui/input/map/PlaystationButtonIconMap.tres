@@ -1,16 +1,9 @@
-[gd_resource type="Resource" script_class="GamepadButtonIconMap" load_steps=7 format=3 uid="uid://c4gxmnbkjh25"]
+[gd_resource type="Resource" script_class="GamepadButtonIconMap" load_steps=2 format=3 uid="uid://c4gxmnbkjh25"]
 
 [ext_resource type="Script" path="res://src/ui/input/map/GamepadButtonIconMap.cs" id="1_4bmku"]
-[ext_resource type="Texture2D" uid="uid://dwrg3c6m2yegj" path="res://assets/ui/icons/controls/playstation/dpad.png" id="1_dxw5p"]
-[ext_resource type="Texture2D" uid="uid://ctvir25bpi7e1" path="res://assets/ui/icons/controls/playstation/cross.png" id="1_m6gvo"]
-[ext_resource type="Texture2D" uid="uid://cm1l7k8w18s36" path="res://assets/ui/icons/controls/playstation/circle.png" id="2_7ps83"]
-[ext_resource type="Texture2D" uid="uid://680tydejo7y" path="res://assets/ui/icons/controls/playstation/square.png" id="4_smxg4"]
-[ext_resource type="Texture2D" uid="uid://bnhfvij8f2iga" path="res://assets/ui/icons/controls/playstation/triangle.png" id="5_yindq"]
 
 [resource]
 script = ExtResource("1_4bmku")
-A = ExtResource("1_m6gvo")
-B = ExtResource("2_7ps83")
-X = ExtResource("4_smxg4")
-Y = ExtResource("5_yindq")
-Dpad = ExtResource("1_dxw5p")
+Dpad = "dpad"
+IconPath = "res://assets/ui/icons/controls/playstation"
+IconExt = ".png"
