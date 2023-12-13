@@ -15,5 +15,9 @@ public partial class KeyIconMap : IconMap
     /// <returns>The icon to display corresponding to the key</returns>
     public Texture2D this[Key k] => Icons[Enum.GetName(k)];
 
+    /// <param name="k">Key to check.</param>
+    /// <returns><c>true</c> if the key has been mapped to an icon, and <c>false</c> otherwise.</returns>
+    public bool Contains(Key k) => Contains(Enum.GetName(k));
+
     public override IEnumerable<StringName> Names => _names ??= (Enum.GetValues(typeof(Key)) as Key[]).Select((i) => new StringName(Enum.GetName(i)));
 }

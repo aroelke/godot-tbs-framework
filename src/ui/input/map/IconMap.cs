@@ -9,21 +9,24 @@ namespace ui.input.map;
 [Tool]
 public abstract partial class IconMap : Resource
 {
-    /// <summary>Names used for representing the values in the property editor.</summary>
-    public abstract IEnumerable<StringName> Names { get; }
-
     private Godot.Collections.Array<Godot.Collections.Dictionary> Properties = null;
 
     /// <summary>Mapping from value names to corresponding icons.</summary>
     protected readonly Dictionary<StringName, Texture2D> Icons = new();
+
+    /// <summary>Names used for representing the values in the property editor.</summary>
+    public abstract IEnumerable<StringName> Names { get; }
+
+    /// <param name="name">Name of the item to check.</param>
+    /// <returns><c>true</c> if an icon has been mapped to the item name, and <c>false</c> otherwise.</returns>
+    public bool Contains(StringName name) => Icons.ContainsKey(name);
 
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList() => Properties ??= new(Names.Select((s) => new Godot.Collections.Dictionary()
     {
         { "name", s },
         { "type", (int)Variant.Type.Object },
         { "hint", (int)PropertyHint.ResourceType },
-        { "hint_string", "Texture2D" },
-        { "usage", (int)(PropertyUsageFlags.Editor | PropertyUsageFlags.ScriptVariable) }
+        { "hint_string", "Texture2D" }
     }));
 
     public override Variant _Get(StringName property)

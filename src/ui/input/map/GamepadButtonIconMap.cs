@@ -18,5 +18,12 @@ public partial class GamepadButtonIconMap : IconMap
     /// <returns>The icon to display for the button.</returns>
     public Texture2D this[JoyButton b] => Icons[Enum.GetName(b)];
 
+    /// <param name="b">Gamepad button to check.</param>
+    /// <returns><c>true</c> if the gamepad button has been mapped to an icon, and <c>false</c> otherwise.</returns>
+    public bool Contains(JoyButton b) => Contains(Enum.GetName(b));
+
+    /// <returns><c>true</c> if the directional pad (no specific direction) has an icon mapped to it, and <c>false</c> otherwise.</returns>
+    public bool ContainsDpad() => Dpad is not null;
+
     public override IEnumerable<StringName> Names => _names ??= (Enum.GetValues(typeof(JoyButton)) as JoyButton[]).Select((b) => new StringName(Enum.GetName(b)));
 }

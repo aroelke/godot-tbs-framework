@@ -18,5 +18,12 @@ public partial class MouseIconMap : IconMap
     /// <returns>The icon corresponding to the mouse button to display.</returns>
     public Texture2D this[MouseButton mb] => Icons[Enum.GetName(mb)];
 
+    /// <param name="mb">Mouse button to check.</param>
+    /// <returns><c>true</c> if the mouse button has been mapped to an icon, and <c>false</c> otherwise.</returns>
+    public bool Contains(MouseButton mb) => Contains(Enum.GetName(mb));
+
+    /// <returns><c>true</c> if mouse motion has been mapped to an icon, and <c>false</c> otherwise.</returns>
+    public bool ContainsMotion() => Motion is not null;
+
     public override IEnumerable<StringName> Names => _names ??= (Enum.GetValues(typeof(MouseButton)) as MouseButton[]).Select((i) => new StringName(Enum.GetName(i)));
 }

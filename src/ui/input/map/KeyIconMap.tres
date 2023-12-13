@@ -1,22 +1,22 @@
 [gd_resource type="Resource" script_class="KeyIconMap" load_steps=10 format=3 uid="uid://c7jn8vjepg37d"]
 
-[ext_resource type="Texture2D" uid="uid://c1qle07itrh3t" path="res://assets/ui/icons/controls/keyboard/a.png" id="1_gf4bi"]
 [ext_resource type="Script" path="res://src/ui/input/map/KeyIconMap.cs" id="1_qe5n6"]
-[ext_resource type="Texture2D" uid="uid://5ofxn6dohh6v" path="res://assets/ui/icons/controls/keyboard/d.png" id="2_pqm2i"]
-[ext_resource type="Texture2D" uid="uid://dnxdklj5eo2mi" path="res://assets/ui/icons/controls/keyboard/down.png" id="3_y68j2"]
-[ext_resource type="Texture2D" uid="uid://b22lemesaffkm" path="res://assets/ui/icons/controls/keyboard/left.png" id="4_13dpq"]
-[ext_resource type="Texture2D" uid="uid://dedquyam7p1qb" path="res://assets/ui/icons/controls/keyboard/right.png" id="5_rkun8"]
-[ext_resource type="Texture2D" uid="uid://du3fgeyabo5t5" path="res://assets/ui/icons/controls/keyboard/s.png" id="6_aaurn"]
-[ext_resource type="Texture2D" uid="uid://bvbkwcurpgl68" path="res://assets/ui/icons/controls/keyboard/up.png" id="7_16l1b"]
-[ext_resource type="Texture2D" uid="uid://daehle27h57cr" path="res://assets/ui/icons/controls/keyboard/w.png" id="8_on5bd"]
+[ext_resource type="Texture2D" uid="uid://c1qle07itrh3t" path="res://assets/ui/icons/controls/keyboard/a.png" id="1_r340h"]
+[ext_resource type="Texture2D" uid="uid://5ofxn6dohh6v" path="res://assets/ui/icons/controls/keyboard/d.png" id="2_vk64q"]
+[ext_resource type="Texture2D" uid="uid://dnxdklj5eo2mi" path="res://assets/ui/icons/controls/keyboard/down.png" id="3_hi48c"]
+[ext_resource type="Texture2D" uid="uid://du3fgeyabo5t5" path="res://assets/ui/icons/controls/keyboard/s.png" id="3_p1jes"]
+[ext_resource type="Texture2D" uid="uid://b22lemesaffkm" path="res://assets/ui/icons/controls/keyboard/left.png" id="4_kw8qy"]
+[ext_resource type="Texture2D" uid="uid://daehle27h57cr" path="res://assets/ui/icons/controls/keyboard/w.png" id="4_mr8ch"]
+[ext_resource type="Texture2D" uid="uid://dedquyam7p1qb" path="res://assets/ui/icons/controls/keyboard/right.png" id="5_3l4ub"]
+[ext_resource type="Texture2D" uid="uid://bvbkwcurpgl68" path="res://assets/ui/icons/controls/keyboard/up.png" id="7_h0rnp"]
 
 [resource]
 script = ExtResource("1_qe5n6")
-A = ExtResource("1_gf4bi")
-D = ExtResource("2_pqm2i")
-S = ExtResource("6_aaurn")
-W = ExtResource("8_on5bd")
-Left = ExtResource("4_13dpq")
-Up = ExtResource("7_16l1b")
-Right = ExtResource("5_rkun8")
-Down = ExtResource("3_y68j2")
+A = ExtResource("1_r340h")
+D = ExtResource("2_vk64q")
+S = ExtResource("3_p1jes")
+W = ExtResource("4_mr8ch")
+Left = ExtResource("4_kw8qy")
+Up = ExtResource("7_h0rnp")
+Right = ExtResource("5_3l4ub")
+Down = ExtResource("3_hi48c")
