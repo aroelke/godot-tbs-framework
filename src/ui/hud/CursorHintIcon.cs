@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using ui.input.map;
 
@@ -6,25 +8,49 @@ namespace ui.hud;
 [Tool]
 public partial class CursorHintIcon : HBoxContainer
 {
+    private string _upAction = "";
     private Key _upKey = Key.None, _leftKey = Key.None, _downKey = Key.None, _rightKey = Key.None;
     private TextureRect _upKeyIcon = null, _leftKeyIcon = null, _downKeyIcon = null, _rightKeyIcon = null;
-
-    private TextureRect UpKeyIcon => _upKeyIcon = GetNode<TextureRect>("Keyboard/Up");
-    private TextureRect LeftKeyIcon => _leftKeyIcon = GetNode<TextureRect>("Keyboard/Left");
-    private TextureRect DownKeyIcon => _downKeyIcon = GetNode<TextureRect>("Keyboard/Down");
-    private TextureRect RightKeyIcon => _rightKeyIcon = GetNode<TextureRect>("Keyboard/Right");
 
     [ExportGroup("Icon Maps")]
     [Export] public KeyIconMap KeyMap = null;
 
     [ExportGroup("Keyboard Actions")]
-    [Export] public Key UpKey
+    [Export] public string UpAction
+    {
+        get => _upAction;
+        set
+        {
+            _upAction = value;
+            if (Engine.IsEditorHint())
+            {
+                if (ProjectSettings.HasSetting($"input/{value}"))
+                {
+                    Godot.Collections.Array<InputEvent> events = ProjectSettings.GetSetting($"input/{value}").As<Godot.Collections.Dictionary>()["events"].As<Godot.Collections.Array<InputEvent>>();
+                    List<InputEventKey> keys = events.Select((e) => e as InputEventKey).Where((e) => e is not null).ToList();
+                    UpKey = keys[0].PhysicalKeycode;
+                }
+            }
+            else
+            {
+
+            }
+        }
+    }
+
+    public Key UpKey
     {
         get => _upKey;
         set
         {
-            if (KeyMap is not null && KeyMap.Contains(value))
-                UpKeyIcon.Texture = KeyMap[value];
+            if (_upKeyIcon is not null)
+            {
+                GD.Print("have up key icon");
+                if (KeyMap is not null && KeyMap.Contains(value))
+                    _upKeyIcon.Texture = KeyMap[value];
+                else
+                    _upKeyIcon.Texture = default;
+            }
             _upKey = value;
         }
     }
@@ -35,8 +61,13 @@ public partial class CursorHintIcon : HBoxContainer
         get => _leftKey;
         set
         {
-            if (KeyMap is not null && KeyMap.Contains(value))
-                LeftKeyIcon.Texture = KeyMap[value];
+            if (_leftKeyIcon is not null)
+            {
+                if (KeyMap is not null && KeyMap.Contains(value))
+                    _leftKeyIcon.Texture = KeyMap[value];
+                else
+                    _leftKeyIcon.Texture = default;
+            }
             _leftKey = value;
         }
     }
@@ -47,8 +78,13 @@ public partial class CursorHintIcon : HBoxContainer
         get => _downKey;
         set
         {
-            if (KeyMap is not null && KeyMap.Contains(value))
-                DownKeyIcon.Texture = KeyMap[value];
+            if (_downKeyIcon is not null)
+            {
+                if (KeyMap is not null && KeyMap.Contains(value))
+                    _downKeyIcon.Texture = KeyMap[value];
+                else
+                    _downKeyIcon.Texture = default;
+            }
             _downKey = value;
         }
     }
@@ -59,9 +95,23 @@ public partial class CursorHintIcon : HBoxContainer
         get => _rightKey;
         set
         {
-            if (KeyMap is not null && KeyMap.Contains(value))
-                RightKeyIcon.Texture = KeyMap[value];
+            if (_rightKeyIcon is not null)
+            {
+                if (KeyMap is not null && KeyMap.Contains(value))
+                    _rightKeyIcon.Texture = KeyMap[value];
+                else
+                    _rightKeyIcon.Texture = default;
+            }
             _rightKey = value;
         }
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+        _upKeyIcon = GetNode<TextureRect>("Keyboard/Up");
+        _leftKeyIcon = GetNode<TextureRect>("Keyboard/Left");
+        _downKeyIcon = GetNode<TextureRect>("Keyboard/Down");
+        _rightKeyIcon = GetNode<TextureRect>("Keyboard/Right");
     }
 }

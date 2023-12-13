@@ -1,8 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://dar0v4k4aqvpv"]
+[gd_scene load_steps=6 format=3 uid="uid://dar0v4k4aqvpv"]
 
 [ext_resource type="Script" path="res://src/ui/hud/CursorHintIcon.cs" id="1_dpl76"]
-[ext_resource type="Resource" uid="uid://c7jn8vjepg37d" path="res://src/ui/input/map/KeyIconMap.tres" id="2_a5f1y"]
-[ext_resource type="Texture2D" uid="uid://bvbkwcurpgl68" path="res://assets/ui/icons/controls/keyboard/up.png" id="3_cx7hl"]
+[ext_resource type="Resource" uid="uid://c7jn8vjepg37d" path="res://src/ui/input/map/KeyIconMap.tres" id="2_nqdba"]
 [ext_resource type="Texture2D" uid="uid://b22lemesaffkm" path="res://assets/ui/icons/controls/keyboard/left.png" id="4_4x054"]
 [ext_resource type="Texture2D" uid="uid://dnxdklj5eo2mi" path="res://assets/ui/icons/controls/keyboard/down.png" id="5_oso73"]
 [ext_resource type="Texture2D" uid="uid://dedquyam7p1qb" path="res://assets/ui/icons/controls/keyboard/right.png" id="6_umvvm"]
@@ -11,11 +10,8 @@
 offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("1_dpl76")
-KeyMap = ExtResource("2_a5f1y")
-UpKey = 4194320
-LeftKey = 4194319
-DownKey = 4194322
-RightKey = 4194321
+KeyMap = ExtResource("2_nqdba")
+UpAction = "cursor_digital_up"
 
 [node name="Keyboard" type="GridContainer" parent="."]
 layout_mode = 2
@@ -26,7 +22,6 @@ layout_mode = 2
 
 [node name="Up" type="TextureRect" parent="Keyboard"]
 layout_mode = 2
-texture = ExtResource("3_cx7hl")
 
 [node name="Empty1" type="TextureRect" parent="Keyboard"]
 layout_mode = 2
