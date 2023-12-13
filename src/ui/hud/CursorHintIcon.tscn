@@ -8,8 +8,8 @@
 [ext_resource type="Texture2D" uid="uid://dedquyam7p1qb" path="res://assets/ui/icons/controls/keyboard/right.png" id="6_umvvm"]
 
 [node name="CursorHintIcon" type="HBoxContainer"]
-offset_right = 40.0
-offset_bottom = 40.0
+offset_right = 48.0
+offset_bottom = 32.0
 script = ExtResource("1_dpl76")
 KeyMap = ExtResource("2_nqdba")
 UpAction = "cursor_digital_up"
