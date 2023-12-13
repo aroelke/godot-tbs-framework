@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="GamepadButtonIconMap" load_steps=3 format=3 uid="uid://c4gxmnbkjh25"]
+
+[ext_resource type="Script" path="res://src/ui/input/map/GamepadButtonIconMap.cs" id="1_4bmku"]
+[ext_resource type="Texture2D" uid="uid://dwrg3c6m2yegj" path="res://assets/ui/icons/controls/playstation/dpad.png" id="1_dxw5p"]
+
+[resource]
+script = ExtResource("1_4bmku")
+Dpad = ExtResource("1_dxw5p")
