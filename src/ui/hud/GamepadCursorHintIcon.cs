@@ -9,10 +9,11 @@ public partial class GamepadCursorHintIcon : HBoxContainer
 {
     private Texture2D GetButtonIcon(JoyButton b) => ButtonMap is not null && ButtonMap.Contains(b) ? ButtonMap[b] : null;
 
+    private Container _individual = null;
     private TextureRect _upIcon = null, _leftIcon = null, _downIcon = null, _rightIcon = null;
     private TextureRect _unified = null;
 
-    private Container Invdividual;
+    private Container Individual => _individual ??= GetNode<Container>("Individual");
     private TextureRect UpIcon => _upIcon ??= GetNode<TextureRect>("Individual/Up");
     private TextureRect LeftIcon => _leftIcon ??= GetNode<TextureRect>("Individual/Left");
     private TextureRect DownIcon => _downIcon ??= GetNode<TextureRect>("Individual/Down");
@@ -20,6 +21,15 @@ public partial class GamepadCursorHintIcon : HBoxContainer
     private TextureRect UnifiedIcon => _unified ??= GetNode<TextureRect>("Unified");
 
     [Export] public GamepadButtonIconMap ButtonMap = null;
+    [Export] public bool ShowIndividual
+    {
+        get => Individual.Visible;
+        set
+        {
+            Individual.Visible = value;
+            UnifiedIcon.Visible = !value;
+        }
+    }
 
     [ExportGroup("Actions")]
     [Export] public string UpAction = "";
