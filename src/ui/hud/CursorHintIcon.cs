@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
 using Godot;
-using Godot.Collections;
 using ui.input;
 using ui.input.map;
 
@@ -10,9 +7,8 @@ namespace ui.hud;
 [Tool]
 public partial class CursorHintIcon : HBoxContainer
 {
-    private Texture2D GetKeyIcon(Key key) => KeyMap is not null && KeyMap.Contains(key) ? KeyMap[key] : default;
+    private Texture2D GetKeyIcon(Key key) => KeyMap is not null && KeyMap.Contains(key) ? KeyMap[key] : null;
 
-    private string _upAction = "", _leftAction = "", _downAction = "", _rightAction = "";
     private TextureRect _upKeyIcon = null, _leftKeyIcon = null, _downKeyIcon = null, _rightKeyIcon = null;
     private TextureRect _mouseIcon = null;
 
@@ -23,50 +19,33 @@ public partial class CursorHintIcon : HBoxContainer
     [Export] public MouseIconMap MouseMap = null;
 
     [ExportGroup("Actions")]
-    [Export] public string UpAction
+    [Export] public string UpAction = "";
+
+    [ExportGroup("Actions")]
+    [Export] public string LeftAction = "";
+
+    [ExportGroup("Actions")]
+    [Export] public string DownAction = "";
+
+    [ExportGroup("Actions")]
+    [Export] public string RightAction = "";
+
+    public override void _Process(double delta)
     {
-        get => _upAction;
-        set
+        base._Process(delta);
+        if (Engine.IsEditorHint())
         {
-            _upAction = value;
             if (_upKeyIcon is not null)
-                _upKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(_upAction));
-        }
-    }
-
-    [ExportGroup("Actions")]
-    [Export] public string LeftAction
-    {
-        get => _leftAction;
-        set
-        {
-            _leftAction = value;
+                _upKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(UpAction));
             if (_leftKeyIcon is not null)
-                _leftKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(_leftAction));
-        }
-    }
-
-    [ExportGroup("Actions")]
-    [Export] public string DownAction
-    {
-        get => _downAction;
-        set
-        {
-            _downAction = value;
+                _leftKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(LeftAction));
             if (_downKeyIcon is not null)
-                _downKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(_downAction));
-        }
-    }
-
-    [ExportGroup("Actions")]
-    [Export] public string RightAction
-    {
-        get => _rightAction;
-        set
-        {
-            _rightAction = value;
+                _downKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(DownAction));
             if (_rightKeyIcon is not null)
-                _rightKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(_rightAction));
+                _rightKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(RightAction));
+
+            if (_mouseIcon is not null)
+                _mouseIcon.Texture = MouseMap?[MouseMap.Motion];
         }
     }
 
@@ -78,9 +57,6 @@ public partial class CursorHintIcon : HBoxContainer
         _leftKeyIcon = GetNode<TextureRect>("Keyboard/Left");
         _downKeyIcon = GetNode<TextureRect>("Keyboard/Down");
         _rightKeyIcon = GetNode<TextureRect>("Keyboard/Right");
-
         _mouseIcon = GetNode<TextureRect>("Mouse");
-        if (MouseMap is not null)
-            _mouseIcon.Texture = MouseMap[MouseMap.Motion];
     }
 }
