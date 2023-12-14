@@ -60,11 +60,11 @@ public partial class GamepadCursorHintIcon : HBoxContainer
         if (Engine.IsEditorHint())
         {
             if (UpIcon is not null)
-                UpIcon.Texture = GetButtonIcon(InputManager.GetInputGamepadButton(UpAction));
+                UpIcon.Texture    = GetButtonIcon(InputManager.GetInputGamepadButton(UpAction));
             if (LeftIcon is not null)
-                LeftIcon.Texture = GetButtonIcon(InputManager.GetInputGamepadButton(LeftAction));
+                LeftIcon.Texture  = GetButtonIcon(InputManager.GetInputGamepadButton(LeftAction));
             if (DownIcon is not null)
-                DownIcon.Texture = GetButtonIcon(InputManager.GetInputGamepadButton(DownAction));
+                DownIcon.Texture  = GetButtonIcon(InputManager.GetInputGamepadButton(DownAction));
             if (RightIcon is not null)
                 RightIcon.Texture = GetButtonIcon(InputManager.GetInputGamepadButton(RightAction));
 
