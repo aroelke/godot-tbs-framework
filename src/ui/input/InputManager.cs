@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Godot;
 
 namespace ui.input;
@@ -19,6 +22,35 @@ public partial class InputManager : Node2D
     /// <summary>Signals that the mouse has exited the screen.</summary>
     /// <param name="position">Position on the edge of the screen the mouse exited.</param>
     [Signal] public delegate void MouseExitedEventHandler(Vector2 position);
+
+    /// <summary>
+    /// Get an input event for an action of the desired type, if one is defined.  Assumes there is no more than one of each type of
+    /// <c>InputEvent</c> for any given action.
+    /// </summary>
+    /// <typeparam name="T">Type of <c>InputEvent</c> to get.</typeparam>
+    /// <param name="action">Name of the input action to get the event for.</param>
+    /// <returns>The input event of the given type for the action.</returns>
+    public static T GetInputEvent<T>(string action) where T : InputEvent
+    {
+        if (Engine.IsEditorHint())
+        {
+            string setting = $"input/{action}";
+            if (ProjectSettings.HasSetting(setting))
+            {
+                Godot.Collections.Array<InputEvent> events = ProjectSettings.GetSetting(setting).As<Godot.Collections.Dictionary>()["events"].As<Godot.Collections.Array<InputEvent>>();
+                return events.Select((e) => e as T).Where((e) => e is not null).FirstOrDefault();
+            }
+            else
+                return default;
+        }
+        else
+            return InputMap.ActionGetEvents(action).Select((e) => e as T).Where((e) => e is not null).FirstOrDefault();
+    }
+
+    /// <summary>Get the physical key code, if any, for an input action.  Assumes there's only one key mapped to the action.</summary>
+    /// <param name="action">Name of the action to get the code for.</param>
+    /// <returns>The physical key code corresponding to the action, or <c>Key.None</c> if there isn't one.</returns>
+    public static Key GetInputKeycode(string action) => (GetInputEvent<InputEventKey>(action)?.PhysicalKeycode).GetValueOrDefault();
 
     /// <returns>A vector representing the digital direction(s) being held down. Elements have values 0, 1, or -1.</returns>
     public static Vector2I GetDigitalVector() => (Vector2I)Input.GetVector("cursor_digital_left", "cursor_digital_right", "cursor_digital_up", "cursor_digital_down").Round();
