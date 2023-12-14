@@ -31,9 +31,13 @@ public partial class CursorHintIcon : HBoxContainer
 
     private string _upAction = "", _leftAction = "", _downAction = "", _rightAction = "";
     private TextureRect _upKeyIcon = null, _leftKeyIcon = null, _downKeyIcon = null, _rightKeyIcon = null;
+    private TextureRect _mouseIcon = null;
 
     [ExportGroup("Icon Maps")]
     [Export] public KeyIconMap KeyMap = null;
+
+    [ExportGroup("Icon Maps")]
+    [Export] public MouseIconMap MouseMap = null;
 
     [ExportGroup("Actions")]
     [Export] public string UpAction
@@ -86,9 +90,14 @@ public partial class CursorHintIcon : HBoxContainer
     public override void _Ready()
     {
         base._Ready();
+
         _upKeyIcon = GetNode<TextureRect>("Keyboard/Up");
         _leftKeyIcon = GetNode<TextureRect>("Keyboard/Left");
         _downKeyIcon = GetNode<TextureRect>("Keyboard/Down");
         _rightKeyIcon = GetNode<TextureRect>("Keyboard/Right");
+
+        _mouseIcon = GetNode<TextureRect>("Mouse");
+        if (MouseMap is not null)
+            _mouseIcon.Texture = MouseMap[MouseMap.Motion];
     }
 }
