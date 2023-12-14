@@ -13,11 +13,11 @@ public partial class GamepadCursorHintIcon : HBoxContainer
 {
     private Texture2D GetButtonIcon(JoyButton b) => ButtonMap is not null && ButtonMap.Contains(b) ? ButtonMap[b] : null;
 
-    private Container _individual = null;
+    private GridContainer _individual = null;
     private TextureRect _upIcon = null, _leftIcon = null, _downIcon = null, _rightIcon = null;
     private TextureRect _unified = null;
 
-    private Container Individual => _individual ??= GetNode<Container>("Individual");
+    private GridContainer Individual => _individual ??= GetNode<GridContainer>("Individual");
     private TextureRect UpIcon => _upIcon ??= GetNode<TextureRect>("Individual/Up");
     private TextureRect LeftIcon => _leftIcon ??= GetNode<TextureRect>("Individual/Left");
     private TextureRect DownIcon => _downIcon ??= GetNode<TextureRect>("Individual/Down");
@@ -28,7 +28,7 @@ public partial class GamepadCursorHintIcon : HBoxContainer
     [Export] public GamepadButtonIconMap ButtonMap = null;
 
     /// <summary>Whether to show the individual control icons or the unified one.</summary>
-    [Export] public bool ShowIndividual
+    public bool ShowIndividual
     {
         get => Individual.Visible;
         set
@@ -67,9 +67,16 @@ public partial class GamepadCursorHintIcon : HBoxContainer
                 DownIcon.Texture = GetButtonIcon(InputManager.GetInputGamepadButton(DownAction));
             if (RightIcon is not null)
                 RightIcon.Texture = GetButtonIcon(InputManager.GetInputGamepadButton(RightAction));
-            
+
             if (UnifiedIcon is not null)
                 UnifiedIcon.Texture = ButtonMap?[ButtonMap.Dpad];
+        }
+        else
+        {
+            ShowIndividual = !(InputManager.GetInputGamepadButton(UpAction)    == JoyButton.DpadUp &&
+                               InputManager.GetInputGamepadButton(LeftAction)  == JoyButton.DpadLeft &&
+                               InputManager.GetInputGamepadButton(DownAction)  == JoyButton.DpadDown &&
+                               InputManager.GetInputGamepadButton(RightAction) == JoyButton.DpadRight);
         }
     }
 }
