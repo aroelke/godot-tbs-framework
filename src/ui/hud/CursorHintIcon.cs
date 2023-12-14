@@ -12,6 +12,12 @@ public partial class CursorHintIcon : HBoxContainer
     private TextureRect _upKeyIcon = null, _leftKeyIcon = null, _downKeyIcon = null, _rightKeyIcon = null;
     private TextureRect _mouseIcon = null;
 
+    private TextureRect UpKeyIcon => _upKeyIcon ??= GetNode<TextureRect>("Keyboard/Up");
+    private TextureRect LeftKeyIcon => _leftKeyIcon ??= GetNode<TextureRect>("Keyboard/Left");
+    private TextureRect DownKeyIcon => _downKeyIcon ??= GetNode<TextureRect>("Keyboard/Down");
+    private TextureRect RightKeyIcon => _rightKeyIcon = GetNode<TextureRect>("Keyboard/Right");
+    private TextureRect MouseIcon => _mouseIcon ??= GetNode<TextureRect>("Mouse");
+
     [ExportGroup("Icon Maps")]
     [Export] public KeyIconMap KeyMap = null;
 
@@ -35,28 +41,17 @@ public partial class CursorHintIcon : HBoxContainer
         base._Process(delta);
         if (Engine.IsEditorHint())
         {
-            if (_upKeyIcon is not null)
-                _upKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(UpAction));
-            if (_leftKeyIcon is not null)
-                _leftKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(LeftAction));
-            if (_downKeyIcon is not null)
-                _downKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(DownAction));
-            if (_rightKeyIcon is not null)
-                _rightKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(RightAction));
+            if (UpKeyIcon is not null)
+                UpKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(UpAction));
+            if (LeftKeyIcon is not null)
+                LeftKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(LeftAction));
+            if (DownKeyIcon is not null)
+                DownKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(DownAction));
+            if (RightKeyIcon is not null)
+                RightKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(RightAction));
 
-            if (_mouseIcon is not null)
-                _mouseIcon.Texture = MouseMap?[MouseMap.Motion];
+            if (MouseIcon is not null)
+                MouseIcon.Texture = MouseMap?[MouseMap.Motion];
         }
-    }
-
-    public override void _Ready()
-    {
-        base._Ready();
-
-        _upKeyIcon = GetNode<TextureRect>("Keyboard/Up");
-        _leftKeyIcon = GetNode<TextureRect>("Keyboard/Left");
-        _downKeyIcon = GetNode<TextureRect>("Keyboard/Down");
-        _rightKeyIcon = GetNode<TextureRect>("Keyboard/Right");
-        _mouseIcon = GetNode<TextureRect>("Mouse");
     }
 }
