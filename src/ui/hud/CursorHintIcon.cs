@@ -4,6 +4,7 @@ using ui.input.map;
 
 namespace ui.hud;
 
+/// <summary>Hint icon for showing the controls to move the cursor for the current control scheme.</summary>
 [Tool]
 public partial class CursorHintIcon : HBoxContainer
 {
@@ -18,21 +19,27 @@ public partial class CursorHintIcon : HBoxContainer
     private TextureRect RightKeyIcon => _rightKeyIcon = GetNode<TextureRect>("Keyboard/Right");
     private TextureRect MouseIcon => _mouseIcon ??= GetNode<TextureRect>("Mouse");
 
+    /// <summary>Mapping of keyboard key onto icon to display.</summary>
     [ExportGroup("Icon Maps")]
     [Export] public KeyIconMap KeyMap = null;
 
+    /// <summary>Mapping of mouse action onto icon to display.</summary>
     [ExportGroup("Icon Maps")]
     [Export] public MouseIconMap MouseMap = null;
 
+    /// <summary>Name of the action for moving the cursor up.</summary>
     [ExportGroup("Actions")]
     [Export] public string UpAction = "";
 
+    /// <summary>Name of the action for moving the cursor left.</summary>
     [ExportGroup("Actions")]
     [Export] public string LeftAction = "";
 
+    /// <summary>Name of the action for moving the cursor down.</summary>
     [ExportGroup("Actions")]
     [Export] public string DownAction = "";
 
+    /// <summary>Name of the action for moving the cursor right.</summary>
     [ExportGroup("Actions")]
     [Export] public string RightAction = "";
 

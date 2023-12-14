@@ -4,6 +4,10 @@ using ui.input.map;
 
 namespace ui.hud;
 
+/// <summary>
+/// Hint icon for showing the controls to move the cursor for a particular game pad.  Switches between showing four buttons in
+/// a diamond pattern and showing a single directional pad depending on if all the actions are mapped to the pad in the right way.
+/// </summary>
 [Tool]
 public partial class GamepadCursorHintIcon : HBoxContainer
 {
@@ -20,7 +24,10 @@ public partial class GamepadCursorHintIcon : HBoxContainer
     private TextureRect RightIcon => _rightIcon ??= GetNode<TextureRect>("Individual/Right");
     private TextureRect UnifiedIcon => _unified ??= GetNode<TextureRect>("Unified");
 
+    /// <summary>Mapping of game pad button on to icon to display.</summary>
     [Export] public GamepadButtonIconMap ButtonMap = null;
+
+    /// <summary>Whether to show the individual control icons or the unified one.</summary>
     [Export] public bool ShowIndividual
     {
         get => Individual.Visible;
@@ -31,15 +38,19 @@ public partial class GamepadCursorHintIcon : HBoxContainer
         }
     }
 
+    /// <summary>Name of the action to move the cursor up.</summary>
     [ExportGroup("Actions")]
     [Export] public string UpAction = "";
 
+    /// <summary>Name of the action to move the cursor left.</summary>
     [ExportGroup("Actions")]
     [Export] public string LeftAction = "";
 
+    /// <summary>Name of the action to move the cursor down.</summary>
     [ExportGroup("Actions")]
     [Export] public string DownAction = "";
 
+    /// <summary>Name of the action to move the cursor right.</summary>
     [ExportGroup("Actions")]
     [Export] public string RightAction = "";
 
