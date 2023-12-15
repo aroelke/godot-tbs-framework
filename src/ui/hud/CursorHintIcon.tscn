@@ -18,7 +18,6 @@ offset_bottom = 28.0
 script = ExtResource("1_dpl76")
 MouseMap = ExtResource("3_jfgvi")
 KeyMap = ExtResource("2_nqdba")
-GamepadMap = ExtResource("10_77rsp")
 UpAction = "cursor_digital_up"
 LeftAction = "cursor_digital_left"
 DownAction = "cursor_digital_down"
@@ -73,3 +72,7 @@ LeftAction = "cursor_digital_left"
 DownAction = "cursor_digital_down"
 RightAction = "cursor_digital_right"
 AnalogAction = "cursor_analog_up"
+
+[node name="Action" type="Label" parent="."]
+layout_mode = 2
+text = ": Move Cursor"
