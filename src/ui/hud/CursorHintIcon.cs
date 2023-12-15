@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Data;
 using Godot;
 using ui.input;
 using ui.input.map;
@@ -8,26 +10,32 @@ namespace ui.hud;
 [Tool]
 public partial class CursorHintIcon : HBoxContainer
 {
-    private Texture2D GetKeyIcon(Key key) => KeyMap is not null && KeyMap.Contains(key) ? KeyMap[key] : null;
-
-    private TextureRect _upKeyIcon = null, _leftKeyIcon = null, _downKeyIcon = null, _rightKeyIcon = null;
+    private InputManager _inputManager = null;
     private TextureRect _mouseIcon = null;
-    private GamepadCursorHintIcon _gamepadIcon = null;
+    private GridContainer _keyboardIcon = null;
+    private TextureRect _upKeyIcon = null, _leftKeyIcon = null, _downKeyIcon = null, _rightKeyIcon = null;
+    private GamepadCursorHintIcon _playstationIcon = null;
 
+    private Dictionary<InputDevice, Control> _icons = new();
+
+    private InputManager InputManager => _inputManager ??= GetNode<InputManager>("/root/InputManager");
+    private TextureRect MouseIcon => _mouseIcon ??= GetNode<TextureRect>("Mouse");
+    private GridContainer KeyboardIcon => _keyboardIcon ??= GetNode<GridContainer>("Keyboard");
     private TextureRect UpKeyIcon => _upKeyIcon ??= GetNode<TextureRect>("Keyboard/Up");
     private TextureRect LeftKeyIcon => _leftKeyIcon ??= GetNode<TextureRect>("Keyboard/Left");
     private TextureRect DownKeyIcon => _downKeyIcon ??= GetNode<TextureRect>("Keyboard/Down");
     private TextureRect RightKeyIcon => _rightKeyIcon = GetNode<TextureRect>("Keyboard/Right");
-    private TextureRect MouseIcon => _mouseIcon ??= GetNode<TextureRect>("Mouse");
-    private GamepadCursorHintIcon GamepadIcon => _gamepadIcon ??= GetNode<GamepadCursorHintIcon>("Gamepad");
+    private GamepadCursorHintIcon PlaystationIcon => _playstationIcon ??= GetNode<GamepadCursorHintIcon>("Playstation");
 
-    /// <summary>Mapping of keyboard key onto icon to display.</summary>
-    [ExportGroup("Icon Maps")]
-    [Export] public KeyIconMap KeyMap = null;
+    private Texture2D GetKeyIcon(Key key) => KeyMap is not null && KeyMap.Contains(key) ? KeyMap[key] : null;
 
     /// <summary>Mapping of mouse action onto icon to display.</summary>
     [ExportGroup("Icon Maps")]
     [Export] public MouseIconMap MouseMap = null;
+
+    /// <summary>Mapping of keyboard key onto icon to display.</summary>
+    [ExportGroup("Icon Maps")]
+    [Export] public KeyIconMap KeyMap = null;
 
     [ExportGroup("Icon Maps")]
     [Export] public GamepadButtonIconMap GamepadMap = null;
@@ -52,6 +60,37 @@ public partial class CursorHintIcon : HBoxContainer
     [ExportGroup("Actions")]
     [Export] public string AnalogAction = null;
 
+    /// <summary>Set the selected input device to show the icon for.</summary>
+    public InputDevice SelectedDevice
+    {
+        set
+        {
+            foreach ((InputDevice device, Control icon) in _icons)
+                icon.Visible = device == value;
+        }
+    }
+
+    /// <summary>When the input changes, switch the icon to the correct device.</summary>
+    /// <param name="device">New input device.</param>
+    public void OnInputDeviceChanged(InputDevice device) => SelectedDevice = device;
+
+    public override void _Ready()
+    {
+        base._Ready();
+
+        if (!Engine.IsEditorHint())
+        {
+            _icons = new()
+            {
+                { InputDevice.Mouse, MouseIcon },
+                { InputDevice.Keyboard, KeyboardIcon },
+                { InputDevice.Playstation, PlaystationIcon }
+            };
+            SelectedDevice = InputManager.Device;
+            InputManager.InputDeviceChanged += OnInputDeviceChanged;
+        }
+    }
+
     public override void _Process(double delta)
     {
         base._Process(delta);
@@ -64,11 +103,17 @@ public partial class CursorHintIcon : HBoxContainer
 
             MouseIcon.Texture = MouseMap?[MouseMap.Motion];
 
-            GamepadIcon.UpAction = UpAction;
-            GamepadIcon.LeftAction = LeftAction;
-            GamepadIcon.DownAction = DownAction;
-            GamepadIcon.RightAction = RightAction;
-            GamepadIcon.AnalogAction = AnalogAction;
+            PlaystationIcon.UpAction = UpAction;
+            PlaystationIcon.LeftAction = LeftAction;
+            PlaystationIcon.DownAction = DownAction;
+            PlaystationIcon.RightAction = RightAction;
+            PlaystationIcon.AnalogAction = AnalogAction;
         }
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+        InputManager.InputDeviceChanged -= OnInputDeviceChanged;
     }
 }

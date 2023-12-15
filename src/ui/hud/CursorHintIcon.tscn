@@ -16,14 +16,20 @@
 offset_right = 15.0
 offset_bottom = 28.0
 script = ExtResource("1_dpl76")
-KeyMap = ExtResource("2_nqdba")
 MouseMap = ExtResource("3_jfgvi")
+KeyMap = ExtResource("2_nqdba")
 GamepadMap = ExtResource("10_77rsp")
 UpAction = "cursor_digital_up"
 LeftAction = "cursor_digital_left"
 DownAction = "cursor_digital_down"
 RightAction = "cursor_digital_right"
 AnalogAction = "cursor_analog_up"
+
+[node name="Mouse" type="TextureRect" parent="."]
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("7_gxd5p")
+stretch_mode = 3
 
 [node name="Keyboard" type="GridContainer" parent="."]
 layout_mode = 2
@@ -58,13 +64,7 @@ layout_mode = 2
 texture = ExtResource("6_umvvm")
 stretch_mode = 3
 
-[node name="Mouse" type="TextureRect" parent="."]
-layout_mode = 2
-size_flags_vertical = 4
-texture = ExtResource("7_gxd5p")
-stretch_mode = 3
-
-[node name="Gamepad" parent="." instance=ExtResource("9_eitd7")]
+[node name="Playstation" parent="." instance=ExtResource("9_eitd7")]
 layout_mode = 2
 ButtonMap = ExtResource("10_77rsp")
 AxisMap = ExtResource("11_48blm")
