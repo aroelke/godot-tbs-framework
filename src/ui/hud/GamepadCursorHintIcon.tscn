@@ -1,22 +1,11 @@
-[gd_scene load_steps=8 format=3 uid="uid://cpswnx0irecoi"]
+[gd_scene load_steps=2 format=3 uid="uid://cpswnx0irecoi"]
 
 [ext_resource type="Script" path="res://src/ui/hud/GamepadCursorHintIcon.cs" id="1_bv3pa"]
-[ext_resource type="Resource" uid="uid://c4gxmnbkjh25" path="res://src/ui/input/map/PlaystationButtonIconMap.tres" id="2_ulhyw"]
-[ext_resource type="Texture2D" uid="uid://b8opi1ojes3lf" path="res://assets/ui/icons/controls/playstation/dpadup.png" id="3_noqgh"]
-[ext_resource type="Texture2D" uid="uid://ddo2e8y4xxywf" path="res://assets/ui/icons/controls/playstation/dpadleft.png" id="4_k4hvm"]
-[ext_resource type="Texture2D" uid="uid://x210tjc0p8u6" path="res://assets/ui/icons/controls/playstation/dpadright.png" id="5_j1lbp"]
-[ext_resource type="Texture2D" uid="uid://rvicv7mk4e0b" path="res://assets/ui/icons/controls/playstation/dpaddown.png" id="6_32r6j"]
-[ext_resource type="Texture2D" uid="uid://dwrg3c6m2yegj" path="res://assets/ui/icons/controls/playstation/dpad.png" id="7_8ievt"]
 
 [node name="GamepadCursorHintIcon" type="HBoxContainer"]
 offset_right = 12.0
 offset_bottom = 8.0
 script = ExtResource("1_bv3pa")
-ButtonMap = ExtResource("2_ulhyw")
-UpAction = "cursor_digital_up"
-LeftAction = "cursor_digital_left"
-DownAction = "cursor_digital_down"
-RightAction = "cursor_digital_right"
 
 [node name="Individual" type="GridContainer" parent="."]
 layout_mode = 2
@@ -29,7 +18,6 @@ layout_mode = 2
 
 [node name="Up" type="TextureRect" parent="Individual"]
 layout_mode = 2
-texture = ExtResource("3_noqgh")
 stretch_mode = 3
 
 [node name="EmptyNE" type="TextureRect" parent="Individual"]
@@ -37,7 +25,6 @@ layout_mode = 2
 
 [node name="Left" type="TextureRect" parent="Individual"]
 layout_mode = 2
-texture = ExtResource("4_k4hvm")
 stretch_mode = 3
 
 [node name="Empty" type="TextureRect" parent="Individual"]
@@ -45,7 +32,6 @@ layout_mode = 2
 
 [node name="Right" type="TextureRect" parent="Individual"]
 layout_mode = 2
-texture = ExtResource("5_j1lbp")
 stretch_mode = 3
 
 [node name="EmptySW" type="TextureRect" parent="Individual"]
@@ -53,7 +39,6 @@ layout_mode = 2
 
 [node name="Down" type="TextureRect" parent="Individual"]
 layout_mode = 2
-texture = ExtResource("6_32r6j")
 stretch_mode = 3
 
 [node name="EmptySE" type="TextureRect" parent="Individual"]
@@ -61,5 +46,4 @@ layout_mode = 2
 
 [node name="Unified" type="TextureRect" parent="."]
 layout_mode = 2
-texture = ExtResource("7_8ievt")
 stretch_mode = 3

@@ -12,12 +12,14 @@ public partial class CursorHintIcon : HBoxContainer
 
     private TextureRect _upKeyIcon = null, _leftKeyIcon = null, _downKeyIcon = null, _rightKeyIcon = null;
     private TextureRect _mouseIcon = null;
+    private GamepadCursorHintIcon _gamepadIcon = null;
 
     private TextureRect UpKeyIcon => _upKeyIcon ??= GetNode<TextureRect>("Keyboard/Up");
     private TextureRect LeftKeyIcon => _leftKeyIcon ??= GetNode<TextureRect>("Keyboard/Left");
     private TextureRect DownKeyIcon => _downKeyIcon ??= GetNode<TextureRect>("Keyboard/Down");
     private TextureRect RightKeyIcon => _rightKeyIcon = GetNode<TextureRect>("Keyboard/Right");
     private TextureRect MouseIcon => _mouseIcon ??= GetNode<TextureRect>("Mouse");
+    private GamepadCursorHintIcon GamepadIcon => _gamepadIcon ??= GetNode<GamepadCursorHintIcon>("Gamepad");
 
     /// <summary>Mapping of keyboard key onto icon to display.</summary>
     [ExportGroup("Icon Maps")]
@@ -27,38 +29,41 @@ public partial class CursorHintIcon : HBoxContainer
     [ExportGroup("Icon Maps")]
     [Export] public MouseIconMap MouseMap = null;
 
+    [ExportGroup("Icon Maps")]
+    [Export] public GamepadButtonIconMap GamepadMap = null;
+
     /// <summary>Name of the action for moving the cursor up.</summary>
     [ExportGroup("Actions")]
-    [Export] public string UpAction = "";
+    [Export] public string UpAction = null;
 
     /// <summary>Name of the action for moving the cursor left.</summary>
     [ExportGroup("Actions")]
-    [Export] public string LeftAction = "";
+    [Export] public string LeftAction = null;
 
     /// <summary>Name of the action for moving the cursor down.</summary>
     [ExportGroup("Actions")]
-    [Export] public string DownAction = "";
+    [Export] public string DownAction = null;
 
     /// <summary>Name of the action for moving the cursor right.</summary>
     [ExportGroup("Actions")]
-    [Export] public string RightAction = "";
+    [Export] public string RightAction = null;
 
     public override void _Process(double delta)
     {
         base._Process(delta);
         if (Engine.IsEditorHint())
         {
-            if (UpKeyIcon is not null)
-                UpKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(UpAction));
-            if (LeftKeyIcon is not null)
-                LeftKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(LeftAction));
-            if (DownKeyIcon is not null)
-                DownKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(DownAction));
-            if (RightKeyIcon is not null)
-                RightKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(RightAction));
+            UpKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(UpAction));
+            LeftKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(LeftAction));
+            DownKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(DownAction));
+            RightKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(RightAction));
 
-            if (MouseIcon is not null)
-                MouseIcon.Texture = MouseMap?[MouseMap.Motion];
+            MouseIcon.Texture = MouseMap?[MouseMap.Motion];
+
+            GamepadIcon.UpAction = UpAction;
+            GamepadIcon.LeftAction = LeftAction;
+            GamepadIcon.DownAction = DownAction;
+            GamepadIcon.RightAction = RightAction;
         }
     }
 }
