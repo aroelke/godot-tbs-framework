@@ -37,9 +37,6 @@ public partial class CursorHintIcon : HBoxContainer
     [ExportGroup("Icon Maps")]
     [Export] public KeyIconMap KeyMap = null;
 
-    [ExportGroup("Icon Maps")]
-    [Export] public GamepadButtonIconMap GamepadMap = null;
-
     /// <summary>Name of the action for moving the cursor up.</summary>
     [ExportGroup("Actions")]
     [Export] public string UpAction = null;
