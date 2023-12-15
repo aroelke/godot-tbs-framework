@@ -1,0 +1,35 @@
+[gd_scene load_steps=8 format=3 uid="uid://btlhiv0dyhf7o"]
+
+[ext_resource type="Script" path="res://src/ui/hud/ControlHint.cs" id="1_inwum"]
+[ext_resource type="Resource" uid="uid://c3d3vvly1ra01" path="res://src/ui/input/map/MouseIconMap.tres" id="2_6qhuo"]
+[ext_resource type="Resource" uid="uid://c7jn8vjepg37d" path="res://src/ui/input/map/KeyIconMap.tres" id="3_m78j5"]
+[ext_resource type="Resource" uid="uid://c4gxmnbkjh25" path="res://src/ui/input/map/PlaystationButtonIconMap.tres" id="4_hv6be"]
+[ext_resource type="Texture2D" uid="uid://lepqc5fe8xw4" path="res://assets/ui/icons/controls/mouse/left.png" id="5_qeno0"]
+[ext_resource type="Texture2D" uid="uid://b3vori1d0m2s7" path="res://assets/ui/icons/controls/keyboard/space.png" id="6_md0jh"]
+[ext_resource type="Texture2D" uid="uid://cjnnpkm5pata5" path="res://assets/ui/icons/controls/playstation/a.png" id="7_jqt0n"]
+
+[node name="ControlHint" type="HBoxContainer"]
+script = ExtResource("1_inwum")
+InputAction = "cursor_select"
+MouseMap = ExtResource("2_6qhuo")
+KeyMap = ExtResource("3_m78j5")
+PlaystationMap = ExtResource("4_hv6be")
+
+[node name="Mouse" type="TextureRect" parent="."]
+layout_mode = 2
+texture = ExtResource("5_qeno0")
+stretch_mode = 3
+
+[node name="Keyboard" type="TextureRect" parent="."]
+layout_mode = 2
+texture = ExtResource("6_md0jh")
+stretch_mode = 3
+
+[node name="Playstation" type="TextureRect" parent="."]
+layout_mode = 2
+texture = ExtResource("7_jqt0n")
+stretch_mode = 3
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+text = ": cursor_select"

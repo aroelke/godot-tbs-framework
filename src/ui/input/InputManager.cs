@@ -47,6 +47,18 @@ public partial class InputManager : Node2D
             return InputMap.ActionGetEvents(action).Select((e) => e as T).Where((e) => e is not null).FirstOrDefault();
     }
 
+    /// <summary>Get the mouse button, if any, for an input action.  Assumes there's only one mouse button mapped to the action.</summary>
+    /// <param name="action">Name of the action to get the mouse button for.</param>
+    /// <returns>The mouse button corresponding to the action, or <c>MouseButton.None</c> if there isn't one.</returns>
+    public static MouseButton GetInputMouseButton(string action)
+    {
+        InputEventMouseButton button = GetInputEvent<InputEventMouseButton>(action);
+        if (button == null)
+            return MouseButton.None;
+        else
+            return button.ButtonIndex;
+    }
+
     /// <summary>Get the physical key code, if any, for an input action.  Assumes there's only one key mapped to the action.</summary>
     /// <param name="action">Name of the action to get the code for.</param>
     /// <returns>The physical key code corresponding to the action, or <c>Key.None</c> if there isn't one.</returns>
