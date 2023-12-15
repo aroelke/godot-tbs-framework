@@ -50,12 +50,38 @@ public partial class InputManager : Node2D
     /// <summary>Get the physical key code, if any, for an input action.  Assumes there's only one key mapped to the action.</summary>
     /// <param name="action">Name of the action to get the code for.</param>
     /// <returns>The physical key code corresponding to the action, or <c>Key.None</c> if there isn't one.</returns>
-    public static Key GetInputKeycode(string action) => (GetInputEvent<InputEventKey>(action)?.PhysicalKeycode).GetValueOrDefault();
+    public static Key GetInputKeycode(string action)
+    {
+        InputEventKey key = GetInputEvent<InputEventKey>(action);
+        if (key == null)
+            return Key.None;
+        else
+            return key.PhysicalKeycode;
+    }
 
     /// <summary>Get the game pad button index, if any, for an input action.  Assumes there's only one game pad button mapped to the action.</summary>
     /// <param name="action">Name of the action to get the game pad button index for.</param>
-    /// <returns>The game pad button index corresponding to the action, or <c>JoyButton.None</c> if there isn't one.</returns>
-    public static JoyButton GetInputGamepadButton(string action) => (GetInputEvent<InputEventJoypadButton>(action)?.ButtonIndex).GetValueOrDefault();
+    /// <returns>The game pad button index corresponding to the action, or <c>JoyButton.Invalid</c> if there isn't one.</returns>
+    public static JoyButton GetInputGamepadButton(string action)
+    {
+        InputEventJoypadButton button = GetInputEvent<InputEventJoypadButton>(action);
+        if (button == null)
+            return JoyButton.Invalid;
+        else
+            return button.ButtonIndex;
+    }
+
+    /// <summary>Get the game pad axis, if any, for an input action. Assumes there's only one axis mapped to the action.</summary>
+    /// <param name="action">Name of the action to get the game pad axis for.</param>
+    /// <returns>The game pad axis corresponding to the action, or <c>JoyAxis.Invalid</c> if there isn't one.</returns>
+    public static JoyAxis GetInputGamepadAxis(string action)
+    {
+        InputEventJoypadMotion motion = GetInputEvent<InputEventJoypadMotion>(action);
+        if (motion == null)
+            return JoyAxis.Invalid;
+        else
+            return motion.Axis;
+    }
 
     /// <returns>A vector representing the digital direction(s) being held down. Elements have values 0, 1, or -1.</returns>
     public static Vector2I GetDigitalVector() => (Vector2I)Input.GetVector("cursor_digital_left", "cursor_digital_right", "cursor_digital_up", "cursor_digital_down").Round();

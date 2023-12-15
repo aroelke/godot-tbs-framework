@@ -16,6 +16,7 @@ public partial class GamepadCursorHintIcon : HBoxContainer
     private GridContainer _individual = null;
     private TextureRect _upIcon = null, _leftIcon = null, _downIcon = null, _rightIcon = null;
     private TextureRect _unified = null;
+    private TextureRect _analog = null;
 
     private GridContainer IndividualIcons => _individual ??= GetNode<GridContainer>("Individual");
     private TextureRect UpIcon => _upIcon ??= GetNode<TextureRect>("Individual/Up");
@@ -23,6 +24,7 @@ public partial class GamepadCursorHintIcon : HBoxContainer
     private TextureRect DownIcon => _downIcon ??= GetNode<TextureRect>("Individual/Down");
     private TextureRect RightIcon => _rightIcon ??= GetNode<TextureRect>("Individual/Right");
     private TextureRect UnifiedIcon => _unified ??= GetNode<TextureRect>("Unified");
+    private TextureRect AnalogIcon => _analog ??= GetNode<TextureRect>("Analog");
 
     private void Update()
     {
@@ -32,10 +34,22 @@ public partial class GamepadCursorHintIcon : HBoxContainer
         RightIcon.Texture = GetButtonIcon(InputManager.GetInputGamepadButton(RightAction));
 
         UnifiedIcon.Texture = ButtonMap?[ButtonMap.Dpad];
+
+        AnalogIcon.Texture = InputManager.GetInputGamepadAxis(AnalogAction) switch
+        {
+            JoyAxis.LeftX  | JoyAxis.LeftY  => AxisMap?[AxisMap.Left],
+            JoyAxis.RightX | JoyAxis.RightY => AxisMap?[AxisMap.Right],
+            _ => null
+        };
     }
 
     /// <summary>Mapping of game pad button on to icon to display.</summary>
+    [ExportGroup("Icon Maps")]
     [Export] public GamepadButtonIconMap ButtonMap = null;
+
+    /// <summary>Mapping of game pad axis onto icon to display.</summary>
+    [ExportGroup("Icon Maps")]
+    [Export] public GamepadAxisIconMap AxisMap = null;
 
     /// <summary>Name of the action to move the cursor up.</summary>
     [ExportGroup("Actions")]
@@ -52,6 +66,10 @@ public partial class GamepadCursorHintIcon : HBoxContainer
     /// <summary>Name of the action to move the cursor right.</summary>
     [ExportGroup("Actions")]
     [Export] public string RightAction = null;
+
+    /// <summary>Name of an action to move the cursor with the analog stick.</summary>
+    [ExportGroup("Actions")]
+    [Export] public string AnalogAction = null;
 
     /// <summary>Whether to show the individual control icons or the unified one.</summary>
     public bool ShowIndividualIcons

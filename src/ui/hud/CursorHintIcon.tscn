@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://dar0v4k4aqvpv"]
+[gd_scene load_steps=12 format=3 uid="uid://dar0v4k4aqvpv"]
 
 [ext_resource type="Script" path="res://src/ui/hud/CursorHintIcon.cs" id="1_dpl76"]
 [ext_resource type="Resource" uid="uid://c7jn8vjepg37d" path="res://src/ui/input/map/KeyIconMap.tres" id="2_nqdba"]
@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://xnouovy7cud3" path="res://assets/ui/icons/controls/mouse/mouse.png" id="7_gxd5p"]
 [ext_resource type="PackedScene" uid="uid://cpswnx0irecoi" path="res://src/ui/hud/GamepadCursorHintIcon.tscn" id="9_eitd7"]
 [ext_resource type="Resource" uid="uid://c4gxmnbkjh25" path="res://src/ui/input/map/PlaystationButtonIconMap.tres" id="10_77rsp"]
+[ext_resource type="Resource" uid="uid://dlv0hdn5r2kr5" path="res://src/ui/input/map/PlaystationAxisIconMap.tres" id="11_48blm"]
 
 [node name="CursorHintIcon" type="HBoxContainer"]
 offset_right = 15.0
@@ -22,6 +23,7 @@ UpAction = "cursor_digital_up"
 LeftAction = "cursor_digital_left"
 DownAction = "cursor_digital_down"
 RightAction = "cursor_digital_right"
+AnalogAction = "cursor_analog_up"
 
 [node name="Keyboard" type="GridContainer" parent="."]
 layout_mode = 2
@@ -65,7 +67,9 @@ stretch_mode = 3
 [node name="Gamepad" parent="." instance=ExtResource("9_eitd7")]
 layout_mode = 2
 ButtonMap = ExtResource("10_77rsp")
+AxisMap = ExtResource("11_48blm")
 UpAction = "cursor_digital_up"
 LeftAction = "cursor_digital_left"
 DownAction = "cursor_digital_down"
 RightAction = "cursor_digital_right"
+AnalogAction = "cursor_analog_up"

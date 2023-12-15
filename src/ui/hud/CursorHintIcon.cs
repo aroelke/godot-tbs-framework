@@ -48,6 +48,10 @@ public partial class CursorHintIcon : HBoxContainer
     [ExportGroup("Actions")]
     [Export] public string RightAction = null;
 
+    /// <summary>Name of an action to move the cursor with the analog stick.</summary>
+    [ExportGroup("Actions")]
+    [Export] public string AnalogAction = null;
+
     public override void _Process(double delta)
     {
         base._Process(delta);
@@ -64,6 +68,7 @@ public partial class CursorHintIcon : HBoxContainer
             GamepadIcon.LeftAction = LeftAction;
             GamepadIcon.DownAction = DownAction;
             GamepadIcon.RightAction = RightAction;
+            GamepadIcon.AnalogAction = AnalogAction;
         }
     }
 }
