@@ -107,10 +107,4 @@ public partial class CursorHintIcon : HBoxContainer
             PlaystationIcon.AnalogAction = AnalogAction;
         }
     }
-
-    public override void _ExitTree()
-    {
-        base._ExitTree();
-        InputManager.InputDeviceChanged -= OnInputDeviceChanged;
-    }
 }
