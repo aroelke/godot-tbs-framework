@@ -1,7 +1,8 @@
 using System.Linq;
 using Godot;
+using level.map;
 
-namespace battle;
+namespace level.unit;
 
 /// <summary>
 /// A unit that moves around the map.  Mostly is just a visual representation of what's where and interface for the player to
@@ -12,14 +13,14 @@ public partial class Unit : Path2D
     /// <summary>Signal that the unit is done moving along its path.</summary>
     [Signal] public delegate void DoneMovingEventHandler();
 
-    private BattleMap _map = null;
+    private LevelMap _map = null;
     private Vector2I _cell = Vector2I.Zero;
     private AnimationPlayer _animation = null;
     private bool _selected = false;
     private PathFollow2D _follow = null;
     private bool _moving = false;
 
-    private BattleMap Map => _map ??= GetParent<BattleMap>();
+    private LevelMap Map => _map ??= GetParent<LevelMap>();
     private AnimationPlayer Animation => _animation ??= GetNode<AnimationPlayer>("Animation");
     private PathFollow2D PathFollow => _follow ??= GetNode<PathFollow2D>("PathFollow");
 

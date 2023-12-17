@@ -1,6 +1,6 @@
 [gd_scene load_steps=11 format=3 uid="uid://bukf1qjlrc7dh"]
 
-[ext_resource type="Script" path="res://src/battle/Unit.cs" id="1_kj1ve"]
+[ext_resource type="Script" path="res://src/level/unit/Unit.cs" id="1_kj1ve"]
 [ext_resource type="Texture2D" uid="uid://3oc7r54iby4a" path="res://assets/battle/unit/soldier.png" id="2_tvt3o"]
 
 [sub_resource type="Animation" id="Animation_yixnx"]

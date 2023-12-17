@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://c1do1xehlp5le"]
 
 [ext_resource type="PackedScene" uid="uid://nqtncwui0dii" path="res://src/battle/BattleMap.tscn" id="1_ge76j"]
-[ext_resource type="PackedScene" uid="uid://bukf1qjlrc7dh" path="res://src/battle/Unit.tscn" id="2_lwk8m"]
+[ext_resource type="PackedScene" uid="uid://bukf1qjlrc7dh" path="res://src/level/unit/Unit.tscn" id="2_lwk8m"]
 
 [node name="TestMap" type="Node2D"]
 
