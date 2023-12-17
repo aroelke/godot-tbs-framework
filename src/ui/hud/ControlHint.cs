@@ -5,6 +5,7 @@ using ui.input.map;
 
 namespace ui.hud;
 
+/// <summary>Icon and label showing the input for an action that doesn't have an analog or mouse option.</summary>
 [Tool]
 public partial class ControlHint : HBoxContainer
 {
@@ -17,17 +18,36 @@ public partial class ControlHint : HBoxContainer
     private TextureRect KeyboardIcon => _keyIcon ??= GetNode<TextureRect>("Keyboard");
     private TextureRect PlaystationIcon => _playstationIcon ??= GetNode<TextureRect>("Playstation");
 
+    private void Update()
+    {
+        MouseButton mb = InputManager.GetInputMouseButton(InputAction);
+        MouseIcon.Texture = MouseMap is null || !MouseMap.Contains(mb) ? null : MouseMap[mb];
+
+        Key k = InputManager.GetInputKeycode(InputAction);
+        KeyboardIcon.Texture = KeyMap is null || !KeyMap.Contains(k) ? null : KeyMap[k];
+
+        JoyButton pb = InputManager.GetInputGamepadButton(InputAction);
+        PlaystationIcon.Texture = PlaystationMap is null || !PlaystationMap.Contains(pb) ? null : PlaystationMap[pb];
+
+        GetNode<Label>("Label").Text = $": {InputAction}";
+    }
+
+    /// <summary>Input action shown by the hint.</summary>
     [Export] public string InputAction { get; private set; } = "";
 
+    /// <summary>Mouse button map for the mouse input to the action.</summary>
     [ExportGroup("Action Maps")]
     [Export] public MouseIconMap MouseMap = null;
 
+    /// <summary>Keyboard map for the keyboard input to the action.</summary>
     [ExportGroup("Action Maps")]
     [Export] public KeyIconMap KeyMap = null;
 
+    /// <summary>Button map for the Playstation game pad input to the action.</summary>
     [ExportGroup("Action Maps")]
     [Export] public GamepadButtonIconMap PlaystationMap = null;
 
+    /// <summary>Switch the device to use for the icon to display.</summary>
     public InputDevice SelectedDevice
     {
         set
@@ -37,6 +57,8 @@ public partial class ControlHint : HBoxContainer
         }
     }
 
+    /// <summary>When the input mode changes, also update the icon.</summary>
+    /// <param name="device">New device being used for input.</param>
     public void OnInputDeviceChanged(InputDevice device) => SelectedDevice = device;
 
     public override void _Ready()
@@ -52,6 +74,8 @@ public partial class ControlHint : HBoxContainer
             };
             SelectedDevice = InputManager.Device;
             InputManager.InputDeviceChanged += OnInputDeviceChanged;
+
+            Update();
         }
     }
 
@@ -59,17 +83,6 @@ public partial class ControlHint : HBoxContainer
     {
         base._Process(delta);
         if (Engine.IsEditorHint())
-        {
-            MouseButton mb = InputManager.GetInputMouseButton(InputAction);
-            MouseIcon.Texture = MouseMap is null || !MouseMap.Contains(mb) ? null : MouseMap[mb];
-
-            Key k = InputManager.GetInputKeycode(InputAction);
-            KeyboardIcon.Texture = KeyMap is null || !KeyMap.Contains(k) ? null : KeyMap[k];
-
-            JoyButton pb = InputManager.GetInputGamepadButton(InputAction);
-            PlaystationIcon.Texture = PlaystationMap is null || !PlaystationMap.Contains(pb) ? null : PlaystationMap[pb];
-
-            GetNode<Label>("Label").Text = $": {InputAction}";
-        }
+            Update();
     }
 }

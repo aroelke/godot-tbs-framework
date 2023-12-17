@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=10 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/level/manager/LevelManager.cs" id="1_cgt2i"]
 [ext_resource type="Script" path="res://src/level/ui/PointerProjection.cs" id="2_wcsqo"]
@@ -7,6 +7,8 @@
 [ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://assets/ui/mouse.png" id="5_wkats"]
 [ext_resource type="Script" path="res://src/ui/VirtualPointer.cs" id="6_op0r2"]
 [ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://src/ui/hud/HUD.tres" id="7_12lpk"]
+[ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/ui/hud/CursorHintIcon.tscn" id="8_y3lwj"]
+[ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/ui/hud/ControlHint.tscn" id="9_svidw"]
 
 [node name="LevelManager" type="Node2D"]
 script = ExtResource("1_cgt2i")
@@ -49,10 +51,28 @@ layout_mode = 3
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_top = -40.0
-offset_right = 40.0
 grow_vertical = 0
 theme = ExtResource("7_12lpk")
+
+[node name="Hints" type="HBoxContainer" parent="UserInterface/HUD"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -40.0
+offset_right = 281.0
+grow_vertical = 0
+
+[node name="CursorHintIcon" parent="UserInterface/HUD/Hints" instance=ExtResource("8_y3lwj")]
+layout_mode = 2
+
+[node name="Separator" type="Label" parent="UserInterface/HUD/Hints"]
+layout_mode = 2
+text = " "
+
+[node name="ControlHint" parent="UserInterface/HUD/Hints" instance=ExtResource("9_svidw")]
+layout_mode = 2
+InputAction = "cursor_select"
 
 [connection signal="PointerMoved" from="PointerProjection" to="Cursor" method="OnPointerMoved"]
 [connection signal="PointerMoved" from="PointerProjection" to="UserInterface/VirtualPointer" method="OnProjectionMoved"]
