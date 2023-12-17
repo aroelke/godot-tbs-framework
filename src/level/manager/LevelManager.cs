@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using level.map;
+using level.unit;
 
 namespace level.manager;
 
@@ -14,6 +15,8 @@ namespace level.manager;
 public partial class LevelManager : Node2D
 {
     private LevelMap _map;
+    private readonly List<ArmyManager> _affiliations = new();
+
     private LevelMap Map => _map ??= GetNode<LevelMap>("LevelMap");
 
     /// <summary>The size of the level's grid.</summary>
@@ -41,12 +44,23 @@ public partial class LevelManager : Node2D
     {
         List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
 
+        // Make sure there's a map
         int maps = GetChildren().Where((c) => c is LevelMap).Count();
         if (maps < 1)
             warnings.Add("Level does not contain a map.");
         else if (maps > 1)
             warnings.Add($"Level contains too many maps ({maps}).");
 
+        // Make sure there are units to control and to fight.
+        if (GetChildren().Where((c) => c is ArmyManager).Count() < 2)
+            warnings.Add("There are not enough army affiliations to have two sides.");
+
         return warnings.ToArray();
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+        _affiliations.AddRange(GetChildren().Where((c) => c is ArmyManager).Select((c) => c as ArmyManager));
     }
 }

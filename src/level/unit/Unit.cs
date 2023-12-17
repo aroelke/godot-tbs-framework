@@ -1,5 +1,6 @@
 using System.Linq;
 using Godot;
+using level.manager;
 using level.map;
 
 namespace level.unit;
@@ -8,19 +9,19 @@ namespace level.unit;
 /// A unit that moves around the map.  Mostly is just a visual representation of what's where and interface for the player to
 /// interact.
 /// </summary>
-public partial class Unit : Path2D
+public partial class Unit : Path2D, ILevelManaged
 {
     /// <summary>Signal that the unit is done moving along its path.</summary>
     [Signal] public delegate void DoneMovingEventHandler();
 
-    private LevelMap _map = null;
+    private LevelManager _levelManager = null;
     private Vector2I _cell = Vector2I.Zero;
     private AnimationPlayer _animation = null;
     private bool _selected = false;
     private PathFollow2D _follow = null;
     private bool _moving = false;
 
-    private LevelMap Map => _map ??= GetParent<LevelMap>();
+    public LevelManager LevelManager => _levelManager ??= GetParent<ArmyManager>()?.LevelManager;
     private AnimationPlayer Animation => _animation ??= GetNode<AnimationPlayer>("Animation");
     private PathFollow2D PathFollow => _follow ??= GetNode<PathFollow2D>("PathFollow");
 
@@ -40,7 +41,7 @@ public partial class Unit : Path2D
     public Vector2I Cell
     {
         get => _cell;
-        set => _cell = Map.Clamp(value);
+        set => _cell = LevelManager.Clamp(value);
     }
 
     /// <summary>Whether or not this unit has been selected and is awaiting instruction. Changing it toggles the selected animation.</summary>
@@ -64,6 +65,9 @@ public partial class Unit : Path2D
         set => SetProcess(_moving = value);
     }
 
+    /// <summary>Army this unit is affiliated with.</summary>
+    public ArmyManager Affiliation = null;
+
     /// <summary>Move the unit along a path of map cells.  Cells should be contiguous.</summary>
     /// <param name="path">Coordinates of the cells to move along.</param>
     public void MoveAlong(Vector2I[] path)
@@ -71,7 +75,7 @@ public partial class Unit : Path2D
         if (path.Length > 0)
         {
             foreach (Vector2I cell in path)
-                Curve.AddPoint(Map.PositionOf(cell) - Position);
+                Curve.AddPoint(LevelManager.PositionOf(cell) - Position);
             Cell = path.Last();
             IsMoving = true;
         }
@@ -81,8 +85,8 @@ public partial class Unit : Path2D
     {
         base._Ready();
 
-        Cell = Map.CellOf(Position);
-        Position = Map.PositionOf(Cell);
+        Cell = LevelManager.CellOf(Position);
+        Position = LevelManager.PositionOf(Cell);
 
         if (!Engine.IsEditorHint())
             Curve = new();
@@ -111,7 +115,7 @@ public partial class Unit : Path2D
         {
             IsMoving = false;
             PathFollow.Progress = 0;
-            Position = Map.PositionOf(Cell);
+            Position = LevelManager.PositionOf(Cell);
             Curve.ClearPoints();
             IsSelected = _selected; // Go back to standing animation (idle/selected)
             EmitSignal(SignalName.DoneMoving);
