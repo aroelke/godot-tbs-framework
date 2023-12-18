@@ -14,11 +14,11 @@ public partial class BattleMap : TileMap
     private Camera2D _camera;
     private readonly Dictionary<Vector2I, Unit> _units = new();
     private Unit _selected;
-    private Overlay _overlay = null;
+//    private Overlay _overlay = null;
     private int _terrainLayer = -1;
 
     private Camera2D Camera => _camera ??= GetNode<Camera2D>("Pointer/BattleCamera");
-    private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
+ //   private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
 
     private void DeselectUnit()
     {
@@ -26,7 +26,7 @@ public partial class BattleMap : TileMap
         {
             _selected.IsSelected = false;
             _selected = null;
-            Overlay.Clear();
+//            Overlay.Clear();
         }
     }
 
@@ -78,8 +78,10 @@ public partial class BattleMap : TileMap
     /// <param name="current">Current location of the cursor.</param>
     public void OnCursorMoved(Vector2I previous, Vector2I current)
     {
+/*
         if (_selected != null && Overlay.TraversableCells.Contains(current))
             Overlay.AddToPath(this, _selected, current);
+*/
     }
 
     /// <summary>
@@ -89,6 +91,7 @@ public partial class BattleMap : TileMap
     /// <param name="cell">Cell to select.</param>
     public async void OnCellCelected(Vector2I cell)
     {
+/*
         if (_selected != null)
         {
             if (!_selected.IsMoving)
@@ -120,6 +123,7 @@ public partial class BattleMap : TileMap
             else if (_selected != null)
                 DeselectUnit();
         }
+*/
     }
 
     public override string[] _GetConfigurationWarnings()

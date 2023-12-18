@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using level.map;
+using level.ui;
 using level.unit;
+using util;
 
 namespace level.manager;
 
@@ -15,9 +17,11 @@ namespace level.manager;
 public partial class LevelManager : Node2D
 {
     private LevelMap _map;
+    private Overlay _overlay;
     private readonly List<ArmyManager> _affiliations = new();
 
     private LevelMap Map => _map ??= GetNode<LevelMap>("LevelMap");
+    private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
 
     /// <summary>The size of the level's grid.</summary>
     public Vector2I GridSize => Map.Size;
@@ -44,18 +48,14 @@ public partial class LevelManager : Node2D
     /// <param name="cell">Coordinates of the cell selection.</param>
     public void OnCellCelected(Vector2I cell)
     {
-        bool has = false;
         foreach (ArmyManager army in _affiliations)
         {
             if (army.Units.ContainsKey(cell))
             {
-                has = true;
-                GD.Print($"{cell} contains a unit in {army.Name}");
+                Overlay.DrawMoveRange(Map, army.Units[cell]);
                 break;
             }
         }
-        if (!has)
-            GD.Print(cell);
     }
 
     public override string[] _GetConfigurationWarnings()
