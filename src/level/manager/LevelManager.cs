@@ -52,7 +52,10 @@ public partial class LevelManager : Node2D
         {
             if (army.Units.ContainsKey(cell))
             {
-                Overlay.DrawMoveRange(Map, army.Units[cell]);
+                PathFinder pathfinder = new(Map, army.Units[cell]);
+                Overlay.DrawOverlay(Overlay.TraverseLayer, pathfinder.TraversableCells);
+                Overlay.DrawOverlay(Overlay.AttackLayer, pathfinder.AttackableCells.Where((c) => !pathfinder.TraversableCells.Contains(c)));
+                Overlay.DrawOverlay(Overlay.SupportLayer, pathfinder.SupportableCells.Where((c) => !pathfinder.TraversableCells.Contains(c) && !pathfinder.AttackableCells.Contains(c)));
                 break;
             }
         }

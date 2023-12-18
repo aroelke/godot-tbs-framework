@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -6,8 +7,11 @@ using level.unit;
 
 namespace util;
 
-/// <summary>Helper for finding movement, attack, and support ranges on a <c>LevelMap</c>.</summary>
-public static class PathFinder
+/// <summary>
+/// Helper for finding movement, attack, and support ranges on a <c>LevelMap</c> for a <c>Unit</c>. Also acts as storage for computed ranges for the <c>Unit</c>.
+/// A new one should be created each time movement ranges need to be recomputed.
+/// </summary>
+public class PathFinder
 {
     /// <summary>Directions to look when finding cell neighbors.</summary>
     public static readonly Vector2I[] Directions = { Vector2I.Up, Vector2I.Right, Vector2I.Down, Vector2I.Left };
@@ -120,5 +124,33 @@ public static class PathFinder
         result.AddRange(a);
         result.AddRange(b);
         return result;
+    }
+
+    private LevelMap _map;
+    private Unit _unit;
+
+    /// <summary>Set of cells the unit can traverse on the map from its position.</summary>
+    public IEnumerable<Vector2I> TraversableCells = Array.Empty<Vector2I>();
+    
+    /// <summary>Set of all cells the unit can attack from any position it could traverse on the map. Is not distinct from <c>TraversableCells</c>.</summary>
+    public IEnumerable<Vector2I> AttackableCells = Array.Empty<Vector2I>();
+
+    /// <summary>
+    /// Set of all cells the unit can support from any position it could traverse on the map. Is not distinct from <c>TraversableCells</c> or
+    /// <c>AttackableCells</c>.
+    /// </summary>
+    public IEnumerable<Vector2I> SupportableCells = Array.Empty<Vector2I>();
+
+    /// <summary>Create a new PathFinder for a unit on a map.</summary>
+    /// <param name="map">Map on which paths are to be computed.</param>
+    /// <param name="unit">Unit for which paths are to be computed.</param>
+    public PathFinder(LevelMap map, Unit unit)
+    {
+        _map = map;
+        _unit = unit;
+
+        TraversableCells = GetTraversableCells(map, unit);
+        AttackableCells = GetCellsInRange(map, unit.AttackRange, TraversableCells);
+        SupportableCells = GetCellsInRange(map, unit.SupportRange, TraversableCells);
     }
 }
