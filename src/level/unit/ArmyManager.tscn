@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dnkw4vlbmt88m"]
+
+[ext_resource type="Script" path="res://src/level/unit/ArmyManager.cs" id="1_vdyd7"]
+
+[node name="ArmyManager" type="Node"]
+script = ExtResource("1_vdyd7")

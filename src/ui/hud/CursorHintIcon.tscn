@@ -1,0 +1,78 @@
+[gd_scene load_steps=12 format=3 uid="uid://dar0v4k4aqvpv"]
+
+[ext_resource type="Script" path="res://src/ui/hud/CursorHintIcon.cs" id="1_dpl76"]
+[ext_resource type="Resource" uid="uid://c7jn8vjepg37d" path="res://src/ui/input/map/KeyIconMap.tres" id="2_nqdba"]
+[ext_resource type="Texture2D" uid="uid://bvbkwcurpgl68" path="res://assets/ui/icons/controls/keyboard/up.png" id="3_gfwbk"]
+[ext_resource type="Resource" uid="uid://c3d3vvly1ra01" path="res://src/ui/input/map/MouseIconMap.tres" id="3_jfgvi"]
+[ext_resource type="Texture2D" uid="uid://b22lemesaffkm" path="res://assets/ui/icons/controls/keyboard/left.png" id="4_4x054"]
+[ext_resource type="Texture2D" uid="uid://dnxdklj5eo2mi" path="res://assets/ui/icons/controls/keyboard/down.png" id="5_oso73"]
+[ext_resource type="Texture2D" uid="uid://dedquyam7p1qb" path="res://assets/ui/icons/controls/keyboard/right.png" id="6_umvvm"]
+[ext_resource type="Texture2D" uid="uid://xnouovy7cud3" path="res://assets/ui/icons/controls/mouse/mouse.png" id="7_gxd5p"]
+[ext_resource type="PackedScene" uid="uid://cpswnx0irecoi" path="res://src/ui/hud/GamepadCursorHintIcon.tscn" id="9_eitd7"]
+[ext_resource type="Resource" uid="uid://c4gxmnbkjh25" path="res://src/ui/input/map/PlaystationButtonIconMap.tres" id="10_77rsp"]
+[ext_resource type="Resource" uid="uid://dlv0hdn5r2kr5" path="res://src/ui/input/map/PlaystationAxisIconMap.tres" id="11_48blm"]
+
+[node name="CursorHintIcon" type="HBoxContainer"]
+offset_right = 15.0
+offset_bottom = 28.0
+script = ExtResource("1_dpl76")
+MouseMap = ExtResource("3_jfgvi")
+KeyMap = ExtResource("2_nqdba")
+UpAction = "cursor_digital_up"
+LeftAction = "cursor_digital_left"
+DownAction = "cursor_digital_down"
+RightAction = "cursor_digital_right"
+AnalogAction = "cursor_analog_up"
+
+[node name="Mouse" type="TextureRect" parent="."]
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("7_gxd5p")
+stretch_mode = 3
+
+[node name="Keyboard" type="GridContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/h_separation = 0
+theme_override_constants/v_separation = 0
+columns = 3
+
+[node name="Empty0" type="TextureRect" parent="Keyboard"]
+layout_mode = 2
+
+[node name="Up" type="TextureRect" parent="Keyboard"]
+layout_mode = 2
+texture = ExtResource("3_gfwbk")
+stretch_mode = 3
+
+[node name="Empty1" type="TextureRect" parent="Keyboard"]
+layout_mode = 2
+
+[node name="Left" type="TextureRect" parent="Keyboard"]
+layout_mode = 2
+texture = ExtResource("4_4x054")
+stretch_mode = 3
+
+[node name="Down" type="TextureRect" parent="Keyboard"]
+layout_mode = 2
+texture = ExtResource("5_oso73")
+stretch_mode = 3
+
+[node name="Right" type="TextureRect" parent="Keyboard"]
+layout_mode = 2
+texture = ExtResource("6_umvvm")
+stretch_mode = 3
+
+[node name="Playstation" parent="." instance=ExtResource("9_eitd7")]
+layout_mode = 2
+ButtonMap = ExtResource("10_77rsp")
+AxisMap = ExtResource("11_48blm")
+UpAction = "cursor_digital_up"
+LeftAction = "cursor_digital_left"
+DownAction = "cursor_digital_down"
+RightAction = "cursor_digital_right"
+AnalogAction = "cursor_analog_up"
+
+[node name="Action" type="Label" parent="."]
+layout_mode = 2
+text = ": Move Cursor"

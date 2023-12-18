@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="MouseIconMap" load_steps=2 format=3 uid="uid://c3d3vvly1ra01"]
+
+[ext_resource type="Script" path="res://src/ui/input/map/MouseIconMap.cs" id="1_axiq4"]
+
+[resource]
+script = ExtResource("1_axiq4")
+Motion = "mouse"
+IconPath = "res://assets/ui/icons/controls/mouse"
+IconExt = ".png"
