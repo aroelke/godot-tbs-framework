@@ -70,9 +70,9 @@ public partial class LevelManager : Node2D
                     _selected = army.Units[cell];
                     _selected.IsSelected = true;
                     _pathfinder = new(Map, _selected);
-                    Overlay.DrawOverlay(Overlay.TraverseLayer, _pathfinder.TraversableCells);
-                    Overlay.DrawOverlay(Overlay.AttackLayer, _pathfinder.AttackableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c)));
-                    Overlay.DrawOverlay(Overlay.SupportLayer, _pathfinder.SupportableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c) && !_pathfinder.AttackableCells.Contains(c)));
+                    Overlay.TraversableCells = _pathfinder.TraversableCells;
+                    Overlay.AttackableCells = _pathfinder.AttackableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c));
+                    Overlay.SupportableCells = _pathfinder.SupportableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c) && !_pathfinder.AttackableCells.Contains(c));
                     break;
                 }
             }
@@ -94,9 +94,8 @@ public partial class LevelManager : Node2D
                     _pathfinder = null;
                     IEnumerable<Vector2I> attackable = PathFinder.GetCellsInRange(Map, _selected.AttackRange, _selected.Cell);
                     IEnumerable<Vector2I> supportable = PathFinder.GetCellsInRange(Map, _selected.SupportRange, _selected.Cell);
-                    Overlay.DrawOverlay(Overlay.AttackLayer, attackable);
-                    Overlay.DrawOverlay(Overlay.SupportLayer, supportable.Where((c) => !attackable.Contains(c)));
-                    
+                    Overlay.AttackableCells = attackable;
+                    Overlay.SupportableCells = supportable.Where((c) => !attackable.Contains(c));
                 }
                 else
                     DeselectUnit();
@@ -114,7 +113,7 @@ public partial class LevelManager : Node2D
             if (_pathfinder.TraversableCells.Contains(cell))
             {
                 _pathfinder.AddToPath(cell);
-                Overlay.DrawPath(_pathfinder.Path);
+                Overlay.Path = _pathfinder.Path;
             }
         }
     }

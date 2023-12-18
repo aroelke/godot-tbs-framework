@@ -2,9 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using level.map;
-using level.unit;
-using util;
 
 namespace level.ui;
 
@@ -34,60 +31,66 @@ public partial class Overlay : TileMap
 
     private int _selectionSet = -1, _selectionTerrain = -1;
     private int _pathLayer = -1, _pathSet = 1, _pathTerrain = -1;
-
-    /// <summary>TileMap layer index to draw traversable cells on.</summary>
-    public int TraverseLayer { get; private set; } = -1;
-
-    /// <summary>TileMap layer index to draw attackable cells on.</summary>
-    public int AttackLayer { get; private set; } = -1;
-
-    /// <summary>TileMap layer index to draw supportable cells on.</summary>
-    public int SupportLayer { get; private set; } = -1;
-
-    /// <summary>Most recently computed list of cells that can be traversed.</summary>
-    public HashSet<Vector2I> TraversableCells { get; private set; } = new();
+    private int _traverseLayer = -1, _attackLayer = -1, _supportLayer = -1;
 
     /// <summary>Draw the cells that can be traversed.</summary>
     /// <param name="cells">List of cells that can be traversed, in any order.</param>
-    public void DrawOverlay(int layer, IEnumerable<Vector2I> cells)
+    private void DrawOverlay(int layer, IEnumerable<Vector2I> cells)
     {
         ClearLayer(layer);
         SetCellsTerrainConnect(layer, new(cells), _selectionSet, _selectionTerrain);
     }
 
-    /// <summary>Draw a movement path on the map.</summary>
-    /// <param name="path">List of cells defining the path to draw.</param>
-    public void DrawPath(List<Vector2I> path)
+    /// <summary>Collection of traversable cells drawn on the map.</summary>
+    public IEnumerable<Vector2I> TraversableCells
     {
-        ClearLayer(_pathLayer);
-        if (path.Count > 1)
-        {
-            SetCellsTerrainPath(_pathLayer, new(path), _pathSet, _pathTerrain);
-            SetCell(_pathLayer, path.Last(), PathSourceId, (path[^1] - path[^2]) switch
-            {
-                Vector2I(0, >0) => DownArrow,
-                Vector2I(>0, 0) => RightArrow,
-                Vector2I(0, <0) => UpArrow,
-                Vector2I(<0, 0) => LeftArrow,
-                _ => new(8, 0)
-            });
-        }
+        get => GetUsedCells(_traverseLayer);
+        set => DrawOverlay(_traverseLayer, value);
     }
 
-    /// <summary>In addition to clearing the overlay tiles, also clear the list of traversable cells.</summary>
-    public new void Clear()
+    /// <summary>Collection of attackable cells drawn on the map.</summary>
+    public IEnumerable<Vector2I> AttackableCells
     {
-        base.Clear();
-        TraversableCells.Clear();
+        get => GetUsedCells(_attackLayer);
+        set => DrawOverlay(_attackLayer, value);
+    }
+
+    /// <summary>Collection of supportable cells drawn on the map.</summary>
+    public IEnumerable<Vector2I> SupportableCells
+    {
+        get => GetUsedCells(_supportLayer);
+        set => DrawOverlay(_supportLayer, value);
+    }
+
+    /// <summary>List of cells defining a movement path.</summary>
+    public List<Vector2I> Path
+    {
+        get => GetUsedCells(_pathLayer).ToList();
+        set
+        {
+            ClearLayer(_pathLayer);
+            if (value.Count > 1)
+            {
+                SetCellsTerrainPath(_pathLayer, new(value), _pathSet, _pathTerrain);
+                SetCell(_pathLayer, value.Last(), PathSourceId, (value[^1] - value[^2]) switch
+                {
+                    Vector2I(0, >0) => DownArrow,
+                    Vector2I(>0, 0) => RightArrow,
+                    Vector2I(0, <0) => UpArrow,
+                    Vector2I(<0, 0) => LeftArrow,
+                    _ => new(8, 0)
+                });
+            }
+        }
     }
 
     public override void _Ready()
     {
         base._Ready();
 
-        TraverseLayer = GetIndex(GetLayerName, GetLayersCount(), "move");
-        AttackLayer = GetIndex(GetLayerName, GetLayersCount(), "attack");
-        SupportLayer = GetIndex(GetLayerName, GetLayersCount(), "support");
+        _traverseLayer = GetIndex(GetLayerName, GetLayersCount(), "move");
+        _attackLayer = GetIndex(GetLayerName, GetLayersCount(), "attack");
+        _supportLayer = GetIndex(GetLayerName, GetLayersCount(), "support");
         for (int i = 0; i < TileSet.GetTerrainSetsCount(); i++)
         {
             _selectionTerrain = GetIndex((t) => TileSet.GetTerrainName(i, t), TileSet.GetTerrainsCount(i), "selection");
