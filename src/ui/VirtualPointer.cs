@@ -1,4 +1,3 @@
-using System.Collections;
 using Godot;
 using level.ui;
 using ui.input;
@@ -11,6 +10,10 @@ public partial class VirtualPointer : TextureRect
     /// <summary>Signals that the virtual pointer has moved in the canvas.</summary>
     /// <param name="position">Position of the virtual pointer.</param>
     [Signal] public delegate void PointerMovedEventHandler(Vector2 position);
+
+    /// <summary>Signals that the pointer has been clicked.  Also used to signal a real mouse click.</summary>
+    /// <param name="position">Position of the click.</param>
+    [Signal] public delegate void PointerClickedEventHandler(Vector2 position);
 
     private InputManager _inputManager = null;
     private bool _accelerate = false;
@@ -71,19 +74,27 @@ public partial class VirtualPointer : TextureRect
         {
         case input.InputMode.Mouse when @event is InputEventMouseMotion:
             Warp(GetViewport().GetMousePosition());
-            break;
+            return;
         case input.InputMode.Analog:
             if (Input.IsActionJustPressed("cursor_analog_accelerate"))
             {
-                _accelerate = true;
                 GetViewport().SetInputAsHandled();
+                _accelerate = true;
+                return;
             }
             if (Input.IsActionJustReleased("cursor_analog_accelerate"))
             {
-                _accelerate = false;
                 GetViewport().SetInputAsHandled();
+                _accelerate = false;
+                return;
             }
             break;
+        }
+        if (Input.IsActionJustReleased("cursor_select") && (InputManager.Mode == input.InputMode.Mouse || InputManager.Mode == input.InputMode.Analog))
+        {
+            GetViewport().SetInputAsHandled();
+            EmitSignal(SignalName.PointerClicked, Position);
+            return;
         }
     }
 

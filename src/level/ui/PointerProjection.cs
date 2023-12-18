@@ -12,6 +12,11 @@ public partial class PointerProjection : Node2D, ILevelManaged
     /// <param name="world">Current position on the map.</param>
     [Signal] public delegate void PointerMovedEventHandler(Vector2 viewport, Vector2 world);
 
+    /// <summary>Signals that the pointer has been clicked.</summary>
+    /// <param name="viewport">Position in the viewport of the click.</param>
+    /// <param name="world">Position on the map of the click.</param>
+    [Signal] public delegate void PointerClickedEventHandler(Vector2 viewport, Vector2 world);
+
     private InputManager _inputManager = null;
     private Camera2D _camera = null;
     private LevelManager _levelManager = null;
@@ -78,6 +83,10 @@ public partial class PointerProjection : Node2D, ILevelManaged
         if (InputManager.Mode != InputMode.Digital)
             Warp(ViewportToWorld(_viewportPosition));
     }
+
+    /// <summary>When the viewport pointer is clicked, emit a signal converting it to a world position.</summary>
+    /// <param name="viewport">Position in the viewport of the click.</param>
+    public void OnPointerClicked(Vector2 viewport) => EmitSignal(SignalName.PointerClicked, viewport, ViewportToWorld(viewport));
 
     public LevelManager LevelManager => _levelManager ??= GetParent<LevelManager>();
 

@@ -40,6 +40,24 @@ public partial class LevelManager : Node2D
     /// <returns>The position, in pixels of the upper-left corner of the grid cell.</returns>
     public Vector2 PositionOf(Vector2I cell) => Map.PositionOf(cell);
 
+    /// <summary>When a cell is selected, act based on what is or isn't in the cell.</summary>
+    /// <param name="cell">Coordinates of the cell selection.</param>
+    public void OnCellCelected(Vector2I cell)
+    {
+        bool has = false;
+        foreach (ArmyManager army in _affiliations)
+        {
+            if (army.Units.ContainsKey(cell))
+            {
+                has = true;
+                GD.Print($"{cell} contains a unit in {army.Name}");
+                break;
+            }
+        }
+        if (!has)
+            GD.Print(cell);
+    }
+
     public override string[] _GetConfigurationWarnings()
     {
         List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());

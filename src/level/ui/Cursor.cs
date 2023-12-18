@@ -15,6 +15,10 @@ public partial class Cursor : Sprite2D, ILevelManaged
     /// <param name="cell">Position of the center of the cell moved to.</param>
     [Signal] public delegate void CursorMovedEventHandler(Vector2 position);
 
+    /// <summary>Signals that a cell has been selected.</summary>
+    /// <param name="cell">Coordinates of the cell that has been selected.</param>
+    [Signal] public delegate void CellSelectedEventHandler(Vector2I cell);
+
     private InputManager _inputManager = null;
     private LevelManager _levelManager = null;
     private Timer _echo = null;
@@ -25,6 +29,7 @@ public partial class Cursor : Sprite2D, ILevelManaged
     private InputManager InputManager => _inputManager ??= GetNode<InputManager>("/root/InputManager");
     private Timer EchoTimer => _echo ??= GetNode<Timer>("EchoTimer");
 
+    /// <summary>Projection of the pointer in the viewport onto the world.</summary>
     [Export] public PointerProjection Projection = null;
 
     /// <summary>Initial delay after pressing a button to begin echoing the input.</summary>
@@ -73,6 +78,11 @@ public partial class Cursor : Sprite2D, ILevelManaged
             _echoing = true;
     }
 
+    /// <summary>When the pointer is clicked, signal that a cell has been selected.</summary>
+    /// <param name="viewport">Position of the pointer in the viewport.</param>
+    /// <param name="world">Position of the pointer in the world.</param>
+    public void OnPointerClicked(Vector2 viewport, Vector2 world) => EmitSignal(SignalName.CellSelected, LevelManager.CellOf(world));
+
     public LevelManager LevelManager => _levelManager ??= GetParent<LevelManager>();
 
     public override void _UnhandledInput(InputEvent @event)
@@ -100,6 +110,9 @@ public partial class Cursor : Sprite2D, ILevelManaged
                 else
                     _direction = Vector2I.Zero;
             }
+
+            if (Input.IsActionJustReleased("cursor_select"))
+                EmitSignal(SignalName.CellSelected, LevelManager.CellOf(Position));
         }
     }
 
