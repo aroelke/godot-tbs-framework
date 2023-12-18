@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using level.map.terrain;
 
 namespace level.map;
 
@@ -60,6 +61,9 @@ public partial class LevelMap : TileMap
     {
         List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
 
+        if (DefaultTerrain is null)
+            warnings.Add("No default terrain set");
+
         // Don't use Rect property here because it needs to update with the tilemap as it's edited
         int ground = -1;
         for (int i = 0; i < GetLayersCount(); i++)
@@ -79,6 +83,7 @@ public partial class LevelMap : TileMap
                 }
             }
         }
+
         return warnings.ToArray();
     }
 
