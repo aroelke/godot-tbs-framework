@@ -77,23 +77,33 @@ public partial class LevelManager : Node2D
                 }
             }
         }
-        else
+        else if (_pathfinder is not null)
         {
             if (!_selected.IsMoving)
             {
                 if (cell != _selected.Cell && _pathfinder.TraversableCells.Contains(cell))
                 {
+                    // Move the unit and wait for it to finish moving
                     _selected.Affiliation.Units.Remove(_selected.Cell);
                     _selected.MoveAlong(_pathfinder.Path);
                     _selected.Affiliation.Units[_selected.Cell] = _selected;
                     Overlay.Clear();
                     await ToSignal(_selected, Unit.SignalName.DoneMoving);
-                    DeselectUnit();
+
+                    // Delete the path finder, as we don't need it anymore, and then show the unit's attack/support ranges
+                    _pathfinder = null;
+                    IEnumerable<Vector2I> attackable = PathFinder.GetCellsInRange(Map, _selected.AttackRange, _selected.Cell);
+                    IEnumerable<Vector2I> supportable = PathFinder.GetCellsInRange(Map, _selected.SupportRange, _selected.Cell);
+                    Overlay.DrawOverlay(Overlay.AttackLayer, attackable);
+                    Overlay.DrawOverlay(Overlay.SupportLayer, supportable.Where((c) => !attackable.Contains(c)));
+                    
                 }
                 else
                     DeselectUnit();
             }
         }
+        else
+            DeselectUnit();
     }
 
     public void OnCursorMoved(Vector2 position)
