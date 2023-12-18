@@ -25,6 +25,17 @@ public partial class LevelManager : Node2D
     private LevelMap Map => _map ??= GetNode<LevelMap>("LevelMap");
     private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
 
+    private void DeselectUnit()
+    {
+        if (_selected is not null)
+        {
+            _selected.IsSelected = false;
+            _selected = null;
+        }
+        _pathfinder = null;
+        Overlay.Clear();
+    }
+
     /// <summary>The size of the level's grid.</summary>
     public Vector2I GridSize => Map.Size;
 
@@ -57,6 +68,7 @@ public partial class LevelManager : Node2D
                 if (army.Units.ContainsKey(cell))
                 {
                     _selected = army.Units[cell];
+                    _selected.IsSelected = true;
                     _pathfinder = new(Map, _selected);
                     Overlay.DrawOverlay(Overlay.TraverseLayer, _pathfinder.TraversableCells);
                     Overlay.DrawOverlay(Overlay.AttackLayer, _pathfinder.AttackableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c)));
@@ -76,9 +88,10 @@ public partial class LevelManager : Node2D
                     _selected.Affiliation.Units[_selected.Cell] = _selected;
                     Overlay.Clear();
                     await ToSignal(_selected, Unit.SignalName.DoneMoving);
-                    _selected = null;
-                    _pathfinder = null;
+                    DeselectUnit();
                 }
+                else
+                    DeselectUnit();
             }
         }
     }
