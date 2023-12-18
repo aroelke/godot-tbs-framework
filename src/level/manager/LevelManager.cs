@@ -48,18 +48,37 @@ public partial class LevelManager : Node2D
 
     /// <summary>When a cell is selected, act based on what is or isn't in the cell.</summary>
     /// <param name="cell">Coordinates of the cell selection.</param>
-    public void OnCellSelected(Vector2I cell)
+    public async void OnCellSelected(Vector2I cell)
     {
-        foreach (ArmyManager army in _affiliations)
+        if (_selected is null)
         {
-            if (army.Units.ContainsKey(cell))
+            foreach (ArmyManager army in _affiliations)
             {
-                _selected = army.Units[cell];
-                _pathfinder = new(Map, _selected);
-                Overlay.DrawOverlay(Overlay.TraverseLayer, _pathfinder.TraversableCells);
-                Overlay.DrawOverlay(Overlay.AttackLayer, _pathfinder.AttackableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c)));
-                Overlay.DrawOverlay(Overlay.SupportLayer, _pathfinder.SupportableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c) && !_pathfinder.AttackableCells.Contains(c)));
-                break;
+                if (army.Units.ContainsKey(cell))
+                {
+                    _selected = army.Units[cell];
+                    _pathfinder = new(Map, _selected);
+                    Overlay.DrawOverlay(Overlay.TraverseLayer, _pathfinder.TraversableCells);
+                    Overlay.DrawOverlay(Overlay.AttackLayer, _pathfinder.AttackableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c)));
+                    Overlay.DrawOverlay(Overlay.SupportLayer, _pathfinder.SupportableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c) && !_pathfinder.AttackableCells.Contains(c)));
+                    break;
+                }
+            }
+        }
+        else
+        {
+            if (!_selected.IsMoving)
+            {
+                if (cell != _selected.Cell && _pathfinder.TraversableCells.Contains(cell))
+                {
+                    _selected.Affiliation.Units.Remove(_selected.Cell);
+                    _selected.MoveAlong(_pathfinder.Path);
+                    _selected.Affiliation.Units[_selected.Cell] = _selected;
+                    Overlay.Clear();
+                    await ToSignal(_selected, Unit.SignalName.DoneMoving);
+                    _selected = null;
+                    _pathfinder = null;
+                }
             }
         }
     }

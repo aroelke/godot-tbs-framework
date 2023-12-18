@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using level.manager;
@@ -70,9 +71,9 @@ public partial class Unit : Path2D, ILevelManaged
 
     /// <summary>Move the unit along a path of map cells.  Cells should be contiguous.</summary>
     /// <param name="path">Coordinates of the cells to move along.</param>
-    public void MoveAlong(Vector2I[] path)
+    public void MoveAlong(List<Vector2I> path)
     {
-        if (path.Length > 0)
+        if (path.Count > 0)
         {
             foreach (Vector2I cell in path)
                 Curve.AddPoint(LevelManager.PositionOf(cell) - Position);
