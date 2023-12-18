@@ -16,8 +16,10 @@ namespace level.manager;
 [Tool]
 public partial class LevelManager : Node2D
 {
-    private LevelMap _map;
-    private Overlay _overlay;
+    private LevelMap _map = null;
+    private Overlay _overlay = null;
+    private Unit _selected = null;
+    private PathFinder _pathfinder = null;
     private readonly List<ArmyManager> _affiliations = new();
 
     private LevelMap Map => _map ??= GetNode<LevelMap>("LevelMap");
@@ -46,17 +48,31 @@ public partial class LevelManager : Node2D
 
     /// <summary>When a cell is selected, act based on what is or isn't in the cell.</summary>
     /// <param name="cell">Coordinates of the cell selection.</param>
-    public void OnCellCelected(Vector2I cell)
+    public void OnCellSelected(Vector2I cell)
     {
         foreach (ArmyManager army in _affiliations)
         {
             if (army.Units.ContainsKey(cell))
             {
-                PathFinder pathfinder = new(Map, army.Units[cell]);
-                Overlay.DrawOverlay(Overlay.TraverseLayer, pathfinder.TraversableCells);
-                Overlay.DrawOverlay(Overlay.AttackLayer, pathfinder.AttackableCells.Where((c) => !pathfinder.TraversableCells.Contains(c)));
-                Overlay.DrawOverlay(Overlay.SupportLayer, pathfinder.SupportableCells.Where((c) => !pathfinder.TraversableCells.Contains(c) && !pathfinder.AttackableCells.Contains(c)));
+                _selected = army.Units[cell];
+                _pathfinder = new(Map, _selected);
+                Overlay.DrawOverlay(Overlay.TraverseLayer, _pathfinder.TraversableCells);
+                Overlay.DrawOverlay(Overlay.AttackLayer, _pathfinder.AttackableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c)));
+                Overlay.DrawOverlay(Overlay.SupportLayer, _pathfinder.SupportableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c) && !_pathfinder.AttackableCells.Contains(c)));
                 break;
+            }
+        }
+    }
+
+    public void OnCursorMoved(Vector2 position)
+    {
+        if (_selected != null && _pathfinder != null)
+        {
+            Vector2I cell = CellOf(position);
+            if (_pathfinder.TraversableCells.Contains(cell))
+            {
+                _pathfinder.AddToPath(cell);
+                Overlay.DrawPath(_pathfinder.Path);
             }
         }
     }

@@ -89,7 +89,7 @@ public partial class BattleMap : TileMap
     /// move it to that cell.  Afterwards or otherwise, deselect the unit.
     /// </summary>
     /// <param name="cell">Cell to select.</param>
-    public async void OnCellCelected(Vector2I cell)
+    public void OnCellCelected(Vector2I cell)
     {
 /*
         if (_selected != null)

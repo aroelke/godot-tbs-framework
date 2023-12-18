@@ -126,8 +126,9 @@ public class PathFinder
         return result;
     }
 
-    private LevelMap _map;
-    private Unit _unit;
+    private readonly LevelMap _map;
+    private readonly Unit _unit;
+    private readonly AStar2D _astar = new();
 
     /// <summary>Set of cells the unit can traverse on the map from its position.</summary>
     public IEnumerable<Vector2I> TraversableCells = Array.Empty<Vector2I>();
@@ -141,6 +142,8 @@ public class PathFinder
     /// </summary>
     public IEnumerable<Vector2I> SupportableCells = Array.Empty<Vector2I>();
 
+    public readonly List<Vector2I> Path = new();
+
     /// <summary>Create a new PathFinder for a unit on a map.</summary>
     /// <param name="map">Map on which paths are to be computed.</param>
     /// <param name="unit">Unit for which paths are to be computed.</param>
@@ -149,8 +152,46 @@ public class PathFinder
         _map = map;
         _unit = unit;
 
-        TraversableCells = GetTraversableCells(map, unit);
-        AttackableCells = GetCellsInRange(map, unit.AttackRange, TraversableCells);
-        SupportableCells = GetCellsInRange(map, unit.SupportRange, TraversableCells);
+        TraversableCells = GetTraversableCells(_map, _unit);
+        AttackableCells = GetCellsInRange(_map, _unit.AttackRange, TraversableCells);
+        SupportableCells = GetCellsInRange(_map, _unit.SupportRange, TraversableCells);
+
+        foreach (Vector2I cell in TraversableCells)
+            _astar.AddPoint(_map.CellId(cell), cell, _map.GetTerrain(cell).Cost);
+        foreach (Vector2I cell in TraversableCells)
+        {
+            foreach (Vector2I direction in Directions)
+            {
+                Vector2I neighbor = cell + direction;
+                if (!_astar.ArePointsConnected(_map.CellId(cell), _map.CellId(neighbor)) && TraversableCells.Contains(neighbor))
+                    _astar.ConnectPoints(_map.CellId(cell), _map.CellId(neighbor));
+            }
+        }
+        Path.Add(_unit.Cell);
+    }
+
+    /// <summary>
+    /// Add a cell to the path. If the cell is not adjacent to the end of the path, then the AStar algorithm is used to compute intermediate
+    /// cells. Then, if there are any loops in the path, they are removed. Then, if the path is still too long for the unit to traverse
+    /// (accounting for cost), it is replaced with one computed using the AStar algorithm that is of the correct length.
+    /// </summary>
+    /// <param name="cell"></param>
+    public void AddToPath(Vector2I cell)
+    {
+        List<Vector2I> extension = new();
+        if (Path.Count == 0 || IsAdjacent(cell, Path.Last()))
+            extension.Add(cell);
+        else
+            extension.AddRange(_astar.GetPointPath(_map.CellId(Path.Last()), _map.CellId(cell)).Select((c) => (Vector2I)c));
+
+        List<Vector2I> temp = new(Path);
+        Path.Clear();
+        Path.AddRange(Join(temp, extension));
+        if (Path.Select((c) => _map.GetTerrain(c).Cost).Sum() - _map.GetTerrain(Path[0]).Cost > _unit.MoveRange)
+        {
+            Vector2I start = Path[0];
+            Path.Clear();
+            Path.AddRange(_astar.GetPointPath(_map.CellId(start), _map.CellId(cell)).Select((c) => (Vector2I)c));
+        }
     }
 }

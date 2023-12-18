@@ -34,8 +34,6 @@ public partial class Overlay : TileMap
 
     private int _selectionSet = -1, _selectionTerrain = -1;
     private int _pathLayer = -1, _pathSet = 1, _pathTerrain = -1;
-    private List<Vector2I> _path = new();
-    private AStar2D _astar = new();
 
     /// <summary>TileMap layer index to draw traversable cells on.</summary>
     public int TraverseLayer { get; private set; } = -1;
@@ -49,9 +47,6 @@ public partial class Overlay : TileMap
     /// <summary>Most recently computed list of cells that can be traversed.</summary>
     public HashSet<Vector2I> TraversableCells { get; private set; } = new();
 
-    /// <summary>The current path being drawn on the screen.</summary>
-    public Vector2I[] Path => _path.ToArray();
-
     /// <summary>Draw the cells that can be traversed.</summary>
     /// <param name="cells">List of cells that can be traversed, in any order.</param>
     public void DrawOverlay(int layer, IEnumerable<Vector2I> cells)
@@ -60,55 +55,15 @@ public partial class Overlay : TileMap
         SetCellsTerrainConnect(layer, new(cells), _selectionSet, _selectionTerrain);
     }
 
-    /// <summary>Compute and draw the cells that a unit can traverse.</summary>
-    /// <param name="map">Map containing the cells to be traversed.</param>
-    /// <param name="unit">Unit traversing the cells.</param>
-    public void DrawMoveRange(LevelMap map, Unit unit)
+    /// <summary>Draw a movement path on the map.</summary>
+    /// <param name="path">List of cells defining the path to draw.</param>
+    public void DrawPath(List<Vector2I> path)
     {
-        TraversableCells = new(PathFinder.GetTraversableCells(map, unit));
-        _astar.Clear();
-        foreach (Vector2I cell in TraversableCells)
-            _astar.AddPoint(map.CellId(cell), cell, map.GetTerrain(cell).Cost);
-        foreach (Vector2I cell in TraversableCells)
-        {
-            foreach (Vector2I direction in PathFinder.Directions)
-            {
-                Vector2I neighbor = cell + direction;
-                if (!_astar.ArePointsConnected(map.CellId(cell), map.CellId(neighbor)) && TraversableCells.Contains(neighbor))
-                    _astar.ConnectPoints(map.CellId(cell), map.CellId(neighbor));
-            }
-        }
-        AddToPath(map, unit, unit.Cell);
-    }
-
-    /// <summary>
-    /// Add a point to the end of the walking path.  If this results in the cost of the path being too long for the unit, recompute
-    /// the entire path to be the shortest distance to the point.  Also remove any loops in the resulting path.
-    /// </summary>
-    /// <param name="map">Map containing the cells to move on.</param>
-    /// <param name="unit">Unit the path is being computed for.</param>
-    /// <param name="cell">Cell to add to the end of the path.</param>
-    public void AddToPath(LevelMap map, Unit unit, Vector2I cell)
-    {
-        List<Vector2I> extension = new();
-        if (_path.Count == 0 || PathFinder.IsAdjacent(cell, _path.Last()))
-            extension.Add(cell);
-        else
-            extension.AddRange(_astar.GetPointPath(map.CellId(_path.Last()), map.CellId(cell)).Select((c) => (Vector2I)c));
-
-        _path = PathFinder.Join(_path, extension);
-        if (_path.Select((c) => map.GetTerrain(c).Cost).Sum() - map.GetTerrain(_path[0]).Cost > unit.MoveRange)
-        {
-            Vector2I start = _path[0];
-            _path.Clear();
-            _path.AddRange(_astar.GetPointPath(map.CellId(start), map.CellId(cell)).Select((c) => (Vector2I)c));
-        }
-
         ClearLayer(_pathLayer);
-        if (_path.Count > 1)
+        if (path.Count > 1)
         {
-            SetCellsTerrainPath(_pathLayer, new(_path), _pathSet, _pathTerrain);
-            SetCell(_pathLayer, _path.Last(), PathSourceId, (_path[^1] - _path[^2]) switch
+            SetCellsTerrainPath(_pathLayer, new(path), _pathSet, _pathTerrain);
+            SetCell(_pathLayer, path.Last(), PathSourceId, (path[^1] - path[^2]) switch
             {
                 Vector2I(0, >0) => DownArrow,
                 Vector2I(>0, 0) => RightArrow,
@@ -124,8 +79,6 @@ public partial class Overlay : TileMap
     {
         base.Clear();
         TraversableCells.Clear();
-        _path.Clear();
-        _astar.Clear();
     }
 
     public override void _Ready()
