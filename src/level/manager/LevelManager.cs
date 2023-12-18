@@ -70,8 +70,8 @@ public partial class LevelManager : Node2D
             warnings.Add($"Level contains too many maps ({maps}).");
 
         // Make sure there are units to control and to fight.
-        if (GetChildren().Where((c) => c is ArmyManager).Count() < 2)
-            warnings.Add("There are not enough army affiliations to have two sides.");
+        if (GetChildren().Where((c) => c is ArmyManager).Any())
+            warnings.Add("There are not any armies to assign units to.");
 
         return warnings.ToArray();
     }
