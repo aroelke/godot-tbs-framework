@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dfppi0pjsv5ut"
-path="res://.godot/imported/arrow.png-2e88af7eb1a0c2743b7695b4fd6a7787.ctex"
+uid="uid://cybgq10hqektj"
+path="res://.godot/imported/overlay.png-bf2e2bf8a5e4db48e05d005d9e69b4f9.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/battle/ui/arrow.png"
-dest_files=["res://.godot/imported/arrow.png-2e88af7eb1a0c2743b7695b4fd6a7787.ctex"]
+source_file="res://assets/level/ui/overlay.png"
+dest_files=["res://.godot/imported/overlay.png-bf2e2bf8a5e4db48e05d005d9e69b4f9.ctex"]
 
 [params]
 

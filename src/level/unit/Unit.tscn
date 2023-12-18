@@ -1,7 +1,7 @@
 [gd_scene load_steps=11 format=3 uid="uid://bukf1qjlrc7dh"]
 
 [ext_resource type="Script" path="res://src/level/unit/Unit.cs" id="1_kj1ve"]
-[ext_resource type="Texture2D" uid="uid://3oc7r54iby4a" path="res://assets/battle/unit/soldier.png" id="2_tvt3o"]
+[ext_resource type="Texture2D" uid="uid://3oc7r54iby4a" path="res://assets/level/unit/soldier.png" id="2_toe6e"]
 
 [sub_resource type="Animation" id="Animation_yixnx"]
 length = 0.001
@@ -224,7 +224,7 @@ cubic_interp = false
 loop = false
 
 [node name="Sprite" type="Sprite2D" parent="PathFollow"]
-texture = ExtResource("2_tvt3o")
+texture = ExtResource("2_toe6e")
 offset = Vector2(16, 0)
 hframes = 5
 vframes = 4

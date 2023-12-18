@@ -1,20 +1,20 @@
 [gd_scene load_steps=16 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/level/manager/LevelManager.cs" id="1_cgt2i"]
-[ext_resource type="Texture2D" uid="uid://cybgq10hqektj" path="res://assets/battle/ui/overlay.png" id="2_sl7cy"]
+[ext_resource type="Texture2D" uid="uid://cybgq10hqektj" path="res://assets/level/ui/overlay.png" id="2_ogyqc"]
 [ext_resource type="Script" path="res://src/level/ui/PointerProjection.cs" id="2_wcsqo"]
-[ext_resource type="Texture2D" uid="uid://dhxxyboxchr67" path="res://assets/battle/ui/cursor.png" id="3_siwep"]
-[ext_resource type="Texture2D" uid="uid://dfppi0pjsv5ut" path="res://assets/battle/ui/arrow.png" id="3_yh2km"]
+[ext_resource type="Texture2D" uid="uid://dfppi0pjsv5ut" path="res://assets/level/ui/arrow.png" id="3_1nkpv"]
 [ext_resource type="Script" path="res://src/level/ui/Overlay.cs" id="4_d7a32"]
 [ext_resource type="Script" path="res://src/level/ui/Cursor.cs" id="4_pq0pp"]
 [ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://assets/ui/mouse.png" id="5_wkats"]
+[ext_resource type="Texture2D" uid="uid://dhxxyboxchr67" path="res://assets/level/ui/cursor.png" id="6_74wl6"]
 [ext_resource type="Script" path="res://src/ui/VirtualPointer.cs" id="6_op0r2"]
 [ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://src/ui/hud/HUD.tres" id="7_12lpk"]
 [ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/ui/hud/CursorHintIcon.tscn" id="8_y3lwj"]
 [ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/ui/hud/ControlHint.tscn" id="9_svidw"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_vg23h"]
-texture = ExtResource("2_sl7cy")
+texture = ExtResource("2_ogyqc")
 texture_region_size = Vector2i(32, 32)
 1:0/0 = 0
 1:0/0/terrain_set = 0
@@ -347,7 +347,7 @@ texture_region_size = Vector2i(32, 32)
 0:0/0/terrains_peering_bit/bottom_side = 0
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_qo1xq"]
-texture = ExtResource("3_yh2km")
+texture = ExtResource("3_1nkpv")
 margins = Vector2i(2, 2)
 separation = Vector2i(4, 4)
 texture_region_size = Vector2i(32, 32)
@@ -452,7 +452,7 @@ drag_bottom_margin = 0.5
 editor_draw_drag_margin = true
 
 [node name="Cursor" type="Sprite2D" parent="." node_paths=PackedStringArray("Projection")]
-texture = ExtResource("3_siwep")
+texture = ExtResource("6_74wl6")
 offset = Vector2(16, 16)
 script = ExtResource("4_pq0pp")
 Projection = NodePath("../PointerProjection")

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://3oc7r54iby4a"
-path="res://.godot/imported/soldier.png-addfc742a767c65c58903b625805ba9c.ctex"
+uid="uid://dfppi0pjsv5ut"
+path="res://.godot/imported/arrow.png-7ab604d03a45459e3191c05591dda5ef.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/battle/unit/soldier.png"
-dest_files=["res://.godot/imported/soldier.png-addfc742a767c65c58903b625805ba9c.ctex"]
+source_file="res://assets/level/ui/arrow.png"
+dest_files=["res://.godot/imported/arrow.png-7ab604d03a45459e3191c05591dda5ef.ctex"]
 
 [params]
 
