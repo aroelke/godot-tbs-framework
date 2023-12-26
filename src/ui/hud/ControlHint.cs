@@ -21,13 +21,13 @@ public partial class ControlHint : HBoxContainer
     private void Update()
     {
         MouseButton mb = InputManager.GetInputMouseButton(InputAction);
-        MouseIcon.Texture = MouseMap is null || !MouseMap.Contains(mb) ? null : MouseMap[mb];
+        MouseIcon.Texture = MouseMap is null || !MouseMap.ContainsKey(mb) ? null : MouseMap[mb];
 
         Key k = InputManager.GetInputKeycode(InputAction);
-        KeyboardIcon.Texture = KeyMap is null || !KeyMap.Contains(k) ? null : KeyMap[k];
+        KeyboardIcon.Texture = KeyMap is null || !KeyMap.ContainsKey(k) ? null : KeyMap[k];
 
         JoyButton pb = InputManager.GetInputGamepadButton(InputAction);
-        PlaystationIcon.Texture = PlaystationMap is null || !PlaystationMap.Contains(pb) ? null : PlaystationMap[pb];
+        PlaystationIcon.Texture = PlaystationMap is null || !PlaystationMap.ContainsKey(pb) ? null : PlaystationMap[pb];
 
         GetNode<Label>("Label").Text = $": {InputAction}";
     }

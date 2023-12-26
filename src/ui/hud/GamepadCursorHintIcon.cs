@@ -11,7 +11,7 @@ namespace ui.hud;
 [Tool]
 public partial class GamepadCursorHintIcon : HBoxContainer
 {
-    private Texture2D GetButtonIcon(JoyButton b) => ButtonMap is not null && ButtonMap.Contains(b) ? ButtonMap[b] : null;
+    private Texture2D GetButtonIcon(JoyButton b) => ButtonMap is not null && ButtonMap.ContainsKey(b) ? ButtonMap[b] : null;
 
     private GridContainer _individual = null;
     private TextureRect _upIcon = null, _leftIcon = null, _downIcon = null, _rightIcon = null;
@@ -33,12 +33,12 @@ public partial class GamepadCursorHintIcon : HBoxContainer
         DownIcon.Texture  = GetButtonIcon(InputManager.GetInputGamepadButton(DownAction));
         RightIcon.Texture = GetButtonIcon(InputManager.GetInputGamepadButton(RightAction));
 
-        UnifiedIcon.Texture = ButtonMap?[ButtonMap.Dpad];
+        UnifiedIcon.Texture = ButtonMap?.Dpad;
 
         AnalogIcon.Texture = InputManager.GetInputGamepadAxis(AnalogAction) switch
         {
-            JoyAxis.LeftX  | JoyAxis.LeftY  => AxisMap?[AxisMap.Left],
-            JoyAxis.RightX | JoyAxis.RightY => AxisMap?[AxisMap.Right],
+            JoyAxis.LeftX  | JoyAxis.LeftY  => AxisMap?.Left,
+            JoyAxis.RightX | JoyAxis.RightY => AxisMap?.Right,
             _ => null
         };
     }

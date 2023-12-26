@@ -1,9 +1,40 @@
-[gd_resource type="Resource" script_class="GamepadButtonIconMap" load_steps=2 format=3 uid="uid://c4gxmnbkjh25"]
+[gd_resource type="Resource" script_class="GamepadButtonIconMap" load_steps=14 format=3 uid="uid://c4gxmnbkjh25"]
 
 [ext_resource type="Script" path="res://src/ui/input/map/GamepadButtonIconMap.cs" id="1_4bmku"]
+[ext_resource type="Texture2D" uid="uid://dwrg3c6m2yegj" path="res://assets/ui/icons/controls/playstation/dpad.png" id="1_8bwv8"]
+[ext_resource type="Texture2D" uid="uid://b8opi1ojes3lf" path="res://assets/ui/icons/controls/playstation/dpadup.png" id="2_eqqh3"]
+[ext_resource type="Script" path="res://src/ui/input/map/GamepadButtonIconMapElement.cs" id="3_3ua8u"]
+[ext_resource type="Texture2D" uid="uid://ddo2e8y4xxywf" path="res://assets/ui/icons/controls/playstation/dpadleft.png" id="4_njgb3"]
+[ext_resource type="Texture2D" uid="uid://rvicv7mk4e0b" path="res://assets/ui/icons/controls/playstation/dpaddown.png" id="5_ehk0s"]
+[ext_resource type="Texture2D" uid="uid://x210tjc0p8u6" path="res://assets/ui/icons/controls/playstation/dpadright.png" id="6_eojlg"]
+[ext_resource type="Texture2D" uid="uid://ctvir25bpi7e1" path="res://assets/ui/icons/controls/playstation/cross.png" id="7_3pilg"]
+
+[sub_resource type="Resource" id="Resource_fqp7j"]
+script = ExtResource("3_3ua8u")
+Button = 11
+Icon = ExtResource("2_eqqh3")
+
+[sub_resource type="Resource" id="Resource_dgnax"]
+script = ExtResource("3_3ua8u")
+Button = 13
+Icon = ExtResource("4_njgb3")
+
+[sub_resource type="Resource" id="Resource_fn77m"]
+script = ExtResource("3_3ua8u")
+Button = 12
+Icon = ExtResource("5_ehk0s")
+
+[sub_resource type="Resource" id="Resource_oy1mh"]
+script = ExtResource("3_3ua8u")
+Button = 14
+Icon = ExtResource("6_eojlg")
+
+[sub_resource type="Resource" id="Resource_lv0hw"]
+script = ExtResource("3_3ua8u")
+Button = 0
+Icon = ExtResource("7_3pilg")
 
 [resource]
 script = ExtResource("1_4bmku")
-Dpad = "dpad"
-IconPath = "res://assets/ui/icons/controls/playstation"
-IconExt = ".png"
+Elements = [SubResource("Resource_fqp7j"), SubResource("Resource_dgnax"), SubResource("Resource_fn77m"), SubResource("Resource_oy1mh"), SubResource("Resource_lv0hw")]
+Dpad = ExtResource("1_8bwv8")

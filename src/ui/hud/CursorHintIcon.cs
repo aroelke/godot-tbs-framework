@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Data;
 using Godot;
 using ui.input;
 using ui.input.map;
@@ -27,7 +26,7 @@ public partial class CursorHintIcon : HBoxContainer
     private TextureRect RightKeyIcon => _rightKeyIcon = GetNode<TextureRect>("Keyboard/Right");
     private GamepadCursorHintIcon PlaystationIcon => _playstationIcon ??= GetNode<GamepadCursorHintIcon>("Playstation");
 
-    private Texture2D GetKeyIcon(Key key) => KeyMap is not null && KeyMap.Contains(key) ? KeyMap[key] : null;
+    private Texture2D GetKeyIcon(Key key) => KeyMap is not null && KeyMap.ContainsKey(key) ? KeyMap[key] : null;
 
     /// <summary>Mapping of mouse action onto icon to display.</summary>
     [ExportGroup("Icon Maps")]
@@ -98,7 +97,7 @@ public partial class CursorHintIcon : HBoxContainer
             DownKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(DownAction));
             RightKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(RightAction));
 
-            MouseIcon.Texture = MouseMap?[MouseMap.Motion];
+            MouseIcon.Texture = MouseMap?.Motion;
 
             PlaystationIcon.UpAction = UpAction;
             PlaystationIcon.LeftAction = LeftAction;

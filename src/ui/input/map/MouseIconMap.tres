@@ -1,9 +1,16 @@
-[gd_resource type="Resource" script_class="MouseIconMap" load_steps=2 format=3 uid="uid://c3d3vvly1ra01"]
+[gd_resource type="Resource" script_class="MouseIconMap" load_steps=6 format=3 uid="uid://c3d3vvly1ra01"]
 
 [ext_resource type="Script" path="res://src/ui/input/map/MouseIconMap.cs" id="1_axiq4"]
+[ext_resource type="Texture2D" uid="uid://lepqc5fe8xw4" path="res://assets/ui/icons/controls/mouse/left.png" id="1_cytev"]
+[ext_resource type="Script" path="res://src/ui/input/map/MouseIconMapElement.cs" id="2_hl4rd"]
+[ext_resource type="Texture2D" uid="uid://xnouovy7cud3" path="res://assets/ui/icons/controls/mouse/mouse.png" id="3_yneh2"]
+
+[sub_resource type="Resource" id="Resource_r3q0g"]
+script = ExtResource("2_hl4rd")
+Button = 1
+Icon = ExtResource("1_cytev")
 
 [resource]
 script = ExtResource("1_axiq4")
-Motion = "mouse"
-IconPath = "res://assets/ui/icons/controls/mouse"
-IconExt = ".png"
+Elements = [SubResource("Resource_r3q0g")]
+Motion = ExtResource("3_yneh2")

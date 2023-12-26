@@ -1,10 +1,9 @@
-[gd_resource type="Resource" script_class="GamepadAxisIconMap" load_steps=2 format=3 uid="uid://dlv0hdn5r2kr5"]
+[gd_resource type="Resource" script_class="GamepadAxisIconMap" load_steps=3 format=3 uid="uid://dlv0hdn5r2kr5"]
 
 [ext_resource type="Script" path="res://src/ui/input/map/GamepadAxisIconMap.cs" id="1_c4ble"]
+[ext_resource type="Texture2D" uid="uid://cgyr5p8sm8ypi" path="res://assets/ui/icons/controls/playstation/left_stick.png" id="1_wrp67"]
 
 [resource]
 script = ExtResource("1_c4ble")
-Left = "left_stick"
-Right = "right_stick"
-IconPath = "res://assets/ui/icons/controls/playstation"
-IconExt = ".png"
+Elements = []
+Left = ExtResource("1_wrp67")
