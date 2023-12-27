@@ -5,8 +5,6 @@ namespace ui.input;
 
 public partial class InputManager : Node2D
 {
-    public const string NodePath = "/root/InputManager";
-
     /// <summary>Signals that the mouse has entered the screen.</summary>
     /// <param name="position">Position the mouse entered the screen on (depending on the mouse speed, it might not be on the edge).</param>
     [Signal] public delegate void MouseEnteredEventHandler(Vector2 position);
@@ -14,6 +12,13 @@ public partial class InputManager : Node2D
     /// <summary>Signals that the mouse has exited the screen.</summary>
     /// <param name="position">Position on the edge of the screen the mouse exited.</param>
     [Signal] public delegate void MouseExitedEventHandler(Vector2 position);
+
+    private static InputManager _singleton = null;
+
+    public static InputManager Singleton => _singleton ??= ((SceneTree)Engine.GetMainLoop()).Root.GetNode<InputManager>("InputManager");
+
+    /// <summary>Last known position the mouse was on the screen if it's off the screen, or <c>null</c> if it's on the screen.</summary>
+    public static Vector2? LastKnownPointerPosition { get; private set; } = Vector2.Zero;
 
     /// <summary>
     /// Get an input event for an action of the desired type, if one is defined.  Assumes there is no more than one of each type of
@@ -92,9 +97,6 @@ public partial class InputManager : Node2D
 
     /// <returns>A vector representing the movement of the left control stick of the game pad.</returns>
     public static Vector2 GetAnalogVector() => Input.GetVector("cursor_analog_left", "cursor_analog_right", "cursor_analog_up", "cursor_analog_down");
-
-    /// <summary>Last known position the mouse was on the screen if it's off the screen, or <c>null</c> if it's on the screen.</summary>
-    public Vector2? LastKnownPointerPosition { get; private set; } = Vector2.Zero;
 
     public override void _Notification(int what)
     {

@@ -15,10 +15,7 @@ public partial class VirtualPointer : TextureRect
     /// <param name="position">Position of the click.</param>
     [Signal] public delegate void PointerClickedEventHandler(Vector2 position);
 
-    private InputManager _inputManager = null;
     private bool _accelerate = false;
-
-    private InputManager InputManager => _inputManager ??= GetNode<InputManager>(InputManager.NodePath);
 
     /// <summary>Projection of the pointer's screen position onto the world.</summary>
     [Export] public PointerProjection Projection = null;
@@ -102,8 +99,8 @@ public partial class VirtualPointer : TextureRect
     {
         base._Ready();
         DeviceManager.Singleton.InputModeChanged += OnInputModeChanged;
-        InputManager.MouseEntered += OnMouseEntered;
-        InputManager.MouseExited += OnMouseExited;
+        InputManager.Singleton.MouseEntered += OnMouseEntered;
+        InputManager.Singleton.MouseExited += OnMouseExited;
     }
 
     public override void _Process(double delta)

@@ -17,12 +17,10 @@ public partial class PointerProjection : Node2D, ILevelManaged
     /// <param name="world">Position on the map of the click.</param>
     [Signal] public delegate void PointerClickedEventHandler(Vector2 viewport, Vector2 world);
 
-    private InputManager _inputManager = null;
     private Camera2D _camera = null;
     private LevelManager _levelManager = null;
     private Vector2 _viewportPosition = Vector2.Zero;
 
-    private InputManager InputManager => _inputManager ??= GetNode<InputManager>(InputManager.NodePath);
     private Camera2D Camera => _camera ??= GetNode<Camera2D>("Camera");
 
     /// <summary>
