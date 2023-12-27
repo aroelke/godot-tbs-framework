@@ -18,7 +18,7 @@ public partial class VirtualPointer : TextureRect
     private InputManager _inputManager = null;
     private bool _accelerate = false;
 
-    private InputManager InputManager => _inputManager ??= GetNode<InputManager>("/root/InputManager");
+    private InputManager InputManager => _inputManager ??= GetNode<InputManager>(InputManager.NodePath);
 
     /// <summary>Projection of the pointer's screen position onto the world.</summary>
     [Export] public PointerProjection Projection = null;

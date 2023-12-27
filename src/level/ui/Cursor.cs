@@ -26,7 +26,7 @@ public partial class Cursor : Sprite2D, ILevelManaged
     private Vector2I _cell = Vector2I.Zero;
     private Vector2I _direction = Vector2I.Zero;
 
-    private InputManager InputManager => _inputManager ??= GetNode<InputManager>("/root/InputManager");
+    private InputManager InputManager => _inputManager ??= GetNode<InputManager>(InputManager.NodePath);
     private Timer EchoTimer => _echo ??= GetNode<Timer>("EchoTimer");
 
     /// <summary>Projection of the pointer in the viewport onto the world.</summary>

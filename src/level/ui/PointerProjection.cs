@@ -22,7 +22,7 @@ public partial class PointerProjection : Node2D, ILevelManaged
     private LevelManager _levelManager = null;
     private Vector2 _viewportPosition = Vector2.Zero;
 
-    private InputManager InputManager => _inputManager ??= GetNode<InputManager>("/root/InputManager");
+    private InputManager InputManager => _inputManager ??= GetNode<InputManager>(InputManager.NodePath);
     private Camera2D Camera => _camera ??= GetNode<Camera2D>("Camera");
 
     /// <summary>

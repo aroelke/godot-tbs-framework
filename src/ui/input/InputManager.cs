@@ -7,6 +7,8 @@ namespace ui.input;
 
 public partial class InputManager : Node2D
 {
+    public const string NodePath = "/root/InputManager";
+
     /// <summary>Signals that the input method has changed.</summary>
     /// <param name="device">New method of input.</param>
     [Signal] public delegate void InputDeviceChangedEventHandler(InputDevice device);

@@ -17,7 +17,7 @@ public partial class CursorHintIcon : HBoxContainer
 
     private Dictionary<InputDevice, Control> _icons = new();
 
-    private InputManager InputManager => _inputManager ??= GetNode<InputManager>("/root/InputManager");
+    private InputManager InputManager => _inputManager ??= GetNode<InputManager>(InputManager.NodePath);
     private TextureRect MouseIcon => _mouseIcon ??= GetNode<TextureRect>("Mouse");
     private GridContainer KeyboardIcon => _keyboardIcon ??= GetNode<GridContainer>("Keyboard");
     private TextureRect UpKeyIcon => _upKeyIcon ??= GetNode<TextureRect>("Keyboard/Up");
