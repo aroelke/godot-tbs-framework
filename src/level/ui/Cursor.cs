@@ -19,14 +19,12 @@ public partial class Cursor : Sprite2D, ILevelManaged
     /// <param name="cell">Coordinates of the cell that has been selected.</param>
     [Signal] public delegate void CellSelectedEventHandler(Vector2I cell);
 
-    private InputManager _inputManager = null;
     private LevelManager _levelManager = null;
     private Timer _echo = null;
     private bool _echoing = false;
     private Vector2I _cell = Vector2I.Zero;
     private Vector2I _direction = Vector2I.Zero;
 
-    private InputManager InputManager => _inputManager ??= GetNode<InputManager>(InputManager.NodePath);
     private Timer EchoTimer => _echo ??= GetNode<Timer>("EchoTimer");
 
     /// <summary>Projection of the pointer in the viewport onto the world.</summary>
@@ -61,7 +59,7 @@ public partial class Cursor : Sprite2D, ILevelManaged
     /// <param name="world">Position of the pointer in the world.</param>
     public void OnPointerMoved(Vector2 viewport, Vector2 world)
     {
-        if (InputManager.Mode != InputMode.Digital)
+        if (DeviceManager.Mode != InputMode.Digital)
             Cell = LevelManager.CellOf(world);
     }
 
@@ -88,7 +86,7 @@ public partial class Cursor : Sprite2D, ILevelManaged
     public override void _UnhandledInput(InputEvent @event)
     {
         base._UnhandledInput(@event);
-        if (InputManager.Mode == InputMode.Digital)
+        if (DeviceManager.Mode == InputMode.Digital)
         {
             Vector2I dir = InputManager.GetDigitalVector();
             if (dir != _direction)
@@ -119,7 +117,7 @@ public partial class Cursor : Sprite2D, ILevelManaged
     public override void _Process(double delta)
     {
         base._Process(delta);
-        if (InputManager.Mode == InputMode.Digital && _echoing)
+        if (DeviceManager.Mode == InputMode.Digital && _echoing)
             Cell += _direction;
     }
 }

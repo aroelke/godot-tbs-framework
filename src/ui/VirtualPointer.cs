@@ -63,19 +63,19 @@ public partial class VirtualPointer : TextureRect
     /// <param name="world">Projection's position in the world.</param>
     public void OnProjectionMoved(Vector2 viewport, Vector2 world)
     {
-        if (InputManager.Mode == input.InputMode.Digital)
+        if (DeviceManager.Mode == input.InputMode.Digital)
             Warp(viewport);
     }
 
     public override void _Input(InputEvent @event)
     {
         base._Input(@event);
-        switch (InputManager.Mode)
+        switch (DeviceManager.Mode)
         {
-        case input.InputMode.Mouse when @event is InputEventMouseMotion:
+        case InputMode.Mouse when @event is InputEventMouseMotion:
             Warp(GetViewport().GetMousePosition());
             return;
-        case input.InputMode.Analog:
+        case InputMode.Analog:
             if (Input.IsActionJustPressed("cursor_analog_accelerate"))
             {
                 GetViewport().SetInputAsHandled();
@@ -90,7 +90,7 @@ public partial class VirtualPointer : TextureRect
             }
             break;
         }
-        if (Input.IsActionJustReleased("cursor_select") && (InputManager.Mode == input.InputMode.Mouse || InputManager.Mode == input.InputMode.Analog))
+        if (Input.IsActionJustReleased("cursor_select") && (DeviceManager.Mode == InputMode.Mouse || DeviceManager.Mode == InputMode.Analog))
         {
             GetViewport().SetInputAsHandled();
             EmitSignal(SignalName.PointerClicked, Position);
@@ -101,7 +101,7 @@ public partial class VirtualPointer : TextureRect
     public override void _Ready()
     {
         base._Ready();
-        InputManager.InputModeChanged += OnInputModeChanged;
+        DeviceManager.Singleton.InputModeChanged += OnInputModeChanged;
         InputManager.MouseEntered += OnMouseEntered;
         InputManager.MouseExited += OnMouseExited;
     }
@@ -110,13 +110,13 @@ public partial class VirtualPointer : TextureRect
     {
         base._Process(delta);
 
-        switch (InputManager.Mode)
+        switch (DeviceManager.Mode)
         {
-        case input.InputMode.Digital:
+        case InputMode.Digital:
             if (Projection != null)
                 Warp(Projection.ViewportPosition);
             break;
-        case input.InputMode.Analog:
+        case InputMode.Analog:
             double speed = _accelerate ? (Speed*Acceleration) : Speed;
             Warp((Position + (InputManager.GetAnalogVector()*(float)(speed*delta))).Clamp(GetViewportRect().Position, GetViewportRect().End));
             break;

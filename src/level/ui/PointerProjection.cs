@@ -71,7 +71,7 @@ public partial class PointerProjection : Node2D, ILevelManaged
     /// <param name="position">Position of the center of the cell to jump to.</param>
     public void OnCursorMoved(Vector2 position)
     {
-        if (InputManager.Mode == InputMode.Digital)
+        if (DeviceManager.Mode == InputMode.Digital)
             Warp(position);
     }
 
@@ -80,7 +80,7 @@ public partial class PointerProjection : Node2D, ILevelManaged
     public void OnPointerMoved(Vector2 viewport)
     {
         _viewportPosition = viewport;
-        if (InputManager.Mode != InputMode.Digital)
+        if (DeviceManager.Mode != InputMode.Digital)
             Warp(ViewportToWorld(_viewportPosition));
     }
 
@@ -96,14 +96,14 @@ public partial class PointerProjection : Node2D, ILevelManaged
 
         (Camera.LimitTop, Camera.LimitLeft) = Vector2I.Zero;
         (Camera.LimitRight, Camera.LimitBottom) = (Vector2I)(LevelManager.GridSize*LevelManager.CellSize);
-        InputManager.InputModeChanged += OnInputModeChanged;
+        DeviceManager.Singleton.InputModeChanged += OnInputModeChanged;
     }
 
     public override void _Process(double delta)
     {
         base._Process(delta);
 
-        switch (InputManager.Mode)
+        switch (DeviceManager.Mode)
         {
         case InputMode.Mouse:
             Warp(InputManager.LastKnownPointerPosition switch
