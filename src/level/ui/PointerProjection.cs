@@ -40,7 +40,7 @@ public partial class PointerProjection : Node2D, ILevelManaged
     /// <summary>Position of the pointer projection in the viewport.</summary>
     public Vector2 ViewportPosition
     {
-        get => LevelManager.GetGlobalTransform()*LevelManager.GetCanvasTransform()*Position;
+        get => WorldToViewport(Position);
         set => Warp(ViewportToWorld(value));
     }
 
@@ -104,11 +104,7 @@ public partial class PointerProjection : Node2D, ILevelManaged
         switch (DeviceManager.Mode)
         {
         case InputMode.Mouse:
-            Warp(InputManager.LastKnownPointerPosition switch
-            {
-                Vector2 pos => ViewportToWorld(pos),
-                null => LevelManager.GetLocalMousePosition()
-            });
+            Warp(ViewportToWorld(InputManager.GetMousePosition()));
             break;
         case InputMode.Analog:
             Warp(ViewportToWorld(_viewportPosition));
