@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="MouseIconMap" load_steps=6 format=3 uid="uid://c3d3vvly1ra01"]
+[gd_resource type="Resource" load_steps=6 format=3 uid="uid://c3d3vvly1ra01"]
 
 [ext_resource type="Script" path="res://src/ui/input/map/MouseIconMap.cs" id="1_axiq4"]
 [ext_resource type="Texture2D" uid="uid://lepqc5fe8xw4" path="res://assets/ui/icons/controls/mouse/left.png" id="1_cytev"]

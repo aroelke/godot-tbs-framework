@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Godot;
-using level.map.terrain;
 
 namespace level.map;
 
