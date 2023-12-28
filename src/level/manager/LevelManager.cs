@@ -83,15 +83,15 @@ public partial class LevelManager : Node2D
             {
                 if (cell != _selected.Cell && _pathfinder.TraversableCells.Contains(cell))
                 {
-                    // Move the unit and wait for it to finish moving
+                    // Move the unit and wait for it to finish moving, and then delete the pathfinder as we don't need it anymore
                     _selected.Affiliation.Units.Remove(_selected.Cell);
                     _selected.MoveAlong(_pathfinder.Path);
                     _selected.Affiliation.Units[_selected.Cell] = _selected;
                     Overlay.Clear();
+                    _pathfinder = null;
                     await ToSignal(_selected, Unit.SignalName.DoneMoving);
 
-                    // Delete the path finder, as we don't need it anymore, and then show the unit's attack/support ranges
-                    _pathfinder = null;
+                    // Show the unit's attack/support ranges
                     IEnumerable<Vector2I> attackable = PathFinder.GetCellsInRange(Map, _selected.AttackRange, _selected.Cell);
                     IEnumerable<Vector2I> supportable = PathFinder.GetCellsInRange(Map, _selected.SupportRange, _selected.Cell);
                     Overlay.AttackableCells = attackable;
