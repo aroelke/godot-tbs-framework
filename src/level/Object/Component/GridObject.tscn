@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dsql387qyhpwu"]
+
+[ext_resource type="Script" path="res://src/level/Object/Component/GridObject.cs" id="1_3y3vl"]
+
+[node name="GridObject" type="Node"]
+script = ExtResource("1_3y3vl")

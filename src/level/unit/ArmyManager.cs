@@ -1,5 +1,6 @@
 using Godot;
 using level.manager;
+using level.Object;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,7 +39,7 @@ public partial class ArmyManager : Node, ILevelManaged
         {
             if (child is Unit unit)
             {
-                Units[unit.Cell] = unit;
+                Units[unit.GridObject.Cell] = unit;
                 unit.Affiliation = this;
             }
         }

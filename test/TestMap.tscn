@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/level/map/LevelMap.tscn" id="2_trttl"]
 [ext_resource type="Resource" uid="uid://bn6uq3ysywt60" path="res://src/level/map/terrain/plain.tres" id="3_i8fjg"]
 [ext_resource type="PackedScene" uid="uid://dnkw4vlbmt88m" path="res://src/level/unit/ArmyManager.tscn" id="3_itlub"]
-[ext_resource type="PackedScene" uid="uid://bukf1qjlrc7dh" path="res://src/level/unit/Unit.tscn" id="4_opd3l"]
+[ext_resource type="PackedScene" uid="uid://csi6vg1yawctr" path="res://src/level/Object/Unit.tscn" id="5_ju5kl"]
 
 [node name="TestMap" type="Node2D"]
 
@@ -17,5 +17,5 @@ DefaultTerrain = ExtResource("3_i8fjg")
 
 [node name="PlayerArmy" parent="LevelManager" instance=ExtResource("3_itlub")]
 
-[node name="Unit" parent="LevelManager/PlayerArmy" instance=ExtResource("4_opd3l")]
+[node name="Unit" parent="LevelManager/PlayerArmy" instance=ExtResource("5_ju5kl")]
 position = Vector2(224, 224)
