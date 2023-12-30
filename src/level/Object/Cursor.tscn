@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://bgcsg0l8mj2sn"]
+
+[ext_resource type="Texture2D" uid="uid://dhxxyboxchr67" path="res://assets/level/ui/cursor.png" id="1_erpak"]
+[ext_resource type="Script" path="res://src/level/Object/Cursor.cs" id="2_ysrq3"]
+[ext_resource type="PackedScene" uid="uid://dsql387qyhpwu" path="res://src/level/Object/Component/GridObject.tscn" id="3_r1vqw"]
+
+[node name="Cursor" type="Sprite2D" node_paths=PackedStringArray("GridObject", "EchoTimer")]
+texture = ExtResource("1_erpak")
+offset = Vector2(16, 16)
+script = ExtResource("2_ysrq3")
+GridObject = NodePath("GridObject")
+EchoTimer = NodePath("EchoTimer")
+
+[node name="GridObject" parent="." instance=ExtResource("3_r1vqw")]
+
+[node name="EchoTimer" type="Timer" parent="."]
+one_shot = true
+
+[connection signal="CellChanged" from="GridObject" to="." method="OnCellChanged"]
+[connection signal="timeout" from="EchoTimer" to="." method="OnEchoTimeout"]

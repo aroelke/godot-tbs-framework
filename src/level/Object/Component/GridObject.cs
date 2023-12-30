@@ -35,7 +35,7 @@ public partial class GridObject : Node
     }
 
     /// <summary>Manager providing grid information.</summary>
-    public LevelManager Manager => _manager ??= FindManager();
+    public LevelManager Manager => _manager ??= Engine.IsEditorHint() ? null : FindManager();
 
     /// <summary>Cell on the grid that this object currently occupies.</summary>
     [Export] public Vector2I Cell

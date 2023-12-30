@@ -1,4 +1,4 @@
-[gd_resource type="Resource" load_steps=13 format=3 uid="uid://c7jn8vjepg37d"]
+[gd_resource type="Resource" script_class="KeyIconMap" load_steps=13 format=3 uid="uid://c7jn8vjepg37d"]
 
 [ext_resource type="Texture2D" uid="uid://bvbkwcurpgl68" path="res://assets/ui/icons/controls/keyboard/up.png" id="1_ajrt3"]
 [ext_resource type="Script" path="res://src/ui/input/map/KeyIconMap.cs" id="1_qe5n6"]
