@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using level.unit;
+using level.Object.Group;
 
 namespace level.Object;
 
@@ -34,7 +34,7 @@ public partial class Unit : GridNode
     [Export] public int[] SupportRange = new[] { 1, 2, 3 };
 
     /// <summary>Army to which this unit belongs, to determine its allies and enemies.</summary>
-    [Export] public ArmyManager Affiliation = null;
+    [Export] public Army Affiliation = null;
 
     /// <summary>Speed, in world pixels/second, to move along the path while moving.</summary>
     [Export] public double MoveSpeed = 320;

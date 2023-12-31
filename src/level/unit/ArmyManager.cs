@@ -30,7 +30,7 @@ public partial class ArmyManager : Node
 
     /// <param name="unit">Unit to check.</param>
     /// <returns><c>true</c> if the unit is in this army or an allied one, and <c>false</c> otherwise.</returns>
-    public bool AlliedTo(Unit unit) => Contains(unit) || AlliedTo(unit.Affiliation);
+//    public bool AlliedTo(Unit unit) => Contains(unit) || AlliedTo(unit.Affiliation);
 
     public override void _Ready()
     {
@@ -40,7 +40,7 @@ public partial class ArmyManager : Node
             if (child is Unit unit)
             {
                 Units[unit.Cell] = unit;
-                unit.Affiliation = this;
+//                unit.Affiliation = this;
             }
         }
     }

@@ -4,6 +4,7 @@ using System.Linq;
 using Godot;
 using level.map;
 using level.Object;
+using level.Object.Group;
 using level.unit;
 using util;
 
@@ -18,9 +19,9 @@ public partial class LevelManager : Node2D
 {
     private LevelMap _map = null;
     private Overlay _overlay = null;
+    private readonly Dictionary<Vector2I, Unit> _units = new();
     private Unit _selected = null;
     private PathFinder _pathfinder = null;
-    private readonly List<ArmyManager> _affiliations = new();
 
     private LevelMap Map => _map ??= GetNode<LevelMap>("LevelMap");
     private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
@@ -42,18 +43,14 @@ public partial class LevelManager : Node2D
     {
         if (_selected is null)
         {
-            foreach (ArmyManager army in _affiliations)
+            if (_units.ContainsKey(cell))
             {
-                if (army.Units.ContainsKey(cell))
-                {
-                    _selected = army.Units[cell];
-                    _selected.IsSelected = true;
-                    _pathfinder = new(Map, _selected);
-                    Overlay.TraversableCells = _pathfinder.TraversableCells;
-                    Overlay.AttackableCells = _pathfinder.AttackableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c));
-                    Overlay.SupportableCells = _pathfinder.SupportableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c) && !_pathfinder.AttackableCells.Contains(c));
-                    break;
-                }
+                _selected = _units[cell];
+                _selected.IsSelected = true;
+                _pathfinder = new(Map, _selected);
+                Overlay.TraversableCells = _pathfinder.TraversableCells;
+                Overlay.AttackableCells = _pathfinder.AttackableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c));
+                Overlay.SupportableCells = _pathfinder.SupportableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c) && !_pathfinder.AttackableCells.Contains(c));
             }
         }
         else if (_pathfinder is not null)
@@ -63,9 +60,9 @@ public partial class LevelManager : Node2D
                 if (cell != _selected.Cell && _pathfinder.TraversableCells.Contains(cell))
                 {
                     // Move the unit and wait for it to finish moving, and then delete the pathfinder as we don't need it anymore
-                    _selected.Affiliation.Units.Remove(_selected.Cell);
+                    _units.Remove(_selected.Cell);
                     _selected.MoveAlong(_pathfinder.Path);
-                    _selected.Affiliation.Units[_selected.Cell] = _selected;
+                    _units[_selected.Cell] = _selected;
                     Overlay.Clear();
                     _pathfinder = null;
                     await ToSignal(_selected, Unit.SignalName.DoneMoving);
@@ -118,6 +115,18 @@ public partial class LevelManager : Node2D
     public override void _Ready()
     {
         base._Ready();
-        _affiliations.AddRange(GetChildren().Where((c) => c is ArmyManager).Select((c) => c as ArmyManager));
+
+        _units.Clear();
+        foreach (Node child in GetChildren())
+        {
+            if (child is Army army)
+            {
+                foreach (Unit unit in army)
+                {
+                    unit.Cell = Map.CellOf(unit.Position);
+                    _units[unit.Cell] = unit;
+                }
+            }
+        }
     }
 }

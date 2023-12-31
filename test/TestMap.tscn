@@ -3,7 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/level/manager/LevelManager.tscn" id="1_h3e4w"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/level/map/LevelMap.tscn" id="2_trttl"]
 [ext_resource type="Resource" uid="uid://bn6uq3ysywt60" path="res://src/level/map/terrain/plain.tres" id="3_i8fjg"]
-[ext_resource type="PackedScene" uid="uid://dnkw4vlbmt88m" path="res://src/level/unit/ArmyManager.tscn" id="3_itlub"]
+[ext_resource type="PackedScene" uid="uid://1ev2yxu31ow" path="res://src/level/Object/Group/Army.tscn" id="4_xrn4s"]
 [ext_resource type="PackedScene" uid="uid://b0cvutx2lj5uy" path="res://src/level/Object/Unit.tscn" id="5_ju5kl"]
 
 [node name="TestMap" type="Node2D"]
@@ -21,7 +21,7 @@ layer_0/tile_data = PackedInt32Array(589837, 0, 0, 655373, 0, 0, 720909, 0, 0, 7
 layer_1/tile_data = PackedInt32Array(589833, 0, 4, 655369, 0, 5, 589834, 65536, 4, 655370, 65536, 5, 589855, 0, 4, 655391, 0, 5, 589856, 65536, 4, 655392, 65536, 5, 1245204, 0, 4, 1310740, 0, 5, 1245205, 65536, 4, 1310741, 65536, 5)
 DefaultTerrain = ExtResource("3_i8fjg")
 
-[node name="PlayerArmy" parent="LevelManager" instance=ExtResource("3_itlub")]
+[node name="PlayerArmy" parent="LevelManager" instance=ExtResource("4_xrn4s")]
 
 [node name="Unit" parent="LevelManager/PlayerArmy" node_paths=PackedStringArray("Affiliation", "Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(192, 160)
