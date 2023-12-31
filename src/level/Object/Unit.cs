@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using level.Object.Component;
 using level.unit;
 
 namespace level.Object;
