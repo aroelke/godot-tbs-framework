@@ -8,7 +8,7 @@ using System.Linq;
 namespace level.unit;
 
 /// <summary>Manages a group of allied units.  Can optionally be allied with units in other armies as well.</summary>
-public partial class ArmyManager : Node, ILevelManaged
+public partial class ArmyManager : Node
 {
     private LevelManager _levelManager = null;
 

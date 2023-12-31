@@ -5,7 +5,7 @@ using ui.input;
 namespace ui;
 
 /// <summary>Projection of the pointer onto the map, for controlling the the camera and converting world/viewport positions.</summary>
-public partial class PointerProjection : Node2D, ILevelManaged
+public partial class PointerProjection : Node2D
 {
     /// <summary>Signals that the pointer projection has moved on the map.</summary>
     /// <param name="viewport">Current position on the viewport.</param>
