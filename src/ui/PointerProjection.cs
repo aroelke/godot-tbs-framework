@@ -2,7 +2,7 @@ using Godot;
 using level.manager;
 using ui.input;
 
-namespace level.ui;
+namespace ui;
 
 /// <summary>Projection of the pointer onto the map, for controlling the the camera and converting world/viewport positions.</summary>
 public partial class PointerProjection : Node2D, ILevelManaged

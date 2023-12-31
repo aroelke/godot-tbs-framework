@@ -1,6 +1,6 @@
 using Godot;
-using level.manager;
 using level.Object.Component;
+using ui;
 using ui.input;
 
 namespace level.ui;

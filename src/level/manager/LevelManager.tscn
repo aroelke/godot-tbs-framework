@@ -2,10 +2,10 @@
 
 [ext_resource type="Script" path="res://src/level/manager/LevelManager.cs" id="1_cgt2i"]
 [ext_resource type="Texture2D" uid="uid://cybgq10hqektj" path="res://assets/level/ui/overlay.png" id="2_ogyqc"]
-[ext_resource type="Script" path="res://src/level/ui/PointerProjection.cs" id="2_wcsqo"]
 [ext_resource type="Texture2D" uid="uid://dfppi0pjsv5ut" path="res://assets/level/ui/arrow.png" id="3_1nkpv"]
 [ext_resource type="Script" path="res://src/level/ui/Overlay.cs" id="4_d7a32"]
 [ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://assets/ui/mouse.png" id="5_wkats"]
+[ext_resource type="Script" path="res://src/ui/PointerProjection.cs" id="5_x8l1i"]
 [ext_resource type="PackedScene" uid="uid://bgcsg0l8mj2sn" path="res://src/level/Object/Cursor.tscn" id="6_3v7mf"]
 [ext_resource type="Script" path="res://src/ui/VirtualPointer.cs" id="6_op0r2"]
 [ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://src/ui/hud/HUD.tres" id="7_12lpk"]
@@ -434,7 +434,7 @@ layer_3/tile_data = PackedInt32Array()
 script = ExtResource("4_d7a32")
 
 [node name="PointerProjection" type="Node2D" parent="."]
-script = ExtResource("2_wcsqo")
+script = ExtResource("5_x8l1i")
 
 [node name="Camera" type="Camera2D" parent="PointerProjection"]
 zoom = Vector2(2, 2)
