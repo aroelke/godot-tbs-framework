@@ -3,7 +3,7 @@ using level.Object.Component;
 using ui;
 using ui.input;
 
-namespace level.ui;
+namespace level.Object;
 
 /// <summary>
 /// Cursor on the grid used for highlighting a cell and selecting things in it.  Importantly, it does not move itself;
