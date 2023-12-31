@@ -5,7 +5,6 @@ using Godot;
 using level.map;
 using level.Object;
 using level.Object.Group;
-using level.unit;
 using util;
 
 namespace level.manager;
@@ -106,7 +105,7 @@ public partial class LevelManager : Node2D
             warnings.Add($"Level contains too many maps ({maps}).");
 
         // Make sure there are units to control and to fight.
-        if (GetChildren().Where((c) => c is ArmyManager).Any())
+        if (GetChildren().Where((c) => c is Army).Any())
             warnings.Add("There are not any armies to assign units to.");
 
         return warnings.ToArray();
