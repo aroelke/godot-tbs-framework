@@ -36,10 +36,10 @@ public class PathFinder
     {
         int max = 2*(unit.MoveRange + 1)*(unit.MoveRange + 1) - 2*unit.MoveRange - 1;
 
-        Dictionary<Vector2I, int> cells = new(max) {{ unit.GridObject.Cell, 0 }};
+        Dictionary<Vector2I, int> cells = new(max) {{ unit.Cell, 0 }};
         Queue<Vector2I> potential = new(max);
 
-        potential.Enqueue(unit.GridObject.Cell);
+        potential.Enqueue(unit.Cell);
         while (potential.Count > 0)
         {
             Vector2I current = potential.Dequeue();
@@ -167,7 +167,7 @@ public class PathFinder
                     _astar.ConnectPoints(_map.CellId(cell), _map.CellId(neighbor));
             }
         }
-        Path.Add(_unit.GridObject.Cell);
+        Path.Add(_unit.Cell);
     }
 
     /// <summary>

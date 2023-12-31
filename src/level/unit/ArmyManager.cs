@@ -39,7 +39,7 @@ public partial class ArmyManager : Node
         {
             if (child is Unit unit)
             {
-                Units[unit.GridObject.Cell] = unit;
+                Units[unit.Cell] = unit;
                 unit.Affiliation = this;
             }
         }
