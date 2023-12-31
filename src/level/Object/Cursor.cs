@@ -10,7 +10,7 @@ namespace level.Object;
 /// rather, it emits signals to a controller (possibly a <c>PointerProjection</c>) to move it when digital movement
 /// is desired.
 /// </summary>
-public partial class Cursor : Sprite2D
+public partial class Cursor : GridNode
 {
     /// <summary>Emitted when the cursor moves to a new cell.</summary>
     /// <param name="cell">Position of the center of the cell moved to.</param>
@@ -20,17 +20,13 @@ public partial class Cursor : Sprite2D
     /// <param name="cell">Coordinates of the cell that has been selected.</param>
     [Signal] public delegate void CellSelectedEventHandler(Vector2I cell);
 
+    private Timer _timer = null;
     private bool _echoing = false;
     private Vector2I _direction = Vector2I.Zero;
+    private Timer EchoTimer => _timer = GetNode<Timer>("EchoTimer");
 
     /// <summary>Projection of the pointer in the viewport onto the world.</summary>
     [Export] public PointerProjection Projection = null;
-
-    [ExportGroup("Components")]
-    [Export] public GridObject GridObject { get; private set; } = null;
-
-    [ExportGroup("Components")]
-    [Export] public Timer EchoTimer { get; private set; } = null;
 
     /// <summary>Initial delay after pressing a button to begin echoing the input.</summary>
     [ExportGroup("Echo Control")]
@@ -40,10 +36,12 @@ public partial class Cursor : Sprite2D
     [ExportGroup("Echo Control")]
     [Export] public double EchoInterval = 0.03;
 
+    /// <summary>When the cell changes, update position, then convert to a grid cell center and notify listeners that the cursor moved.</summary>
+    /// <param name="cell">Cell the cursor moved to.</param>
     public void OnCellChanged(Vector2I cell)
     {
-        Position = GridObject.Grid.PositionOf(cell);
-        EmitSignal(SignalName.CursorMoved, Position + GridObject.Grid.CellSize/2);
+        Position = Grid.PositionOf(cell);
+        EmitSignal(SignalName.CursorMoved, Position + Grid.CellSize/2);
     }
 
     /// <summary>Update the grid cell when the pointer signals it has moved, unless the cursor is what's controlling movement.</summary>
@@ -52,13 +50,13 @@ public partial class Cursor : Sprite2D
     public void OnPointerMoved(Vector2 viewport, Vector2 world)
     {
         if (DeviceManager.Mode != InputMode.Digital)
-            GridObject.Cell = GridObject.Grid.CellOf(world);
+            Cell = Grid.CellOf(world);
     }
 
     /// <summary>Start/continue echo movement of the cursor.</summary>
     public void OnEchoTimeout()
     {
-        GridObject.Cell += _direction;
+        Cell += _direction;
         if (EchoInterval > GetProcessDeltaTime())
         {
             EchoTimer.WaitTime = EchoInterval;
@@ -71,7 +69,7 @@ public partial class Cursor : Sprite2D
     /// <summary>When the pointer is clicked, signal that a cell has been selected.</summary>
     /// <param name="viewport">Position of the pointer in the viewport.</param>
     /// <param name="world">Position of the pointer in the world.</param>
-    public void OnPointerClicked(Vector2 viewport, Vector2 world) => EmitSignal(SignalName.CellSelected, GridObject.Grid.CellOf(world));
+    public void OnPointerClicked(Vector2 viewport, Vector2 world) => EmitSignal(SignalName.CellSelected, Grid.CellOf(world));
 
     public override void _UnhandledInput(InputEvent @event)
     {
@@ -87,9 +85,9 @@ public partial class Cursor : Sprite2D
                 if (dir != Vector2I.Zero)
                 {
                     if (dir.Abs().X + dir.Abs().Y > _direction.Abs().X + _direction.Abs().Y)
-                        GridObject.Cell += dir - _direction;
+                        Cell += dir - _direction;
                     else
-                        GridObject.Cell += dir;
+                        Cell += dir;
                     _direction = dir;
 
                     EchoTimer.WaitTime = EchoDelay;
@@ -100,7 +98,7 @@ public partial class Cursor : Sprite2D
             }
 
             if (Input.IsActionJustReleased("cursor_select"))
-                EmitSignal(SignalName.CellSelected, GridObject.Grid.CellOf(Position));
+                EmitSignal(SignalName.CellSelected, Grid.CellOf(Position));
         }
     }
 
@@ -108,6 +106,6 @@ public partial class Cursor : Sprite2D
     {
         base._Process(delta);
         if (DeviceManager.Mode == InputMode.Digital && _echoing)
-            GridObject.Cell += _direction;
+            Cell += _direction;
     }
 }
