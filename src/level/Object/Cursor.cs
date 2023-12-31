@@ -42,8 +42,8 @@ public partial class Cursor : Sprite2D
 
     public void OnCellChanged(Vector2I cell)
     {
-        Position = GridObject.Manager.PositionOf(cell);
-        EmitSignal(SignalName.CursorMoved, Position + GridObject.Manager.CellSize/2);
+        Position = GridObject.Grid.PositionOf(cell);
+        EmitSignal(SignalName.CursorMoved, Position + GridObject.Grid.CellSize/2);
     }
 
     /// <summary>Update the grid cell when the pointer signals it has moved, unless the cursor is what's controlling movement.</summary>
@@ -52,7 +52,7 @@ public partial class Cursor : Sprite2D
     public void OnPointerMoved(Vector2 viewport, Vector2 world)
     {
         if (DeviceManager.Mode != InputMode.Digital)
-            GridObject.Cell = GridObject.Manager.CellOf(world);
+            GridObject.Cell = GridObject.Grid.CellOf(world);
     }
 
     /// <summary>Start/continue echo movement of the cursor.</summary>
@@ -71,7 +71,7 @@ public partial class Cursor : Sprite2D
     /// <summary>When the pointer is clicked, signal that a cell has been selected.</summary>
     /// <param name="viewport">Position of the pointer in the viewport.</param>
     /// <param name="world">Position of the pointer in the world.</param>
-    public void OnPointerClicked(Vector2 viewport, Vector2 world) => EmitSignal(SignalName.CellSelected, GridObject.Manager.CellOf(world));
+    public void OnPointerClicked(Vector2 viewport, Vector2 world) => EmitSignal(SignalName.CellSelected, GridObject.Grid.CellOf(world));
 
     public override void _UnhandledInput(InputEvent @event)
     {
@@ -100,7 +100,7 @@ public partial class Cursor : Sprite2D
             }
 
             if (Input.IsActionJustReleased("cursor_select"))
-                EmitSignal(SignalName.CellSelected, GridObject.Manager.CellOf(Position));
+                EmitSignal(SignalName.CellSelected, GridObject.Grid.CellOf(Position));
         }
     }
 

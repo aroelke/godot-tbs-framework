@@ -1,5 +1,6 @@
 using Godot;
 using level.manager;
+using level.map;
 using ui.input;
 
 namespace ui;
@@ -88,12 +89,14 @@ public partial class PointerProjection : Node2D
 
     public LevelManager LevelManager => _levelManager ??= GetParent<LevelManager>();
 
+    [Export] public LevelMap Grid;
+
     public override void _Ready()
     {
         base._Ready();
 
         (Camera.LimitTop, Camera.LimitLeft) = Vector2I.Zero;
-        (Camera.LimitRight, Camera.LimitBottom) = (Vector2I)(LevelManager.GridSize*LevelManager.CellSize);
+        (Camera.LimitRight, Camera.LimitBottom) = (Vector2I)(Grid.Size*Grid.CellSize);
         DeviceManager.Singleton.InputModeChanged += OnInputModeChanged;
     }
 

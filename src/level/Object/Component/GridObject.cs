@@ -1,5 +1,5 @@
 using Godot;
-using level.manager;
+using level.map;
 
 namespace level.Object.Component;
 
@@ -15,8 +15,8 @@ public partial class GridObject : Node
 
     private Vector2I _cell = Vector2I.Zero;
 
-    /// <summary>Manager providing grid information.</summary>
-    [Export] public LevelManager Manager;
+    /// <summary>Grid on which the containing object sits.</summary>
+    [Export] public LevelMap Grid;
 
     /// <summary>Cell on the grid that this object currently occupies.</summary>
     [Export] public Vector2I Cell
@@ -24,7 +24,7 @@ public partial class GridObject : Node
         get => _cell;
         set
         {
-            Vector2I next = Manager.Clamp(value);
+            Vector2I next = Grid.Clamp(value);
             if (next != _cell)
             {
                 _cell = next;

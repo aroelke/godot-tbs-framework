@@ -36,27 +36,6 @@ public partial class LevelManager : Node2D
         Overlay.Clear();
     }
 
-    /// <summary>The size of the level's grid.</summary>
-    public Vector2I GridSize => Map.Size;
-
-    /// <summary>Size of the grid cells in world pixels.</summary>
-    public Vector2 CellSize => Map.CellSize;
-
-    /// <summary>Find the cell offset closest to the given one inside the grid.</summary>
-    /// <param name="cell">Cell offset to clamp.
-    /// <returns>The cell offset clamped to be inside the grid bounds using <c>Vector2I.Clamp</c></returns>
-    public Vector2I Clamp(Vector2I cell) => Map.Clamp(cell);
-
-    /// <summary>Find the cell containing a pixel position.</summary>
-    /// <param name="position">Position in world pixels.</param>
-    /// <returns>The coordinates of the cell containing the pixel point (can be outside grid bounds).</returns>
-    public Vector2I CellOf(Vector2 position) => Map.CellOf(position);
-
-    /// <summary>Find the position in world pixels of a cell.</summary>
-    /// <param name="cell">Cell to use for calculation (can be outside grid bounds).</param>
-    /// <returns>The position, in pixels of the upper-left corner of the grid cell.</returns>
-    public Vector2 PositionOf(Vector2I cell) => Map.PositionOf(cell);
-
     /// <summary>When a cell is selected, act based on what is or isn't in the cell.</summary>
     /// <param name="cell">Coordinates of the cell selection.</param>
     public async void OnCellSelected(Vector2I cell)
@@ -109,7 +88,7 @@ public partial class LevelManager : Node2D
     {
         if (_selected != null && _pathfinder != null)
         {
-            Vector2I cell = CellOf(position);
+            Vector2I cell = Map.CellOf(position);
             if (_pathfinder.TraversableCells.Contains(cell))
             {
                 _pathfinder.AddToPath(cell);

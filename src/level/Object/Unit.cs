@@ -83,7 +83,7 @@ public partial class Unit : Node2D
         if (path.Count > 0)
         {
             foreach (Vector2I cell in path)
-                Path.Curve.AddPoint(GridObject.Manager.PositionOf(cell) - Position);
+                Path.Curve.AddPoint(GridObject.Grid.PositionOf(cell) - Position);
             GridObject.Cell = path.Last();
             IsMoving = true;
         }
@@ -93,8 +93,8 @@ public partial class Unit : Node2D
     {
         base._Ready();
 
-        GridObject.Cell = GridObject.Manager.CellOf(Position);
-        Position = GridObject.Manager.PositionOf(GridObject.Cell);
+        GridObject.Cell = GridObject.Grid.CellOf(Position);
+        Position = GridObject.Grid.PositionOf(GridObject.Cell);
 
         if (!Engine.IsEditorHint())
             Path.Curve = new();
@@ -123,7 +123,7 @@ public partial class Unit : Node2D
         {
             IsMoving = false;
             PathFollow.Progress = 0;
-            Position = GridObject.Manager.PositionOf(GridObject.Cell);
+            Position = GridObject.Grid.PositionOf(GridObject.Cell);
             Path.Curve.ClearPoints();
             IsSelected = _selected; // Go back to standing animation (idle/selected)
             EmitSignal(SignalName.DoneMoving);
