@@ -19,7 +19,6 @@ public partial class PointerProjection : Node2D
     [Signal] public delegate void PointerClickedEventHandler(Vector2 viewport, Vector2 world);
 
     private Camera2D _camera = null;
-    private LevelManager _levelManager = null;
     private Vector2 _viewportPosition = Vector2.Zero;
 
     private Camera2D Camera => _camera ??= GetNode<Camera2D>("Camera");
@@ -55,12 +54,12 @@ public partial class PointerProjection : Node2D
     /// <summary>Convert a position in the viewport to a position in the level.</summary>
     /// <param name="viewport">Viewport position.</param>
     /// <returns>Position in the level that's at the same place as the one in the viewport.</returns>
-    public Vector2 ViewportToWorld(Vector2 viewport) => (LevelManager.GetGlobalTransform()*LevelManager.GetCanvasTransform()).AffineInverse()*viewport;
+    public Vector2 ViewportToWorld(Vector2 viewport) => (Grid.GetGlobalTransform()*Grid.GetCanvasTransform()).AffineInverse()*viewport;
 
     /// <summary>Convert a position in the level to a position in the viewport.</summary>
     /// <param name="world">Level position.</param>
     /// <returns>Position in the viewport that's at the same place as the one in the level.</returns>
-    public Vector2 WorldToViewport(Vector2 world) => LevelManager.GetGlobalTransform()*LevelManager.GetCanvasTransform()*world;
+    public Vector2 WorldToViewport(Vector2 world) => Grid.GetGlobalTransform()*Grid.GetCanvasTransform()*world;
 
     /// <summary>Only smooth the camera when the cursor is controlled by the mouse.</summary>
     /// <param name="mode">Current input mode.</param>
@@ -86,8 +85,6 @@ public partial class PointerProjection : Node2D
     /// <summary>When the viewport pointer is clicked, emit a signal converting it to a world position.</summary>
     /// <param name="viewport">Position in the viewport of the click.</param>
     public void OnPointerClicked(Vector2 viewport) => EmitSignal(SignalName.PointerClicked, viewport, ViewportToWorld(viewport));
-
-    public LevelManager LevelManager => _levelManager ??= GetParent<LevelManager>();
 
     [Export] public LevelMap Grid;
 
