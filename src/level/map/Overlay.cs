@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
-namespace level.ui;
+namespace level.map;
 
 /// <summary>Map overlay tile set for computing and displaying traversable and attackable cells and managing unit movement.</summary>
 public partial class Overlay : TileMap
