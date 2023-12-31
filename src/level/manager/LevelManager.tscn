@@ -453,6 +453,9 @@ editor_draw_drag_margin = true
 [node name="Cursor" parent="." node_paths=PackedStringArray("Projection") instance=ExtResource("6_3v7mf")]
 Projection = NodePath("../PointerProjection")
 
+[node name="GridObject" parent="Cursor" index="0" node_paths=PackedStringArray("Manager")]
+Manager = NodePath("../..")
+
 [node name="UserInterface" type="CanvasLayer" parent="."]
 
 [node name="VirtualPointer" type="TextureRect" parent="UserInterface" node_paths=PackedStringArray("Projection")]
@@ -496,3 +499,5 @@ InputAction = "cursor_select"
 [connection signal="CursorMoved" from="Cursor" to="PointerProjection" method="OnCursorMoved"]
 [connection signal="PointerClicked" from="UserInterface/VirtualPointer" to="PointerProjection" method="OnPointerClicked"]
 [connection signal="PointerMoved" from="UserInterface/VirtualPointer" to="PointerProjection" method="OnPointerMoved"]
+
+[editable path="Cursor"]

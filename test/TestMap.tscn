@@ -19,3 +19,8 @@ DefaultTerrain = ExtResource("3_i8fjg")
 
 [node name="Unit" parent="LevelManager/PlayerArmy" instance=ExtResource("5_ju5kl")]
 position = Vector2(224, 224)
+
+[node name="GridObject" parent="LevelManager/PlayerArmy/Unit" index="0" node_paths=PackedStringArray("Manager")]
+Manager = NodePath("../../..")
+
+[editable path="LevelManager/PlayerArmy/Unit"]
