@@ -118,7 +118,7 @@ public partial class LevelManager : Node2D
         _units.Clear();
         foreach (Node child in GetChildren())
         {
-            if (child is Army army)
+            if (child is IEnumerable<Unit> army)
             {
                 foreach (Unit unit in army)
                 {

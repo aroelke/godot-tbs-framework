@@ -1,11 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
 namespace level.Object.Group;
 
 /// <summary>A group of <c>Unit</c> <c>GridNode</c>s that has allies and enemies.</summary>
-public partial class Army : GridNodeGroup<Unit>
+public partial class Army : GridNodeGroup, IEnumerable<Unit>
 {
     public Army[] Allies = Array.Empty<Army>();
 
@@ -41,7 +42,9 @@ public partial class Army : GridNodeGroup<Unit>
     {
         base._Ready();
 
-        foreach (Unit unit in this)
+        foreach (Unit unit in (IEnumerable<Unit>)this)
             unit.Affiliation = this;
     }
+
+    IEnumerator<Unit> IEnumerable<Unit>.GetEnumerator() => GetChildren().OfType<Unit>().GetEnumerator();
 }
