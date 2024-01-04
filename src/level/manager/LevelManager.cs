@@ -5,6 +5,7 @@ using Godot;
 using level.map;
 using level.Object;
 using level.Object.Group;
+using ui;
 using util;
 
 namespace level.manager;
@@ -18,12 +19,16 @@ public partial class LevelManager : Node2D
 {
     private LevelMap _map = null;
     private Overlay _overlay = null;
+    private Cursor _cursor = null;
+    private PointerProjection _projection = null;
     private readonly Dictionary<Vector2I, Unit> _units = new();
     private Unit _selected = null;
     private PathFinder _pathfinder = null;
 
     private LevelMap Map => _map ??= GetNode<LevelMap>("LevelMap");
     private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
+    private Cursor Cursor => _cursor ??= GetNode<Cursor>("Cursor");
+    private PointerProjection Projection => _projection ??= GetNode<PointerProjection>("PointerProjection");
 
     private void DeselectUnit()
     {
@@ -115,15 +120,25 @@ public partial class LevelManager : Node2D
     {
         base._Ready();
 
-        _units.Clear();
-        foreach (Node child in GetChildren())
+        if (!Engine.IsEditorHint())
         {
-            if (child is IEnumerable<Unit> army)
+            if (Cursor is not null)
+                Cursor.Grid = Map;
+            if (Projection is not null)
+                Projection.Grid = Map;
+
+            _units.Clear();
+            foreach (Node child in GetChildren())
             {
-                foreach (Unit unit in army)
+                if (child is IEnumerable<Unit> army)
                 {
-                    unit.Cell = Map.CellOf(unit.Position);
-                    _units[unit.Cell] = unit;
+                    foreach (Unit unit in army)
+                    {
+                        unit.Grid = Map;
+                        unit.Cell = Map.CellOf(unit.Position);
+                        unit.Position = Map.PositionOf(unit.Cell);
+                        _units[unit.Cell] = unit;
+                    }
                 }
             }
         }

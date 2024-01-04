@@ -80,9 +80,6 @@ public partial class Unit : GridNode
     {
         base._Ready();
 
-        Cell = Grid.CellOf(Position);
-        Position = Grid.PositionOf(Cell);
-
         if (!Engine.IsEditorHint())
             Path.Curve = new();
         

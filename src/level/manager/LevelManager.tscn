@@ -496,5 +496,3 @@ InputAction = "cursor_select"
 [connection signal="CursorMoved" from="Cursor" to="PointerProjection" method="OnCursorMoved"]
 [connection signal="PointerClicked" from="UserInterface/VirtualPointer" to="PointerProjection" method="OnPointerClicked"]
 [connection signal="PointerMoved" from="UserInterface/VirtualPointer" to="PointerProjection" method="OnPointerMoved"]
-
-[editable path="Cursor"]

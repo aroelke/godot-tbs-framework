@@ -1,5 +1,4 @@
 using Godot;
-using level.manager;
 using level.map;
 using ui.input;
 
@@ -18,6 +17,7 @@ public partial class PointerProjection : Node2D
     /// <param name="world">Position on the map of the click.</param>
     [Signal] public delegate void PointerClickedEventHandler(Vector2 viewport, Vector2 world);
 
+    private LevelMap _grid = null;
     private Camera2D _camera = null;
     private Vector2 _viewportPosition = Vector2.Zero;
 
@@ -37,6 +37,21 @@ public partial class PointerProjection : Node2D
         }
     }
 
+    /// <summary>
+    /// Grid on which the pointer is projecting the mouse.  Setting it has side effects:
+    /// - Update the camera bounds to the edges of the grid
+    /// </summary>
+    [Export] public LevelMap Grid
+    {
+        get => _grid;
+        set
+        {
+            _grid = value;
+            if (_grid is not null)
+                UpdateCameraBounds(new Rect2I(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize)));
+        }
+    }
+
     /// <summary>Position of the pointer projection in the viewport.</summary>
     public Vector2 ViewportPosition
     {
@@ -49,6 +64,12 @@ public partial class PointerProjection : Node2D
     {
         get => Position;
         set => Warp(value);
+    }
+
+    public void UpdateCameraBounds(Rect2I bounds)
+    {
+        (Camera.LimitTop, Camera.LimitLeft) = bounds.Position;
+        (Camera.LimitRight, Camera.LimitBottom) = bounds.Position + bounds.Size;
     }
 
     /// <summary>Convert a position in the viewport to a position in the level.</summary>
@@ -86,14 +107,11 @@ public partial class PointerProjection : Node2D
     /// <param name="viewport">Position in the viewport of the click.</param>
     public void OnPointerClicked(Vector2 viewport) => EmitSignal(SignalName.PointerClicked, viewport, ViewportToWorld(viewport));
 
-    [Export] public LevelMap Grid;
-
     public override void _Ready()
     {
         base._Ready();
 
-        (Camera.LimitTop, Camera.LimitLeft) = Vector2I.Zero;
-        (Camera.LimitRight, Camera.LimitBottom) = (Vector2I)(Grid.Size*Grid.CellSize);
+        Grid = _grid; // Do any initialization needed based on the grid
         DeviceManager.Singleton.InputModeChanged += OnInputModeChanged;
     }
 
