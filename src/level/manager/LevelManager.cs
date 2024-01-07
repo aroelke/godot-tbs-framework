@@ -21,7 +21,6 @@ public partial class LevelManager : Node2D
     private Overlay _overlay = null;
     private Cursor _cursor = null;
     private PointerProjection _projection = null;
-    private readonly Dictionary<Vector2I, Unit> _units = new();
     private Unit _selected = null;
     private PathFinder _pathfinder = null;
 
@@ -47,9 +46,9 @@ public partial class LevelManager : Node2D
     {
         if (_selected is null)
         {
-            if (_units.ContainsKey(cell))
+            if (Map.Occupants.ContainsKey(cell))
             {
-                _selected = _units[cell];
+                _selected = Map.Occupants[cell] as Unit;
                 _selected.IsSelected = true;
                 _pathfinder = new(Map, _selected);
                 Overlay.TraversableCells = _pathfinder.TraversableCells;
@@ -64,9 +63,9 @@ public partial class LevelManager : Node2D
                 if (cell != _selected.Cell && _pathfinder.TraversableCells.Contains(cell))
                 {
                     // Move the unit and wait for it to finish moving, and then delete the pathfinder as we don't need it anymore
-                    _units.Remove(_selected.Cell);
+                    Map.Occupants.Remove(_selected.Cell);
                     _selected.MoveAlong(_pathfinder.Path);
-                    _units[_selected.Cell] = _selected;
+                    Map.Occupants[_selected.Cell] = _selected;
                     Overlay.Clear();
                     _pathfinder = null;
                     await ToSignal(_selected, Unit.SignalName.DoneMoving);
@@ -131,12 +130,9 @@ public partial class LevelManager : Node2D
 
         if (!Engine.IsEditorHint())
         {
-            if (Cursor is not null)
-                Cursor.Grid = Map;
-            if (Projection is not null)
-                Projection.Grid = Map;
+            Cursor.Grid = Map;
+            Projection.Grid = Map;
 
-            _units.Clear();
             foreach (Node child in GetChildren())
             {
                 if (child is IEnumerable<Unit> army)
@@ -146,7 +142,7 @@ public partial class LevelManager : Node2D
                         unit.Grid = Map;
                         unit.Cell = Map.CellOf(unit.Position);
                         unit.Position = Map.PositionOf(unit.Cell);
-                        _units[unit.Cell] = unit;
+                        Map.Occupants[unit.Cell] = unit;
                     }
                 }
             }

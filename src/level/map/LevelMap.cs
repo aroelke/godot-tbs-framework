@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using level.Object;
 
 namespace level.map;
 
@@ -22,6 +23,9 @@ public partial class LevelMap : TileMap
 
     /// <summary>Grid dimensions. Both elements should be positive.</summary>
     public Vector2I Size => GetUsedRect().End;
+
+    /// <summary>Characters and objects occupying the grid.</summary>
+    public readonly Dictionary<Vector2I, GridNode> Occupants = new();
 
     /// <summary>Check if a cell offset is in the grid.</summary>
     /// <param name="offset">offset to check.</param>
