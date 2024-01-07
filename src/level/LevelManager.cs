@@ -8,7 +8,7 @@ using level.Object.Group;
 using ui;
 using util;
 
-namespace level.manager;
+namespace level;
 
 /// <summary>
 /// Manages the setup of and objects inside a level and provides them information about it.  Is "global" in a way in that
