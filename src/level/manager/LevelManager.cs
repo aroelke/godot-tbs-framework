@@ -85,11 +85,12 @@ public partial class LevelManager : Node2D
             DeselectUnit();
     }
 
-    public void OnCursorMoved(Vector2 position)
+    /// <summary>When the cursor moves while a unit is selected, update the path that's being drawn.</summary>
+    /// <param name="position"></param>
+    public void OnCursorMoved(Vector2I cell)
     {
         if (_selected != null && _pathfinder != null)
         {
-            Vector2I cell = Map.CellOf(position);
             if (_pathfinder.TraversableCells.Contains(cell))
             {
                 _pathfinder.AddToPath(cell);
@@ -98,6 +99,8 @@ public partial class LevelManager : Node2D
         }
     }
 
+    /// <summary>When a grid node is added to a group, update its grid.</summary>
+    /// <param name="child"></param>
     public void OnChildEnteredGroup(Node child)
     {
         if (child is GridNode gd)
