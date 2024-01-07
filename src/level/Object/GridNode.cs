@@ -47,4 +47,12 @@ public partial class GridNode : Node2D
 
         return warnings.ToArray();
     }
+
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+
+        if (Engine.IsEditorHint() && Grid is not null)
+            Cell = Grid.CellOf(Position);
+    }
 }

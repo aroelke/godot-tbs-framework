@@ -61,7 +61,12 @@ public partial class Unit : GridNode
     public bool IsMoving
     {
         get => _moving;
-        set => SetProcess(_moving = value);
+        set
+        {
+            _moving = value;
+            if (!Engine.IsEditorHint())
+                SetProcess(_moving);
+        }
     }
 
     /// <summary>Move the unit along a path of map cells.  Cells should be contiguous.</summary>
@@ -82,9 +87,10 @@ public partial class Unit : GridNode
         base._Ready();
 
         if (!Engine.IsEditorHint())
+        {
             Path.Curve = new();
-        
-        SetProcess(false);
+            SetProcess(false);
+        }
     }
 
     public override void _Process(double delta)

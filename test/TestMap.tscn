@@ -21,5 +21,6 @@ DefaultTerrain = ExtResource("3_i8fjg")
 position = Vector2(192, 160)
 Affiliation = NodePath("..")
 Grid = NodePath("../../LevelMap")
+Cell = Vector2i(6, 5)
 
 [connection signal="child_entered_tree" from="LevelManager/PlayerArmy" to="LevelManager" method="OnChildEnteredGroup"]
