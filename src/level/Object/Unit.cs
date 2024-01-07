@@ -9,6 +9,7 @@ namespace level.Object;
 /// A unit that moves around the map.  Mostly is just a visual representation of what's where and interface for the player to
 /// interact.
 /// </summary>
+[Tool]
 public partial class Unit : GridNode
 {
     /// <summary>Signal that the unit is done moving along its path.</summary>
@@ -46,7 +47,7 @@ public partial class Unit : GridNode
         set
         {
             _selected = value;
-            if (Animation is not null)
+            if (!Engine.IsEditorHint())
             {
                 if (_selected)
                     Animation.Play("selected");
@@ -90,27 +91,30 @@ public partial class Unit : GridNode
     {
         base._Process(delta);
 
-        Vector2 prev = PathFollow.Position;
-        PathFollow.Progress += (float)(MoveSpeed*delta);
-        string animation = (PathFollow.Position - prev) switch
+        if (!Engine.IsEditorHint())
         {
-            Vector2(_, <0) => "up",
-            Vector2(<0, _) => "left",
-            Vector2(_, >0) => "down",
-            Vector2(>0, _) => "right",
-            _ => "idle"
-        };
-        if (Animation.CurrentAnimation != animation)
-            Animation.Play(animation);
+            Vector2 prev = PathFollow.Position;
+            PathFollow.Progress += (float)(MoveSpeed*delta);
+            string animation = (PathFollow.Position - prev) switch
+            {
+                Vector2(_, <0) => "up",
+                Vector2(<0, _) => "left",
+                Vector2(_, >0) => "down",
+                Vector2(>0, _) => "right",
+                _ => "idle"
+            };
+            if (Animation.CurrentAnimation != animation)
+                Animation.Play(animation);
 
-        if (PathFollow.ProgressRatio >= 1)
-        {
-            IsMoving = false;
-            PathFollow.Progress = 0;
-            Position = Grid.PositionOf(Cell);
-            Path.Curve.ClearPoints();
-            IsSelected = _selected; // Go back to standing animation (idle/selected)
-            EmitSignal(SignalName.DoneMoving);
+            if (PathFollow.ProgressRatio >= 1)
+            {
+                IsMoving = false;
+                PathFollow.Progress = 0;
+                Position = Grid.PositionOf(Cell);
+                Path.Curve.ClearPoints();
+                IsSelected = _selected; // Go back to standing animation (idle/selected)
+                EmitSignal(SignalName.DoneMoving);
+            }
         }
     }
 }

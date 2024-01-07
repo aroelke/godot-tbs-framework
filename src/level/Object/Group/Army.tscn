@@ -4,3 +4,6 @@
 
 [node name="Army" type="Node"]
 script = ExtResource("1_d5uxb")
+
+[connection signal="child_entered_tree" from="." to="." method="OnChildEnteredTree"]
+[connection signal="child_exiting_tree" from="." to="." method="OnChildExitingTree"]

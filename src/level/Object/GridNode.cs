@@ -1,10 +1,12 @@
+using System;
+using System.Collections.Generic;
 using Godot;
 using level.map;
 
 namespace level.Object;
 
 /// <summary>A node representing an object that moves on a grid.</summary>
-[GlobalClass]
+[GlobalClass, Tool]
 public partial class GridNode : Node2D
 {
     /// <summary>Signals that the cell containing the object has changed.</summary>
@@ -22,12 +24,27 @@ public partial class GridNode : Node2D
         get => _cell;
         set
         {
-            Vector2I next = Grid.Clamp(value);
-            if (next != _cell)
+            if (Engine.IsEditorHint())
+                _cell = value;
+            else
             {
-                _cell = next;
-                EmitSignal(SignalName.CellChanged, _cell);
+                Vector2I next = Grid.Clamp(value);
+                if (next != _cell)
+                {
+                    _cell = next;
+                    EmitSignal(SignalName.CellChanged, _cell);
+                }
             }
         }
+    }
+
+    public override string[] _GetConfigurationWarnings()
+    {
+        List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
+
+        if (Grid == null)
+            warnings.Add("No grid to move on has been defined.");
+
+        return warnings.ToArray();
     }
 }

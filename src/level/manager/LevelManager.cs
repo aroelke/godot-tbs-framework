@@ -98,6 +98,12 @@ public partial class LevelManager : Node2D
         }
     }
 
+    public void OnChildEnteredGroup(Node child)
+    {
+        if (child is GridNode gd)
+            gd.Grid = Map;
+    }
+
     public override string[] _GetConfigurationWarnings()
     {
         List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
@@ -110,7 +116,7 @@ public partial class LevelManager : Node2D
             warnings.Add($"Level contains too many maps ({maps}).");
 
         // Make sure there are units to control and to fight.
-        if (GetChildren().Where((c) => c is Army).Any())
+        if (!GetChildren().Where((c) => c is Army).Any())
             warnings.Add("There are not any armies to assign units to.");
 
         return warnings.ToArray();
