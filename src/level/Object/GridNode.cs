@@ -25,10 +25,16 @@ public partial class GridNode : Node2D
         set
         {
             if (Engine.IsEditorHint())
-                _cell = value;
+            {
+                if (_cell != value)
+                {
+                    _cell = value;
+                    UpdateConfigurationWarnings();
+                }
+            }
             else
             {
-                Vector2I next = Grid.Clamp(value);
+                Vector2I next = Grid?.Clamp(value) ?? value;
                 if (next != _cell)
                 {
                     _cell = next;
@@ -44,6 +50,8 @@ public partial class GridNode : Node2D
 
         if (Grid == null)
             warnings.Add("No grid to move on has been defined.");
+        else if (Cell.X < 0 || Cell.Y < 0 || Cell.X >= Grid.Size.X || Cell.Y >= Grid.Size.Y)
+            warnings.Add("Outside grid bounds.");
 
         return warnings.ToArray();
     }
