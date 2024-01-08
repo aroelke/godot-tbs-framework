@@ -17,14 +17,14 @@ namespace level;
 [Tool]
 public partial class LevelManager : Node2D
 {
-    private LevelMap _map = null;
+    private Grid _map = null;
     private Overlay _overlay = null;
     private Cursor _cursor = null;
     private PointerProjection _projection = null;
     private Unit _selected = null;
     private PathFinder _pathfinder = null;
 
-    private LevelMap Map => _map ??= GetNode<LevelMap>("LevelMap");
+    private Grid Grid => _map ??= GetNode<Grid>("Grid");
     private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
     private Cursor Cursor => _cursor ??= GetNode<Cursor>("Cursor");
     private PointerProjection Projection => _projection ??= GetNode<PointerProjection>("PointerProjection");
@@ -46,11 +46,11 @@ public partial class LevelManager : Node2D
     {
         if (_selected is null)
         {
-            if (Map.Occupants.ContainsKey(cell))
+            if (Grid.Occupants.ContainsKey(cell))
             {
-                _selected = Map.Occupants[cell] as Unit;
+                _selected = Grid.Occupants[cell] as Unit;
                 _selected.IsSelected = true;
-                _pathfinder = new(Map, _selected);
+                _pathfinder = new(Grid, _selected);
                 Overlay.TraversableCells = _pathfinder.TraversableCells;
                 Overlay.AttackableCells = _pathfinder.AttackableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c));
                 Overlay.SupportableCells = _pathfinder.SupportableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c) && !_pathfinder.AttackableCells.Contains(c));
@@ -63,16 +63,16 @@ public partial class LevelManager : Node2D
                 if (cell != _selected.Cell && _pathfinder.TraversableCells.Contains(cell))
                 {
                     // Move the unit and wait for it to finish moving, and then delete the pathfinder as we don't need it anymore
-                    Map.Occupants.Remove(_selected.Cell);
+                    Grid.Occupants.Remove(_selected.Cell);
                     _selected.MoveAlong(_pathfinder.Path);
-                    Map.Occupants[_selected.Cell] = _selected;
+                    Grid.Occupants[_selected.Cell] = _selected;
                     Overlay.Clear();
                     _pathfinder = null;
                     await ToSignal(_selected, Unit.SignalName.DoneMoving);
 
                     // Show the unit's attack/support ranges
-                    IEnumerable<Vector2I> attackable = PathFinder.GetCellsInRange(Map, _selected.AttackRange, _selected.Cell);
-                    IEnumerable<Vector2I> supportable = PathFinder.GetCellsInRange(Map, _selected.SupportRange, _selected.Cell);
+                    IEnumerable<Vector2I> attackable = PathFinder.GetCellsInRange(Grid, _selected.AttackRange, _selected.Cell);
+                    IEnumerable<Vector2I> supportable = PathFinder.GetCellsInRange(Grid, _selected.SupportRange, _selected.Cell);
                     Overlay.AttackableCells = attackable;
                     Overlay.SupportableCells = supportable.Where((c) => !attackable.Contains(c));
                 }
@@ -103,7 +103,7 @@ public partial class LevelManager : Node2D
     public void OnChildEnteredGroup(Node child)
     {
         if (child is GridNode gd)
-            gd.Grid = Map;
+            gd.Grid = Grid;
     }
 
     public override string[] _GetConfigurationWarnings()
@@ -111,7 +111,7 @@ public partial class LevelManager : Node2D
         List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
 
         // Make sure there's a map
-        int maps = GetChildren().Where((c) => c is LevelMap).Count();
+        int maps = GetChildren().Where((c) => c is Grid).Count();
         if (maps < 1)
             warnings.Add("Level does not contain a map.");
         else if (maps > 1)
@@ -130,8 +130,8 @@ public partial class LevelManager : Node2D
 
         if (!Engine.IsEditorHint())
         {
-            Cursor.Grid = Map;
-            Projection.Grid = Map;
+            Cursor.Grid = Grid;
+            Projection.Grid = Grid;
 
             foreach (Node child in GetChildren())
             {
@@ -139,10 +139,10 @@ public partial class LevelManager : Node2D
                 {
                     foreach (Unit unit in army)
                     {
-                        unit.Grid = Map;
-                        unit.Cell = Map.CellOf(unit.Position);
-                        unit.Position = Map.PositionOf(unit.Cell);
-                        Map.Occupants[unit.Cell] = unit;
+                        unit.Grid = Grid;
+                        unit.Cell = Grid.CellOf(unit.Position);
+                        unit.Position = Grid.PositionOf(unit.Cell);
+                        Grid.Occupants[unit.Cell] = unit;
                     }
                 }
             }

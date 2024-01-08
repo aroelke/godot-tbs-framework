@@ -16,7 +16,7 @@ public partial class GridNode : Node2D
     private Vector2I _cell = Vector2I.Zero;
 
     /// <summary>Grid on which the containing object sits.</summary>
-    [Export] public LevelMap Grid;
+    [Export] public Grid Grid;
 
     /// <summary>Cell on the grid that this object currently occupies.</summary>
     [Export] public Vector2I Cell

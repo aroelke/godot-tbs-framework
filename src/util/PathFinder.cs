@@ -32,7 +32,7 @@ public class PathFinder
     /// <param name="map">Map the unit is walking on.</param>
     /// <param name="unit">Unit compute traversable cells for.</param>
     /// <returns>The set of cells, in any order, that the unit can traverse.</returns>
-    public static IEnumerable<Vector2I> GetTraversableCells(LevelMap map, Unit unit)
+    public static IEnumerable<Vector2I> GetTraversableCells(Grid map, Unit unit)
     {
         int max = 2*(unit.MoveRange + 1)*(unit.MoveRange + 1) - 2*unit.MoveRange - 1;
 
@@ -67,7 +67,7 @@ public class PathFinder
     /// <param name="ranges">Distances from the source cell that can be attacked.</param>
     /// <param name="source">Source cell to attack from.</param>
     /// <returns>A collection of grid cells containing all the cells that are exactly the given distances away from the source.</returns>
-    public static IEnumerable<Vector2I> GetCellsInRange(LevelMap map, IEnumerable<int> ranges, Vector2I source)
+    public static IEnumerable<Vector2I> GetCellsInRange(Grid map, IEnumerable<int> ranges, Vector2I source)
     {
         HashSet<Vector2I> cells = new();
         foreach (int range in ranges)
@@ -93,7 +93,7 @@ public class PathFinder
     /// <param name="ranges">Distances from each source cell that can be attacked.</param>
     /// <param name="traversable">Source cells.</param>
     /// <returns>A collection of grid cells containing all the cells that are exactly the given distances away from any of the source cells.</returns>
-    public static IEnumerable<Vector2I> GetCellsInRange(LevelMap map, IEnumerable<int> ranges, IEnumerable<Vector2I> traversable)
+    public static IEnumerable<Vector2I> GetCellsInRange(Grid map, IEnumerable<int> ranges, IEnumerable<Vector2I> traversable)
     {
         HashSet<Vector2I> cells = new();
         foreach (Vector2I source in traversable)
@@ -126,7 +126,7 @@ public class PathFinder
         return result;
     }
 
-    private readonly LevelMap _map;
+    private readonly Grid _map;
     private readonly Unit _unit;
     private readonly AStar2D _astar = new();
 
@@ -147,7 +147,7 @@ public class PathFinder
     /// <summary>Create a new PathFinder for a unit on a map.</summary>
     /// <param name="map">Map on which paths are to be computed.</param>
     /// <param name="unit">Unit for which paths are to be computed.</param>
-    public PathFinder(LevelMap map, Unit unit)
+    public PathFinder(Grid map, Unit unit)
     {
         _map = map;
         _unit = unit;

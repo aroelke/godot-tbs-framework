@@ -4,7 +4,7 @@
 [ext_resource type="Resource" uid="uid://ryxx30gb4grd" path="res://src/level/map/terrain/bush.tres" id="2_8gjav"]
 [ext_resource type="Resource" uid="uid://matpnfv7cs4l" path="res://src/level/map/terrain/mountain.tres" id="3_0n2fa"]
 [ext_resource type="Texture2D" uid="uid://ct5iy7vuwoof3" path="res://assets/environment/tiles/objects.png" id="4_yrfs1"]
-[ext_resource type="Script" path="res://src/level/map/LevelMap.cs" id="5_ngukb"]
+[ext_resource type="Script" path="res://src/level/map/Grid.cs" id="5_6ttph"]
 
 [sub_resource type="TileMapPattern" id="TileMapPattern_m8dcu"]
 tile_data = PackedInt32Array(0, 0, 2, 65536, 0, 3)
@@ -198,11 +198,11 @@ pattern_16 = SubResource("TileMapPattern_xr276")
 pattern_17 = SubResource("TileMapPattern_sikpy")
 pattern_18 = SubResource("TileMapPattern_v7el4")
 
-[node name="LevelMap" type="TileMap"]
+[node name="Grid" type="TileMap"]
 z_index = -1
 tile_set = SubResource("TileSet_s2otx")
 format = 2
 layer_0/name = "ground"
 layer_1/name = "terrain"
 layer_1/tile_data = PackedInt32Array()
-script = ExtResource("5_ngukb")
+script = ExtResource("5_6ttph")

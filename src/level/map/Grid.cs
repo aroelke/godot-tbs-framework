@@ -5,9 +5,9 @@ using level.Object;
 
 namespace level.map;
 
-/// <summary>Represents the environment on which a level is played, defining its grid dimensions, tiles, and terrain.</summary>
+/// <summary>Defines the grid dimensions and attributes and contains the locations of the objects and terrain within it.</summary>
 [Tool]
-public partial class LevelMap : TileMap
+public partial class Grid : TileMap
 {
     /// <summary><c>TileSet</c> layer containing ground tiles.</summary>
     public int GroundLayer { get; private set; } = -1;

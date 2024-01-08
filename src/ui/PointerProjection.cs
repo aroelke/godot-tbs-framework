@@ -17,7 +17,7 @@ public partial class PointerProjection : Node2D
     /// <param name="world">Position on the map of the click.</param>
     [Signal] public delegate void PointerClickedEventHandler(Vector2 viewport, Vector2 world);
 
-    private LevelMap _grid = null;
+    private Grid _grid = null;
     private Camera2D _camera = null;
     private Vector2 _viewportPosition = Vector2.Zero;
 
@@ -41,7 +41,7 @@ public partial class PointerProjection : Node2D
     /// Grid on which the pointer is projecting the mouse.  Setting it has side effects:
     /// - Update the camera bounds to the edges of the grid
     /// </summary>
-    [Export] public LevelMap Grid
+    [Export] public Grid Grid
     {
         get => _grid;
         set
