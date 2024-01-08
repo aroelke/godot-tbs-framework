@@ -15,7 +15,7 @@ namespace level;
 /// all objects in the level may be able to see it and request information from it, but each level has its own manager.
 /// </summary>
 [Tool]
-public partial class LevelManager : Node2D
+public partial class Level : Node2D
 {
     private Grid _map = null;
     private Overlay _overlay = null;

@@ -1,6 +1,6 @@
 [gd_scene load_steps=15 format=3 uid="uid://p5cw5rndfqun"]
 
-[ext_resource type="Script" path="res://src/level/LevelManager.cs" id="1_76nk0"]
+[ext_resource type="Script" path="res://src/level/Level.cs" id="1_r2v0t"]
 [ext_resource type="Texture2D" uid="uid://cybgq10hqektj" path="res://assets/level/ui/overlay.png" id="2_ogyqc"]
 [ext_resource type="Texture2D" uid="uid://dfppi0pjsv5ut" path="res://assets/level/ui/arrow.png" id="3_1nkpv"]
 [ext_resource type="Script" path="res://src/level/map/Overlay.cs" id="4_wx588"]
@@ -414,8 +414,8 @@ terrain_set_1/terrain_0/color = Color(0.5, 0.34375, 0.25, 1)
 sources/3 = SubResource("TileSetAtlasSource_qo1xq")
 sources/2 = SubResource("TileSetAtlasSource_vg23h")
 
-[node name="LevelManager" type="Node2D"]
-script = ExtResource("1_76nk0")
+[node name="Level" type="Node2D"]
+script = ExtResource("1_r2v0t")
 
 [node name="Overlay" type="TileMap" parent="."]
 tile_set = SubResource("TileSet_80dh3")
