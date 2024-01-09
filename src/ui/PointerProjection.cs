@@ -12,11 +12,6 @@ public partial class PointerProjection : Node2D
     /// <param name="world">Current position on the map.</param>
     [Signal] public delegate void PointerMovedEventHandler(Vector2 viewport, Vector2 world);
 
-    /// <summary>Signals that the pointer has been clicked.</summary>
-    /// <param name="viewport">Position in the viewport of the click.</param>
-    /// <param name="world">Position on the map of the click.</param>
-    [Signal] public delegate void PointerClickedEventHandler(Vector2 viewport, Vector2 world);
-
     private Grid _grid = null;
     private Camera2D _camera = null;
     private Vector2 _viewportPosition = Vector2.Zero;
@@ -102,10 +97,6 @@ public partial class PointerProjection : Node2D
         if (DeviceManager.Mode != InputMode.Digital)
             Warp(ViewportToWorld(_viewportPosition));
     }
-
-    /// <summary>When the viewport pointer is clicked, emit a signal converting it to a world position.</summary>
-    /// <param name="viewport">Position in the viewport of the click.</param>
-    public void OnPointerClicked(Vector2 viewport) => EmitSignal(SignalName.PointerClicked, viewport, ViewportToWorld(viewport));
 
     public override void _Ready()
     {

@@ -65,11 +65,6 @@ public partial class Cursor : GridNode
             _echoing = true;
     }
 
-    /// <summary>When the pointer is clicked, signal that a cell has been selected.</summary>
-    /// <param name="viewport">Position of the pointer in the viewport.</param>
-    /// <param name="world">Position of the pointer in the world.</param>
-    public void OnPointerClicked(Vector2 viewport, Vector2 world) => EmitSignal(SignalName.CellSelected, Grid.CellOf(world));
-
     public override void _UnhandledInput(InputEvent @event)
     {
         base._UnhandledInput(@event);
@@ -95,10 +90,9 @@ public partial class Cursor : GridNode
                 else
                     _direction = Vector2I.Zero;
             }
-
-            if (Input.IsActionJustReleased("cursor_select"))
-                EmitSignal(SignalName.CellSelected, Grid.CellOf(Position));
         }
+        if (@event.IsActionReleased("cursor_select"))
+            EmitSignal(SignalName.CellSelected, Grid.CellOf(Position));
     }
 
     public override void _Process(double delta)

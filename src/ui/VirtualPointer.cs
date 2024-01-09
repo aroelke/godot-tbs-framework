@@ -10,10 +10,6 @@ public partial class VirtualPointer : TextureRect
     /// <param name="position">Position of the virtual pointer.</param>
     [Signal] public delegate void PointerMovedEventHandler(Vector2 position);
 
-    /// <summary>Signals that the pointer has been clicked.  Also used to signal a real mouse click.</summary>
-    /// <param name="position">Position of the click.</param>
-    [Signal] public delegate void PointerClickedEventHandler(Vector2 position);
-
     private bool _accelerate = false;
 
     /// <summary>Projection of the pointer's screen position onto the world.</summary>
@@ -85,12 +81,6 @@ public partial class VirtualPointer : TextureRect
                 return;
             }
             break;
-        }
-        if (Input.IsActionJustReleased("cursor_select") && (DeviceManager.Mode == InputMode.Mouse || DeviceManager.Mode == InputMode.Analog))
-        {
-            GetViewport().SetInputAsHandled();
-            EmitSignal(SignalName.PointerClicked, Position);
-            return;
         }
     }
 
