@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using Godot;
-using level.map.terrain;
+using level.Object;
 
 namespace level.map;
 
-/// <summary>Represents the environment on which a level is played, defining its grid dimensions, tiles, and terrain.</summary>
+/// <summary>Defines the grid dimensions and attributes and contains the locations of the objects and terrain within it.</summary>
 [Tool]
-public partial class LevelMap : TileMap
+public partial class Grid : TileMap
 {
     /// <summary><c>TileSet</c> layer containing ground tiles.</summary>
     public int GroundLayer { get; private set; } = -1;
@@ -23,6 +23,9 @@ public partial class LevelMap : TileMap
 
     /// <summary>Grid dimensions. Both elements should be positive.</summary>
     public Vector2I Size => GetUsedRect().End;
+
+    /// <summary>Characters and objects occupying the grid.</summary>
+    public readonly Dictionary<Vector2I, GridNode> Occupants = new();
 
     /// <summary>Check if a cell offset is in the grid.</summary>
     /// <param name="offset">offset to check.</param>

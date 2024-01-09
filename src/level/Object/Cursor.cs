@@ -1,15 +1,15 @@
 using Godot;
-using level.manager;
+using ui;
 using ui.input;
 
-namespace level.ui;
+namespace level.Object;
 
 /// <summary>
 /// Cursor on the grid used for highlighting a cell and selecting things in it.  Importantly, it does not move itself;
 /// rather, it emits signals to a controller (possibly a <c>PointerProjection</c>) to move it when digital movement
 /// is desired.
 /// </summary>
-public partial class Cursor : Sprite2D, ILevelManaged
+public partial class Cursor : GridNode
 {
     /// <summary>Emitted when the cursor moves to a new cell.</summary>
     /// <param name="cell">Position of the center of the cell moved to.</param>
@@ -19,15 +19,10 @@ public partial class Cursor : Sprite2D, ILevelManaged
     /// <param name="cell">Coordinates of the cell that has been selected.</param>
     [Signal] public delegate void CellSelectedEventHandler(Vector2I cell);
 
-    private InputManager _inputManager = null;
-    private LevelManager _levelManager = null;
-    private Timer _echo = null;
+    private Timer _timer = null;
     private bool _echoing = false;
-    private Vector2I _cell = Vector2I.Zero;
     private Vector2I _direction = Vector2I.Zero;
-
-    private InputManager InputManager => _inputManager ??= GetNode<InputManager>("/root/InputManager");
-    private Timer EchoTimer => _echo ??= GetNode<Timer>("EchoTimer");
+    private Timer EchoTimer => _timer = GetNode<Timer>("EchoTimer");
 
     /// <summary>Projection of the pointer in the viewport onto the world.</summary>
     [Export] public PointerProjection Projection = null;
@@ -40,20 +35,12 @@ public partial class Cursor : Sprite2D, ILevelManaged
     [ExportGroup("Echo Control")]
     [Export] public double EchoInterval = 0.03;
 
-    /// <summary>Grid cell the cursor occupies. Is always inside the grid managed by the <c>LevelManager</c>.</summary>
-    public Vector2I Cell
+    /// <summary>When the cell changes, update position, then convert to a grid cell center and notify listeners that the cursor moved.</summary>
+    /// <param name="cell">Cell the cursor moved to.</param>
+    public void OnCellChanged(Vector2I cell)
     {
-        get => _cell;
-        set
-        {
-            Vector2I next = LevelManager.Clamp(value);
-            if (next != _cell)
-            {
-                _cell = next;
-                Position = LevelManager.PositionOf(_cell);
-                EmitSignal(SignalName.CursorMoved, Position + LevelManager.CellSize/2);
-            }
-        }
+        Position = Grid.PositionOf(cell);
+        EmitSignal(SignalName.CursorMoved, Position + Grid.CellSize/2);
     }
 
     /// <summary>Update the grid cell when the pointer signals it has moved, unless the cursor is what's controlling movement.</summary>
@@ -61,8 +48,8 @@ public partial class Cursor : Sprite2D, ILevelManaged
     /// <param name="world">Position of the pointer in the world.</param>
     public void OnPointerMoved(Vector2 viewport, Vector2 world)
     {
-        if (InputManager.Mode != InputMode.Digital)
-            Cell = LevelManager.CellOf(world);
+        if (DeviceManager.Mode != InputMode.Digital)
+            Cell = Grid.CellOf(world);
     }
 
     /// <summary>Start/continue echo movement of the cursor.</summary>
@@ -81,14 +68,12 @@ public partial class Cursor : Sprite2D, ILevelManaged
     /// <summary>When the pointer is clicked, signal that a cell has been selected.</summary>
     /// <param name="viewport">Position of the pointer in the viewport.</param>
     /// <param name="world">Position of the pointer in the world.</param>
-    public void OnPointerClicked(Vector2 viewport, Vector2 world) => EmitSignal(SignalName.CellSelected, LevelManager.CellOf(world));
-
-    public LevelManager LevelManager => _levelManager ??= GetParent<LevelManager>();
+    public void OnPointerClicked(Vector2 viewport, Vector2 world) => EmitSignal(SignalName.CellSelected, Grid.CellOf(world));
 
     public override void _UnhandledInput(InputEvent @event)
     {
         base._UnhandledInput(@event);
-        if (InputManager.Mode == InputMode.Digital)
+        if (DeviceManager.Mode == InputMode.Digital)
         {
             Vector2I dir = InputManager.GetDigitalVector();
             if (dir != _direction)
@@ -112,14 +97,14 @@ public partial class Cursor : Sprite2D, ILevelManaged
             }
 
             if (Input.IsActionJustReleased("cursor_select"))
-                EmitSignal(SignalName.CellSelected, LevelManager.CellOf(Position));
+                EmitSignal(SignalName.CellSelected, Grid.CellOf(Position));
         }
     }
 
     public override void _Process(double delta)
     {
         base._Process(delta);
-        if (InputManager.Mode == InputMode.Digital && _echoing)
+        if (DeviceManager.Mode == InputMode.Digital && _echoing)
             Cell += _direction;
     }
 }

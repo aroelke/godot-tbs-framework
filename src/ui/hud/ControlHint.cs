@@ -10,10 +10,8 @@ namespace ui.hud;
 public partial class ControlHint : HBoxContainer
 {
     private Dictionary<InputDevice, TextureRect> _icons = new();
-    private InputManager _inputManager = null;
     private TextureRect _mouseIcon = null, _keyIcon = null, _playstationIcon = null;
 
-    private InputManager InputManager => _inputManager ??= GetNode<InputManager>("/root/InputManager");
     private TextureRect MouseIcon => _mouseIcon ??= GetNode<TextureRect>("Mouse");
     private TextureRect KeyboardIcon => _keyIcon ??= GetNode<TextureRect>("Keyboard");
     private TextureRect PlaystationIcon => _playstationIcon ??= GetNode<TextureRect>("Playstation");
@@ -72,8 +70,8 @@ public partial class ControlHint : HBoxContainer
                 { InputDevice.Keyboard, KeyboardIcon },
                 { InputDevice.Playstation, PlaystationIcon }
             };
-            SelectedDevice = InputManager.Device;
-            InputManager.InputDeviceChanged += OnInputDeviceChanged;
+            SelectedDevice = DeviceManager.Device;
+            DeviceManager.Singleton.InputDeviceChanged += OnInputDeviceChanged;
 
             Update();
         }

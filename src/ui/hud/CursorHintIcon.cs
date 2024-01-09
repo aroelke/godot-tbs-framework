@@ -9,7 +9,6 @@ namespace ui.hud;
 [Tool]
 public partial class CursorHintIcon : HBoxContainer
 {
-    private InputManager _inputManager = null;
     private TextureRect _mouseIcon = null;
     private GridContainer _keyboardIcon = null;
     private TextureRect _upKeyIcon = null, _leftKeyIcon = null, _downKeyIcon = null, _rightKeyIcon = null;
@@ -17,7 +16,6 @@ public partial class CursorHintIcon : HBoxContainer
 
     private Dictionary<InputDevice, Control> _icons = new();
 
-    private InputManager InputManager => _inputManager ??= GetNode<InputManager>("/root/InputManager");
     private TextureRect MouseIcon => _mouseIcon ??= GetNode<TextureRect>("Mouse");
     private GridContainer KeyboardIcon => _keyboardIcon ??= GetNode<GridContainer>("Keyboard");
     private TextureRect UpKeyIcon => _upKeyIcon ??= GetNode<TextureRect>("Keyboard/Up");
@@ -82,8 +80,8 @@ public partial class CursorHintIcon : HBoxContainer
                 { InputDevice.Keyboard, KeyboardIcon },
                 { InputDevice.Playstation, PlaystationIcon }
             };
-            SelectedDevice = InputManager.Device;
-            InputManager.InputDeviceChanged += OnInputDeviceChanged;
+            SelectedDevice = DeviceManager.Device;
+            DeviceManager.Singleton.InputDeviceChanged += OnInputDeviceChanged;
         }
     }
 

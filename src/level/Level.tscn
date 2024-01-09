@@ -1,13 +1,12 @@
-[gd_scene load_steps=16 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=15 format=3 uid="uid://p5cw5rndfqun"]
 
-[ext_resource type="Script" path="res://src/level/manager/LevelManager.cs" id="1_cgt2i"]
+[ext_resource type="Script" path="res://src/level/Level.cs" id="1_r2v0t"]
 [ext_resource type="Texture2D" uid="uid://cybgq10hqektj" path="res://assets/level/ui/overlay.png" id="2_ogyqc"]
-[ext_resource type="Script" path="res://src/level/ui/PointerProjection.cs" id="2_wcsqo"]
 [ext_resource type="Texture2D" uid="uid://dfppi0pjsv5ut" path="res://assets/level/ui/arrow.png" id="3_1nkpv"]
-[ext_resource type="Script" path="res://src/level/ui/Overlay.cs" id="4_d7a32"]
-[ext_resource type="Script" path="res://src/level/ui/Cursor.cs" id="4_pq0pp"]
+[ext_resource type="Script" path="res://src/level/map/Overlay.cs" id="4_wx588"]
 [ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://assets/ui/mouse.png" id="5_wkats"]
-[ext_resource type="Texture2D" uid="uid://dhxxyboxchr67" path="res://assets/level/ui/cursor.png" id="6_74wl6"]
+[ext_resource type="Script" path="res://src/ui/PointerProjection.cs" id="5_x8l1i"]
+[ext_resource type="PackedScene" uid="uid://bgcsg0l8mj2sn" path="res://src/level/Object/Cursor.tscn" id="6_3v7mf"]
 [ext_resource type="Script" path="res://src/ui/VirtualPointer.cs" id="6_op0r2"]
 [ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://src/ui/hud/HUD.tres" id="7_12lpk"]
 [ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/ui/hud/CursorHintIcon.tscn" id="8_y3lwj"]
@@ -415,8 +414,8 @@ terrain_set_1/terrain_0/color = Color(0.5, 0.34375, 0.25, 1)
 sources/3 = SubResource("TileSetAtlasSource_qo1xq")
 sources/2 = SubResource("TileSetAtlasSource_vg23h")
 
-[node name="LevelManager" type="Node2D"]
-script = ExtResource("1_cgt2i")
+[node name="Level" type="Node2D"]
+script = ExtResource("1_r2v0t")
 
 [node name="Overlay" type="TileMap" parent="."]
 tile_set = SubResource("TileSet_80dh3")
@@ -432,10 +431,10 @@ layer_2/tile_data = PackedInt32Array()
 layer_3/name = "path"
 layer_3/z_index = 1
 layer_3/tile_data = PackedInt32Array()
-script = ExtResource("4_d7a32")
+script = ExtResource("4_wx588")
 
 [node name="PointerProjection" type="Node2D" parent="."]
-script = ExtResource("2_wcsqo")
+script = ExtResource("5_x8l1i")
 
 [node name="Camera" type="Camera2D" parent="PointerProjection"]
 zoom = Vector2(2, 2)
@@ -451,14 +450,8 @@ drag_right_margin = 0.5
 drag_bottom_margin = 0.5
 editor_draw_drag_margin = true
 
-[node name="Cursor" type="Sprite2D" parent="." node_paths=PackedStringArray("Projection")]
-texture = ExtResource("6_74wl6")
-offset = Vector2(16, 16)
-script = ExtResource("4_pq0pp")
+[node name="Cursor" parent="." node_paths=PackedStringArray("Projection") instance=ExtResource("6_3v7mf")]
 Projection = NodePath("../PointerProjection")
-
-[node name="EchoTimer" type="Timer" parent="Cursor"]
-one_shot = true
 
 [node name="UserInterface" type="CanvasLayer" parent="."]
 
@@ -498,9 +491,8 @@ InputAction = "cursor_select"
 [connection signal="PointerClicked" from="PointerProjection" to="Cursor" method="OnPointerClicked"]
 [connection signal="PointerMoved" from="PointerProjection" to="Cursor" method="OnPointerMoved"]
 [connection signal="PointerMoved" from="PointerProjection" to="UserInterface/VirtualPointer" method="OnProjectionMoved"]
+[connection signal="CellChanged" from="Cursor" to="." method="OnCursorMoved"]
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]
-[connection signal="CursorMoved" from="Cursor" to="." method="OnCursorMoved"]
 [connection signal="CursorMoved" from="Cursor" to="PointerProjection" method="OnCursorMoved"]
-[connection signal="timeout" from="Cursor/EchoTimer" to="Cursor" method="OnEchoTimeout"]
 [connection signal="PointerClicked" from="UserInterface/VirtualPointer" to="PointerProjection" method="OnPointerClicked"]
 [connection signal="PointerMoved" from="UserInterface/VirtualPointer" to="PointerProjection" method="OnPointerMoved"]

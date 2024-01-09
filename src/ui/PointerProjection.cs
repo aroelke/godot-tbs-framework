@@ -1,11 +1,11 @@
 using Godot;
-using level.manager;
+using level.map;
 using ui.input;
 
-namespace level.ui;
+namespace ui;
 
 /// <summary>Projection of the pointer onto the map, for controlling the the camera and converting world/viewport positions.</summary>
-public partial class PointerProjection : Node2D, ILevelManaged
+public partial class PointerProjection : Node2D
 {
     /// <summary>Signals that the pointer projection has moved on the map.</summary>
     /// <param name="viewport">Current position on the viewport.</param>
@@ -17,12 +17,10 @@ public partial class PointerProjection : Node2D, ILevelManaged
     /// <param name="world">Position on the map of the click.</param>
     [Signal] public delegate void PointerClickedEventHandler(Vector2 viewport, Vector2 world);
 
-    private InputManager _inputManager = null;
+    private Grid _grid = null;
     private Camera2D _camera = null;
-    private LevelManager _levelManager = null;
     private Vector2 _viewportPosition = Vector2.Zero;
 
-    private InputManager InputManager => _inputManager ??= GetNode<InputManager>("/root/InputManager");
     private Camera2D Camera => _camera ??= GetNode<Camera2D>("Camera");
 
     /// <summary>
@@ -39,10 +37,25 @@ public partial class PointerProjection : Node2D, ILevelManaged
         }
     }
 
+    /// <summary>
+    /// Grid on which the pointer is projecting the mouse.  Setting it has side effects:
+    /// - Update the camera bounds to the edges of the grid
+    /// </summary>
+    [Export] public Grid Grid
+    {
+        get => _grid;
+        set
+        {
+            _grid = value;
+            if (_grid is not null)
+                UpdateCameraBounds(new Rect2I(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize)));
+        }
+    }
+
     /// <summary>Position of the pointer projection in the viewport.</summary>
     public Vector2 ViewportPosition
     {
-        get => LevelManager.GetGlobalTransform()*LevelManager.GetCanvasTransform()*Position;
+        get => WorldToViewport(Position);
         set => Warp(ViewportToWorld(value));
     }
 
@@ -53,15 +66,21 @@ public partial class PointerProjection : Node2D, ILevelManaged
         set => Warp(value);
     }
 
+    public void UpdateCameraBounds(Rect2I bounds)
+    {
+        (Camera.LimitTop, Camera.LimitLeft) = bounds.Position;
+        (Camera.LimitRight, Camera.LimitBottom) = bounds.Position + bounds.Size;
+    }
+
     /// <summary>Convert a position in the viewport to a position in the level.</summary>
     /// <param name="viewport">Viewport position.</param>
     /// <returns>Position in the level that's at the same place as the one in the viewport.</returns>
-    public Vector2 ViewportToWorld(Vector2 viewport) => (LevelManager.GetGlobalTransform()*LevelManager.GetCanvasTransform()).AffineInverse()*viewport;
+    public Vector2 ViewportToWorld(Vector2 viewport) => (Grid.GetGlobalTransform()*Grid.GetCanvasTransform()).AffineInverse()*viewport;
 
     /// <summary>Convert a position in the level to a position in the viewport.</summary>
     /// <param name="world">Level position.</param>
     /// <returns>Position in the viewport that's at the same place as the one in the level.</returns>
-    public Vector2 WorldToViewport(Vector2 world) => LevelManager.GetGlobalTransform()*LevelManager.GetCanvasTransform()*world;
+    public Vector2 WorldToViewport(Vector2 world) => Grid.GetGlobalTransform()*Grid.GetCanvasTransform()*world;
 
     /// <summary>Only smooth the camera when the cursor is controlled by the mouse.</summary>
     /// <param name="mode">Current input mode.</param>
@@ -71,7 +90,7 @@ public partial class PointerProjection : Node2D, ILevelManaged
     /// <param name="position">Position of the center of the cell to jump to.</param>
     public void OnCursorMoved(Vector2 position)
     {
-        if (InputManager.Mode == InputMode.Digital)
+        if (DeviceManager.Mode == InputMode.Digital)
             Warp(position);
     }
 
@@ -80,7 +99,7 @@ public partial class PointerProjection : Node2D, ILevelManaged
     public void OnPointerMoved(Vector2 viewport)
     {
         _viewportPosition = viewport;
-        if (InputManager.Mode != InputMode.Digital)
+        if (DeviceManager.Mode != InputMode.Digital)
             Warp(ViewportToWorld(_viewportPosition));
     }
 
@@ -88,29 +107,22 @@ public partial class PointerProjection : Node2D, ILevelManaged
     /// <param name="viewport">Position in the viewport of the click.</param>
     public void OnPointerClicked(Vector2 viewport) => EmitSignal(SignalName.PointerClicked, viewport, ViewportToWorld(viewport));
 
-    public LevelManager LevelManager => _levelManager ??= GetParent<LevelManager>();
-
     public override void _Ready()
     {
         base._Ready();
 
-        (Camera.LimitTop, Camera.LimitLeft) = Vector2I.Zero;
-        (Camera.LimitRight, Camera.LimitBottom) = (Vector2I)(LevelManager.GridSize*LevelManager.CellSize);
-        InputManager.InputModeChanged += OnInputModeChanged;
+        Grid = _grid; // Do any initialization needed based on the grid
+        DeviceManager.Singleton.InputModeChanged += OnInputModeChanged;
     }
 
     public override void _Process(double delta)
     {
         base._Process(delta);
 
-        switch (InputManager.Mode)
+        switch (DeviceManager.Mode)
         {
         case InputMode.Mouse:
-            Warp(InputManager.LastKnownPointerPosition switch
-            {
-                Vector2 pos => ViewportToWorld(pos),
-                null => LevelManager.GetLocalMousePosition()
-            });
+            Warp(ViewportToWorld(InputManager.GetMousePosition()));
             break;
         case InputMode.Analog:
             Warp(ViewportToWorld(_viewportPosition));

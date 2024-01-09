@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="Terrain" load_steps=2 format=3 uid="uid://bn6uq3ysywt60"]
 
-[ext_resource type="Script" path="res://src/level/map/terrain/Terrain.cs" id="1_3xvif"]
+[ext_resource type="Script" path="res://src/level/map/Terrain.cs" id="1_3xvif"]
 
 [resource]
 resource_name = "plain"
