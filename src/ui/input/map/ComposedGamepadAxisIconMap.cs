@@ -9,7 +9,7 @@ namespace ui.input.map;
 
 /// <summary>Resource mapping game pad axes to icons to display for them.</summary>
 [GlobalClass, Tool]
-public partial class GamepadAxisIconMap : Resource, IImmutableDictionary<JoyAxis, Texture2D>
+public partial class ComposedGamepadAxisIconMap : Resource, IImmutableDictionary<JoyAxis, Texture2D>
 {
     private IImmutableDictionary<JoyAxis, Texture2D> _map = null;
     private IImmutableDictionary<JoyAxis, Texture2D> Map => _map ??= Elements.ToImmutableDictionary((e) => e.Axis, (e) => e.Icon);

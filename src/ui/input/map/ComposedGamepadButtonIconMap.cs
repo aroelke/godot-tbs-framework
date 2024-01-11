@@ -9,7 +9,7 @@ namespace ui.input.map;
 
 /// <summary>Resource mapping game pad buttons to icons to display for them.</summary>
 [GlobalClass, Tool]
-public partial class GamepadButtonIconMap : Resource, IImmutableDictionary<JoyButton, Texture2D>
+public partial class ComposedGamepadButtonIconMap : Resource, IImmutableDictionary<JoyButton, Texture2D>
 {
     private ImmutableDictionary<JoyButton, Texture2D> _map = null;
     private ImmutableDictionary<JoyButton, Texture2D> Map => _map ??= Elements.ToImmutableDictionary((e) => e.Button, (e) => e.Icon);

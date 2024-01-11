@@ -28,11 +28,11 @@ public partial class CursorHintIcon : HBoxContainer
 
     /// <summary>Mapping of mouse action onto icon to display.</summary>
     [ExportGroup("Icon Maps")]
-    [Export] public MouseIconMap MouseMap = null;
+    [Export] public ComposedMouseIconMap MouseMap = null;
 
     /// <summary>Mapping of keyboard key onto icon to display.</summary>
     [ExportGroup("Icon Maps")]
-    [Export] public KeyIconMap KeyMap = null;
+    [Export] public ComposedKeyIconMap KeyMap = null;
 
     /// <summary>Name of the action for moving the cursor up.</summary>
     [ExportGroup("Actions")]

@@ -45,11 +45,11 @@ public partial class GamepadCursorHintIcon : HBoxContainer
 
     /// <summary>Mapping of game pad button on to icon to display.</summary>
     [ExportGroup("Icon Maps")]
-    [Export] public GamepadButtonIconMap ButtonMap = null;
+    [Export] public ComposedGamepadButtonIconMap ButtonMap = null;
 
     /// <summary>Mapping of game pad axis onto icon to display.</summary>
     [ExportGroup("Icon Maps")]
-    [Export] public GamepadAxisIconMap AxisMap = null;
+    [Export] public ComposedGamepadAxisIconMap AxisMap = null;
 
     /// <summary>Name of the action to move the cursor up.</summary>
     [ExportGroup("Actions")]

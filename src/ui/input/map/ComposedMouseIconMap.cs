@@ -9,7 +9,7 @@ namespace ui.input.map;
 
 /// <summary>Resource mapping mouse actions to icons to display for them.</summary>
 [GlobalClass, Tool]
-public partial class MouseIconMap : Resource, IImmutableDictionary<MouseButton, Texture2D>
+public partial class ComposedMouseIconMap : Resource, IImmutableDictionary<MouseButton, Texture2D>
 {
     private ImmutableDictionary<MouseButton, Texture2D> _map = null;
     private ImmutableDictionary<MouseButton, Texture2D> Map => _map ??= Elements.ToImmutableDictionary((e) => e.Button, (e) => e.Icon);

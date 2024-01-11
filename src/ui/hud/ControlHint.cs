@@ -35,15 +35,15 @@ public partial class ControlHint : HBoxContainer
 
     /// <summary>Mouse button map for the mouse input to the action.</summary>
     [ExportGroup("Action Maps")]
-    [Export] public MouseIconMap MouseMap = null;
+    [Export] public ComposedMouseIconMap MouseMap = null;
 
     /// <summary>Keyboard map for the keyboard input to the action.</summary>
     [ExportGroup("Action Maps")]
-    [Export] public KeyIconMap KeyMap = null;
+    [Export] public ComposedKeyIconMap KeyMap = null;
 
     /// <summary>Button map for the Playstation game pad input to the action.</summary>
     [ExportGroup("Action Maps")]
-    [Export] public GamepadButtonIconMap PlaystationMap = null;
+    [Export] public ComposedGamepadButtonIconMap PlaystationMap = null;
 
     /// <summary>Switch the device to use for the icon to display.</summary>
     public InputDevice SelectedDevice

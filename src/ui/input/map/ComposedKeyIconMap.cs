@@ -9,7 +9,7 @@ namespace ui.input.map;
 
 /// <summary>Resource mapping keyboard keys onto icons to display for them.</summary>
 [GlobalClass, Tool]
-public partial class KeyIconMap : Resource, IImmutableDictionary<Key, Texture2D>
+public partial class ComposedKeyIconMap : Resource, IImmutableDictionary<Key, Texture2D>
 {
     private ImmutableDictionary<Key, Texture2D> _map = null;
     private ImmutableDictionary<Key, Texture2D> Map => _map ??= Elements.ToImmutableDictionary((e) => e.Key, (e) => e.Icon);
