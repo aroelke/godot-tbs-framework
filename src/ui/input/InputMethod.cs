@@ -5,7 +5,7 @@ public enum InputDevice
 {
     Mouse,
     Keyboard,
-    Playstation
+    Gamepad
 }
 
 /// <summary>Types of supported input modes.</summary>

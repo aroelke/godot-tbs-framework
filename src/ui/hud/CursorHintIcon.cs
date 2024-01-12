@@ -78,7 +78,7 @@ public partial class CursorHintIcon : HBoxContainer
             {
                 { InputDevice.Mouse, MouseIcon },
                 { InputDevice.Keyboard, KeyboardIcon },
-                { InputDevice.Playstation, PlaystationIcon }
+                { InputDevice.Gamepad, PlaystationIcon }
             };
             SelectedDevice = DeviceManager.Device;
             DeviceManager.Singleton.InputDeviceChanged += OnInputDeviceChanged;

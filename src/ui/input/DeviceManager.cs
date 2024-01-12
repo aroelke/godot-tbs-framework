@@ -60,11 +60,12 @@ public partial class DeviceManager : Node
             Mode = InputMode.Digital;
             break;
         case InputEventJoypadButton:
-            Device = InputDevice.Playstation;
+            foreach (int d in Input.GetConnectedJoypads())
+            Device = InputDevice.Gamepad;
             Mode = InputMode.Digital;
             break;
         case InputEventJoypadMotion when InputManager.GetAnalogVector() != Vector2.Zero:
-            Device = InputDevice.Playstation;
+            Device = InputDevice.Gamepad;
             Mode = InputMode.Analog;
             break;
         }
