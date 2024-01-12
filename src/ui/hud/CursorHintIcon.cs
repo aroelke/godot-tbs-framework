@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Godot;
+using ui.Device.Icons;
 using ui.input;
-using ui.input.map;
 
 namespace ui.hud;
 
@@ -28,11 +28,11 @@ public partial class CursorHintIcon : HBoxContainer
 
     /// <summary>Mapping of mouse action onto icon to display.</summary>
     [ExportGroup("Icon Maps")]
-    [Export] public ComposedMouseIconMap MouseMap = null;
+    [Export] public MouseIconMap MouseMap = null;
 
     /// <summary>Mapping of keyboard key onto icon to display.</summary>
     [ExportGroup("Icon Maps")]
-    [Export] public ComposedKeyIconMap KeyMap = null;
+    [Export] public KeyIconMap KeyMap = null;
 
     /// <summary>Name of the action for moving the cursor up.</summary>
     [ExportGroup("Actions")]

@@ -1,12 +1,23 @@
-[gd_scene load_steps=3 format=3 uid="uid://dar0v4k4aqvpv"]
+[gd_scene load_steps=12 format=3 uid="uid://dar0v4k4aqvpv"]
 
 [ext_resource type="Script" path="res://src/ui/hud/CursorHintIcon.cs" id="1_dpl76"]
+[ext_resource type="Resource" uid="uid://37pcc5c7cogr" path="res://src/ui/Device/Icons/MouseIconMap.tres" id="2_yewpe"]
+[ext_resource type="Resource" uid="uid://q61hgr3qsv4g" path="res://src/ui/Device/Icons/KeyIconMap.tres" id="3_ahjxs"]
+[ext_resource type="Resource" uid="uid://ca444m32ts5x2" path="res://src/ui/Device/Icons/PlaystationButtonIconMap.tres" id="3_dlxty"]
+[ext_resource type="Texture2D" uid="uid://xnouovy7cud3" path="res://assets/ui/icons/controls/mouse/mouse.png" id="4_gth6f"]
+[ext_resource type="Resource" uid="uid://cjhpklpgfx1y2" path="res://src/ui/Device/Icons/PlaystationAxisIconMap.tres" id="4_krgn7"]
+[ext_resource type="Texture2D" uid="uid://bvbkwcurpgl68" path="res://assets/ui/icons/controls/keyboard/up.png" id="5_fkgdo"]
+[ext_resource type="Texture2D" uid="uid://b22lemesaffkm" path="res://assets/ui/icons/controls/keyboard/left.png" id="6_j664w"]
+[ext_resource type="Texture2D" uid="uid://dnxdklj5eo2mi" path="res://assets/ui/icons/controls/keyboard/down.png" id="7_fio0j"]
+[ext_resource type="Texture2D" uid="uid://dedquyam7p1qb" path="res://assets/ui/icons/controls/keyboard/right.png" id="8_27se1"]
 [ext_resource type="PackedScene" uid="uid://cpswnx0irecoi" path="res://src/ui/hud/GamepadCursorHintIcon.tscn" id="9_eitd7"]
 
 [node name="CursorHintIcon" type="HBoxContainer"]
 offset_right = 15.0
 offset_bottom = 28.0
 script = ExtResource("1_dpl76")
+MouseMap = ExtResource("2_yewpe")
+KeyMap = ExtResource("3_ahjxs")
 UpAction = "cursor_digital_up"
 LeftAction = "cursor_digital_left"
 DownAction = "cursor_digital_down"
@@ -16,6 +27,7 @@ AnalogAction = "cursor_analog_up"
 [node name="Mouse" type="TextureRect" parent="."]
 layout_mode = 2
 size_flags_vertical = 4
+texture = ExtResource("4_gth6f")
 stretch_mode = 3
 
 [node name="Keyboard" type="GridContainer" parent="."]
@@ -30,6 +42,7 @@ layout_mode = 2
 
 [node name="Up" type="TextureRect" parent="Keyboard"]
 layout_mode = 2
+texture = ExtResource("5_fkgdo")
 stretch_mode = 3
 
 [node name="Empty1" type="TextureRect" parent="Keyboard"]
@@ -37,18 +50,23 @@ layout_mode = 2
 
 [node name="Left" type="TextureRect" parent="Keyboard"]
 layout_mode = 2
+texture = ExtResource("6_j664w")
 stretch_mode = 3
 
 [node name="Down" type="TextureRect" parent="Keyboard"]
 layout_mode = 2
+texture = ExtResource("7_fio0j")
 stretch_mode = 3
 
 [node name="Right" type="TextureRect" parent="Keyboard"]
 layout_mode = 2
+texture = ExtResource("8_27se1")
 stretch_mode = 3
 
 [node name="Playstation" parent="." instance=ExtResource("9_eitd7")]
 layout_mode = 2
+ButtonMap = ExtResource("3_dlxty")
+AxisMap = ExtResource("4_krgn7")
 UpAction = "cursor_digital_up"
 LeftAction = "cursor_digital_left"
 DownAction = "cursor_digital_down"

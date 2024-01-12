@@ -1,6 +1,6 @@
 using Godot;
+using ui.Device.Icons;
 using ui.input;
-using ui.input.map;
 
 namespace ui.hud;
 
@@ -45,11 +45,11 @@ public partial class GamepadCursorHintIcon : HBoxContainer
 
     /// <summary>Mapping of game pad button on to icon to display.</summary>
     [ExportGroup("Icon Maps")]
-    [Export] public ComposedGamepadButtonIconMap ButtonMap = null;
+    [Export] public IndividualGamepadButtonIconMap ButtonMap = null;
 
     /// <summary>Mapping of game pad axis onto icon to display.</summary>
     [ExportGroup("Icon Maps")]
-    [Export] public ComposedGamepadAxisIconMap AxisMap = null;
+    [Export] public IndividualGamepadAxisIconMap AxisMap = null;
 
     /// <summary>Name of the action to move the cursor up.</summary>
     [ExportGroup("Actions")]

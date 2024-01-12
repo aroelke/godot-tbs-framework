@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Godot;
+using ui.Device.Icons;
 using ui.input;
-using ui.input.map;
 
 namespace ui.hud;
 
@@ -35,15 +35,15 @@ public partial class ControlHint : HBoxContainer
 
     /// <summary>Mouse button map for the mouse input to the action.</summary>
     [ExportGroup("Action Maps")]
-    [Export] public ComposedMouseIconMap MouseMap = null;
+    [Export] public MouseIconMap MouseMap = null;
 
     /// <summary>Keyboard map for the keyboard input to the action.</summary>
     [ExportGroup("Action Maps")]
-    [Export] public ComposedKeyIconMap KeyMap = null;
+    [Export] public KeyIconMap KeyMap = null;
 
     /// <summary>Button map for the Playstation game pad input to the action.</summary>
     [ExportGroup("Action Maps")]
-    [Export] public ComposedGamepadButtonIconMap PlaystationMap = null;
+    [Export] public IndividualGamepadButtonIconMap PlaystationMap = null;
 
     /// <summary>Switch the device to use for the icon to display.</summary>
     public InputDevice SelectedDevice
