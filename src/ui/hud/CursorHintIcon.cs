@@ -66,7 +66,7 @@ public partial class CursorHintIcon : HBoxContainer
 
     /// <summary>When the input changes, switch the icon to the correct device.</summary>
     /// <param name="device">New input device.</param>
-    public void OnInputDeviceChanged(InputDevice device) => SelectedDevice = device;
+    public void OnInputDeviceChanged(InputDevice device, StringName name) => SelectedDevice = device;
 
     public override void _Ready()
     {

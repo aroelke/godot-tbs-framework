@@ -57,7 +57,7 @@ public partial class ControlHint : HBoxContainer
 
     /// <summary>When the input mode changes, also update the icon.</summary>
     /// <param name="device">New device being used for input.</param>
-    public void OnInputDeviceChanged(InputDevice device) => SelectedDevice = device;
+    public void OnInputDeviceChanged(InputDevice device, StringName name) => SelectedDevice = device;
 
     public override void _Ready()
     {

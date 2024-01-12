@@ -7,15 +7,31 @@ public partial class DeviceManager : Node
 {
     /// <summary>Signals that the input device has changed.</summary>
     /// <param name="device">New input device.</param>
-    [Signal] public delegate void InputDeviceChangedEventHandler(InputDevice device);
+    [Signal] public delegate void InputDeviceChangedEventHandler(InputDevice device, StringName name);
 
     /// <summary>Signals that the input mode has changed.</summary>
     /// <param name="mode">New input mode</param>
     [Signal] public delegate void InputModeChangedEventHandler(InputMode mode);
 
     private static InputDevice _device = InputDevice.Keyboard;
+    private static StringName _name = "";
     private static InputMode _mode = InputMode.Digital;
     private static DeviceManager _singleton = null;
+
+    /// <summary>Ensures that <c>InputDeviceChanged</c> is only fired once when either the device and/or device name change.</summary>
+    /// <param name="device">New input device.</param>
+    /// <param name="name">New input device name.</param>
+    private static void UpdateDevice(InputDevice device, StringName name)
+    {
+        InputDevice oldDevice = _device;
+        StringName oldName = _name;
+
+        _device = device;
+        _name = name;
+
+        if (_device != oldDevice || _name != oldName)
+            Singleton.EmitSignal(SignalName.InputDeviceChanged, Variant.From(_device), _name);
+    }
 
     /// <summary>Reference to the autoloaded <c>DeviceManager</c> node so its signals can be connected.</summary>
     public static DeviceManager Singleton => _singleton ??= ((SceneTree)Engine.GetMainLoop()).Root.GetNode<DeviceManager>("DeviceManager");
@@ -24,13 +40,14 @@ public partial class DeviceManager : Node
     public static InputDevice Device
     {
         get => _device;
-        set
-        {
-            InputDevice old = _device;
-            _device = value;
-            if (_device != old)
-                Singleton.EmitSignal(SignalName.InputDeviceChanged, Variant.From(_device));
-        }
+        set => UpdateDevice(value, _name);
+    }
+
+    /// <summary>The name of the current input device if it's a gamepad, or the empty string if it's not.</summary>
+    public static StringName DeviceName
+    {
+        get => _name;
+        set => UpdateDevice(_device, _name);
     }
 
     /// <summary>The current input mode.</summary>
@@ -52,20 +69,19 @@ public partial class DeviceManager : Node
         switch (@event)
         {
         case InputEventMouse:
-            Device = InputDevice.Mouse;
+            UpdateDevice(InputDevice.Mouse, "");
             Mode = InputMode.Mouse;
             break;
         case InputEventKey:
-            Device = InputDevice.Keyboard;
+            UpdateDevice(InputDevice.Keyboard, "");
             Mode = InputMode.Digital;
             break;
         case InputEventJoypadButton:
-            foreach (int d in Input.GetConnectedJoypads())
-            Device = InputDevice.Gamepad;
+            UpdateDevice(InputDevice.Gamepad, Input.GetJoyName(0));
             Mode = InputMode.Digital;
             break;
         case InputEventJoypadMotion when InputManager.GetAnalogVector() != Vector2.Zero:
-            Device = InputDevice.Gamepad;
+            UpdateDevice(InputDevice.Gamepad, Input.GetJoyName(0));
             Mode = InputMode.Analog;
             break;
         }
