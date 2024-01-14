@@ -10,11 +10,11 @@ namespace ui.hud;
 public partial class ControlHint : HBoxContainer
 {
     private Dictionary<InputDevice, TextureRect> _icons = new();
-    private TextureRect _mouseIcon = null, _keyIcon = null, _playstationIcon = null;
+    private TextureRect _mouseIcon = null, _keyIcon = null, _gamepadIcon = null;
 
     private TextureRect MouseIcon => _mouseIcon ??= GetNode<TextureRect>("Mouse");
     private TextureRect KeyboardIcon => _keyIcon ??= GetNode<TextureRect>("Keyboard");
-    private TextureRect PlaystationIcon => _playstationIcon ??= GetNode<TextureRect>("Playstation");
+    private TextureRect GamepadIcon => _gamepadIcon ??= GetNode<TextureRect>("Gamepad");
 
     private void Update()
     {
@@ -25,7 +25,7 @@ public partial class ControlHint : HBoxContainer
         KeyboardIcon.Texture = KeyMap is null || !KeyMap.ContainsKey(k) ? null : KeyMap[k];
 
         JoyButton pb = InputManager.GetInputGamepadButton(InputAction);
-        PlaystationIcon.Texture = PlaystationMap is null || !PlaystationMap.ContainsKey(pb) ? null : PlaystationMap[pb];
+        GamepadIcon.Texture = GamepadMap is null || !GamepadMap.ContainsKey(pb) ? null : GamepadMap[pb];
 
         GetNode<Label>("Label").Text = $": {InputAction}";
     }
@@ -43,7 +43,7 @@ public partial class ControlHint : HBoxContainer
 
     /// <summary>Button map for the Playstation game pad input to the action.</summary>
     [ExportGroup("Action Maps")]
-    [Export] public IndividualGamepadButtonIconMap PlaystationMap = null;
+    [Export] public GamepadButtonIconMap GamepadMap = null;
 
     /// <summary>Switch the device to use for the icon to display.</summary>
     public InputDevice SelectedDevice
@@ -57,7 +57,7 @@ public partial class ControlHint : HBoxContainer
 
     /// <summary>When the input mode changes, also update the icon.</summary>
     /// <param name="device">New device being used for input.</param>
-    public void OnInputDeviceChanged(InputDevice device, StringName name) => SelectedDevice = device;
+    public void OnInputDeviceChanged(InputDevice device, string name) => SelectedDevice = device;
 
     public override void _Ready()
     {
@@ -68,7 +68,7 @@ public partial class ControlHint : HBoxContainer
             {
                 { InputDevice.Mouse, MouseIcon },
                 { InputDevice.Keyboard, KeyboardIcon },
-                { InputDevice.Gamepad, PlaystationIcon }
+                { InputDevice.Gamepad, GamepadIcon }
             };
             SelectedDevice = DeviceManager.Device;
             DeviceManager.Singleton.InputDeviceChanged += OnInputDeviceChanged;

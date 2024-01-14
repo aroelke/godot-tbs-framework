@@ -7,24 +7,24 @@ public partial class DeviceManager : Node
 {
     /// <summary>Signals that the input device has changed.</summary>
     /// <param name="device">New input device.</param>
-    [Signal] public delegate void InputDeviceChangedEventHandler(InputDevice device, StringName name);
+    [Signal] public delegate void InputDeviceChangedEventHandler(InputDevice device, string name);
 
     /// <summary>Signals that the input mode has changed.</summary>
     /// <param name="mode">New input mode</param>
     [Signal] public delegate void InputModeChangedEventHandler(InputMode mode);
 
     private static InputDevice _device = InputDevice.Keyboard;
-    private static StringName _name = "";
+    private static string _name = "";
     private static InputMode _mode = InputMode.Digital;
     private static DeviceManager _singleton = null;
 
     /// <summary>Ensures that <c>InputDeviceChanged</c> is only fired once when either the device and/or device name change.</summary>
     /// <param name="device">New input device.</param>
     /// <param name="name">New input device name.</param>
-    private static void UpdateDevice(InputDevice device, StringName name)
+    private static void UpdateDevice(InputDevice device, string name)
     {
         InputDevice oldDevice = _device;
-        StringName oldName = _name;
+        string oldName = _name;
 
         _device = device;
         _name = name;
@@ -44,7 +44,7 @@ public partial class DeviceManager : Node
     }
 
     /// <summary>The name of the current input device if it's a gamepad, or the empty string if it's not.</summary>
-    public static StringName DeviceName
+    public static string DeviceName
     {
         get => _name;
         set => UpdateDevice(_device, _name);

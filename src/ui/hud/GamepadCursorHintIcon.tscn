@@ -1,11 +1,16 @@
-[gd_scene load_steps=2 format=3 uid="uid://cpswnx0irecoi"]
+[gd_scene load_steps=5 format=3 uid="uid://cpswnx0irecoi"]
 
 [ext_resource type="Script" path="res://src/ui/hud/GamepadCursorHintIcon.cs" id="1_bv3pa"]
+[ext_resource type="Resource" uid="uid://c27jd22jjxlu4" path="res://src/ui/Device/Icons/GamepadButtonIconMap.tres" id="2_2jyj0"]
+[ext_resource type="Resource" uid="uid://rlgg8mn3bshl" path="res://src/ui/Device/Icons/GamepadAxisIconMap.tres" id="3_psk7e"]
+[ext_resource type="Texture2D" uid="uid://dwrg3c6m2yegj" path="res://assets/ui/icons/controls/playstation/dpad.png" id="4_45n1b"]
 
 [node name="GamepadCursorHintIcon" type="HBoxContainer"]
 offset_right = 12.0
 offset_bottom = 8.0
 script = ExtResource("1_bv3pa")
+ButtonMap = ExtResource("2_2jyj0")
+AxisMap = ExtResource("3_psk7e")
 
 [node name="Individual" type="GridContainer" parent="."]
 layout_mode = 2
@@ -46,6 +51,7 @@ layout_mode = 2
 
 [node name="Unified" type="TextureRect" parent="."]
 layout_mode = 2
+texture = ExtResource("4_45n1b")
 stretch_mode = 3
 
 [node name="Slash" type="Label" parent="."]

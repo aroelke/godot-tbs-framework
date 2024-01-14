@@ -12,7 +12,7 @@ public partial class CursorHintIcon : HBoxContainer
     private TextureRect _mouseIcon = null;
     private GridContainer _keyboardIcon = null;
     private TextureRect _upKeyIcon = null, _leftKeyIcon = null, _downKeyIcon = null, _rightKeyIcon = null;
-    private GamepadCursorHintIcon _playstationIcon = null;
+    private GamepadCursorHintIcon _gamepadIcon = null;
 
     private Dictionary<InputDevice, Control> _icons = new();
 
@@ -22,7 +22,7 @@ public partial class CursorHintIcon : HBoxContainer
     private TextureRect LeftKeyIcon => _leftKeyIcon ??= GetNode<TextureRect>("Keyboard/Left");
     private TextureRect DownKeyIcon => _downKeyIcon ??= GetNode<TextureRect>("Keyboard/Down");
     private TextureRect RightKeyIcon => _rightKeyIcon = GetNode<TextureRect>("Keyboard/Right");
-    private GamepadCursorHintIcon PlaystationIcon => _playstationIcon ??= GetNode<GamepadCursorHintIcon>("Playstation");
+    private GamepadCursorHintIcon GamepadIcon => _gamepadIcon ??= GetNode<GamepadCursorHintIcon>("Gamepad");
 
     private Texture2D GetKeyIcon(Key key) => KeyMap is not null && KeyMap.ContainsKey(key) ? KeyMap[key] : null;
 
@@ -66,7 +66,7 @@ public partial class CursorHintIcon : HBoxContainer
 
     /// <summary>When the input changes, switch the icon to the correct device.</summary>
     /// <param name="device">New input device.</param>
-    public void OnInputDeviceChanged(InputDevice device, StringName name) => SelectedDevice = device;
+    public void OnInputDeviceChanged(InputDevice device, string name) => SelectedDevice = device;
 
     public override void _Ready()
     {
@@ -78,7 +78,7 @@ public partial class CursorHintIcon : HBoxContainer
             {
                 { InputDevice.Mouse, MouseIcon },
                 { InputDevice.Keyboard, KeyboardIcon },
-                { InputDevice.Gamepad, PlaystationIcon }
+                { InputDevice.Gamepad, GamepadIcon }
             };
             SelectedDevice = DeviceManager.Device;
             DeviceManager.Singleton.InputDeviceChanged += OnInputDeviceChanged;
@@ -97,11 +97,11 @@ public partial class CursorHintIcon : HBoxContainer
 
             MouseIcon.Texture = MouseMap?.Motion;
 
-            PlaystationIcon.UpAction = UpAction;
-            PlaystationIcon.LeftAction = LeftAction;
-            PlaystationIcon.DownAction = DownAction;
-            PlaystationIcon.RightAction = RightAction;
-            PlaystationIcon.AnalogAction = AnalogAction;
+            GamepadIcon.UpAction = UpAction;
+            GamepadIcon.LeftAction = LeftAction;
+            GamepadIcon.DownAction = DownAction;
+            GamepadIcon.RightAction = RightAction;
+            GamepadIcon.AnalogAction = AnalogAction;
         }
     }
 }

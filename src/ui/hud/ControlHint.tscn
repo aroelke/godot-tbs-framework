@@ -1,9 +1,15 @@
-[gd_scene load_steps=2 format=3 uid="uid://btlhiv0dyhf7o"]
+[gd_scene load_steps=5 format=3 uid="uid://btlhiv0dyhf7o"]
 
 [ext_resource type="Script" path="res://src/ui/hud/ControlHint.cs" id="1_inwum"]
+[ext_resource type="Resource" uid="uid://37pcc5c7cogr" path="res://src/ui/Device/Icons/MouseIconMap.tres" id="2_o4tgs"]
+[ext_resource type="Resource" uid="uid://q61hgr3qsv4g" path="res://src/ui/Device/Icons/KeyIconMap.tres" id="3_wgum8"]
+[ext_resource type="Resource" uid="uid://c27jd22jjxlu4" path="res://src/ui/Device/Icons/GamepadButtonIconMap.tres" id="4_7dps6"]
 
 [node name="ControlHint" type="HBoxContainer"]
 script = ExtResource("1_inwum")
+MouseMap = ExtResource("2_o4tgs")
+KeyMap = ExtResource("3_wgum8")
+GamepadMap = ExtResource("4_7dps6")
 
 [node name="Mouse" type="TextureRect" parent="."]
 layout_mode = 2
@@ -13,7 +19,7 @@ stretch_mode = 3
 layout_mode = 2
 stretch_mode = 3
 
-[node name="Playstation" type="TextureRect" parent="."]
+[node name="Gamepad" type="TextureRect" parent="."]
 layout_mode = 2
 stretch_mode = 3
 
