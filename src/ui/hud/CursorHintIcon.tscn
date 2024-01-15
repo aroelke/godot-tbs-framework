@@ -63,11 +63,6 @@ stretch_mode = 3
 
 [node name="Gamepad" parent="." instance=ExtResource("9_eitd7")]
 layout_mode = 2
-UpAction = "cursor_digital_up"
-LeftAction = "cursor_digital_left"
-DownAction = "cursor_digital_down"
-RightAction = "cursor_digital_right"
-AnalogAction = "cursor_analog_up"
 
 [node name="Action" type="Label" parent="."]
 layout_mode = 2

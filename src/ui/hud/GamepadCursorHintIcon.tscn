@@ -1,9 +1,14 @@
-[gd_scene load_steps=5 format=3 uid="uid://cpswnx0irecoi"]
+[gd_scene load_steps=10 format=3 uid="uid://cpswnx0irecoi"]
 
 [ext_resource type="Script" path="res://src/ui/hud/GamepadCursorHintIcon.cs" id="1_bv3pa"]
 [ext_resource type="Resource" uid="uid://c27jd22jjxlu4" path="res://src/ui/Device/Icons/GamepadButtonIconMap.tres" id="2_2jyj0"]
 [ext_resource type="Resource" uid="uid://rlgg8mn3bshl" path="res://src/ui/Device/Icons/GamepadAxisIconMap.tres" id="3_psk7e"]
 [ext_resource type="Texture2D" uid="uid://dwrg3c6m2yegj" path="res://assets/ui/icons/controls/playstation/dpad.png" id="4_45n1b"]
+[ext_resource type="Texture2D" uid="uid://b8opi1ojes3lf" path="res://assets/ui/icons/controls/playstation/dpadup.png" id="4_u7tsy"]
+[ext_resource type="Texture2D" uid="uid://ddo2e8y4xxywf" path="res://assets/ui/icons/controls/playstation/dpadleft.png" id="5_r38or"]
+[ext_resource type="Texture2D" uid="uid://x210tjc0p8u6" path="res://assets/ui/icons/controls/playstation/dpadright.png" id="6_c1qa1"]
+[ext_resource type="Texture2D" uid="uid://rvicv7mk4e0b" path="res://assets/ui/icons/controls/playstation/dpaddown.png" id="7_jd6cb"]
+[ext_resource type="Texture2D" uid="uid://cgyr5p8sm8ypi" path="res://assets/ui/icons/controls/playstation/left_stick.png" id="9_55pfk"]
 
 [node name="GamepadCursorHintIcon" type="HBoxContainer"]
 offset_right = 12.0
@@ -11,6 +16,11 @@ offset_bottom = 8.0
 script = ExtResource("1_bv3pa")
 ButtonMap = ExtResource("2_2jyj0")
 AxisMap = ExtResource("3_psk7e")
+UpAction = "cursor_digital_up"
+LeftAction = "cursor_digital_left"
+DownAction = "cursor_digital_down"
+RightAction = "cursor_digital_right"
+AnalogAction = "cursor_analog_up"
 
 [node name="Individual" type="GridContainer" parent="."]
 layout_mode = 2
@@ -23,6 +33,7 @@ layout_mode = 2
 
 [node name="Up" type="TextureRect" parent="Individual"]
 layout_mode = 2
+texture = ExtResource("4_u7tsy")
 stretch_mode = 3
 
 [node name="EmptyNE" type="TextureRect" parent="Individual"]
@@ -30,6 +41,7 @@ layout_mode = 2
 
 [node name="Left" type="TextureRect" parent="Individual"]
 layout_mode = 2
+texture = ExtResource("5_r38or")
 stretch_mode = 3
 
 [node name="Empty" type="TextureRect" parent="Individual"]
@@ -37,6 +49,7 @@ layout_mode = 2
 
 [node name="Right" type="TextureRect" parent="Individual"]
 layout_mode = 2
+texture = ExtResource("6_c1qa1")
 stretch_mode = 3
 
 [node name="EmptySW" type="TextureRect" parent="Individual"]
@@ -44,6 +57,7 @@ layout_mode = 2
 
 [node name="Down" type="TextureRect" parent="Individual"]
 layout_mode = 2
+texture = ExtResource("7_jd6cb")
 stretch_mode = 3
 
 [node name="EmptySE" type="TextureRect" parent="Individual"]
@@ -60,4 +74,5 @@ text = "/"
 
 [node name="Analog" type="TextureRect" parent="."]
 layout_mode = 2
+texture = ExtResource("9_55pfk")
 stretch_mode = 3
