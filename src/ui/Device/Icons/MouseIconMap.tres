@@ -6,5 +6,5 @@
 
 [resource]
 script = ExtResource("1_0l3k7")
-Left = ExtResource("1_28xcu")
 Motion = ExtResource("2_tm3ch")
+Left = ExtResource("1_28xcu")

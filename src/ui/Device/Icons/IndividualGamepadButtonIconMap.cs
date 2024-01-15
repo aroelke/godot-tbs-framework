@@ -20,38 +20,60 @@ public partial class IndividualGamepadButtonIconMap : Resource
     /// <summary>Generic icon to display for the directional pad, with no directions pressed.</summary>
     [Export] public Texture2D Dpad = null;
 
-    public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
+    /// <summary>South action button icon.</summary>
+    [Export] public Texture2D South
     {
-        Godot.Collections.Array<Godot.Collections.Dictionary> properties = new()
-        {
-            new ()
-            {
-                { "name", "IndividualGamepadButtonIconMap" },
-                { "type", Variant.From(Variant.Type.Nil) },
-                { "usage", Variant.From(PropertyUsageFlags.Category) }
-            }
-        };
-        properties.AddRange(Enum.GetNames<JoyButton>().Select((n) => new Godot.Collections.Dictionary()
-        {
-            { "name", n },
-            { "type", Variant.From(Variant.Type.Object) },
-            { "hint", Variant.From(PropertyHint.ResourceType) },
-            { "hint_string", "Texture2D" }
-        }));
-        return properties;
+        get => _icons[JoyButton.A];
+        set => _icons[JoyButton.A] = value;
     }
 
-    public override Variant _Get(StringName property) => _names.ContainsKey(property) ? _icons[_names[property]] : default;
-
-    public override bool _Set(StringName property, Variant value)
+    /// <summary>East action button icon.</summary>
+    [Export] public Texture2D East
     {
-        if (_names.ContainsKey(property))
-        {
-            _icons[_names[property]] = value.As<Texture2D>();
-            return true;
-        }
-        else
-            return false;
+        get => _icons[JoyButton.B];
+        set => _icons[JoyButton.B] = value;
+    }
+
+    /// <summary>West action button icon.</summary>
+    [Export] public Texture2D West
+    {
+        get => _icons[JoyButton.X];
+        set => _icons[JoyButton.X] = value;
+    }
+
+    /// <summary>North action button icon.</summary>
+    [Export] public Texture2D North
+    {
+        get => _icons[JoyButton.Y];
+        set => _icons[JoyButton.Y] = value;
+    }
+
+    /// <summary>Directional pad up icon.</summary>
+    [Export] public Texture2D DpadUp
+    {
+        get => _icons[JoyButton.DpadUp];
+        set => _icons[JoyButton.DpadUp] = value;
+    }
+
+    /// <summary>Directional pad down icon.</summary>
+    [Export] public Texture2D DpadDown
+    {
+        get => _icons[JoyButton.DpadDown];
+        set => _icons[JoyButton.DpadDown] = value;
+    }
+
+    /// <summary>Directional pad left icon.</summary>
+    [Export] public Texture2D DpadLeft
+    {
+        get => _icons[JoyButton.DpadLeft];
+        set => _icons[JoyButton.DpadLeft] = value;
+    }
+
+    /// <summary>Directional pad right icon.</summary>
+    [Export] public Texture2D DpadRight
+    {
+        get => _icons[JoyButton.DpadRight];
+        set => _icons[JoyButton.DpadRight] = value;
     }
 
     public bool ContainsKey(JoyButton key) => _icons.ContainsKey(key);

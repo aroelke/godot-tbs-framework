@@ -13,12 +13,12 @@
 
 [resource]
 script = ExtResource("1_f34yc")
-A = ExtResource("1_y6dub")
-B = ExtResource("2_ej2ps")
-X = ExtResource("8_mue74")
-Y = ExtResource("9_bnll3")
+Dpad = ExtResource("3_j32j4")
+South = ExtResource("1_y6dub")
+East = ExtResource("2_ej2ps")
+West = ExtResource("8_mue74")
+North = ExtResource("9_bnll3")
 DpadUp = ExtResource("7_14col")
 DpadDown = ExtResource("4_y06h3")
 DpadLeft = ExtResource("5_b61v4")
 DpadRight = ExtResource("6_6egw1")
-Dpad = ExtResource("3_j32j4")

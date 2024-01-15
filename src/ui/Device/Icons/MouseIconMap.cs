@@ -20,38 +20,11 @@ public partial class MouseIconMap : Resource
     /// <summary>Icon to display for mouse motion.</summary>
     [Export] public Texture2D Motion = null;
 
-    public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
+    /// <summary>Left click icon.</summary>
+    [Export] public Texture2D Left
     {
-        Godot.Collections.Array<Godot.Collections.Dictionary> properties = new()
-        {
-            new ()
-            {
-                { "name", "MouseIconMap" },
-                { "type", Variant.From(Variant.Type.Nil) },
-                { "usage", Variant.From(PropertyUsageFlags.Category) }
-            }
-        };
-        properties.AddRange(Enum.GetNames<MouseButton>().Select((n) => new Godot.Collections.Dictionary()
-        {
-            { "name", n },
-            { "type", Variant.From(Variant.Type.Object) },
-            { "hint", Variant.From(PropertyHint.ResourceType) },
-            { "hint_string", "Texture2D" }
-        }));
-        return properties;
-    }
-
-    public override Variant _Get(StringName property) => _names.ContainsKey(property) ? _icons[_names[property]] : default;
-
-    public override bool _Set(StringName property, Variant value)
-    {
-        if (_names.ContainsKey(property))
-        {
-            _icons[_names[property]] = value.As<Texture2D>();
-            return true;
-        }
-        else
-            return false;
+        get => _icons[MouseButton.Left];
+        set => _icons[MouseButton.Left] = value;
     }
 
     public bool ContainsKey(MouseButton key) => _icons.ContainsKey(key);

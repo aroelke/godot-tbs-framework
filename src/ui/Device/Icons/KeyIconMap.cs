@@ -17,38 +17,67 @@ public partial class KeyIconMap : Resource
     public int Count => _icons.Count;
     public Texture2D this[Key key] { get => _icons[key]; set => _icons[key] = value; }
 
-    public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
+    /// <summary>Space bar icon.</summary>
+    [Export] public Texture2D Space
     {
-        Godot.Collections.Array<Godot.Collections.Dictionary> properties = new()
-        {
-            new ()
-            {
-                { "name", "KeyIconMap" },
-                { "type", Variant.From(Variant.Type.Nil) },
-                { "usage", Variant.From(PropertyUsageFlags.Category) }
-            }
-        };
-        properties.AddRange(Enum.GetNames<Key>().Select((n) => new Godot.Collections.Dictionary()
-        {
-            { "name", n },
-            { "type", Variant.From(Variant.Type.Object) },
-            { "hint", Variant.From(PropertyHint.ResourceType) },
-            { "hint_string", "Texture2D" }
-        }));
-        return properties;
+        get => _icons[Key.Space];
+        set => _icons[Key.Space] = value;
     }
 
-    public override Variant _Get(StringName property) => _names.ContainsKey(property) ? _icons[_names[property]] : default;
-
-    public override bool _Set(StringName property, Variant value)
+    /// <summary>'A' key icon.</summary>
+    [Export] public Texture2D A
     {
-        if (_names.ContainsKey(property))
-        {
-            _icons[_names[property]] = value.As<Texture2D>();
-            return true;
-        }
-        else
-            return false;
+        get => _icons[Key.A];
+        set => _icons[Key.A] = value;
+    }
+
+    /// <summary>'D' key icon.</summary>
+    [Export] public Texture2D D
+    {
+        get => _icons[Key.D];
+        set => _icons[Key.D] = value;
+    }
+
+    /// <summary>'S' key icon.</summary>
+    [Export] public Texture2D S
+    {
+        get => _icons[Key.S];
+        set => _icons[Key.S] = value;
+    }
+
+    /// <summary>'W' key icon.</summary>
+    [Export] public Texture2D W
+    {
+        get => _icons[Key.W];
+        set => _icons[Key.W] = value;
+    }
+
+    /// <summary>Left arrow key icon.</summary>
+    [Export] public Texture2D Left
+    {
+        get => _icons[Key.Left];
+        set => _icons[Key.Left] = value;
+    }
+
+    /// <summary>Up arrow key icon.</summary>
+    [Export] public Texture2D Up
+    {
+        get => _icons[Key.Up];
+        set => _icons[Key.Up] = value;
+    }
+
+    /// <summary>Right arrow key icon.</summary>
+    [Export] public Texture2D Right
+    {
+        get => _icons[Key.Right];
+        set => _icons[Key.Right] = value;
+    }
+
+    /// <summary>Down arrow key icon.</summary>
+    [Export] public Texture2D Down
+    {
+        get => _icons[Key.Down];
+        set => _icons[Key.Down] = value;
     }
 
     public bool ContainsKey(Key key) => _icons.ContainsKey(key);
