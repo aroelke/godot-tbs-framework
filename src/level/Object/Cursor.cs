@@ -44,12 +44,11 @@ public partial class Cursor : GridNode
     }
 
     /// <summary>Update the grid cell when the pointer signals it has moved, unless the cursor is what's controlling movement.</summary>
-    /// <param name="viewport">Position of the point in the viewport.</param>
-    /// <param name="world">Position of the pointer in the world.</param>
-    public void OnPointerMoved(Vector2 viewport, Vector2 world)
+    /// <param name="position">Position of the pointer.</param>
+    public void OnPointerMoved(Vector2 position)
     {
         if (DeviceManager.Mode != InputMode.Digital)
-            Cell = Grid.CellOf(world);
+            Cell = Grid.CellOf(position);
     }
 
     /// <summary>Start/continue echo movement of the cursor.</summary>

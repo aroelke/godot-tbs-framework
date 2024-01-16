@@ -28,7 +28,6 @@ public partial class Level : Node2D
     private Grid _map = null;
     private Overlay _overlay = null;
     private Cursor _cursor = null;
-    private PointerProjection _projection = null;
     private State _state = State.Idle;
     private Unit _selected = null;
     private PathFinder _pathfinder = null;
@@ -36,7 +35,6 @@ public partial class Level : Node2D
     private Grid Grid => _map ??= GetNode<Grid>("Grid");
     private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
     private Cursor Cursor => _cursor ??= GetNode<Cursor>("Cursor");
-    private PointerProjection Projection => _projection ??= GetNode<PointerProjection>("PointerProjection");
 
     private void DeselectUnit()
     {
@@ -145,7 +143,7 @@ public partial class Level : Node2D
             _state = State.Idle;
 
             Cursor.Grid = Grid;
-            Projection.Grid = Grid;
+            GetNode<Pointer>("Pointer").Bounds = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
 
             foreach (Node child in GetChildren())
             {

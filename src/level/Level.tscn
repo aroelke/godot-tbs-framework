@@ -1,13 +1,11 @@
-[gd_scene load_steps=15 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=13 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/level/Level.cs" id="1_r2v0t"]
 [ext_resource type="Texture2D" uid="uid://cybgq10hqektj" path="res://assets/level/ui/overlay.png" id="2_ogyqc"]
 [ext_resource type="Texture2D" uid="uid://dfppi0pjsv5ut" path="res://assets/level/ui/arrow.png" id="3_1nkpv"]
 [ext_resource type="Script" path="res://src/level/map/Overlay.cs" id="4_wx588"]
-[ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://assets/ui/mouse.png" id="5_wkats"]
-[ext_resource type="Script" path="res://src/ui/PointerProjection.cs" id="5_x8l1i"]
 [ext_resource type="PackedScene" uid="uid://bgcsg0l8mj2sn" path="res://src/level/Object/Cursor.tscn" id="6_3v7mf"]
-[ext_resource type="Script" path="res://src/ui/VirtualPointer.cs" id="6_op0r2"]
+[ext_resource type="PackedScene" uid="uid://bqrqq7jid7qp2" path="res://src/ui/Pointer.tscn" id="6_cbrg8"]
 [ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://src/ui/hud/HUD.tres" id="7_12lpk"]
 [ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/ui/hud/CursorHintIcon.tscn" id="8_y3lwj"]
 [ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/ui/hud/ControlHint.tscn" id="9_svidw"]
@@ -433,32 +431,11 @@ layer_3/z_index = 1
 layer_3/tile_data = PackedInt32Array()
 script = ExtResource("4_wx588")
 
-[node name="PointerProjection" type="Node2D" parent="."]
-script = ExtResource("5_x8l1i")
+[node name="Cursor" parent="." instance=ExtResource("6_3v7mf")]
 
-[node name="Camera" type="Camera2D" parent="PointerProjection"]
-zoom = Vector2(2, 2)
-limit_left = 0
-limit_top = 0
-position_smoothing_enabled = true
-position_smoothing_speed = 7.5
-drag_horizontal_enabled = true
-drag_vertical_enabled = true
-drag_left_margin = 0.5
-drag_top_margin = 0.5
-drag_right_margin = 0.5
-drag_bottom_margin = 0.5
-editor_draw_drag_margin = true
-
-[node name="Cursor" parent="." node_paths=PackedStringArray("Projection") instance=ExtResource("6_3v7mf")]
-Projection = NodePath("../PointerProjection")
+[node name="Pointer" parent="." instance=ExtResource("6_cbrg8")]
 
 [node name="UserInterface" type="CanvasLayer" parent="."]
-
-[node name="VirtualPointer" type="TextureRect" parent="UserInterface" node_paths=PackedStringArray("Projection")]
-texture = ExtResource("5_wkats")
-script = ExtResource("6_op0r2")
-Projection = NodePath("../../PointerProjection")
 
 [node name="HUD" type="Control" parent="UserInterface"]
 layout_mode = 3
@@ -489,9 +466,7 @@ text = " "
 layout_mode = 2
 InputAction = "cursor_select"
 
-[connection signal="PointerMoved" from="PointerProjection" to="Cursor" method="OnPointerMoved"]
-[connection signal="PointerMoved" from="PointerProjection" to="UserInterface/VirtualPointer" method="OnProjectionMoved"]
 [connection signal="CellChanged" from="Cursor" to="." method="OnCursorMoved"]
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]
-[connection signal="CursorMoved" from="Cursor" to="PointerProjection" method="OnCursorMoved"]
-[connection signal="PointerMoved" from="UserInterface/VirtualPointer" to="PointerProjection" method="OnPointerMoved"]
+[connection signal="CursorMoved" from="Cursor" to="Pointer" method="OnCursorMoved"]
+[connection signal="PointerMoved" from="Pointer" to="Cursor" method="OnPointerMoved"]

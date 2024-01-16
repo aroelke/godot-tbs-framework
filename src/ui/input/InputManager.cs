@@ -120,10 +120,4 @@ public partial class InputManager : Node2D
             break;
         }
     }
-
-    public override void _Ready()
-    {
-        base._Ready();
-        Input.MouseMode = Input.MouseModeEnum.Hidden;
-    }
 }
