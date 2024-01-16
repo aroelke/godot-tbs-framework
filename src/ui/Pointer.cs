@@ -32,14 +32,6 @@ public partial class Pointer : Node2D
     /// <returns>Position in the level that's at the same place as the one in the viewport.</returns>
     private Vector2 ViewportToWorld(Vector2 viewport) => (Parent.GetGlobalTransform()*Parent.GetCanvasTransform()).AffineInverse()*viewport;
 
-    /// <summary>When the mouse enters the screen, warp to its entry position.</summary>
-    /// <param name="position">Position the mouse entered the screen on.</param>
-    public void OnMouseEntered(Vector2 position) => Warp(ViewportToWorld(position));
-
-    /// <summary>When the mouse exits the screen, warp to edge of the screen near where it exited.</summary>
-    /// <param name="position">Position on screen close to where the mouse exited.</param>
-    public void OnMouseExited(Vector2 position) => Warp(ViewportToWorld(position));
-
     /// <summary>Move the cursor to a new location that's not bounded by <c>Bounds</c>, and update listeners that the move occurred.</summary>
     /// <param name="position">Position to warp to.</param>
     public void Warp(Vector2 position)
@@ -85,10 +77,6 @@ public partial class Pointer : Node2D
             Input.MouseMode = Input.MouseModeEnum.Visible;
             Input.WarpMouse(WorldToViewport(Position));
             break;
-        case InputMode.Digital:
-            _mouse.Visible = false;
-            Input.MouseMode = Input.MouseModeEnum.Hidden;
-            break;
         case InputMode.Analog:
             _mouse.Visible = true;
             Input.MouseMode = Input.MouseModeEnum.Hidden;
@@ -99,12 +87,24 @@ public partial class Pointer : Node2D
         _prevMode = mode;
     }
 
+    /// <summary>When the mouse enters the screen, warp to its entry position.</summary>
+    /// <param name="position">Position the mouse entered the screen on.</param>
+    public void OnMouseEntered(Vector2 position) => Warp(ViewportToWorld(position));
+
+    /// <summary>When the mouse exits the screen, warp to edge of the screen near where it exited.</summary>
+    /// <param name="position">Position on screen close to where the mouse exited.</param>
+    public void OnMouseExited(Vector2 position) => Warp(ViewportToWorld(position));
+
     /// <summary>When the cursor moves during digital input, warp to its location.</summary>
     /// <param name="position">New cursor position.</param>
     public void OnCursorMoved(Vector2 position)
     {
         if (DeviceManager.Mode == InputMode.Digital)
+        {
+            _mouse.Visible = false;
+            Input.MouseMode = Input.MouseModeEnum.Hidden;
             Warp(position);
+        }
     }
 
     public override void _Ready()
