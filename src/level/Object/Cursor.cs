@@ -24,9 +24,6 @@ public partial class Cursor : GridNode
     private Vector2I _direction = Vector2I.Zero;
     private Timer EchoTimer => _timer = GetNode<Timer>("EchoTimer");
 
-    /// <summary>Projection of the pointer in the viewport onto the world.</summary>
-    [Export] public PointerProjection Projection = null;
-
     /// <summary>Initial delay after pressing a button to begin echoing the input.</summary>
     [ExportGroup("Echo Control")]
     [Export] public double EchoDelay = 0.3;
