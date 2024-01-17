@@ -1,5 +1,6 @@
 using System.Linq;
 using Godot;
+using ui.Action;
 
 namespace ui.input;
 
@@ -26,6 +27,9 @@ public partial class InputManager : Node2D
 
     ///<returns>The position of the mouse on the screen or the position on the edge of the screen closest to where it was last if it's not on screen.</returns>
     public static Vector2 GetMousePosition() => _lastKnownPointerPosition ?? Singleton.GetViewport().GetMousePosition();
+
+    /// <returns>The list of input actions.</returns>
+    public static StringName[] GetInputActions() => ProjectSettings.Singleton.GetPropertyList().Select((p) => p["name"].As<string>().Split("/")).Where((p) => p[0] == "input").Select((i) => new StringName(i[1])).ToArray();
 
     /// <summary>
     /// Get an input event for an action of the desired type, if one is defined.  Assumes there is no more than one of each type of
@@ -54,7 +58,7 @@ public partial class InputManager : Node2D
     /// <summary>Get the mouse button, if any, for an input action.  Assumes there's only one mouse button mapped to the action.</summary>
     /// <param name="action">Name of the action to get the mouse button for.</param>
     /// <returns>The mouse button corresponding to the action, or <c>MouseButton.None</c> if there isn't one.</returns>
-    public static MouseButton GetInputMouseButton(string action)
+    public static MouseButton GetInputMouseButton(StringName action)
     {
         InputEventMouseButton button = GetInputEvent<InputEventMouseButton>(action);
         if (button == null)
@@ -66,7 +70,7 @@ public partial class InputManager : Node2D
     /// <summary>Get the physical key code, if any, for an input action.  Assumes there's only one key mapped to the action.</summary>
     /// <param name="action">Name of the action to get the code for.</param>
     /// <returns>The physical key code corresponding to the action, or <c>Key.None</c> if there isn't one.</returns>
-    public static Key GetInputKeycode(string action)
+    public static Key GetInputKeycode(StringName action)
     {
         InputEventKey key = GetInputEvent<InputEventKey>(action);
         if (key == null)
@@ -78,7 +82,7 @@ public partial class InputManager : Node2D
     /// <summary>Get the game pad button index, if any, for an input action.  Assumes there's only one game pad button mapped to the action.</summary>
     /// <param name="action">Name of the action to get the game pad button index for.</param>
     /// <returns>The game pad button index corresponding to the action, or <c>JoyButton.Invalid</c> if there isn't one.</returns>
-    public static JoyButton GetInputGamepadButton(string action)
+    public static JoyButton GetInputGamepadButton(StringName action)
     {
         InputEventJoypadButton button = GetInputEvent<InputEventJoypadButton>(action);
         if (button == null)
@@ -90,7 +94,7 @@ public partial class InputManager : Node2D
     /// <summary>Get the game pad axis, if any, for an input action. Assumes there's only one axis mapped to the action.</summary>
     /// <param name="action">Name of the action to get the game pad axis for.</param>
     /// <returns>The game pad axis corresponding to the action, or <c>JoyAxis.Invalid</c> if there isn't one.</returns>
-    public static JoyAxis GetInputGamepadAxis(string action)
+    public static JoyAxis GetInputGamepadAxis(StringName action)
     {
         InputEventJoypadMotion motion = GetInputEvent<InputEventJoypadMotion>(action);
         if (motion == null)
@@ -100,10 +104,26 @@ public partial class InputManager : Node2D
     }
 
     /// <returns>A vector representing the digital direction(s) being held down. Elements have values 0, 1, or -1.</returns>
-    public static Vector2I GetDigitalVector() => (Vector2I)Input.GetVector("cursor_digital_left", "cursor_digital_right", "cursor_digital_up", "cursor_digital_down").Round();
+    public static Vector2I GetDigitalVector() => (Vector2I)Input.GetVector(Singleton.MoveLeftAction.InputAction, Singleton.MoveRightAction.InputAction, Singleton.MoveUpAction.InputAction, Singleton.MoveDownAction.InputAction).Round();
 
     /// <returns>A vector representing the movement of the left control stick of the game pad.</returns>
-    public static Vector2 GetAnalogVector() => Input.GetVector("cursor_analog_left", "cursor_analog_right", "cursor_analog_up", "cursor_analog_down");
+    public static Vector2 GetAnalogVector() => Input.GetVector(Singleton.AnalogLeftAction.InputAction, Singleton.AnalogRightAction.InputAction, Singleton.AnalogUpAction.InputAction, Singleton.AnalogDownAction.InputAction);
+
+    [Export] public InputActionReference MoveUpAction { get; private set; }
+
+    [Export] public InputActionReference MoveLeftAction { get; private set; }
+
+    [Export] public InputActionReference MoveDownAction { get; private set; }
+
+    [Export] public InputActionReference MoveRightAction { get; private set; }
+
+    [Export] public InputActionReference AnalogUpAction { get; private set; }
+
+    [Export] public InputActionReference AnalogLeftAction { get; private set; }
+
+    [Export] public InputActionReference AnalogDownAction { get; private set; }
+
+    [Export] public InputActionReference AnalogRightAction { get; private set; }
 
     public override void _Notification(int what)
     {
