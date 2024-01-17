@@ -1,4 +1,5 @@
 using Godot;
+using ui.Action;
 using ui.input;
 
 namespace ui;
@@ -66,6 +67,9 @@ public partial class Pointer : Node2D
     /// <summary>Multiplier applied to the pointer speed when the accelerate button is held down in analog mode.</summary>
     [Export] public double Acceleration = 3;
 
+    /// <summary>Action to accelerate the speed of the cursor.</summary>
+    [Export] public InputActionReference AccelerateAction;
+
     /// <summary>When the input mode changes, update visibility and move things around to make sure real/virtual mouse positions are consistent.</summary>
     /// <param name="mode">New input mode.</param>
     public void OnInputModeChanged(InputMode mode)
@@ -129,13 +133,13 @@ public partial class Pointer : Node2D
         base._UnhandledInput(@event);
         if (DeviceManager.Mode == InputMode.Analog)
         {
-            if (@event.IsActionPressed("cursor_analog_accelerate"))
+            if (@event.IsActionPressed(AccelerateAction.InputAction))
             {
                 GetViewport().SetInputAsHandled();
                 _accelerate = true;
                 return;
             }
-            if (@event.IsActionReleased("cursor_analog_accelerate"))
+            if (@event.IsActionReleased(AccelerateAction.InputAction))
             {
                 GetViewport().SetInputAsHandled();
                 _accelerate = false;
