@@ -1,5 +1,5 @@
 using Godot;
-using ui;
+using ui.Action;
 using ui.input;
 
 namespace level.Object;
@@ -22,7 +22,11 @@ public partial class Cursor : GridNode
     private Timer _timer = null;
     private bool _echoing = false;
     private Vector2I _direction = Vector2I.Zero;
+
     private Timer EchoTimer => _timer = GetNode<Timer>("EchoTimer");
+
+    /// <summary>Action for selecting a cell.</summary>
+    [Export] public InputActionReference SelectAction;
 
     /// <summary>Initial delay after pressing a button to begin echoing the input.</summary>
     [ExportGroup("Echo Control")]
@@ -87,7 +91,7 @@ public partial class Cursor : GridNode
                     _direction = Vector2I.Zero;
             }
         }
-        if (@event.IsActionReleased("cursor_select"))
+        if (@event.IsActionReleased(SelectAction.InputAction))
             EmitSignal(SignalName.CellSelected, Grid.CellOf(Position));
     }
 
