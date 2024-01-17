@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=14 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/level/Level.cs" id="1_r2v0t"]
 [ext_resource type="Texture2D" uid="uid://cybgq10hqektj" path="res://assets/level/ui/overlay.png" id="2_ogyqc"]
@@ -9,6 +9,7 @@
 [ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://src/ui/hud/HUD.tres" id="7_12lpk"]
 [ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/ui/hud/CursorHintIcon.tscn" id="8_y3lwj"]
 [ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/ui/hud/ControlHint.tscn" id="9_svidw"]
+[ext_resource type="Resource" uid="uid://c8jgkj5o6iui0" path="res://src/ui/Action/SelectAction.tres" id="10_4s1si"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_vg23h"]
 texture = ExtResource("2_ogyqc")
@@ -457,6 +458,11 @@ grow_vertical = 0
 
 [node name="CursorHintIcon" parent="UserInterface/HUD/Hints" instance=ExtResource("8_y3lwj")]
 layout_mode = 2
+UpAction = "Global.Move Cursor Up"
+LeftAction = "Global.Move Cursor Left"
+DownAction = "Global.Move Cursor Down"
+RightAction = "Global.Move Cursor Right"
+AnalogAction = "Global.Analog Up"
 
 [node name="Separator" type="Label" parent="UserInterface/HUD/Hints"]
 layout_mode = 2
@@ -464,7 +470,7 @@ text = " "
 
 [node name="ControlHint" parent="UserInterface/HUD/Hints" instance=ExtResource("9_svidw")]
 layout_mode = 2
-InputAction = "cursor_select"
+Action = ExtResource("10_4s1si")
 
 [connection signal="CellChanged" from="Cursor" to="." method="OnCursorMoved"]
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]

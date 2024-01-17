@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
+using ui.Action;
 using ui.Device.Icons;
 using ui.input;
 
@@ -18,20 +20,26 @@ public partial class ControlHint : HBoxContainer
 
     private void Update()
     {
-        MouseButton mb = InputManager.GetInputMouseButton(InputAction);
-        MouseIcon.Texture = MouseMap is null || !MouseMap.ContainsKey(mb) ? null : MouseMap[mb];
+        if (Action is not null)
+        {
+            MouseIcon.Texture = MouseMap is null || !MouseMap.ContainsKey(Action.MouseButton) ? null : MouseMap[Action.MouseButton];
+            KeyboardIcon.Texture = KeyMap is null || !KeyMap.ContainsKey(Action.Key) ? null : KeyMap[Action.Key];
+            GamepadIcon.Texture = GamepadMap is null || !GamepadMap.ContainsKey(Action.GamepadButton) ? null : GamepadMap[Action.GamepadButton];
 
-        Key k = InputManager.GetInputKeycode(InputAction);
-        KeyboardIcon.Texture = KeyMap is null || !KeyMap.ContainsKey(k) ? null : KeyMap[k];
+            GetNode<Label>("Label").Text = $": {Action.InputAction.ToString().Split(".").Last()}";
+        }
+        else
+        {
+            MouseIcon.Texture = null;
+            KeyboardIcon.Texture = null;
+            GamepadIcon.Texture = null;
 
-        JoyButton pb = InputManager.GetInputGamepadButton(InputAction);
-        GamepadIcon.Texture = GamepadMap is null || !GamepadMap.ContainsKey(pb) ? null : GamepadMap[pb];
-
-        GetNode<Label>("Label").Text = $": {InputAction}";
+            GetNode<Label>("Label").Text = "";
+        }
     }
 
-    /// <summary>Input action shown by the hint.</summary>
-    [Export] public string InputAction { get; private set; } = "";
+    /// <summary>Action to display the icon of.</summary>
+    [Export] public InputActionReference Action = null;
 
     /// <summary>Mouse button map for the mouse input to the action.</summary>
     [ExportGroup("Action Maps")]
