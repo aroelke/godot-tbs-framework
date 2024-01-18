@@ -35,6 +35,14 @@ public partial class CursorHintIcon : HBoxContainer
     [ExportGroup("Icon Maps")]
     [Export] public KeyIconMap KeyMap = new();
 
+    /// <summary>Mapping of gamepad button onto icon to display.</summary>
+    [ExportGroup("Icon Maps")]
+    [Export] public GamepadButtonIconMap ButtonMap = new();
+
+    /// <summary>Mapping of gamepad axis onto icon to display.</summary>
+    [ExportGroup("Icon Maps")]
+    [Export] public GamepadAxisIconMap AxisMap = new();
+
     /// <summary>Name of the action for moving the cursor up.</summary>
     [ExportGroup("Actions")]
     [Export] public InputActionReference UpAction = new();
@@ -97,6 +105,8 @@ public partial class CursorHintIcon : HBoxContainer
             RightKeyIcon.Texture = GetKeyIcon(RightAction.Key);
             MouseIcon.Texture = MouseMap.Motion;
 
+            GamepadIcon.ButtonMap = ButtonMap;
+            GamepadIcon.AxisMap = AxisMap;
             GamepadIcon.UpAction = UpAction;
             GamepadIcon.LeftAction = LeftAction;
             GamepadIcon.DownAction = DownAction;

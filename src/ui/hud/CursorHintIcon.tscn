@@ -1,12 +1,14 @@
-[gd_scene load_steps=15 format=3 uid="uid://dar0v4k4aqvpv"]
+[gd_scene load_steps=17 format=3 uid="uid://dar0v4k4aqvpv"]
 
 [ext_resource type="Script" path="res://src/ui/hud/CursorHintIcon.cs" id="1_dpl76"]
 [ext_resource type="Resource" uid="uid://37pcc5c7cogr" path="res://src/ui/Device/Icons/MouseIconMap.tres" id="2_yewpe"]
 [ext_resource type="Resource" uid="uid://q61hgr3qsv4g" path="res://src/ui/Device/Icons/KeyIconMap.tres" id="3_ahjxs"]
 [ext_resource type="Texture2D" uid="uid://xnouovy7cud3" path="res://assets/ui/icons/controls/mouse/mouse.png" id="4_gth6f"]
+[ext_resource type="Resource" uid="uid://c27jd22jjxlu4" path="res://src/ui/Device/Icons/GamepadButtonIconMap.tres" id="4_h0wi3"]
 [ext_resource type="Resource" uid="uid://bg5wxy6d07m7x" path="res://src/ui/Action/MoveUpAction.tres" id="4_jaig8"]
 [ext_resource type="Resource" uid="uid://dtest68b2o5wf" path="res://src/ui/Action/MoveLeftAction.tres" id="5_m7xjw"]
 [ext_resource type="Texture2D" uid="uid://bvbkwcurpgl68" path="res://assets/ui/icons/controls/keyboard/up.png" id="5_qxwo4"]
+[ext_resource type="Resource" uid="uid://rlgg8mn3bshl" path="res://src/ui/Device/Icons/GamepadAxisIconMap.tres" id="5_r621w"]
 [ext_resource type="Resource" uid="uid://dgfjy48mw11g0" path="res://src/ui/Action/MoveDownAction.tres" id="6_eg3eu"]
 [ext_resource type="Texture2D" uid="uid://b22lemesaffkm" path="res://assets/ui/icons/controls/keyboard/left.png" id="6_podld"]
 [ext_resource type="Texture2D" uid="uid://dnxdklj5eo2mi" path="res://assets/ui/icons/controls/keyboard/down.png" id="7_bcym8"]
@@ -21,6 +23,8 @@ offset_bottom = 28.0
 script = ExtResource("1_dpl76")
 MouseMap = ExtResource("2_yewpe")
 KeyMap = ExtResource("3_ahjxs")
+ButtonMap = ExtResource("4_h0wi3")
+AxisMap = ExtResource("5_r621w")
 UpAction = ExtResource("4_jaig8")
 LeftAction = ExtResource("5_m7xjw")
 DownAction = ExtResource("6_eg3eu")
