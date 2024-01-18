@@ -20,9 +20,9 @@ public partial class ControlHint : HBoxContainer
 
     private void Update()
     {
-        MouseIcon.Texture = MouseMap is null || !MouseMap.ContainsKey(Action.MouseButton) ? null : MouseMap[Action.MouseButton];
-        KeyboardIcon.Texture = KeyMap is null || !KeyMap.ContainsKey(Action.Key) ? null : KeyMap[Action.Key];
-        GamepadIcon.Texture = GamepadMap is null || !GamepadMap.ContainsKey(Action.GamepadButton) ? null : GamepadMap[Action.GamepadButton];
+        MouseIcon.Texture = !MouseMap.ContainsKey(Action.MouseButton) ? null : MouseMap[Action.MouseButton];
+        KeyboardIcon.Texture = !KeyMap.ContainsKey(Action.Key) ? null : KeyMap[Action.Key];
+        GamepadIcon.Texture = !GamepadMap.ContainsKey(Action.GamepadButton) ? null : GamepadMap[Action.GamepadButton];
 
         GetNode<Label>("Label").Text = $": {Action.InputAction.ToString().Split(".").Last()}";
     }
@@ -32,15 +32,15 @@ public partial class ControlHint : HBoxContainer
 
     /// <summary>Mouse button map for the mouse input to the action.</summary>
     [ExportGroup("Action Maps")]
-    [Export] public MouseIconMap MouseMap = null;
+    [Export] public MouseIconMap MouseMap = new();
 
     /// <summary>Keyboard map for the keyboard input to the action.</summary>
     [ExportGroup("Action Maps")]
-    [Export] public KeyIconMap KeyMap = null;
+    [Export] public KeyIconMap KeyMap = new();
 
     /// <summary>Button map for the Playstation game pad input to the action.</summary>
     [ExportGroup("Action Maps")]
-    [Export] public GamepadButtonIconMap GamepadMap = null;
+    [Export] public GamepadButtonIconMap GamepadMap = new();
 
     /// <summary>Switch the device to use for the icon to display.</summary>
     public InputDevice SelectedDevice

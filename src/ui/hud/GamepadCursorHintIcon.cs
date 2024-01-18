@@ -29,14 +29,14 @@ public partial class GamepadCursorHintIcon : HBoxContainer
 
     private void Update()
     {
-        UpIcon.Texture    = UpAction is null ? null : GetButtonIcon(UpAction.GamepadButton);
-        LeftIcon.Texture  = LeftAction is null ? null : GetButtonIcon(LeftAction.GamepadButton);
-        DownIcon.Texture  = DownAction is null ? null : GetButtonIcon(DownAction.GamepadButton);
-        RightIcon.Texture = RightAction is null ? null : GetButtonIcon(RightAction.GamepadButton);
+        UpIcon.Texture    = GetButtonIcon(UpAction.GamepadButton);
+        LeftIcon.Texture  = GetButtonIcon(LeftAction.GamepadButton);
+        DownIcon.Texture  = GetButtonIcon(DownAction.GamepadButton);
+        RightIcon.Texture = GetButtonIcon(RightAction.GamepadButton);
 
-        UnifiedIcon.Texture = ButtonMap?.Dpad;
+        UnifiedIcon.Texture = ButtonMap.Dpad;
 
-        AnalogIcon.Texture = AnalogAction?.GamepadAxis switch
+        AnalogIcon.Texture = AnalogAction.GamepadAxis switch
         {
             JoyAxis.LeftX  | JoyAxis.LeftY  => AxisMap?.Left,
             JoyAxis.RightX | JoyAxis.RightY => AxisMap?.Right,
@@ -46,11 +46,11 @@ public partial class GamepadCursorHintIcon : HBoxContainer
 
     /// <summary>Mapping of game pad button on to icon to display.</summary>
     [ExportGroup("Icon Maps")]
-    [Export] public GamepadButtonIconMap ButtonMap = null;
+    [Export] public GamepadButtonIconMap ButtonMap = new();
 
     /// <summary>Mapping of game pad axis onto icon to display.</summary>
     [ExportGroup("Icon Maps")]
-    [Export] public GamepadAxisIconMap AxisMap = null;
+    [Export] public GamepadAxisIconMap AxisMap = new();
 
     /// <summary>Name of the action to move the cursor up.</summary>
     [ExportGroup("Actions")]
@@ -100,10 +100,10 @@ public partial class GamepadCursorHintIcon : HBoxContainer
             Update();
         else
         {
-            ShowIndividualIcons = !(UpAction?.GamepadButton    == JoyButton.DpadUp   &&
-                                    LeftAction?.GamepadButton  == JoyButton.DpadLeft &&
-                                    DownAction?.GamepadButton  == JoyButton.DpadDown &&
-                                    RightAction?.GamepadButton == JoyButton.DpadRight);
+            ShowIndividualIcons = !(UpAction.GamepadButton    == JoyButton.DpadUp   &&
+                                    LeftAction.GamepadButton  == JoyButton.DpadLeft &&
+                                    DownAction.GamepadButton  == JoyButton.DpadDown &&
+                                    RightAction.GamepadButton == JoyButton.DpadRight);
         }
     }
 }

@@ -25,15 +25,15 @@ public partial class CursorHintIcon : HBoxContainer
     private TextureRect RightKeyIcon => _rightKeyIcon = GetNode<TextureRect>("Keyboard/Right");
     private GamepadCursorHintIcon GamepadIcon => _gamepadIcon ??= GetNode<GamepadCursorHintIcon>("Gamepad");
 
-    private Texture2D GetKeyIcon(Key key) => KeyMap is not null && KeyMap.ContainsKey(key) ? KeyMap[key] : null;
+    private Texture2D GetKeyIcon(Key key) => KeyMap.ContainsKey(key) ? KeyMap[key] : null;
 
     /// <summary>Mapping of mouse action onto icon to display.</summary>
     [ExportGroup("Icon Maps")]
-    [Export] public MouseIconMap MouseMap = null;
+    [Export] public MouseIconMap MouseMap = new();
 
     /// <summary>Mapping of keyboard key onto icon to display.</summary>
     [ExportGroup("Icon Maps")]
-    [Export] public KeyIconMap KeyMap = null;
+    [Export] public KeyIconMap KeyMap = new();
 
     /// <summary>Name of the action for moving the cursor up.</summary>
     [ExportGroup("Actions")]
@@ -91,11 +91,11 @@ public partial class CursorHintIcon : HBoxContainer
         base._Process(delta);
         if (Engine.IsEditorHint())
         {
-            UpKeyIcon.Texture = UpAction is null ? null : GetKeyIcon(UpAction.Key);
-            LeftKeyIcon.Texture = LeftAction is null ? null : GetKeyIcon(LeftAction.Key);
-            DownKeyIcon.Texture = DownAction is null ? null : GetKeyIcon(DownAction.Key);
-            RightKeyIcon.Texture = RightAction is null ? null : GetKeyIcon(RightAction.Key);
-            MouseIcon.Texture = MouseMap?.Motion;
+            UpKeyIcon.Texture = GetKeyIcon(UpAction.Key);
+            LeftKeyIcon.Texture = GetKeyIcon(LeftAction.Key);
+            DownKeyIcon.Texture = GetKeyIcon(DownAction.Key);
+            RightKeyIcon.Texture = GetKeyIcon(RightAction.Key);
+            MouseIcon.Texture = MouseMap.Motion;
 
             GamepadIcon.UpAction = UpAction;
             GamepadIcon.LeftAction = LeftAction;
