@@ -7,6 +7,7 @@ using level.Object;
 using level.Object.Group;
 using ui;
 using ui.Action;
+using ui.hud;
 using util;
 
 namespace level;
@@ -32,10 +33,12 @@ public partial class Level : Node2D
     private State _state = State.Idle;
     private Unit _selected = null;
     private PathFinder _pathfinder = null;
+    private ControlHint _cancelHint = null;
 
     private Grid Grid => _map ??= GetNode<Grid>("Grid");
     private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
     private Cursor Cursor => _cursor ??= GetNode<Cursor>("Cursor");
+    private ControlHint CancelHint => _cancelHint ??= GetNode<ControlHint>("UserInterface/HUD/Hints/CancelHint");
 
     private void DeselectUnit()
     {
@@ -46,6 +49,8 @@ public partial class Level : Node2D
         }
         _pathfinder = null;
         Overlay.Clear();
+
+        CancelHint.Visible = false;
     }
 
     /// <summary>Map cancel selection action reference (distinct from menu back/cancel).</summary>
@@ -66,6 +71,7 @@ public partial class Level : Node2D
                 Overlay.TraversableCells = _pathfinder.TraversableCells;
                 Overlay.AttackableCells = _pathfinder.AttackableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c));
                 Overlay.SupportableCells = _pathfinder.SupportableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c) && !_pathfinder.AttackableCells.Contains(c));
+                CancelHint.Visible = true;
                 _state = State.SelectUnit;
             }
             break;

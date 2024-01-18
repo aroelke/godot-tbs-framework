@@ -457,23 +457,17 @@ anchor_bottom = 1.0
 offset_top = -40.0
 offset_right = 281.0
 grow_vertical = 0
+theme_override_constants/separation = 15
 
 [node name="CursorHintIcon" parent="UserInterface/HUD/Hints" instance=ExtResource("8_y3lwj")]
 layout_mode = 2
-
-[node name="Separator" type="Label" parent="UserInterface/HUD/Hints"]
-layout_mode = 2
-text = " "
 
 [node name="SelectHint" parent="UserInterface/HUD/Hints" instance=ExtResource("9_svidw")]
 layout_mode = 2
 Action = ExtResource("10_4s1si")
 
-[node name="Separator2" type="Label" parent="UserInterface/HUD/Hints"]
-layout_mode = 2
-text = " "
-
 [node name="CancelHint" parent="UserInterface/HUD/Hints" instance=ExtResource("9_svidw")]
+visible = false
 layout_mode = 2
 Action = ExtResource("11_nukc6")
 
