@@ -458,11 +458,6 @@ grow_vertical = 0
 
 [node name="CursorHintIcon" parent="UserInterface/HUD/Hints" instance=ExtResource("8_y3lwj")]
 layout_mode = 2
-UpAction = "Global.Move Cursor Up"
-LeftAction = "Global.Move Cursor Left"
-DownAction = "Global.Move Cursor Down"
-RightAction = "Global.Move Cursor Right"
-AnalogAction = "Global.Analog Up"
 
 [node name="Separator" type="Label" parent="UserInterface/HUD/Hints"]
 layout_mode = 2

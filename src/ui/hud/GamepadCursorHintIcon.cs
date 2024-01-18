@@ -1,4 +1,5 @@
 using Godot;
+using ui.Action;
 using ui.Device.Icons;
 using ui.input;
 
@@ -28,14 +29,14 @@ public partial class GamepadCursorHintIcon : HBoxContainer
 
     private void Update()
     {
-        UpIcon.Texture    = GetButtonIcon(InputManager.GetInputGamepadButton(UpAction));
-        LeftIcon.Texture  = GetButtonIcon(InputManager.GetInputGamepadButton(LeftAction));
-        DownIcon.Texture  = GetButtonIcon(InputManager.GetInputGamepadButton(DownAction));
-        RightIcon.Texture = GetButtonIcon(InputManager.GetInputGamepadButton(RightAction));
+        UpIcon.Texture    = UpAction is null ? null : GetButtonIcon(UpAction.GamepadButton);
+        LeftIcon.Texture  = LeftAction is null ? null : GetButtonIcon(LeftAction.GamepadButton);
+        DownIcon.Texture  = DownAction is null ? null : GetButtonIcon(DownAction.GamepadButton);
+        RightIcon.Texture = RightAction is null ? null : GetButtonIcon(RightAction.GamepadButton);
 
         UnifiedIcon.Texture = ButtonMap?.Dpad;
 
-        AnalogIcon.Texture = InputManager.GetInputGamepadAxis(AnalogAction) switch
+        AnalogIcon.Texture = AnalogAction?.GamepadAxis switch
         {
             JoyAxis.LeftX  | JoyAxis.LeftY  => AxisMap?.Left,
             JoyAxis.RightX | JoyAxis.RightY => AxisMap?.Right,
@@ -53,23 +54,23 @@ public partial class GamepadCursorHintIcon : HBoxContainer
 
     /// <summary>Name of the action to move the cursor up.</summary>
     [ExportGroup("Actions")]
-    [Export] public string UpAction = null;
+    [Export] public InputActionReference UpAction = null;
 
     /// <summary>Name of the action to move the cursor left.</summary>
     [ExportGroup("Actions")]
-    [Export] public string LeftAction = null;
+    [Export] public InputActionReference LeftAction = null;
 
     /// <summary>Name of the action to move the cursor down.</summary>
     [ExportGroup("Actions")]
-    [Export] public string DownAction = null;
+    [Export] public InputActionReference DownAction = null;
 
     /// <summary>Name of the action to move the cursor right.</summary>
     [ExportGroup("Actions")]
-    [Export] public string RightAction = null;
+    [Export] public InputActionReference RightAction = null;
 
     /// <summary>Name of an action to move the cursor with the analog stick.</summary>
     [ExportGroup("Actions")]
-    [Export] public string AnalogAction = null;
+    [Export] public InputActionReference AnalogAction = null;
 
     /// <summary>Whether to show the individual control icons or the unified one.</summary>
     public bool ShowIndividualIcons
@@ -99,10 +100,10 @@ public partial class GamepadCursorHintIcon : HBoxContainer
             Update();
         else
         {
-            ShowIndividualIcons = !(InputManager.GetInputGamepadButton(UpAction)    == JoyButton.DpadUp   &&
-                                    InputManager.GetInputGamepadButton(LeftAction)  == JoyButton.DpadLeft &&
-                                    InputManager.GetInputGamepadButton(DownAction)  == JoyButton.DpadDown &&
-                                    InputManager.GetInputGamepadButton(RightAction) == JoyButton.DpadRight);
+            ShowIndividualIcons = !(UpAction?.GamepadButton    == JoyButton.DpadUp   &&
+                                    LeftAction?.GamepadButton  == JoyButton.DpadLeft &&
+                                    DownAction?.GamepadButton  == JoyButton.DpadDown &&
+                                    RightAction?.GamepadButton == JoyButton.DpadRight);
         }
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Godot;
+using ui.Action;
 using ui.Device.Icons;
 using ui.input;
 
@@ -36,23 +37,23 @@ public partial class CursorHintIcon : HBoxContainer
 
     /// <summary>Name of the action for moving the cursor up.</summary>
     [ExportGroup("Actions")]
-    [Export] public string UpAction = null;
+    [Export] public InputActionReference UpAction;
 
     /// <summary>Name of the action for moving the cursor left.</summary>
     [ExportGroup("Actions")]
-    [Export] public string LeftAction = null;
+    [Export] public InputActionReference LeftAction;
 
     /// <summary>Name of the action for moving the cursor down.</summary>
     [ExportGroup("Actions")]
-    [Export] public string DownAction = null;
+    [Export] public InputActionReference DownAction;
 
     /// <summary>Name of the action for moving the cursor right.</summary>
     [ExportGroup("Actions")]
-    [Export] public string RightAction = null;
+    [Export] public InputActionReference RightAction;
 
     /// <summary>Name of an action to move the cursor with the analog stick.</summary>
     [ExportGroup("Actions")]
-    [Export] public string AnalogAction = null;
+    [Export] public InputActionReference AnalogAction;
 
     /// <summary>Set the selected input device to show the icon for.</summary>
     public InputDevice SelectedDevice
@@ -90,18 +91,16 @@ public partial class CursorHintIcon : HBoxContainer
         base._Process(delta);
         if (Engine.IsEditorHint())
         {
-            UpKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(UpAction));
-            LeftKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(LeftAction));
-            DownKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(DownAction));
-            RightKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(RightAction));
-
+            UpKeyIcon.Texture = UpAction is null ? null : GetKeyIcon(UpAction.Key);
+            LeftKeyIcon.Texture = LeftAction is null ? null : GetKeyIcon(LeftAction.Key);
+            DownKeyIcon.Texture = DownAction is null ? null : GetKeyIcon(DownAction.Key);
+            RightKeyIcon.Texture = RightAction is null ? null : GetKeyIcon(RightAction.Key);
             MouseIcon.Texture = MouseMap?.Motion;
 
             GamepadIcon.UpAction = UpAction;
             GamepadIcon.LeftAction = LeftAction;
             GamepadIcon.DownAction = DownAction;
             GamepadIcon.RightAction = RightAction;
-            GamepadIcon.AnalogAction = AnalogAction;
         }
     }
 }
