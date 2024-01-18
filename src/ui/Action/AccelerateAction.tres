@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="InputActionReference" load_steps=2 format=3 uid="uid://dsjbjmgsqqd7w"]
+
+[ext_resource type="Script" path="res://src/ui/Action/InputActionReference.cs" id="1_sye4p"]
+
+[resource]
+script = ExtResource("1_sye4p")
+"Input Action" = &"Map.Accelerate Cursor"

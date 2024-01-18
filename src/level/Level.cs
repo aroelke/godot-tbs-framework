@@ -6,6 +6,8 @@ using level.map;
 using level.Object;
 using level.Object.Group;
 using ui;
+using ui.Action;
+using ui.hud;
 using util;
 
 namespace level;
@@ -17,17 +19,26 @@ namespace level;
 [Tool]
 public partial class Level : Node2D
 {
+    private enum State
+    {
+        Idle,
+        SelectUnit,
+        UnitMoving,
+        PostMove
+    }
+
     private Grid _map = null;
     private Overlay _overlay = null;
     private Cursor _cursor = null;
-    private PointerProjection _projection = null;
+    private State _state = State.Idle;
     private Unit _selected = null;
     private PathFinder _pathfinder = null;
+    private ControlHint _cancelHint = null;
 
     private Grid Grid => _map ??= GetNode<Grid>("Grid");
     private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
     private Cursor Cursor => _cursor ??= GetNode<Cursor>("Cursor");
-    private PointerProjection Projection => _projection ??= GetNode<PointerProjection>("PointerProjection");
+    private ControlHint CancelHint => _cancelHint ??= GetNode<ControlHint>("UserInterface/HUD/Hints/CancelHint");
 
     private void DeselectUnit()
     {
@@ -38,14 +49,20 @@ public partial class Level : Node2D
         }
         _pathfinder = null;
         Overlay.Clear();
+
+        CancelHint.Visible = false;
     }
+
+    /// <summary>Map cancel selection action reference (distinct from menu back/cancel).</summary>
+    [Export] public InputActionReference CancelAction = new();
 
     /// <summary>When a cell is selected, act based on what is or isn't in the cell.</summary>
     /// <param name="cell">Coordinates of the cell selection.</param>
     public async void OnCellSelected(Vector2I cell)
     {
-        if (_selected is null)
+        switch (_state)
         {
+        case State.Idle:
             if (Grid.Occupants.ContainsKey(cell))
             {
                 _selected = Grid.Occupants[cell] as Unit;
@@ -54,47 +71,50 @@ public partial class Level : Node2D
                 Overlay.TraversableCells = _pathfinder.TraversableCells;
                 Overlay.AttackableCells = _pathfinder.AttackableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c));
                 Overlay.SupportableCells = _pathfinder.SupportableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c) && !_pathfinder.AttackableCells.Contains(c));
+                CancelHint.Visible = true;
+                _state = State.SelectUnit;
             }
-        }
-        else if (_pathfinder is not null)
-        {
-            if (!_selected.IsMoving)
+            break;
+        case State.SelectUnit:
+            if (cell != _selected.Cell && _pathfinder.TraversableCells.Contains(cell))
             {
-                if (cell != _selected.Cell && _pathfinder.TraversableCells.Contains(cell))
-                {
-                    // Move the unit and wait for it to finish moving, and then delete the pathfinder as we don't need it anymore
-                    Grid.Occupants.Remove(_selected.Cell);
-                    _selected.MoveAlong(_pathfinder.Path);
-                    Grid.Occupants[_selected.Cell] = _selected;
-                    Overlay.Clear();
-                    _pathfinder = null;
-                    await ToSignal(_selected, Unit.SignalName.DoneMoving);
+                // Move the unit and wait for it to finish moving, and then delete the pathfinder as we don't need it anymore
+                Grid.Occupants.Remove(_selected.Cell);
+                _selected.MoveAlong(_pathfinder.Path);
+                Grid.Occupants[_selected.Cell] = _selected;
+                Overlay.Clear();
+                _pathfinder = null;
+                _state = State.UnitMoving;
+                await ToSignal(_selected, Unit.SignalName.DoneMoving);
 
-                    // Show the unit's attack/support ranges
-                    IEnumerable<Vector2I> attackable = PathFinder.GetCellsInRange(Grid, _selected.AttackRange, _selected.Cell);
-                    IEnumerable<Vector2I> supportable = PathFinder.GetCellsInRange(Grid, _selected.SupportRange, _selected.Cell);
-                    Overlay.AttackableCells = attackable;
-                    Overlay.SupportableCells = supportable.Where((c) => !attackable.Contains(c));
-                }
-                else
-                    DeselectUnit();
+                // Show the unit's attack/support ranges
+                IEnumerable<Vector2I> attackable = PathFinder.GetCellsInRange(Grid, _selected.AttackRange, _selected.Cell);
+                IEnumerable<Vector2I> supportable = PathFinder.GetCellsInRange(Grid, _selected.SupportRange, _selected.Cell);
+                Overlay.AttackableCells = attackable;
+                Overlay.SupportableCells = supportable.Where((c) => !attackable.Contains(c));
+                _state = State.PostMove;
             }
-        }
-        else
+            else
+            {
+                DeselectUnit();
+                _state = State.Idle;
+            }
+            break;
+        case State.PostMove:
             DeselectUnit();
+            _state = State.Idle;
+            break;
+        }
     }
 
     /// <summary>When the cursor moves while a unit is selected, update the path that's being drawn.</summary>
     /// <param name="position"></param>
     public void OnCursorMoved(Vector2I cell)
     {
-        if (_selected != null && _pathfinder != null)
+        if (_state == State.SelectUnit && _pathfinder.TraversableCells.Contains(cell))
         {
-            if (_pathfinder.TraversableCells.Contains(cell))
-            {
-                _pathfinder.AddToPath(cell);
-                Overlay.Path = _pathfinder.Path;
-            }
+            _pathfinder.AddToPath(cell);
+            Overlay.Path = _pathfinder.Path;
         }
     }
 
@@ -130,8 +150,10 @@ public partial class Level : Node2D
 
         if (!Engine.IsEditorHint())
         {
+            _state = State.Idle;
+
             Cursor.Grid = Grid;
-            Projection.Grid = Grid;
+            GetNode<Pointer>("Pointer").Bounds = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
 
             foreach (Node child in GetChildren())
             {
@@ -146,6 +168,21 @@ public partial class Level : Node2D
                     }
                 }
             }
+        }
+    }
+
+    public override void _Input(InputEvent @event)
+    {
+        base._Input(@event);
+        switch (_state)
+        {
+        case State.SelectUnit or State.PostMove:
+            if (@event.IsActionReleased(CancelAction))
+            {
+                DeselectUnit();
+                _state = State.Idle;
+            }
+            break;
         }
     }
 }

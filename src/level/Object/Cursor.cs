@@ -1,5 +1,5 @@
 using Godot;
-using ui;
+using ui.Action;
 using ui.input;
 
 namespace level.Object;
@@ -22,10 +22,11 @@ public partial class Cursor : GridNode
     private Timer _timer = null;
     private bool _echoing = false;
     private Vector2I _direction = Vector2I.Zero;
+
     private Timer EchoTimer => _timer = GetNode<Timer>("EchoTimer");
 
-    /// <summary>Projection of the pointer in the viewport onto the world.</summary>
-    [Export] public PointerProjection Projection = null;
+    /// <summary>Action for selecting a cell.</summary>
+    [Export] public InputActionReference SelectAction = new();
 
     /// <summary>Initial delay after pressing a button to begin echoing the input.</summary>
     [ExportGroup("Echo Control")]
@@ -44,12 +45,11 @@ public partial class Cursor : GridNode
     }
 
     /// <summary>Update the grid cell when the pointer signals it has moved, unless the cursor is what's controlling movement.</summary>
-    /// <param name="viewport">Position of the point in the viewport.</param>
-    /// <param name="world">Position of the pointer in the world.</param>
-    public void OnPointerMoved(Vector2 viewport, Vector2 world)
+    /// <param name="position">Position of the pointer.</param>
+    public void OnPointerMoved(Vector2 position)
     {
         if (DeviceManager.Mode != InputMode.Digital)
-            Cell = Grid.CellOf(world);
+            Cell = Grid.CellOf(position);
     }
 
     /// <summary>Start/continue echo movement of the cursor.</summary>
@@ -64,11 +64,6 @@ public partial class Cursor : GridNode
         else
             _echoing = true;
     }
-
-    /// <summary>When the pointer is clicked, signal that a cell has been selected.</summary>
-    /// <param name="viewport">Position of the pointer in the viewport.</param>
-    /// <param name="world">Position of the pointer in the world.</param>
-    public void OnPointerClicked(Vector2 viewport, Vector2 world) => EmitSignal(SignalName.CellSelected, Grid.CellOf(world));
 
     public override void _UnhandledInput(InputEvent @event)
     {
@@ -95,10 +90,9 @@ public partial class Cursor : GridNode
                 else
                     _direction = Vector2I.Zero;
             }
-
-            if (Input.IsActionJustReleased("cursor_select"))
-                EmitSignal(SignalName.CellSelected, Grid.CellOf(Position));
         }
+        if (@event.IsActionReleased(SelectAction))
+            EmitSignal(SignalName.CellSelected, Grid.CellOf(Position));
     }
 
     public override void _Process(double delta)
