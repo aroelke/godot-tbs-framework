@@ -8,7 +8,7 @@ namespace ui.Action;
 [GlobalClass, Tool]
 public partial class InputActionReference : Resource
 {
-        /// <summary>Name of the property containing the input action.</summary>
+    /// <summary>Name of the property containing the input action.</summary>
     public static readonly StringName InputActionProperty = "Input Action";
 
     /// <summary>Default value of the input action property.</summary>

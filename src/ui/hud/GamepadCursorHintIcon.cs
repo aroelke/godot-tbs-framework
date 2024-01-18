@@ -54,23 +54,23 @@ public partial class GamepadCursorHintIcon : HBoxContainer
 
     /// <summary>Name of the action to move the cursor up.</summary>
     [ExportGroup("Actions")]
-    [Export] public InputActionReference UpAction = null;
+    [Export] public InputActionReference UpAction = new();
 
     /// <summary>Name of the action to move the cursor left.</summary>
     [ExportGroup("Actions")]
-    [Export] public InputActionReference LeftAction = null;
+    [Export] public InputActionReference LeftAction = new();
 
     /// <summary>Name of the action to move the cursor down.</summary>
     [ExportGroup("Actions")]
-    [Export] public InputActionReference DownAction = null;
+    [Export] public InputActionReference DownAction = new();
 
     /// <summary>Name of the action to move the cursor right.</summary>
     [ExportGroup("Actions")]
-    [Export] public InputActionReference RightAction = null;
+    [Export] public InputActionReference RightAction = new();
 
     /// <summary>Name of an action to move the cursor with the analog stick.</summary>
     [ExportGroup("Actions")]
-    [Export] public InputActionReference AnalogAction = null;
+    [Export] public InputActionReference AnalogAction = new();
 
     /// <summary>Whether to show the individual control icons or the unified one.</summary>
     public bool ShowIndividualIcons

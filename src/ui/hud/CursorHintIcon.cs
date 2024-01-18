@@ -37,23 +37,23 @@ public partial class CursorHintIcon : HBoxContainer
 
     /// <summary>Name of the action for moving the cursor up.</summary>
     [ExportGroup("Actions")]
-    [Export] public InputActionReference UpAction;
+    [Export] public InputActionReference UpAction = new();
 
     /// <summary>Name of the action for moving the cursor left.</summary>
     [ExportGroup("Actions")]
-    [Export] public InputActionReference LeftAction;
+    [Export] public InputActionReference LeftAction = new();
 
     /// <summary>Name of the action for moving the cursor down.</summary>
     [ExportGroup("Actions")]
-    [Export] public InputActionReference DownAction;
+    [Export] public InputActionReference DownAction = new();
 
     /// <summary>Name of the action for moving the cursor right.</summary>
     [ExportGroup("Actions")]
-    [Export] public InputActionReference RightAction;
+    [Export] public InputActionReference RightAction = new();
 
     /// <summary>Name of an action to move the cursor with the analog stick.</summary>
     [ExportGroup("Actions")]
-    [Export] public InputActionReference AnalogAction;
+    [Export] public InputActionReference AnalogAction = new();
 
     /// <summary>Set the selected input device to show the icon for.</summary>
     public InputDevice SelectedDevice

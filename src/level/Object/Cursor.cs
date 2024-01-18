@@ -26,7 +26,7 @@ public partial class Cursor : GridNode
     private Timer EchoTimer => _timer = GetNode<Timer>("EchoTimer");
 
     /// <summary>Action for selecting a cell.</summary>
-    [Export] public InputActionReference SelectAction;
+    [Export] public InputActionReference SelectAction = new();
 
     /// <summary>Initial delay after pressing a button to begin echoing the input.</summary>
     [ExportGroup("Echo Control")]

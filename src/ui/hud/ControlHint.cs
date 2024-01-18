@@ -20,26 +20,15 @@ public partial class ControlHint : HBoxContainer
 
     private void Update()
     {
-        if (Action is not null)
-        {
-            MouseIcon.Texture = MouseMap is null || !MouseMap.ContainsKey(Action.MouseButton) ? null : MouseMap[Action.MouseButton];
-            KeyboardIcon.Texture = KeyMap is null || !KeyMap.ContainsKey(Action.Key) ? null : KeyMap[Action.Key];
-            GamepadIcon.Texture = GamepadMap is null || !GamepadMap.ContainsKey(Action.GamepadButton) ? null : GamepadMap[Action.GamepadButton];
+        MouseIcon.Texture = MouseMap is null || !MouseMap.ContainsKey(Action.MouseButton) ? null : MouseMap[Action.MouseButton];
+        KeyboardIcon.Texture = KeyMap is null || !KeyMap.ContainsKey(Action.Key) ? null : KeyMap[Action.Key];
+        GamepadIcon.Texture = GamepadMap is null || !GamepadMap.ContainsKey(Action.GamepadButton) ? null : GamepadMap[Action.GamepadButton];
 
-            GetNode<Label>("Label").Text = $": {Action.InputAction.ToString().Split(".").Last()}";
-        }
-        else
-        {
-            MouseIcon.Texture = null;
-            KeyboardIcon.Texture = null;
-            GamepadIcon.Texture = null;
-
-            GetNode<Label>("Label").Text = "";
-        }
+        GetNode<Label>("Label").Text = $": {Action.InputAction.ToString().Split(".").Last()}";
     }
 
     /// <summary>Action to display the icon of.</summary>
-    [Export] public InputActionReference Action = null;
+    [Export] public InputActionReference Action = new();
 
     /// <summary>Mouse button map for the mouse input to the action.</summary>
     [ExportGroup("Action Maps")]

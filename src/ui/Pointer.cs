@@ -68,7 +68,7 @@ public partial class Pointer : Node2D
     [Export] public double Acceleration = 3;
 
     /// <summary>Action to accelerate the speed of the cursor.</summary>
-    [Export] public InputActionReference AccelerateAction;
+    [Export] public InputActionReference AccelerateAction = new();
 
     /// <summary>When the input mode changes, update visibility and move things around to make sure real/virtual mouse positions are consistent.</summary>
     /// <param name="mode">New input mode.</param>
