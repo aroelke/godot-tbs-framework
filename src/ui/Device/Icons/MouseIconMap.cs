@@ -27,5 +27,12 @@ public partial class MouseIconMap : Resource
         set => _icons[MouseButton.Left] = value;
     }
 
+    /// <summary>Right click icon.</summary>
+    [Export] public Texture2D Right
+    {
+        get => _icons[MouseButton.Right];
+        set => _icons[MouseButton.Right] = value;
+    }
+
     public bool ContainsKey(MouseButton key) => _icons.ContainsKey(key);
 }

@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=15 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/level/Level.cs" id="1_r2v0t"]
 [ext_resource type="Texture2D" uid="uid://cybgq10hqektj" path="res://assets/level/ui/overlay.png" id="2_ogyqc"]
@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/ui/hud/CursorHintIcon.tscn" id="8_y3lwj"]
 [ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/ui/hud/ControlHint.tscn" id="9_svidw"]
 [ext_resource type="Resource" uid="uid://c8jgkj5o6iui0" path="res://src/ui/Action/SelectAction.tres" id="10_4s1si"]
+[ext_resource type="Resource" uid="uid://hkvw8a5g5l62" path="res://src/ui/Action/MapCancelAction.tres" id="11_nukc6"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_vg23h"]
 texture = ExtResource("2_ogyqc")
@@ -415,6 +416,7 @@ sources/2 = SubResource("TileSetAtlasSource_vg23h")
 
 [node name="Level" type="Node2D"]
 script = ExtResource("1_r2v0t")
+CancelAction = ExtResource("11_nukc6")
 
 [node name="Overlay" type="TileMap" parent="."]
 tile_set = SubResource("TileSet_80dh3")
@@ -463,9 +465,17 @@ layout_mode = 2
 layout_mode = 2
 text = " "
 
-[node name="ControlHint" parent="UserInterface/HUD/Hints" instance=ExtResource("9_svidw")]
+[node name="SelectHint" parent="UserInterface/HUD/Hints" instance=ExtResource("9_svidw")]
 layout_mode = 2
 Action = ExtResource("10_4s1si")
+
+[node name="Separator2" type="Label" parent="UserInterface/HUD/Hints"]
+layout_mode = 2
+text = " "
+
+[node name="CancelHint" parent="UserInterface/HUD/Hints" instance=ExtResource("9_svidw")]
+layout_mode = 2
+Action = ExtResource("11_nukc6")
 
 [connection signal="CellChanged" from="Cursor" to="." method="OnCursorMoved"]
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]

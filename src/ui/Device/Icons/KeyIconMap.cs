@@ -24,6 +24,13 @@ public partial class KeyIconMap : Resource
         set => _icons[Key.Space] = value;
     }
 
+    /// <summary>Escape key icon.</summary>
+    [Export] public Texture2D Escape
+    {
+        get => _icons[Key.Escape];
+        set => _icons[Key.Escape] = value;
+    }
+
     /// <summary>'A' key icon.</summary>
     [Export] public Texture2D A
     {

@@ -6,6 +6,7 @@ using level.map;
 using level.Object;
 using level.Object.Group;
 using ui;
+using ui.Action;
 using util;
 
 namespace level;
@@ -46,6 +47,9 @@ public partial class Level : Node2D
         _pathfinder = null;
         Overlay.Clear();
     }
+
+    /// <summary>Map cancel selection action reference (distinct from menu back/cancel).</summary>
+    [Export] public InputActionReference CancelAction = new();
 
     /// <summary>When a cell is selected, act based on what is or isn't in the cell.</summary>
     /// <param name="cell">Coordinates of the cell selection.</param>
@@ -158,6 +162,21 @@ public partial class Level : Node2D
                     }
                 }
             }
+        }
+    }
+
+    public override void _Input(InputEvent @event)
+    {
+        base._Input(@event);
+        switch (_state)
+        {
+        case State.SelectUnit or State.PostMove:
+            if (@event.IsActionReleased(CancelAction.InputAction))
+            {
+                DeselectUnit();
+                _state = State.Idle;
+            }
+            break;
         }
     }
 }
