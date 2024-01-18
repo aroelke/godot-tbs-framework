@@ -14,6 +14,9 @@ public partial class InputActionReference : Resource
     /// <summary>Default value of the input action property.</summary>
     public static readonly StringName InputActionDefault = "";
 
+    /// <summary><c>InputActionReference</c>s can be used as though they were the string name of the action they represent.</summary>
+    public static implicit operator StringName(InputActionReference reference) => reference.InputAction;
+
     /// <summary>Property containing the input action name.</summary>
     public StringName InputAction = InputActionDefault;
 

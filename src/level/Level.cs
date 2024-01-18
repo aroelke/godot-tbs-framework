@@ -171,7 +171,7 @@ public partial class Level : Node2D
         switch (_state)
         {
         case State.SelectUnit or State.PostMove:
-            if (@event.IsActionReleased(CancelAction.InputAction))
+            if (@event.IsActionReleased(CancelAction))
             {
                 DeselectUnit();
                 _state = State.Idle;

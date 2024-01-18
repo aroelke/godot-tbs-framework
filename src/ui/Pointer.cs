@@ -133,13 +133,13 @@ public partial class Pointer : Node2D
         base._UnhandledInput(@event);
         if (DeviceManager.Mode == InputMode.Analog)
         {
-            if (@event.IsActionPressed(AccelerateAction.InputAction))
+            if (@event.IsActionPressed(AccelerateAction))
             {
                 GetViewport().SetInputAsHandled();
                 _accelerate = true;
                 return;
             }
-            if (@event.IsActionReleased(AccelerateAction.InputAction))
+            if (@event.IsActionReleased(AccelerateAction))
             {
                 GetViewport().SetInputAsHandled();
                 _accelerate = false;

@@ -91,7 +91,7 @@ public partial class Cursor : GridNode
                     _direction = Vector2I.Zero;
             }
         }
-        if (@event.IsActionReleased(SelectAction.InputAction))
+        if (@event.IsActionReleased(SelectAction))
             EmitSignal(SignalName.CellSelected, Grid.CellOf(Position));
     }
 
