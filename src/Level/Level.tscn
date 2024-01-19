@@ -1,10 +1,10 @@
 [gd_scene load_steps=15 format=3 uid="uid://p5cw5rndfqun"]
 
-[ext_resource type="Script" path="res://src/temp/Level.cs" id="1_r2v0t"]
+[ext_resource type="Script" path="res://src/Level/Level.cs" id="1_r2v0t"]
 [ext_resource type="Texture2D" uid="uid://cybgq10hqektj" path="res://assets/level/ui/overlay.png" id="2_ogyqc"]
 [ext_resource type="Texture2D" uid="uid://dfppi0pjsv5ut" path="res://assets/level/ui/arrow.png" id="3_1nkpv"]
-[ext_resource type="Script" path="res://src/temp/Map/Overlay.cs" id="4_wx588"]
-[ext_resource type="PackedScene" uid="uid://bgcsg0l8mj2sn" path="res://src/temp/Object/Cursor.tscn" id="6_3v7mf"]
+[ext_resource type="Script" path="res://src/Level/Map/Overlay.cs" id="4_wx588"]
+[ext_resource type="PackedScene" uid="uid://bgcsg0l8mj2sn" path="res://src/Level/Object/Cursor.tscn" id="6_3v7mf"]
 [ext_resource type="PackedScene" uid="uid://bqrqq7jid7qp2" path="res://src/ui/Pointer.tscn" id="6_cbrg8"]
 [ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://src/ui/hud/HUD.tres" id="7_12lpk"]
 [ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/ui/hud/CursorHintIcon.tscn" id="8_y3lwj"]
