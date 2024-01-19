@@ -1,12 +1,12 @@
 [gd_scene load_steps=4 format=3 uid="uid://bqrqq7jid7qp2"]
 
-[ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://assets/ui/mouse.png" id="1_eg4v3"]
-[ext_resource type="Script" path="res://src/ui/Pointer.cs" id="1_i4igp"]
-[ext_resource type="Resource" uid="uid://dsjbjmgsqqd7w" path="res://src/ui/Action/AccelerateAction.tres" id="2_0i73y"]
+[ext_resource type="Script" path="res://src/temp/Pointer.cs" id="1_ir2ks"]
+[ext_resource type="Resource" uid="uid://dsjbjmgsqqd7w" path="res://src/temp/Action/AccelerateAction.tres" id="2_7gi5m"]
+[ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://assets/ui/mouse.png" id="3_vdirn"]
 
 [node name="Pointer" type="Node2D"]
-script = ExtResource("1_i4igp")
-AccelerateAction = ExtResource("2_0i73y")
+script = ExtResource("1_ir2ks")
+AccelerateAction = ExtResource("2_7gi5m")
 
 [node name="Camera" type="Camera2D" parent="."]
 zoom = Vector2(2, 2)
@@ -29,4 +29,4 @@ offset_left = 1.0
 offset_right = 49.0
 offset_bottom = 48.0
 mouse_filter = 2
-texture = ExtResource("1_eg4v3")
+texture = ExtResource("3_vdirn")
