@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="GamepadButtonIconMap" load_steps=5 format=3 uid="uid://c27jd22jjxlu4"]
 
-[ext_resource type="Script" path="res://src/temp/Device/Icons/GamepadButtonIconMap.cs" id="1_1k3n1"]
-[ext_resource type="Resource" uid="uid://ca444m32ts5x2" path="res://src/temp/Device/Icons/PlaystationButtonIconMap.tres" id="1_eoch7"]
-[ext_resource type="Script" path="res://src/temp/Device/Icons/GamepadButtonIconMapElement.cs" id="2_v3p0j"]
+[ext_resource type="Script" path="res://src/UI/Device/Icons/GamepadButtonIconMap.cs" id="1_1k3n1"]
+[ext_resource type="Resource" uid="uid://ca444m32ts5x2" path="res://src/UI/Device/Icons/PlaystationButtonIconMap.tres" id="1_eoch7"]
+[ext_resource type="Script" path="res://src/UI/Device/Icons/GamepadButtonIconMapElement.cs" id="2_v3p0j"]
 
 [sub_resource type="Resource" id="Resource_whiry"]
 script = ExtResource("2_v3p0j")

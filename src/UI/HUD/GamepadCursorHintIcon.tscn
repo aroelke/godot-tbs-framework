@@ -1,0 +1,83 @@
+[gd_scene load_steps=15 format=3 uid="uid://cpswnx0irecoi"]
+
+[ext_resource type="Script" path="res://src/UI/HUD/GamepadCursorHintIcon.cs" id="1_247tv"]
+[ext_resource type="Resource" uid="uid://c27jd22jjxlu4" path="res://src/UI/Device/Icons/GamepadButtonIconMap.tres" id="2_wymin"]
+[ext_resource type="Resource" uid="uid://rlgg8mn3bshl" path="res://src/UI/Device/Icons/GamepadAxisIconMap.tres" id="3_30qkp"]
+[ext_resource type="Resource" uid="uid://bg5wxy6d07m7x" path="res://src/UI/Action/MoveUpAction.tres" id="4_s48fs"]
+[ext_resource type="Resource" uid="uid://dtest68b2o5wf" path="res://src/UI/Action/MoveLeftAction.tres" id="5_ohfwo"]
+[ext_resource type="Resource" uid="uid://dgfjy48mw11g0" path="res://src/UI/Action/MoveDownAction.tres" id="6_q75by"]
+[ext_resource type="Resource" uid="uid://bkj4yccwimuix" path="res://src/UI/Action/MoveRightAction.tres" id="7_7r284"]
+[ext_resource type="Resource" uid="uid://b5chrwy1ey3sm" path="res://src/UI/Action/AnalogUpAction.tres" id="8_jol2g"]
+[ext_resource type="Texture2D" uid="uid://b8opi1ojes3lf" path="res://assets/ui/icons/controls/playstation/dpadup.png" id="9_t5aqx"]
+[ext_resource type="Texture2D" uid="uid://ddo2e8y4xxywf" path="res://assets/ui/icons/controls/playstation/dpadleft.png" id="10_flnu6"]
+[ext_resource type="Texture2D" uid="uid://x210tjc0p8u6" path="res://assets/ui/icons/controls/playstation/dpadright.png" id="11_rkmss"]
+[ext_resource type="Texture2D" uid="uid://rvicv7mk4e0b" path="res://assets/ui/icons/controls/playstation/dpaddown.png" id="12_wanm3"]
+[ext_resource type="Texture2D" uid="uid://dwrg3c6m2yegj" path="res://assets/ui/icons/controls/playstation/dpad.png" id="13_6l7cn"]
+[ext_resource type="Texture2D" uid="uid://cgyr5p8sm8ypi" path="res://assets/ui/icons/controls/playstation/left_stick.png" id="14_d7nyy"]
+
+[node name="GamepadCursorHintIcon" type="HBoxContainer"]
+offset_right = 12.0
+offset_bottom = 8.0
+script = ExtResource("1_247tv")
+ButtonMap = ExtResource("2_wymin")
+AxisMap = ExtResource("3_30qkp")
+UpAction = ExtResource("4_s48fs")
+LeftAction = ExtResource("5_ohfwo")
+DownAction = ExtResource("6_q75by")
+RightAction = ExtResource("7_7r284")
+AnalogAction = ExtResource("8_jol2g")
+
+[node name="Individual" type="GridContainer" parent="."]
+layout_mode = 2
+theme_override_constants/h_separation = -3
+theme_override_constants/v_separation = -3
+columns = 3
+
+[node name="EmptyNW" type="TextureRect" parent="Individual"]
+layout_mode = 2
+
+[node name="Up" type="TextureRect" parent="Individual"]
+layout_mode = 2
+texture = ExtResource("9_t5aqx")
+stretch_mode = 3
+
+[node name="EmptyNE" type="TextureRect" parent="Individual"]
+layout_mode = 2
+
+[node name="Left" type="TextureRect" parent="Individual"]
+layout_mode = 2
+texture = ExtResource("10_flnu6")
+stretch_mode = 3
+
+[node name="Empty" type="TextureRect" parent="Individual"]
+layout_mode = 2
+
+[node name="Right" type="TextureRect" parent="Individual"]
+layout_mode = 2
+texture = ExtResource("11_rkmss")
+stretch_mode = 3
+
+[node name="EmptySW" type="TextureRect" parent="Individual"]
+layout_mode = 2
+
+[node name="Down" type="TextureRect" parent="Individual"]
+layout_mode = 2
+texture = ExtResource("12_wanm3")
+stretch_mode = 3
+
+[node name="EmptySE" type="TextureRect" parent="Individual"]
+layout_mode = 2
+
+[node name="Unified" type="TextureRect" parent="."]
+layout_mode = 2
+texture = ExtResource("13_6l7cn")
+stretch_mode = 3
+
+[node name="Slash" type="Label" parent="."]
+layout_mode = 2
+text = "/"
+
+[node name="Analog" type="TextureRect" parent="."]
+layout_mode = 2
+texture = ExtResource("14_d7nyy")
+stretch_mode = 3

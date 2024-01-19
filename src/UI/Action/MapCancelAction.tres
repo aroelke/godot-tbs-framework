@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="InputActionReference" load_steps=2 format=3 uid="uid://hkvw8a5g5l62"]
 
-[ext_resource type="Script" path="res://src/temp/Action/InputActionReference.cs" id="1_mkk4x"]
+[ext_resource type="Script" path="res://src/UI/Action/InputActionReference.cs" id="1_mkk4x"]
 
 [resource]
 script = ExtResource("1_mkk4x")

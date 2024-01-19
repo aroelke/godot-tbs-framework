@@ -1,12 +1,12 @@
 [gd_scene load_steps=4 format=3 uid="uid://bgcsg0l8mj2sn"]
 
 [ext_resource type="Texture2D" uid="uid://dhxxyboxchr67" path="res://assets/level/ui/cursor.png" id="1_erpak"]
-[ext_resource type="Resource" uid="uid://c8jgkj5o6iui0" path="res://src/temp/Action/SelectAction.tres" id="2_5q2au"]
+[ext_resource type="Resource" uid="uid://c8jgkj5o6iui0" path="res://src/UI/Action/SelectAction.tres" id="2_2lcw4"]
 [ext_resource type="Script" path="res://src/Level/Object/Cursor.cs" id="2_ysrq3"]
 
 [node name="Cursor" type="Node2D"]
 script = ExtResource("2_ysrq3")
-SelectAction = ExtResource("2_5q2au")
+SelectAction = ExtResource("2_2lcw4")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("1_erpak")
