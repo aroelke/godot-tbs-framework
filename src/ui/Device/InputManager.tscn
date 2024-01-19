@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=3 uid="uid://c3kldvk8i0k4f"]
 
-[ext_resource type="Script" path="res://src/ui/input/InputManager.cs" id="1_qm7vm"]
+[ext_resource type="Script" path="res://src/ui/Device/InputManager.cs" id="1_qm7vm"]
 [ext_resource type="Resource" uid="uid://bg5wxy6d07m7x" path="res://src/ui/Action/MoveUpAction.tres" id="2_vclhx"]
 [ext_resource type="Resource" uid="uid://dtest68b2o5wf" path="res://src/ui/Action/MoveLeftAction.tres" id="3_deq8h"]
 [ext_resource type="Resource" uid="uid://dgfjy48mw11g0" path="res://src/ui/Action/MoveDownAction.tres" id="4_6tqmy"]
