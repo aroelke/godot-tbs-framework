@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using level.map;
+using level.Map;
 using level.Object;
 
 namespace util;

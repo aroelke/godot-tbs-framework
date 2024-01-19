@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Godot;
 using level.Object;
 
-namespace level.map;
+namespace level.Map;
 
 /// <summary>Defines the grid dimensions and attributes and contains the locations of the objects and terrain within it.</summary>
 [Tool]

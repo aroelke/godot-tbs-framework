@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godot;
-using level.map;
+using level.Map;
 
 namespace level.Object;
 
