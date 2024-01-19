@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using level.Object.Group;
+using Level.Object.Group;
 
-namespace level.Object;
+namespace Level.Object;
 
 /// <summary>
 /// A unit that moves around the map.  Mostly is just a visual representation of what's where and interface for the player to

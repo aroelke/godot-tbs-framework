@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
-namespace level.Object.Group;
+namespace Level.Object.Group;
 
 /// <summary>A  group of grid nodes to facilitate managing and iterating over them.</summary>
 public partial class GridNodeGroup : Node, IEnumerable<GridNode>, IEnumerable

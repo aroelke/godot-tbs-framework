@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Godot;
-using level.Object;
+using Level.Object;
 
-namespace level.Map;
+namespace Level.Map;
 
 /// <summary>Defines the grid dimensions and attributes and contains the locations of the objects and terrain within it.</summary>
 [Tool]

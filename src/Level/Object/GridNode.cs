@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Godot;
-using level.Map;
+using Level.Map;
 
-namespace level.Object;
+namespace Level.Object;
 
 /// <summary>A node representing an object that moves on a grid.</summary>
 [GlobalClass, Tool]

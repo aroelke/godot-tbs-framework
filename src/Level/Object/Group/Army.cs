@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
-namespace level.Object.Group;
+namespace Level.Object.Group;
 
 /// <summary>A group of <c>Unit</c> <c>GridNode</c>s that has allies and enemies.</summary>
 [Tool]

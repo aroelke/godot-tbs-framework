@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using level.Map;
-using level.Object;
+using Level.Map;
+using Level.Object;
 
 namespace util;
 

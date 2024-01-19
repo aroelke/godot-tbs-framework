@@ -1,6 +1,6 @@
 using Godot;
 
-namespace level.Map;
+namespace Level.Map;
 
 /// <summary>Represents a piece of terrain on the battlefield, which can hinder movement and  modify stats.</summary>
 [GlobalClass, Tool]

@@ -2,15 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using level.Map;
-using level.Object;
-using level.Object.Group;
+using Level.Map;
+using Level.Object;
+using Level.Object.Group;
 using ui;
 using ui.Action;
 using ui.hud;
 using util;
 
-namespace level;
+namespace Level;
 
 /// <summary>
 /// Manages the setup of and objects inside a level and provides them information about it.  Is "global" in a way in that

@@ -2,7 +2,7 @@ using Godot;
 using ui.Action;
 using ui.input;
 
-namespace level.Object;
+namespace Level.Object;
 
 /// <summary>
 /// Cursor on the grid used for highlighting a cell and selecting things in it.  Importantly, it does not move itself;
