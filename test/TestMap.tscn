@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/level/Level.tscn" id="1_h3e4w"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/level/map/Grid.tscn" id="2_trttl"]
-[ext_resource type="Resource" uid="uid://bn6uq3ysywt60" path="res://src/level/map/temp/plain.tres" id="3_ft5ge"]
+[ext_resource type="Resource" uid="uid://bn6uq3ysywt60" path="res://src/level/map/Terrain/plain.tres" id="3_ft5ge"]
 [ext_resource type="PackedScene" uid="uid://1ev2yxu31ow" path="res://src/level/Object/Group/Army.tscn" id="4_xrn4s"]
 [ext_resource type="PackedScene" uid="uid://b0cvutx2lj5uy" path="res://src/level/Object/Unit.tscn" id="5_ju5kl"]
 
