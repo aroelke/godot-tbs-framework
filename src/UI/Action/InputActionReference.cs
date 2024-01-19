@@ -1,8 +1,8 @@
 using System.Linq;
 using Godot;
-using ui.Device;
+using UI.Device;
 
-namespace ui.Action;
+namespace UI.Action;
 
 /// <summary>Provides a single place to define the name of an action and get its associated controls.</summary>
 [GlobalClass, Tool]

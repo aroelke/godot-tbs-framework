@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using Godot;
-using ui.Action;
-using ui.Device.Icons;
-using ui.Device;
+using UI.Action;
+using UI.Device.Icons;
+using UI.Device;
 
-namespace ui.HUD;
+namespace UI.HUD;
 
 /// <summary>Hint icon for showing the controls to move the cursor for the current control scheme.</summary>
 [Tool]

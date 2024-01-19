@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
-namespace ui.Device.Icons;
+namespace UI.Device.Icons;
 
 /// <summary>Resource mapping a specific gamepad's axes to icons to display for them.</summary>
 [GlobalClass, Tool]

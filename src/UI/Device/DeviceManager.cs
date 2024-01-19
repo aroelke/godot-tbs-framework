@@ -1,6 +1,6 @@
 using Godot;
 
-namespace ui.Device;
+namespace UI.Device;
 
 /// <summary>Manages information about and changes in input device.</summary>
 public partial class DeviceManager : Node

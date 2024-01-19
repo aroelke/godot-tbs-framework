@@ -5,9 +5,9 @@ using Godot;
 using Level.Map;
 using Level.Object;
 using Level.Object.Group;
-using ui;
-using ui.Action;
-using ui.HUD;
+using UI;
+using UI.Action;
+using UI.HUD;
 using util;
 
 namespace Level;

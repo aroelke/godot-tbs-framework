@@ -1,6 +1,6 @@
 using Godot;
-using ui.Action;
-using ui.Device;
+using UI.Action;
+using UI.Device;
 
 namespace Level.Object;
 

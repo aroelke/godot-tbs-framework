@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using ui.Device;
+using UI.Device;
 
-namespace ui.Device.Icons;
+namespace UI.Device.Icons;
 
 [GlobalClass, Tool]
 public partial class GamepadButtonIconMap : Resource

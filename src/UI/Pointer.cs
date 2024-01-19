@@ -1,8 +1,8 @@
 using Godot;
-using ui.Action;
-using ui.Device;
+using UI.Action;
+using UI.Device;
 
-namespace ui;
+namespace UI;
 
 /// <summary>
 /// Virtual mouse pointer that lives in the game world but has a projection onto the UI canvas and is controlled via analog stick.

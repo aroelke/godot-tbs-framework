@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using ui.Action;
-using ui.Device.Icons;
-using ui.Device;
+using UI.Action;
+using UI.Device.Icons;
+using UI.Device;
 
-namespace ui.HUD;
+namespace UI.HUD;
 
 /// <summary>Icon and label showing the input for an action that doesn't have an analog or mouse option.</summary>
 [Tool]

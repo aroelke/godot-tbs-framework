@@ -1,8 +1,8 @@
 using System.Linq;
 using Godot;
-using ui.Action;
+using UI.Action;
 
-namespace ui.Device;
+namespace UI.Device;
 
 /// <summary>Manages information about and changes in input actions.</summary>
 public partial class InputManager : Node2D
