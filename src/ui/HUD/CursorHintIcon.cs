@@ -4,7 +4,7 @@ using ui.Action;
 using ui.Device.Icons;
 using ui.input;
 
-namespace ui.hud;
+namespace ui.HUD;
 
 /// <summary>Hint icon for showing the controls to move the cursor for the current control scheme.</summary>
 [Tool]

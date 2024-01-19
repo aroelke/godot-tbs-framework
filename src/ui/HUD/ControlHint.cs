@@ -5,7 +5,7 @@ using ui.Action;
 using ui.Device.Icons;
 using ui.input;
 
-namespace ui.hud;
+namespace ui.HUD;
 
 /// <summary>Icon and label showing the input for an action that doesn't have an analog or mouse option.</summary>
 [Tool]

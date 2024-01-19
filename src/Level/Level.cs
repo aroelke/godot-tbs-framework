@@ -7,7 +7,7 @@ using Level.Object;
 using Level.Object.Group;
 using ui;
 using ui.Action;
-using ui.hud;
+using ui.HUD;
 using util;
 
 namespace Level;
