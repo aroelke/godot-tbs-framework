@@ -1,10 +1,10 @@
 [gd_scene load_steps=27 format=3 uid="uid://dgsv1t18thon5"]
 
-[ext_resource type="Resource" uid="uid://bn6uq3ysywt60" path="res://src/level/Map/Terrain/plain.tres" id="1_th7be"]
-[ext_resource type="Resource" uid="uid://ryxx30gb4grd" path="res://src/level/Map/Terrain/bush.tres" id="2_8gjav"]
-[ext_resource type="Resource" uid="uid://matpnfv7cs4l" path="res://src/level/Map/Terrain/mountain.tres" id="3_0n2fa"]
+[ext_resource type="Resource" uid="uid://bn6uq3ysywt60" path="res://src/temp/Map/Terrain/plain.tres" id="1_th7be"]
+[ext_resource type="Resource" uid="uid://ryxx30gb4grd" path="res://src/temp/Map/Terrain/bush.tres" id="2_8gjav"]
+[ext_resource type="Resource" uid="uid://matpnfv7cs4l" path="res://src/temp/Map/Terrain/mountain.tres" id="3_0n2fa"]
 [ext_resource type="Texture2D" uid="uid://ct5iy7vuwoof3" path="res://assets/environment/tiles/objects.png" id="4_yrfs1"]
-[ext_resource type="Script" path="res://src/level/Map/Grid.cs" id="5_6ttph"]
+[ext_resource type="Script" path="res://src/temp/Map/Grid.cs" id="5_6ttph"]
 
 [sub_resource type="TileMapPattern" id="TileMapPattern_m8dcu"]
 tile_data = PackedInt32Array(0, 0, 2, 65536, 0, 3)
