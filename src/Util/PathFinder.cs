@@ -5,7 +5,7 @@ using Godot;
 using Level.Map;
 using Level.Object;
 
-namespace util;
+namespace Util;
 
 /// <summary>
 /// Helper for finding movement, attack, and support ranges on a <c>LevelMap</c> for a <c>Unit</c>. Also acts as storage for computed ranges for the <c>Unit</c>.
