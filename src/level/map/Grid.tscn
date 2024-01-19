@@ -1,8 +1,8 @@
 [gd_scene load_steps=27 format=3 uid="uid://dgsv1t18thon5"]
 
-[ext_resource type="Resource" uid="uid://bn6uq3ysywt60" path="res://src/level/map/terrain/plain.tres" id="1_th7be"]
-[ext_resource type="Resource" uid="uid://ryxx30gb4grd" path="res://src/level/map/terrain/bush.tres" id="2_8gjav"]
-[ext_resource type="Resource" uid="uid://matpnfv7cs4l" path="res://src/level/map/terrain/mountain.tres" id="3_0n2fa"]
+[ext_resource type="Resource" uid="uid://bn6uq3ysywt60" path="res://src/level/map/temp/plain.tres" id="1_th7be"]
+[ext_resource type="Resource" uid="uid://ryxx30gb4grd" path="res://src/level/map/temp/bush.tres" id="2_8gjav"]
+[ext_resource type="Resource" uid="uid://matpnfv7cs4l" path="res://src/level/map/temp/mountain.tres" id="3_0n2fa"]
 [ext_resource type="Texture2D" uid="uid://ct5iy7vuwoof3" path="res://assets/environment/tiles/objects.png" id="4_yrfs1"]
 [ext_resource type="Script" path="res://src/level/map/Grid.cs" id="5_6ttph"]
 
