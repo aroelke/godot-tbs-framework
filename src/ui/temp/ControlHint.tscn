@@ -1,0 +1,34 @@
+[gd_scene load_steps=7 format=3 uid="uid://btlhiv0dyhf7o"]
+
+[ext_resource type="Script" path="res://src/ui/temp/ControlHint.cs" id="1_uras0"]
+[ext_resource type="Script" path="res://src/ui/Action/InputActionReference.cs" id="2_hlkoc"]
+[ext_resource type="Resource" uid="uid://37pcc5c7cogr" path="res://src/ui/Device/Icons/MouseIconMap.tres" id="3_i5aci"]
+[ext_resource type="Resource" uid="uid://q61hgr3qsv4g" path="res://src/ui/Device/Icons/KeyIconMap.tres" id="4_5mey3"]
+[ext_resource type="Resource" uid="uid://c27jd22jjxlu4" path="res://src/ui/Device/Icons/GamepadButtonIconMap.tres" id="5_my3yl"]
+
+[sub_resource type="Resource" id="Resource_cdt7q"]
+script = ExtResource("2_hlkoc")
+"Input Action" = &""
+
+[node name="ControlHint" type="HBoxContainer"]
+script = ExtResource("1_uras0")
+Action = SubResource("Resource_cdt7q")
+MouseMap = ExtResource("3_i5aci")
+KeyMap = ExtResource("4_5mey3")
+GamepadMap = ExtResource("5_my3yl")
+
+[node name="Mouse" type="TextureRect" parent="."]
+layout_mode = 2
+stretch_mode = 3
+
+[node name="Keyboard" type="TextureRect" parent="."]
+layout_mode = 2
+stretch_mode = 3
+
+[node name="Gamepad" type="TextureRect" parent="."]
+layout_mode = 2
+stretch_mode = 3
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+text = ": "

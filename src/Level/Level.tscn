@@ -6,9 +6,9 @@
 [ext_resource type="Script" path="res://src/Level/Map/Overlay.cs" id="4_wx588"]
 [ext_resource type="PackedScene" uid="uid://bgcsg0l8mj2sn" path="res://src/Level/Object/Cursor.tscn" id="6_3v7mf"]
 [ext_resource type="PackedScene" uid="uid://bqrqq7jid7qp2" path="res://src/ui/Pointer.tscn" id="6_cbrg8"]
-[ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://src/ui/hud/HUD.tres" id="7_12lpk"]
-[ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/ui/hud/CursorHintIcon.tscn" id="8_y3lwj"]
-[ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/ui/hud/ControlHint.tscn" id="9_svidw"]
+[ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://src/ui/temp/HUD.tres" id="7_12lpk"]
+[ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/ui/temp/CursorHintIcon.tscn" id="8_y3lwj"]
+[ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/ui/temp/ControlHint.tscn" id="9_svidw"]
 [ext_resource type="Resource" uid="uid://c8jgkj5o6iui0" path="res://src/ui/Action/SelectAction.tres" id="10_4s1si"]
 [ext_resource type="Resource" uid="uid://hkvw8a5g5l62" path="res://src/ui/Action/MapCancelAction.tres" id="11_nukc6"]
 
