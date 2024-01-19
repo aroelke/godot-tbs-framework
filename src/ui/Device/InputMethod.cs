@@ -1,4 +1,4 @@
-namespace ui.input;
+namespace ui.Device;
 
 /// <summary>Types of supported input devices.</summary>
 public enum InputDevice

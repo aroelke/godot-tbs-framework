@@ -2,7 +2,7 @@ using System.Linq;
 using Godot;
 using ui.Action;
 
-namespace ui.input;
+namespace ui.Device;
 
 /// <summary>Manages information about and changes in input actions.</summary>
 public partial class InputManager : Node2D

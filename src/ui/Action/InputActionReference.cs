@@ -1,6 +1,6 @@
 using System.Linq;
 using Godot;
-using ui.input;
+using ui.Device;
 
 namespace ui.Action;
 

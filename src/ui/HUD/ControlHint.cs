@@ -3,7 +3,7 @@ using System.Linq;
 using Godot;
 using ui.Action;
 using ui.Device.Icons;
-using ui.input;
+using ui.Device;
 
 namespace ui.HUD;
 

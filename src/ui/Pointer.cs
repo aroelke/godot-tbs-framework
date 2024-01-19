@@ -1,6 +1,6 @@
 using Godot;
 using ui.Action;
-using ui.input;
+using ui.Device;
 
 namespace ui;
 
