@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using UI.Action;
-using UI.Device.Icons;
-using UI.Device;
+using UI.Controls.Icons;
+using UI.Controls;
 
 namespace UI.HUD;
 

@@ -1,6 +1,6 @@
 using Godot;
 
-namespace UI.Device.Icons;
+namespace UI.Controls.Icons;
 
 [GlobalClass, Tool]
 public partial class GamepadButtonIconMapElement : Resource

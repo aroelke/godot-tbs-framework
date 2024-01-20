@@ -1,4 +1,4 @@
-namespace UI.Device;
+namespace UI.Controls;
 
 /// <summary>Types of supported input devices.</summary>
 public enum InputDevice

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
-namespace UI.Device.Icons;
+namespace UI.Controls.Icons;
 
 /// <summary>Resource mapping keyboard keys onto icons to display for them.</summary>
 [GlobalClass, Tool]

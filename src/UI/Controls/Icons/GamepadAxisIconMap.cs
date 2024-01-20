@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using UI.Device;
+using UI.Controls;
 
-namespace UI.Device.Icons;
+namespace UI.Controls.Icons;
 
 [GlobalClass, Tool]
 public partial class GamepadAxisIconMap : Resource
