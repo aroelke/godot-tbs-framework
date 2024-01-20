@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" path="res://src/UI/HUD/ControlHint.cs" id="1_y8x7b"]
 [ext_resource type="Script" path="res://src/UI/Action/InputActionReference.cs" id="2_rqd1j"]
-[ext_resource type="Resource" uid="uid://37pcc5c7cogr" path="res://src/UI/Device/Icons/MouseIconMap.tres" id="3_i11qh"]
-[ext_resource type="Resource" uid="uid://q61hgr3qsv4g" path="res://src/UI/Device/Icons/KeyIconMap.tres" id="4_y2jod"]
-[ext_resource type="Resource" uid="uid://c27jd22jjxlu4" path="res://src/UI/Device/Icons/GamepadButtonIconMap.tres" id="5_4yo8y"]
+[ext_resource type="Resource" uid="uid://37pcc5c7cogr" path="res://src/UI/Controls/Icons/MouseIconMap.tres" id="3_2hhue"]
+[ext_resource type="Resource" uid="uid://q61hgr3qsv4g" path="res://src/UI/Controls/Icons/KeyIconMap.tres" id="4_qc41a"]
+[ext_resource type="Resource" uid="uid://c27jd22jjxlu4" path="res://src/UI/Controls/Icons/GamepadButtonIconMap.tres" id="5_olt2t"]
 
 [sub_resource type="Resource" id="Resource_cdt7q"]
 script = ExtResource("2_rqd1j")
@@ -13,9 +13,9 @@ script = ExtResource("2_rqd1j")
 [node name="ControlHint" type="HBoxContainer"]
 script = ExtResource("1_y8x7b")
 Action = SubResource("Resource_cdt7q")
-MouseMap = ExtResource("3_i11qh")
-KeyMap = ExtResource("4_y2jod")
-GamepadMap = ExtResource("5_4yo8y")
+MouseMap = ExtResource("3_2hhue")
+KeyMap = ExtResource("4_qc41a")
+GamepadMap = ExtResource("5_olt2t")
 
 [node name="Mouse" type="TextureRect" parent="."]
 layout_mode = 2

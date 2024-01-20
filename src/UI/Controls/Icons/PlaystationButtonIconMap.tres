@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="IndividualGamepadButtonIconMap" load_steps=11 format=3 uid="uid://ca444m32ts5x2"]
 
-[ext_resource type="Script" path="res://src/UI/Device/Icons/IndividualGamepadButtonIconMap.cs" id="1_f34yc"]
+[ext_resource type="Script" path="res://src/UI/Controls/Icons/IndividualGamepadButtonIconMap.cs" id="1_f34yc"]
 [ext_resource type="Texture2D" uid="uid://ctvir25bpi7e1" path="res://assets/ui/icons/controls/playstation/cross.png" id="1_y6dub"]
 [ext_resource type="Texture2D" uid="uid://cm1l7k8w18s36" path="res://assets/ui/icons/controls/playstation/circle.png" id="2_ej2ps"]
 [ext_resource type="Texture2D" uid="uid://dwrg3c6m2yegj" path="res://assets/ui/icons/controls/playstation/dpad.png" id="3_j32j4"]
