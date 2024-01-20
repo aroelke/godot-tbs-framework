@@ -1,6 +1,6 @@
 using Godot;
-using UI.Action;
 using UI.Controls;
+using UI.Controls.Action;
 
 namespace UI;
 

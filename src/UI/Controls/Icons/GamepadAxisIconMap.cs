@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using UI.Controls;
 
 namespace UI.Controls.Icons;
 

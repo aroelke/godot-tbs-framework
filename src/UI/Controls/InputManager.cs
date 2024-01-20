@@ -1,6 +1,6 @@
 using System.Linq;
 using Godot;
-using UI.Action;
+using UI.Controls.Action;
 
 namespace UI.Controls;
 

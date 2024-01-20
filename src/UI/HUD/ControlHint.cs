@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using UI.Action;
 using UI.Controls.Icons;
 using UI.Controls;
+using UI.Controls.Action;
 
 namespace UI.HUD;
 
