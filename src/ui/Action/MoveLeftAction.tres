@@ -1,7 +1,0 @@
-[gd_resource type="Resource" script_class="InputActionReference" load_steps=2 format=3 uid="uid://dtest68b2o5wf"]
-
-[ext_resource type="Script" path="res://src/ui/Action/InputActionReference.cs" id="1_dxkwj"]
-
-[resource]
-script = ExtResource("1_dxkwj")
-"Input Action" = &"Global.Move Cursor Left"

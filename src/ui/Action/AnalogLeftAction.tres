@@ -1,7 +1,0 @@
-[gd_resource type="Resource" script_class="InputActionReference" load_steps=2 format=3 uid="uid://cvtvdabjk3tvi"]
-
-[ext_resource type="Script" path="res://src/ui/Action/InputActionReference.cs" id="1_1sjxr"]
-
-[resource]
-script = ExtResource("1_1sjxr")
-"Input Action" = &"Global.Analog Left"

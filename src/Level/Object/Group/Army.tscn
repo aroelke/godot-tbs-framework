@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://1ev2yxu31ow"]
+
+[ext_resource type="Script" path="res://src/Level/Object/Group/Army.cs" id="1_d5uxb"]
+
+[node name="Army" type="Node"]
+script = ExtResource("1_d5uxb")
+
+[connection signal="child_entered_tree" from="." to="." method="OnChildEnteredTree"]
+[connection signal="child_exiting_tree" from="." to="." method="OnChildExitingTree"]
