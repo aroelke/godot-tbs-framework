@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using Godot;
 using UI.Controls.Icons;
-using UI.Controls;
 using UI.Controls.Action;
+using UI.Controls.Device;
 
 namespace UI.HUD;
 
