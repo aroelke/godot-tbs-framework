@@ -5,7 +5,7 @@ using Godot;
 
 namespace Level.UI;
 
-/// <summary>Map overlay tile set for computing and displaying traversable and attackable cells and managing unit movement.</summary>
+/// <summary>Map overlay tile set for displaying traversable and attackable cells and managing unit movement.</summary>
 public partial class Overlay : TileMap
 {
     // TileSet source ID for the path arrows and indices containing arrowheads.
