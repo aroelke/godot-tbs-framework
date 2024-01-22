@@ -36,6 +36,9 @@ public partial class Cursor : GridNode
     [ExportGroup("Echo Control")]
     [Export] public double EchoInterval = 0.03;
 
+    /// <summary>When a direction is pressd, move the cursor to the adjacent cell there.</summary>
+    public void OnDirectionPressed(Vector2I direction) => Cell += direction;
+
     /// <summary>When the cell changes, update position, then convert to a grid cell center and notify listeners that the cursor moved.</summary>
     /// <param name="cell">Cell the cursor moved to.</param>
     public void OnCellChanged(Vector2I cell)
@@ -52,53 +55,10 @@ public partial class Cursor : GridNode
             Cell = Grid.CellOf(position);
     }
 
-    /// <summary>Start/continue echo movement of the cursor.</summary>
-    public void OnEchoTimeout()
-    {
-        Cell += _direction;
-        if (EchoInterval > GetProcessDeltaTime())
-        {
-            EchoTimer.WaitTime = EchoInterval;
-            EchoTimer.Start();
-        }
-        else
-            _echoing = true;
-    }
-
     public override void _UnhandledInput(InputEvent @event)
     {
         base._UnhandledInput(@event);
-        if (DeviceManager.Mode == InputMode.Digital)
-        {
-            Vector2I dir = InputManager.GetDigitalVector();
-            if (dir != _direction)
-            {
-                EchoTimer.Stop();
-                _echoing = false;
-
-                if (dir != Vector2I.Zero)
-                {
-                    if (dir.Abs().X + dir.Abs().Y > _direction.Abs().X + _direction.Abs().Y)
-                        Cell += dir - _direction;
-                    else
-                        Cell += dir;
-                    _direction = dir;
-
-                    EchoTimer.WaitTime = EchoDelay;
-                    EchoTimer.Start();
-                }
-                else
-                    _direction = Vector2I.Zero;
-            }
-        }
         if (@event.IsActionReleased(SelectAction))
             EmitSignal(SignalName.CellSelected, Grid.CellOf(Position));
-    }
-
-    public override void _Process(double delta)
-    {
-        base._Process(delta);
-        if (DeviceManager.Mode == InputMode.Digital && _echoing)
-            Cell += _direction;
     }
 }
