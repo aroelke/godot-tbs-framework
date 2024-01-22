@@ -1,14 +1,14 @@
 [gd_scene load_steps=10 format=3 uid="uid://c3kldvk8i0k4f"]
 
 [ext_resource type="Script" path="res://src/UI/Controls/Device/InputManager.cs" id="1_qm7vm"]
-[ext_resource type="Resource" uid="uid://bg5wxy6d07m7x" path="res://src/UI/Controls/Action/MoveUpAction.tres" id="2_vclhx"]
-[ext_resource type="Resource" uid="uid://dtest68b2o5wf" path="res://src/UI/Controls/Action/MoveLeftAction.tres" id="3_deq8h"]
-[ext_resource type="Resource" uid="uid://dgfjy48mw11g0" path="res://src/UI/Controls/Action/MoveDownAction.tres" id="4_6tqmy"]
-[ext_resource type="Resource" uid="uid://bkj4yccwimuix" path="res://src/UI/Controls/Action/MoveRightAction.tres" id="5_6jqsb"]
-[ext_resource type="Resource" uid="uid://b5chrwy1ey3sm" path="res://src/UI/Controls/Action/AnalogUpAction.tres" id="6_rvjgf"]
-[ext_resource type="Resource" uid="uid://cvtvdabjk3tvi" path="res://src/UI/Controls/Action/AnalogLeftAction.tres" id="7_fq0yd"]
-[ext_resource type="Resource" uid="uid://b53yph2kmwkvl" path="res://src/UI/Controls/Action/AnalogDownAction.tres" id="8_3w4sk"]
-[ext_resource type="Resource" uid="uid://cnlbmhk1rudn0" path="res://src/UI/Controls/Action/AnalogRightAction.tres" id="9_7r3rx"]
+[ext_resource type="Resource" uid="uid://bg5wxy6d07m7x" path="res://src/UI/Controls/Action/References/Global/MoveUpAction.tres" id="2_vclhx"]
+[ext_resource type="Resource" uid="uid://dtest68b2o5wf" path="res://src/UI/Controls/Action/References/Global/MoveLeftAction.tres" id="3_deq8h"]
+[ext_resource type="Resource" uid="uid://dgfjy48mw11g0" path="res://src/UI/Controls/Action/References/Global/MoveDownAction.tres" id="4_6tqmy"]
+[ext_resource type="Resource" uid="uid://bkj4yccwimuix" path="res://src/UI/Controls/Action/References/Global/MoveRightAction.tres" id="5_6jqsb"]
+[ext_resource type="Resource" uid="uid://b5chrwy1ey3sm" path="res://src/UI/Controls/Action/References/Global/AnalogUpAction.tres" id="6_rvjgf"]
+[ext_resource type="Resource" uid="uid://cvtvdabjk3tvi" path="res://src/UI/Controls/Action/References/Global/AnalogLeftAction.tres" id="7_fq0yd"]
+[ext_resource type="Resource" uid="uid://b53yph2kmwkvl" path="res://src/UI/Controls/Action/References/Global/AnalogDownAction.tres" id="8_3w4sk"]
+[ext_resource type="Resource" uid="uid://cnlbmhk1rudn0" path="res://src/UI/Controls/Action/References/Global/AnalogRightAction.tres" id="9_7r3rx"]
 
 [node name="InputManager" type="Node2D"]
 script = ExtResource("1_qm7vm")
