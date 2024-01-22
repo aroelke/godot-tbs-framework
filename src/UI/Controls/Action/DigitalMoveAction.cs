@@ -1,3 +1,4 @@
+using System;
 using Godot;
 using UI.Controls.Device;
 
@@ -9,6 +10,10 @@ public partial class DigitalMoveAction : Node
     /// <summary>Signals that a new direction has been pressed.</summary>
     /// <param name="direction">Direction that was pressed.</param>
     [Signal] public delegate void DirectionPressedEventHandler(Vector2I direction);
+
+    /// <summary>Signals that a direction has been released.</summary>
+    /// <param name="direction">Direction that was released.</param>
+    [Signal] public delegate void DirectionReleasedEventHandler(Vector2I direction);
 
     /// <summary>Signals that a direction is being echoed.</summary>
     /// <param name="direction">Direction that was echoed.</param>
@@ -62,25 +67,33 @@ public partial class DigitalMoveAction : Node
         base._UnhandledInput(@event);
         if (DeviceManager.Mode == InputMode.Digital)
         {
-            Vector2I dir = InputManager.GetDigitalVector();
-            if (dir != _direction)
+            Vector2I prev = _direction;
+
+            Vector2I pressed = new(
+                Convert.ToInt32(@event.IsActionPressed(RightAction)) - Convert.ToInt32(@event.IsActionPressed(LeftAction)),
+                Convert.ToInt32(@event.IsActionPressed(DownAction)) - Convert.ToInt32(@event.IsActionPressed(UpAction))
+            );
+            Vector2I released = new(
+                Convert.ToInt32(@event.IsActionReleased(RightAction)) - Convert.ToInt32(@event.IsActionReleased(LeftAction)),
+                Convert.ToInt32(@event.IsActionReleased(DownAction)) - Convert.ToInt32(@event.IsActionReleased(UpAction))
+            );
+            _direction += pressed - released;
+
+            if (pressed != Vector2I.Zero)
+                EmitSignal(SignalName.DirectionPressed, pressed);
+            if (released != Vector2I.Zero)
+                EmitSignal(SignalName.DirectionReleased, released);
+
+            if (prev != _direction)
             {
                 EchoTimer.Stop();
                 _echoing = false;
 
-                if (dir != Vector2I.Zero)
+                if (_direction != Vector2I.Zero)
                 {
-                    if (dir.Abs().X + dir.Abs().Y > _direction.Abs().X + _direction.Abs().Y)
-                        EmitSignal(SignalName.DirectionPressed, dir - _direction);
-                    else
-                        EmitSignal(SignalName.DirectionPressed, dir);
-                    _direction = dir;
-
                     EchoTimer.WaitTime = EchoDelay;
                     EchoTimer.Start();
                 }
-                else
-                    _direction = Vector2I.Zero;
             }
         }
     }
