@@ -1,6 +1,7 @@
 using System.Linq;
 using Godot;
 using UI.Controls.Device;
+using Util;
 
 namespace UI.Controls.Action;
 
@@ -32,6 +33,10 @@ public partial class InputActionReference : Resource
     /// <summary>Convenience property allowing access to any gamepad axis that has been mapped to the action.</summary>
     public JoyAxis GamepadAxis => InputManager.GetInputGamepadAxis(InputAction);
 
+    public StringName Context { get; private set; } = "";
+
+    public StringName Name { get; private set; } = "";
+
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
     {
         return new()
@@ -59,6 +64,32 @@ public partial class InputActionReference : Resource
         if (property == InputActionProperty)
         {
             InputAction = value.As<StringName>();
+
+            if (InputAction is null)
+            {
+                Context = null;
+                Name = null;
+            }
+            else if (InputAction.IsEmpty)
+            {
+                Context = "";
+                Name = "";
+            }
+            else
+            {
+                StringName[] components = InputAction.Split(".");
+                if (components.Length == 1)
+                {
+                    GD.PushWarning($"Input action {InputAction} does not have a context.  Assuming global context.");
+                    Context = "Global";
+                    Name = components[0];
+                }
+                else
+                {
+                    Context = components.First();
+                    Name = components.Last();
+                }
+            }
             return true;
         }
         else
