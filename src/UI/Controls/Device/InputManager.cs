@@ -103,18 +103,6 @@ public partial class InputManager : Node2D
             return motion.Axis;
     }
 
-
-    /// <returns>A vector representing the movement of the left control stick of the game pad.</returns>
-    public static Vector2 GetAnalogVector() => Input.GetVector(Singleton.AnalogLeftAction, Singleton.AnalogRightAction, Singleton.AnalogUpAction, Singleton.AnalogDownAction);
-
-    [Export] public InputActionReference AnalogUpAction { get; private set; }
-
-    [Export] public InputActionReference AnalogLeftAction { get; private set; }
-
-    [Export] public InputActionReference AnalogDownAction { get; private set; }
-
-    [Export] public InputActionReference AnalogRightAction { get; private set; }
-
     public override void _Notification(int what)
     {
         base._Notification(what);
