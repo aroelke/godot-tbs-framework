@@ -67,7 +67,20 @@ public partial class Pointer : Node2D
     /// <summary>Multiplier applied to the pointer speed when the accelerate button is held down in analog mode.</summary>
     [Export] public double Acceleration = 3;
 
+    [ExportGroup("Input Actions")]
+    [Export] public InputActionReference UpAction = new();
+
+    [ExportGroup("Input Actions")]
+    [Export] public InputActionReference LeftAction = new();
+
+    [ExportGroup("Input Actions")]
+    [Export] public InputActionReference DownAction = new();
+
+    [ExportGroup("Input Actions")]
+    [Export] public InputActionReference RightAction = new();
+
     /// <summary>Action to accelerate the speed of the cursor.</summary>
+    [ExportGroup("Input Actions")]
     [Export] public InputActionReference AccelerateAction = new();
 
     /// <summary>When the input mode changes, update visibility and move things around to make sure real/virtual mouse positions are consistent.</summary>
@@ -157,9 +170,13 @@ public partial class Pointer : Node2D
         case InputMode.Mouse when Position != ViewportToWorld(InputManager.GetMousePosition()):
             Warp(ViewportToWorld(InputManager.GetMousePosition()));
             break;
-        case InputMode.Analog when InputManager.GetAnalogVector() != Vector2.Zero:
-            double speed = _accelerate ? (Speed*Acceleration) : Speed;
-            Warp((Position + (InputManager.GetAnalogVector()*(float)(speed*delta))).Clamp(Bounds.Position, Bounds.End));
+        case InputMode.Analog:
+            Vector2 direction = Input.GetVector(LeftAction, RightAction, UpAction, DownAction);
+            if (direction != Vector2.Zero)
+            {
+                double speed = _accelerate ? (Speed*Acceleration) : Speed;
+                Warp((Position + (direction*(float)(speed*delta))).Clamp(Bounds.Position, Bounds.End));
+            }
             break;
         }
         _mouse.Position = WorldToViewport(Position);
