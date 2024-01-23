@@ -19,7 +19,7 @@ public partial class GridNode : Node2D
     [Export] public Grid Grid;
 
     /// <summary>Cell on the grid that this object currently occupies.</summary>
-    [Export] public Vector2I Cell
+    [Export] public virtual Vector2I Cell
     {
         get => _cell;
         set

@@ -15,6 +15,5 @@ SelectAction = ExtResource("2_cxgqh")
 texture = ExtResource("1_erpak")
 offset = Vector2(16, 16)
 
-[connection signal="CellChanged" from="." to="." method="OnCellChanged"]
 [connection signal="DirectionEchoed" from="DigitalMoveAction" to="." method="OnDirectionPressed"]
 [connection signal="DirectionPressed" from="DigitalMoveAction" to="." method="OnDirectionPressed"]

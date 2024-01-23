@@ -36,16 +36,20 @@ public partial class Cursor : GridNode
     [ExportGroup("Echo Control")]
     [Export] public double EchoInterval = 0.03;
 
+    /// <summary>Cell the cursor occupies. Overrides <c>GridNode.Cell</c> to ensure that the position is updated before any signals fire.</summary>
+    public override Vector2I Cell
+    {
+        get => base.Cell;
+        set
+        {
+            Position = Grid.PositionOf(value);
+            base.Cell = value;
+            EmitSignal(SignalName.CursorMoved, Position + Grid.CellSize/2);
+        }
+    }
+
     /// <summary>When a direction is pressd, move the cursor to the adjacent cell there.</summary>
     public void OnDirectionPressed(Vector2I direction) => Cell += direction;
-
-    /// <summary>When the cell changes, update position, then convert to a grid cell center and notify listeners that the cursor moved.</summary>
-    /// <param name="cell">Cell the cursor moved to.</param>
-    public void OnCellChanged(Vector2I cell)
-    {
-        Position = Grid.PositionOf(cell);
-        EmitSignal(SignalName.CursorMoved, Position + Grid.CellSize/2);
-    }
 
     /// <summary>Update the grid cell when the pointer signals it has moved, unless the cursor is what's controlling movement.</summary>
     /// <param name="position">Position of the pointer.</param>
