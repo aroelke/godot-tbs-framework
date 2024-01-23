@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8a6k347oeuw7"]
+
+[ext_resource type="Script" path="res://src/UI/Controls/Device/InputManager.cs" id="1_qm7vm"]
+
+[node name="InputManager" type="Node2D"]
+script = ExtResource("1_qm7vm")

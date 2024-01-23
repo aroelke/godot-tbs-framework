@@ -16,8 +16,8 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-InputManager="*res://src/UI/Controls/InputManager.tscn"
-DeviceManager="*res://src/UI/Controls/DeviceManager.cs"
+InputManager="*res://src/UI/Controls/Device/InputManager.cs"
+DeviceManager="*res://src/UI/Controls/Device/DeviceManager.tscn"
 
 [display]
 

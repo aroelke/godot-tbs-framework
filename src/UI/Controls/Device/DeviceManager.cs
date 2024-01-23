@@ -1,6 +1,7 @@
+using System;
 using Godot;
 
-namespace UI.Controls;
+namespace UI.Controls.Device;
 
 /// <summary>Manages information about and changes in input device.</summary>
 public partial class DeviceManager : Node
@@ -63,6 +64,9 @@ public partial class DeviceManager : Node
         }
     }
 
+    /// <summary>Dead zone to use for detecting gamepad axes.</summary>
+    [Export] public float MotionDeadzone = 0.5f;
+
     public override void _Input(InputEvent @event)
     {
         base._Input(@event);
@@ -80,7 +84,7 @@ public partial class DeviceManager : Node
             UpdateDevice(InputDevice.Gamepad, Input.GetJoyName(0));
             Mode = InputMode.Digital;
             break;
-        case InputEventJoypadMotion when InputManager.GetAnalogVector() != Vector2.Zero:
+        case InputEventJoypadMotion e when Mathf.Abs(e.AxisValue) >= MotionDeadzone:
             UpdateDevice(InputDevice.Gamepad, Input.GetJoyName(0));
             Mode = InputMode.Analog;
             break;

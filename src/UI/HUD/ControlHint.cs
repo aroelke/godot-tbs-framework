@@ -1,9 +1,8 @@
 using System.Collections.Generic;
-using System.Linq;
 using Godot;
 using UI.Controls.Icons;
-using UI.Controls;
 using UI.Controls.Action;
+using UI.Controls.Device;
 
 namespace UI.HUD;
 
@@ -24,7 +23,7 @@ public partial class ControlHint : HBoxContainer
         KeyboardIcon.Texture = !KeyMap.ContainsKey(Action.Key) ? null : KeyMap[Action.Key];
         GamepadIcon.Texture = !GamepadMap.ContainsKey(Action.GamepadButton) ? null : GamepadMap[Action.GamepadButton];
 
-        GetNode<Label>("Label").Text = $": {Action.InputAction.ToString().Split(".").Last()}";
+        GetNode<Label>("Label").Text = $": {Action.Name}";
     }
 
     /// <summary>Action to display the icon of.</summary>
