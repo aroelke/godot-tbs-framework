@@ -103,19 +103,9 @@ public partial class InputManager : Node2D
             return motion.Axis;
     }
 
-    /// <returns>A vector representing the digital direction(s) being held down. Elements have values 0, 1, or -1.</returns>
-    public static Vector2I GetDigitalVector() => (Vector2I)Input.GetVector(Singleton.MoveLeftAction, Singleton.MoveRightAction, Singleton.MoveUpAction, Singleton.MoveDownAction).Round();
 
     /// <returns>A vector representing the movement of the left control stick of the game pad.</returns>
     public static Vector2 GetAnalogVector() => Input.GetVector(Singleton.AnalogLeftAction, Singleton.AnalogRightAction, Singleton.AnalogUpAction, Singleton.AnalogDownAction);
-
-    [Export] public InputActionReference MoveUpAction { get; private set; }
-
-    [Export] public InputActionReference MoveLeftAction { get; private set; }
-
-    [Export] public InputActionReference MoveDownAction { get; private set; }
-
-    [Export] public InputActionReference MoveRightAction { get; private set; }
 
     [Export] public InputActionReference AnalogUpAction { get; private set; }
 
