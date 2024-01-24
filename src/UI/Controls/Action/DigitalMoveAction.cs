@@ -22,6 +22,7 @@ public partial class DigitalMoveAction : Node
     private Vector2I _direction = Vector2I.Zero;
     private Timer _timer = null;
     private bool _echoing = false;
+    private bool _reset = false;
 
     private Timer EchoTimer => _timer = GetNode<Timer>("EchoTimer");
 
@@ -49,17 +50,34 @@ public partial class DigitalMoveAction : Node
     [ExportGroup("Echo Control")]
     [Export] public double EchoInterval = 0.03;
 
+    /// <summary>Reset the echo timer so its next timeout is on the delay rather than the interval.</summary>
+    public void ResetEcho()
+    {
+        GD.Print($"Reset echo: {_direction}");
+        if (_direction != Vector2I.Zero)
+        {
+            _echoing = false;
+            EchoTimer.Start(EchoDelay);
+            _reset = true;
+        }
+    }
+
     /// <summary>Start/continue echo movement.</summary>
     public void OnEchoTimeout()
     {
-        EmitSignal(SignalName.DirectionEchoed, _direction);
-        if (EchoInterval > GetProcessDeltaTime())
+        if (_reset)
         {
-            EchoTimer.WaitTime = EchoInterval;
-            EchoTimer.Start();
+            EchoTimer.Start(EchoDelay);
+            _reset = false;
         }
         else
-            _echoing = true;
+        {
+            EmitSignal(SignalName.DirectionEchoed, _direction);
+            if (EchoInterval > GetProcessDeltaTime())
+                EchoTimer.Start(EchoInterval);
+            else
+                _echoing = true;
+        }
     }
 
     public override void _UnhandledInput(InputEvent @event)
@@ -90,10 +108,7 @@ public partial class DigitalMoveAction : Node
                 _echoing = false;
 
                 if (_direction != Vector2I.Zero)
-                {
-                    EchoTimer.WaitTime = EchoDelay;
-                    EchoTimer.Start();
-                }
+                    EchoTimer.Start(EchoDelay);
             }
         }
     }

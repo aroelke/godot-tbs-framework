@@ -22,6 +22,9 @@ public partial class Cursor : GridNode
     /// <summary>Action for selecting a cell.</summary>
     [Export] public InputActionReference SelectAction = new();
 
+    private DigitalMoveAction _mover = null;
+    private DigitalMoveAction MoveController => _mover ??= GetNode<DigitalMoveAction>("MoveController");
+
     /// <summary>Cell the cursor occupies. Overrides <c>GridNode.Cell</c> to ensure that the position is updated before any signals fire.</summary>
     public override Vector2I Cell
     {
@@ -33,6 +36,9 @@ public partial class Cursor : GridNode
             EmitSignal(SignalName.CursorMoved, Position + Grid.CellSize/2);
         }
     }
+
+    /// <summary>Briefly break continuous digital movement to allow reaction from the player (e.g. the cursor has reached the edge of the movement range).</summary>
+    public void BreakMovement() => MoveController.ResetEcho();
 
     /// <summary>When a direction is pressd, move the cursor to the adjacent cell there.</summary>
     public void OnDirectionPressed(Vector2I direction) => Cell += direction;

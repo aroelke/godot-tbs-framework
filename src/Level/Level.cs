@@ -8,6 +8,7 @@ using Level.Object.Group;
 using Level.UI;
 using UI;
 using UI.Controls.Action;
+using UI.Controls.Device;
 using UI.HUD;
 using Util;
 
@@ -108,14 +109,37 @@ public partial class Level : Node2D
         }
     }
 
-    /// <summary>When the cursor moves while a unit is selected, update the path that's being drawn.</summary>
-    /// <param name="position"></param>
+    /// <summary>
+    /// When the cursor moves:
+    /// - While a unit is selected:
+    ///   - Update the path that's being drawn
+    ///   - Briefly break coninuous digital movement if the cursor moves to the edge of the traversable region
+    /// </summary>
+    /// <param name="cell">Cell the cursor moved to.</param>
     public void OnCursorMoved(Vector2I cell)
     {
         if (_state == State.SelectUnit && _pathfinder.TraversableCells.Contains(cell))
         {
             _pathfinder.AddToPath(cell);
             Overlay.Path = _pathfinder.Path;
+
+            if (DeviceManager.Mode == InputMode.Digital)
+            {
+                bool edge = false;
+                foreach (Vector2I direction in PathFinder.Directions)
+                {
+                    Vector2I neighbor = cell + direction;
+                    if (!_pathfinder.TraversableCells.Contains(neighbor) && Grid.Contains(neighbor))
+                    {
+                        edge = true;
+                        break;
+                    }
+                }
+                if (edge)
+                {
+                    Cursor.BreakMovement();
+                }
+            }
         }
     }
 
