@@ -19,22 +19,8 @@ public partial class Cursor : GridNode
     /// <param name="cell">Coordinates of the cell that has been selected.</param>
     [Signal] public delegate void CellSelectedEventHandler(Vector2I cell);
 
-    private Timer _timer = null;
-    private bool _echoing = false;
-    private Vector2I _direction = Vector2I.Zero;
-
-    private Timer EchoTimer => _timer = GetNode<Timer>("EchoTimer");
-
     /// <summary>Action for selecting a cell.</summary>
     [Export] public InputActionReference SelectAction = new();
-
-    /// <summary>Initial delay after pressing a button to begin echoing the input.</summary>
-    [ExportGroup("Echo Control")]
-    [Export] public double EchoDelay = 0.3;
-
-    /// <summary>Delay between moves while holding an input down.</summary>
-    [ExportGroup("Echo Control")]
-    [Export] public double EchoInterval = 0.03;
 
     /// <summary>Cell the cursor occupies. Overrides <c>GridNode.Cell</c> to ensure that the position is updated before any signals fire.</summary>
     public override Vector2I Cell
