@@ -53,7 +53,6 @@ public partial class DigitalMoveAction : Node
     /// <summary>Reset the echo timer so its next timeout is on the delay rather than the interval.</summary>
     public void ResetEcho()
     {
-        GD.Print($"Reset echo: {_direction}");
         if (_direction != Vector2I.Zero)
         {
             _echoing = false;
