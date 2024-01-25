@@ -32,6 +32,7 @@ public partial class Level : Node2D
     private Grid _map = null;
     private Overlay _overlay = null;
     private Cursor _cursor = null;
+    private Vector2I _cursorPrev = Vector2I.Zero;
     private State _state = State.Idle;
     private Unit _selected = null;
     private PathFinder _pathfinder = null;
@@ -125,22 +126,14 @@ public partial class Level : Node2D
 
             if (DeviceManager.Mode == InputMode.Digital)
             {
-                bool edge = false;
-                foreach (Vector2I direction in PathFinder.Directions)
-                {
-                    Vector2I neighbor = cell + direction;
-                    if (!_pathfinder.TraversableCells.Contains(neighbor) && Grid.Contains(neighbor))
-                    {
-                        edge = true;
-                        break;
-                    }
-                }
-                if (edge)
-                {
+                Vector2I direction = cell - _cursorPrev;
+                Vector2I next = cell + direction;
+                if (Grid.Contains(next) && !_pathfinder.TraversableCells.Contains(next))
                     Cursor.BreakMovement();
-                }
             }
         }
+
+        _cursorPrev = cell;
     }
 
     /// <summary>When a grid node is added to a group, update its grid.</summary>
@@ -178,6 +171,7 @@ public partial class Level : Node2D
             _state = State.Idle;
 
             Cursor.Grid = Grid;
+            _cursorPrev = Cursor.Cell;
             GetNode<Pointer>("Pointer").Bounds = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
 
             foreach (Node child in GetChildren())
