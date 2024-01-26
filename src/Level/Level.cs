@@ -157,15 +157,7 @@ public partial class Level : Node2D
             Cursor.Cell = target;
         }
         else
-        {
-            Cursor.Cell = direction switch {
-                Vector2I(0, <0) => new(Cursor.Cell.X,   0),
-                Vector2I(<0, 0) => new(0,               Cursor.Cell.Y),
-                Vector2I(0, >0) => new(Cursor.Cell.X,   Grid.Size.Y - 1),
-                Vector2I(>0, 0) => new(Grid.Size.X - 1, Cursor.Cell.Y),
-                _ => Cursor.Cell
-            };
-        }
+            Cursor.Cell = Grid.Clamp(Cursor.Cell + direction*Grid.Size);
     }
 
     /// <summary>When a grid node is added to a group, update its grid.</summary>
