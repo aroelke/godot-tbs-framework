@@ -143,6 +143,11 @@ public partial class Level : Node2D
     /// <param name="direction">Direction to skip the cursor in.</param>
     public void OnCursorRequestSkip(Vector2I direction)
     {
+        if ((Cursor.Cell.Y == 0 && direction.Y < 0) || (Cursor.Cell.Y == Grid.Size.Y - 1 && direction.Y > 0))
+            direction = direction with { Y = 0 };
+        if ((Cursor.Cell.X == 0 && direction.X < 0) || (Cursor.Cell.X == Grid.Size.X - 1 && direction.X > 0))
+            direction = direction with { X = 0 };
+
         Vector2I neighbor = Cursor.Cell + direction;
         if (_state == State.SelectUnit)
         {

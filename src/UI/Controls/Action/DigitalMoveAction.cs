@@ -114,7 +114,7 @@ public partial class DigitalMoveAction : Node
 
             if (_skip)
             {
-                if (pressed != Vector2I.Zero && !@event.IsEcho())
+                if (pressed != Vector2I.Zero && _direction != Vector2I.Zero && !@event.IsEcho())
                     EmitSignal(SignalName.Skip, _direction);
             }
             else
