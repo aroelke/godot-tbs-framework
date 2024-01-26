@@ -136,6 +136,11 @@ public partial class Level : Node2D
         _cursorPrev = cell;
     }
 
+    /// <summary>
+    /// When the cursor wants to skip, move it to the edge of the region it's in in that direction. The "region the cursor is in" is defined based
+    /// on whether or not it's inside the set of traversable cells (if a unit is selected) or not.
+    /// </summary>
+    /// <param name="direction">Direction to skip the cursor in.</param>
     public void OnCursorRequestSkip(Vector2I direction)
     {
         Vector2I neighbor = Cursor.Cell + direction;

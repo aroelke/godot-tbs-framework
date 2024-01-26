@@ -53,6 +53,8 @@ public partial class Cursor : GridNode
             Cell = Grid.CellOf(position);
     }
 
+    /// <summary>Forward skips to the level manager so it can determine where the skip should end up.</summary>
+    /// <param name="direction">Direction to skip.</param>
     public void OnSkip(Vector2I direction) => EmitSignal(SignalName.RequestSkip, direction);
 
     public override void _UnhandledInput(InputEvent @event)

@@ -19,6 +19,8 @@ public partial class DigitalMoveAction : Node
     /// <param name="direction">Direction that was echoed.</param>
     [Signal] public delegate void DirectionEchoedEventHandler(Vector2I direction);
 
+    /// <summary>Signals that a skip has been pressed.</summary>
+    /// <param name="direction">Direction to skip in.</param>
     [Signal] public delegate void SkipEventHandler(Vector2I direction);
 
     private Vector2I _direction = Vector2I.Zero;
