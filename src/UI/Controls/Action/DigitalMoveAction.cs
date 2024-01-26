@@ -92,15 +92,9 @@ public partial class DigitalMoveAction : Node
         base._UnhandledInput(@event);
 
         if (@event.IsActionPressed(SkipAction) && !IsEchoing())
-        {
             _skip = true;
-            GetViewport().SetInputAsHandled();
-        }
         else if (@event.IsActionReleased(SkipAction))
-        {
             _skip = false;
-            GetViewport().SetInputAsHandled();
-        }
 
         if (DeviceManager.Mode == InputMode.Digital)
         {
@@ -136,8 +130,6 @@ public partial class DigitalMoveAction : Node
 
                     if (_direction != Vector2I.Zero)
                         EchoTimer.Start(EchoDelay);
-                    
-                    GetViewport().SetInputAsHandled();
                 }
             }
         }

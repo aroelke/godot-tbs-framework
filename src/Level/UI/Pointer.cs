@@ -147,17 +147,9 @@ public partial class Pointer : Node2D
         if (DeviceManager.Mode == InputMode.Analog)
         {
             if (@event.IsActionPressed(AccelerateAction))
-            {
-                GetViewport().SetInputAsHandled();
                 _accelerate = true;
-                return;
-            }
             if (@event.IsActionReleased(AccelerateAction))
-            {
-                GetViewport().SetInputAsHandled();
                 _accelerate = false;
-                return;
-            }
         }
     }
 
