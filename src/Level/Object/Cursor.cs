@@ -33,9 +33,13 @@ public partial class Cursor : GridNode
         get => base.Cell;
         set
         {
-            Position = Grid.PositionOf(value);
-            base.Cell = value;
-            EmitSignal(SignalName.CursorMoved, Position + Grid.CellSize/2);
+            Vector2I next = Grid.Clamp(value);
+            if (next != Cell)
+            {
+                Position = Grid.PositionOf(next);
+                base.Cell = next;
+                EmitSignal(SignalName.CursorMoved, Position + Grid.CellSize/2);
+            }
         }
     }
 
