@@ -474,4 +474,5 @@ Action = ExtResource("2_2u5dc")
 [connection signal="CellChanged" from="Cursor" to="." method="OnCursorMoved"]
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]
 [connection signal="CursorMoved" from="Cursor" to="Pointer" method="OnCursorMoved"]
+[connection signal="RequestSkip" from="Cursor" to="." method="OnCursorRequestSkip"]
 [connection signal="PointerMoved" from="Pointer" to="Cursor" method="OnPointerMoved"]

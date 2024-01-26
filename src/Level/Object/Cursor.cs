@@ -19,6 +19,8 @@ public partial class Cursor : GridNode
     /// <param name="cell">Coordinates of the cell that has been selected.</param>
     [Signal] public delegate void CellSelectedEventHandler(Vector2I cell);
 
+    [Signal] public delegate void RequestSkipEventHandler(Vector2I direction);
+
     /// <summary>Action for selecting a cell.</summary>
     [Export] public InputActionReference SelectAction = new();
 
@@ -50,6 +52,8 @@ public partial class Cursor : GridNode
         if (DeviceManager.Mode != InputMode.Digital)
             Cell = Grid.CellOf(position);
     }
+
+    public void OnSkip(Vector2I direction) => EmitSignal(SignalName.RequestSkip, direction);
 
     public override void _UnhandledInput(InputEvent @event)
     {

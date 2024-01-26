@@ -136,6 +136,33 @@ public partial class Level : Node2D
         _cursorPrev = cell;
     }
 
+    public void OnCursorRequestSkip(Vector2I direction)
+    {
+        Vector2I neighbor = Cursor.Cell + direction;
+        if (_state == State.SelectUnit)
+        {
+            bool traversable = _pathfinder.TraversableCells.Contains(neighbor);
+            Vector2I target = neighbor;
+            int i = 1;
+            while (Grid.Contains(neighbor + direction*i) && _pathfinder.TraversableCells.Contains(neighbor + direction*i) == traversable)
+            {
+                target = neighbor + direction*i;
+                i++;
+            }
+            Cursor.Cell = target;
+        }
+        else
+        {
+            Cursor.Cell = direction switch {
+                Vector2I(0, <0) => new(Cursor.Cell.X,   0),
+                Vector2I(<0, 0) => new(0,               Cursor.Cell.Y),
+                Vector2I(0, >0) => new(Cursor.Cell.X,   Grid.Size.Y - 1),
+                Vector2I(>0, 0) => new(Grid.Size.X - 1, Cursor.Cell.Y),
+                _ => Cursor.Cell
+            };
+        }
+    }
+
     /// <summary>When a grid node is added to a group, update its grid.</summary>
     /// <param name="child"></param>
     public void OnChildEnteredGroup(Node child)

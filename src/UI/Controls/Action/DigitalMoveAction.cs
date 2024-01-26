@@ -19,12 +19,17 @@ public partial class DigitalMoveAction : Node
     /// <param name="direction">Direction that was echoed.</param>
     [Signal] public delegate void DirectionEchoedEventHandler(Vector2I direction);
 
+    [Signal] public delegate void SkipEventHandler(Vector2I direction);
+
     private Vector2I _direction = Vector2I.Zero;
     private Timer _timer = null;
     private bool _echoing = false;
     private bool _reset = false;
+    private bool _skip = false;
 
     private Timer EchoTimer => _timer = GetNode<Timer>("EchoTimer");
+
+    private bool IsEchoing() => _direction != Vector2I.Zero;
 
     /// <summary>Move up action.</summary>
     [ExportGroup("Input Actions")]
@@ -42,6 +47,9 @@ public partial class DigitalMoveAction : Node
     [ExportGroup("Input Actions")]
     [Export] public InputActionReference RightAction = new();
 
+    [ExportGroup("Input Actions")]
+    [Export] public InputActionReference SkipAction = new();
+
     /// <summary>Initial delay after pressing a button to begin echoing the input.</summary>
     [ExportGroup("Echo Control")]
     [Export] public double EchoDelay = 0.3;
@@ -53,7 +61,7 @@ public partial class DigitalMoveAction : Node
     /// <summary>Reset the echo timer so its next timeout is on the delay rather than the interval.</summary>
     public void ResetEcho()
     {
-        if (_direction != Vector2I.Zero)
+        if (IsEchoing())
         {
             _echoing = false;
             EchoTimer.Start(EchoDelay);
@@ -82,32 +90,55 @@ public partial class DigitalMoveAction : Node
     public override void _UnhandledInput(InputEvent @event)
     {
         base._UnhandledInput(@event);
+
+        if (@event.IsActionPressed(SkipAction) && !IsEchoing())
+        {
+            _skip = true;
+            GetViewport().SetInputAsHandled();
+        }
+        else if (@event.IsActionReleased(SkipAction))
+        {
+            _skip = false;
+            GetViewport().SetInputAsHandled();
+        }
+
         if (DeviceManager.Mode == InputMode.Digital)
         {
-            Vector2I prev = _direction;
-
             Vector2I pressed = new(
                 Convert.ToInt32(@event.IsActionPressed(RightAction)) - Convert.ToInt32(@event.IsActionPressed(LeftAction)),
                 Convert.ToInt32(@event.IsActionPressed(DownAction)) - Convert.ToInt32(@event.IsActionPressed(UpAction))
             );
-            Vector2I released = new(
-                Convert.ToInt32(@event.IsActionReleased(RightAction)) - Convert.ToInt32(@event.IsActionReleased(LeftAction)),
-                Convert.ToInt32(@event.IsActionReleased(DownAction)) - Convert.ToInt32(@event.IsActionReleased(UpAction))
-            );
-            _direction += pressed - released;
 
-            if (pressed != Vector2I.Zero)
-                EmitSignal(SignalName.DirectionPressed, pressed);
-            if (released != Vector2I.Zero)
-                EmitSignal(SignalName.DirectionReleased, released);
-
-            if (prev != _direction)
+            if (_skip)
             {
-                EchoTimer.Stop();
-                _echoing = false;
+                if (pressed != Vector2I.Zero)
+                    EmitSignal(SignalName.Skip, pressed);
+            }
+            else
+            {
+                Vector2I prev = _direction;
 
-                if (_direction != Vector2I.Zero)
-                    EchoTimer.Start(EchoDelay);
+                Vector2I released = new(
+                    Convert.ToInt32(@event.IsActionReleased(RightAction)) - Convert.ToInt32(@event.IsActionReleased(LeftAction)),
+                    Convert.ToInt32(@event.IsActionReleased(DownAction)) - Convert.ToInt32(@event.IsActionReleased(UpAction))
+                );
+                _direction += pressed - released;
+
+                if (pressed != Vector2I.Zero)
+                    EmitSignal(SignalName.DirectionPressed, pressed);
+                if (released != Vector2I.Zero)
+                    EmitSignal(SignalName.DirectionReleased, released);
+
+                if (prev != _direction)
+                {
+                    EchoTimer.Stop();
+                    _echoing = false;
+
+                    if (_direction != Vector2I.Zero)
+                        EchoTimer.Start(EchoDelay);
+                    
+                    GetViewport().SetInputAsHandled();
+                }
             }
         }
     }
