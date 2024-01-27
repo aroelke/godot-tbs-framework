@@ -19,11 +19,19 @@ public partial class DigitalMoveAction : Node
     /// <param name="direction">Direction that was echoed.</param>
     [Signal] public delegate void DirectionEchoedEventHandler(Vector2I direction);
 
+    /// <summary>Signals that a skip has been pressed.</summary>
+    /// <param name="direction">Direction to skip in.</param>
+    [Signal] public delegate void SkipEventHandler(Vector2I direction);
+
     private Vector2I _direction = Vector2I.Zero;
     private Timer _timer = null;
     private bool _echoing = false;
+    private bool _reset = false;
+    private bool _skip = false;
 
     private Timer EchoTimer => _timer = GetNode<Timer>("EchoTimer");
+
+    private bool IsEchoing() => !_skip && _direction != Vector2I.Zero;
 
     /// <summary>Move up action.</summary>
     [ExportGroup("Input Actions")]
@@ -41,6 +49,9 @@ public partial class DigitalMoveAction : Node
     [ExportGroup("Input Actions")]
     [Export] public InputActionReference RightAction = new();
 
+    [ExportGroup("Input Actions")]
+    [Export] public InputActionReference SkipAction = new();
+
     /// <summary>Initial delay after pressing a button to begin echoing the input.</summary>
     [ExportGroup("Echo Control")]
     [Export] public double EchoDelay = 0.3;
@@ -49,22 +60,44 @@ public partial class DigitalMoveAction : Node
     [ExportGroup("Echo Control")]
     [Export] public double EchoInterval = 0.03;
 
+    /// <summary>Reset the echo timer so its next timeout is on the delay rather than the interval.</summary>
+    public void ResetEcho()
+    {
+        if (IsEchoing())
+        {
+            _echoing = false;
+            EchoTimer.Start(EchoDelay);
+            _reset = true;
+        }
+    }
+
     /// <summary>Start/continue echo movement.</summary>
     public void OnEchoTimeout()
     {
-        EmitSignal(SignalName.DirectionEchoed, _direction);
-        if (EchoInterval > GetProcessDeltaTime())
+        if (_reset)
         {
-            EchoTimer.WaitTime = EchoInterval;
-            EchoTimer.Start();
+            EchoTimer.Start(EchoDelay);
+            _reset = false;
         }
         else
-            _echoing = true;
+        {
+            EmitSignal(SignalName.DirectionEchoed, _direction);
+            if (EchoInterval > GetProcessDeltaTime())
+                EchoTimer.Start(EchoInterval);
+            else
+                _echoing = true;
+        }
     }
 
     public override void _UnhandledInput(InputEvent @event)
     {
         base._UnhandledInput(@event);
+
+        if (@event.IsActionPressed(SkipAction) && !IsEchoing())
+            _skip = true;
+        else if (@event.IsActionReleased(SkipAction))
+            _skip = false;
+
         if (DeviceManager.Mode == InputMode.Digital)
         {
             Vector2I prev = _direction;
@@ -79,20 +112,25 @@ public partial class DigitalMoveAction : Node
             );
             _direction += pressed - released;
 
-            if (pressed != Vector2I.Zero)
-                EmitSignal(SignalName.DirectionPressed, pressed);
-            if (released != Vector2I.Zero)
-                EmitSignal(SignalName.DirectionReleased, released);
-
-            if (prev != _direction)
+            if (_skip)
             {
-                EchoTimer.Stop();
-                _echoing = false;
+                if (pressed != Vector2I.Zero && _direction != Vector2I.Zero && !@event.IsEcho())
+                    EmitSignal(SignalName.Skip, _direction);
+            }
+            else
+            {
+                if (pressed != Vector2I.Zero)
+                    EmitSignal(SignalName.DirectionPressed, pressed);
+                if (released != Vector2I.Zero)
+                    EmitSignal(SignalName.DirectionReleased, released);
 
-                if (_direction != Vector2I.Zero)
+                if (prev != _direction)
                 {
-                    EchoTimer.WaitTime = EchoDelay;
-                    EchoTimer.Start();
+                    EchoTimer.Stop();
+                    _echoing = false;
+
+                    if (_direction != Vector2I.Zero)
+                        EchoTimer.Start(EchoDelay);
                 }
             }
         }

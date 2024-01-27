@@ -1,8 +1,9 @@
-[gd_scene load_steps=27 format=3 uid="uid://dgsv1t18thon5"]
+[gd_scene load_steps=28 format=3 uid="uid://dgsv1t18thon5"]
 
 [ext_resource type="Resource" uid="uid://bn6uq3ysywt60" path="res://src/Level/Map/Terrain/plain.tres" id="1_th7be"]
 [ext_resource type="Resource" uid="uid://ryxx30gb4grd" path="res://src/Level/Map/Terrain/bush.tres" id="2_8gjav"]
 [ext_resource type="Resource" uid="uid://matpnfv7cs4l" path="res://src/Level/Map/Terrain/mountain.tres" id="3_0n2fa"]
+[ext_resource type="Resource" uid="uid://c3eyx8v6qrjdh" path="res://src/Level/Map/Terrain/wall.tres" id="4_cioq1"]
 [ext_resource type="Texture2D" uid="uid://ct5iy7vuwoof3" path="res://assets/environment/tiles/objects.png" id="4_yrfs1"]
 [ext_resource type="Script" path="res://src/Level/Map/Grid.cs" id="5_6ttph"]
 
@@ -117,7 +118,9 @@ texture_region_size = Vector2i(32, 32)
 1:6/0 = 0
 2:6/0 = 0
 3:6/0 = 0
+3:6/0/custom_data_0 = ExtResource("4_cioq1")
 4:6/0 = 0
+4:6/0/custom_data_0 = ExtResource("4_cioq1")
 5:6/0 = 0
 6:6/0 = 0
 7:6/0 = 0
@@ -125,7 +128,9 @@ texture_region_size = Vector2i(32, 32)
 1:7/0 = 0
 2:7/0 = 0
 3:7/0 = 0
+3:7/0/custom_data_0 = ExtResource("4_cioq1")
 4:7/0 = 0
+4:7/0/custom_data_0 = ExtResource("4_cioq1")
 5:7/0 = 0
 6:7/0 = 0
 0:8/0 = 0

@@ -19,33 +19,35 @@ public partial class Cursor : GridNode
     /// <param name="cell">Coordinates of the cell that has been selected.</param>
     [Signal] public delegate void CellSelectedEventHandler(Vector2I cell);
 
-    private Timer _timer = null;
-    private bool _echoing = false;
-    private Vector2I _direction = Vector2I.Zero;
-
-    private Timer EchoTimer => _timer = GetNode<Timer>("EchoTimer");
+    [Signal] public delegate void RequestSkipEventHandler(Vector2I direction);
 
     /// <summary>Action for selecting a cell.</summary>
     [Export] public InputActionReference SelectAction = new();
 
-    /// <summary>Initial delay after pressing a button to begin echoing the input.</summary>
-    [ExportGroup("Echo Control")]
-    [Export] public double EchoDelay = 0.3;
+    private DigitalMoveAction _mover = null;
+    private DigitalMoveAction MoveController => _mover ??= GetNode<DigitalMoveAction>("MoveController");
 
-    /// <summary>Delay between moves while holding an input down.</summary>
-    [ExportGroup("Echo Control")]
-    [Export] public double EchoInterval = 0.03;
+    /// <summary>Cell the cursor occupies. Overrides <c>GridNode.Cell</c> to ensure that the position is updated before any signals fire.</summary>
+    public override Vector2I Cell
+    {
+        get => base.Cell;
+        set
+        {
+            Vector2I next = Grid.Clamp(value);
+            if (next != Cell)
+            {
+                Position = Grid.PositionOf(next);
+                base.Cell = next;
+                EmitSignal(SignalName.CursorMoved, Position + Grid.CellSize/2);
+            }
+        }
+    }
+
+    /// <summary>Briefly break continuous digital movement to allow reaction from the player (e.g. the cursor has reached the edge of the movement range).</summary>
+    public void BreakMovement() => MoveController.ResetEcho();
 
     /// <summary>When a direction is pressd, move the cursor to the adjacent cell there.</summary>
     public void OnDirectionPressed(Vector2I direction) => Cell += direction;
-
-    /// <summary>When the cell changes, update position, then convert to a grid cell center and notify listeners that the cursor moved.</summary>
-    /// <param name="cell">Cell the cursor moved to.</param>
-    public void OnCellChanged(Vector2I cell)
-    {
-        Position = Grid.PositionOf(cell);
-        EmitSignal(SignalName.CursorMoved, Position + Grid.CellSize/2);
-    }
 
     /// <summary>Update the grid cell when the pointer signals it has moved, unless the cursor is what's controlling movement.</summary>
     /// <param name="position">Position of the pointer.</param>
@@ -54,6 +56,10 @@ public partial class Cursor : GridNode
         if (DeviceManager.Mode != InputMode.Digital)
             Cell = Grid.CellOf(position);
     }
+
+    /// <summary>Forward skips to the level manager so it can determine where the skip should end up.</summary>
+    /// <param name="direction">Direction to skip.</param>
+    public void OnSkip(Vector2I direction) => EmitSignal(SignalName.RequestSkip, direction);
 
     public override void _UnhandledInput(InputEvent @event)
     {

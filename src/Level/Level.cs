@@ -8,6 +8,7 @@ using Level.Object.Group;
 using Level.UI;
 using UI;
 using UI.Controls.Action;
+using UI.Controls.Device;
 using UI.HUD;
 using Util;
 
@@ -31,6 +32,7 @@ public partial class Level : Node2D
     private Grid _map = null;
     private Overlay _overlay = null;
     private Cursor _cursor = null;
+    private Vector2I _cursorPrev = Vector2I.Zero;
     private State _state = State.Idle;
     private Unit _selected = null;
     private PathFinder _pathfinder = null;
@@ -108,15 +110,59 @@ public partial class Level : Node2D
         }
     }
 
-    /// <summary>When the cursor moves while a unit is selected, update the path that's being drawn.</summary>
-    /// <param name="position"></param>
+    /// <summary>
+    /// When the cursor moves:
+    /// - While a unit is selected:
+    ///   - Update the path that's being drawn
+    ///   - Briefly break coninuous digital movement if the cursor moves to the edge of the traversable region
+    /// </summary>
+    /// <param name="cell">Cell the cursor moved to.</param>
     public void OnCursorMoved(Vector2I cell)
     {
         if (_state == State.SelectUnit && _pathfinder.TraversableCells.Contains(cell))
         {
             _pathfinder.AddToPath(cell);
             Overlay.Path = _pathfinder.Path;
+
+            if (DeviceManager.Mode == InputMode.Digital)
+            {
+                Vector2I direction = cell - _cursorPrev;
+                Vector2I next = cell + direction;
+                if (Grid.Contains(next) && !_pathfinder.TraversableCells.Contains(next))
+                    Cursor.BreakMovement();
+            }
         }
+
+        _cursorPrev = cell;
+    }
+
+    /// <summary>
+    /// When the cursor wants to skip, move it to the edge of the region it's in in that direction. The "region the cursor is in" is defined based
+    /// on whether or not it's inside the set of traversable cells (if a unit is selected) or not.
+    /// </summary>
+    /// <param name="direction">Direction to skip the cursor in.</param>
+    public void OnCursorRequestSkip(Vector2I direction)
+    {
+        if ((Cursor.Cell.Y == 0 && direction.Y < 0) || (Cursor.Cell.Y == Grid.Size.Y - 1 && direction.Y > 0))
+            direction = direction with { Y = 0 };
+        if ((Cursor.Cell.X == 0 && direction.X < 0) || (Cursor.Cell.X == Grid.Size.X - 1 && direction.X > 0))
+            direction = direction with { X = 0 };
+
+        Vector2I neighbor = Cursor.Cell + direction;
+        if (_state == State.SelectUnit)
+        {
+            bool traversable = _pathfinder.TraversableCells.Contains(neighbor);
+            Vector2I target = neighbor;
+            int i = 1;
+            while (Grid.Contains(neighbor + direction*i) && _pathfinder.TraversableCells.Contains(neighbor + direction*i) == traversable)
+            {
+                target = neighbor + direction*i;
+                i++;
+            }
+            Cursor.Cell = target;
+        }
+        else
+            Cursor.Cell = Grid.Clamp(Cursor.Cell + direction*Grid.Size);
     }
 
     /// <summary>When a grid node is added to a group, update its grid.</summary>
@@ -154,6 +200,7 @@ public partial class Level : Node2D
             _state = State.Idle;
 
             Cursor.Grid = Grid;
+            _cursorPrev = Cursor.Cell;
             GetNode<Pointer>("Pointer").Bounds = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
 
             foreach (Node child in GetChildren())
