@@ -67,15 +67,19 @@ public partial class Pointer : Node2D
     /// <summary>Multiplier applied to the pointer speed when the accelerate button is held down in analog mode.</summary>
     [Export] public double Acceleration = 3;
 
+    /// <summary>Action to move the pointer up.</summary>
     [ExportGroup("Input Actions")]
     [Export] public InputActionReference UpAction = new();
 
+    /// <summary>Action to move the pointer left.</summary>
     [ExportGroup("Input Actions")]
     [Export] public InputActionReference LeftAction = new();
 
+    /// <summary>Action to move the pointer down.</summary>
     [ExportGroup("Input Actions")]
     [Export] public InputActionReference DownAction = new();
 
+    /// <summary>Action to move the pointer right.</summary>
     [ExportGroup("Input Actions")]
     [Export] public InputActionReference RightAction = new();
 
