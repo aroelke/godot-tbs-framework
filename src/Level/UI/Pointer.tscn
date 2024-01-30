@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://bqrqq7jid7qp2"]
+[gd_scene load_steps=11 format=3 uid="uid://bqrqq7jid7qp2"]
 
 [ext_resource type="Script" path="res://src/Level/UI/Pointer.cs" id="1_rsyl0"]
 [ext_resource type="Resource" uid="uid://dsjbjmgsqqd7w" path="res://src/UI/Controls/Action/References/Map/AccelerateAction.tres" id="2_10qle"]
@@ -7,6 +7,9 @@
 [ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://assets/ui/mouse.png" id="3_c24cp"]
 [ext_resource type="Resource" uid="uid://b53yph2kmwkvl" path="res://src/UI/Controls/Action/References/Global/AnalogDownAction.tres" id="4_q7aqy"]
 [ext_resource type="Resource" uid="uid://cnlbmhk1rudn0" path="res://src/UI/Controls/Action/References/Global/AnalogRightAction.tres" id="5_8b7en"]
+[ext_resource type="Resource" uid="uid://n7vsg71x5cfd" path="res://src/UI/Controls/Action/References/Map/ZoomInAction.tres" id="7_iv8o8"]
+[ext_resource type="Resource" uid="uid://dc7ud3npxyw0k" path="res://src/UI/Controls/Action/References/Map/ZoomOutAction.tres" id="8_6rpxy"]
+[ext_resource type="PackedScene" uid="uid://chrkndsuu4vwd" path="res://src/UI/ZoomingCamera.tscn" id="9_xdbc5"]
 
 [node name="Pointer" type="Node2D"]
 script = ExtResource("1_rsyl0")
@@ -15,8 +18,10 @@ LeftAction = ExtResource("3_68nr4")
 DownAction = ExtResource("4_q7aqy")
 RightAction = ExtResource("5_8b7en")
 AccelerateAction = ExtResource("2_10qle")
+ZoomInAction = ExtResource("7_iv8o8")
+ZoomOutAction = ExtResource("8_6rpxy")
 
-[node name="Camera" type="Camera2D" parent="."]
+[node name="Camera" parent="." instance=ExtResource("9_xdbc5")]
 zoom = Vector2(2, 2)
 limit_left = 0
 limit_top = 0
