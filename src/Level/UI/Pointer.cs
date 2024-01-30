@@ -90,10 +90,16 @@ public partial class Pointer : Node2D
     [Export] public InputActionReference AccelerateAction = new();
 
     [ExportGroup("Input Actions/Camera Control")]
-    [Export] public InputActionReference ZoomInAction = new();
+    [Export] public InputActionReference DigitalZoomInAction = new();
 
     [ExportGroup("Input Actions/Camera Control")]
-    [Export] public InputActionReference ZoomOutAction = new();
+    [Export] public InputActionReference AnalogZoomInAction = new();
+
+    [ExportGroup("Input Actions/Camera Control")]
+    [Export] public InputActionReference DigitalZoomOutAction = new();
+
+    [ExportGroup("Input Actions/Camera Control")]
+    [Export] public InputActionReference AnalogZoomOutAction = new();
 
     /// <summary>When the input mode changes, update visibility and move things around to make sure real/virtual mouse positions are consistent.</summary>
     /// <param name="mode">New input mode.</param>
@@ -164,9 +170,9 @@ public partial class Pointer : Node2D
                 _accelerate = false;
         }
 
-        if (@event.IsActionPressed(ZoomInAction))
+        if (@event.IsActionPressed(DigitalZoomInAction))
             Camera.ZoomTarget += Camera.ZoomFactor;
-        if (@event.IsActionPressed(ZoomOutAction))
+        if (@event.IsActionPressed(DigitalZoomOutAction))
             Camera.ZoomTarget -= Camera.ZoomFactor;
     }
 
@@ -189,5 +195,9 @@ public partial class Pointer : Node2D
             break;
         }
         _mouse.Position = WorldToViewport(Position);
+
+        float zoom = Input.GetAxis(AnalogZoomInAction, AnalogZoomOutAction);
+        if (zoom != 0)
+            Camera.ZoomTarget += Camera.ZoomFactor*zoom;
     }
 }
