@@ -14,11 +14,15 @@ public partial class ZoomingCamera : Camera2D
     /// <summary>Maximum allowable zoom (smallest view of the world).</summary>
     [Export] public Vector2 MaxZoom = new(3, 3);
 
-    /// <summary>Amount to increase/decrease zoom each step.</summary>
-    [Export] public Vector2 ZoomFactor = new(0.25f, 0.25f);
-
     /// <summary>Amount of time to take to reach the next zoom setting.</summary>
     [Export] public double ZoomDuration = 0.2;
+
+    private Vector2 Clamp(Vector2 zoom)
+    {
+        Vector2 mins = GetViewportRect().Size/new Vector2(LimitRight - LimitLeft, LimitBottom - LimitTop);
+        float min = Mathf.Min(mins.X, mins.Y);
+        return zoom.Clamp(new(Mathf.Max(min, MinZoom.X), Mathf.Max(min, MinZoom.Y)), MaxZoom);
+    }
 
     /// <summary>The current zoom setting. When set, the camera will take <c>ZoomDuration</c> seconds to reach that setting.</summary>
     public Vector2 ZoomTarget
@@ -26,18 +30,22 @@ public partial class ZoomingCamera : Camera2D
         get => _target;
         set
         {
-            Vector2 mins = GetViewportRect().Size/new Vector2(LimitRight - LimitLeft, LimitBottom - LimitTop);
-            float min = Mathf.Min(mins.X, mins.Y);
-
-            _target = value.Clamp(new(Mathf.Max(min, MinZoom.X), Mathf.Max(min, MinZoom.Y)), MaxZoom);
+            _target = Clamp(value);
 
             if (_tween != null && _tween.IsValid())
                 _tween.Kill();
             _tween = CreateTween();
-            _tween.TweenProperty(this, PropertyName.Zoom.ToString(), _target, ZoomDuration);
+            _tween.TweenMethod(Callable.From((Vector2 zoom) => base.Zoom = zoom), base.Zoom, _target, ZoomDuration);
             _tween.SetTrans(Tween.TransitionType.Sine);
             _tween.SetEase(Tween.EaseType.Out);
         }
+    }
+
+    /// <summary>Directly set the zoom value without smoothing its transition.</summary>
+    public new Vector2 Zoom
+    {
+        get => base.Zoom;
+        set => _target = base.Zoom = Clamp(value);
     }
 
     public override void _Ready()

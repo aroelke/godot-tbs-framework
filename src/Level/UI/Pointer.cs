@@ -22,6 +22,8 @@ public partial class Pointer : Node2D
     private TextureRect _mouse = null;
     private CanvasItem _parent = null;
     private ZoomingCamera _camera = null;
+    private Vector2 _digitalZoom = new(0.25f, 0.25f);
+    private Vector2 _analogZoom = new(2, 2);
 
     private CanvasItem Parent => _parent ??= GetParent<CanvasItem>();
     private ZoomingCamera Camera => _camera ??= GetNode<ZoomingCamera>("Camera");
@@ -64,10 +66,28 @@ public partial class Pointer : Node2D
     }
 
     /// <summary>Speed in pixels/second the pointer moves when in analog mode.</summary>
+    [ExportGroup("Movement")]
     [Export] public double Speed = 600;
 
     /// <summary>Multiplier applied to the pointer speed when the accelerate button is held down in analog mode.</summary>
+    [ExportGroup("Movement")]
     [Export] public double Acceleration = 3;
+
+    /// <summary>Amount to change the camera zoom each time a digital control is pressed.</summary>
+    [ExportGroup("Camera Control")]
+    [Export] public float DigitalZoomFactor
+    {
+        get => _digitalZoom.X;
+        set => _digitalZoom = new(value, value);
+    }
+
+    /// <summary>Amount to change the camera zoom while the analog control is held down.</summary>
+    [ExportGroup("Camera Control")]
+    [Export] public float AnalogZoomFactor
+    {
+        get => _analogZoom.X;
+        set => _analogZoom = new(value, value);
+    }
 
     /// <summary>Action to move the pointer up.</summary>
     [ExportGroup("Input Actions/Movement")]
@@ -171,9 +191,9 @@ public partial class Pointer : Node2D
         }
 
         if (@event.IsActionPressed(DigitalZoomInAction))
-            Camera.ZoomTarget += Camera.ZoomFactor;
+            Camera.ZoomTarget += _digitalZoom;
         if (@event.IsActionPressed(DigitalZoomOutAction))
-            Camera.ZoomTarget -= Camera.ZoomFactor;
+            Camera.ZoomTarget -= _digitalZoom;
     }
 
     public override void _Process(double delta)
@@ -196,8 +216,8 @@ public partial class Pointer : Node2D
         }
         _mouse.Position = WorldToViewport(Position);
 
-        float zoom = Input.GetAxis(AnalogZoomInAction, AnalogZoomOutAction);
+        float zoom = Input.GetAxis(AnalogZoomOutAction, AnalogZoomInAction);
         if (zoom != 0)
-            Camera.ZoomTarget += Camera.ZoomFactor*zoom;
+            Camera.Zoom += _analogZoom*zoom*(float)delta;
     }
 }
