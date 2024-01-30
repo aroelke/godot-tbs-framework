@@ -11,7 +11,7 @@ public partial class ZoomingCamera : Camera2D
 
     [Export] public Vector2 MaxZoom = new(3, 3);
 
-    [Export] public Vector2 ZoomFactor = new(0.1f, 0.1f);
+    [Export] public Vector2 ZoomFactor = new(0.25f, 0.25f);
 
     [Export] public double ZoomDuration = 0.2;
 
@@ -20,7 +20,10 @@ public partial class ZoomingCamera : Camera2D
         get => _target;
         set
         {
-            _target = value.Clamp(MinZoom, MaxZoom);
+            Vector2 mins = GetViewportRect().Size/new Vector2(LimitRight - LimitLeft, LimitBottom - LimitTop);
+            float min = Mathf.Min(mins.X, mins.Y);
+
+            _target = value.Clamp(new(Mathf.Max(min, MinZoom.X), Mathf.Max(min, MinZoom.Y)), MaxZoom);
 
             if (_tween != null && _tween.IsValid())
                 _tween.Kill();
