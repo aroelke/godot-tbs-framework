@@ -65,9 +65,9 @@ public partial class Pointer : Node2D
         }
     }
 
-    /// <summary>Speed in pixels/second the pointer moves when in analog mode.</summary>
+    /// <summary>Speed in screen pixels/second the pointer moves when in analog mode.</summary>
     [ExportGroup("Movement")]
-    [Export] public double Speed = 600;
+    [Export] public double Speed = 1200;
 
     /// <summary>Multiplier applied to the pointer speed when the accelerate button is held down in analog mode.</summary>
     [ExportGroup("Movement")]
@@ -210,7 +210,7 @@ public partial class Pointer : Node2D
             if (direction != Vector2.Zero)
             {
                 double speed = _accelerate ? (Speed*Acceleration) : Speed;
-                Warp((Position + (direction*(float)(speed*delta))).Clamp(Bounds.Position, Bounds.End));
+                Warp((Position + (direction*(float)(speed*delta)/Camera.Zoom)).Clamp(Bounds.Position, Bounds.End));
             }
             break;
         }
