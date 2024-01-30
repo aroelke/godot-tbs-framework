@@ -68,23 +68,23 @@ public partial class Pointer : Node2D
     [Export] public double Acceleration = 3;
 
     /// <summary>Action to move the pointer up.</summary>
-    [ExportGroup("Input Actions")]
+    [ExportGroup("Input Actions/Movement")]
     [Export] public InputActionReference UpAction = new();
 
     /// <summary>Action to move the pointer left.</summary>
-    [ExportGroup("Input Actions")]
+    [ExportGroup("Input Actions/Movement")]
     [Export] public InputActionReference LeftAction = new();
 
     /// <summary>Action to move the pointer down.</summary>
-    [ExportGroup("Input Actions")]
+    [ExportGroup("Input Actions/Movement")]
     [Export] public InputActionReference DownAction = new();
 
     /// <summary>Action to move the pointer right.</summary>
-    [ExportGroup("Input Actions")]
+    [ExportGroup("Input Actions/Movement")]
     [Export] public InputActionReference RightAction = new();
 
     /// <summary>Action to accelerate the speed of the cursor.</summary>
-    [ExportGroup("Input Actions")]
+    [ExportGroup("Input Actions/Movement")]
     [Export] public InputActionReference AccelerateAction = new();
 
     /// <summary>When the input mode changes, update visibility and move things around to make sure real/virtual mouse positions are consistent.</summary>
