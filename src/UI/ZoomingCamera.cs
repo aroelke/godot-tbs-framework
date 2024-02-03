@@ -7,6 +7,7 @@ public partial class ZoomingCamera : Camera2D
 {
     private Vector2 _target = new(0, 0);
     private Tween _tween = null;
+    private float _normalSpeed = 0;
 
     /// <summary>Minimum allowable zoom (largest view of the world).</summary>
     [Export] public Vector2 MinZoom = new(0.5f, 0.5f);
@@ -16,6 +17,9 @@ public partial class ZoomingCamera : Camera2D
 
     /// <summary>Amount of time to take to reach the next zoom setting.</summary>
     [Export] public double ZoomDuration = 0.2;
+
+    /// <summary>Speed to move the camera while the target is off screen.</summary>
+    [Export] public float OffScreenSpeed = 15;
 
     private Vector2 Clamp(Vector2 zoom)
     {
@@ -52,5 +56,19 @@ public partial class ZoomingCamera : Camera2D
     {
         base._Ready();
         _target = Zoom;
+        _normalSpeed = PositionSmoothingSpeed;
+    }
+
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+
+        if (PositionSmoothingEnabled)
+        {
+            if (!(GetCanvasTransform().AffineInverse()*GetViewportRect()).HasPoint(GetTargetPosition()))
+                PositionSmoothingSpeed = OffScreenSpeed;
+            else if (_normalSpeed > 0)
+                PositionSmoothingSpeed = _normalSpeed;
+        }
     }
 }
