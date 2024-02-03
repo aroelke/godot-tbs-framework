@@ -1,4 +1,5 @@
 using Godot;
+using UI;
 using UI.Controls.Action;
 using UI.Controls.Device;
 
@@ -20,8 +21,12 @@ public partial class Pointer : Node2D
     private bool _accelerate = false;
     private TextureRect _mouse = null;
     private CanvasItem _parent = null;
+    private ZoomingCamera _camera = null;
+    private Vector2 _digitalZoom = new(0.25f, 0.25f);
+    private Vector2 _analogZoom = new(2, 2);
 
     private CanvasItem Parent => _parent ??= GetParent<CanvasItem>();
+    private ZoomingCamera Camera => _camera ??= GetNode<ZoomingCamera>("Camera");
 
     /// <summary>Convert a position in the level to a position in the viewport.</summary>
     /// <param name="world">Level position.</param>
@@ -54,34 +59,67 @@ public partial class Pointer : Node2D
             {
                 _bounds = value;
 
-                Camera2D camera = GetNode<Camera2D>("Camera");
-                (camera.LimitLeft, camera.LimitTop) = _bounds.Position;
-                (camera.LimitRight, camera.LimitBottom) = _bounds.End;
+                (Camera.LimitLeft, Camera.LimitTop) = _bounds.Position;
+                (Camera.LimitRight, Camera.LimitBottom) = _bounds.End;
             }
         }
     }
 
-    /// <summary>Speed in pixels/second the pointer moves when in analog mode.</summary>
-    [Export] public double Speed = 600;
+    /// <summary>Speed in screen pixels/second the pointer moves when in analog mode.</summary>
+    [ExportGroup("Movement")]
+    [Export] public double Speed = 1200;
 
     /// <summary>Multiplier applied to the pointer speed when the accelerate button is held down in analog mode.</summary>
+    [ExportGroup("Movement")]
     [Export] public double Acceleration = 3;
 
-    [ExportGroup("Input Actions")]
+    /// <summary>Amount to change the camera zoom each time a digital control is pressed.</summary>
+    [ExportGroup("Camera Control")]
+    [Export] public float DigitalZoomFactor
+    {
+        get => _digitalZoom.X;
+        set => _digitalZoom = new(value, value);
+    }
+
+    /// <summary>Amount to change the camera zoom while the analog control is held down.</summary>
+    [ExportGroup("Camera Control")]
+    [Export] public float AnalogZoomFactor
+    {
+        get => _analogZoom.X;
+        set => _analogZoom = new(value, value);
+    }
+
+    /// <summary>Action to move the pointer up.</summary>
+    [ExportGroup("Input Actions/Movement")]
     [Export] public InputActionReference UpAction = new();
 
-    [ExportGroup("Input Actions")]
+    /// <summary>Action to move the pointer left.</summary>
+    [ExportGroup("Input Actions/Movement")]
     [Export] public InputActionReference LeftAction = new();
 
-    [ExportGroup("Input Actions")]
+    /// <summary>Action to move the pointer down.</summary>
+    [ExportGroup("Input Actions/Movement")]
     [Export] public InputActionReference DownAction = new();
 
-    [ExportGroup("Input Actions")]
+    /// <summary>Action to move the pointer right.</summary>
+    [ExportGroup("Input Actions/Movement")]
     [Export] public InputActionReference RightAction = new();
 
     /// <summary>Action to accelerate the speed of the cursor.</summary>
-    [ExportGroup("Input Actions")]
+    [ExportGroup("Input Actions/Movement")]
     [Export] public InputActionReference AccelerateAction = new();
+
+    [ExportGroup("Input Actions/Camera Control")]
+    [Export] public InputActionReference DigitalZoomInAction = new();
+
+    [ExportGroup("Input Actions/Camera Control")]
+    [Export] public InputActionReference AnalogZoomInAction = new();
+
+    [ExportGroup("Input Actions/Camera Control")]
+    [Export] public InputActionReference DigitalZoomOutAction = new();
+
+    [ExportGroup("Input Actions/Camera Control")]
+    [Export] public InputActionReference AnalogZoomOutAction = new();
 
     /// <summary>When the input mode changes, update visibility and move things around to make sure real/virtual mouse positions are consistent.</summary>
     /// <param name="mode">New input mode.</param>
@@ -151,6 +189,11 @@ public partial class Pointer : Node2D
             if (@event.IsActionReleased(AccelerateAction))
                 _accelerate = false;
         }
+
+        if (@event.IsActionPressed(DigitalZoomInAction))
+            Camera.ZoomTarget += _digitalZoom;
+        if (@event.IsActionPressed(DigitalZoomOutAction))
+            Camera.ZoomTarget -= _digitalZoom;
     }
 
     public override void _Process(double delta)
@@ -167,10 +210,14 @@ public partial class Pointer : Node2D
             if (direction != Vector2.Zero)
             {
                 double speed = _accelerate ? (Speed*Acceleration) : Speed;
-                Warp((Position + (direction*(float)(speed*delta))).Clamp(Bounds.Position, Bounds.End));
+                Warp((Position + (direction*(float)(speed*delta)/Camera.Zoom)).Clamp(Bounds.Position, Bounds.End));
             }
             break;
         }
         _mouse.Position = WorldToViewport(Position);
+
+        float zoom = Input.GetAxis(AnalogZoomOutAction, AnalogZoomInAction);
+        if (zoom != 0)
+            Camera.Zoom += _analogZoom*zoom*(float)delta;
     }
 }
