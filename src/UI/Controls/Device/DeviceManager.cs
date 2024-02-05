@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Godot;
+using UI.Controls.Action;
 
 namespace UI.Controls.Device;
 
@@ -64,8 +67,25 @@ public partial class DeviceManager : Node
         }
     }
 
+    private HashSet<JoyButton> _digitalSwitchers = new();
+
+    /// <summary>Digital actions that should switch the mode to digital.</summary>
+    [Export] public InputActionReference[] GamepadDigitalModeActions = Array.Empty<InputActionReference>();
+
     /// <summary>Dead zone to use for detecting gamepad axes.</summary>
     [Export] public float MotionDeadzone = 0.5f;
+
+    public override void _Ready()
+    {
+        base._Ready();
+        _digitalSwitchers = GamepadDigitalModeActions.Select((a) => {
+            IEnumerable<JoyButton> buttons = InputMap.ActionGetEvents(a).OfType<InputEventJoypadButton>().Select((e) => e.ButtonIndex);
+            if (buttons.Any())
+                return buttons.First();
+            else
+                return JoyButton.Invalid;
+        }).Where((b) => b != JoyButton.Invalid).ToHashSet();
+    }
 
     public override void _Input(InputEvent @event)
     {
@@ -80,9 +100,10 @@ public partial class DeviceManager : Node
             UpdateDevice(InputDevice.Keyboard, "");
             Mode = InputMode.Digital;
             break;
-        case InputEventJoypadButton:
+        case InputEventJoypadButton b:
             UpdateDevice(InputDevice.Gamepad, Input.GetJoyName(0));
-            Mode = InputMode.Digital;
+            if (_digitalSwitchers.Contains(b.ButtonIndex))
+                Mode = InputMode.Digital;
             break;
         case InputEventJoypadMotion e when Mathf.Abs(e.AxisValue) >= MotionDeadzone:
             UpdateDevice(InputDevice.Gamepad, Input.GetJoyName(0));

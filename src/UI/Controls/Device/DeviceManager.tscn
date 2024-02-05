@@ -1,6 +1,11 @@
-[gd_scene load_steps=2 format=3 uid="uid://dkposyo3j3jvf"]
+[gd_scene load_steps=6 format=3 uid="uid://dkposyo3j3jvf"]
 
 [ext_resource type="Script" path="res://src/UI/Controls/Device/DeviceManager.cs" id="1_hknwi"]
+[ext_resource type="Resource" uid="uid://bg5wxy6d07m7x" path="res://src/UI/Controls/Action/References/Global/MoveUpAction.tres" id="2_3csyt"]
+[ext_resource type="Resource" uid="uid://dtest68b2o5wf" path="res://src/UI/Controls/Action/References/Global/MoveLeftAction.tres" id="3_rhnoi"]
+[ext_resource type="Resource" uid="uid://dgfjy48mw11g0" path="res://src/UI/Controls/Action/References/Global/MoveDownAction.tres" id="4_vf85r"]
+[ext_resource type="Resource" uid="uid://bkj4yccwimuix" path="res://src/UI/Controls/Action/References/Global/MoveRightAction.tres" id="5_nvl3v"]
 
 [node name="DeviceManager" type="Node"]
 script = ExtResource("1_hknwi")
+GamepadDigitalModeActions = [ExtResource("2_3csyt"), ExtResource("3_rhnoi"), ExtResource("4_vf85r"), ExtResource("5_nvl3v")]
