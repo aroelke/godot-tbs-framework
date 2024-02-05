@@ -236,13 +236,15 @@ public partial class Level : Node2D
                 switch (DeviceManager.Mode)
                 {
                 case InputMode.Mouse:
-                    Input.WarpMouse(GetGlobalTransform()*GetCanvasTransform()*(_selected.Cell*Grid.CellSize + Grid.CellSize/2));
+                    if (!Grid.CellRect(_selected.Cell).HasPoint(GetGlobalMousePosition()))
+                        Input.WarpMouse(GetGlobalTransform()*GetCanvasTransform()*(_selected.Cell*Grid.CellSize + Grid.CellSize/2));
                     break;
                 case InputMode.Digital:
                     Cursor.Cell = _selected.Cell;
                     break;
                 case InputMode.Analog:
-                    Pointer.Position = _selected.Cell + Grid.CellSize/2;
+                    if (!Grid.CellRect(_selected.Cell).HasPoint(Pointer.Position))
+                        Pointer.Warp(_selected.Cell*Grid.CellSize + Grid.CellSize/2);
                     break;
                 }
                 DeselectUnit();
