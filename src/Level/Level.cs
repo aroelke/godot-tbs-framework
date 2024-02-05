@@ -233,18 +233,20 @@ public partial class Level : Node2D
         case State.SelectUnit or State.PostMove:
             if (@event.IsActionReleased(CancelAction))
             {
+                Rect2 selectedRect = Grid.CellRect(_selected.Cell);
+
                 switch (DeviceManager.Mode)
                 {
                 case InputMode.Mouse:
-                    if (!Grid.CellRect(_selected.Cell).HasPoint(GetGlobalMousePosition()))
-                        Input.WarpMouse(GetGlobalTransform()*GetCanvasTransform()*(_selected.Cell*Grid.CellSize + Grid.CellSize/2));
+                    if (!selectedRect.HasPoint(GetGlobalMousePosition()))
+                        Input.WarpMouse(GetGlobalTransform()*GetCanvasTransform()*selectedRect.GetCenter());
                     break;
                 case InputMode.Digital:
                     Cursor.Cell = _selected.Cell;
                     break;
                 case InputMode.Analog:
-                    if (!Grid.CellRect(_selected.Cell).HasPoint(Pointer.Position))
-                        Pointer.Warp(_selected.Cell*Grid.CellSize + Grid.CellSize/2);
+                    if (!selectedRect.HasPoint(Pointer.Position))
+                        Pointer.Warp(selectedRect.GetCenter());
                     break;
                 }
                 DeselectUnit();
