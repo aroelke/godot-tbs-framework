@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using Godot;
 using Level.Map;
@@ -32,6 +33,7 @@ public partial class Level : Node2D
     private Grid _map = null;
     private Overlay _overlay = null;
     private Cursor _cursor = null;
+    private Pointer _pointer = null;
     private Vector2I _cursorPrev = Vector2I.Zero;
     private State _state = State.Idle;
     private Unit _selected = null;
@@ -41,6 +43,7 @@ public partial class Level : Node2D
     private Grid Grid => _map ??= GetNode<Grid>("Grid");
     private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
     private Cursor Cursor => _cursor ??= GetNode<Cursor>("Cursor");
+    private Pointer Pointer => _pointer ??= GetNode<Pointer>("Pointer");
     private ControlHint CancelHint => _cancelHint ??= GetNode<ControlHint>("UserInterface/HUD/Hints/CancelHint");
 
     private void DeselectUnit()
@@ -204,7 +207,7 @@ public partial class Level : Node2D
 
             Cursor.Grid = Grid;
             _cursorPrev = Cursor.Cell;
-            GetNode<Pointer>("Pointer").Bounds = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
+            Pointer.Bounds = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
 
             foreach (Node child in GetChildren())
             {
@@ -230,6 +233,18 @@ public partial class Level : Node2D
         case State.SelectUnit or State.PostMove:
             if (@event.IsActionReleased(CancelAction))
             {
+                switch (DeviceManager.Mode)
+                {
+                case InputMode.Mouse:
+                    Input.WarpMouse(GetGlobalTransform()*GetCanvasTransform()*(_selected.Cell*Grid.CellSize + Grid.CellSize/2));
+                    break;
+                case InputMode.Digital:
+                    Cursor.Cell = _selected.Cell;
+                    break;
+                case InputMode.Analog:
+                    Pointer.Position = _selected.Cell + Grid.CellSize/2;
+                    break;
+                }
                 DeselectUnit();
                 _state = State.Idle;
             }
