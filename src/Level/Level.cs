@@ -239,7 +239,7 @@ public partial class Level : Node2D
                 {
                 case InputMode.Mouse:
                     if (!selectedRect.HasPoint(GetGlobalMousePosition()))
-                        Input.WarpMouse(GetGlobalTransform()*GetCanvasTransform()*selectedRect.GetCenter());
+                        Pointer.WarpMouse(selectedRect.GetCenter());
                     break;
                 case InputMode.Digital:
                     Cursor.Cell = _selected.Cell;

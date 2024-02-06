@@ -52,6 +52,9 @@ public partial class ZoomingCamera : Camera2D
         set => _target = base.Zoom = Clamp(value);
     }
 
+    /// <returns>The viewport rectangle projected onto the world.</returns>
+    public Rect2 GetProjectedViewportRect() => GetCanvasTransform().AffineInverse()*GetViewportRect();
+
     public override void _Ready()
     {
         base._Ready();
@@ -65,7 +68,7 @@ public partial class ZoomingCamera : Camera2D
 
         if (PositionSmoothingEnabled)
         {
-            if (!(GetCanvasTransform().AffineInverse()*GetViewportRect()).HasPoint(GetTargetPosition()))
+            if (!GetProjectedViewportRect().HasPoint(GetTargetPosition()))
                 PositionSmoothingSpeed = OffScreenSpeed;
             else if (_normalSpeed > 0)
                 PositionSmoothingSpeed = _normalSpeed;

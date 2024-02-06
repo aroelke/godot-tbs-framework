@@ -16,6 +16,8 @@ public partial class Pointer : Node2D
     /// <param name="position">Position of the virtual pointer.</param>
     [Signal] public delegate void PointerMovedEventHandler(Vector2 position);
 
+    [Signal] public delegate void ScreenEnteredEventHandler();
+
     private InputMode _prevMode = default;
     private Rect2I _bounds = new(0, 0, 0, 0);
     private bool _accelerate = false;
@@ -24,6 +26,8 @@ public partial class Pointer : Node2D
     private ZoomingCamera _camera = null;
     private Vector2 _digitalZoom = new(0.25f, 0.25f);
     private Vector2 _analogZoom = new(2, 2);
+    private bool _tracking = true;
+    private Vector2 _prevViewport = Vector2.Zero;
 
     private CanvasItem Parent => _parent ??= GetParent<CanvasItem>();
     private ZoomingCamera Camera => _camera ??= GetNode<ZoomingCamera>("Camera");
@@ -37,17 +41,6 @@ public partial class Pointer : Node2D
     /// <param name="viewport">Viewport position.</param>
     /// <returns>Position in the level that's at the same place as the one in the viewport.</returns>
     private Vector2 ViewportToWorld(Vector2 viewport) => (Parent.GetGlobalTransform()*Parent.GetCanvasTransform()).AffineInverse()*viewport;
-
-    /// <summary>Move the cursor to a new location that's not bounded by <c>Bounds</c>, and update listeners that the move occurred.</summary>
-    /// <param name="position">Position to warp to.</param>
-    public void Warp(Vector2 position)
-    {
-        if (Position != position)
-        {
-            Position = position;
-            EmitSignal(SignalName.PointerMoved, Position);
-        }
-    }
 
     /// <summary>Bounding rectangle where the cursor is allowed to move.</summary>
     [Export] public Rect2I Bounds
@@ -125,6 +118,45 @@ public partial class Pointer : Node2D
     [ExportGroup("Input Actions/Camera Control")]
     [Export] public InputActionReference AnalogZoomOutAction = new();
 
+    /// <summary>Move the cursor to a new location that's not bounded by <c>Bounds</c>, and update listeners that the move occurred.</summary>
+    /// <param name="position">Position to warp to.</param>
+    public void Warp(Vector2 position)
+    {
+        if (Position != position)
+        {
+            Position = position;
+            EmitSignal(SignalName.PointerMoved, Position);
+        }
+    }
+
+    /// <summary>
+    /// Move the cursor to a new location that's not bounded by <c>Bounds</c>, and update listeners that the move occurred. If input is controlled by the mouse,
+    /// this will also warp the mouse to the pointer's position, moving the camera if necessary (the camera moves instantly with no smoothing in this case).
+    /// </summary>
+    /// <param name="position">Position to warp to.</param>
+    public async void WarpMouse(Vector2 position)
+    {
+        if (DeviceManager.Mode != InputMode.Mouse)
+            GD.PushWarning("Warping the mouse when not controlling via mouse.");
+
+        if (Position != position)
+        {
+            Warp(position);
+
+            if (DeviceManager.Mode == InputMode.Mouse)
+            {
+                if (!Camera.GetProjectedViewportRect().HasPoint(Position))
+                {
+                    _tracking = false;
+                    Camera.ResetSmoothing();
+                    await ToSignal(this, SignalName.ScreenEntered);
+                    _tracking = true;
+                }
+                Input.WarpMouse(WorldToViewport(Position));
+            }
+        }
+    }
+
     /// <summary>When the input mode changes, update visibility and move things around to make sure real/virtual mouse positions are consistent.</summary>
     /// <param name="mode">New input mode.</param>
     public void OnInputModeChanged(InputMode mode)
@@ -173,7 +205,8 @@ public partial class Pointer : Node2D
         _mouse = GetNode<TextureRect>("Canvas/Mouse");
         _mouse.Texture = ResourceLoader.Load<Texture2D>(ProjectSettings.GetSetting("display/mouse_cursor/custom_image").As<string>());
         _mouse.Position = WorldToViewport(Position);
-        Visible = DeviceManager.Mode == InputMode.Analog;
+        _mouse.Visible = DeviceManager.Mode == InputMode.Analog;
+        _prevViewport = WorldToViewport(Position);
 
         _prevMode = DeviceManager.Mode;
         Input.MouseMode = DeviceManager.Mode == InputMode.Mouse ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Hidden;
@@ -206,7 +239,7 @@ public partial class Pointer : Node2D
 
         switch (DeviceManager.Mode)
         {
-        case InputMode.Mouse when Position != ViewportToWorld(InputManager.GetMousePosition()):
+        case InputMode.Mouse when _tracking && Position != ViewportToWorld(InputManager.GetMousePosition()):
             Warp(ViewportToWorld(InputManager.GetMousePosition()));
             break;
         case InputMode.Analog:
@@ -223,5 +256,10 @@ public partial class Pointer : Node2D
         float zoom = Input.GetAxis(AnalogZoomOutAction, AnalogZoomInAction);
         if (zoom != 0)
             Camera.Zoom += _analogZoom*zoom*(float)delta;
+
+        Rect2 viewport = (Parent.GetGlobalTransform()*Parent.GetCanvasTransform()).AffineInverse()*GetViewportRect();
+        if (!viewport.HasPoint(_prevViewport) && viewport.HasPoint(Position))
+            EmitSignal(SignalName.ScreenEntered);
+        _prevViewport = WorldToViewport(Position);
     }
 }
