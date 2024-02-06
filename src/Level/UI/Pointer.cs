@@ -109,15 +109,19 @@ public partial class Pointer : Node2D
     [ExportGroup("Input Actions/Movement")]
     [Export] public InputActionReference AccelerateAction = new();
 
+    /// <summary>Digital action to zoom the camera in.</summary>
     [ExportGroup("Input Actions/Camera Control")]
     [Export] public InputActionReference DigitalZoomInAction = new();
 
+    /// <summary>Analog action to zoom the camera in.</summary>
     [ExportGroup("Input Actions/Camera Control")]
     [Export] public InputActionReference AnalogZoomInAction = new();
 
+    /// <summary>Digital action to zoom the camera out.</summary>
     [ExportGroup("Input Actions/Camera Control")]
     [Export] public InputActionReference DigitalZoomOutAction = new();
 
+    /// <summary>Analog action to zoom the camera out.</summary>
     [ExportGroup("Input Actions/Camera Control")]
     [Export] public InputActionReference AnalogZoomOutAction = new();
 
