@@ -19,6 +19,11 @@ public partial class Cursor : GridNode
     /// <param name="cell">Coordinates of the cell that has been selected.</param>
     [Signal] public delegate void CellSelectedEventHandler(Vector2I cell);
 
+    /// <summary>
+    /// Signals that the cursor wants to skip toward a direction. Where it goes depends on the context. On the field, it means skipping to the
+    /// next region edge (traversable cells if a unit is selected and the cursor is in that region or map edge otherwise).
+    /// </summary>
+    /// <param name="direction">Direction to skip.</param>
     [Signal] public delegate void RequestSkipEventHandler(Vector2I direction);
 
     /// <summary>Action for selecting a cell.</summary>

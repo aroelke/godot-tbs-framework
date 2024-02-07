@@ -16,6 +16,10 @@ public partial class Pointer : Node2D
     /// <param name="position">Position of the virtual pointer.</param>
     [Signal] public delegate void PointerMovedEventHandler(Vector2 position);
 
+    /// <summary>
+    /// Signals that the pointer has entered the screen. Mostly meant to be used internally for detecting long mouse warps during
+    /// mouse control.
+    /// </summary>
     [Signal] public delegate void ScreenEnteredEventHandler();
 
     private InputMode _prevMode = default;
