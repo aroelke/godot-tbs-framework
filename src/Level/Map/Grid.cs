@@ -56,9 +56,13 @@ public partial class Grid : TileMap
     /// <exception cref="IndexOutOfRangeException">If the cell is outside the grid.</exception>
     public Terrain GetTerrain(Vector2I cell) => GetCellTileData(TerrainLayer, cell)?.GetCustomData("terrain").As<Terrain>() ?? DefaultTerrain;
 
-    /// <param name="cell">Coordinates of the cell to get the ID of.</param>
+    /// <param name="cell">Coordinates of the cell.</param>
     /// <returns>A unique ID within this map of the given cell.</returns>
     public int CellId(Vector2I cell) => cell.X*Size.X + cell.Y;
+
+    /// <param name="cell">Coordinates of the cell.</param>
+    /// <returns>The bounding box of the cell.</returns>
+    public Rect2 CellRect(Vector2I cell) => new(cell*CellSize, CellSize);
 
     public override string[] _GetConfigurationWarnings()
     {

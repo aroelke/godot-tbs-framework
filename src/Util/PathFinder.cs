@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Godot;
 using Level.Map;
@@ -102,28 +103,26 @@ public class PathFinder
         return cells;
     }
 
-    /// <summary>Join two lists of cell coordinates, removing the first loop if there is one.</summary>
-    /// <param name="a">First coordinate list to join.</param>
-    /// <param name="b">Second coordinate list to join.</param>
-    /// <returns>A list of coordinates consisting of the two lists concatenated, but with the first loop removed.</returns>
-    public static List<Vector2I> Join(IList<Vector2I> a, IList<Vector2I> b)
+    /// <summary>Remove all loops from a list of elements.  A loop is any sequence within the list that starts and ends with the same element.</summary>
+    /// <typeparam name="T">Type of the elements of the list.</typeparam>
+    /// <param name="items">List to straighten.</param>
+    /// <returns>A new list containing all of the items in the input list with no loops. If the input list has no loops, then the new list is a copy of it.</returns>
+    public static List<T> Disentangle<T>(IImmutableList<T> items)
     {
-        List<Vector2I> result = new();
-        for (int i = 0; i < a.Count; i++)
+        for (int i = 0; i < items.Count; i++)
         {
-            for (int j = 0; j < b.Count; j++)
+            for (int j = items.Count - 1; j > i; j--)
             {
-                if (a[i] == b[j])
+                if (EqualityComparer<T>.Default.Equals(items[i], items[j]))
                 {
-                    result.AddRange(a.Take(i));
-                    result.AddRange(b.TakeLast(b.Count - j));
-                    return result;
+                    List<T> result = new();
+                    result.AddRange(items.Take(i));
+                    result.AddRange(items.TakeLast(items.Count - j));
+                    return Disentangle(result.ToImmutableList());
                 }
             }
         }
-        result.AddRange(a);
-        result.AddRange(b);
-        return result;
+        return new(items);
     }
 
     private readonly Grid _map;
@@ -186,7 +185,7 @@ public class PathFinder
 
         List<Vector2I> temp = new(Path);
         Path.Clear();
-        Path.AddRange(Join(temp, extension));
+        Path.AddRange(Disentangle(temp.Concat(extension).ToImmutableList()));
         if (Path.Select((c) => _map.GetTerrain(c).Cost).Sum() - _map.GetTerrain(Path[0]).Cost > _unit.MoveRange)
         {
             Vector2I start = Path[0];

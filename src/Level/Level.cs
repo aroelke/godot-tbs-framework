@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using Godot;
 using Level.Map;
@@ -32,6 +33,7 @@ public partial class Level : Node2D
     private Grid _map = null;
     private Overlay _overlay = null;
     private Cursor _cursor = null;
+    private Pointer _pointer = null;
     private Vector2I _cursorPrev = Vector2I.Zero;
     private State _state = State.Idle;
     private Unit _selected = null;
@@ -41,6 +43,7 @@ public partial class Level : Node2D
     private Grid Grid => _map ??= GetNode<Grid>("Grid");
     private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
     private Cursor Cursor => _cursor ??= GetNode<Cursor>("Cursor");
+    private Pointer Pointer => _pointer ??= GetNode<Pointer>("Pointer");
     private ControlHint CancelHint => _cancelHint ??= GetNode<ControlHint>("UserInterface/HUD/Hints/CancelHint");
 
     private void DeselectUnit()
@@ -148,21 +151,24 @@ public partial class Level : Node2D
         if ((Cursor.Cell.X == 0 && direction.X < 0) || (Cursor.Cell.X == Grid.Size.X - 1 && direction.X > 0))
             direction = direction with { X = 0 };
 
-        Vector2I neighbor = Cursor.Cell + direction;
-        if (_state == State.SelectUnit)
+        if (direction != Vector2I.Zero)
         {
-            bool traversable = _pathfinder.TraversableCells.Contains(neighbor);
-            Vector2I target = neighbor;
-            int i = 1;
-            while (Grid.Contains(neighbor + direction*i) && _pathfinder.TraversableCells.Contains(neighbor + direction*i) == traversable)
+            Vector2I neighbor = Cursor.Cell + direction;
+            if (_state == State.SelectUnit)
             {
-                target = neighbor + direction*i;
-                i++;
+                bool traversable = _pathfinder.TraversableCells.Contains(neighbor);
+                Vector2I target = neighbor;
+                int i = 1;
+                while (Grid.Contains(neighbor + direction*i) && _pathfinder.TraversableCells.Contains(neighbor + direction*i) == traversable)
+                {
+                    target = neighbor + direction*i;
+                    i++;
+                }
+                Cursor.Cell = target;
             }
-            Cursor.Cell = target;
+            else
+                Cursor.Cell = Grid.Clamp(Cursor.Cell + direction*Grid.Size);
         }
-        else
-            Cursor.Cell = Grid.Clamp(Cursor.Cell + direction*Grid.Size);
     }
 
     /// <summary>When a grid node is added to a group, update its grid.</summary>
@@ -201,7 +207,7 @@ public partial class Level : Node2D
 
             Cursor.Grid = Grid;
             _cursorPrev = Cursor.Cell;
-            GetNode<Pointer>("Pointer").Bounds = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
+            Pointer.Bounds = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
 
             foreach (Node child in GetChildren())
             {
@@ -227,6 +233,22 @@ public partial class Level : Node2D
         case State.SelectUnit or State.PostMove:
             if (@event.IsActionReleased(CancelAction))
             {
+                Rect2 selectedRect = Grid.CellRect(_selected.Cell);
+
+                switch (DeviceManager.Mode)
+                {
+                case InputMode.Mouse:
+                    if (!selectedRect.HasPoint(GetGlobalMousePosition()))
+                        Pointer.WarpMouse(selectedRect.GetCenter());
+                    break;
+                case InputMode.Digital:
+                    Cursor.Cell = _selected.Cell;
+                    break;
+                case InputMode.Analog:
+                    if (!selectedRect.HasPoint(Pointer.Position))
+                        Pointer.Warp(selectedRect.GetCenter());
+                    break;
+                }
                 DeselectUnit();
                 _state = State.Idle;
             }
