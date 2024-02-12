@@ -8,7 +8,7 @@ namespace UI.HUD;
 /// Hint icon for showing the controls to move the cursor for a particular game pad.  Switches between showing four buttons in
 /// a diamond pattern and showing a single directional pad depending on if all the actions are mapped to the pad in the right way.
 /// </summary>
-[Tool]
+[Icon("res://icons/UIIcon.svg"), Tool]
 public partial class GamepadCursorHintIcon : HBoxContainer
 {
     private Texture2D GetButtonIcon(JoyButton b) => ButtonMap is not null && ButtonMap.ContainsKey(b) ? ButtonMap[b] : null;
