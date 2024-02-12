@@ -6,6 +6,7 @@ using Godot;
 namespace Level.Object.Group;
 
 /// <summary>A  group of grid nodes to facilitate managing and iterating over them.</summary>
+[Icon("res://icons/GridNodeGroup.svg")]
 public partial class GridNodeGroup : Node, IEnumerable<GridNode>, IEnumerable
 {
     /// <summary>Number of nodes in the group of type <c>T</c>.</summary>
