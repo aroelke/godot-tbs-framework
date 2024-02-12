@@ -261,7 +261,23 @@ public partial class Pointer : Node2D
         if (zoom != 0)
             Camera.Zoom += _analogZoom*zoom*(float)delta;
 
-        Rect2 viewport = (Parent.GetGlobalTransform()*Parent.GetCanvasTransform()).AffineInverse()*GetViewportRect();
+        Rect2 viewport = Camera.GetProjectedViewportRect();
+        if (!viewport.HasPoint(Position))
+        {
+            Camera.PositionSmoothingEnabled = false;
+            Camera.DragTopMargin = 1;
+            Camera.DragLeftMargin = 1;
+            Camera.DragBottomMargin = 1;
+            Camera.DragRightMargin = 1;
+        }
+        else
+        {
+            Camera.PositionSmoothingEnabled = true;
+            Camera.DragTopMargin = 0.5f;
+            Camera.DragLeftMargin = 0.5f;
+            Camera.DragBottomMargin = 0.5f;
+            Camera.DragRightMargin = 0.5f;
+        }
         if (!viewport.HasPoint(_prevViewport) && viewport.HasPoint(Position))
             EmitSignal(SignalName.ScreenEntered);
         _prevViewport = WorldToViewport(Position);

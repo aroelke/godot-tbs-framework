@@ -6,7 +6,7 @@ using Level.Map;
 namespace Level.Object;
 
 /// <summary>A node representing an object that moves on a grid.</summary>
-[GlobalClass, Tool]
+[Icon("res://icons/GridNode.svg"), GlobalClass, Tool]
 public partial class GridNode : Node2D
 {
     /// <summary>Signals that the cell containing the object has changed.</summary>
