@@ -7,7 +7,7 @@ using UI.Controls.Device;
 namespace UI.HUD;
 
 /// <summary>Icon and label showing the input for an action that doesn't have an analog or mouse option.</summary>
-[Tool]
+[Icon("res://icons/UIIcon.svg"), Tool]
 public partial class ControlHint : HBoxContainer
 {
     private Dictionary<InputDevice, TextureRect> _icons = new();

@@ -30,7 +30,7 @@ zoom = Vector2(2, 2)
 limit_left = 0
 limit_top = 0
 position_smoothing_enabled = true
-position_smoothing_speed = 7.5
+position_smoothing_speed = 1.0
 drag_horizontal_enabled = true
 drag_vertical_enabled = true
 drag_left_margin = 0.5
@@ -38,6 +38,7 @@ drag_top_margin = 0.5
 drag_right_margin = 0.5
 drag_bottom_margin = 0.5
 editor_draw_drag_margin = true
+OffScreenSpeed = 1.0
 
 [node name="Canvas" type="CanvasLayer" parent="."]
 

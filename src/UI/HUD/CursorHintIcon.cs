@@ -7,7 +7,7 @@ using UI.Controls.Device;
 namespace UI.HUD;
 
 /// <summary>Hint icon for showing the controls to move the cursor for the current control scheme.</summary>
-[Tool]
+[Icon("res://icons/UIIcon.svg"), Tool]
 public partial class CursorHintIcon : HBoxContainer
 {
     private TextureRect _mouseIcon = null;
