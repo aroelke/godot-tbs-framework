@@ -32,6 +32,7 @@ public partial class Level : Node2D
 
     private Grid _map = null;
     private Overlay _overlay = null;
+    private Camera2DBrain _camera = null;
     private Cursor _cursor = null;
     private Pointer _pointer = null;
     private Vector2I _cursorPrev = Vector2I.Zero;
@@ -42,6 +43,7 @@ public partial class Level : Node2D
 
     private Grid Grid => _map ??= GetNode<Grid>("Grid");
     private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
+    private Camera2DBrain Camera => _camera ??= GetNode<Camera2DBrain>("Camera");
     private Cursor Cursor => _cursor ??= GetNode<Cursor>("Cursor");
     private Pointer Pointer => _pointer ??= GetNode<Pointer>("Pointer");
     private ControlHint CancelHint => _cancelHint ??= GetNode<ControlHint>("UserInterface/HUD/Hints/CancelHint");
@@ -205,9 +207,10 @@ public partial class Level : Node2D
         {
             _state = State.Idle;
 
+            Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
             Cursor.Grid = Grid;
             _cursorPrev = Cursor.Cell;
-            Pointer.Bounds = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
+            Pointer.Bounds = Camera.Limits;
 
             foreach (Node child in GetChildren())
             {

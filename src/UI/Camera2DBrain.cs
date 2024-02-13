@@ -9,7 +9,7 @@ public partial class Camera2DBrain : Node2D
     private Camera2D Camera => _camera ??= GetNodeOrNull<Camera2D>("Camera2D");
 
     private Vector2 _zoom = Vector2.One;
-    private int _limitLeft = -10000000, _limitTop = -10000000, _limitRight = 10000000, _limitBottom = 10000000;
+    private Rect2I _limits = new(-1000000, -1000000, 2000000, 2000000);
 
     [ExportGroup("Camera")]
     [Export] public Node2D Target = null;
@@ -26,51 +26,18 @@ public partial class Camera2DBrain : Node2D
         }
     }
 
-    [ExportGroup("Limit")]
-    [Export] public int LimitLeft
+    [ExportGroup("Camera")]
+    [Export] public Rect2I Limits
     {
-        get => _limitLeft;
+        get => _limits;
         set
         {
-            _limitLeft = value;
+            _limits = value;
             if (Camera != null)
-                Camera.LimitLeft = value;
-        }
-    }
-
-    [ExportGroup("Limit")]
-    [Export] public int LimitTop
-    {
-        get => _limitTop;
-        set
-        {
-            _limitTop = value;
-            if (Camera != null)
-                Camera.LimitTop = value;
-        }
-    }
-
-    [ExportGroup("Limit")]
-    [Export] public int LimitRight
-    {
-        get => _limitRight;
-        set
-        {
-            _limitRight = value;
-            if (Camera != null)
-                Camera.LimitRight = value;
-        }
-    }
-
-    [ExportGroup("Limit")]
-    [Export] public int LimitBottom
-    {
-        get => _limitBottom;
-        set
-        {
-            _limitBottom = value;
-            if (Camera != null)
-                Camera.LimitBottom = value;
+            {
+                (Camera.LimitLeft, Camera.LimitTop) = value.Position;
+                (Camera.LimitRight, Camera.LimitBottom) = value.End;
+            }
         }
     }
 
@@ -79,10 +46,8 @@ public partial class Camera2DBrain : Node2D
         base._Ready();
 
         Camera.Zoom = _zoom;
-        Camera.LimitLeft     = _limitLeft;
-        Camera.LimitTop      = _limitTop;
-        Camera.LimitRight    = _limitRight;
-        Camera.LimitBottom   = _limitBottom;
+        (Camera.LimitLeft, Camera.LimitTop) = _limits.Position;
+        (Camera.LimitRight, Camera.LimitBottom) = _limits.End;
     }
 
     public override void _Process(double delta)

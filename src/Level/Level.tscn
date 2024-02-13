@@ -419,11 +419,10 @@ sources/2 = SubResource("TileSetAtlasSource_vg23h")
 script = ExtResource("1_r2v0t")
 CancelAction = ExtResource("2_2u5dc")
 
-[node name="Camera2DBrain" parent="." node_paths=PackedStringArray("Target") instance=ExtResource("3_td8u6")]
+[node name="Camera" parent="." node_paths=PackedStringArray("Target") instance=ExtResource("3_td8u6")]
 Target = NodePath("../Pointer")
 Zoom = Vector2(2, 2)
-LimitLeft = 0
-LimitTop = 0
+Limits = Rect2i(0, 0, 1000000, 1000000)
 
 [node name="Overlay" type="TileMap" parent="."]
 tile_set = SubResource("TileSet_80dh3")
