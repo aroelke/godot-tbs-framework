@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://bqrqq7jid7qp2"]
+[gd_scene load_steps=12 format=3 uid="uid://bqrqq7jid7qp2"]
 
 [ext_resource type="Script" path="res://src/Level/UI/Pointer.cs" id="1_rsyl0"]
 [ext_resource type="Resource" uid="uid://dsjbjmgsqqd7w" path="res://src/UI/Controls/Action/References/Map/AccelerateAction.tres" id="2_10qle"]
@@ -10,7 +10,6 @@
 [ext_resource type="Resource" uid="uid://n7vsg71x5cfd" path="res://src/UI/Controls/Action/References/Map/DigitalZoomInAction.tres" id="7_yyoyl"]
 [ext_resource type="Resource" uid="uid://cwfm1wgikkk0r" path="res://src/UI/Controls/Action/References/Map/AnalogZoomInAction.tres" id="8_q28mp"]
 [ext_resource type="Resource" uid="uid://dc7ud3npxyw0k" path="res://src/UI/Controls/Action/References/Map/DigitalZoomOutAction.tres" id="9_tvq7u"]
-[ext_resource type="PackedScene" uid="uid://chrkndsuu4vwd" path="res://src/UI/ZoomingCamera.tscn" id="9_xdbc5"]
 [ext_resource type="Resource" uid="uid://xjnufn7jdu4k" path="res://src/UI/Controls/Action/References/Map/AnalogZoomOutAction.tres" id="10_hbs4b"]
 
 [node name="Pointer" type="Node2D"]
@@ -24,21 +23,6 @@ DigitalZoomInAction = ExtResource("7_yyoyl")
 AnalogZoomInAction = ExtResource("8_q28mp")
 DigitalZoomOutAction = ExtResource("9_tvq7u")
 AnalogZoomOutAction = ExtResource("10_hbs4b")
-
-[node name="Camera" parent="." instance=ExtResource("9_xdbc5")]
-zoom = Vector2(2, 2)
-limit_left = 0
-limit_top = 0
-position_smoothing_enabled = true
-position_smoothing_speed = 1.0
-drag_horizontal_enabled = true
-drag_vertical_enabled = true
-drag_left_margin = 0.5
-drag_top_margin = 0.5
-drag_right_margin = 0.5
-drag_bottom_margin = 0.5
-editor_draw_drag_margin = true
-OffScreenSpeed = 1.0
 
 [node name="Canvas" type="CanvasLayer" parent="."]
 

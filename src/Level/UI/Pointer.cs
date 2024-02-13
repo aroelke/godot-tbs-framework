@@ -20,21 +20,21 @@ public partial class Pointer : Node2D
     /// Signals that the pointer has entered the screen. Mostly meant to be used internally for detecting long mouse warps during
     /// mouse control.
     /// </summary>
-    [Signal] public delegate void ScreenEnteredEventHandler();
+//    [Signal] public delegate void ScreenEnteredEventHandler();
 
     private InputMode _prevMode = default;
     private Rect2I _bounds = new(0, 0, 0, 0);
     private bool _accelerate = false;
     private TextureRect _mouse = null;
     private CanvasItem _parent = null;
-    private ZoomingCamera _camera = null;
-    private Vector2 _digitalZoom = new(0.25f, 0.25f);
-    private Vector2 _analogZoom = new(2, 2);
-    private bool _tracking = true;
-    private Vector2 _prevViewport = Vector2.Zero;
+//    private ZoomingCamera _camera = null;
+//    private Vector2 _digitalZoom = new(0.25f, 0.25f);
+//    private Vector2 _analogZoom = new(2, 2);
+//    private bool _tracking = true;
+//    private Vector2 _prevViewport = Vector2.Zero;
 
     private CanvasItem Parent => _parent ??= GetParent<CanvasItem>();
-    private ZoomingCamera Camera => _camera ??= GetNode<ZoomingCamera>("Camera");
+//    private ZoomingCamera Camera => _camera ??= GetNode<ZoomingCamera>("Camera");
 
     /// <summary>Convert a position in the level to a position in the viewport.</summary>
     /// <param name="world">Level position.</param>
@@ -56,8 +56,8 @@ public partial class Pointer : Node2D
             {
                 _bounds = value;
 
-                (Camera.LimitLeft, Camera.LimitTop) = _bounds.Position;
-                (Camera.LimitRight, Camera.LimitBottom) = _bounds.End;
+//                (Camera.LimitLeft, Camera.LimitTop) = _bounds.Position;
+//                (Camera.LimitRight, Camera.LimitBottom) = _bounds.End;
             }
         }
     }
@@ -69,7 +69,7 @@ public partial class Pointer : Node2D
     /// <summary>Multiplier applied to the pointer speed when the accelerate button is held down in analog mode.</summary>
     [ExportGroup("Movement")]
     [Export] public double Acceleration = 3;
-
+/*
     /// <summary>Amount to change the camera zoom each time a digital control is pressed.</summary>
     [ExportGroup("Camera Control")]
     [Export] public float DigitalZoomFactor
@@ -85,7 +85,7 @@ public partial class Pointer : Node2D
         get => _analogZoom.X;
         set => _analogZoom = new(value, value);
     }
-
+*/
     /// <summary>Action to move the pointer up.</summary>
     [ExportGroup("Input Actions/Movement")]
     [Export] public InputActionReference UpAction = new();
@@ -138,7 +138,7 @@ public partial class Pointer : Node2D
     /// this will also warp the mouse to the pointer's position, moving the camera if necessary (the camera moves instantly with no smoothing in this case).
     /// </summary>
     /// <param name="position">Position to warp to.</param>
-    public async void WarpMouse(Vector2 position)
+    public/* async */void WarpMouse(Vector2 position)
     {
         if (DeviceManager.Mode != InputMode.Mouse)
             GD.PushWarning("Warping the mouse when not controlling via mouse.");
@@ -146,7 +146,7 @@ public partial class Pointer : Node2D
         if (Position != position)
         {
             Warp(position);
-
+/*
             if (DeviceManager.Mode == InputMode.Mouse)
             {
                 if (!Camera.GetProjectedViewportRect().HasPoint(Position))
@@ -158,6 +158,7 @@ public partial class Pointer : Node2D
                 }
                 Input.WarpMouse(WorldToViewport(Position));
             }
+*/
         }
     }
 
@@ -210,7 +211,7 @@ public partial class Pointer : Node2D
         _mouse.Texture = ResourceLoader.Load<Texture2D>(ProjectSettings.GetSetting("display/mouse_cursor/custom_image").As<string>());
         _mouse.Position = WorldToViewport(Position);
         _mouse.Visible = DeviceManager.Mode == InputMode.Analog;
-        _prevViewport = WorldToViewport(Position);
+//        _prevViewport = WorldToViewport(Position);
 
         _prevMode = DeviceManager.Mode;
         Input.MouseMode = DeviceManager.Mode == InputMode.Mouse ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Hidden;
@@ -230,11 +231,12 @@ public partial class Pointer : Node2D
             if (@event.IsActionReleased(AccelerateAction))
                 _accelerate = false;
         }
-
+/*
         if (@event.IsActionPressed(DigitalZoomInAction))
             Camera.ZoomTarget += _digitalZoom;
         if (@event.IsActionPressed(DigitalZoomOutAction))
             Camera.ZoomTarget -= _digitalZoom;
+*/
     }
 
     public override void _Process(double delta)
@@ -243,7 +245,7 @@ public partial class Pointer : Node2D
 
         switch (DeviceManager.Mode)
         {
-        case InputMode.Mouse when _tracking && Position != ViewportToWorld(InputManager.GetMousePosition()):
+        case InputMode.Mouse when/* _tracking && */Position != ViewportToWorld(InputManager.GetMousePosition()):
             Warp(ViewportToWorld(InputManager.GetMousePosition()));
             break;
         case InputMode.Analog:
@@ -251,12 +253,12 @@ public partial class Pointer : Node2D
             if (direction != Vector2.Zero)
             {
                 double speed = _accelerate ? (Speed*Acceleration) : Speed;
-                Warp((Position + (direction*(float)(speed*delta)/Camera.Zoom)).Clamp(Bounds.Position, Bounds.End));
+                Warp((Position + (direction*(float)(speed*delta)/*/Camera.Zoom*/)).Clamp(Bounds.Position, Bounds.End));
             }
             break;
         }
         _mouse.Position = WorldToViewport(Position);
-
+/*
         float zoom = Input.GetAxis(AnalogZoomOutAction, AnalogZoomInAction);
         if (zoom != 0)
             Camera.Zoom += _analogZoom*zoom*(float)delta;
@@ -281,5 +283,6 @@ public partial class Pointer : Node2D
         if (!viewport.HasPoint(_prevViewport) && viewport.HasPoint(Position))
             EmitSignal(SignalName.ScreenEntered);
         _prevViewport = WorldToViewport(Position);
+*/
     }
 }
