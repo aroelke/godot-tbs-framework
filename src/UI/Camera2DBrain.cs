@@ -5,6 +5,16 @@ namespace UI;
 [Icon("res://icons/Camera2DBrain.svg"), Tool]
 public partial class Camera2DBrain : Node2D
 {
+    /// <param name="distance">Distance to the camera's target position.</param>
+    /// <param name="deadzone">Rectangle defining the dead zone.</param>
+    /// <param name="limits">Limits where the center of the camera can be.</param>
+    /// <returns>The position the center of the camera should move to.</returns>
+    private static Vector2 GetMoveTarget(Vector2 distance, Rect2 deadzone, Rect2 limits)
+    {
+        Rect2 moveBox = new Rect2().Expand((distance - distance.Clamp(deadzone.Position, deadzone.End)).Clamp(limits.Position, limits.End));
+        return distance.Clamp(moveBox.Position, moveBox.End);
+    }
+
     private Camera2D _camera = null;
     private Camera2D Camera => _camera ??= GetNodeOrNull<Camera2D>("Camera2D");
 
@@ -55,6 +65,22 @@ public partial class Camera2DBrain : Node2D
     /// <returns>The viewport rectangle projected onto the world.</returns>
     public Rect2 GetProjectedViewportRect() => Camera.GetCanvasTransform().AffineInverse()*Camera.GetViewportRect();
 
+    /// <returns>The rectangle bounding the position of the center ("target") of the camera.</returns>
+    public Rect2 GetTargetBounds()
+    {
+        Rect2 projected = GetProjectedViewportRect();
+        return (Rect2)Limits with { Position = Limits.Position + projected.Size/2 - Position, End = Limits.End - projected.Size/2 - Position };
+    }
+
+    public Rect2 GetDeadZone()
+    {
+        Rect2 viewport = Camera.GetViewportRect();
+        Vector2 deadzoneStart = new(DeadZoneLeft, DeadZoneTop), deadzoneEnd = new(DeadZoneRight, DeadZoneBottom);
+        Rect2 viewportDeadzone = new Rect2() with { Position = viewport.Position + viewport.Size*(Vector2.One - deadzoneStart)/2, End = viewport.Position + viewport.Size - viewport.Size*(Vector2.One - deadzoneEnd)/2 };
+        Rect2 localDeadzone = Camera.GetCanvasTransform().AffineInverse()*viewportDeadzone;
+        return localDeadzone;
+    }
+
     public override void _Ready()
     {
         base._Ready();
@@ -69,15 +95,11 @@ public partial class Camera2DBrain : Node2D
     public override void _Draw()
     {
         DrawCircle(Vector2.Zero, 3, Colors.Black);
-
-        Rect2 viewport = Camera.GetViewportRect();
-        Rect2 projected = Camera.GetCanvasTransform().AffineInverse()*viewport;
-        Rect2 bounds = (Rect2)Limits with { Position = Limits.Position + projected.Size/2 - Position, End = Limits.End - projected.Size/2 - Position };
+        
+        Rect2 bounds = GetTargetBounds();
         DrawRect(bounds, Colors.Red, filled:false);
 
-        Vector2 deadzoneStart = new(DeadZoneLeft, DeadZoneTop), deadzoneEnd = new(DeadZoneRight, DeadZoneBottom);
-        Rect2 viewportDeadzone = new Rect2() with { Position = viewport.Position + viewport.Size*(Vector2.One - deadzoneStart)/2, End = viewport.Position + viewport.Size - viewport.Size*(Vector2.One - deadzoneEnd)/2 };
-        Rect2 localDeadzone = Camera.GetCanvasTransform().AffineInverse()*viewportDeadzone;
+        Rect2 localDeadzone = GetDeadZone();
         localDeadzone.Position -= Position;
         DrawRect(localDeadzone, Colors.Black, filled:false);
 
@@ -88,12 +110,7 @@ public partial class Camera2DBrain : Node2D
             {
                 DrawCircle(targetRelative, 3, Colors.Red);
                 DrawCircle(targetRelative.Clamp(localDeadzone.Position, localDeadzone.End), 3, Colors.Purple);
-
-                Rect2 moveBox = new Rect2().Expand((targetRelative - targetRelative.Clamp(localDeadzone.Position, localDeadzone.End)).Clamp(bounds.Position, bounds.End));
-                DrawRect(moveBox, Colors.Blue, filled:false);
-
-                Vector2 moveTarget = targetRelative.Clamp(moveBox.Position, moveBox.End);
-                DrawCircle(moveTarget, 3, Colors.Blue);
+                DrawCircle(GetMoveTarget(targetRelative, localDeadzone, bounds), 3, Colors.Blue);
             }
         }
     }
@@ -104,27 +121,15 @@ public partial class Camera2DBrain : Node2D
 
         if (!Engine.IsEditorHint())
         {
+            Rect2 bounds = GetTargetBounds();
+            Rect2 localDeadzone = GetDeadZone();
+            localDeadzone.Position -= Position;
+
             if (Target != null)
             {
-                Rect2 viewport = Camera.GetViewportRect();
-                Vector2 deadzoneStart = new(DeadZoneLeft, DeadZoneTop), deadzoneEnd = new(DeadZoneRight, DeadZoneBottom);
-                Rect2 viewportDeadzone = new Rect2() with { Position = viewport.Position + viewport.Size*(Vector2.One - deadzoneStart)/2, End = viewport.Position + viewport.Size - viewport.Size*(Vector2.One - deadzoneEnd)/2 };
-                Rect2 localDeadzone = Camera.GetCanvasTransform().AffineInverse()*viewportDeadzone;
-                localDeadzone.Position -= Position;
-
-                if (Target != null)
-                {
-                    Vector2 targetRelative = Target.Position - Position;
-                    if (!localDeadzone.HasPoint(targetRelative))
-                    {
-                        Rect2 projected = Camera.GetCanvasTransform().AffineInverse()*viewport;
-                        Rect2 bounds = (Rect2)Limits with { Position = Limits.Position + projected.Size/2 - Position, End = Limits.End - projected.Size/2 - Position };
-                        Rect2 moveBox = new Rect2().Expand((targetRelative - targetRelative.Clamp(localDeadzone.Position, localDeadzone.End)).Clamp(bounds.Position, bounds.End));
-                        Vector2 moveTarget = targetRelative.Clamp(moveBox.Position, moveBox.End);
-
-                        Position = Position.Lerp(Position + moveTarget, (float)(DeadZoneSmoothSpeed*delta));
-                    }
-                }
+                Vector2 targetRelative = Target.Position - Position;
+                if (!localDeadzone.HasPoint(targetRelative))
+                    Position = Position.Lerp(Position + GetMoveTarget(targetRelative, localDeadzone, bounds), (float)(DeadZoneSmoothSpeed*delta));
             }
             QueueRedraw();
         }
