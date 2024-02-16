@@ -102,9 +102,16 @@ public partial class Camera2DBrain : Node2D
 
     [ExportGroup("Soft Zone", "SoftZone")]
 
+    /// <summary>Left margin of the soft zone, as a fraction of the distance from the left margin of the dead zone to the edge.</summary>
     [Export(PropertyHint.Range, "0, 1")] public float SoftZoneLeft = 1;
+
+    /// <summary>Top margin of the soft zone, as a fraction of the distance from the top margin of the dead zone to the edge.</summary>
     [Export(PropertyHint.Range, "0, 1")] public float SoftZoneTop = 1;
+
+    /// <summary>Right margin of the soft zone, as a fraction of the distance from the right margin of the dead zone to the edge.</summary>
     [Export(PropertyHint.Range, "0, 1")] public float SoftZoneRight = 1;
+
+    /// <summary>Bottom margin of the soft zone, as a fraction of the distance from the bottom margin of the dead zone to the edge.</summary>
     [Export(PropertyHint.Range, "0, 1")] public float SoftZoneBottom = 1;
 
     /// <summary>Draw the camera zones for help with debugging and visualization.</summary>
@@ -186,16 +193,22 @@ public partial class Camera2DBrain : Node2D
         if (!Engine.IsEditorHint() && DrawTargets && Target != null)
         {
             Vector2 targetRelative = Target.Position - Position;
-            if (!localDeadzone.HasPoint(targetRelative))
+            if (!localSoftzone.HasPoint(targetRelative))
             {
                 DrawCircle(targetRelative, 3, Colors.Red);
+                DrawCircle(targetRelative.Clamp(localSoftzone.Position, localSoftzone.End), 3, Colors.Red);
+                DrawCircle(GetMoveTargetPosition(targetRelative, localSoftzone, bounds), 3, Colors.Cyan);
+            }
+            else if (!localDeadzone.HasPoint(targetRelative))
+            {
+                DrawCircle(targetRelative, 3, Colors.Purple);
                 DrawCircle(targetRelative.Clamp(localDeadzone.Position, localDeadzone.End), 3, Colors.Purple);
                 DrawCircle(GetMoveTargetPosition(targetRelative, localDeadzone, bounds), 3, Colors.Blue);
             }
         }
     }
 
-    public override void _PhysicsProcess(double delta)
+    public override void _Process(double delta)
     {
         base._Process(delta);
 
@@ -204,10 +217,19 @@ public partial class Camera2DBrain : Node2D
             Rect2 bounds = GetTargetBounds();
             Rect2 localDeadzone = GetZone(DeadZoneLeft, DeadZoneTop, DeadZoneRight, DeadZoneBottom);
             localDeadzone.Position -= Position;
+            Rect2 localSoftzone = GetZone(
+            DeadZoneLeft + (1 - DeadZoneLeft)*SoftZoneLeft,
+            DeadZoneTop + (1 - DeadZoneTop)*SoftZoneTop,
+            DeadZoneRight + (1 - DeadZoneRight)*SoftZoneRight,
+            DeadZoneBottom + (1 - DeadZoneBottom)*SoftZoneBottom
+        );
+        localSoftzone.Position -= Position;
 
             if (Target != null)
             {
                 Vector2 targetRelative = Target.Position - Position;
+                if (!localSoftzone.HasPoint(targetRelative))
+                    Position += GetMoveTargetPosition(targetRelative, localSoftzone, bounds);
                 if (!localDeadzone.HasPoint(targetRelative))
                     Position = Position.Lerp(Position + GetMoveTargetPosition(targetRelative, localDeadzone, bounds), (float)(DeadZoneSmoothSpeed*delta));
             }
