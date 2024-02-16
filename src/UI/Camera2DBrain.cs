@@ -1,3 +1,4 @@
+using System.IO;
 using Godot;
 
 namespace UI;
@@ -151,9 +152,6 @@ public partial class Camera2DBrain : Node2D
 
         Rect2 localDeadzone = GetZone(DeadZoneLeft, DeadZoneTop, DeadZoneRight, DeadZoneBottom);
         localDeadzone.Position -= Position;
-        if (DrawZones)
-            DrawRect(localDeadzone, Colors.Purple, filled:false);
-
         Rect2 localSoftzone = GetZone(
             DeadZoneLeft + (1 - DeadZoneLeft)*SoftZoneLeft,
             DeadZoneTop + (1 - DeadZoneTop)*SoftZoneTop,
@@ -162,7 +160,28 @@ public partial class Camera2DBrain : Node2D
         );
         localSoftzone.Position -= Position;
         if (DrawZones)
+        {
+            void FillInterior(Rect2 inner, Rect2 outer, Color color)
+            {
+                Rect2 deadLeft = new Rect2(new(outer.Position.X, inner.Position.Y), Vector2.Zero) with { End = new(inner.Position.X, inner.End.Y) };
+                Rect2 deadTop = new Rect2(outer.Position, Vector2.Zero) with { End = new(outer.End.X, inner.Position.Y) };
+                Rect2 deadRight = new Rect2(new(inner.End.X, inner.Position.Y), Vector2.Zero) with { End = new(outer.End.X, inner.End.Y ) };
+                Rect2 deadBottom = new Rect2(new(outer.Position.X, inner.End.Y), Vector2.Zero) with { End = new(outer.End.X, outer.End.Y) };
+                DrawRect(deadLeft, color, filled:true);
+                DrawRect(deadTop, color, filled:true);
+                DrawRect(deadRight, color, filled:true);
+                DrawRect(deadBottom, color, filled:true);
+            }
+
+            Rect2 localLimits = Engine.IsEditorHint() ? GetProjectedViewportRect() : (Rect2)Limits;
+            localLimits.Position -= Position;
+
+            DrawRect(localDeadzone, Colors.Purple, filled:false);
             DrawRect(localSoftzone, Colors.Red, filled:false);
+
+            FillInterior(localDeadzone, localSoftzone,  new(Colors.Purple.R, Colors.Purple.G, Colors.Purple.B, 0.25f));
+            FillInterior(localSoftzone, localLimits, new(Colors.Red.R, Colors.Red.G, Colors.Red.B, 0.25f));
+        }
 
         if (!Engine.IsEditorHint() && DrawTargets && Target != null)
         {
