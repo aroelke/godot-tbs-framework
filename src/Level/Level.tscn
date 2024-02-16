@@ -423,7 +423,9 @@ CancelAction = ExtResource("2_2u5dc")
 Target = NodePath("../Pointer")
 Zoom = Vector2(2, 2)
 Limits = Rect2i(0, 0, 1000000, 1000000)
-DrawMargins = true
+DrawZones = true
+DrawLimits = true
+DrawTargets = true
 
 [node name="Overlay" type="TileMap" parent="."]
 tile_set = SubResource("TileSet_80dh3")
