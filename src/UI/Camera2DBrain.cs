@@ -218,12 +218,12 @@ public partial class Camera2DBrain : Node2D
             Rect2 localDeadzone = GetZone(DeadZoneLeft, DeadZoneTop, DeadZoneRight, DeadZoneBottom);
             localDeadzone.Position -= Position;
             Rect2 localSoftzone = GetZone(
-            DeadZoneLeft + (1 - DeadZoneLeft)*SoftZoneLeft,
-            DeadZoneTop + (1 - DeadZoneTop)*SoftZoneTop,
-            DeadZoneRight + (1 - DeadZoneRight)*SoftZoneRight,
-            DeadZoneBottom + (1 - DeadZoneBottom)*SoftZoneBottom
-        );
-        localSoftzone.Position -= Position;
+                DeadZoneLeft + (1 - DeadZoneLeft)*SoftZoneLeft,
+                DeadZoneTop + (1 - DeadZoneTop)*SoftZoneTop,
+                DeadZoneRight + (1 - DeadZoneRight)*SoftZoneRight,
+                DeadZoneBottom + (1 - DeadZoneBottom)*SoftZoneBottom
+            );
+            localSoftzone.Position -= Position;
 
             if (Target != null)
             {

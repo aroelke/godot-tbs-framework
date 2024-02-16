@@ -16,25 +16,13 @@ public partial class Pointer : Node2D
     /// <param name="position">Position of the virtual pointer.</param>
     [Signal] public delegate void PointerMovedEventHandler(Vector2 position);
 
-    /// <summary>
-    /// Signals that the pointer has entered the screen. Mostly meant to be used internally for detecting long mouse warps during
-    /// mouse control.
-    /// </summary>
-//    [Signal] public delegate void ScreenEnteredEventHandler();
-
     private InputMode _prevMode = default;
     private Rect2I _bounds = new(0, 0, 0, 0);
     private bool _accelerate = false;
     private TextureRect _mouse = null;
     private CanvasItem _parent = null;
-//    private ZoomingCamera _camera = null;
-//    private Vector2 _digitalZoom = new(0.25f, 0.25f);
-//    private Vector2 _analogZoom = new(2, 2);
-//    private bool _tracking = true;
-//    private Vector2 _prevViewport = Vector2.Zero;
 
     private CanvasItem Parent => _parent ??= GetParent<CanvasItem>();
-//    private ZoomingCamera Camera => _camera ??= GetNode<ZoomingCamera>("Camera");
 
     /// <summary>Convert a position in the level to a position in the viewport.</summary>
     /// <param name="world">Level position.</param>
@@ -55,9 +43,6 @@ public partial class Pointer : Node2D
             if (_bounds != value)
             {
                 _bounds = value;
-
-//                (Camera.LimitLeft, Camera.LimitTop) = _bounds.Position;
-//                (Camera.LimitRight, Camera.LimitBottom) = _bounds.End;
             }
         }
     }
@@ -138,7 +123,7 @@ public partial class Pointer : Node2D
     /// this will also warp the mouse to the pointer's position, moving the camera if necessary (the camera moves instantly with no smoothing in this case).
     /// </summary>
     /// <param name="position">Position to warp to.</param>
-    public/* async */void WarpMouse(Vector2 position)
+    public void WarpMouse(Vector2 position)
     {
         if (DeviceManager.Mode != InputMode.Mouse)
             GD.PushWarning("Warping the mouse when not controlling via mouse.");
@@ -146,19 +131,6 @@ public partial class Pointer : Node2D
         if (Position != position)
         {
             Warp(position);
-/*
-            if (DeviceManager.Mode == InputMode.Mouse)
-            {
-                if (!Camera.GetProjectedViewportRect().HasPoint(Position))
-                {
-                    _tracking = false;
-                    Camera.ResetSmoothing();
-                    await ToSignal(this, SignalName.ScreenEntered);
-                    _tracking = true;
-                }
-                Input.WarpMouse(WorldToViewport(Position));
-            }
-*/
         }
     }
 
@@ -211,7 +183,6 @@ public partial class Pointer : Node2D
         _mouse.Texture = ResourceLoader.Load<Texture2D>(ProjectSettings.GetSetting("display/mouse_cursor/custom_image").As<string>());
         _mouse.Position = WorldToViewport(Position);
         _mouse.Visible = DeviceManager.Mode == InputMode.Analog;
-//        _prevViewport = WorldToViewport(Position);
 
         _prevMode = DeviceManager.Mode;
         Input.MouseMode = DeviceManager.Mode == InputMode.Mouse ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Hidden;
@@ -258,31 +229,5 @@ public partial class Pointer : Node2D
             break;
         }
         _mouse.Position = WorldToViewport(Position);
-/*
-        float zoom = Input.GetAxis(AnalogZoomOutAction, AnalogZoomInAction);
-        if (zoom != 0)
-            Camera.Zoom += _analogZoom*zoom*(float)delta;
-
-        Rect2 viewport = Camera.GetProjectedViewportRect();
-        if (!viewport.HasPoint(Position))
-        {
-            Camera.PositionSmoothingEnabled = false;
-            Camera.DragTopMargin = 1;
-            Camera.DragLeftMargin = 1;
-            Camera.DragBottomMargin = 1;
-            Camera.DragRightMargin = 1;
-        }
-        else
-        {
-            Camera.PositionSmoothingEnabled = true;
-            Camera.DragTopMargin = 0.5f;
-            Camera.DragLeftMargin = 0.5f;
-            Camera.DragBottomMargin = 0.5f;
-            Camera.DragRightMargin = 0.5f;
-        }
-        if (!viewport.HasPoint(_prevViewport) && viewport.HasPoint(Position))
-            EmitSignal(SignalName.ScreenEntered);
-        _prevViewport = WorldToViewport(Position);
-*/
     }
 }
