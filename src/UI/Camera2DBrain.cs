@@ -101,10 +101,10 @@ public partial class Camera2DBrain : Node2D
 
     [ExportGroup("Soft Zone", "SoftZone")]
 
-    [Export(PropertyHint.Range, "0, 1")] public float SoftZoneLeft = 0.5f;
-    [Export(PropertyHint.Range, "0, 1")] public float SoftZoneTop = 0.5f;
-    [Export(PropertyHint.Range, "0, 1")] public float SoftZoneRight = 0.5f;
-    [Export(PropertyHint.Range, "0, 1")] public float SoftZoneBottom = 0.5f;
+    [Export(PropertyHint.Range, "0, 1")] public float SoftZoneLeft = 1;
+    [Export(PropertyHint.Range, "0, 1")] public float SoftZoneTop = 1;
+    [Export(PropertyHint.Range, "0, 1")] public float SoftZoneRight = 1;
+    [Export(PropertyHint.Range, "0, 1")] public float SoftZoneBottom = 1;
 
     /// <summary>Draw the camera zones for help with debugging and visualization.</summary>
     [ExportGroup("Editor")]
@@ -153,6 +153,16 @@ public partial class Camera2DBrain : Node2D
         localDeadzone.Position -= Position;
         if (DrawZones)
             DrawRect(localDeadzone, Colors.Purple, filled:false);
+
+        Rect2 localSoftzone = GetZone(
+            DeadZoneLeft + (1 - DeadZoneLeft)*SoftZoneLeft,
+            DeadZoneTop + (1 - DeadZoneTop)*SoftZoneTop,
+            DeadZoneRight + (1 - DeadZoneRight)*SoftZoneRight,
+            DeadZoneBottom + (1 - DeadZoneBottom)*SoftZoneBottom
+        );
+        localSoftzone.Position -= Position;
+        if (DrawZones)
+            DrawRect(localSoftzone, Colors.Red, filled:false);
 
         if (!Engine.IsEditorHint() && DrawTargets && Target != null)
         {
