@@ -77,6 +77,9 @@ public partial class Camera2DBrain : Node2D
     /// <summary>Speed the camera should move to get the target to re-enter the dead zone.</summary>
     [Export(PropertyHint.None, "suffix:px/s")] public double DeadZoneSmoothSpeed = 7.5f;
 
+    /// <summary>Draw the camera margins for help with debugging and visualization. Camera target points are only drawn in-game.</summary>
+    [Export] public bool DrawMargins = false;
+
     /// <returns>The viewport rectangle projected onto the world.</returns>
     public Rect2 GetProjectedViewportRect() => Camera.GetCanvasTransform().AffineInverse()*Camera.GetViewportRect();
 
@@ -110,23 +113,27 @@ public partial class Camera2DBrain : Node2D
 
     public override void _Draw()
     {
-        DrawCircle(Vector2.Zero, 3, Colors.Black);
-        
-        Rect2 bounds = GetTargetBounds();
-        DrawRect(bounds, Colors.Red, filled:false);
-
-        Rect2 localDeadzone = GetDeadZone();
-        localDeadzone.Position -= Position;
-        DrawRect(localDeadzone, Colors.Black, filled:false);
-
-        if (Target != null)
+        if (DrawMargins)
         {
-            Vector2 targetRelative = Target.Position - Position;
-            if (!localDeadzone.HasPoint(targetRelative))
+            if (!Engine.IsEditorHint())
+                DrawCircle(Vector2.Zero, 3, Colors.Black);
+            
+            Rect2 bounds = GetTargetBounds();
+            DrawRect(bounds, Colors.Red, filled:false);
+
+            Rect2 localDeadzone = GetDeadZone();
+            localDeadzone.Position -= Position;
+            DrawRect(localDeadzone, Colors.Black, filled:false);
+
+            if (!Engine.IsEditorHint() && Target != null)
             {
-                DrawCircle(targetRelative, 3, Colors.Red);
-                DrawCircle(targetRelative.Clamp(localDeadzone.Position, localDeadzone.End), 3, Colors.Purple);
-                DrawCircle(GetMoveTargetPosition(targetRelative, localDeadzone, bounds), 3, Colors.Blue);
+                Vector2 targetRelative = Target.Position - Position;
+                if (!localDeadzone.HasPoint(targetRelative))
+                {
+                    DrawCircle(targetRelative, 3, Colors.Red);
+                    DrawCircle(targetRelative.Clamp(localDeadzone.Position, localDeadzone.End), 3, Colors.Purple);
+                    DrawCircle(GetMoveTargetPosition(targetRelative, localDeadzone, bounds), 3, Colors.Blue);
+                }
             }
         }
     }
