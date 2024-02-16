@@ -11,6 +11,28 @@ namespace UI;
 [Icon("res://icons/Camera2DBrain.svg"), Tool]
 public partial class Camera2DBrain : Node2D
 {
+    /// Compute the world projection of the zone with the given margins.
+    /// <param name="left">Fraction of the distance from the center of the screen to the left edge of the screen.</param>
+    /// <param name="top">Fraction of the distance from the center of the screen to the top edge of the screen.</param>
+    /// <param name="right">Fraction of the distance from the center of the screen to the right edge of the screen.</param>
+    /// <param name="bottom">Fraction of the distance from the center of the screen to the bottom edge of the screen.</param>
+    /// <returns>The rectangle defining the zone in the world (rather than on screen).</returns>
+    private Rect2 GetZone(float left, float top, float right, float bottom)
+    {
+        Rect2 viewport = GetScreenRect();
+        Vector2 start = new(left, top), end = new(right, bottom);
+        Rect2 viewportZone = new Rect2() with { Position = viewport.Position + viewport.Size*(Vector2.One - start)/2, End = viewport.Position + viewport.Size - viewport.Size*(Vector2.One - end)/2 };
+        Rect2 localZone = Camera.GetCanvasTransform().AffineInverse()*viewportZone;
+        return localZone;
+    }
+
+    /// <returns>The rectangle bounding the position of the center ("target") of the camera.</returns>
+    private Rect2 GetTargetBounds()
+    {
+        Rect2 projected = GetProjectedViewportRect();
+        return (Rect2)Limits with { Position = Limits.Position + projected.Size/2 - Position, End = Limits.End - projected.Size/2 - Position };
+    }
+
     /// <param name="distance">Distance to the camera's target position.</param>
     /// <param name="deadzone">Rectangle defining the dead zone.</param>
     /// <param name="limits">Limits where the center of the camera can be.</param>
@@ -77,6 +99,13 @@ public partial class Camera2DBrain : Node2D
     /// <summary>Speed the camera should move to get the target to re-enter the dead zone.</summary>
     [Export(PropertyHint.None, "suffix:px/s")] public double DeadZoneSmoothSpeed = 7.5f;
 
+    [ExportGroup("Soft Zone", "SoftZone")]
+
+    [Export(PropertyHint.Range, "0, 1")] public float SoftZoneLeft = 0.5f;
+    [Export(PropertyHint.Range, "0, 1")] public float SoftZoneTop = 0.5f;
+    [Export(PropertyHint.Range, "0, 1")] public float SoftZoneRight = 0.5f;
+    [Export(PropertyHint.Range, "0, 1")] public float SoftZoneBottom = 0.5f;
+
     /// <summary>Draw the camera zones for help with debugging and visualization.</summary>
     [ExportGroup("Editor")]
     [Export] public bool DrawZones = false;
@@ -100,23 +129,6 @@ public partial class Camera2DBrain : Node2D
     /// <returns>The viewport rectangle projected onto the world.</returns>
     public Rect2 GetProjectedViewportRect() => Camera.GetCanvasTransform().AffineInverse()*GetScreenRect();
 
-    /// <returns>The rectangle bounding the position of the center ("target") of the camera.</returns>
-    public Rect2 GetTargetBounds()
-    {
-        Rect2 projected = GetProjectedViewportRect();
-        return (Rect2)Limits with { Position = Limits.Position + projected.Size/2 - Position, End = Limits.End - projected.Size/2 - Position };
-    }
-
-    /// <returns>The rectangle defining the dead zone in the world (rather than on screen).</returns>
-    public Rect2 GetDeadZone()
-    {
-        Rect2 viewport = GetScreenRect();
-        Vector2 deadzoneStart = new(DeadZoneLeft, DeadZoneTop), deadzoneEnd = new(DeadZoneRight, DeadZoneBottom);
-        Rect2 viewportDeadzone = new Rect2() with { Position = viewport.Position + viewport.Size*(Vector2.One - deadzoneStart)/2, End = viewport.Position + viewport.Size - viewport.Size*(Vector2.One - deadzoneEnd)/2 };
-        Rect2 localDeadzone = Camera.GetCanvasTransform().AffineInverse()*viewportDeadzone;
-        return localDeadzone;
-    }
-
     public override void _Ready()
     {
         base._Ready();
@@ -137,7 +149,7 @@ public partial class Camera2DBrain : Node2D
         if (DrawLimits)
             DrawRect(bounds, Colors.Black, filled:false);
 
-        Rect2 localDeadzone = GetDeadZone();
+        Rect2 localDeadzone = GetZone(DeadZoneLeft, DeadZoneTop, DeadZoneRight, DeadZoneBottom);
         localDeadzone.Position -= Position;
         if (DrawZones)
             DrawRect(localDeadzone, Colors.Purple, filled:false);
@@ -161,7 +173,7 @@ public partial class Camera2DBrain : Node2D
         if (!Engine.IsEditorHint())
         {
             Rect2 bounds = GetTargetBounds();
-            Rect2 localDeadzone = GetDeadZone();
+            Rect2 localDeadzone = GetZone(DeadZoneLeft, DeadZoneTop, DeadZoneRight, DeadZoneBottom);
             localDeadzone.Position -= Position;
 
             if (Target != null)
