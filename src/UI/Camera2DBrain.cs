@@ -12,6 +12,13 @@ namespace UI;
 [Icon("res://icons/Camera2DBrain.svg"), Tool]
 public partial class Camera2DBrain : Node2D
 {
+    private Vector2 Clamp(Vector2 zoom)
+    {
+        Vector2 mins = GetScreenRect().Size/Limits.Size;
+        float min = Mathf.Min(mins.X, mins.Y);
+        return zoom.Clamp(new(Mathf.Max(min, ZoomMin.X), Mathf.Max(min, ZoomMin.Y)), ZoomMax);
+    }
+
     /// Compute the world projection of the zone with the given margins.
     /// <param name="left">Fraction of the distance from the center of the screen to the left edge of the screen.</param>
     /// <param name="top">Fraction of the distance from the center of the screen to the top edge of the screen.</param>
@@ -48,24 +55,36 @@ public partial class Camera2DBrain : Node2D
     private Camera2D Camera => _camera ??= GetNodeOrNull<Camera2D>("Camera2D");
 
     private Vector2 _zoom = Vector2.One;
+    private Vector2 _zoomTarget = Vector2.Zero;
+    private Tween _zoomTween = null;
     private Rect2I _limits = new(-1000000, -1000000, 2000000, 2000000);
 
     /// <summary>Object the camera is tracking. Can be null to not track anything.</summary>
-    [ExportGroup("Camera")]
     [Export] public Node2D Target = null;
 
     /// <summary>Camera zoom. Ratio of world pixel size to real pixel size (so a zoom of 2 presents everything in double size).</summary>
-    [ExportGroup("Camera")]
+    [ExportGroup("Zoom")]
     [Export] public Vector2 Zoom
     {
         get => _zoom;
         set
         {
-            _zoom = value;
+            _zoomTarget = _zoom = Engine.IsEditorHint() || !Camera.IsInsideTree() ? value : Clamp(value);
             if (Camera != null)
-                Camera.Zoom = value;
+                Camera.Zoom = _zoom;
         }
     }
+
+    [ExportGroup("Zoom", "Zoom")]
+
+    /// <summary>Minimum allowable zoom (largest view of the world).</summary>
+    [Export] public Vector2 ZoomMin = new(0.5f, 0.5f);
+
+    /// <summary>Maximum allowable zoom (smallest view of the world).</summary>
+    [Export] public Vector2 ZoomMax = new(3, 3);
+
+    /// <summary>Amount of time to take to reach the next zoom setting.</summary>
+    [Export] public double ZoomDuration = 0.2;
 
     /// <summary>Box bounding the area in the world that the camera is allowed to see.</summary>
     [ExportGroup("Camera")]
@@ -126,10 +145,29 @@ public partial class Camera2DBrain : Node2D
     [ExportGroup("Editor")]
     [Export] public bool DrawTargets = false;
 
+    public Vector2 ZoomTarget
+    {
+        get => _zoomTarget;
+        set
+        {
+            if (Engine.IsEditorHint())
+                _zoomTarget = value;
+            else
+            {
+                _zoomTarget = Clamp(value);
+
+                if (_zoomTween?.IsValid() ?? false)
+                    _zoomTween.Kill();
+                _zoomTween = CreateTween();
+                _zoomTween.SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.Out).TweenMethod(Callable.From((Vector2 zoom) => Camera.Zoom = _zoom = zoom), Zoom, _zoomTarget, ZoomDuration);
+            }
+        }
+    }
+
     public Rect2 GetScreenRect()
     {
         if (Engine.IsEditorHint())
-            return new(new Vector2(0, 0), new Vector2(ProjectSettings.GetSetting("display/window/size/viewport_width").As<int>(), ProjectSettings.GetSetting("display/window/size/viewport_height").As<int>())/Zoom);
+            return new(Vector2.Zero, new Vector2(ProjectSettings.GetSetting("display/window/size/viewport_width").As<int>(), ProjectSettings.GetSetting("display/window/size/viewport_height").As<int>())/Zoom);
         else
             return Camera.GetViewportRect();
     }
@@ -141,9 +179,11 @@ public partial class Camera2DBrain : Node2D
     {
         base._Ready();
 
+        _zoom = Clamp(_zoom);
         Camera.Zoom = _zoom;
         (Camera.LimitLeft, Camera.LimitTop) = _limits.Position;
         (Camera.LimitRight, Camera.LimitBottom) = _limits.End;
+        _zoomTarget = _zoom;
 
         Position = Camera.GetScreenCenterPosition();
     }

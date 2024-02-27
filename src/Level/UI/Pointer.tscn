@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://bqrqq7jid7qp2"]
+[gd_scene load_steps=8 format=3 uid="uid://bqrqq7jid7qp2"]
 
 [ext_resource type="Script" path="res://src/Level/UI/Pointer.cs" id="1_rsyl0"]
 [ext_resource type="Resource" uid="uid://dsjbjmgsqqd7w" path="res://src/UI/Controls/Action/References/Map/AccelerateAction.tres" id="2_10qle"]
@@ -7,10 +7,6 @@
 [ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://assets/ui/mouse.png" id="3_c24cp"]
 [ext_resource type="Resource" uid="uid://b53yph2kmwkvl" path="res://src/UI/Controls/Action/References/Global/AnalogDownAction.tres" id="4_q7aqy"]
 [ext_resource type="Resource" uid="uid://cnlbmhk1rudn0" path="res://src/UI/Controls/Action/References/Global/AnalogRightAction.tres" id="5_8b7en"]
-[ext_resource type="Resource" uid="uid://n7vsg71x5cfd" path="res://src/UI/Controls/Action/References/Map/DigitalZoomInAction.tres" id="7_yyoyl"]
-[ext_resource type="Resource" uid="uid://cwfm1wgikkk0r" path="res://src/UI/Controls/Action/References/Map/AnalogZoomInAction.tres" id="8_q28mp"]
-[ext_resource type="Resource" uid="uid://dc7ud3npxyw0k" path="res://src/UI/Controls/Action/References/Map/DigitalZoomOutAction.tres" id="9_tvq7u"]
-[ext_resource type="Resource" uid="uid://xjnufn7jdu4k" path="res://src/UI/Controls/Action/References/Map/AnalogZoomOutAction.tres" id="10_hbs4b"]
 
 [node name="Pointer" type="Node2D"]
 script = ExtResource("1_rsyl0")
@@ -19,10 +15,6 @@ LeftAction = ExtResource("3_68nr4")
 DownAction = ExtResource("4_q7aqy")
 RightAction = ExtResource("5_8b7en")
 AccelerateAction = ExtResource("2_10qle")
-DigitalZoomInAction = ExtResource("7_yyoyl")
-AnalogZoomInAction = ExtResource("8_q28mp")
-DigitalZoomOutAction = ExtResource("9_tvq7u")
-AnalogZoomOutAction = ExtResource("10_hbs4b")
 
 [node name="Canvas" type="CanvasLayer" parent="."]
 

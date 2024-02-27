@@ -64,6 +64,25 @@ public partial class Level : Node2D
     /// <summary>Map cancel selection action reference (distinct from menu back/cancel).</summary>
     [Export] public InputActionReference CancelAction = new();
 
+    [ExportGroup("Camera/Zoom", "CameraZoom")]
+    [Export] public float CameraZoomDigitalFactor = 0.25f;
+
+    [Export] public float CameraZoomAnalogFactor = 2;
+
+    [ExportGroup("Camera/Input Actions", "CameraAction")]
+
+    /// <summary>Digital action to zoom the camera in.</summary>
+    [Export] public InputActionReference CameraActionDigitalZoomIn = new();
+
+    /// <summary>Analog action to zoom the camera in.</summary>
+    [Export] public InputActionReference CameraActionAnalogZoomIn = new();
+
+    /// <summary>Digital action to zoom the camera out.</summary>
+    [Export] public InputActionReference CameraActionDigitalZoomOut = new();
+
+    /// <summary>Analog action to zoom the camera out.</summary>
+    [Export] public InputActionReference CameraActionAnalogZoomOut = new();
+
     /// <summary>When a cell is selected, act based on what is or isn't in the cell.</summary>
     /// <param name="cell">Coordinates of the cell selection.</param>
     public async void OnCellSelected(Vector2I cell)
@@ -256,6 +275,23 @@ public partial class Level : Node2D
                 _state = State.Idle;
             }
             break;
+        }
+
+        if (@event.IsActionPressed(CameraActionDigitalZoomIn))
+            Camera.ZoomTarget += Vector2.One*CameraZoomDigitalFactor;
+        if (@event.IsActionPressed(CameraActionDigitalZoomOut))
+            Camera.ZoomTarget -= Vector2.One*CameraZoomDigitalFactor;
+    }
+
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+
+        if (!Engine.IsEditorHint())
+        {
+            float zoom = Input.GetAxis(CameraActionAnalogZoomOut, CameraActionAnalogZoomIn);
+            if (zoom != 0)
+                Camera.Zoom += Vector2.One*(float)(CameraZoomAnalogFactor*zoom*delta);
         }
     }
 }

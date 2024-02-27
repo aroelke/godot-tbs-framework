@@ -54,23 +54,7 @@ public partial class Pointer : Node2D
     /// <summary>Multiplier applied to the pointer speed when the accelerate button is held down in analog mode.</summary>
     [ExportGroup("Movement")]
     [Export] public double Acceleration = 3;
-/*
-    /// <summary>Amount to change the camera zoom each time a digital control is pressed.</summary>
-    [ExportGroup("Camera Control")]
-    [Export] public float DigitalZoomFactor
-    {
-        get => _digitalZoom.X;
-        set => _digitalZoom = new(value, value);
-    }
 
-    /// <summary>Amount to change the camera zoom while the analog control is held down.</summary>
-    [ExportGroup("Camera Control")]
-    [Export] public float AnalogZoomFactor
-    {
-        get => _analogZoom.X;
-        set => _analogZoom = new(value, value);
-    }
-*/
     /// <summary>Action to move the pointer up.</summary>
     [ExportGroup("Input Actions/Movement")]
     [Export] public InputActionReference UpAction = new();
@@ -90,22 +74,6 @@ public partial class Pointer : Node2D
     /// <summary>Action to accelerate the speed of the cursor.</summary>
     [ExportGroup("Input Actions/Movement")]
     [Export] public InputActionReference AccelerateAction = new();
-
-    /// <summary>Digital action to zoom the camera in.</summary>
-    [ExportGroup("Input Actions/Camera Control")]
-    [Export] public InputActionReference DigitalZoomInAction = new();
-
-    /// <summary>Analog action to zoom the camera in.</summary>
-    [ExportGroup("Input Actions/Camera Control")]
-    [Export] public InputActionReference AnalogZoomInAction = new();
-
-    /// <summary>Digital action to zoom the camera out.</summary>
-    [ExportGroup("Input Actions/Camera Control")]
-    [Export] public InputActionReference DigitalZoomOutAction = new();
-
-    /// <summary>Analog action to zoom the camera out.</summary>
-    [ExportGroup("Input Actions/Camera Control")]
-    [Export] public InputActionReference AnalogZoomOutAction = new();
 
     /// <summary>Move the cursor to a new location that's not bounded by <c>Bounds</c>, and update listeners that the move occurred.</summary>
     /// <param name="position">Position to warp to.</param>
@@ -216,7 +184,7 @@ public partial class Pointer : Node2D
 
         switch (DeviceManager.Mode)
         {
-        case InputMode.Mouse when/* _tracking && */Position != ViewportToWorld(InputManager.GetMousePosition()):
+        case InputMode.Mouse when Position != ViewportToWorld(InputManager.GetMousePosition()):
             Warp(ViewportToWorld(InputManager.GetMousePosition()));
             break;
         case InputMode.Analog:
@@ -224,7 +192,7 @@ public partial class Pointer : Node2D
             if (direction != Vector2.Zero)
             {
                 double speed = _accelerate ? (Speed*Acceleration) : Speed;
-                Warp((Position + (direction*(float)(speed*delta)/*/Camera.Zoom*/)).Clamp(Bounds.Position, Bounds.End));
+                Warp((Position + direction*(float)(speed*delta)).Clamp(Bounds.Position, Bounds.End));
             }
             break;
         }
