@@ -1,4 +1,3 @@
-using System.IO;
 using Godot;
 
 namespace UI;
@@ -12,7 +11,10 @@ namespace UI;
 [Icon("res://icons/Camera2DBrain.svg"), Tool]
 public partial class Camera2DBrain : Node2D
 {
-    private Vector2 Clamp(Vector2 zoom)
+    /// <summary>Clamp a zoom vector to ensure the camera doesn't zoom out too far to be able to see outside its limits.</summary>
+    /// <param name="zoom">Zoom vector to clamp.</param>
+    /// <returns>The zoom vector with its components clamped to ensure the viewport rect is inside the camera limits.</returns>
+    private Vector2 ClampZoom(Vector2 zoom)
     {
         Vector2 mins = GetScreenRect().Size/Limits.Size;
         float min = Mathf.Min(mins.X, mins.Y);
@@ -69,7 +71,7 @@ public partial class Camera2DBrain : Node2D
         get => _zoom;
         set
         {
-            _zoomTarget = _zoom = Engine.IsEditorHint() || !Camera.IsInsideTree() ? value : Clamp(value);
+            _zoomTarget = _zoom = Engine.IsEditorHint() || !Camera.IsInsideTree() ? value : ClampZoom(value);
             if (Camera != null)
                 Camera.Zoom = _zoom;
         }
@@ -154,7 +156,7 @@ public partial class Camera2DBrain : Node2D
                 _zoomTarget = value;
             else
             {
-                _zoomTarget = Clamp(value);
+                _zoomTarget = ClampZoom(value);
 
                 if (_zoomTween?.IsValid() ?? false)
                     _zoomTween.Kill();
@@ -179,7 +181,7 @@ public partial class Camera2DBrain : Node2D
     {
         base._Ready();
 
-        _zoom = Clamp(_zoom);
+        _zoom = ClampZoom(_zoom);
         Camera.Zoom = _zoom;
         (Camera.LimitLeft, Camera.LimitTop) = _limits.Position;
         (Camera.LimitRight, Camera.LimitBottom) = _limits.End;
