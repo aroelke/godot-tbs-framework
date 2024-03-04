@@ -75,12 +75,13 @@ public partial class Camera2DBrain : Node2D
     private Camera2D _camera = null;
     private Camera2D Camera => _camera ??= GetNodeOrNull<Camera2D>("Camera2D");
 
+    private Vector2 _targetPreviousPosition = Vector2.Zero;
+    private Tween _moveTween = null;
+
     private Vector2 _zoom = Vector2.One;
     private Vector2 _zoomTarget = Vector2.Zero;
     private Tween _zoomTween = null;
     private Rect2I _limits = new(-1000000, -1000000, 2000000, 2000000);
-
-    private bool _moving = false;
 
     /// <summary>Object the camera is tracking. Can be null to not track anything.</summary>
     [Export] public Node2D Target = null;
@@ -139,8 +140,8 @@ public partial class Camera2DBrain : Node2D
     /// <summary>Bottom margin of the dead zone, as a fraction of the distance from the center of the screen to the edge.</summary>
     [Export(PropertyHint.Range, "0, 1")] public float DeadZoneBottom = 0.5f;
 
-    /// <summary>Speed the camera should move to get the target to re-enter the dead zone.</summary>
-    [Export(PropertyHint.None, "suffix:px/s")] public double DeadZoneSmoothSpeed = 7.5f;
+    /// <summary>Time in seconds the camera should move to get the target to re-enter the dead zone from within the soft zone.</summary>
+    [Export(PropertyHint.None, "suffix:s")] public double DeadZoneSmoothTime = 0.5;
 
     [ExportGroup("Soft Zone", "SoftZone")]
 
@@ -155,6 +156,9 @@ public partial class Camera2DBrain : Node2D
 
     /// <summary>Bottom margin of the soft zone, as a fraction of the distance from the bottom margin of the dead zone to the edge.</summary>
     [Export(PropertyHint.Range, "0, 1")] public float SoftZoneBottom = 1;
+
+    /// <summary>Time in seconds the camera should move to get the target to re-enter the soft zone from outside the view (should be very small).</summary>
+    [Export(PropertyHint.None, "suffix:s")]public double SoftZoneSmoothTime = 0.05;
 
     /// <summary>Draw the camera zones for help with debugging and visualization.</summary>
     [ExportGroup("Editor")]
@@ -201,6 +205,9 @@ public partial class Camera2DBrain : Node2D
     public override void _Ready()
     {
         base._Ready();
+
+        if (Target != null)
+            _targetPreviousPosition = Target.Position;
 
         _zoom = ClampZoom(_zoom);
         Camera.Zoom = _zoom;
@@ -271,26 +278,38 @@ public partial class Camera2DBrain : Node2D
         {
             if (Target is not null)
             {
-                Vector2 prev = Position;
-
                 Rect2 bounds = GetTargetBounds();
                 (Rect2 localDeadzone, Rect2 localSoftzone) = ComputeTargetZones();
                 Vector2 targetRelative = Target.Position - Position;
                 if (!localSoftzone.HasPoint(targetRelative))
-                    Position += GetMoveTargetPosition(targetRelative, localSoftzone, bounds);
-                if (!localDeadzone.HasPoint(targetRelative))
-                    Position = Position.Lerp(Position + GetMoveTargetPosition(targetRelative, localDeadzone, bounds), (float)(DeadZoneSmoothSpeed*delta));
-                
-                if (!prev.IsEqualApprox(Position))
                 {
-                    if (!_moving)
-                        _moving = true;
+
+                    if (_moveTween is null || !_moveTween.IsValid() || _targetPreviousPosition != Target.Position)
+                    {
+                        if (_moveTween?.IsValid() ?? false)
+                            _moveTween.Kill();
+                        _moveTween = CreateTween();
+                        _moveTween
+                            .SetTrans(Tween.TransitionType.Cubic)
+                            .SetEase(Tween.EaseType.Out)
+                            .TweenProperty(this, PropertyName.Position.ToString(), Position + GetMoveTargetPosition(targetRelative, localSoftzone, bounds), SoftZoneSmoothTime);
+                    }
                 }
-                else if (_moving)
+                else if (!localDeadzone.HasPoint(targetRelative))
                 {
-                    EmitSignal(SignalName.ReachedTarget);
-                    _moving = false;
+                    if (_moveTween is null || !_moveTween.IsValid() || _targetPreviousPosition != Target.Position)
+                    {
+                        if (_moveTween?.IsValid() ?? false)
+                            _moveTween.Kill();
+                        _moveTween = CreateTween();
+                        _moveTween
+                            .SetTrans(Tween.TransitionType.Cubic)
+                            .SetEase(Tween.EaseType.Out)
+                            .TweenProperty(this, PropertyName.Position.ToString(), Position + GetMoveTargetPosition(targetRelative, localDeadzone, bounds), DeadZoneSmoothTime);
+                    }
                 }
+
+                _targetPreviousPosition = Target.Position;
             }
             QueueRedraw();
         }
