@@ -309,7 +309,8 @@ public partial class Camera2DBrain : Node2D
 
                 _targetPreviousPosition = Target.Position;
             }
-            QueueRedraw();
         }
+        if (Engine.IsEditorHint() || DrawZones || DrawLimits || DrawTargets)
+            QueueRedraw();
     }
 }
