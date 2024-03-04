@@ -183,7 +183,7 @@ public partial class Camera2DBrain : Node2D
             {
                 _zoomTarget = ClampZoom(value);
 
-                if (_zoomTween?.IsValid() ?? false)
+                if (_zoomTween.IsValid())
                     _zoomTween.Kill();
                 _zoomTween = CreateTween();
                 _zoomTween.SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.Out).TweenMethod(Callable.From((Vector2 zoom) => Camera.Zoom = _zoom = zoom), Zoom, _zoomTarget, ZoomDuration);
@@ -208,12 +208,16 @@ public partial class Camera2DBrain : Node2D
 
         if (Target != null)
             _targetPreviousPosition = Target.Position;
+        _moveTween = CreateTween();
+        _moveTween.Kill();
 
         _zoom = ClampZoom(_zoom);
         Camera.Zoom = _zoom;
         (Camera.LimitLeft, Camera.LimitTop) = _limits.Position;
         (Camera.LimitRight, Camera.LimitBottom) = _limits.End;
         _zoomTarget = _zoom;
+        _zoomTween = CreateTween();
+        _zoomTween.Kill();
 
         Position = Camera.GetScreenCenterPosition();
     }
@@ -278,34 +282,27 @@ public partial class Camera2DBrain : Node2D
         {
             if (Target is not null)
             {
-                Rect2 bounds = GetTargetBounds();
-                (Rect2 localDeadzone, Rect2 localSoftzone) = ComputeTargetZones();
-                Vector2 targetRelative = Target.Position - Position;
-                if (!localSoftzone.HasPoint(targetRelative))
+                if (!_moveTween.IsValid() || _targetPreviousPosition != Target.Position)
                 {
+                    if (_moveTween.IsValid())
+                        _moveTween.Kill();
 
-                    if (_moveTween is null || !_moveTween.IsValid() || _targetPreviousPosition != Target.Position)
+                    Rect2 bounds = GetTargetBounds();
+                    (Rect2 localDeadzone, Rect2 localSoftzone) = ComputeTargetZones();
+                    Vector2 targetRelative = Target.Position - Position;
+
+                    Vector2 moveTarget = Position;
+                    if (!localSoftzone.HasPoint(targetRelative))
+                        moveTarget = Position + GetMoveTargetPosition(targetRelative, localDeadzone, bounds);
+                    else if (!localDeadzone.HasPoint(targetRelative))
+                        moveTarget = Position + GetMoveTargetPosition(targetRelative, localDeadzone, bounds);
+                    if (moveTarget != Position)
                     {
-                        if (_moveTween?.IsValid() ?? false)
-                            _moveTween.Kill();
                         _moveTween = CreateTween();
                         _moveTween
                             .SetTrans(Tween.TransitionType.Cubic)
                             .SetEase(Tween.EaseType.Out)
-                            .TweenProperty(this, PropertyName.Position.ToString(), Position + GetMoveTargetPosition(targetRelative, localSoftzone, bounds), SoftZoneSmoothTime);
-                    }
-                }
-                else if (!localDeadzone.HasPoint(targetRelative))
-                {
-                    if (_moveTween is null || !_moveTween.IsValid() || _targetPreviousPosition != Target.Position)
-                    {
-                        if (_moveTween?.IsValid() ?? false)
-                            _moveTween.Kill();
-                        _moveTween = CreateTween();
-                        _moveTween
-                            .SetTrans(Tween.TransitionType.Cubic)
-                            .SetEase(Tween.EaseType.Out)
-                            .TweenProperty(this, PropertyName.Position.ToString(), Position + GetMoveTargetPosition(targetRelative, localDeadzone, bounds), DeadZoneSmoothTime);
+                            .TweenProperty(this, PropertyName.Position.ToString(), moveTarget, DeadZoneSmoothTime);
                     }
                 }
 
