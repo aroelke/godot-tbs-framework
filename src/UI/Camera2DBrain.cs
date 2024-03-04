@@ -303,6 +303,7 @@ public partial class Camera2DBrain : Node2D
                             .SetTrans(Tween.TransitionType.Cubic)
                             .SetEase(Tween.EaseType.Out)
                             .TweenProperty(this, PropertyName.Position.ToString(), moveTarget, DeadZoneSmoothTime);
+                        _moveTween.Finished += () => EmitSignal(SignalName.ReachedTarget);
                     }
                 }
 
