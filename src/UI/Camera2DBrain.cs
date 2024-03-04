@@ -11,6 +11,19 @@ namespace UI;
 [Icon("res://icons/Camera2DBrain.svg"), Tool]
 public partial class Camera2DBrain : Node2D
 {
+    /// <summary>Signal that the camera has reached its target and stopped moving.</summary>
+    [Signal] public delegate void ReachedTargetEventHandler();
+
+    /// <param name="distance">Distance to the camera's target position.</param>
+    /// <param name="deadzone">Rectangle defining the dead zone.</param>
+    /// <param name="limits">Limits where the center of the camera can be.</param>
+    /// <returns>The position the center of the camera should move to.</returns>
+    private static Vector2 GetMoveTargetPosition(Vector2 distance, Rect2 deadzone, Rect2 limits)
+    {
+        Rect2 moveBox = new Rect2().Expand((distance - distance.Clamp(deadzone.Position, deadzone.End)).Clamp(limits.Position, limits.End));
+        return distance.Clamp(moveBox.Position, moveBox.End);
+    }
+
     /// <summary>Clamp a zoom vector to ensure the camera doesn't zoom out too far to be able to see outside its limits.</summary>
     /// <param name="zoom">Zoom vector to clamp.</param>
     /// <returns>The zoom vector with its components clamped to ensure the viewport rect is inside the camera limits.</returns>
@@ -43,14 +56,20 @@ public partial class Camera2DBrain : Node2D
         return (Rect2)Limits with { Position = Limits.Position + projected.Size/2 - Position, End = Limits.End - projected.Size/2 - Position };
     }
 
-    /// <param name="distance">Distance to the camera's target position.</param>
-    /// <param name="deadzone">Rectangle defining the dead zone.</param>
-    /// <param name="limits">Limits where the center of the camera can be.</param>
-    /// <returns>The position the center of the camera should move to.</returns>
-    private static Vector2 GetMoveTargetPosition(Vector2 distance, Rect2 deadzone, Rect2 limits)
+    /// <returns>The bounds of the deadzone and the soft zone, relative to the camera center</returns>
+    private (Rect2, Rect2) ComputeTargetZones()
     {
-        Rect2 moveBox = new Rect2().Expand((distance - distance.Clamp(deadzone.Position, deadzone.End)).Clamp(limits.Position, limits.End));
-        return distance.Clamp(moveBox.Position, moveBox.End);
+        Rect2 localDeadzone = GetZone(DeadZoneLeft, DeadZoneTop, DeadZoneRight, DeadZoneBottom);
+        localDeadzone.Position -= Position;
+        Rect2 localSoftzone = GetZone(
+            DeadZoneLeft + (1 - DeadZoneLeft)*SoftZoneLeft,
+            DeadZoneTop + (1 - DeadZoneTop)*SoftZoneTop,
+            DeadZoneRight + (1 - DeadZoneRight)*SoftZoneRight,
+            DeadZoneBottom + (1 - DeadZoneBottom)*SoftZoneBottom
+        );
+        localSoftzone.Position -= Position;
+
+        return (localDeadzone, localSoftzone);
     }
 
     private Camera2D _camera = null;
@@ -60,6 +79,8 @@ public partial class Camera2DBrain : Node2D
     private Vector2 _zoomTarget = Vector2.Zero;
     private Tween _zoomTween = null;
     private Rect2I _limits = new(-1000000, -1000000, 2000000, 2000000);
+
+    private bool _moving = false;
 
     /// <summary>Object the camera is tracking. Can be null to not track anything.</summary>
     [Export] public Node2D Target = null;
@@ -199,15 +220,7 @@ public partial class Camera2DBrain : Node2D
         if (DrawLimits)
             DrawRect(bounds, Colors.Black, filled:false);
 
-        Rect2 localDeadzone = GetZone(DeadZoneLeft, DeadZoneTop, DeadZoneRight, DeadZoneBottom);
-        localDeadzone.Position -= Position;
-        Rect2 localSoftzone = GetZone(
-            DeadZoneLeft + (1 - DeadZoneLeft)*SoftZoneLeft,
-            DeadZoneTop + (1 - DeadZoneTop)*SoftZoneTop,
-            DeadZoneRight + (1 - DeadZoneRight)*SoftZoneRight,
-            DeadZoneBottom + (1 - DeadZoneBottom)*SoftZoneBottom
-        );
-        localSoftzone.Position -= Position;
+        (Rect2 localDeadzone, Rect2 localSoftzone) = ComputeTargetZones();
         if (DrawZones)
         {
             void FillInterior(Rect2 inner, Rect2 outer, Color color)
@@ -256,24 +269,28 @@ public partial class Camera2DBrain : Node2D
 
         if (!Engine.IsEditorHint())
         {
-            Rect2 bounds = GetTargetBounds();
-            Rect2 localDeadzone = GetZone(DeadZoneLeft, DeadZoneTop, DeadZoneRight, DeadZoneBottom);
-            localDeadzone.Position -= Position;
-            Rect2 localSoftzone = GetZone(
-                DeadZoneLeft + (1 - DeadZoneLeft)*SoftZoneLeft,
-                DeadZoneTop + (1 - DeadZoneTop)*SoftZoneTop,
-                DeadZoneRight + (1 - DeadZoneRight)*SoftZoneRight,
-                DeadZoneBottom + (1 - DeadZoneBottom)*SoftZoneBottom
-            );
-            localSoftzone.Position -= Position;
-
-            if (Target != null)
+            if (Target is not null)
             {
+                Vector2 prev = Position;
+
+                Rect2 bounds = GetTargetBounds();
+                (Rect2 localDeadzone, Rect2 localSoftzone) = ComputeTargetZones();
                 Vector2 targetRelative = Target.Position - Position;
                 if (!localSoftzone.HasPoint(targetRelative))
                     Position += GetMoveTargetPosition(targetRelative, localSoftzone, bounds);
                 if (!localDeadzone.HasPoint(targetRelative))
                     Position = Position.Lerp(Position + GetMoveTargetPosition(targetRelative, localDeadzone, bounds), (float)(DeadZoneSmoothSpeed*delta));
+                
+                if (!prev.IsEqualApprox(Position))
+                {
+                    if (!_moving)
+                        _moving = true;
+                }
+                else if (_moving)
+                {
+                    EmitSignal(SignalName.ReachedTarget);
+                    _moving = false;
+                }
             }
             QueueRedraw();
         }

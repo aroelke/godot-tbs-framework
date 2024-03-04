@@ -247,7 +247,7 @@ public partial class Level : Node2D
         }
     }
 
-    public override void _Input(InputEvent @event)
+    public override async void _Input(InputEvent @event)
     {
         base._Input(@event);
         switch (_state)
@@ -261,7 +261,12 @@ public partial class Level : Node2D
                 {
                 case InputMode.Mouse:
                     if (!selectedRect.HasPoint(GetGlobalMousePosition()))
-                        Pointer.WarpMouse(selectedRect.GetCenter());
+                    {
+                        Node2D target = Camera.Target;
+                        Camera.Target = _selected;
+                        await ToSignal(Camera, Camera2DBrain.SignalName.ReachedTarget);
+                        Camera.Target = target;
+                    }
                     break;
                 case InputMode.Digital:
                     Cursor.Cell = _selected.Cell;
