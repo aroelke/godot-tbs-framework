@@ -14,14 +14,27 @@ public partial class Camera2DBrain : Node2D
     /// <summary>Signal that the camera has reached its target and stopped moving.</summary>
     [Signal] public delegate void ReachedTargetEventHandler();
 
-    /// <param name="distance">Distance to the camera's target position.</param>
+    /// <param name="position">Position relative to the center of the screen to focus on.</param>
     /// <param name="deadzone">Rectangle defining the dead zone.</param>
     /// <param name="limits">Limits where the center of the camera can be.</param>
     /// <returns>The position the center of the camera should move to.</returns>
-    private static Vector2 GetMoveTargetPosition(Vector2 distance, Rect2 deadzone, Rect2 limits)
+    private static Vector2 GetMoveTargetPosition(Vector2 position, Rect2 deadzone, Rect2 limits)
     {
-        Rect2 moveBox = new Rect2().Expand((distance - distance.Clamp(deadzone.Position, deadzone.End)).Clamp(limits.Position, limits.End));
-        return distance.Clamp(moveBox.Position, moveBox.End);
+        if (deadzone.HasPoint(position))
+            return position;
+        else
+        {
+            Vector2 displacement = Vector2.Zero;
+            if (deadzone.Position.X > position.X)
+                displacement = displacement with { X = position.X - deadzone.Position.X };
+            else if (deadzone.End.X < position.X)
+                displacement = displacement with { X = position.X - deadzone.End.X };
+            if (deadzone.Position.Y > position.Y)
+                displacement = displacement with { Y = position.Y - deadzone.Position.Y };
+            else if (deadzone.End.Y < position.Y)
+                displacement = displacement with { Y = position.Y - deadzone.End.Y };
+            return (deadzone with { Position = deadzone.Position + displacement }).GetCenter().Clamp(limits.Position, limits.End);
+        }
     }
 
     /// <summary>Clamp a zoom vector to ensure the camera doesn't zoom out too far to be able to see outside its limits.</summary>
@@ -290,7 +303,6 @@ public partial class Camera2DBrain : Node2D
                     Rect2 bounds = GetTargetBounds();
                     (Rect2 localDeadzone, Rect2 localSoftzone) = ComputeTargetZones();
                     Vector2 targetRelative = Target.Position - Position;
-
                     if (!localSoftzone.GrowSide(Side.Right, 1).GrowSide(Side.Bottom, 1).HasPoint(targetRelative))
                     {
                         _moveTween = CreateTween();
