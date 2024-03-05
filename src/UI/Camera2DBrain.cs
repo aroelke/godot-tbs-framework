@@ -225,7 +225,7 @@ public partial class Camera2DBrain : Node2D
     public override void _Draw()
     {
         if (DrawZones && !Engine.IsEditorHint())
-            DrawCircle(Vector2.Zero, 3, Colors.Black);
+            DrawCircle(Vector2.Zero, 7, Colors.Black);
         
         Rect2 bounds = GetTargetBounds();
         if (DrawLimits)
@@ -261,14 +261,14 @@ public partial class Camera2DBrain : Node2D
             Vector2 targetRelative = Target.Position - Position;
             if (!localSoftzone.HasPoint(targetRelative))
             {
-                DrawCircle(targetRelative, 3, Colors.Red);
-                DrawCircle(targetRelative.Clamp(localSoftzone.Position, localSoftzone.End), 3, Colors.Red);
+                DrawCircle(targetRelative, 5, Colors.Red);
+                DrawCircle(targetRelative.Clamp(localSoftzone.Position, localSoftzone.End), 3, Colors.Red.Darkened(0.5f));
                 DrawCircle(GetMoveTargetPosition(targetRelative, localSoftzone, bounds), 3, Colors.Cyan);
             }
             else if (!localDeadzone.HasPoint(targetRelative))
             {
-                DrawCircle(targetRelative, 3, Colors.Purple);
-                DrawCircle(targetRelative.Clamp(localDeadzone.Position, localDeadzone.End), 3, Colors.Purple);
+                DrawCircle(targetRelative, 5, Colors.Purple);
+                DrawCircle(targetRelative.Clamp(localDeadzone.Position, localDeadzone.End), 3, Colors.Purple.Darkened(0.5f));
                 DrawCircle(GetMoveTargetPosition(targetRelative, localDeadzone, bounds), 3, Colors.Blue);
             }
         }
@@ -291,18 +291,22 @@ public partial class Camera2DBrain : Node2D
                     (Rect2 localDeadzone, Rect2 localSoftzone) = ComputeTargetZones();
                     Vector2 targetRelative = Target.Position - Position;
 
-                    Vector2 moveTarget = Position;
-                    if (!localSoftzone.HasPoint(targetRelative))
-                        moveTarget = Position + GetMoveTargetPosition(targetRelative, localDeadzone, bounds);
-                    else if (!localDeadzone.HasPoint(targetRelative))
-                        moveTarget = Position + GetMoveTargetPosition(targetRelative, localDeadzone, bounds);
-                    if (moveTarget != Position)
+                    if (!localSoftzone.GrowSide(Side.Right, 1).GrowSide(Side.Bottom, 1).HasPoint(targetRelative))
                     {
                         _moveTween = CreateTween();
                         _moveTween
                             .SetTrans(Tween.TransitionType.Cubic)
                             .SetEase(Tween.EaseType.Out)
-                            .TweenProperty(this, PropertyName.Position.ToString(), moveTarget, DeadZoneSmoothTime);
+                            .TweenProperty(this, PropertyName.Position.ToString(), Position + GetMoveTargetPosition(targetRelative, localSoftzone, bounds), SoftZoneSmoothTime);
+                        _moveTween.Finished += () => EmitSignal(SignalName.ReachedTarget);
+                    }
+                    else if (!localDeadzone.GrowSide(Side.Right, 1).GrowSide(Side.Bottom, 1).HasPoint(targetRelative))
+                    {
+                        _moveTween = CreateTween();
+                        _moveTween
+                            .SetTrans(Tween.TransitionType.Cubic)
+                            .SetEase(Tween.EaseType.Out)
+                            .TweenProperty(this, PropertyName.Position.ToString(), Position + GetMoveTargetPosition(targetRelative, localDeadzone, bounds), DeadZoneSmoothTime);
                         _moveTween.Finished += () => EmitSignal(SignalName.ReachedTarget);
                     }
                 }
