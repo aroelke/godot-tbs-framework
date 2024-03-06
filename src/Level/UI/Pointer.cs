@@ -170,12 +170,6 @@ public partial class Pointer : Node2D
             if (@event.IsActionReleased(AccelerateAction))
                 _accelerate = false;
         }
-/*
-        if (@event.IsActionPressed(DigitalZoomInAction))
-            Camera.ZoomTarget += _digitalZoom;
-        if (@event.IsActionPressed(DigitalZoomOutAction))
-            Camera.ZoomTarget -= _digitalZoom;
-*/
     }
 
     public override void _Process(double delta)
