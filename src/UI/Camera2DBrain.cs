@@ -238,7 +238,10 @@ public partial class Camera2DBrain : Node2D
             Rect2 localLimits = Engine.IsEditorHint() ? GetProjectedViewportRect() : (Rect2)Limits;
             localLimits.Position -= Position;
 
-            DrawRect(localDeadzone, Colors.Purple, filled:false);
+            DrawLine(new Vector2(localLimits.Position.X, localDeadzone.Position.Y), new Vector2(localLimits.End.X, localDeadzone.Position.Y), Colors.Purple);
+            DrawLine(new Vector2(localDeadzone.Position.X, localLimits.Position.Y), new Vector2(localDeadzone.Position.X, localLimits.End.Y), Colors.Purple);
+            DrawLine(new Vector2(localLimits.Position.X, localDeadzone.End.Y), new Vector2(localLimits.End.X, localDeadzone.End.Y), Colors.Purple);
+            DrawLine(new Vector2(localDeadzone.End.X, localLimits.Position.Y), new Vector2(localDeadzone.End.X, localLimits.End.Y), Colors.Purple);
 
             FillInterior(localDeadzone, localLimits,  new(Colors.Purple.R, Colors.Purple.G, Colors.Purple.B, 0.25f));
         }
