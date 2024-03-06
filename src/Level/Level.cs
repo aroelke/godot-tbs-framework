@@ -262,13 +262,26 @@ public partial class Level : Node2D
                 case InputMode.Mouse:
                     if (!selectedRect.HasPoint(GetGlobalMousePosition()))
                     {
+                        Tween tween = CreateTween();
+                        tween
+                            .SetTrans(Tween.TransitionType.Cubic)
+                            .SetEase(Tween.EaseType.Out)
+                            .TweenMethod(
+                                Callable.From((Vector2 position) => Input.WarpMouse(GetGlobalTransform()*GetCanvasTransform()*position)),
+                                GetGlobalMousePosition(),
+                                _selected.Position + Grid.CellSize/2,
+                                Camera.DeadZoneSmoothTime
+                            );
                         if (!Camera.GetProjectedViewportRect().Intersects(selectedRect))
                         {
                             Node2D target = Camera.Target;
                             Camera.Target = _selected;
                             await ToSignal(Camera, Camera2DBrain.SignalName.ReachedTarget);
+                            tween.Kill();
                             Camera.Target = target;
                         }
+                        else
+                            await ToSignal(tween, Tween.SignalName.Finished);
                     }
                     break;
                 case InputMode.Digital:
