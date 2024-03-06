@@ -70,19 +70,12 @@ public partial class Camera2DBrain : Node2D
     }
 
     /// <returns>The bounds of the deadzone and the soft zone, relative to the camera center</returns>
-    private (Rect2, Rect2) ComputeTargetZones()
+    private Rect2 ComputeDeadZone()
     {
         Rect2 localDeadzone = GetZone(DeadZoneLeft, DeadZoneTop, DeadZoneRight, DeadZoneBottom);
         localDeadzone.Position -= Position;
-        Rect2 localSoftzone = GetZone(
-            DeadZoneLeft + (1 - DeadZoneLeft)*SoftZoneLeft,
-            DeadZoneTop + (1 - DeadZoneTop)*SoftZoneTop,
-            DeadZoneRight + (1 - DeadZoneRight)*SoftZoneRight,
-            DeadZoneBottom + (1 - DeadZoneBottom)*SoftZoneBottom
-        );
-        localSoftzone.Position -= Position;
 
-        return (localDeadzone, localSoftzone);
+        return localDeadzone;
     }
 
     private Camera2D _camera = null;
@@ -154,24 +147,7 @@ public partial class Camera2DBrain : Node2D
     [Export(PropertyHint.Range, "0, 1")] public float DeadZoneBottom = 0.5f;
 
     /// <summary>Time in seconds the camera should move to get the target to re-enter the dead zone from within the soft zone.</summary>
-    [Export(PropertyHint.None, "suffix:s")] public double DeadZoneSmoothTime = 0.5;
-
-    [ExportGroup("Soft Zone", "SoftZone")]
-
-    /// <summary>Left margin of the soft zone, as a fraction of the distance from the left margin of the dead zone to the edge.</summary>
-    [Export(PropertyHint.Range, "0, 1")] public float SoftZoneLeft = 1;
-
-    /// <summary>Top margin of the soft zone, as a fraction of the distance from the top margin of the dead zone to the edge.</summary>
-    [Export(PropertyHint.Range, "0, 1")] public float SoftZoneTop = 1;
-
-    /// <summary>Right margin of the soft zone, as a fraction of the distance from the right margin of the dead zone to the edge.</summary>
-    [Export(PropertyHint.Range, "0, 1")] public float SoftZoneRight = 1;
-
-    /// <summary>Bottom margin of the soft zone, as a fraction of the distance from the bottom margin of the dead zone to the edge.</summary>
-    [Export(PropertyHint.Range, "0, 1")] public float SoftZoneBottom = 1;
-
-    /// <summary>Time in seconds the camera should move to get the target to re-enter the soft zone from outside the view (should be very small).</summary>
-    [Export(PropertyHint.None, "suffix:s")]public double SoftZoneSmoothTime = 0.05;
+    [Export(PropertyHint.None, "suffix:s")] public double DeadZoneSmoothTime = 0.25;
 
     /// <summary>Draw the camera zones for help with debugging and visualization.</summary>
     [ExportGroup("Editor")]
@@ -244,7 +220,7 @@ public partial class Camera2DBrain : Node2D
         if (DrawLimits)
             DrawRect(bounds, Colors.Black, filled:false);
 
-        (Rect2 localDeadzone, Rect2 localSoftzone) = ComputeTargetZones();
+        Rect2 localDeadzone = ComputeDeadZone();
         if (DrawZones)
         {
             void FillInterior(Rect2 inner, Rect2 outer, Color color)
@@ -263,22 +239,14 @@ public partial class Camera2DBrain : Node2D
             localLimits.Position -= Position;
 
             DrawRect(localDeadzone, Colors.Purple, filled:false);
-            DrawRect(localSoftzone, Colors.Red, filled:false);
 
-            FillInterior(localDeadzone, localSoftzone,  new(Colors.Purple.R, Colors.Purple.G, Colors.Purple.B, 0.25f));
-            FillInterior(localSoftzone, localLimits, new(Colors.Red.R, Colors.Red.G, Colors.Red.B, 0.25f));
+            FillInterior(localDeadzone, localLimits,  new(Colors.Purple.R, Colors.Purple.G, Colors.Purple.B, 0.25f));
         }
 
         if (!Engine.IsEditorHint() && DrawTargets && Target != null)
         {
             Vector2 targetRelative = Target.Position - Position;
-            if (!localSoftzone.HasPoint(targetRelative))
-            {
-                DrawCircle(targetRelative, 5, Colors.Red);
-                DrawCircle(targetRelative.Clamp(localSoftzone.Position, localSoftzone.End), 3, Colors.Red.Darkened(0.5f));
-                DrawCircle(GetMoveTargetPosition(targetRelative, localSoftzone, bounds), 3, Colors.Cyan);
-            }
-            else if (!localDeadzone.HasPoint(targetRelative))
+            if (!localDeadzone.HasPoint(targetRelative))
             {
                 DrawCircle(targetRelative, 5, Colors.Purple);
                 DrawCircle(targetRelative.Clamp(localDeadzone.Position, localDeadzone.End), 3, Colors.Purple.Darkened(0.5f));
@@ -301,18 +269,9 @@ public partial class Camera2DBrain : Node2D
                         _moveTween.Kill();
 
                     Rect2 bounds = GetTargetBounds();
-                    (Rect2 localDeadzone, Rect2 localSoftzone) = ComputeTargetZones();
+                    Rect2 localDeadzone = ComputeDeadZone();
                     Vector2 targetRelative = Target.Position - Position;
-                    if (!localSoftzone.GrowSide(Side.Right, 1).GrowSide(Side.Bottom, 1).HasPoint(targetRelative))
-                    {
-                        _moveTween = CreateTween();
-                        _moveTween
-                            .SetTrans(Tween.TransitionType.Cubic)
-                            .SetEase(Tween.EaseType.Out)
-                            .TweenProperty(this, PropertyName.Position.ToString(), Position + GetMoveTargetPosition(targetRelative, localSoftzone, bounds), SoftZoneSmoothTime);
-                        _moveTween.Finished += () => EmitSignal(SignalName.ReachedTarget);
-                    }
-                    else if (!localDeadzone.GrowSide(Side.Right, 1).GrowSide(Side.Bottom, 1).HasPoint(targetRelative))
+                    if (!localDeadzone.HasPoint(targetRelative))
                     {
                         _moveTween = CreateTween();
                         _moveTween
