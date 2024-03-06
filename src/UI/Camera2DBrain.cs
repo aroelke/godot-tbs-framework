@@ -161,6 +161,7 @@ public partial class Camera2DBrain : Node2D
     [ExportGroup("Editor")]
     [Export] public bool DrawTargets = false;
 
+    /// <summary> Target zoom level to smoothly zoom to.</summary>
     public Vector2 ZoomTarget
     {
         get => _zoomTarget;
@@ -180,6 +181,7 @@ public partial class Camera2DBrain : Node2D
         }
     }
 
+    /// <returns>The viewport rectangle.</returns>
     public Rect2 GetScreenRect()
     {
         if (Engine.IsEditorHint())
