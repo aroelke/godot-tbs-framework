@@ -262,10 +262,13 @@ public partial class Level : Node2D
                 case InputMode.Mouse:
                     if (!selectedRect.HasPoint(GetGlobalMousePosition()))
                     {
-                        Node2D target = Camera.Target;
-                        Camera.Target = _selected;
-                        await ToSignal(Camera, Camera2DBrain.SignalName.ReachedTarget);
-                        Camera.Target = target;
+                        if (!Camera.GetProjectedViewportRect().Intersects(selectedRect))
+                        {
+                            Node2D target = Camera.Target;
+                            Camera.Target = _selected;
+                            await ToSignal(Camera, Camera2DBrain.SignalName.ReachedTarget);
+                            Camera.Target = target;
+                        }
                     }
                     break;
                 case InputMode.Digital:
