@@ -3,7 +3,7 @@ using Godot;
 namespace Object;
 
 /// <summary>A <c>Node2D</c> with additional size information that forms a bounding box along with its position.</summary>
-[GlobalClass, Tool]
+[Icon("res://icons/BoundedNode2D.svg"), GlobalClass, Tool]
 public partial class BoundedNode2D : Node2D
 {
     /// <summary>Size of the node that forms its bounding box along with its <c>Position</c>.</summary>
