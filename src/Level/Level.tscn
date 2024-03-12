@@ -427,7 +427,8 @@ CameraActionAnalogZoomIn = ExtResource("4_n75ik")
 CameraActionDigitalZoomOut = ExtResource("5_2owqm")
 CameraActionAnalogZoomOut = ExtResource("6_pmkpk")
 
-[node name="Camera" parent="." instance=ExtResource("3_td8u6")]
+[node name="Camera" parent="." node_paths=PackedStringArray("Target") instance=ExtResource("3_td8u6")]
+Target = NodePath("../Pointer")
 Zoom = Vector2(2, 2)
 Limits = Rect2i(0, 0, 1000000, 1000000)
 
@@ -486,5 +487,6 @@ Action = ExtResource("2_2u5dc")
 
 [connection signal="CellChanged" from="Cursor" to="." method="OnCursorMoved"]
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]
+[connection signal="CursorMoved" from="Cursor" to="Pointer" method="OnCursorMoved"]
 [connection signal="RequestSkip" from="Cursor" to="." method="OnCursorRequestSkip"]
 [connection signal="PointerMoved" from="Pointer" to="Cursor" method="OnPointerMoved"]

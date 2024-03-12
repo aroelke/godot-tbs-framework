@@ -22,5 +22,6 @@ position = Vector2(192, 160)
 Affiliation = NodePath("..")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(6, 5)
+Size = Vector2(32, 32)
 
 [connection signal="child_entered_tree" from="Level/PlayerArmy" to="Level" method="OnChildEnteredGroup"]

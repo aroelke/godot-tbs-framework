@@ -11,6 +11,7 @@ namespace Level.UI;
 /// Is only visible during analog control; during digital control, it and the main mouse become invisible in favor of the cursor,
 /// and during mouse control, the system mouse is visible.
 /// </summary>
+[Tool]
 public partial class Pointer : BoundedNode2D
 {
     /// <summary>Signals that the virtual pointer has moved in the canvas.</summary>
@@ -150,17 +151,20 @@ public partial class Pointer : BoundedNode2D
     {
         base._Ready();
 
-        _mouse = GetNode<TextureRect>("Canvas/Mouse");
-        _mouse.Texture = ResourceLoader.Load<Texture2D>(ProjectSettings.GetSetting("display/mouse_cursor/custom_image").As<string>());
-        _mouse.Position = WorldToViewport(Position);
-        _mouse.Visible = DeviceManager.Mode == InputMode.Analog;
+        if (!Engine.IsEditorHint())
+        {
+            _mouse = GetNode<TextureRect>("Canvas/Mouse");
+            _mouse.Texture = ResourceLoader.Load<Texture2D>(ProjectSettings.GetSetting("display/mouse_cursor/custom_image").As<string>());
+            _mouse.Position = WorldToViewport(Position);
+            _mouse.Visible = DeviceManager.Mode == InputMode.Analog;
 
-        _prevMode = DeviceManager.Mode;
-        Input.MouseMode = DeviceManager.Mode == InputMode.Mouse ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Hidden;
+            _prevMode = DeviceManager.Mode;
+            Input.MouseMode = DeviceManager.Mode == InputMode.Mouse ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Hidden;
 
-        DeviceManager.Singleton.InputModeChanged += OnInputModeChanged;
-        InputManager.Singleton.MouseEntered += OnMouseEntered;
-        InputManager.Singleton.MouseExited += OnMouseExited;
+            DeviceManager.Singleton.InputModeChanged += OnInputModeChanged;
+            InputManager.Singleton.MouseEntered += OnMouseEntered;
+            InputManager.Singleton.MouseExited += OnMouseExited;
+        }
     }
 
     public override void _UnhandledInput(InputEvent @event)
@@ -179,20 +183,23 @@ public partial class Pointer : BoundedNode2D
     {
         base._Process(delta);
 
-        switch (DeviceManager.Mode)
+        if (!Engine.IsEditorHint())
         {
-        case InputMode.Mouse when Position != ViewportToWorld(InputManager.GetMousePosition()):
-            Warp(ViewportToWorld(InputManager.GetMousePosition()));
-            break;
-        case InputMode.Analog:
-            Vector2 direction = Input.GetVector(LeftAction, RightAction, UpAction, DownAction);
-            if (direction != Vector2.Zero)
+            switch (DeviceManager.Mode)
             {
-                double speed = _accelerate ? (Speed*Acceleration) : Speed;
-                Warp((Position + direction*(float)(speed*delta)).Clamp(Bounds.Position, Bounds.End));
+            case InputMode.Mouse when Position != ViewportToWorld(InputManager.GetMousePosition()):
+                Warp(ViewportToWorld(InputManager.GetMousePosition()));
+                break;
+            case InputMode.Analog:
+                Vector2 direction = Input.GetVector(LeftAction, RightAction, UpAction, DownAction);
+                if (direction != Vector2.Zero)
+                {
+                    double speed = _accelerate ? (Speed*Acceleration) : Speed;
+                    Warp((Position + direction*(float)(speed*delta)).Clamp(Bounds.Position, Bounds.End));
+                }
+                break;
             }
-            break;
+            _mouse.Position = WorldToViewport(Position);
         }
-        _mouse.Position = WorldToViewport(Position);
     }
 }

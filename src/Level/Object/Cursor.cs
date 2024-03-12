@@ -9,6 +9,7 @@ namespace Level.Object;
 /// rather, it emits signals to a controller (possibly a <c>PointerProjection</c>) to move it when digital movement
 /// is desired.
 /// </summary>
+[Tool]
 public partial class Cursor : GridNode
 {
     /// <summary>Emitted when the cursor moves to a new cell.</summary>
@@ -38,12 +39,17 @@ public partial class Cursor : GridNode
         get => base.Cell;
         set
         {
-            Vector2I next = Grid.Clamp(value);
-            if (next != Cell)
+            if (Engine.IsEditorHint() && Grid is null)
+                base.Cell = value;
+            else
             {
-                Position = Grid.PositionOf(next);
-                base.Cell = next;
-                EmitSignal(SignalName.CursorMoved, Position + Grid.CellSize/2);
+                Vector2I next = Grid.Clamp(value);
+                if (next != Cell)
+                {
+                    Position = Grid.PositionOf(next);
+                    base.Cell = next;
+                    EmitSignal(SignalName.CursorMoved, Position + Grid.CellSize/2);
+                }
             }
         }
     }
