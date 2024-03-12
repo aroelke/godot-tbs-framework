@@ -1,4 +1,5 @@
 using Godot;
+using Object;
 
 namespace UI;
 
@@ -90,7 +91,7 @@ public partial class Camera2DBrain : Node2D
     private Rect2I _limits = new(-1000000, -1000000, 2000000, 2000000);
 
     /// <summary>Object the camera is tracking. Can be null to not track anything.</summary>
-    [Export] public Node2D Target = null;
+    [Export] public BoundedNode2D Target = null;
 
     /// <summary>Camera zoom. Ratio of world pixel size to real pixel size (so a zoom of 2 presents everything in double size).</summary>
     [ExportGroup("Zoom")]
@@ -248,7 +249,7 @@ public partial class Camera2DBrain : Node2D
             FillInterior(localDeadzone, localLimits,  new(Colors.Purple.R, Colors.Purple.G, Colors.Purple.B, 0.25f));
         }
 
-        if (!Engine.IsEditorHint() && DrawTargets && Target != null)
+        if (!Engine.IsEditorHint() && DrawTargets && Target is not null)
         {
             Vector2 targetRelative = Target.Position - Position;
             if (!localDeadzone.HasPoint(targetRelative))

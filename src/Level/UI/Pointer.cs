@@ -1,5 +1,6 @@
 using Godot;
-using UI;
+using Level.Map;
+using Object;
 using UI.Controls.Action;
 using UI.Controls.Device;
 
@@ -10,7 +11,7 @@ namespace Level.UI;
 /// Is only visible during analog control; during digital control, it and the main mouse become invisible in favor of the cursor,
 /// and during mouse control, the system mouse is visible.
 /// </summary>
-public partial class Pointer : Node2D
+public partial class Pointer : BoundedNode2D
 {
     /// <summary>Signals that the virtual pointer has moved in the canvas.</summary>
     /// <param name="position">Position of the virtual pointer.</param>
@@ -74,6 +75,8 @@ public partial class Pointer : Node2D
     /// <summary>Action to accelerate the speed of the cursor.</summary>
     [ExportGroup("Input Actions/Movement")]
     [Export] public InputActionReference AccelerateAction = new();
+
+    public new Vector2 Size = Vector2.Zero;
 
     /// <summary>Move the cursor to a new location that's not bounded by <c>Bounds</c>, and update listeners that the move occurred.</summary>
     /// <param name="position">Position to warp to.</param>

@@ -7,6 +7,7 @@ using Level.Map;
 using Level.Object;
 using Level.Object.Group;
 using Level.UI;
+using Object;
 using UI;
 using UI.Controls.Action;
 using UI.Controls.Device;
@@ -274,7 +275,7 @@ public partial class Level : Node2D
                             );
                         if (!Camera.GetProjectedViewportRect().Intersects(selectedRect))
                         {
-                            Node2D target = Camera.Target;
+                            BoundedNode2D target = Camera.Target;
                             Camera.Target = _selected;
                             await ToSignal(Camera, Camera2DBrain.SignalName.ReachedTarget);
                             tween.Kill();

@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using Level.Map;
+using Object;
 
 namespace Level.Object;
 
 /// <summary>A node representing an object that moves on a grid.</summary>
 [Icon("res://icons/GridNode.svg"), GlobalClass, Tool]
-public partial class GridNode : Node2D
+public partial class GridNode : BoundedNode2D
 {
     /// <summary>Signals that the cell containing the object has changed.</summary>
     /// <param name="cell">New cell containing the object.</param>
@@ -44,11 +45,13 @@ public partial class GridNode : Node2D
         }
     }
 
+    public new Vector2 Size => Grid?.CellSize ?? Vector2.Zero;
+
     public override string[] _GetConfigurationWarnings()
     {
         List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
 
-        if (Grid == null)
+        if (Grid is null)
             warnings.Add("No grid to move on has been defined.");
         else if (Cell.X < 0 || Cell.Y < 0 || Cell.X >= Grid.Size.X || Cell.Y >= Grid.Size.Y)
             warnings.Add("Outside grid bounds.");
