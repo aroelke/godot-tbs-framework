@@ -66,7 +66,7 @@ public partial class Camera2DBrain : Node2D
     private static Vector2 GetMoveTargetPosition(Rect2 box, Rect2 deadzone, Rect2 limits)
     {
         Vector2 position = GetTargetFocusPoint(box, deadzone);
-        if (deadzone.Contains(position))
+        if (deadzone.Contains(position, perimeter:true))
             return Vector2.Zero;
         else
         {
@@ -298,7 +298,7 @@ public partial class Camera2DBrain : Node2D
         {
             Rect2 boxRelative = Target.BoundingBox with { Position = Target.Position - Position };
             DrawRect(boxRelative, Colors.Purple, filled:false);
-            if (!localDeadzone.Contains(boxRelative))
+            if (!localDeadzone.Contains(boxRelative, perimeter:true))
             {
                 DrawCircle(GetTargetFocusPoint(boxRelative, localDeadzone), 3, Colors.Purple);
                 DrawCircle(GetTargetFocusPoint(boxRelative, localDeadzone).Clamp(localDeadzone.Position, localDeadzone.End), 3, Colors.Purple.Darkened(0.5f));
@@ -322,7 +322,7 @@ public partial class Camera2DBrain : Node2D
 
                     Rect2 localDeadzone = ComputeDeadZone();
                     Rect2 boxRelative = Target.BoundingBox with { Position = Target.Position - Position };
-                    if (!localDeadzone.Contains(boxRelative))
+                    if (!localDeadzone.Contains(boxRelative, perimeter:true))
                     {
                         _moveTween = CreateTween();
                         _moveTween
