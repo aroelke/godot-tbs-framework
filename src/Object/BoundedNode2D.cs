@@ -7,7 +7,7 @@ namespace Object;
 public partial class BoundedNode2D : Node2D
 {
     /// <summary>Size of the node that forms its bounding box along with its <c>Position</c>.</summary>
-    [Export] public Vector2 Size = Vector2.Zero;
+    [Export] public virtual Vector2 Size { get; set; }
 
     /// <summary>
     /// The bounding box of the node, composed of its <c>Position</c> and <c>Size</c>. Setting this value with change both

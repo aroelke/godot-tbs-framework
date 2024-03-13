@@ -1,3 +1,4 @@
+using System;
 using Godot;
 using Level.Map;
 using Object;
@@ -77,7 +78,8 @@ public partial class Pointer : BoundedNode2D
     [ExportGroup("Input Actions/Movement")]
     [Export] public InputActionReference AccelerateAction = new();
 
-    public new Vector2 Size = Vector2.Zero;
+    /// <summary>The pointer is just a point, but it has to have a zero area so the camera can focus on it.</summary>
+    public override Vector2 Size { get => Vector2.Zero; set {}}
 
     /// <summary>Move the cursor to a new location that's not bounded by <c>Bounds</c>, and update listeners that the move occurred.</summary>
     /// <param name="position">Position to warp to.</param>

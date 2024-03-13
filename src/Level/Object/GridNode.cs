@@ -45,7 +45,8 @@ public partial class GridNode : BoundedNode2D
         }
     }
 
-    public new Vector2 Size => Grid?.CellSize ?? Vector2.Zero;
+    /// <summary><c>GridNode</c>s have a constant size that is based on the size of the grid cells. </summary>
+    public override Vector2 Size { get => Grid?.CellSize ?? Vector2.Zero; set {}}
 
     public override string[] _GetConfigurationWarnings()
     {
