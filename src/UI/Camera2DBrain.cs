@@ -1,5 +1,7 @@
+using System.ComponentModel.DataAnnotations;
 using Godot;
 using Object;
+using Util;
 
 namespace UI;
 
@@ -23,6 +25,49 @@ public partial class Camera2DBrain : Node2D
     {
         if (deadzone.HasPoint(position))
             return position;
+        else
+        {
+            Vector2 displacement = Vector2.Zero;
+            if (deadzone.Position.X > position.X)
+                displacement = displacement with { X = position.X - deadzone.Position.X };
+            else if (deadzone.End.X < position.X)
+                displacement = displacement with { X = position.X - deadzone.End.X };
+            if (deadzone.Position.Y > position.Y)
+                displacement = displacement with { Y = position.Y - deadzone.Position.Y };
+            else if (deadzone.End.Y < position.Y)
+                displacement = displacement with { Y = position.Y - deadzone.End.Y };
+            return (deadzone with { Position = deadzone.Position + displacement }).GetCenter().Clamp(limits.Position, limits.End);
+        }
+    }
+
+    /// <summary>Compute the point on the target's bounding box to move into the dead zone.</summary>
+    /// <param name="box">Target's bounding box.</param>
+    /// <param name="deadzone">Box to keep the focus point in.</param>
+    /// <returns>The point on the edge of the target's bounding box to keep inside the dead zone.</returns>
+    private static Vector2 GetTargetFocusPoint(Rect2 box, Rect2 deadzone)
+    {
+        Vector2 position = box.GetCenter();
+        if (box.Position.X < deadzone.Position.X)
+            position = position with { X = box.Position.X };
+        else if (box.End.X > deadzone.End.X)
+            position = position with { X = box.End.X };
+        if (box.Position.Y < deadzone.Position.Y)
+            position = position with { Y = box.Position.Y };
+        else if (box.End.Y > deadzone.End.Y)
+            position = position with { Y = box.End.Y };
+        return position;
+    }
+
+    /// <summary>Compute the position to move the screen center to in order to keep the target point inside the dead zone.</summary>
+    /// <param name="box">Target's bounding box.</param>
+    /// <param name="deadzone">Box to keep the target's bounding box in.</param>
+    /// <param name="limits">Box defining the limits of the camera's movement.</param>
+    /// <returns>The point to move the camera's center to in order to keep the target's bounding box inside the dead zone.</returns>
+    private static Vector2 GetMoveTargetPosition(Rect2 box, Rect2 deadzone, Rect2 limits)
+    {
+        Vector2 position = GetTargetFocusPoint(box, deadzone);
+        if (deadzone.Contains(position))
+            return Vector2.Zero;
         else
         {
             Vector2 displacement = Vector2.Zero;
@@ -251,12 +296,13 @@ public partial class Camera2DBrain : Node2D
 
         if (!Engine.IsEditorHint() && DrawTargets && Target is not null)
         {
-            Vector2 targetRelative = Target.Position - Position;
-            if (!localDeadzone.HasPoint(targetRelative))
+            Rect2 boxRelative = Target.BoundingBox with { Position = Target.Position - Position };
+            DrawRect(boxRelative, Colors.Purple, filled:false);
+            if (!localDeadzone.Contains(boxRelative))
             {
-                DrawCircle(targetRelative, 5, Colors.Purple);
-                DrawCircle(targetRelative.Clamp(localDeadzone.Position, localDeadzone.End), 3, Colors.Purple.Darkened(0.5f));
-                DrawCircle(GetMoveTargetPosition(targetRelative, localDeadzone, bounds), 3, Colors.Blue);
+                DrawCircle(GetTargetFocusPoint(boxRelative, localDeadzone), 3, Colors.Purple);
+                DrawCircle(GetTargetFocusPoint(boxRelative, localDeadzone).Clamp(localDeadzone.Position, localDeadzone.End), 3, Colors.Purple.Darkened(0.5f));
+                DrawCircle(GetMoveTargetPosition(boxRelative, localDeadzone, bounds), 3, Colors.Blue);
             }
         }
     }
@@ -274,16 +320,15 @@ public partial class Camera2DBrain : Node2D
                     if (_moveTween.IsValid())
                         _moveTween.Kill();
 
-                    Rect2 bounds = GetTargetBounds();
                     Rect2 localDeadzone = ComputeDeadZone();
-                    Vector2 targetRelative = Target.Position - Position;
-                    if (!localDeadzone.HasPoint(targetRelative))
+                    Rect2 boxRelative = Target.BoundingBox with { Position = Target.Position - Position };
+                    if (!localDeadzone.Contains(boxRelative))
                     {
                         _moveTween = CreateTween();
                         _moveTween
                             .SetTrans(Tween.TransitionType.Cubic)
                             .SetEase(Tween.EaseType.Out)
-                            .TweenProperty(this, PropertyName.Position.ToString(), Position + GetMoveTargetPosition(targetRelative, localDeadzone, bounds), DeadZoneSmoothTime);
+                            .TweenProperty(this, PropertyName.Position.ToString(), Position + GetMoveTargetPosition(boxRelative, localDeadzone, GetTargetBounds()), DeadZoneSmoothTime);
                         _moveTween.Finished += () => EmitSignal(SignalName.ReachedTarget);
                     }
                 }
