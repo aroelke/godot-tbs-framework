@@ -324,12 +324,16 @@ public partial class Camera2DBrain : Node2D
                     Rect2 boxRelative = Target.BoundingBox with { Position = Target.Position - Position };
                     if (!localDeadzone.Contains(boxRelative, perimeter:true))
                     {
-                        _moveTween = CreateTween();
-                        _moveTween
-                            .SetTrans(Tween.TransitionType.Cubic)
-                            .SetEase(Tween.EaseType.Out)
-                            .TweenProperty(this, PropertyName.Position.ToString(), Position + GetMoveTargetPosition(boxRelative, localDeadzone, GetTargetBounds()), DeadZoneSmoothTime);
-                        _moveTween.Finished += () => EmitSignal(SignalName.ReachedTarget);
+                        Vector2 moveTarget = GetMoveTargetPosition(boxRelative, localDeadzone, GetTargetBounds());
+                        if (moveTarget != Vector2.Zero)
+                        {
+                            _moveTween = CreateTween();
+                            _moveTween
+                                .SetTrans(Tween.TransitionType.Cubic)
+                                .SetEase(Tween.EaseType.Out)
+                                .TweenProperty(this, PropertyName.Position.ToString(), Position + moveTarget, DeadZoneSmoothTime);
+                            _moveTween.Finished += () => EmitSignal(SignalName.ReachedTarget);
+                        }
                     }
                 }
 
