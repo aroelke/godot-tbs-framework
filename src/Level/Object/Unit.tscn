@@ -1,7 +1,8 @@
-[gd_scene load_steps=11 format=3 uid="uid://b0cvutx2lj5uy"]
+[gd_scene load_steps=12 format=3 uid="uid://b0cvutx2lj5uy"]
 
 [ext_resource type="Script" path="res://src/Level/Object/Unit.cs" id="1_crlbh"]
 [ext_resource type="Texture2D" uid="uid://3oc7r54iby4a" path="res://assets/level/unit/soldier.png" id="2_ipnjg"]
+[ext_resource type="Script" path="res://src/Object/BoundedNode2D.cs" id="3_pmja0"]
 
 [sub_resource type="Animation" id="Animation_yixnx"]
 length = 0.001
@@ -231,6 +232,9 @@ offset = Vector2(16, 0)
 hframes = 5
 vframes = 4
 frame = 5
+
+[node name="Bounds" type="Node2D" parent="Path/PathFollow"]
+script = ExtResource("3_pmja0")
 
 [node name="Animation" type="AnimationPlayer" parent="."]
 libraries = {
