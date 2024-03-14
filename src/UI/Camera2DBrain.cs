@@ -254,7 +254,7 @@ public partial class Camera2DBrain : Node2D
         base._Ready();
 
         if (Target != null)
-            _targetPreviousPosition = Target.Position;
+            _targetPreviousPosition = Target.GlobalPosition;
         _moveTween = CreateTween();
         _moveTween.Kill();
 
@@ -306,7 +306,7 @@ public partial class Camera2DBrain : Node2D
 
         if (!Engine.IsEditorHint() && DrawTargets && Target is not null)
         {
-            Rect2 boxRelative = Target.BoundingBox with { Position = Target.Position - Position };
+            Rect2 boxRelative = Target.GlobalBoundingBox with { Position = Target.GlobalPosition - Position };
             DrawRect(boxRelative, Colors.Purple, filled:false);
             if (!localDeadzone.Contains(boxRelative, perimeter:true))
             {
@@ -325,13 +325,13 @@ public partial class Camera2DBrain : Node2D
         {
             if (Target is not null)
             {
-                if (!_moveTween.IsValid() || _targetPreviousPosition != Target.Position)
+                if (!_moveTween.IsValid() || _targetPreviousPosition != Target.GlobalPosition)
                 {
                     if (_moveTween.IsValid())
                         _moveTween.Kill();
 
                     Rect2 localDeadzone = ComputeDeadZone();
-                    Rect2 boxRelative = Target.BoundingBox with { Position = Target.Position - Position };
+                    Rect2 boxRelative = Target.GlobalBoundingBox with { Position = Target.GlobalPosition - Position };
                     if (!localDeadzone.Contains(boxRelative, perimeter:true))
                     {
                         Vector2 moveTarget = GetMoveTargetPosition(boxRelative, localDeadzone, GetTargetBounds());
@@ -347,7 +347,7 @@ public partial class Camera2DBrain : Node2D
                     }
                 }
 
-                _targetPreviousPosition = Target.Position;
+                _targetPreviousPosition = Target.GlobalPosition;
             }
         }
         if (Engine.IsEditorHint() || DrawZones || DrawLimits || DrawTargets)
