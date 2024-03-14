@@ -10,7 +10,7 @@ public partial class BoundedNode2D : Node2D
     [Export] public virtual Vector2 Size { get; set; }
 
     /// <summary>
-    /// The bounding box of the node, composed of its <c>Position</c> and <c>Size</c>. Setting this value with change both
+    /// The bounding box of the node, composed of its <c>Position</c> and <c>Size</c>. Setting this value will change both
     /// of those components.
     /// </summary>
     public Rect2 BoundingBox
@@ -20,6 +20,22 @@ public partial class BoundedNode2D : Node2D
         {
             if (Position != value.Position)
                 Position = value.Position;
+            if (Size != value.Size)
+                Size = value.Size;
+        }
+    }
+
+    /// <summary>
+    /// The global  bounding box of the node, composed of its <c>GlobalPosition</c> and <c>Size</c>. Setting this value will
+    /// change both of those components.
+    /// </summary>
+    public Rect2 GlobalBoundingBox
+    {
+        get => new(GlobalPosition, Size);
+        set
+        {
+            if (GlobalPosition != value.Position)
+                GlobalPosition = value.Position;
             if (Size != value.Size)
                 Size = value.Size;
         }
