@@ -40,21 +40,31 @@ public partial class Camera2DBrain : Node2D
         }
     }
 
-    /// <summary>Compute the point on the target's bounding box to move into the dead zone.</summary>
+    /// <summary>
+    /// Compute the point on the target's bounding box to move into the dead zone. If the bounding box is larger than the dead zone
+    /// in either dimension, the center of the box along that dimension is used. Otherwise, the edge of the box along each dimension
+    /// that's furthest away from the dead zone is used.
+    /// </summary>
     /// <param name="box">Target's bounding box.</param>
     /// <param name="deadzone">Box to keep the focus point in.</param>
-    /// <returns>The point on the edge of the target's bounding box to keep inside the dead zone.</returns>
+    /// <returns>The point on the target's bounding box to keep inside the dead zone.</returns>
     private static Vector2 GetTargetFocusPoint(Rect2 box, Rect2 deadzone)
     {
         Vector2 position = box.GetCenter();
-        if (box.Position.X < deadzone.Position.X)
-            position = position with { X = box.Position.X };
-        else if (box.End.X > deadzone.End.X)
-            position = position with { X = box.End.X };
-        if (box.Position.Y < deadzone.Position.Y)
-            position = position with { Y = box.Position.Y };
-        else if (box.End.Y > deadzone.End.Y)
-            position = position with { Y = box.End.Y };
+        if (box.Size.X <= deadzone.Size.X)
+        {
+            if (box.Position.X < deadzone.Position.X)
+                position = position with { X = box.Position.X };
+            else if (box.End.X > deadzone.End.X)
+                position = position with { X = box.End.X };
+        }
+        if (box.Size.Y <= deadzone.Size.Y)
+        {
+            if (box.Position.Y < deadzone.Position.Y)
+                position = position with { Y = box.Position.Y };
+            else if (box.End.Y > deadzone.End.Y)
+                position = position with { Y = box.End.Y };
+        }
         return position;
     }
 
