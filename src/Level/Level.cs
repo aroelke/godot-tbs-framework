@@ -113,7 +113,18 @@ public partial class Level : Node2D
                 Overlay.Clear();
                 _pathfinder = null;
                 _state = State.UnitMoving;
+
+                // Track the unit as it's moving
+                Vector4 deadzone = new(Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight);
+                (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = Vector4.Zero;
+                BoundedNode2D target = Camera.Target;
+                Camera.Target = _selected.MotionBox;
+
                 await ToSignal(_selected, Unit.SignalName.DoneMoving);
+
+                // Restore the camera's old target
+                (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = deadzone;
+                Camera.Target = target;
 
                 // Show the unit's attack/support ranges
                 IEnumerable<Vector2I> attackable = PathFinder.GetCellsInRange(Grid, _selected.AttackRange, _selected.Cell);
