@@ -41,6 +41,7 @@ public partial class Level : Node2D
     private Unit _selected = null;
     private PathFinder _pathfinder = null;
     private ControlHint _cancelHint = null;
+    private Vector2? _prevZoom = null;
 
     private Grid Grid => _map ??= GetNode<Grid>("Grid");
     private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
@@ -48,6 +49,15 @@ public partial class Level : Node2D
     private Cursor Cursor => _cursor ??= GetNode<Cursor>("Cursor");
     private Pointer Pointer => _pointer ??= GetNode<Pointer>("Pointer");
     private ControlHint CancelHint => _cancelHint ??= GetNode<ControlHint>("UserInterface/HUD/Hints/CancelHint");
+
+    private void RestoreCameraZoom()
+    {
+        if (_prevZoom is not null)
+        {
+            Camera.ZoomTarget = _prevZoom.Value;
+            _prevZoom = null;
+        }
+    }
 
     private void DeselectUnit()
     {
@@ -93,15 +103,43 @@ public partial class Level : Node2D
         case State.Idle:
             if (Grid.Occupants.ContainsKey(cell))
             {
+                // Update selected unit
                 _selected = Grid.Occupants[cell] as Unit;
                 _selected.IsSelected = true;
+
+                // Compute move/attack/support ranges for selected unit
                 _pathfinder = new(Grid, _selected);
                 Overlay.TraversableCells = _pathfinder.TraversableCells;
                 Overlay.AttackableCells = _pathfinder.AttackableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c));
                 Overlay.SupportableCells = _pathfinder.SupportableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c) && !_pathfinder.AttackableCells.Contains(c));
                 CancelHint.Visible = true;
-                _state = State.SelectUnit;
+
+                // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
+                Rect2? zoomRect = null;
+                void ExpandZoomRect(IEnumerable<Vector2I> cells)
+                {
+                    foreach (Vector2I c in cells)
+                    {
+                        Rect2 cellRect = Grid.CellRect(c);
+                        zoomRect = zoomRect?.Expand(cellRect.Position).Expand(cellRect.End) ?? cellRect;
+                    }
+                }
+                ExpandZoomRect(Overlay.TraversableCells);
+                ExpandZoomRect(Overlay.AttackableCells);
+                ExpandZoomRect(Overlay.SupportableCells);
+                if (zoomRect is not null)
+                {
+                    Vector2 zoomTarget = GetViewportRect().Size/zoomRect.Value.Size;
+                    zoomTarget = Vector2.One*Mathf.Min(zoomTarget.X, zoomTarget.Y);
+                    if (Camera.Zoom > zoomTarget)
+                    {
+                        _prevZoom = Camera.Zoom;
+                        Camera.ZoomTarget = zoomTarget;
+                    }
+                }
             }
+
+            _state = State.SelectUnit;
             break;
         case State.SelectUnit:
             if (cell != _selected.Cell && _pathfinder.TraversableCells.Contains(cell))
@@ -119,6 +157,7 @@ public partial class Level : Node2D
                 (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = Vector4.Zero;
                 BoundedNode2D target = Camera.Target;
                 Camera.Target = _selected.MotionBox;
+                RestoreCameraZoom();
 
                 await ToSignal(_selected, Unit.SignalName.DoneMoving);
 
@@ -135,6 +174,7 @@ public partial class Level : Node2D
             }
             else
             {
+                RestoreCameraZoom();
                 DeselectUnit();
                 _state = State.Idle;
             }
@@ -267,8 +307,9 @@ public partial class Level : Node2D
         case State.SelectUnit or State.PostMove:
             if (@event.IsActionReleased(CancelAction))
             {
-                Rect2 selectedRect = Grid.CellRect(_selected.Cell);
+                RestoreCameraZoom();
 
+                Rect2 selectedRect = Grid.CellRect(_selected.Cell);
                 switch (DeviceManager.Mode)
                 {
                 case InputMode.Mouse:
@@ -284,6 +325,7 @@ public partial class Level : Node2D
                                 _selected.Position + Grid.CellSize/2,
                                 Camera.DeadZoneSmoothTime
                             );
+
                         if (!Camera.GetProjectedViewportRect().Intersects(selectedRect))
                         {
                             BoundedNode2D target = Camera.Target;
@@ -304,6 +346,7 @@ public partial class Level : Node2D
                         Pointer.Warp(selectedRect.GetCenter());
                     break;
                 }
+
                 DeselectUnit();
                 _state = State.Idle;
             }
