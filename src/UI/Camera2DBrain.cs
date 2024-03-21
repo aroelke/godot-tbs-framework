@@ -136,6 +136,7 @@ public partial class Camera2DBrain : Node2D
 
     private Camera2D _camera = null;
     private Camera2D Camera => _camera ??= GetNodeOrNull<Camera2D>("Camera2D");
+    private Rect2I _limits = new(-1000000, -1000000, 2000000, 2000000);
 
     private Vector2 _targetPreviousPosition = Vector2.Zero;
     private Tween _moveTween = null;
@@ -143,7 +144,6 @@ public partial class Camera2DBrain : Node2D
     private Vector2 _zoom = Vector2.One;
     private Vector2 _zoomTarget = Vector2.Zero;
     private Tween _zoomTween = null;
-    private Rect2I _limits = new(-1000000, -1000000, 2000000, 2000000);
 
     /// <summary>Object the camera is tracking. Can be null to not track anything.</summary>
     [Export] public BoundedNode2D Target = null;
@@ -232,7 +232,10 @@ public partial class Camera2DBrain : Node2D
                 if (_zoomTween.IsValid())
                     _zoomTween.Kill();
                 _zoomTween = CreateTween();
-                _zoomTween.SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.Out).TweenMethod(Callable.From((Vector2 zoom) => Camera.Zoom = _zoom = zoom), Zoom, _zoomTarget, ZoomDuration);
+                _zoomTween
+                    .SetTrans(Tween.TransitionType.Sine)
+                    .SetEase(Tween.EaseType.Out)
+                    .TweenMethod(Callable.From((Vector2 zoom) => Camera.Zoom = _zoom = zoom), Zoom, _zoomTarget, ZoomDuration);
             }
         }
     }
@@ -266,7 +269,7 @@ public partial class Camera2DBrain : Node2D
         _zoomTween = CreateTween();
         _zoomTween.Kill();
 
-        Position = Camera.GetScreenCenterPosition();
+        GlobalPosition = Camera.GetScreenCenterPosition();
     }
 
     public override void _Draw()
@@ -294,7 +297,7 @@ public partial class Camera2DBrain : Node2D
             }
 
             Rect2 localLimits = Engine.IsEditorHint() ? GetProjectedViewportRect() : (Rect2)Limits;
-            localLimits.Position -= Position;
+            localLimits.Position -= GlobalPosition;
 
             DrawLine(new Vector2(localLimits.Position.X, localDeadzone.Position.Y), new Vector2(localLimits.End.X, localDeadzone.Position.Y), Colors.Purple);
             DrawLine(new Vector2(localDeadzone.Position.X, localLimits.Position.Y), new Vector2(localDeadzone.Position.X, localLimits.End.Y), Colors.Purple);
@@ -302,6 +305,10 @@ public partial class Camera2DBrain : Node2D
             DrawLine(new Vector2(localDeadzone.End.X, localLimits.Position.Y), new Vector2(localDeadzone.End.X, localLimits.End.Y), Colors.Purple);
 
             FillInterior(localDeadzone, localLimits,  new(Colors.Purple.R, Colors.Purple.G, Colors.Purple.B, 0.25f));
+
+            Rect2 targetDeadzone = localDeadzone with { Size = localDeadzone.Size*Zoom/ZoomTarget };
+            targetDeadzone.Position += (localDeadzone.Size - targetDeadzone.Size)/2;
+            DrawRect(targetDeadzone, Colors.Blue, filled:false);
         }
 
         if (!Engine.IsEditorHint() && DrawTargets && Target is not null)
@@ -331,17 +338,19 @@ public partial class Camera2DBrain : Node2D
                         _moveTween.Kill();
 
                     Rect2 localDeadzone = ComputeDeadZone();
+                    Rect2 targetDeadzone = localDeadzone with { Size = localDeadzone.Size*Zoom/ZoomTarget };
+                    targetDeadzone.Position += (localDeadzone.Size - targetDeadzone.Size)/2;
                     Rect2 boxRelative = Target.GlobalBoundingBox with { Position = Target.GlobalPosition - Position };
-                    if (!localDeadzone.Contains(boxRelative, perimeter:true))
+                    if (!targetDeadzone.Contains(boxRelative, perimeter:true))
                     {
-                        Vector2 moveTarget = GetMoveTargetPosition(boxRelative, localDeadzone, GetTargetBounds());
+                        Vector2 moveTarget = GetMoveTargetPosition(boxRelative, targetDeadzone, GetTargetBounds());
                         if (moveTarget != Vector2.Zero)
                         {
                             _moveTween = CreateTween();
                             _moveTween
                                 .SetTrans(Tween.TransitionType.Cubic)
                                 .SetEase(Tween.EaseType.Out)
-                                .TweenProperty(this, PropertyName.Position.ToString(), Position + moveTarget, DeadZoneSmoothTime);
+                                .TweenProperty(this, PropertyName.GlobalPosition.ToString(), GlobalPosition + moveTarget, DeadZoneSmoothTime);
                             _moveTween.Finished += () => EmitSignal(SignalName.ReachedTarget);
                         }
                     }
