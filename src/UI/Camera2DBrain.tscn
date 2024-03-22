@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://dixhxpjk8n4y6"]
+
+[ext_resource type="Script" path="res://src/UI/Camera2DBrain.cs" id="1_oq6vh"]
+
+[node name="Camera2DBrain" type="Node2D"]
+z_index = 4096
+z_as_relative = false
+script = ExtResource("1_oq6vh")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+limit_left = -1000000
+limit_top = -1000000
+limit_right = 1000000
+limit_bottom = 1000000

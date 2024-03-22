@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://j6vriinotgdo"
-path="res://.godot/imported/GridNodeGroup.svg-3e077e1f5a2206bfbf9606ef96335aad.ctex"
+uid="uid://bf768fue0t5d1"
+path="res://.godot/imported/BoundedNode2D.svg-2944656958ea70104299979eb1a28de3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://icons/GridNodeGroup.svg"
-dest_files=["res://.godot/imported/GridNodeGroup.svg-3e077e1f5a2206bfbf9606ef96335aad.ctex"]
+source_file="res://icons/BoundedNode2D.svg"
+dest_files=["res://.godot/imported/BoundedNode2D.svg-2944656958ea70104299979eb1a28de3.ctex"]
 
 [params]
 

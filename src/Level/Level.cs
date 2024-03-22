@@ -7,6 +7,7 @@ using Level.Map;
 using Level.Object;
 using Level.Object.Group;
 using Level.UI;
+using Object;
 using UI;
 using UI.Controls.Action;
 using UI.Controls.Device;
@@ -32,6 +33,7 @@ public partial class Level : Node2D
 
     private Grid _map = null;
     private Overlay _overlay = null;
+    private Camera2DBrain _camera = null;
     private Cursor _cursor = null;
     private Pointer _pointer = null;
     private Vector2I _cursorPrev = Vector2I.Zero;
@@ -39,12 +41,23 @@ public partial class Level : Node2D
     private Unit _selected = null;
     private PathFinder _pathfinder = null;
     private ControlHint _cancelHint = null;
+    private Vector2? _prevZoom = null;
 
     private Grid Grid => _map ??= GetNode<Grid>("Grid");
     private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
+    private Camera2DBrain Camera => _camera ??= GetNode<Camera2DBrain>("Camera");
     private Cursor Cursor => _cursor ??= GetNode<Cursor>("Cursor");
     private Pointer Pointer => _pointer ??= GetNode<Pointer>("Pointer");
     private ControlHint CancelHint => _cancelHint ??= GetNode<ControlHint>("UserInterface/HUD/Hints/CancelHint");
+
+    private void RestoreCameraZoom()
+    {
+        if (_prevZoom is not null)
+        {
+            Camera.ZoomTarget = _prevZoom.Value;
+            _prevZoom = null;
+        }
+    }
 
     private void DeselectUnit()
     {
@@ -62,6 +75,25 @@ public partial class Level : Node2D
     /// <summary>Map cancel selection action reference (distinct from menu back/cancel).</summary>
     [Export] public InputActionReference CancelAction = new();
 
+    [ExportGroup("Camera/Zoom", "CameraZoom")]
+    [Export] public float CameraZoomDigitalFactor = 0.25f;
+
+    [Export] public float CameraZoomAnalogFactor = 2;
+
+    [ExportGroup("Camera/Input Actions", "CameraAction")]
+
+    /// <summary>Digital action to zoom the camera in.</summary>
+    [Export] public InputActionReference CameraActionDigitalZoomIn = new();
+
+    /// <summary>Analog action to zoom the camera in.</summary>
+    [Export] public InputActionReference CameraActionAnalogZoomIn = new();
+
+    /// <summary>Digital action to zoom the camera out.</summary>
+    [Export] public InputActionReference CameraActionDigitalZoomOut = new();
+
+    /// <summary>Analog action to zoom the camera out.</summary>
+    [Export] public InputActionReference CameraActionAnalogZoomOut = new();
+
     /// <summary>When a cell is selected, act based on what is or isn't in the cell.</summary>
     /// <param name="cell">Coordinates of the cell selection.</param>
     public async void OnCellSelected(Vector2I cell)
@@ -71,15 +103,43 @@ public partial class Level : Node2D
         case State.Idle:
             if (Grid.Occupants.ContainsKey(cell))
             {
+                // Update selected unit
                 _selected = Grid.Occupants[cell] as Unit;
                 _selected.IsSelected = true;
+
+                // Compute move/attack/support ranges for selected unit
                 _pathfinder = new(Grid, _selected);
                 Overlay.TraversableCells = _pathfinder.TraversableCells;
                 Overlay.AttackableCells = _pathfinder.AttackableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c));
                 Overlay.SupportableCells = _pathfinder.SupportableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c) && !_pathfinder.AttackableCells.Contains(c));
                 CancelHint.Visible = true;
-                _state = State.SelectUnit;
+
+                // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
+                Rect2? zoomRect = null;
+                void ExpandZoomRect(IEnumerable<Vector2I> cells)
+                {
+                    foreach (Vector2I c in cells)
+                    {
+                        Rect2 cellRect = Grid.CellRect(c);
+                        zoomRect = zoomRect?.Expand(cellRect.Position).Expand(cellRect.End) ?? cellRect;
+                    }
+                }
+                ExpandZoomRect(Overlay.TraversableCells);
+                ExpandZoomRect(Overlay.AttackableCells);
+                ExpandZoomRect(Overlay.SupportableCells);
+                if (zoomRect is not null)
+                {
+                    Vector2 zoomTarget = GetViewportRect().Size/zoomRect.Value.Size;
+                    zoomTarget = Vector2.One*Mathf.Min(zoomTarget.X, zoomTarget.Y);
+                    if (Camera.Zoom > zoomTarget)
+                    {
+                        _prevZoom = Camera.Zoom;
+                        Camera.ZoomTarget = zoomTarget;
+                    }
+                }
             }
+
+            _state = State.SelectUnit;
             break;
         case State.SelectUnit:
             if (cell != _selected.Cell && _pathfinder.TraversableCells.Contains(cell))
@@ -91,7 +151,19 @@ public partial class Level : Node2D
                 Overlay.Clear();
                 _pathfinder = null;
                 _state = State.UnitMoving;
+
+                // Track the unit as it's moving
+                Vector4 deadzone = new(Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight);
+                (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = Vector4.Zero;
+                BoundedNode2D target = Camera.Target;
+                Camera.Target = _selected.MotionBox;
+                RestoreCameraZoom();
+
                 await ToSignal(_selected, Unit.SignalName.DoneMoving);
+
+                // Restore the camera's old target
+                (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = deadzone;
+                Camera.Target = target;
 
                 // Show the unit's attack/support ranges
                 IEnumerable<Vector2I> attackable = PathFinder.GetCellsInRange(Grid, _selected.AttackRange, _selected.Cell);
@@ -102,6 +174,7 @@ public partial class Level : Node2D
             }
             else
             {
+                RestoreCameraZoom();
                 DeselectUnit();
                 _state = State.Idle;
             }
@@ -205,9 +278,10 @@ public partial class Level : Node2D
         {
             _state = State.Idle;
 
+            Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
             Cursor.Grid = Grid;
             _cursorPrev = Cursor.Cell;
-            Pointer.Bounds = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
+            Pointer.Bounds = Camera.Limits;
 
             foreach (Node child in GetChildren())
             {
@@ -225,7 +299,7 @@ public partial class Level : Node2D
         }
     }
 
-    public override void _Input(InputEvent @event)
+    public override async void _Input(InputEvent @event)
     {
         base._Input(@event);
         switch (_state)
@@ -233,13 +307,31 @@ public partial class Level : Node2D
         case State.SelectUnit or State.PostMove:
             if (@event.IsActionReleased(CancelAction))
             {
-                Rect2 selectedRect = Grid.CellRect(_selected.Cell);
+                RestoreCameraZoom();
 
+                Rect2 selectedRect = Grid.CellRect(_selected.Cell);
                 switch (DeviceManager.Mode)
                 {
                 case InputMode.Mouse:
                     if (!selectedRect.HasPoint(GetGlobalMousePosition()))
-                        Pointer.WarpMouse(selectedRect.GetCenter());
+                    {
+                        Tween tween = CreateTween();
+                        tween
+                            .SetTrans(Tween.TransitionType.Cubic)
+                            .SetEase(Tween.EaseType.Out)
+                            .TweenMethod(
+                                Callable.From((Vector2 position) => Input.WarpMouse(GetViewport().GetScreenTransform()*GetGlobalTransformWithCanvas()*position)),
+                                GetGlobalMousePosition(),
+                                _selected.Position + Grid.CellSize/2,
+                                Camera.DeadZoneSmoothTime
+                            );
+
+                        BoundedNode2D target = Camera.Target;
+                        Camera.Target = _selected;
+                        await ToSignal(Camera, Camera2DBrain.SignalName.ReachedTarget);
+                        tween.Kill();
+                        Camera.Target = target;
+                    }
                     break;
                 case InputMode.Digital:
                     Cursor.Cell = _selected.Cell;
@@ -249,10 +341,28 @@ public partial class Level : Node2D
                         Pointer.Warp(selectedRect.GetCenter());
                     break;
                 }
+
                 DeselectUnit();
                 _state = State.Idle;
             }
             break;
+        }
+
+        if (@event.IsActionPressed(CameraActionDigitalZoomIn))
+            Camera.ZoomTarget += Vector2.One*CameraZoomDigitalFactor;
+        if (@event.IsActionPressed(CameraActionDigitalZoomOut))
+            Camera.ZoomTarget -= Vector2.One*CameraZoomDigitalFactor;
+    }
+
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+
+        if (!Engine.IsEditorHint())
+        {
+            float zoom = Input.GetAxis(CameraActionAnalogZoomOut, CameraActionAnalogZoomIn);
+            if (zoom != 0)
+                Camera.Zoom += Vector2.One*(float)(CameraZoomAnalogFactor*zoom*delta);
         }
     }
 }

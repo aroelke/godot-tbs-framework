@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://j6vriinotgdo"
-path="res://.godot/imported/GridNodeGroup.svg-3e077e1f5a2206bfbf9606ef96335aad.ctex"
+uid="uid://dxciy6boi5ter"
+path="res://.godot/imported/Camera2DBrain.svg-55b89a1e039ba6f5bd5434fd5e2780af.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://icons/GridNodeGroup.svg"
-dest_files=["res://.godot/imported/GridNodeGroup.svg-3e077e1f5a2206bfbf9606ef96335aad.ctex"]
+source_file="res://icons/Camera2DBrain.svg"
+dest_files=["res://.godot/imported/Camera2DBrain.svg-55b89a1e039ba6f5bd5434fd5e2780af.ctex"]
 
 [params]
 

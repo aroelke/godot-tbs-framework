@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using Level.Object.Group;
+using Object;
 
 namespace Level.Object;
 
@@ -69,6 +70,12 @@ public partial class Unit : GridNode
         }
     }
 
+    /// <summary>
+    /// Box that travels with the motion of the sprite to use for tracking the unit as it moves.  Don't use the unit's actual position, as that
+    /// doesn't update until motion is over.
+    /// </summary>
+    public BoundedNode2D MotionBox { get; private set; } = null;
+
     /// <summary>Move the unit along a path of map cells.  Cells should be contiguous.</summary>
     /// <param name="path">Coordinates of the cells to move along.</param>
     public void MoveAlong(List<Vector2I> path)
@@ -89,6 +96,8 @@ public partial class Unit : GridNode
         if (!Engine.IsEditorHint())
         {
             Path.Curve = new();
+            MotionBox = GetNode<BoundedNode2D>("Path/PathFollow/Bounds");
+            MotionBox.Size = Size;
             SetProcess(false);
         }
     }
