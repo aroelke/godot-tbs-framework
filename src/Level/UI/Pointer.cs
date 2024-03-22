@@ -166,6 +166,8 @@ public partial class Pointer : BoundedNode2D
             DeviceManager.Singleton.InputModeChanged += OnInputModeChanged;
             InputManager.Singleton.MouseEntered += OnMouseEntered;
             InputManager.Singleton.MouseExited += OnMouseExited;
+
+            GetViewport().SizeChanged += () => _mouse.Scale = (GetViewport().GetScreenTransform() with { Origin = Vector2.Zero }).AffineInverse()*Vector2.One;
         }
     }
 
