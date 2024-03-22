@@ -30,12 +30,12 @@ public partial class Pointer : BoundedNode2D
     /// <summary>Convert a position in the level to a position in the viewport.</summary>
     /// <param name="world">Level position.</param>
     /// <returns>Position in the viewport that's at the same place as the one in the level.</returns>
-    private Vector2 WorldToViewport(Vector2 world) => Parent.GetGlobalTransform()*Parent.GetCanvasTransform()*world;
+    private Vector2 WorldToViewport(Vector2 world) => Parent.GetGlobalTransformWithCanvas()*world;
 
     /// <summary>Convert a position in the viewport to a position in the level.</summary>
     /// <param name="viewport">Viewport position.</param>
     /// <returns>Position in the level that's at the same place as the one in the viewport.</returns>
-    private Vector2 ViewportToWorld(Vector2 viewport) => (Parent.GetGlobalTransform()*Parent.GetCanvasTransform()).AffineInverse()*viewport;
+    private Vector2 ViewportToWorld(Vector2 viewport) => Parent.GetGlobalTransformWithCanvas().AffineInverse()*viewport;
 
     /// <summary>Bounding rectangle where the cursor is allowed to move.</summary>
     [Export] public Rect2I Bounds
@@ -117,7 +117,7 @@ public partial class Pointer : BoundedNode2D
         case InputMode.Mouse:
             _mouse.Visible = false;
             Input.MouseMode = Input.MouseModeEnum.Visible;
-            Input.WarpMouse(WorldToViewport(Position));
+            Input.WarpMouse(GetViewport().GetScreenTransform()*WorldToViewport(Position));
             break;
         case InputMode.Analog:
             _mouse.Visible = true;
