@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using Level.Map;
 
 namespace Level.UI;
 
@@ -82,6 +83,26 @@ public partial class Overlay : TileMap
                 });
             }
         }
+    }
+
+    /// <summary> Compute the rectangle the encloses the movement, support, and attack ranges of the overlay. </summary>
+    /// <param name="grid">Grid defining cell sizes that the rectangle encloses.</param>
+    /// <returns>The minimum rectangle that encloses all the cells, or <c>null</c> if all the ranges are empty.</returns>
+    public Rect2? GetEnclosingRect(Grid grid)
+    {
+        Rect2? enclosure = null;
+        void ExpandZoomRect(IEnumerable<Vector2I> cells)
+        {
+            foreach (Vector2I c in cells)
+            {
+                Rect2 cellRect = grid.CellRect(c);
+                enclosure = enclosure?.Expand(cellRect.Position).Expand(cellRect.End) ?? cellRect;
+            }
+        }
+        ExpandZoomRect(TraversableCells);
+        ExpandZoomRect(AttackableCells);
+        ExpandZoomRect(SupportableCells);
+        return enclosure;
     }
 
     public override void _Ready()

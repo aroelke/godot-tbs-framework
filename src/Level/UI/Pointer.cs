@@ -78,6 +78,13 @@ public partial class Pointer : BoundedNode2D
     [ExportGroup("Input Actions/Movement")]
     [Export] public InputActionReference AccelerateAction = new();
 
+    /// <summary>Position of the pointer relative to the viewport.</summary>
+    public Vector2 ViewportPosition
+    {
+        get => WorldToViewport(GlobalPosition);
+        set => GlobalPosition = ViewportToWorld(value);
+    }
+
     /// <summary>The pointer is just a point, but it has to have a zero area so the camera can focus on it.</summary>
     public override Vector2 Size { get => Vector2.Zero; set {}}
 
@@ -92,22 +99,6 @@ public partial class Pointer : BoundedNode2D
         }
     }
 
-    /// <summary>
-    /// Move the cursor to a new location that's not bounded by <c>Bounds</c>, and update listeners that the move occurred. If input is controlled by the mouse,
-    /// this will also warp the mouse to the pointer's position, moving the camera if necessary (the camera moves instantly with no smoothing in this case).
-    /// </summary>
-    /// <param name="position">Position to warp to.</param>
-    public void WarpMouse(Vector2 position)
-    {
-        if (DeviceManager.Mode != InputMode.Mouse)
-            GD.PushWarning("Warping the mouse when not controlling via mouse.");
-
-        if (Position != position)
-        {
-            Warp(position);
-        }
-    }
-
     /// <summary>When the input mode changes, update visibility and move things around to make sure real/virtual mouse positions are consistent.</summary>
     /// <param name="mode">New input mode.</param>
     public void OnInputModeChanged(InputMode mode)
@@ -117,7 +108,7 @@ public partial class Pointer : BoundedNode2D
         case InputMode.Mouse:
             _mouse.Visible = false;
             Input.MouseMode = Input.MouseModeEnum.Visible;
-            Input.WarpMouse(GetViewport().GetScreenTransform()*WorldToViewport(Position));
+            GetViewport().WarpMouse(WorldToViewport(Position));
             break;
         case InputMode.Analog:
             _mouse.Visible = true;
@@ -166,6 +157,8 @@ public partial class Pointer : BoundedNode2D
             DeviceManager.Singleton.InputModeChanged += OnInputModeChanged;
             InputManager.Singleton.MouseEntered += OnMouseEntered;
             InputManager.Singleton.MouseExited += OnMouseExited;
+
+            GetViewport().SizeChanged += () => _mouse.Scale = (GetViewport().GetScreenTransform() with { Origin = Vector2.Zero }).AffineInverse()*Vector2.One;
         }
     }
 

@@ -115,18 +115,7 @@ public partial class Level : Node2D
                 CancelHint.Visible = true;
 
                 // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
-                Rect2? zoomRect = null;
-                void ExpandZoomRect(IEnumerable<Vector2I> cells)
-                {
-                    foreach (Vector2I c in cells)
-                    {
-                        Rect2 cellRect = Grid.CellRect(c);
-                        zoomRect = zoomRect?.Expand(cellRect.Position).Expand(cellRect.End) ?? cellRect;
-                    }
-                }
-                ExpandZoomRect(Overlay.TraversableCells);
-                ExpandZoomRect(Overlay.AttackableCells);
-                ExpandZoomRect(Overlay.SupportableCells);
+                Rect2? zoomRect = Overlay.GetEnclosingRect(Grid);
                 if (zoomRect is not null)
                 {
                     Vector2 zoomTarget = GetViewportRect().Size/zoomRect.Value.Size;
@@ -320,15 +309,18 @@ public partial class Level : Node2D
                             .SetTrans(Tween.TransitionType.Cubic)
                             .SetEase(Tween.EaseType.Out)
                             .TweenMethod(
-                                Callable.From((Vector2 position) => Input.WarpMouse(GetViewport().GetScreenTransform()*GetGlobalTransformWithCanvas()*position)),
-                                GetGlobalMousePosition(),
+                                Callable.From((Vector2 position) => {
+                                    Pointer.Position = position;
+                                    GetViewport().WarpMouse(Pointer.ViewportPosition);
+                                }),
+                                Pointer.Position,
                                 _selected.Position + Grid.CellSize/2,
                                 Camera.DeadZoneSmoothTime
                             );
 
                         BoundedNode2D target = Camera.Target;
                         Camera.Target = _selected;
-                        await ToSignal(Camera, Camera2DBrain.SignalName.ReachedTarget);
+                        await ToSignal(tween, Tween.SignalName.Finished);
                         tween.Kill();
                         Camera.Target = target;
                     }
