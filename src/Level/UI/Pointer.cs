@@ -92,22 +92,6 @@ public partial class Pointer : BoundedNode2D
         }
     }
 
-    /// <summary>
-    /// Move the cursor to a new location that's not bounded by <c>Bounds</c>, and update listeners that the move occurred. If input is controlled by the mouse,
-    /// this will also warp the mouse to the pointer's position, moving the camera if necessary (the camera moves instantly with no smoothing in this case).
-    /// </summary>
-    /// <param name="position">Position to warp to.</param>
-    public void WarpMouse(Vector2 position)
-    {
-        if (DeviceManager.Mode != InputMode.Mouse)
-            GD.PushWarning("Warping the mouse when not controlling via mouse.");
-
-        if (Position != position)
-        {
-            Warp(position);
-        }
-    }
-
     /// <summary>When the input mode changes, update visibility and move things around to make sure real/virtual mouse positions are consistent.</summary>
     /// <param name="mode">New input mode.</param>
     public void OnInputModeChanged(InputMode mode)
@@ -117,7 +101,7 @@ public partial class Pointer : BoundedNode2D
         case InputMode.Mouse:
             _mouse.Visible = false;
             Input.MouseMode = Input.MouseModeEnum.Visible;
-            Input.WarpMouse(GetViewport().GetScreenTransform()*WorldToViewport(Position));
+            GetViewport().WarpMouse(WorldToViewport(Position));
             break;
         case InputMode.Analog:
             _mouse.Visible = true;
