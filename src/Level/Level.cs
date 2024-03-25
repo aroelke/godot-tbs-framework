@@ -320,7 +320,7 @@ public partial class Level : Node2D
 
                         BoundedNode2D target = Camera.Target;
                         Camera.Target = _selected;
-                        await ToSignal(Camera, Camera2DBrain.SignalName.ReachedTarget);
+                        await ToSignal(tween, Tween.SignalName.Finished);
                         tween.Kill();
                         Camera.Target = target;
                     }
