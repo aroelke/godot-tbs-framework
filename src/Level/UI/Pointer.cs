@@ -78,6 +78,13 @@ public partial class Pointer : BoundedNode2D
     [ExportGroup("Input Actions/Movement")]
     [Export] public InputActionReference AccelerateAction = new();
 
+    /// <summary>Position of the pointer relative to the viewport.</summary>
+    public Vector2 ViewportPosition
+    {
+        get => WorldToViewport(GlobalPosition);
+        set => GlobalPosition = ViewportToWorld(value);
+    }
+
     /// <summary>The pointer is just a point, but it has to have a zero area so the camera can focus on it.</summary>
     public override Vector2 Size { get => Vector2.Zero; set {}}
 

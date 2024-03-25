@@ -309,8 +309,11 @@ public partial class Level : Node2D
                             .SetTrans(Tween.TransitionType.Cubic)
                             .SetEase(Tween.EaseType.Out)
                             .TweenMethod(
-                                Callable.From((Vector2 position) => GetViewport().WarpMouse(GetGlobalTransformWithCanvas()*position)),
-                                GetGlobalMousePosition(),
+                                Callable.From((Vector2 position) => {
+                                    Pointer.Position = position;
+                                    GetViewport().WarpMouse(Pointer.ViewportPosition);
+                                }),
+                                Pointer.Position,
                                 _selected.Position + Grid.CellSize/2,
                                 Camera.DeadZoneSmoothTime
                             );
