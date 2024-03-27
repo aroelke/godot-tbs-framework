@@ -9,6 +9,9 @@ namespace Level.Object.Group;
 [Tool]
 public partial class Army : GridNodeGroup, IEnumerable<Unit>
 {
+    /// <summary>Color to use for units in this army.</summary>
+    [Export] public Color Color = Colors.White;
+
     /// <summary>Armies to which this army is allied (not including itself).</summary>
     public Army[] Allies = Array.Empty<Army>();
 
