@@ -131,41 +131,44 @@ public partial class Level : Node2D
             _state = State.SelectUnit;
             break;
         case State.SelectUnit:
-            if (cell != _selected.Cell && _pathfinder.TraversableCells.Contains(cell))
+            if (cell == _selected.Cell || !Grid.Occupants.ContainsKey(cell))
             {
-                // Move the unit and wait for it to finish moving, and then delete the pathfinder as we don't need it anymore
-                Grid.Occupants.Remove(_selected.Cell);
-                _selected.MoveAlong(_pathfinder.Path);
-                Grid.Occupants[_selected.Cell] = _selected;
-                Overlay.Clear();
-                _pathfinder = null;
-                _state = State.UnitMoving;
+                if (cell != _selected.Cell && _pathfinder.TraversableCells.Contains(cell))
+                {
+                    // Move the unit and wait for it to finish moving, and then delete the pathfinder as we don't need it anymore
+                    Grid.Occupants.Remove(_selected.Cell);
+                    _selected.MoveAlong(_pathfinder.Path);
+                    Grid.Occupants[_selected.Cell] = _selected;
+                    Overlay.Clear();
+                    _pathfinder = null;
+                    _state = State.UnitMoving;
 
-                // Track the unit as it's moving
-                Vector4 deadzone = new(Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight);
-                (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = Vector4.Zero;
-                BoundedNode2D target = Camera.Target;
-                Camera.Target = _selected.MotionBox;
-                RestoreCameraZoom();
+                    // Track the unit as it's moving
+                    Vector4 deadzone = new(Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight);
+                    (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = Vector4.Zero;
+                    BoundedNode2D target = Camera.Target;
+                    Camera.Target = _selected.MotionBox;
+                    RestoreCameraZoom();
 
-                await ToSignal(_selected, Unit.SignalName.DoneMoving);
+                    await ToSignal(_selected, Unit.SignalName.DoneMoving);
 
-                // Restore the camera's old target
-                (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = deadzone;
-                Camera.Target = target;
+                    // Restore the camera's old target
+                    (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = deadzone;
+                    Camera.Target = target;
 
-                // Show the unit's attack/support ranges
-                IEnumerable<Vector2I> attackable = PathFinder.GetCellsInRange(Grid, _selected.AttackRange, _selected.Cell);
-                IEnumerable<Vector2I> supportable = PathFinder.GetCellsInRange(Grid, _selected.SupportRange, _selected.Cell);
-                Overlay.AttackableCells = attackable;
-                Overlay.SupportableCells = supportable.Where((c) => !attackable.Contains(c));
-                _state = State.PostMove;
-            }
-            else
-            {
-                RestoreCameraZoom();
-                DeselectUnit();
-                _state = State.Idle;
+                    // Show the unit's attack/support ranges
+                    IEnumerable<Vector2I> attackable = PathFinder.GetCellsInRange(Grid, _selected.AttackRange, _selected.Cell);
+                    IEnumerable<Vector2I> supportable = PathFinder.GetCellsInRange(Grid, _selected.SupportRange, _selected.Cell);
+                    Overlay.AttackableCells = attackable;
+                    Overlay.SupportableCells = supportable.Where((c) => !attackable.Contains(c));
+                    _state = State.PostMove;
+                }
+                else
+                {
+                    RestoreCameraZoom();
+                    DeselectUnit();
+                    _state = State.Idle;
+                }
             }
             break;
         case State.PostMove:
