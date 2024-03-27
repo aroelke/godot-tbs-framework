@@ -16,6 +16,7 @@ layer_1/tile_data = PackedInt32Array(589833, 0, 4, 655369, 0, 5, 589834, 65536, 
 DefaultTerrain = ExtResource("3_ft5ge")
 
 [node name="PlayerArmy" parent="Level" instance=ExtResource("4_xrn4s")]
+Color = Color(0, 0.498039, 1, 1)
 
 [node name="Unit" parent="Level/PlayerArmy" node_paths=PackedStringArray("Affiliation", "Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(192, 160)

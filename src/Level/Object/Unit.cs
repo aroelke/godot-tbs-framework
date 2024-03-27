@@ -18,7 +18,9 @@ public partial class Unit : GridNode
 
     private Path2D _path = null;
     private PathFollow2D _follow = null;
+    private Sprite2D _sprite = null;
     private AnimationPlayer _animation = null;
+    private Army _affiliation = null;
     private bool _selected = false;
     private bool _moving = false;
 
@@ -36,7 +38,16 @@ public partial class Unit : GridNode
     [Export] public int[] SupportRange = new[] { 1, 2, 3 };
 
     /// <summary>Army to which this unit belongs, to determine its allies and enemies.</summary>
-    [Export] public Army Affiliation = null;
+    [Export] public Army Affiliation
+    {
+        get => _affiliation;
+        set
+        {
+            _affiliation = value;
+            if (_sprite is not null && _affiliation is not null)
+                _sprite.Modulate = _affiliation.Color;
+        }
+    }
 
     /// <summary>Speed, in world pixels/second, to move along the path while moving.</summary>
     [Export] public double MoveSpeed = 320;
@@ -93,6 +104,10 @@ public partial class Unit : GridNode
     {
         base._Ready();
 
+        _sprite = GetNode<Sprite2D>("Path/PathFollow/Sprite");
+        if (_affiliation is not null)
+            _sprite.Modulate = _affiliation.Color;
+
         if (!Engine.IsEditorHint())
         {
             Path.Curve = new();
@@ -130,6 +145,11 @@ public partial class Unit : GridNode
                 IsSelected = _selected; // Go back to standing animation (idle/selected)
                 EmitSignal(SignalName.DoneMoving);
             }
+        }
+        else
+        {
+            if (_affiliation is not null)
+                _sprite.Modulate = _affiliation.Color;
         }
     }
 }
