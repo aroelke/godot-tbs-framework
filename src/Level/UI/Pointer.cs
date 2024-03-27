@@ -81,8 +81,8 @@ public partial class Pointer : BoundedNode2D
     /// <summary>Position of the pointer relative to the viewport.</summary>
     public Vector2 ViewportPosition
     {
-        get => WorldToViewport(GlobalPosition);
-        set => GlobalPosition = ViewportToWorld(value);
+        get => Engine.IsEditorHint() ? GlobalPosition : WorldToViewport(GlobalPosition);
+        set => GlobalPosition = Engine.IsEditorHint() ? value : ViewportToWorld(value);
     }
 
     /// <summary>The pointer is just a point, but it has to have a zero area so the camera can focus on it.</summary>
