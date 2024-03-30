@@ -1,8 +1,12 @@
-[gd_scene load_steps=12 format=3 uid="uid://b0cvutx2lj5uy"]
+[gd_scene load_steps=16 format=3 uid="uid://b0cvutx2lj5uy"]
 
 [ext_resource type="Script" path="res://src/Level/Object/Unit.cs" id="1_crlbh"]
 [ext_resource type="Texture2D" uid="uid://3oc7r54iby4a" path="res://assets/level/unit/soldier.png" id="2_ipnjg"]
 [ext_resource type="Script" path="res://src/Object/BoundedNode2D.cs" id="3_pmja0"]
+[ext_resource type="Script" path="res://addons/godot_state_charts/state_chart.gd" id="4_6bp8w"]
+[ext_resource type="Script" path="res://addons/godot_state_charts/compound_state.gd" id="5_0muba"]
+[ext_resource type="Script" path="res://addons/godot_state_charts/animation_player_state.gd" id="6_suod6"]
+[ext_resource type="Script" path="res://addons/godot_state_charts/transition.gd" id="7_g4o4f"]
 
 [sub_resource type="Animation" id="Animation_yixnx"]
 length = 0.001
@@ -241,3 +245,124 @@ libraries = {
 "": SubResource("AnimationLibrary_txw1y")
 }
 autoplay = "idle"
+
+[node name="State" type="Node" parent="."]
+script = ExtResource("4_6bp8w")
+
+[node name="Root" type="Node" parent="State"]
+script = ExtResource("5_0muba")
+initial_state = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="State/Root"]
+script = ExtResource("6_suod6")
+animation_player = NodePath("../../../Animation")
+animation_name = &"idle"
+
+[node name="ToSelected" type="Node" parent="State/Root/Idle"]
+script = ExtResource("7_g4o4f")
+to = NodePath("../../Selected")
+event = &"select"
+
+[node name="Selected" type="Node" parent="State/Root"]
+script = ExtResource("6_suod6")
+animation_player = NodePath("../../../Animation")
+animation_name = &"selected"
+
+[node name="ToIdle" type="Node" parent="State/Root/Selected"]
+script = ExtResource("7_g4o4f")
+to = NodePath("../../Idle")
+event = &"deselect"
+
+[node name="ToMoving" type="Node" parent="State/Root/Selected"]
+script = ExtResource("7_g4o4f")
+to = NodePath("../../Moving")
+event = &"move"
+
+[node name="Moving" type="Node" parent="State/Root"]
+script = ExtResource("5_0muba")
+initial_state = NodePath("Down")
+
+[node name="Down" type="Node" parent="State/Root/Moving"]
+script = ExtResource("6_suod6")
+animation_player = NodePath("../../../../Animation")
+animation_name = &"down"
+
+[node name="ToLeft" type="Node" parent="State/Root/Moving/Down"]
+script = ExtResource("7_g4o4f")
+to = NodePath("../../Left")
+event = &"left"
+
+[node name="ToRight" type="Node" parent="State/Root/Moving/Down"]
+script = ExtResource("7_g4o4f")
+to = NodePath("../../Right")
+event = &"right"
+
+[node name="ToUp" type="Node" parent="State/Root/Moving/Down"]
+script = ExtResource("7_g4o4f")
+to = NodePath("../../Up")
+event = &"up"
+
+[node name="Left" type="Node" parent="State/Root/Moving"]
+script = ExtResource("6_suod6")
+animation_player = NodePath("../../../../Animation")
+animation_name = &"left"
+
+[node name="ToRight" type="Node" parent="State/Root/Moving/Left"]
+script = ExtResource("7_g4o4f")
+to = NodePath("../../Right")
+event = &"right"
+
+[node name="ToUp" type="Node" parent="State/Root/Moving/Left"]
+script = ExtResource("7_g4o4f")
+to = NodePath("../../Up")
+event = &"up"
+
+[node name="ToDown" type="Node" parent="State/Root/Moving/Left"]
+script = ExtResource("7_g4o4f")
+to = NodePath("../../Down")
+event = &"down"
+
+[node name="Right" type="Node" parent="State/Root/Moving"]
+script = ExtResource("6_suod6")
+animation_player = NodePath("../../../../Animation")
+animation_name = &"right"
+
+[node name="ToLeft" type="Node" parent="State/Root/Moving/Right"]
+script = ExtResource("7_g4o4f")
+to = NodePath("../../Left")
+event = &"left"
+
+[node name="ToUp" type="Node" parent="State/Root/Moving/Right"]
+script = ExtResource("7_g4o4f")
+to = NodePath("../../Up")
+event = &"up"
+
+[node name="ToDown" type="Node" parent="State/Root/Moving/Right"]
+script = ExtResource("7_g4o4f")
+to = NodePath("../../Down")
+event = &"down"
+
+[node name="Up" type="Node" parent="State/Root/Moving"]
+script = ExtResource("6_suod6")
+animation_player = NodePath("../../../../Animation")
+animation_name = &"up"
+
+[node name="ToLeft" type="Node" parent="State/Root/Moving/Up"]
+script = ExtResource("7_g4o4f")
+to = NodePath("../../Left")
+event = &"left"
+
+[node name="ToRight" type="Node" parent="State/Root/Moving/Up"]
+script = ExtResource("7_g4o4f")
+to = NodePath("../../Right")
+event = &"right"
+
+[node name="ToDown" type="Node" parent="State/Root/Moving/Up"]
+script = ExtResource("7_g4o4f")
+to = NodePath("../../Down")
+event = &"down"
+
+[node name="ToSelected" type="Node" parent="State/Root/Moving"]
+script = ExtResource("7_g4o4f")
+to = NodePath("../../Selected")
+event = &"stop"

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using GodotStateCharts;
 using Level.Object.Group;
 using Object;
 
@@ -16,6 +17,7 @@ public partial class Unit : GridNode
     /// <summary>Signal that the unit is done moving along its path.</summary>
     [Signal] public delegate void DoneMovingEventHandler();
 
+    private StateChart _state = null;
     private Path2D _path = null;
     private PathFollow2D _follow = null;
     private Sprite2D _sprite = null;
@@ -26,7 +28,6 @@ public partial class Unit : GridNode
 
     private Path2D Path => _path = GetNode<Path2D>("Path");
     private PathFollow2D PathFollow => _follow = GetNode<PathFollow2D>("Path/PathFollow");
-    private AnimationPlayer Animation => _animation = GetNode<AnimationPlayer>("Animation");
 
     /// <summary>Movement range of the unit, in grid cells.</summary>
     [Export] public int MoveRange = 5;
@@ -61,10 +62,7 @@ public partial class Unit : GridNode
             _selected = value;
             if (!Engine.IsEditorHint())
             {
-                if (_selected)
-                    Animation.Play("selected");
-                else
-                    Animation.Play("idle");
+                _state.SendEvent(_selected ? "select" : "deselect");
             }
         }
     }
@@ -96,6 +94,7 @@ public partial class Unit : GridNode
             foreach (Vector2I cell in path)
                 Path.Curve.AddPoint(Grid.PositionOf(cell) - Position);
             Cell = path.Last();
+            _state.SendEvent("move");
             IsMoving = true;
         }
     }
@@ -103,6 +102,8 @@ public partial class Unit : GridNode
     public override void _Ready()
     {
         base._Ready();
+
+        _state = StateChart.Of(GetNode("State"));
 
         _sprite = GetNode<Sprite2D>("Path/PathFollow/Sprite");
         if (_affiliation is not null)
@@ -125,19 +126,18 @@ public partial class Unit : GridNode
         {
             Vector2 prev = PathFollow.Position;
             PathFollow.Progress += (float)(MoveSpeed*delta);
-            string animation = (PathFollow.Position - prev) switch
+            _state.SendEvent((PathFollow.Position - prev) switch
             {
                 Vector2(_, <0) => "up",
                 Vector2(<0, _) => "left",
                 Vector2(_, >0) => "down",
                 Vector2(>0, _) => "right",
-                _ => "idle"
-            };
-            if (Animation.CurrentAnimation != animation)
-                Animation.Play(animation);
+                _ => ""
+            });
 
             if (PathFollow.ProgressRatio >= 1)
             {
+                _state.SendEvent("stop");
                 IsMoving = false;
                 PathFollow.Progress = 0;
                 Position = Grid.PositionOf(Cell);
