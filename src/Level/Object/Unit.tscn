@@ -366,3 +366,6 @@ event = &"down"
 script = ExtResource("7_g4o4f")
 to = NodePath("../../Selected")
 event = &"stop"
+
+[connection signal="child_state_entered" from="State/Root/Moving" to="." method="OnMovingEntered"]
+[connection signal="child_state_exited" from="State/Root/Moving" to="." method="OnMovingExited"]

@@ -76,18 +76,6 @@ public partial class Unit : GridNode
         }
     }
 
-    /// <summary>Whether or not the unit is currently moving along the path.</summary>
-    public bool IsMoving
-    {
-        get => _moving;
-        set
-        {
-            _moving = value;
-            if (!Engine.IsEditorHint())
-                SetProcess(_moving);
-        }
-    }
-
     /// <summary>
     /// Box that travels with the motion of the sprite to use for tracking the unit as it moves.  Don't use the unit's actual position, as that
     /// doesn't update until motion is over.
@@ -104,9 +92,14 @@ public partial class Unit : GridNode
                 Path.Curve.AddPoint(Grid.PositionOf(cell) - Position);
             Cell = path.Last();
             _state.SendEvent("move");
-            IsMoving = true;
         }
     }
+
+    /// <summary>Start moving along the path when entering the "moving" state.</summary>
+    public void OnMovingEntered() => SetProcess(true);
+
+    /// <summary>Stop moving along the path when entering the "moving" state.</summary>
+    public void OnMovingExited() => SetProcess(false);
 
     public override void _Ready()
     {
@@ -147,7 +140,6 @@ public partial class Unit : GridNode
             if (PathFollow.ProgressRatio >= 1)
             {
                 _state.SendEvent("stop");
-                IsMoving = false;
                 PathFollow.Progress = 0;
                 Position = Grid.PositionOf(Cell);
                 Path.Curve.ClearPoints();
