@@ -22,9 +22,7 @@ public partial class Unit : GridNode
     private Path2D _path = null;
     private PathFollow2D _follow = null;
     private Sprite2D _sprite = null;
-    private AnimationPlayer _animation = null;
     private Army _affiliation = null;
-    private bool _moving = false;
 
     private Path2D Path => _path = GetNode<Path2D>("Path");
     private PathFollow2D PathFollow => _follow = GetNode<PathFollow2D>("Path/PathFollow");
