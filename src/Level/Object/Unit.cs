@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using Godot;
 using GodotStateCharts;
 using Level.Object.Group;
@@ -14,6 +15,16 @@ namespace Level.Object;
 [Tool]
 public partial class Unit : GridNode
 {
+    private const string SelectEvent = "select";
+    private const string DeselectEvent = "deselect";
+    private const string MoveEvent = "move";
+    private const string MoveDownEvent = "down";
+    private const string MoveLeftEvent = "left";
+    private const string MoveRightEvent = "right";
+    private const string MoveUpEvent = "up";
+    private const string StopEvent = "stop";
+    private const string WaitEvent = "wait";
+
     /// <summary>Signal that the unit is done moving along its path.</summary>
     [Signal] public delegate void DoneMovingEventHandler();
 
@@ -58,7 +69,7 @@ public partial class Unit : GridNode
         set
         {
             if (!Engine.IsEditorHint())
-                _state.SendEvent(value ? "select" : "deselect");
+                _state.SendEvent(value ? SelectEvent : DeselectEvent);
         }
     }
 
@@ -77,7 +88,7 @@ public partial class Unit : GridNode
             foreach (Vector2I cell in path)
                 Path.Curve.AddPoint(Grid.PositionOf(cell) - Position);
             Cell = path.Last();
-            _state.SendEvent("move");
+            _state.SendEvent(MoveEvent);
         }
     }
 
@@ -117,16 +128,16 @@ public partial class Unit : GridNode
             PathFollow.Progress += (float)(MoveSpeed*delta);
             _state.SendEvent((PathFollow.Position - prev) switch
             {
-                Vector2(_, <0) => "up",
-                Vector2(<0, _) => "left",
-                Vector2(_, >0) => "down",
-                Vector2(>0, _) => "right",
+                Vector2(_, <0) => MoveUpEvent,
+                Vector2(<0, _) => MoveLeftEvent,
+                Vector2(_, >0) => MoveDownEvent,
+                Vector2(>0, _) => MoveRightEvent,
                 _ => ""
             });
 
             if (PathFollow.ProgressRatio >= 1)
             {
-                _state.SendEvent("stop");
+                _state.SendEvent(StopEvent);
                 PathFollow.Progress = 0;
                 Position = Grid.PositionOf(Cell);
                 Path.Curve.ClearPoints();
