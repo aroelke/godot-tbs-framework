@@ -23,7 +23,6 @@ public partial class Unit : GridNode
     private Sprite2D _sprite = null;
     private AnimationPlayer _animation = null;
     private Army _affiliation = null;
-    private bool _selected = false;
     private bool _moving = false;
 
     private Path2D Path => _path = GetNode<Path2D>("Path");
@@ -56,14 +55,24 @@ public partial class Unit : GridNode
     /// <summary>Whether or not this unit has been selected and is awaiting instruction. Changing it toggles the selected animation.</summary>
     public bool IsSelected
     {
-        get => _selected;
+        get
+        {
+            if (Engine.IsEditorHint())
+                return false;
+            else
+            {
+                Node node = GetNode("State/Root/Idle");
+                if (node is null)
+                    return false;
+                else
+                    return StateChartState.Of(node).Active;
+            }
+        }
+
         set
         {
-            _selected = value;
             if (!Engine.IsEditorHint())
-            {
-                _state.SendEvent(_selected ? "select" : "deselect");
-            }
+                _state.SendEvent(value ? "select" : "deselect");
         }
     }
 
@@ -142,7 +151,6 @@ public partial class Unit : GridNode
                 PathFollow.Progress = 0;
                 Position = Grid.PositionOf(Cell);
                 Path.Curve.ClearPoints();
-                IsSelected = _selected; // Go back to standing animation (idle/selected)
                 EmitSignal(SignalName.DoneMoving);
             }
         }
