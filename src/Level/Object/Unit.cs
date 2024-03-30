@@ -18,6 +18,7 @@ public partial class Unit : GridNode
     [Signal] public delegate void DoneMovingEventHandler();
 
     private StateChart _state = null;
+    private StateChartState _idleState = null;
     private Path2D _path = null;
     private PathFollow2D _follow = null;
     private Sprite2D _sprite = null;
@@ -55,20 +56,7 @@ public partial class Unit : GridNode
     /// <summary>Whether or not this unit has been selected and is awaiting instruction. Changing it toggles the selected animation.</summary>
     public bool IsSelected
     {
-        get
-        {
-            if (Engine.IsEditorHint())
-                return false;
-            else
-            {
-                Node node = GetNode("State/Root/Idle");
-                if (node is null)
-                    return false;
-                else
-                    return StateChartState.Of(node).Active;
-            }
-        }
-
+        get => !Engine.IsEditorHint() && (_idleState?.Active ?? false);
         set
         {
             if (!Engine.IsEditorHint())
@@ -106,6 +94,7 @@ public partial class Unit : GridNode
         base._Ready();
 
         _state = StateChart.Of(GetNode("State"));
+        _idleState = StateChartState.Of(GetNode("State/Root/Idle"));
 
         _sprite = GetNode<Sprite2D>("Path/PathFollow/Sprite");
         if (_affiliation is not null)
