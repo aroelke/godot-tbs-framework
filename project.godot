@@ -30,6 +30,10 @@ mouse_cursor/custom_image="res://assets/ui/mouse.png"
 
 project/assembly_name="SRPG"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot_state_charts/plugin.cfg")
+
 [input]
 
 "Global.Move Cursor Up"={
