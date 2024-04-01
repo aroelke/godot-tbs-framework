@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using Godot;
+using GodotStateCharts;
 using Level.Map;
 using Level.Object;
 using Level.Object.Group;
@@ -31,6 +32,7 @@ public partial class Level : Node2D
         PostMove
     }
 
+    private StateChart _chart = null;
     private Grid _map = null;
     private Overlay _overlay = null;
     private Camera2DBrain _camera = null;
@@ -94,88 +96,133 @@ public partial class Level : Node2D
     /// <summary>Analog action to zoom the camera out.</summary>
     [Export] public InputActionReference CameraActionAnalogZoomOut = new();
 
-    /// <summary>When a cell is selected, act based on what is or isn't in the cell.</summary>
-    /// <param name="cell">Coordinates of the cell selection.</param>
-    public async void OnCellSelected(Vector2I cell)
+    /// <summary>Deselect any units and clear drawn ranges.</summary>
+    public void OnIdleEntered()
     {
-        switch (_state)
+        if (_selected is not null)
         {
-        case State.Idle:
-            if (Grid.Occupants.ContainsKey(cell))
+            _selected.IsSelected = false;
+            _selected = null;
+        }
+        _pathfinder = null;
+        Overlay.Clear();
+
+        CancelHint.Visible = false;
+    }
+
+    /// <summary>Display the total movement, attack, and support ranges of the selected unit and begin drawing the path arrow for it to move on.</summary>
+    public void OnSelectedEntered()
+    {
+        // Compute move/attack/support ranges for selected unit
+        _pathfinder = new(Grid, _selected);
+        Overlay.TraversableCells = _pathfinder.TraversableCells;
+        Overlay.AttackableCells = _pathfinder.AttackableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c));
+        Overlay.SupportableCells = _pathfinder.SupportableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c) && !_pathfinder.AttackableCells.Contains(c));
+        CancelHint.Visible = true;
+
+        // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
+        Rect2? zoomRect = Overlay.GetEnclosingRect(Grid);
+        if (zoomRect is not null)
+        {
+            Vector2 zoomTarget = GetViewportRect().Size/zoomRect.Value.Size;
+            zoomTarget = Vector2.One*Mathf.Min(zoomTarget.X, zoomTarget.Y);
+            if (Camera.Zoom > zoomTarget)
             {
-                // Update selected unit
-                _selected = Grid.Occupants[cell] as Unit;
-                _selected.IsSelected = true;
-
-                // Compute move/attack/support ranges for selected unit
-                _pathfinder = new(Grid, _selected);
-                Overlay.TraversableCells = _pathfinder.TraversableCells;
-                Overlay.AttackableCells = _pathfinder.AttackableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c));
-                Overlay.SupportableCells = _pathfinder.SupportableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c) && !_pathfinder.AttackableCells.Contains(c));
-                CancelHint.Visible = true;
-
-                // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
-                Rect2? zoomRect = Overlay.GetEnclosingRect(Grid);
-                if (zoomRect is not null)
-                {
-                    Vector2 zoomTarget = GetViewportRect().Size/zoomRect.Value.Size;
-                    zoomTarget = Vector2.One*Mathf.Min(zoomTarget.X, zoomTarget.Y);
-                    if (Camera.Zoom > zoomTarget)
-                    {
-                        _prevZoom = Camera.Zoom;
-                        Camera.ZoomTarget = zoomTarget;
-                    }
-                }
+                _prevZoom = Camera.Zoom;
+                Camera.ZoomTarget = zoomTarget;
             }
+        }
+    }
 
-            _state = State.SelectUnit;
-            break;
-        case State.SelectUnit:
-            if (cell == _selected.Cell || !Grid.Occupants.ContainsKey(cell))
+    /// <summary>
+    /// Move the cursor back to the unit's position if it's not there already (waiting for it to move if it's mouse controlled),
+    /// then go back to the previous state (i.e. the one before the one that was canceled).
+    /// </summary>
+    public async void OnCancelSelectionEntered()
+    {
+        RestoreCameraZoom();
+
+        Rect2 selectedRect = Grid.CellRect(_selected.Cell);
+        switch (DeviceManager.Mode)
+        {
+        case InputMode.Mouse:
+            if (!selectedRect.HasPoint(GetGlobalMousePosition()))
             {
-                if (cell != _selected.Cell && _pathfinder.TraversableCells.Contains(cell))
-                {
-                    // Move the unit and wait for it to finish moving, and then delete the pathfinder as we don't need it anymore
-                    Grid.Occupants.Remove(_selected.Cell);
-                    _selected.MoveAlong(_pathfinder.Path);
-                    Grid.Occupants[_selected.Cell] = _selected;
-                    Overlay.Clear();
-                    _pathfinder = null;
-                    _state = State.UnitMoving;
+                Tween tween = CreateTween();
+                tween
+                    .SetTrans(Tween.TransitionType.Cubic)
+                    .SetEase(Tween.EaseType.Out)
+                    .TweenMethod(
+                        Callable.From((Vector2 position) => {
+                            Pointer.Position = position;
+                            GetViewport().WarpMouse(Pointer.ViewportPosition);
+                        }),
+                        Pointer.Position,
+                        _selected.Position + Grid.CellSize/2,
+                        Camera.DeadZoneSmoothTime
+                    );
 
-                    // Track the unit as it's moving
-                    Vector4 deadzone = new(Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight);
-                    (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = Vector4.Zero;
-                    BoundedNode2D target = Camera.Target;
-                    Camera.Target = _selected.MotionBox;
-                    RestoreCameraZoom();
-
-                    await ToSignal(_selected, Unit.SignalName.DoneMoving);
-
-                    // Restore the camera's old target
-                    (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = deadzone;
-                    Camera.Target = target;
-
-                    // Show the unit's attack/support ranges
-                    IEnumerable<Vector2I> attackable = PathFinder.GetCellsInRange(Grid, _selected.AttackRange, _selected.Cell);
-                    IEnumerable<Vector2I> supportable = PathFinder.GetCellsInRange(Grid, _selected.SupportRange, _selected.Cell);
-                    Overlay.AttackableCells = attackable;
-                    Overlay.SupportableCells = supportable.Where((c) => !attackable.Contains(c));
-                    _state = State.PostMove;
-                }
-                else
-                {
-                    RestoreCameraZoom();
-                    DeselectUnit();
-                    _state = State.Idle;
-                }
+                BoundedNode2D target = Camera.Target;
+                Camera.Target = _selected;
+                await ToSignal(tween, Tween.SignalName.Finished);
+                tween.Kill();
+                Camera.Target = target;
             }
             break;
-        case State.PostMove:
-            DeselectUnit();
-            _state = State.Idle;
+        case InputMode.Digital:
+            Cursor.Cell = _selected.Cell;
+            break;
+        case InputMode.Analog:
+            if (!selectedRect.HasPoint(Pointer.Position))
+                Pointer.Warp(selectedRect.GetCenter());
             break;
         }
+
+        DeselectUnit();
+
+        // Go to idle state
+        _chart.SendEvent("canceled");
+    }
+
+    private Vector4 _prevDeadzone = new();
+    private BoundedNode2D _prevTarget = null;
+
+    /// <summary>Begin moving the selected unit and then wait for it to finish moving.</summary>
+    public void OnMovingEntered()
+    {
+        // Move the unit and delete the pathfinder as we don't need it anymore
+        Grid.Occupants.Remove(_selected.Cell);
+        _selected.MoveAlong(_pathfinder.Path);
+        _selected.DoneMoving += OnUnitDoneMoving;
+        Grid.Occupants[_selected.Cell] = _selected;
+        Overlay.Clear();
+        _pathfinder = null;
+
+        // Track the unit as it's moving
+        _prevDeadzone = new(Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight);
+        (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = Vector4.Zero;
+        _prevTarget = Camera.Target;
+        Camera.Target = _selected.MotionBox;
+        RestoreCameraZoom();
+    }
+
+    public void OnCancelTargetingEntered()
+    {
+        // Automatically goes to selected
+    }
+
+    /// <summary>Compute the attack and support ranges of the selected unit from its location.</summary>
+    public void OnTargetingEntered()
+    {
+        // Restore the camera's old target
+        (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = _prevDeadzone;
+        Camera.Target = _prevTarget;
+
+        // Show the unit's attack/support ranges
+        IEnumerable<Vector2I> attackable = PathFinder.GetCellsInRange(Grid, _selected.AttackRange, _selected.Cell);
+        IEnumerable<Vector2I> supportable = PathFinder.GetCellsInRange(Grid, _selected.SupportRange, _selected.Cell);
+        Overlay.AttackableCells = attackable;
+        Overlay.SupportableCells = supportable.Where((c) => !attackable.Contains(c));
     }
 
     /// <summary>
@@ -187,7 +234,7 @@ public partial class Level : Node2D
     /// <param name="cell">Cell the cursor moved to.</param>
     public void OnCursorMoved(Vector2I cell)
     {
-        if (_state == State.SelectUnit && _pathfinder.TraversableCells.Contains(cell))
+        if (_pathfinder is not null && _pathfinder.TraversableCells.Contains(cell))
         {
             _pathfinder.AddToPath(cell);
             Overlay.Path = _pathfinder.Path;
@@ -204,7 +251,7 @@ public partial class Level : Node2D
         _cursorPrev = cell;
     }
 
-    /// <summary>
+        /// <summary>
     /// When the cursor wants to skip, move it to the edge of the region it's in in that direction. The "region the cursor is in" is defined based
     /// on whether or not it's inside the set of traversable cells (if a unit is selected) or not.
     /// </summary>
@@ -234,6 +281,47 @@ public partial class Level : Node2D
             else
                 Cursor.Cell = Grid.Clamp(Cursor.Cell + direction*Grid.Size);
         }
+    }
+
+    /// <summary>When a cell is selected, act based on what is or isn't in the cell.</summary>
+    /// <param name="cell">Coordinates of the cell selection.</param>
+    public void OnCellSelected(Vector2I cell)
+    {
+        if (_selected is null)
+        {
+            // Should be in idle state; update selected unit
+            _selected = Grid.Occupants[cell] as Unit;
+            _selected.IsSelected = true;
+            _chart.SendEvent("select");
+        }
+        else if (_pathfinder is not null)
+        {
+            // Should be in selected state
+            if (cell == _selected.Cell || !Grid.Occupants.ContainsKey(cell))
+            {
+                if (cell != _selected.Cell && _pathfinder.TraversableCells.Contains(cell))
+                {
+                    _chart.SendEvent("select");
+                }
+                else
+                {
+                    RestoreCameraZoom();
+                    _chart.SendEvent("cancel");
+                }
+            }
+        }
+        else
+        {
+            // Should be in targeting state
+            _chart.SendEvent("select");
+        }
+    }
+
+    /// <summary>When the unit finishes moving, move to the next state.</summary>
+    public void OnUnitDoneMoving()
+    {
+        _selected.DoneMoving -= OnUnitDoneMoving;
+        _chart.SendEvent("done");
     }
 
     /// <summary>When a grid node is added to a group, update its grid.</summary>
@@ -268,6 +356,8 @@ public partial class Level : Node2D
 
         if (!Engine.IsEditorHint())
         {
+            _chart = StateChart.Of(GetNode("State"));
+
             _state = State.Idle;
 
             Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
@@ -291,57 +381,12 @@ public partial class Level : Node2D
         }
     }
 
-    public override async void _Input(InputEvent @event)
+    public override void _Input(InputEvent @event)
     {
         base._Input(@event);
-        switch (_state)
-        {
-        case State.SelectUnit or State.PostMove:
-            if (@event.IsActionReleased(CancelAction))
-            {
-                RestoreCameraZoom();
 
-                Rect2 selectedRect = Grid.CellRect(_selected.Cell);
-                switch (DeviceManager.Mode)
-                {
-                case InputMode.Mouse:
-                    if (!selectedRect.HasPoint(GetGlobalMousePosition()))
-                    {
-                        Tween tween = CreateTween();
-                        tween
-                            .SetTrans(Tween.TransitionType.Cubic)
-                            .SetEase(Tween.EaseType.Out)
-                            .TweenMethod(
-                                Callable.From((Vector2 position) => {
-                                    Pointer.Position = position;
-                                    GetViewport().WarpMouse(Pointer.ViewportPosition);
-                                }),
-                                Pointer.Position,
-                                _selected.Position + Grid.CellSize/2,
-                                Camera.DeadZoneSmoothTime
-                            );
-
-                        BoundedNode2D target = Camera.Target;
-                        Camera.Target = _selected;
-                        await ToSignal(tween, Tween.SignalName.Finished);
-                        tween.Kill();
-                        Camera.Target = target;
-                    }
-                    break;
-                case InputMode.Digital:
-                    Cursor.Cell = _selected.Cell;
-                    break;
-                case InputMode.Analog:
-                    if (!selectedRect.HasPoint(Pointer.Position))
-                        Pointer.Warp(selectedRect.GetCenter());
-                    break;
-                }
-
-                DeselectUnit();
-                _state = State.Idle;
-            }
-            break;
-        }
+        if (@event.IsActionReleased(CancelAction))
+            _chart.SendEvent("cancel");
 
         if (@event.IsActionPressed(CameraActionDigitalZoomIn))
             Camera.ZoomTarget += Vector2.One*CameraZoomDigitalFactor;
