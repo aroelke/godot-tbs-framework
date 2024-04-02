@@ -61,19 +61,6 @@ public partial class Level : Node2D
         }
     }
 
-    private void DeselectUnit()
-    {
-        if (_selected is not null)
-        {
-            _selected.Deselect();
-            _selected = null;
-        }
-        _pathfinder = null;
-        Overlay.Clear();
-
-        CancelHint.Visible = false;
-    }
-
     /// <summary>Map cancel selection action reference (distinct from menu back/cancel).</summary>
     [Export] public InputActionReference CancelAction = new();
 
@@ -179,9 +166,14 @@ public partial class Level : Node2D
                     Pointer.Warp(selectedRect.GetCenter());
                 break;
             }
+
+            _selected.Deselect();
+            _selected = null;
         }
 
-        DeselectUnit();
+        _pathfinder = null;
+        Overlay.Clear();
+        CancelHint.Visible = false;
 
         // Go to idle state
         _chart.SendEvent("canceled");
