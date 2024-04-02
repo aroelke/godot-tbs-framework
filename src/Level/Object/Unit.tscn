@@ -1,12 +1,8 @@
-[gd_scene load_steps=16 format=3 uid="uid://b0cvutx2lj5uy"]
+[gd_scene load_steps=26 format=3 uid="uid://b0cvutx2lj5uy"]
 
 [ext_resource type="Script" path="res://src/Level/Object/Unit.cs" id="1_crlbh"]
 [ext_resource type="Texture2D" uid="uid://3oc7r54iby4a" path="res://assets/level/unit/soldier.png" id="2_ipnjg"]
 [ext_resource type="Script" path="res://src/Object/BoundedNode2D.cs" id="3_pmja0"]
-[ext_resource type="Script" path="res://addons/godot_state_charts/state_chart.gd" id="4_6bp8w"]
-[ext_resource type="Script" path="res://addons/godot_state_charts/compound_state.gd" id="5_0muba"]
-[ext_resource type="Script" path="res://addons/godot_state_charts/animation_player_state.gd" id="6_suod6"]
-[ext_resource type="Script" path="res://addons/godot_state_charts/transition.gd" id="7_g4o4f"]
 
 [sub_resource type="Animation" id="Animation_yixnx"]
 length = 0.001
@@ -220,6 +216,70 @@ _data = {
 "up": SubResource("Animation_kk35a")
 }
 
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_tm5xh"]
+animation = &"idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_mdava"]
+animation = &"left"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_oxh1j"]
+animation = &"up"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_4y680"]
+animation = &"right"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_waupw"]
+animation = &"down"
+
+[sub_resource type="AnimationNodeBlendSpace2D" id="AnimationNodeBlendSpace2D_bw1ab"]
+blend_point_0/node = SubResource("AnimationNodeAnimation_mdava")
+blend_point_0/pos = Vector2(-1, 0)
+blend_point_1/node = SubResource("AnimationNodeAnimation_oxh1j")
+blend_point_1/pos = Vector2(0, 1)
+blend_point_2/node = SubResource("AnimationNodeAnimation_4y680")
+blend_point_2/pos = Vector2(1, 0)
+blend_point_3/node = SubResource("AnimationNodeAnimation_waupw")
+blend_point_3/pos = Vector2(0, -1)
+blend_mode = 1
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_xy2fh"]
+animation = &"selected"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_av2ix"]
+advance_mode = 2
+advance_condition = &"selected"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_pq1sv"]
+advance_mode = 2
+advance_condition = &"moving"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_8ispa"]
+advance_mode = 2
+advance_condition = &"idle"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_m6c88"]
+advance_mode = 2
+advance_condition = &"idle"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_jipq2"]
+advance_mode = 2
+advance_condition = &"selected"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_43qbb"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_2xttf"]
+states/End/position = Vector2(771, 213)
+states/Idle/node = SubResource("AnimationNodeAnimation_tm5xh")
+states/Idle/position = Vector2(399, 213)
+states/Moving/node = SubResource("AnimationNodeBlendSpace2D_bw1ab")
+states/Moving/position = Vector2(617, 213)
+states/Selected/node = SubResource("AnimationNodeAnimation_xy2fh")
+states/Selected/position = Vector2(502, 44)
+states/Start/position = Vector2(249, 213)
+transitions = ["Idle", "Selected", SubResource("AnimationNodeStateMachineTransition_av2ix"), "Selected", "Moving", SubResource("AnimationNodeStateMachineTransition_pq1sv"), "Moving", "Idle", SubResource("AnimationNodeStateMachineTransition_8ispa"), "Selected", "Idle", SubResource("AnimationNodeStateMachineTransition_m6c88"), "Moving", "Selected", SubResource("AnimationNodeStateMachineTransition_jipq2"), "Start", "Idle", SubResource("AnimationNodeStateMachineTransition_43qbb")]
+graph_offset = Vector2(-37, -59)
+
 [node name="Unit" type="Node2D"]
 script = ExtResource("1_crlbh")
 
@@ -240,147 +300,19 @@ frame = 5
 [node name="Bounds" type="Node2D" parent="Path/PathFollow"]
 script = ExtResource("3_pmja0")
 
-[node name="Animation" type="AnimationPlayer" parent="."]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
 "": SubResource("AnimationLibrary_txw1y")
 }
-autoplay = "idle"
+autoplay = "RESET"
 
-[node name="State" type="Node" parent="."]
-script = ExtResource("4_6bp8w")
-
-[node name="Root" type="Node" parent="State"]
-script = ExtResource("5_0muba")
-initial_state = NodePath("Idle")
-
-[node name="Idle" type="Node" parent="State/Root"]
-script = ExtResource("6_suod6")
-animation_player = NodePath("../../../Animation")
-animation_name = &"idle"
-
-[node name="ToSelected" type="Node" parent="State/Root/Idle"]
-script = ExtResource("7_g4o4f")
-to = NodePath("../../Selected")
-event = &"select"
-
-[node name="ToDone" type="Node" parent="State/Root/Idle"]
-script = ExtResource("7_g4o4f")
-to = NodePath("../../Done")
-event = &"wait"
-
-[node name="Selected" type="Node" parent="State/Root"]
-script = ExtResource("6_suod6")
-animation_player = NodePath("../../../Animation")
-animation_name = &"selected"
-
-[node name="ToIdle" type="Node" parent="State/Root/Selected"]
-script = ExtResource("7_g4o4f")
-to = NodePath("../../Idle")
-event = &"deselect"
-
-[node name="ToMoving" type="Node" parent="State/Root/Selected"]
-script = ExtResource("7_g4o4f")
-to = NodePath("../../Moving")
-event = &"move"
-
-[node name="ToDone" type="Node" parent="State/Root/Selected"]
-script = ExtResource("7_g4o4f")
-to = NodePath("../../Done")
-event = &"wait"
-
-[node name="Moving" type="Node" parent="State/Root"]
-script = ExtResource("5_0muba")
-initial_state = NodePath("Down")
-
-[node name="Down" type="Node" parent="State/Root/Moving"]
-script = ExtResource("6_suod6")
-animation_player = NodePath("../../../../Animation")
-animation_name = &"down"
-
-[node name="ToLeft" type="Node" parent="State/Root/Moving/Down"]
-script = ExtResource("7_g4o4f")
-to = NodePath("../../Left")
-event = &"left"
-
-[node name="ToRight" type="Node" parent="State/Root/Moving/Down"]
-script = ExtResource("7_g4o4f")
-to = NodePath("../../Right")
-event = &"right"
-
-[node name="ToUp" type="Node" parent="State/Root/Moving/Down"]
-script = ExtResource("7_g4o4f")
-to = NodePath("../../Up")
-event = &"up"
-
-[node name="Left" type="Node" parent="State/Root/Moving"]
-script = ExtResource("6_suod6")
-animation_player = NodePath("../../../../Animation")
-animation_name = &"left"
-
-[node name="ToRight" type="Node" parent="State/Root/Moving/Left"]
-script = ExtResource("7_g4o4f")
-to = NodePath("../../Right")
-event = &"right"
-
-[node name="ToUp" type="Node" parent="State/Root/Moving/Left"]
-script = ExtResource("7_g4o4f")
-to = NodePath("../../Up")
-event = &"up"
-
-[node name="ToDown" type="Node" parent="State/Root/Moving/Left"]
-script = ExtResource("7_g4o4f")
-to = NodePath("../../Down")
-event = &"down"
-
-[node name="Right" type="Node" parent="State/Root/Moving"]
-script = ExtResource("6_suod6")
-animation_player = NodePath("../../../../Animation")
-animation_name = &"right"
-
-[node name="ToLeft" type="Node" parent="State/Root/Moving/Right"]
-script = ExtResource("7_g4o4f")
-to = NodePath("../../Left")
-event = &"left"
-
-[node name="ToUp" type="Node" parent="State/Root/Moving/Right"]
-script = ExtResource("7_g4o4f")
-to = NodePath("../../Up")
-event = &"up"
-
-[node name="ToDown" type="Node" parent="State/Root/Moving/Right"]
-script = ExtResource("7_g4o4f")
-to = NodePath("../../Down")
-event = &"down"
-
-[node name="Up" type="Node" parent="State/Root/Moving"]
-script = ExtResource("6_suod6")
-animation_player = NodePath("../../../../Animation")
-animation_name = &"up"
-
-[node name="ToLeft" type="Node" parent="State/Root/Moving/Up"]
-script = ExtResource("7_g4o4f")
-to = NodePath("../../Left")
-event = &"left"
-
-[node name="ToRight" type="Node" parent="State/Root/Moving/Up"]
-script = ExtResource("7_g4o4f")
-to = NodePath("../../Right")
-event = &"right"
-
-[node name="ToDown" type="Node" parent="State/Root/Moving/Up"]
-script = ExtResource("7_g4o4f")
-to = NodePath("../../Down")
-event = &"down"
-
-[node name="ToSelected" type="Node" parent="State/Root/Moving"]
-script = ExtResource("7_g4o4f")
-to = NodePath("../../Selected")
-event = &"stop"
-
-[node name="Done" type="Node" parent="State/Root"]
-script = ExtResource("6_suod6")
-animation_player = NodePath("../../../Animation")
-animation_name = &"RESET"
-
-[connection signal="child_state_entered" from="State/Root/Moving" to="." method="OnMovingEntered"]
-[connection signal="child_state_exited" from="State/Root/Moving" to="." method="OnMovingExited"]
+[node name="AnimationTree" type="AnimationTree" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_txw1y")
+}
+tree_root = SubResource("AnimationNodeStateMachine_2xttf")
+anim_player = NodePath("../AnimationPlayer")
+parameters/conditions/idle = true
+parameters/conditions/moving = false
+parameters/conditions/selected = false
+parameters/Moving/blend_position = Vector2(0, 0)

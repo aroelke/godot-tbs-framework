@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata;
 using Godot;
-using GodotStateCharts;
 using Level.Object.Group;
 using Object;
 
@@ -28,12 +26,11 @@ public partial class Unit : GridNode
     /// <summary>Signal that the unit is done moving along its path.</summary>
     [Signal] public delegate void DoneMovingEventHandler();
 
-    private StateChart _state = null;
-    private StateChartState _idleState = null;
     private Path2D _path = null;
     private PathFollow2D _follow = null;
     private Sprite2D _sprite = null;
     private Army _affiliation = null;
+    private AnimationTree _tree = null;
 
     private Path2D Path => _path = GetNode<Path2D>("Path");
     private PathFollow2D PathFollow => _follow = GetNode<PathFollow2D>("Path/PathFollow");
@@ -65,13 +62,40 @@ public partial class Unit : GridNode
     /// <summary>Whether or not this unit has been selected and is awaiting instruction. Changing it toggles the selected animation.</summary>
     public bool IsSelected
     {
+        get => false;
+        set
+        {/*
+            if (!Engine.IsEditorHint())
+            {
+                _tree.Set("parameters/conditions/idle", !value);
+                _tree.Set("parameters/conditions/selected", value);
+                _tree.Set("parameters/conditions/moving", false);
+            }*/
+        }
+    }
+
+    public void Select()
+    {
+        _tree.Set("parameters/conditions/idle", false);
+        _tree.Set("parameters/conditions/selected", true);
+        _tree.Set("parameters/conditions/moving", false);
+    }
+
+    public void Deselect()
+    {
+        _tree.Set("parameters/conditions/idle", true);
+        _tree.Set("parameters/conditions/selected", false);
+        _tree.Set("parameters/conditions/moving", false);
+    }
+
+/*    {
         get => !Engine.IsEditorHint() && (_idleState?.Active ?? false);
         set
         {
             if (!Engine.IsEditorHint())
                 _state.SendEvent(value ? SelectEvent : DeselectEvent);
         }
-    }
+    }*/
 
     /// <summary>
     /// Box that travels with the motion of the sprite to use for tracking the unit as it moves.  Don't use the unit's actual position, as that
@@ -88,22 +112,26 @@ public partial class Unit : GridNode
             foreach (Vector2I cell in path)
                 Path.Curve.AddPoint(Grid.PositionOf(cell) - Position);
             Cell = path.Last();
-            _state.SendEvent(MoveEvent);
+//            _state.SendEvent(MoveEvent);
+            _tree.Set("parameters/conditions/selected", false);
+            _tree.Set("parameters/conditions/moving", true);
+            SetProcess(true);
         }
     }
 
     /// <summary>Start moving along the path when entering the "moving" state.</summary>
-    public void OnMovingEntered() => SetProcess(true);
+//    public void OnMovingEntered() => SetProcess(true);
 
     /// <summary>Stop moving along the path when entering the "moving" state.</summary>
-    public void OnMovingExited() => SetProcess(false);
+ //   public void OnMovingExited() => SetProcess(false);
 
     public override void _Ready()
     {
         base._Ready();
 
-        _state = StateChart.Of(GetNode("State"));
-        _idleState = StateChartState.Of(GetNode("State/Root/Idle"));
+//        _state = StateChart.Of(GetNode("State"));
+//        _idleState = StateChartState.Of(GetNode("State/Root/Idle"));
+        _tree = GetNode<AnimationTree>("AnimationTree");
 
         _sprite = GetNode<Sprite2D>("Path/PathFollow/Sprite");
         if (_affiliation is not null)
@@ -126,21 +154,29 @@ public partial class Unit : GridNode
         {
             Vector2 prev = PathFollow.Position;
             PathFollow.Progress += (float)(MoveSpeed*delta);
-            _state.SendEvent((PathFollow.Position - prev) switch
+            Vector2 change = PathFollow.Position - prev;
+            if (change != Vector2.Zero)
+            {
+                _tree.Set("parameters/Moving/blend_position", change);
+            }
+/*            _state.SendEvent((PathFollow.Position - prev) switch
             {
                 Vector2(_, <0) => MoveUpEvent,
                 Vector2(<0, _) => MoveLeftEvent,
                 Vector2(_, >0) => MoveDownEvent,
                 Vector2(>0, _) => MoveRightEvent,
                 _ => ""
-            });
+            });*/
 
             if (PathFollow.ProgressRatio >= 1)
             {
-                _state.SendEvent(StopEvent);
+//                _state.SendEvent(StopEvent);
+                _tree.Set("parameters/conditions/selected", true);
+                _tree.Set("parameters/conditions/moving", false);
                 PathFollow.Progress = 0;
                 Position = Grid.PositionOf(Cell);
                 Path.Curve.ClearPoints();
+                SetProcess(false);
                 EmitSignal(SignalName.DoneMoving);
             }
         }

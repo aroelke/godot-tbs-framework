@@ -65,7 +65,7 @@ public partial class Level : Node2D
     {
         if (_selected is not null)
         {
-            _selected.IsSelected = false;
+            _selected.Deselect();
             _selected = null;
         }
         _pathfinder = null;
@@ -101,7 +101,7 @@ public partial class Level : Node2D
     {
         if (_selected is not null)
         {
-            _selected.IsSelected = false;
+            _selected.Deselect();
             _selected = null;
         }
         _pathfinder = null;
@@ -291,7 +291,7 @@ public partial class Level : Node2D
         {
             // Should be in idle state; update selected unit
             _selected = Grid.Occupants[cell] as Unit;
-            _selected.IsSelected = true;
+            _selected.Select();
             _chart.SendEvent("select");
         }
         else if (_pathfinder is not null)
