@@ -24,26 +24,19 @@ namespace Level;
 [Tool]
 public partial class Level : Node2D
 {
-    private enum State
-    {
-        Idle,
-        SelectUnit,
-        UnitMoving,
-        PostMove
-    }
-
-    private StateChart _chart = null;
+    private StateChart _state = null;
     private Grid _map = null;
     private Overlay _overlay = null;
     private Camera2DBrain _camera = null;
     private Cursor _cursor = null;
     private Pointer _pointer = null;
     private Vector2I _cursorPrev = Vector2I.Zero;
-    private State _state = State.Idle;
     private Unit _selected = null;
     private PathFinder _pathfinder = null;
     private ControlHint _cancelHint = null;
     private Vector2? _prevZoom = null;
+    private Vector4 _prevDeadzone = new();
+    private BoundedNode2D _prevTarget = null;
 
     private Grid Grid => _map ??= GetNode<Grid>("Grid");
     private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
@@ -52,6 +45,7 @@ public partial class Level : Node2D
     private Pointer Pointer => _pointer ??= GetNode<Pointer>("Pointer");
     private ControlHint CancelHint => _cancelHint ??= GetNode<ControlHint>("UserInterface/HUD/Hints/CancelHint");
 
+    /// <summary>Restore the camera zoom back to what it was before a unit was selected.</summary>
     private void RestoreCameraZoom()
     {
         if (_prevZoom is not null)
@@ -129,12 +123,15 @@ public partial class Level : Node2D
     {
         RestoreCameraZoom();
 
+        // In some cases (namely, when the player selects a square outside the selected unit's move range), the cursor should not warp
+        // when canceling selection. This is indicated by nulling the selectd unit before transitioning to the "cancel selection" state
         if (_selected is not null)
         {
             Rect2 selectedRect = Grid.CellRect(_selected.Cell);
             switch (DeviceManager.Mode)
             {
             case InputMode.Mouse:
+                // If the input mode is mouse and the cursor is not on the selected unit's square, move it back before deselecting
                 if (!selectedRect.HasPoint(GetGlobalMousePosition()))
                 {
                     Tween tween = CreateTween();
@@ -158,6 +155,7 @@ public partial class Level : Node2D
                     Camera.Target = target;
                 }
                 break;
+            // If the input mode is digital or analog, just warp the cursor back to the unit and deselect it immediately
             case InputMode.Digital:
                 Cursor.Cell = _selected.Cell;
                 break;
@@ -171,16 +169,14 @@ public partial class Level : Node2D
             _selected = null;
         }
 
+        // Clear out the displayed ranges and path and remove the cancel hint
         _pathfinder = null;
         Overlay.Clear();
         CancelHint.Visible = false;
 
         // Go to idle state
-        _chart.SendEvent("canceled");
+        _state.SendEvent("canceled");
     }
-
-    private Vector4 _prevDeadzone = new();
-    private BoundedNode2D _prevTarget = null;
 
     /// <summary>Begin moving the selected unit and then wait for it to finish moving.</summary>
     public void OnMovingEntered()
@@ -261,7 +257,7 @@ public partial class Level : Node2D
         if (direction != Vector2I.Zero)
         {
             Vector2I neighbor = Cursor.Cell + direction;
-            if (_state == State.SelectUnit)
+            if (_pathfinder is not null)
             {
                 bool traversable = _pathfinder.TraversableCells.Contains(neighbor);
                 Vector2I target = neighbor;
@@ -287,7 +283,7 @@ public partial class Level : Node2D
             // Should be in idle state; update selected unit
             _selected = Grid.Occupants[cell] as Unit;
             _selected.Select();
-            _chart.SendEvent("select");
+            _state.SendEvent("select");
         }
         else if (_pathfinder is not null)
         {
@@ -295,20 +291,20 @@ public partial class Level : Node2D
             if (cell == _selected.Cell || !Grid.Occupants.ContainsKey(cell))
             {
                 if (cell != _selected.Cell && _pathfinder.TraversableCells.Contains(cell))
-                    _chart.SendEvent("select");
+                    _state.SendEvent("select");
                 else
                 {
                     if (!_pathfinder.TraversableCells.Contains(cell))
                         _selected = null;
                     RestoreCameraZoom();
-                    _chart.SendEvent("cancel");
+                    _state.SendEvent("cancel");
                 }
             }
         }
         else
         {
             // Should be in targeting state
-            _chart.SendEvent("select");
+            _state.SendEvent("select");
         }
     }
 
@@ -316,7 +312,7 @@ public partial class Level : Node2D
     public void OnUnitDoneMoving()
     {
         _selected.DoneMoving -= OnUnitDoneMoving;
-        _chart.SendEvent("done");
+        _state.SendEvent("done");
     }
 
     /// <summary>When a grid node is added to a group, update its grid.</summary>
@@ -351,9 +347,7 @@ public partial class Level : Node2D
 
         if (!Engine.IsEditorHint())
         {
-            _chart = StateChart.Of(GetNode("State"));
-
-            _state = State.Idle;
+            _state = StateChart.Of(GetNode("State"));
 
             Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
             Cursor.Grid = Grid;
@@ -381,7 +375,7 @@ public partial class Level : Node2D
         base._Input(@event);
 
         if (@event.IsActionReleased(CancelAction))
-            _chart.SendEvent("cancel");
+            _state.SendEvent("cancel");
 
         if (@event.IsActionPressed(CameraActionDigitalZoomIn))
             Camera.ZoomTarget += Vector2.One*CameraZoomDigitalFactor;
