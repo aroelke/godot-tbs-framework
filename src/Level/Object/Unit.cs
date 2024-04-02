@@ -13,15 +13,11 @@ namespace Level.Object;
 [Tool]
 public partial class Unit : GridNode
 {
-    private const string SelectEvent = "select";
-    private const string DeselectEvent = "deselect";
-    private const string MoveEvent = "move";
-    private const string MoveDownEvent = "down";
-    private const string MoveLeftEvent = "left";
-    private const string MoveRightEvent = "right";
-    private const string MoveUpEvent = "up";
-    private const string StopEvent = "stop";
-    private const string WaitEvent = "wait";
+    // AnimationTree parameters
+    private static readonly StringName Idle = "parameters/conditions/idle";
+    private static readonly StringName Selected = "parameters/conditions/selected";
+    private static readonly StringName Moving = "parameters/conditions/moving";
+    private static readonly StringName MoveDirection = "parameters/Moving/blend_position";
 
     /// <summary>Signal that the unit is done moving along its path.</summary>
     [Signal] public delegate void DoneMovingEventHandler();
@@ -59,43 +55,21 @@ public partial class Unit : GridNode
     /// <summary>Speed, in world pixels/second, to move along the path while moving.</summary>
     [Export] public double MoveSpeed = 320;
 
-    /// <summary>Whether or not this unit has been selected and is awaiting instruction. Changing it toggles the selected animation.</summary>
-    public bool IsSelected
-    {
-        get => false;
-        set
-        {/*
-            if (!Engine.IsEditorHint())
-            {
-                _tree.Set("parameters/conditions/idle", !value);
-                _tree.Set("parameters/conditions/selected", value);
-                _tree.Set("parameters/conditions/moving", false);
-            }*/
-        }
-    }
-
+    /// <summary>Put the unit in the "selected" state.</summary>
     public void Select()
     {
-        _tree.Set("parameters/conditions/idle", false);
-        _tree.Set("parameters/conditions/selected", true);
-        _tree.Set("parameters/conditions/moving", false);
+        _tree.Set(Idle, false);
+        _tree.Set(Selected, true);
+        _tree.Set(Moving, false);
     }
 
+    /// <summary>Put the unit in the "idle" state.</summary>
     public void Deselect()
     {
-        _tree.Set("parameters/conditions/idle", true);
-        _tree.Set("parameters/conditions/selected", false);
-        _tree.Set("parameters/conditions/moving", false);
+        _tree.Set(Idle, true);
+        _tree.Set(Selected, false);
+        _tree.Set(Moving, false);
     }
-
-/*    {
-        get => !Engine.IsEditorHint() && (_idleState?.Active ?? false);
-        set
-        {
-            if (!Engine.IsEditorHint())
-                _state.SendEvent(value ? SelectEvent : DeselectEvent);
-        }
-    }*/
 
     /// <summary>
     /// Box that travels with the motion of the sprite to use for tracking the unit as it moves.  Don't use the unit's actual position, as that
@@ -112,25 +86,16 @@ public partial class Unit : GridNode
             foreach (Vector2I cell in path)
                 Path.Curve.AddPoint(Grid.PositionOf(cell) - Position);
             Cell = path.Last();
-//            _state.SendEvent(MoveEvent);
-            _tree.Set("parameters/conditions/selected", false);
-            _tree.Set("parameters/conditions/moving", true);
+            _tree.Set(Selected, false);
+            _tree.Set(Moving, true);
             SetProcess(true);
         }
     }
-
-    /// <summary>Start moving along the path when entering the "moving" state.</summary>
-//    public void OnMovingEntered() => SetProcess(true);
-
-    /// <summary>Stop moving along the path when entering the "moving" state.</summary>
- //   public void OnMovingExited() => SetProcess(false);
 
     public override void _Ready()
     {
         base._Ready();
 
-//        _state = StateChart.Of(GetNode("State"));
-//        _idleState = StateChartState.Of(GetNode("State/Root/Idle"));
         _tree = GetNode<AnimationTree>("AnimationTree");
 
         _sprite = GetNode<Sprite2D>("Path/PathFollow/Sprite");
@@ -156,23 +121,12 @@ public partial class Unit : GridNode
             PathFollow.Progress += (float)(MoveSpeed*delta);
             Vector2 change = PathFollow.Position - prev;
             if (change != Vector2.Zero)
-            {
-                _tree.Set("parameters/Moving/blend_position", change);
-            }
-/*            _state.SendEvent((PathFollow.Position - prev) switch
-            {
-                Vector2(_, <0) => MoveUpEvent,
-                Vector2(<0, _) => MoveLeftEvent,
-                Vector2(_, >0) => MoveDownEvent,
-                Vector2(>0, _) => MoveRightEvent,
-                _ => ""
-            });*/
+                _tree.Set(MoveDirection, change);
 
             if (PathFollow.ProgressRatio >= 1)
             {
-//                _state.SendEvent(StopEvent);
-                _tree.Set("parameters/conditions/selected", true);
-                _tree.Set("parameters/conditions/moving", false);
+                _tree.Set(Selected, true);
+                _tree.Set(Moving, false);
                 PathFollow.Progress = 0;
                 Position = Grid.PositionOf(Cell);
                 Path.Curve.ClearPoints();
