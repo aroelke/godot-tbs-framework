@@ -142,40 +142,43 @@ public partial class Level : Node2D
     {
         RestoreCameraZoom();
 
-        Rect2 selectedRect = Grid.CellRect(_selected.Cell);
-        switch (DeviceManager.Mode)
+        if (_selected is not null)
         {
-        case InputMode.Mouse:
-            if (!selectedRect.HasPoint(GetGlobalMousePosition()))
+            Rect2 selectedRect = Grid.CellRect(_selected.Cell);
+            switch (DeviceManager.Mode)
             {
-                Tween tween = CreateTween();
-                tween
-                    .SetTrans(Tween.TransitionType.Cubic)
-                    .SetEase(Tween.EaseType.Out)
-                    .TweenMethod(
-                        Callable.From((Vector2 position) => {
-                            Pointer.Position = position;
-                            GetViewport().WarpMouse(Pointer.ViewportPosition);
-                        }),
-                        Pointer.Position,
-                        _selected.Position + Grid.CellSize/2,
-                        Camera.DeadZoneSmoothTime
-                    );
+            case InputMode.Mouse:
+                if (!selectedRect.HasPoint(GetGlobalMousePosition()))
+                {
+                    Tween tween = CreateTween();
+                    tween
+                        .SetTrans(Tween.TransitionType.Cubic)
+                        .SetEase(Tween.EaseType.Out)
+                        .TweenMethod(
+                            Callable.From((Vector2 position) => {
+                                Pointer.Position = position;
+                                GetViewport().WarpMouse(Pointer.ViewportPosition);
+                            }),
+                            Pointer.Position,
+                            _selected.Position + Grid.CellSize/2,
+                            Camera.DeadZoneSmoothTime
+                        );
 
-                BoundedNode2D target = Camera.Target;
-                Camera.Target = _selected;
-                await ToSignal(tween, Tween.SignalName.Finished);
-                tween.Kill();
-                Camera.Target = target;
+                    BoundedNode2D target = Camera.Target;
+                    Camera.Target = _selected;
+                    await ToSignal(tween, Tween.SignalName.Finished);
+                    tween.Kill();
+                    Camera.Target = target;
+                }
+                break;
+            case InputMode.Digital:
+                Cursor.Cell = _selected.Cell;
+                break;
+            case InputMode.Analog:
+                if (!selectedRect.HasPoint(Pointer.Position))
+                    Pointer.Warp(selectedRect.GetCenter());
+                break;
             }
-            break;
-        case InputMode.Digital:
-            Cursor.Cell = _selected.Cell;
-            break;
-        case InputMode.Analog:
-            if (!selectedRect.HasPoint(Pointer.Position))
-                Pointer.Warp(selectedRect.GetCenter());
-            break;
         }
 
         DeselectUnit();
@@ -300,11 +303,11 @@ public partial class Level : Node2D
             if (cell == _selected.Cell || !Grid.Occupants.ContainsKey(cell))
             {
                 if (cell != _selected.Cell && _pathfinder.TraversableCells.Contains(cell))
-                {
                     _chart.SendEvent("select");
-                }
                 else
                 {
+                    if (!_pathfinder.TraversableCells.Contains(cell))
+                        _selected = null;
                     RestoreCameraZoom();
                     _chart.SendEvent("cancel");
                 }
