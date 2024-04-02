@@ -278,7 +278,7 @@ states/Selected/node = SubResource("AnimationNodeAnimation_xy2fh")
 states/Selected/position = Vector2(502, 44)
 states/Start/position = Vector2(249, 213)
 transitions = ["Idle", "Selected", SubResource("AnimationNodeStateMachineTransition_av2ix"), "Selected", "Moving", SubResource("AnimationNodeStateMachineTransition_pq1sv"), "Moving", "Idle", SubResource("AnimationNodeStateMachineTransition_8ispa"), "Selected", "Idle", SubResource("AnimationNodeStateMachineTransition_m6c88"), "Moving", "Selected", SubResource("AnimationNodeStateMachineTransition_jipq2"), "Start", "Idle", SubResource("AnimationNodeStateMachineTransition_43qbb")]
-graph_offset = Vector2(-37, -59)
+graph_offset = Vector2(-497, 5)
 
 [node name="Unit" type="Node2D"]
 script = ExtResource("1_crlbh")

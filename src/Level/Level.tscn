@@ -539,6 +539,7 @@ script = ExtResource("19_qmelg")
 [node name="ToSelected" type="Node" parent="State/Root/CancelTargeting"]
 script = ExtResource("20_pe66u")
 to = NodePath("../../UnitSelected")
+event = &"done"
 
 [node name="UnitTargeting" type="Node" parent="State/Root"]
 script = ExtResource("19_qmelg")

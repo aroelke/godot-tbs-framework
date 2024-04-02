@@ -37,6 +37,7 @@ public partial class Level : Node2D
     private Vector2? _prevZoom = null;
     private Vector4 _prevDeadzone = new();
     private BoundedNode2D _prevTarget = null;
+    private Vector2I? _initialCell = null;
 
     private Grid Grid => _map ??= GetNode<Grid>("Grid");
     private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
@@ -97,6 +98,9 @@ public partial class Level : Node2D
     /// <summary>Display the total movement, attack, and support ranges of the selected unit and begin drawing the path arrow for it to move on.</summary>
     public void OnSelectedEntered()
     {
+        _selected.Select();
+        _initialCell = _selected.Cell;
+
         // Compute move/attack/support ranges for selected unit
         _pathfinder = new(Grid, _selected);
         Overlay.TraversableCells = _pathfinder.TraversableCells;
@@ -200,9 +204,55 @@ public partial class Level : Node2D
         RestoreCameraZoom();
     }
 
-    public void OnCancelTargetingEntered()
+    /// <summary>Move the selected unit back to its starting position and move the pointer there, then go back to "selected" state.</summary>
+    public async void OnCancelTargetingEntered()
     {
-        // Automatically goes to selected
+        Overlay.Clear();
+        Grid.Occupants.Remove(_selected.Cell);
+        _selected.Cell = _initialCell.Value;
+        _selected.Position = Grid.PositionOf(_selected.Cell);
+        Grid.Occupants[_selected.Cell] = _selected;
+
+        Rect2 selectedRect = Grid.CellRect(_selected.Cell);
+        switch (DeviceManager.Mode)
+        {
+        case InputMode.Mouse:
+            // If the input mode is mouse and the cursor is not on the selected unit's square, move it back before deselecting
+            if (!selectedRect.HasPoint(GetGlobalMousePosition()))
+            {
+                Tween tween = CreateTween();
+                tween
+                    .SetTrans(Tween.TransitionType.Cubic)
+                    .SetEase(Tween.EaseType.Out)
+                    .TweenMethod(
+                        Callable.From((Vector2 position) => {
+                            Pointer.Position = position;
+                            GetViewport().WarpMouse(Pointer.ViewportPosition);
+                        }),
+                        Pointer.Position,
+                        _selected.Position + Grid.CellSize/2,
+                        Camera.DeadZoneSmoothTime
+                    );
+
+                BoundedNode2D target = Camera.Target;
+                Camera.Target = _selected;
+                await ToSignal(tween, Tween.SignalName.Finished);
+                tween.Kill();
+                Camera.Target = target;
+            }
+            break;
+        // If the input mode is digital or analog, just warp the cursor back to the unit and deselect it immediately
+        case InputMode.Digital:
+            Cursor.Cell = _selected.Cell;
+            break;
+        case InputMode.Analog:
+            if (!selectedRect.HasPoint(Pointer.Position))
+                Pointer.Warp(selectedRect.GetCenter());
+            break;
+        }
+
+        _initialCell = null;
+        _state.SendEvent("done");
     }
 
     /// <summary>Compute the attack and support ranges of the selected unit from its location.</summary>
@@ -285,7 +335,6 @@ public partial class Level : Node2D
         {
             // Should be in idle state; update selected unit
             _selected = Grid.Occupants[cell] as Unit;
-            _selected.Select();
             _state.SendEvent("select");
         }
         else if (_pathfinder is not null)
