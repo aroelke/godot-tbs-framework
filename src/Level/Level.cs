@@ -122,6 +122,12 @@ public partial class Level : Node2D
         }
     }
 
+    /// <summary>Clean up when exiting selected state.</summary>
+    public void OnSelectedExited()
+    {
+        Overlay.Clear();
+    }
+
     /// <summary>
     /// Move the cursor back to the unit's position if it's not there already (waiting for it to move if it's mouse controlled),
     /// then go back to the previous state (i.e. the one before the one that was canceled).
@@ -178,7 +184,6 @@ public partial class Level : Node2D
 
         // Clear out the displayed ranges and path and remove the cancel hint
         _pathfinder = null;
-        Overlay.Clear();
         CancelHint.Visible = false;
 
         // Go to idle state
@@ -193,7 +198,6 @@ public partial class Level : Node2D
         _selected.MoveAlong(_pathfinder.Path);
         _selected.DoneMoving += OnUnitDoneMoving;
         Grid.Occupants[_selected.Cell] = _selected;
-        Overlay.Clear();
         _pathfinder = null;
 
         // Track the unit as it's moving
@@ -207,7 +211,6 @@ public partial class Level : Node2D
     /// <summary>Move the selected unit back to its starting position and move the pointer there, then go back to "selected" state.</summary>
     public async void OnCancelTargetingEntered()
     {
-        Overlay.Clear();
         Grid.Occupants.Remove(_selected.Cell);
         _selected.Cell = _initialCell.Value;
         _selected.Position = Grid.PositionOf(_selected.Cell);
@@ -267,6 +270,12 @@ public partial class Level : Node2D
         IEnumerable<Vector2I> supportable = PathFinder.GetCellsInRange(Grid, _selected.SupportRange, _selected.Cell);
         Overlay.AttackableCells = attackable;
         Overlay.SupportableCells = supportable.Where((c) => !attackable.Contains(c));
+    }
+
+    /// <summary>Clean up when exiting targeted state.</summary>
+    public void OnTargetingExited()
+    {
+        Overlay.Clear();
     }
 
     /// <summary>
