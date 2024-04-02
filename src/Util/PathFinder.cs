@@ -51,7 +51,9 @@ public class PathFinder
                 if (map.Contains(neighbor))
                 {
                     int cost = cells[current] + map.GetTerrain(neighbor).Cost;
-                    if ((!cells.ContainsKey(neighbor) || cells[neighbor] > cost) && cost <= unit.MoveRange)
+                    if ((!cells.ContainsKey(neighbor) || cells[neighbor] > cost) && // cell hasn't been examined yet or this path is shorter to get there
+                        (!map.Occupants.ContainsKey(neighbor) || ((map.Occupants[neighbor] as Unit)?.Affiliation.AlliedTo(unit) ?? false)) && // cell is empty or it's an allied unit
+                        cost <= unit.MoveRange) // cost to get to cell is within range
                     {
                         cells[neighbor] = cost;
                         potential.Enqueue(neighbor);
