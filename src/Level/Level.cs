@@ -90,7 +90,6 @@ public partial class Level : Node2D
             _selected = null;
         }
         _pathfinder = null;
-        Overlay.Clear();
 
         CancelHint.Visible = false;
     }
