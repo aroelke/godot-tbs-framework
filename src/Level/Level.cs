@@ -59,8 +59,11 @@ public partial class Level : Node2D
     [Export] public InputActionReference CancelAction = new();
 
     [ExportGroup("Camera/Zoom", "CameraZoom")]
+
+    /// <summary>Amount to zoom the camera each time it's digitally zoomed.</summary>
     [Export] public float CameraZoomDigitalFactor = 0.25f;
 
+    /// <summary>Amount to zoom the camera while it's being zoomed with an analog stick.</summary>
     [Export] public float CameraZoomAnalogFactor = 2;
 
     [ExportGroup("Camera/Input Actions", "CameraAction")]
