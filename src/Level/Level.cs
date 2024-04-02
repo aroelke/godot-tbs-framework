@@ -184,7 +184,7 @@ public partial class Level : Node2D
         _pathfinder = null;
 
         // Go to idle state
-        _state.SendEvent("canceled");
+        _state.SendEvent("done");
     }
 
     /// <summary>Begin moving the selected unit and then wait for it to finish moving.</summary>

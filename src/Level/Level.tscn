@@ -510,7 +510,7 @@ script = ExtResource("19_qmelg")
 [node name="ToIdle" type="Node" parent="State/Root/CancelSelection"]
 script = ExtResource("20_pe66u")
 to = NodePath("../../Idle")
-event = &"canceled"
+event = &"done"
 
 [node name="UnitSelected" type="Node" parent="State/Root"]
 script = ExtResource("19_qmelg")
