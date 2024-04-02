@@ -13,7 +13,7 @@ public partial class Army : GridNodeGroup, IEnumerable<Unit>
     [Export] public Color Color = Colors.White;
 
     /// <summary>Armies to which this army is allied (not including itself).</summary>
-    public Army[] Allies = Array.Empty<Army>();
+    [Export] public Army[] Allies = Array.Empty<Army>();
 
     /// <param name="other">Army to check.</param>
     /// <returns><c>true</c> if the other army is allied with this one, and <c>false</c> otherwise.</returns>
