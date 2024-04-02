@@ -56,6 +56,52 @@ public partial class Level : Node2D
         }
     }
 
+    /// <summary>
+    /// If the cursor isn't in the specified cell, move it to (the center of) that cell. During mouse control, this is done smoothly
+    /// over time to maintain consistency with the system pointer.
+    /// </summary>
+    /// <param name="cell">Cell to move the cursor to.</param>
+    private async void WarpCursor(Vector2I cell)
+    {
+        Rect2 rect = Grid.CellRect(cell);
+        switch (DeviceManager.Mode)
+        {
+        case InputMode.Mouse:
+            // If the input mode is mouse and the cursor is not on the cell's square, move it there over time
+            if (!rect.HasPoint(GetGlobalMousePosition()))
+            {
+                Tween tween = CreateTween();
+                tween
+                    .SetTrans(Tween.TransitionType.Cubic)
+                    .SetEase(Tween.EaseType.Out)
+                    .TweenMethod(
+                        Callable.From((Vector2 position) => {
+                            Pointer.Position = position;
+                            GetViewport().WarpMouse(Pointer.ViewportPosition);
+                        }),
+                        Pointer.Position,
+                        Grid.PositionOf(cell) + Grid.CellSize/2,
+                        Camera.DeadZoneSmoothTime
+                    );
+
+                BoundedNode2D target = Camera.Target;
+                Camera.Target = Grid.Occupants[cell];
+                await ToSignal(tween, Tween.SignalName.Finished);
+                tween.Kill();
+                Camera.Target = target;
+            }
+            break;
+        // If the input mode is digital or analog, just warp the cursor back to the cell
+        case InputMode.Digital:
+            Cursor.Cell = cell;
+            break;
+        case InputMode.Analog:
+            if (!rect.HasPoint(Pointer.Position))
+                Pointer.Warp(rect.GetCenter());
+            break;
+        }
+    }
+
     /// <summary>Map cancel selection action reference (distinct from menu back/cancel).</summary>
     [Export] public InputActionReference CancelAction = new();
 
@@ -131,7 +177,7 @@ public partial class Level : Node2D
     /// Move the cursor back to the unit's position if it's not there already (waiting for it to move if it's mouse controlled),
     /// then go back to the previous state (i.e. the one before the one that was canceled).
     /// </summary>
-    public async void OnCancelSelectionEntered()
+    public void OnCancelSelectionEntered()
     {
         // Clear out the displayed ranges. This can't be done on selected exit because it needs to exist when entering moving.
         _pathfinder = null;
@@ -139,45 +185,7 @@ public partial class Level : Node2D
         // In some cases (namely, when the player selects a square outside the selected unit's move range), the cursor should not warp
         // when canceling selection. This is indicated by nulling the selectd unit before transitioning to the "cancel selection" state
         if (_selected is not null)
-        {
-            Rect2 selectedRect = Grid.CellRect(_selected.Cell);
-            switch (DeviceManager.Mode)
-            {
-            case InputMode.Mouse:
-                // If the input mode is mouse and the cursor is not on the selected unit's square, move it back before deselecting
-                if (!selectedRect.HasPoint(GetGlobalMousePosition()))
-                {
-                    Tween tween = CreateTween();
-                    tween
-                        .SetTrans(Tween.TransitionType.Cubic)
-                        .SetEase(Tween.EaseType.Out)
-                        .TweenMethod(
-                            Callable.From((Vector2 position) => {
-                                Pointer.Position = position;
-                                GetViewport().WarpMouse(Pointer.ViewportPosition);
-                            }),
-                            Pointer.Position,
-                            _selected.Position + Grid.CellSize/2,
-                            Camera.DeadZoneSmoothTime
-                        );
-
-                    BoundedNode2D target = Camera.Target;
-                    Camera.Target = _selected;
-                    await ToSignal(tween, Tween.SignalName.Finished);
-                    tween.Kill();
-                    Camera.Target = target;
-                }
-                break;
-            // If the input mode is digital or analog, just warp the cursor back to the unit and deselect it immediately
-            case InputMode.Digital:
-                Cursor.Cell = _selected.Cell;
-                break;
-            case InputMode.Analog:
-                if (!selectedRect.HasPoint(Pointer.Position))
-                    Pointer.Warp(selectedRect.GetCenter());
-                break;
-            }
-        }
+            WarpCursor(_selected.Cell);
 
         // Go to idle state
         _state.SendEvent("done");
@@ -201,50 +209,15 @@ public partial class Level : Node2D
     }
 
     /// <summary>Move the selected unit back to its starting position and move the pointer there, then go back to "selected" state.</summary>
-    public async void OnCancelTargetingEntered()
+    public void OnCancelTargetingEntered()
     {
+        // Move the selected unit back to its original cell
         Grid.Occupants.Remove(_selected.Cell);
         _selected.Cell = _initialCell.Value;
         _selected.Position = Grid.PositionOf(_selected.Cell);
         Grid.Occupants[_selected.Cell] = _selected;
 
-        Rect2 selectedRect = Grid.CellRect(_selected.Cell);
-        switch (DeviceManager.Mode)
-        {
-        case InputMode.Mouse:
-            // If the input mode is mouse and the cursor is not on the selected unit's square, move it back before deselecting
-            if (!selectedRect.HasPoint(GetGlobalMousePosition()))
-            {
-                Tween tween = CreateTween();
-                tween
-                    .SetTrans(Tween.TransitionType.Cubic)
-                    .SetEase(Tween.EaseType.Out)
-                    .TweenMethod(
-                        Callable.From((Vector2 position) => {
-                            Pointer.Position = position;
-                            GetViewport().WarpMouse(Pointer.ViewportPosition);
-                        }),
-                        Pointer.Position,
-                        _selected.Position + Grid.CellSize/2,
-                        Camera.DeadZoneSmoothTime
-                    );
-
-                BoundedNode2D target = Camera.Target;
-                Camera.Target = _selected;
-                await ToSignal(tween, Tween.SignalName.Finished);
-                tween.Kill();
-                Camera.Target = target;
-            }
-            break;
-        // If the input mode is digital or analog, just warp the cursor back to the unit and deselect it immediately
-        case InputMode.Digital:
-            Cursor.Cell = _selected.Cell;
-            break;
-        case InputMode.Analog:
-            if (!selectedRect.HasPoint(Pointer.Position))
-                Pointer.Warp(selectedRect.GetCenter());
-            break;
-        }
+        WarpCursor(_selected.Cell);
 
         _initialCell = null;
         _state.SendEvent("done");
