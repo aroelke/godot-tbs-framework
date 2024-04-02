@@ -89,7 +89,6 @@ public partial class Level : Node2D
             _selected.Deselect();
             _selected = null;
         }
-        _pathfinder = null;
 
         CancelHint.Visible = false;
     }
@@ -134,6 +133,9 @@ public partial class Level : Node2D
     /// </summary>
     public async void OnCancelSelectionEntered()
     {
+        // Clear out the displayed ranges. This can't be done on selected exit because it needs to exist when entering moving.
+        _pathfinder = null;
+
         // In some cases (namely, when the player selects a square outside the selected unit's move range), the cursor should not warp
         // when canceling selection. This is indicated by nulling the selectd unit before transitioning to the "cancel selection" state
         if (_selected is not null)
@@ -179,9 +181,6 @@ public partial class Level : Node2D
             _selected.Deselect();
             _selected = null;
         }
-
-        // Clear out the displayed ranges. This can't be done on selected exit because it needs to exist when entering moving.
-        _pathfinder = null;
 
         // Go to idle state
         _state.SendEvent("done");
