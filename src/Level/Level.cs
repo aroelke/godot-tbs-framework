@@ -126,6 +126,7 @@ public partial class Level : Node2D
     public void OnSelectedExited()
     {
         Overlay.Clear();
+        RestoreCameraZoom();
     }
 
     /// <summary>
@@ -134,8 +135,6 @@ public partial class Level : Node2D
     /// </summary>
     public async void OnCancelSelectionEntered()
     {
-        RestoreCameraZoom();
-
         // In some cases (namely, when the player selects a square outside the selected unit's move range), the cursor should not warp
         // when canceling selection. This is indicated by nulling the selectd unit before transitioning to the "cancel selection" state
         if (_selected is not null)
@@ -205,7 +204,6 @@ public partial class Level : Node2D
         (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = Vector4.Zero;
         _prevTarget = Camera.Target;
         Camera.Target = _selected.MotionBox;
-        RestoreCameraZoom();
     }
 
     /// <summary>Move the selected unit back to its starting position and move the pointer there, then go back to "selected" state.</summary>
