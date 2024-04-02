@@ -181,9 +181,8 @@ public partial class Level : Node2D
             _selected = null;
         }
 
-        // Clear out the displayed ranges and path and remove the cancel hint
+        // Clear out the displayed ranges. This can't be done on selected exit because it needs to exist when entering moving.
         _pathfinder = null;
-        CancelHint.Visible = false;
 
         // Go to idle state
         _state.SendEvent("canceled");
