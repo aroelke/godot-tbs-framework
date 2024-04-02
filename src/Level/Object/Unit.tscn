@@ -222,23 +222,23 @@ animation = &"idle"
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_mdava"]
 animation = &"left"
 
-[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_oxh1j"]
-animation = &"up"
-
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_4y680"]
 animation = &"right"
 
-[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_waupw"]
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_gn78g"]
 animation = &"down"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_wiya8"]
+animation = &"up"
 
 [sub_resource type="AnimationNodeBlendSpace2D" id="AnimationNodeBlendSpace2D_bw1ab"]
 blend_point_0/node = SubResource("AnimationNodeAnimation_mdava")
 blend_point_0/pos = Vector2(-1, 0)
-blend_point_1/node = SubResource("AnimationNodeAnimation_oxh1j")
-blend_point_1/pos = Vector2(0, 1)
-blend_point_2/node = SubResource("AnimationNodeAnimation_4y680")
-blend_point_2/pos = Vector2(1, 0)
-blend_point_3/node = SubResource("AnimationNodeAnimation_waupw")
+blend_point_1/node = SubResource("AnimationNodeAnimation_4y680")
+blend_point_1/pos = Vector2(1, 0)
+blend_point_2/node = SubResource("AnimationNodeAnimation_gn78g")
+blend_point_2/pos = Vector2(0, 1)
+blend_point_3/node = SubResource("AnimationNodeAnimation_wiya8")
 blend_point_3/pos = Vector2(0, -1)
 blend_mode = 1
 
@@ -315,4 +315,4 @@ anim_player = NodePath("../AnimationPlayer")
 parameters/conditions/idle = true
 parameters/conditions/moving = false
 parameters/conditions/selected = false
-parameters/Moving/blend_position = Vector2(0, 0)
+parameters/Moving/blend_position = Vector2(0, 1)
