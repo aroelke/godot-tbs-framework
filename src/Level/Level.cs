@@ -177,9 +177,6 @@ public partial class Level : Node2D
                     Pointer.Warp(selectedRect.GetCenter());
                 break;
             }
-
-            _selected.Deselect();
-            _selected = null;
         }
 
         // Go to idle state
