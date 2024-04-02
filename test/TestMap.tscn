@@ -32,4 +32,28 @@ Grid = NodePath("../../Grid")
 Cell = Vector2i(8, 8)
 Size = Vector2(32, 32)
 
+[node name="EnemyArmy" parent="Level" instance=ExtResource("4_xrn4s")]
+Color = Color(1, 0.247059, 0.247059, 1)
+
+[node name="EnemyA" parent="Level/EnemyArmy" node_paths=PackedStringArray("Affiliation", "Grid") instance=ExtResource("5_ju5kl")]
+position = Vector2(128, 224)
+Affiliation = NodePath("..")
+Grid = NodePath("../../Grid")
+Cell = Vector2i(4, 7)
+Size = Vector2(32, 32)
+
+[node name="EnemyB" parent="Level/EnemyArmy" node_paths=PackedStringArray("Affiliation", "Grid") instance=ExtResource("5_ju5kl")]
+position = Vector2(352, 224)
+Affiliation = NodePath("..")
+Grid = NodePath("../../Grid")
+Cell = Vector2i(11, 7)
+Size = Vector2(32, 32)
+
+[node name="EnemyC" parent="Level/EnemyArmy" node_paths=PackedStringArray("Affiliation", "Grid") instance=ExtResource("5_ju5kl")]
+position = Vector2(256, 96)
+Affiliation = NodePath("..")
+Grid = NodePath("../../Grid")
+Cell = Vector2i(8, 3)
+Size = Vector2(32, 32)
+
 [connection signal="child_entered_tree" from="Level/PlayerArmy" to="Level" method="OnChildEnteredGroup"]
