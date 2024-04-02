@@ -148,8 +148,18 @@ public partial class Level : Node2D
         // Compute move/attack/support ranges for selected unit
         _pathfinder = new(Grid, _selected);
         Overlay.TraversableCells = _pathfinder.TraversableCells;
-        Overlay.AttackableCells = _pathfinder.AttackableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c));
-        Overlay.SupportableCells = _pathfinder.SupportableCells.Where((c) => !_pathfinder.TraversableCells.Contains(c) && !_pathfinder.AttackableCells.Contains(c));
+        Overlay.AttackableCells = _pathfinder.AttackableCells.Where((c) => {
+            if (Grid.Occupants.ContainsKey(c) && ((Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false)) // exclude cells occupied by allies
+                return false;
+            else
+                return !Overlay.TraversableCells.Contains(c);
+    }   );
+        Overlay.SupportableCells = _pathfinder.SupportableCells.Where((c) => {
+            if (Overlay.TraversableCells.Contains(c) || Overlay.AttackableCells.Contains(c))
+                return false;
+            else
+                return !Grid.Occupants.ContainsKey(c) || ((Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false); // include cells occupied by allies
+        });
         CancelHint.Visible = true;
 
         // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
