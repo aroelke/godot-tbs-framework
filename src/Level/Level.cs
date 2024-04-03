@@ -28,7 +28,9 @@ public partial class Level : Node2D
     private const string CancelEvent = "cancel";
     private const string DoneEvent = "done";
     // State chart conditions
-    private const string MoveCondition = "move";
+    private const string OccupiedCondition = "occupied";
+    private const string SelectedCondition = "selected";
+    private const string TraversableCondition = "traversable";
 
     private StateChart _state = null;
     private Grid _map = null;
@@ -189,6 +191,10 @@ public partial class Level : Node2D
         RestoreCameraZoom();
     }
 
+    public void OnSelectedToTargeting() => _pathfinder = null;
+
+    public void OnSelectedToIdle() => _pathfinder = null;
+
     /// <summary>
     /// Move the cursor back to the unit's position if it's not there already (waiting for it to move if it's mouse controlled),
     /// then go back to the previous state (i.e. the one before the one that was canceled).
@@ -266,7 +272,7 @@ public partial class Level : Node2D
     /// When the cursor moves:
     /// - While a unit is selected:
     ///   - Update the path that's being drawn
-    ///   - Briefly break coninuous digital movement if the cursor moves to the edge of the traversable region
+    ///   - Briefly break continuous digital movement if the cursor moves to the edge of the traversable region
     /// </summary>
     /// <param name="cell">Cell the cursor moved to.</param>
     public void OnCursorMoved(Vector2I cell)
@@ -324,36 +330,9 @@ public partial class Level : Node2D
     /// <param name="cell">Coordinates of the cell selection.</param>
     public void OnCellSelected(Vector2I cell)
     {
-        if (_selected is null)
-        {
-            // Should be in idle state; update selected unit
-            if (Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit unit)
-            {
-                _selected = unit;
-                _state.SendEvent(SelectEvent);
-            }
-        }
-        else if (_pathfinder is not null)
-        {
-            // Should be in selected state
-            if (_pathfinder.TraversableCells.Contains(cell))
-            {
-                if (cell == _selected.Cell)
-                    _pathfinder = null;
-                _state.SetExpressionProperty(MoveCondition, cell != _selected.Cell);
-                _state.SendEvent(SelectEvent);
-            }
-            else
-            {
-                _selected = null;
-                _state.SendEvent(CancelEvent);
-            }
-        }
-        else
-        {
-            // Should be in targeting state
-            _state.SendEvent(SelectEvent);
-        }
+        if (_selected is null && Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit unit)
+            _selected = unit;
+        _state.SendEvent(SelectEvent);
     }
 
     /// <summary>When the unit finishes moving, move to the next state.</summary>
@@ -437,6 +416,10 @@ public partial class Level : Node2D
 
         if (!Engine.IsEditorHint())
         {
+            _state.SetExpressionProperty(OccupiedCondition, Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit);
+            _state.SetExpressionProperty(SelectedCondition, _selected is not null && Grid.Occupants.ContainsKey(Cursor.Cell) && (Grid.Occupants[Cursor.Cell] as Unit) == _selected);
+            _state.SetExpressionProperty(TraversableCondition, _pathfinder is not null && _pathfinder.TraversableCells.Contains(Cursor.Cell));
+
             float zoom = Input.GetAxis(CameraActionAnalogZoomOut, CameraActionAnalogZoomIn);
             if (zoom != 0)
                 Camera.Zoom += Vector2.One*(float)(CameraZoomAnalogFactor*zoom*delta);
