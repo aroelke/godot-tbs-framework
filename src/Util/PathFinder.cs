@@ -143,6 +143,7 @@ public class PathFinder
     /// </summary>
     public IEnumerable<Vector2I> SupportableCells = Array.Empty<Vector2I>();
 
+    /// <summary>Computed path for the unit to move along.</summary>
     public readonly List<Vector2I> Path = new();
 
     /// <summary>Create a new PathFinder for a unit on a map.</summary>
@@ -188,7 +189,7 @@ public class PathFinder
         List<Vector2I> temp = new(Path);
         Path.Clear();
         Path.AddRange(Disentangle(temp.Concat(extension).ToImmutableList()));
-        if (Path.Select((c) => _map.GetTerrain(c).Cost).Sum() - _map.GetTerrain(Path[0]).Cost > _unit.MoveRange)
+        if (_map.Cost(Path.TakeLast(Path.Count - 1)) > _unit.MoveRange)
         {
             Vector2I start = Path[0];
             Path.Clear();

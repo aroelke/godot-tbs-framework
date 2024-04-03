@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using Level.Object;
 
@@ -63,6 +64,14 @@ public partial class Grid : TileMap
     /// <param name="cell">Coordinates of the cell.</param>
     /// <returns>The bounding box of the cell.</returns>
     public Rect2 CellRect(Vector2I cell) => new(cell*CellSize, CellSize);
+
+    /// <summary>
+    /// Compute the total cost of a collection of cells. If the cells are a contiguous path, represents the total cost of moving along that
+    /// path.
+    /// </summary>
+    /// <param name="path">List of cells to sum up.</param>
+    /// <returns>The sum of the cost of each cell in the collection.</returns>
+    public int Cost(IEnumerable<Vector2I> path) => path.Select((c) => GetTerrain(c).Cost).Sum();
 
     public override string[] _GetConfigurationWarnings()
     {
