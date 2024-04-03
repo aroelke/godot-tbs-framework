@@ -318,8 +318,11 @@ public partial class Level : Node2D
         if (_selected is null)
         {
             // Should be in idle state; update selected unit
-            _selected = Grid.Occupants[cell] as Unit;
-            _state.SendEvent("select");
+            if (Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit unit)
+            {
+                _selected = unit;
+                _state.SendEvent("select");
+            }
         }
         else if (_pathfinder is not null)
         {
