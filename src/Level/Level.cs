@@ -243,8 +243,8 @@ public partial class Level : Node2D
         // Show the unit's attack/support ranges
         IEnumerable<Vector2I> attackable = PathFinder.GetCellsInRange(Grid, _selected.AttackRange, _selected.Cell);
         IEnumerable<Vector2I> supportable = PathFinder.GetCellsInRange(Grid, _selected.SupportRange, _selected.Cell);
-        Overlay.AttackableCells = attackable;
-        Overlay.SupportableCells = supportable.Where((c) => !attackable.Contains(c));
+        Overlay.AttackableCells = attackable.Where((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false));
+        Overlay.SupportableCells = supportable.Where((c) => Grid.Occupants.ContainsKey(c) && ((Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false));
     }
 
     /// <summary>Clean up when exiting targeted state.</summary>
