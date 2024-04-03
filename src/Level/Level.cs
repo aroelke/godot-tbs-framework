@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using Godot;
 using GodotStateCharts;
@@ -24,6 +23,13 @@ namespace Level;
 [Tool]
 public partial class Level : Node2D
 {
+    // State chart events
+    private const string SelectEvent = "select";
+    private const string CancelEvent = "cancel";
+    private const string DoneEvent = "done";
+    // State chart conditions
+    private const string MoveCondition = "move";
+
     private StateChart _state = null;
     private Grid _map = null;
     private Overlay _overlay = null;
@@ -198,7 +204,7 @@ public partial class Level : Node2D
             WarpCursor(_selected.Cell);
 
         // Go to idle state
-        _state.SendEvent("done");
+        _state.SendEvent(DoneEvent);
     }
 
     /// <summary>Begin moving the selected unit and then wait for it to finish moving.</summary>
@@ -237,7 +243,7 @@ public partial class Level : Node2D
         WarpCursor(_selected.Cell);
 
         _initialCell = null;
-        _state.SendEvent("done");
+        _state.SendEvent(DoneEvent);
     }
 
     /// <summary>Compute the attack and support ranges of the selected unit from its location.</summary>
@@ -324,7 +330,7 @@ public partial class Level : Node2D
             if (Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit unit)
             {
                 _selected = unit;
-                _state.SendEvent("select");
+                _state.SendEvent(SelectEvent);
             }
         }
         else if (_pathfinder is not null)
@@ -334,19 +340,19 @@ public partial class Level : Node2D
             {
                 if (cell == _selected.Cell)
                     _pathfinder = null;
-                _state.SetExpressionProperty("move", cell != _selected.Cell);
-                _state.SendEvent("select");
+                _state.SetExpressionProperty(MoveCondition, cell != _selected.Cell);
+                _state.SendEvent(SelectEvent);
             }
             else
             {
                 _selected = null;
-                _state.SendEvent("cancel");
+                _state.SendEvent(CancelEvent);
             }
         }
         else
         {
             // Should be in targeting state
-            _state.SendEvent("select");
+            _state.SendEvent(SelectEvent);
         }
     }
 
@@ -354,7 +360,7 @@ public partial class Level : Node2D
     public void OnUnitDoneMoving()
     {
         _selected.DoneMoving -= OnUnitDoneMoving;
-        _state.SendEvent("done");
+        _state.SendEvent(DoneEvent);
     }
 
     /// <summary>When a grid node is added to a group, update its grid.</summary>
@@ -417,7 +423,7 @@ public partial class Level : Node2D
         base._Input(@event);
 
         if (@event.IsActionReleased(CancelAction))
-            _state.SendEvent("cancel");
+            _state.SendEvent(CancelEvent);
 
         if (@event.IsActionPressed(CameraActionDigitalZoomIn))
             Camera.ZoomTarget += Vector2.One*CameraZoomDigitalFactor;
