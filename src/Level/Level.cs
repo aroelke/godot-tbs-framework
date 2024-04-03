@@ -153,7 +153,7 @@ public partial class Level : Node2D
                 return false;
             else
                 return !Overlay.TraversableCells.Contains(c);
-    }   );
+        });
         Overlay.SupportableCells = _pathfinder.SupportableCells.Where((c) => {
             if (Overlay.TraversableCells.Contains(c) || Overlay.AttackableCells.Contains(c))
                 return false;
@@ -324,17 +324,17 @@ public partial class Level : Node2D
         else if (_pathfinder is not null)
         {
             // Should be in selected state
-            if (cell == _selected.Cell || !Grid.Occupants.ContainsKey(cell))
+            if (_pathfinder.TraversableCells.Contains(cell))
             {
-                if (cell != _selected.Cell && _pathfinder.TraversableCells.Contains(cell))
-                    _state.SendEvent("select");
-                else
-                {
-                    if (!_pathfinder.TraversableCells.Contains(cell))
-                        _selected = null;
-                    RestoreCameraZoom();
-                    _state.SendEvent("cancel");
-                }
+                if (cell == _selected.Cell)
+                    _pathfinder = null;
+                _state.SetExpressionProperty("move", cell != _selected.Cell);
+                _state.SendEvent("select");
+            }
+            else
+            {
+                _selected = null;
+                _state.SendEvent("cancel");
             }
         }
         else

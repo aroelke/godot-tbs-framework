@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=29 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/Level/Level.cs" id="1_r2v0t"]
 [ext_resource type="Resource" uid="uid://hkvw8a5g5l62" path="res://src/UI/Controls/Action/References/Map/MapCancelAction.tres" id="2_2u5dc"]
@@ -20,6 +20,8 @@
 [ext_resource type="Script" path="res://addons/godot_state_charts/compound_state.gd" id="18_1u7id"]
 [ext_resource type="Script" path="res://addons/godot_state_charts/atomic_state.gd" id="19_qmelg"]
 [ext_resource type="Script" path="res://addons/godot_state_charts/transition.gd" id="20_pe66u"]
+[ext_resource type="Script" path="res://addons/godot_state_charts/expression_guard.gd" id="21_8eu0e"]
+[ext_resource type="Script" path="res://addons/godot_state_charts/not_guard.gd" id="22_3vdxu"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_vg23h"]
 texture = ExtResource("2_ogyqc")
@@ -423,6 +425,18 @@ terrain_set_1/terrain_0/color = Color(0.5, 0.34375, 0.25, 1)
 sources/3 = SubResource("TileSetAtlasSource_qo1xq")
 sources/2 = SubResource("TileSetAtlasSource_vg23h")
 
+[sub_resource type="Resource" id="Resource_11ms5"]
+script = ExtResource("21_8eu0e")
+expression = "move"
+
+[sub_resource type="Resource" id="Resource_pn3ww"]
+script = ExtResource("21_8eu0e")
+expression = "move"
+
+[sub_resource type="Resource" id="Resource_7311v"]
+script = ExtResource("22_3vdxu")
+guard = SubResource("Resource_pn3ww")
+
 [node name="Level" type="Node2D"]
 script = ExtResource("1_r2v0t")
 CancelAction = ExtResource("2_2u5dc")
@@ -519,6 +533,13 @@ script = ExtResource("19_qmelg")
 script = ExtResource("20_pe66u")
 to = NodePath("../../UnitMoving")
 event = &"select"
+guard = SubResource("Resource_11ms5")
+
+[node name="ToTargeting" type="Node" parent="State/Root/UnitSelected"]
+script = ExtResource("20_pe66u")
+to = NodePath("../../UnitTargeting")
+event = &"select"
+guard = SubResource("Resource_7311v")
 
 [node name="ToCancel" type="Node" parent="State/Root/UnitSelected"]
 script = ExtResource("20_pe66u")
