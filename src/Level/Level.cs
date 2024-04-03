@@ -218,6 +218,13 @@ public partial class Level : Node2D
         Camera.Target = _selected.MotionBox;
     }
 
+    /// <summary>When done moving, restore the camera target (most likely to the cursor).</summary>
+    public void OnMovingExited()
+    {
+        (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = _prevDeadzone;
+        Camera.Target = _prevTarget;
+    }
+
     /// <summary>Move the selected unit back to its starting position and move the pointer there, then go back to "selected" state.</summary>
     public void OnCancelTargetingEntered()
     {
@@ -236,10 +243,6 @@ public partial class Level : Node2D
     /// <summary>Compute the attack and support ranges of the selected unit from its location.</summary>
     public void OnTargetingEntered()
     {
-        // Restore the camera's old target
-        (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = _prevDeadzone;
-        Camera.Target = _prevTarget;
-
         // Show the unit's attack/support ranges
         IEnumerable<Vector2I> attackable = PathFinder.GetCellsInRange(Grid, _selected.AttackRange, _selected.Cell);
         IEnumerable<Vector2I> supportable = PathFinder.GetCellsInRange(Grid, _selected.SupportRange, _selected.Cell);
