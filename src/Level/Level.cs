@@ -282,8 +282,6 @@ public partial class Level : Node2D
     {
         if (_selectedState.Active && _pathfinder.TraversableCells.Contains(cell))
         {
-//            _pathfinder.AddToPath(cell);
-//            Overlay.Path = _pathfinder.Path;
             Overlay.Path = (_path = _path.Add(cell).Clamp(_selected.MoveRange)).ToList();
 
             if (DeviceManager.Mode == InputMode.Digital)
