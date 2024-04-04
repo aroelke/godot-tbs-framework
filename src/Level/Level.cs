@@ -47,6 +47,7 @@ public partial class Level : Node2D
     private Vector4 _prevDeadzone = new();
     private BoundedNode2D _prevTarget = null;
     private Vector2I? _initialCell = null;
+    private Path _path = null;
 
     private Grid Grid => _map ??= GetNode<Grid>("Grid");
     private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
@@ -156,6 +157,7 @@ public partial class Level : Node2D
 
         // Compute move/attack/support ranges for selected unit
         _pathfinder = new(Grid, _selected);
+        _path = Path.Empty(Grid, _pathfinder.TraversableCells).Add(_selected.Cell);
         Overlay.TraversableCells = _pathfinder.TraversableCells;
         Overlay.AttackableCells = _pathfinder.AttackableCells.Where((c) => {
             if (Grid.Occupants.ContainsKey(c) && ((Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false)) // exclude cells occupied by allies
@@ -219,7 +221,7 @@ public partial class Level : Node2D
     {
         // Move the unit and delete the pathfinder as we don't need it anymore
         Grid.Occupants.Remove(_selected.Cell);
-        _selected.MoveAlong(_pathfinder.Path);
+        _selected.MoveAlong(_path.ToList());
         _selected.DoneMoving += OnUnitDoneMoving;
         Grid.Occupants[_selected.Cell] = _selected;
         _pathfinder = null;
@@ -280,8 +282,9 @@ public partial class Level : Node2D
     {
         if (_selectedState.Active && _pathfinder.TraversableCells.Contains(cell))
         {
-            _pathfinder.AddToPath(cell);
-            Overlay.Path = _pathfinder.Path;
+//            _pathfinder.AddToPath(cell);
+//            Overlay.Path = _pathfinder.Path;
+            Overlay.Path = (_path = _path.Add(cell).Clamp(_selected.MoveRange)).ToList();
 
             if (DeviceManager.Mode == InputMode.Digital)
             {
@@ -295,7 +298,7 @@ public partial class Level : Node2D
         _cursorPrev = cell;
     }
 
-        /// <summary>
+    /// <summary>
     /// When the cursor wants to skip, move it to the edge of the region it's in in that direction. The "region the cursor is in" is defined based
     /// on whether or not it's inside the set of traversable cells (if a unit is selected) or not.
     /// </summary>

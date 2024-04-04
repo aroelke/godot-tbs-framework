@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using Level.Object;
+using Util;
 
 namespace Level.Map;
 
@@ -72,6 +73,19 @@ public partial class Grid : TileMap
     /// <param name="path">List of cells to sum up.</param>
     /// <returns>The sum of the cost of each cell in the collection.</returns>
     public int Cost(IEnumerable<Vector2I> path) => path.Select((c) => GetTerrain(c).Cost).Sum();
+
+    /// <summary>Find all the cells that are exactly a specified Manhattan distance away from a center cell.</summary>
+    /// <param name="cell">Cell at the center of the range.</param>
+    /// <param name="range">Distance away from the center cell to search.</param>
+    /// <returns>A collection of cells that are on the grid and exactly the specified distance away from the center.</returns>
+    public IEnumerable<Vector2I> GetCellsAtRange(Vector2I cell, int range)
+    {
+        HashSet<Vector2I> cells = new();
+        foreach (Vector2I direction in Vector2IExtensions.Directions)
+            if (Contains(cell + range*direction))
+                cells.Add(cell + range*direction);
+        return cells;
+    }
 
     public override string[] _GetConfigurationWarnings()
     {
