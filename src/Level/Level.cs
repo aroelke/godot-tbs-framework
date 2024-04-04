@@ -33,6 +33,7 @@ public partial class Level : Node2D
     private const string TraversableCondition = "traversable";
 
     private StateChart _state = null;
+    private StateChartState _selectedState = null;
     private Grid _map = null;
     private Overlay _overlay = null;
     private Camera2DBrain _camera = null;
@@ -277,7 +278,7 @@ public partial class Level : Node2D
     /// <param name="cell">Cell the cursor moved to.</param>
     public void OnCursorMoved(Vector2I cell)
     {
-        if (_pathfinder is not null && _pathfinder.TraversableCells.Contains(cell))
+        if (_selectedState.Active && _pathfinder.TraversableCells.Contains(cell))
         {
             _pathfinder.AddToPath(cell);
             Overlay.Path = _pathfinder.Path;
@@ -309,7 +310,7 @@ public partial class Level : Node2D
         if (direction != Vector2I.Zero)
         {
             Vector2I neighbor = Cursor.Cell + direction;
-            if (_pathfinder is not null)
+            if (_selectedState.Active)
             {
                 bool traversable = _pathfinder.TraversableCells.Contains(neighbor);
                 Vector2I target = neighbor;
@@ -375,6 +376,7 @@ public partial class Level : Node2D
         if (!Engine.IsEditorHint())
         {
             _state = StateChart.Of(GetNode("State"));
+            _selectedState = StateChartState.Of(GetNode("State/Root/UnitSelected"));
 
             Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
             Cursor.Grid = Grid;
