@@ -3,6 +3,7 @@ using System.Linq;
 using Godot;
 using Level.Object.Group;
 using Object;
+using Util;
 
 namespace Level.Object;
 
@@ -31,6 +32,15 @@ public partial class Unit : GridNode
     private Path2D Path => _path = GetNode<Path2D>("Path");
     private PathFollow2D PathFollow => _follow = GetNode<PathFollow2D>("Path/PathFollow");
 
+    private IEnumerable<Vector2I> GetCellsInRange(IEnumerable<Vector2I> sources, IEnumerable<int> ranges)
+    {
+        HashSet<Vector2I> inRange = new();
+        foreach (Vector2I source in sources)
+            foreach (int r in ranges)
+                inRange.UnionWith(Grid.GetCellsAtRange(source, r));
+        return inRange;
+    }
+
     /// <summary>Movement range of the unit, in grid cells.</summary>
     [Export] public int MoveRange = 5;
 
@@ -54,6 +64,46 @@ public partial class Unit : GridNode
 
     /// <summary>Speed, in world pixels/second, to move along the path while moving.</summary>
     [Export] public double MoveSpeed = 320;
+
+    public IEnumerable<Vector2I> TraversableCells()
+    {
+        int max = 2*(MoveRange + 1)*(MoveRange + 1) - 2*MoveRange - 1;
+
+        Dictionary<Vector2I, int> cells = new(max) {{ Cell, 0 }};
+        Queue<Vector2I> potential = new(max);
+
+        potential.Enqueue(Cell);
+        while (potential.Count > 0)
+        {
+            Vector2I current = potential.Dequeue();
+
+            foreach (Vector2I direction in PathFinder.Directions)
+            {
+                Vector2I neighbor = current + direction;
+                if (Grid.Contains(neighbor))
+                {
+                    int cost = cells[current] + Grid.GetTerrain(neighbor).Cost;
+                    if ((!cells.ContainsKey(neighbor) || cells[neighbor] > cost) && // cell hasn't been examined yet or this path is shorter to get there
+                        (!Grid.Occupants.ContainsKey(neighbor) || ((Grid.Occupants[neighbor] as Unit)?.Affiliation.AlliedTo(this) ?? false)) && // cell is empty or it's an allied unit
+                        cost <= MoveRange) // cost to get to cell is within range
+                    {
+                        cells[neighbor] = cost;
+                        potential.Enqueue(neighbor);
+                    }
+                }
+            }
+        }
+
+        return cells.Keys;
+    }
+
+    public IEnumerable<Vector2I> AttackableCells(IEnumerable<Vector2I> sources) => GetCellsInRange(sources, AttackRange);
+
+    public IEnumerable<Vector2I> AttackableCells() => AttackableCells(new[] { Cell });
+
+    public IEnumerable<Vector2I> SupportableCells(IEnumerable<Vector2I> sources) => GetCellsInRange(sources, SupportRange);
+
+    public IEnumerable<Vector2I> SupportableCells() => SupportableCells(new[] { Cell });
 
     /// <summary>Put the unit in the "selected" state.</summary>
     public void Select()

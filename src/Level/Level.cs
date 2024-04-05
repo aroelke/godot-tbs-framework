@@ -41,13 +41,13 @@ public partial class Level : Node2D
     private Pointer _pointer = null;
     private Vector2I _cursorPrev = Vector2I.Zero;
     private Unit _selected = null;
-    private PathFinder _pathfinder = null;
     private ControlHint _cancelHint = null;
     private Vector2? _prevZoom = null;
     private Vector4 _prevDeadzone = new();
     private BoundedNode2D _prevTarget = null;
     private Vector2I? _initialCell = null;
     private Path _path = null;
+    private IEnumerable<Vector2I> _traversable = Array.Empty<Vector2I>(), _attackable = Array.Empty<Vector2I>(), _supportable = Array.Empty<Vector2I>();
 
     private Grid Grid => _map ??= GetNode<Grid>("Grid");
     private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
@@ -156,16 +156,18 @@ public partial class Level : Node2D
         _initialCell = _selected.Cell;
 
         // Compute move/attack/support ranges for selected unit
-        _pathfinder = new(Grid, _selected);
-        _path = Path.Empty(Grid, _pathfinder.TraversableCells).Add(_selected.Cell);
-        Overlay.TraversableCells = _pathfinder.TraversableCells;
-        Overlay.AttackableCells = _pathfinder.AttackableCells.Where((c) => {
+        _traversable = _selected.TraversableCells();
+        _attackable = _selected.AttackableCells(_traversable);
+        _supportable = _selected.SupportableCells(_traversable);
+        _path = Path.Empty(Grid, _traversable).Add(_selected.Cell);
+        Overlay.TraversableCells = _traversable;
+        Overlay.AttackableCells = _attackable.Where((c) => {
             if (Grid.Occupants.ContainsKey(c) && ((Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false)) // exclude cells occupied by allies
                 return false;
             else
                 return !Overlay.TraversableCells.Contains(c);
         });
-        Overlay.SupportableCells = _pathfinder.SupportableCells.Where((c) => {
+        Overlay.SupportableCells = _supportable.Where((c) => {
             if (Overlay.TraversableCells.Contains(c) || Overlay.AttackableCells.Contains(c))
                 return false;
             else
@@ -194,9 +196,9 @@ public partial class Level : Node2D
         RestoreCameraZoom();
     }
 
-    public void OnSelectedToTargeting() => _pathfinder = null;
+    public void OnSelectedToTargeting() => _traversable = Array.Empty<Vector2I>();
 
-    public void OnSelectedToIdle() => _pathfinder = null;
+    public void OnSelectedToIdle() => _traversable = Array.Empty<Vector2I>();
 
     /// <summary>
     /// Move the cursor back to the unit's position if it's not there already (waiting for it to move if it's mouse controlled),
@@ -204,8 +206,8 @@ public partial class Level : Node2D
     /// </summary>
     public void OnCancelSelectionEntered()
     {
-        // Clear out the displayed ranges. This can't be done on selected exit because it needs to exist when entering moving.
-        _pathfinder = null;
+        // Clear out the move range. This can't be done on selected exit because it needs to exist when entering moving.
+        _traversable = Array.Empty<Vector2I>();
 
         // In some cases (namely, when the player selects a square outside the selected unit's move range), the cursor should not warp
         // when canceling selection. This is indicated by nulling the selectd unit before transitioning to the "cancel selection" state
@@ -224,7 +226,7 @@ public partial class Level : Node2D
         _selected.MoveAlong(_path.ToList());
         _selected.DoneMoving += OnUnitDoneMoving;
         Grid.Occupants[_selected.Cell] = _selected;
-        _pathfinder = null;
+        _traversable = Array.Empty<Vector2I>();
 
         // Track the unit as it's moving
         _prevDeadzone = new(Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight);
@@ -259,8 +261,8 @@ public partial class Level : Node2D
     public void OnTargetingEntered()
     {
         // Show the unit's attack/support ranges
-        IEnumerable<Vector2I> attackable = PathFinder.GetCellsInRange(Grid, _selected.AttackRange, _selected.Cell);
-        IEnumerable<Vector2I> supportable = PathFinder.GetCellsInRange(Grid, _selected.SupportRange, _selected.Cell);
+        IEnumerable<Vector2I> attackable = _selected.AttackableCells();
+        IEnumerable<Vector2I> supportable = _selected.SupportableCells();
         Overlay.AttackableCells = attackable.Where((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false));
         Overlay.SupportableCells = supportable.Where((c) => Grid.Occupants.ContainsKey(c) && ((Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false));
     }
@@ -280,7 +282,7 @@ public partial class Level : Node2D
     /// <param name="cell">Cell the cursor moved to.</param>
     public void OnCursorMoved(Vector2I cell)
     {
-        if (_selectedState.Active && _pathfinder.TraversableCells.Contains(cell))
+        if (_selectedState.Active && _traversable.Contains(cell))
         {
             Overlay.Path = (_path = _path.Add(cell).Clamp(_selected.MoveRange)).ToList();
 
@@ -288,7 +290,7 @@ public partial class Level : Node2D
             {
                 Vector2I direction = cell - _cursorPrev;
                 Vector2I next = cell + direction;
-                if (Grid.Contains(next) && !_pathfinder.TraversableCells.Contains(next))
+                if (Grid.Contains(next) && !_traversable.Contains(next))
                     Cursor.BreakMovement();
             }
         }
@@ -313,10 +315,10 @@ public partial class Level : Node2D
             Vector2I neighbor = Cursor.Cell + direction;
             if (_selectedState.Active)
             {
-                bool traversable = _pathfinder.TraversableCells.Contains(neighbor);
+                bool traversable = _traversable.Contains(neighbor);
                 Vector2I target = neighbor;
                 int i = 1;
-                while (Grid.Contains(neighbor + direction*i) && _pathfinder.TraversableCells.Contains(neighbor + direction*i) == traversable)
+                while (Grid.Contains(neighbor + direction*i) && _traversable.Contains(neighbor + direction*i) == traversable)
                 {
                     target = neighbor + direction*i;
                     i++;
@@ -421,7 +423,7 @@ public partial class Level : Node2D
         {
             _state.SetExpressionProperty(OccupiedCondition, Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit);
             _state.SetExpressionProperty(SelectedCondition, _selected is not null && Grid.Occupants.ContainsKey(Cursor.Cell) && (Grid.Occupants[Cursor.Cell] as Unit) == _selected);
-            _state.SetExpressionProperty(TraversableCondition, _pathfinder is not null && _pathfinder.TraversableCells.Contains(Cursor.Cell));
+            _state.SetExpressionProperty(TraversableCondition, _traversable.Contains(Cursor.Cell));
 
             float zoom = Input.GetAxis(CameraActionAnalogZoomOut, CameraActionAnalogZoomIn);
             if (zoom != 0)
