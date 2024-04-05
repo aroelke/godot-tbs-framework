@@ -81,9 +81,18 @@ public partial class Grid : TileMap
     public IEnumerable<Vector2I> GetCellsAtRange(Vector2I cell, int range)
     {
         HashSet<Vector2I> cells = new();
-        foreach (Vector2I direction in Vector2IExtensions.Directions)
-            if (Contains(cell + range*direction))
-                cells.Add(cell + range*direction);
+        for (int i = 0; i < range; i++)
+        {
+            Vector2I target;
+            if (Contains(target = cell + new Vector2I(-range + i, -i)))
+                cells.Add(target);
+            if (Contains(target = cell + new Vector2I(i, -range + i)))
+                cells.Add(target);
+            if (Contains(target = cell + new Vector2I(range - i, i)))
+                cells.Add(target);
+            if (Contains(target = cell + new Vector2I(-i, range - i)))
+                cells.Add(target);
+        }
         return cells;
     }
 
