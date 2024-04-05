@@ -77,7 +77,7 @@ public partial class Unit : GridNode
         {
             Vector2I current = potential.Dequeue();
 
-            foreach (Vector2I direction in PathFinder.Directions)
+            foreach (Vector2I direction in Vector2IExtensions.Directions)
             {
                 Vector2I neighbor = current + direction;
                 if (Grid.Contains(neighbor))
