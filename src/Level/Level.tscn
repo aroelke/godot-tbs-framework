@@ -610,8 +610,6 @@ event = &"cancel"
 [connection signal="state_entered" from="State/Root/CancelSelection" to="." method="OnCancelSelectionEntered"]
 [connection signal="state_entered" from="State/Root/UnitSelected" to="." method="OnSelectedEntered"]
 [connection signal="state_exited" from="State/Root/UnitSelected" to="." method="OnSelectedExited"]
-[connection signal="taken" from="State/Root/UnitSelected/ToTargeting" to="." method="OnSelectedToTargeting"]
-[connection signal="taken" from="State/Root/UnitSelected/ToIdle" to="." method="OnSelectedToIdle"]
 [connection signal="state_entered" from="State/Root/UnitMoving" to="." method="OnMovingEntered"]
 [connection signal="state_exited" from="State/Root/UnitMoving" to="." method="OnMovingExited"]
 [connection signal="state_entered" from="State/Root/CancelTargeting" to="." method="OnCancelTargetingEntered"]

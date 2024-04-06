@@ -56,16 +56,6 @@ public partial class Level : Node2D
     private Pointer Pointer => _pointer ??= GetNode<Pointer>("Pointer");
     private ControlHint CancelHint => _cancelHint ??= GetNode<ControlHint>("UserInterface/HUD/Hints/CancelHint");
 
-    /// <summary>Restore the camera zoom back to what it was before a unit was selected.</summary>
-    private void RestoreCameraZoom()
-    {
-        if (_prevZoom is not null)
-        {
-            Camera.ZoomTarget = _prevZoom.Value;
-            _prevZoom = null;
-        }
-    }
-
     /// <summary>
     /// If the cursor isn't in the specified cell, move it to (the center of) that cell. During mouse control, this is done smoothly
     /// over time to maintain consistency with the system pointer.
@@ -192,13 +182,17 @@ public partial class Level : Node2D
     /// <summary>Clean up when exiting selected state.</summary>
     public void OnSelectedExited()
     {
+        // Clear out movement/action ranges
+        _traversable = Array.Empty<Vector2I>();
         Overlay.Clear();
-        RestoreCameraZoom();
+        
+        // Restore the camera zoom back to what it was before a unit was selected
+        if (_prevZoom is not null)
+        {
+            Camera.ZoomTarget = _prevZoom.Value;
+            _prevZoom = null;
+        }
     }
-
-    public void OnSelectedToTargeting() => _traversable = Array.Empty<Vector2I>();
-
-    public void OnSelectedToIdle() => _traversable = Array.Empty<Vector2I>();
 
     /// <summary>
     /// Move the cursor back to the unit's position if it's not there already (waiting for it to move if it's mouse controlled),
@@ -206,9 +200,6 @@ public partial class Level : Node2D
     /// </summary>
     public void OnCancelSelectionEntered()
     {
-        // Clear out the move range. This can't be done on selected exit because it needs to exist when entering moving.
-        _traversable = Array.Empty<Vector2I>();
-
         // In some cases (namely, when the player selects a square outside the selected unit's move range), the cursor should not warp
         // when canceling selection. This is indicated by nulling the selectd unit before transitioning to the "cancel selection" state
         if (_selected is not null)
@@ -226,7 +217,6 @@ public partial class Level : Node2D
         _selected.MoveAlong(_path.ToList());
         _selected.DoneMoving += OnUnitDoneMoving;
         Grid.Occupants[_selected.Cell] = _selected;
-        _traversable = Array.Empty<Vector2I>();
 
         // Track the unit as it's moving
         _prevDeadzone = new(Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight);
@@ -240,6 +230,7 @@ public partial class Level : Node2D
     {
         (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = _prevDeadzone;
         Camera.Target = _prevTarget;
+        _path = null;
     }
 
     /// <summary>Move the selected unit back to its starting position and move the pointer there, then go back to "selected" state.</summary>
