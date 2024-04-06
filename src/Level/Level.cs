@@ -150,6 +150,7 @@ public partial class Level : Node2D
         _attackable = _selected.AttackableCells(_traversable);
         _supportable = _selected.SupportableCells(_traversable);
         _path = Path.Empty(Grid, _traversable).Add(_selected.Cell);
+        Cursor.SoftRestriction = _traversable.ToHashSet();
         Overlay.TraversableCells = _traversable;
         Overlay.AttackableCells = _attackable.Where((c) => {
             if (Grid.Occupants.ContainsKey(c) && ((Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false)) // exclude cells occupied by allies
@@ -184,6 +185,7 @@ public partial class Level : Node2D
     {
         // Clear out movement/action ranges
         _traversable = Array.Empty<Vector2I>();
+        Cursor.SoftRestriction.Clear();
         Overlay.Clear();
         
         // Restore the camera zoom back to what it was before a unit was selected
@@ -287,38 +289,6 @@ public partial class Level : Node2D
         }
 
         _cursorPrev = cell;
-    }
-
-    /// <summary>
-    /// When the cursor wants to skip, move it to the edge of the region it's in in that direction. The "region the cursor is in" is defined based
-    /// on whether or not it's inside the set of traversable cells (if a unit is selected) or not.
-    /// </summary>
-    /// <param name="direction">Direction to skip the cursor in.</param>
-    public void OnCursorRequestSkip(Vector2I direction)
-    {
-        if ((Cursor.Cell.Y == 0 && direction.Y < 0) || (Cursor.Cell.Y == Grid.Size.Y - 1 && direction.Y > 0))
-            direction = direction with { Y = 0 };
-        if ((Cursor.Cell.X == 0 && direction.X < 0) || (Cursor.Cell.X == Grid.Size.X - 1 && direction.X > 0))
-            direction = direction with { X = 0 };
-
-        if (direction != Vector2I.Zero)
-        {
-            Vector2I neighbor = Cursor.Cell + direction;
-            if (_selectedState.Active)
-            {
-                bool traversable = _traversable.Contains(neighbor);
-                Vector2I target = neighbor;
-                int i = 1;
-                while (Grid.Contains(neighbor + direction*i) && _traversable.Contains(neighbor + direction*i) == traversable)
-                {
-                    target = neighbor + direction*i;
-                    i++;
-                }
-                Cursor.Cell = target;
-            }
-            else
-                Cursor.Cell = Grid.Clamp(Cursor.Cell + direction*Grid.Size);
-        }
     }
 
     /// <summary>When a cell is selected, act based on what is or isn't in the cell.</summary>

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Godot;
 using UI.Controls.Action;
 using UI.Controls.Device;
@@ -20,18 +22,11 @@ public partial class Cursor : GridNode
     /// <param name="cell">Coordinates of the cell that has been selected.</param>
     [Signal] public delegate void CellSelectedEventHandler(Vector2I cell);
 
-    /// <summary>
-    /// Signals that the cursor wants to skip toward a direction. Where it goes depends on the context. On the field, it means skipping to the
-    /// next region edge (traversable cells if a unit is selected and the cursor is in that region or map edge otherwise).
-    /// </summary>
-    /// <param name="direction">Direction to skip.</param>
-    [Signal] public delegate void RequestSkipEventHandler(Vector2I direction);
+    private DigitalMoveAction _mover = null;
+    private DigitalMoveAction MoveController => _mover ??= GetNode<DigitalMoveAction>("MoveController");
 
     /// <summary>Action for selecting a cell.</summary>
     [Export] public InputActionReference SelectAction = new();
-
-    private DigitalMoveAction _mover = null;
-    private DigitalMoveAction MoveController => _mover ??= GetNode<DigitalMoveAction>("MoveController");
 
     /// <summary>Cell the cursor occupies. Overrides <c>GridNode.Cell</c> to ensure that the position is updated before any signals fire.</summary>
     public override Vector2I Cell
@@ -54,6 +49,9 @@ public partial class Cursor : GridNode
         }
     }
 
+    /// <summary>"Soft zone" that breaks cursor continuous movement and skips to the edge of.</summary>
+    public HashSet<Vector2I> SoftRestriction = new();
+
     /// <summary>Briefly break continuous digital movement to allow reaction from the player (e.g. the cursor has reached the edge of the movement range).</summary>
     public void BreakMovement() => MoveController.ResetEcho();
 
@@ -68,9 +66,34 @@ public partial class Cursor : GridNode
             Cell = Grid.CellOf(position);
     }
 
-    /// <summary>Forward skips to the level manager so it can determine where the skip should end up.</summary>
+    /// <summary>Skip in a direction, stopping at the edge of the <see cref="SoftRestriction"/> or the edge of the grid, whichever is first.</summary>
     /// <param name="direction">Direction to skip.</param>
-    public void OnSkip(Vector2I direction) => EmitSignal(SignalName.RequestSkip, direction);
+    public void OnSkip(Vector2I direction)
+    {
+        if ((Cell.Y == 0 && direction.Y < 0) || (Cell.Y == Grid.Size.Y - 1 && direction.Y > 0))
+            direction = direction with { Y = 0 };
+        if ((Cell.X == 0 && direction.X < 0) || (Cell.X == Grid.Size.X - 1 && direction.X > 0))
+            direction = direction with { X = 0 };
+
+        if (direction != Vector2I.Zero)
+        {
+            Vector2I neighbor = Cell + direction;
+            if (SoftRestriction.Count > 0)
+            {
+                bool traversable = SoftRestriction.Contains(neighbor);
+                Vector2I target = neighbor;
+                int i = 1;
+                while (Grid.Contains(neighbor + direction*i) && SoftRestriction.Contains(neighbor + direction*i) == traversable)
+                {
+                    target = neighbor + direction*i;
+                    i++;
+                }
+                Cell = target;
+            }
+            else
+                Cell = Grid.Clamp(Cell + direction*Grid.Size);
+        }
+    }
 
     public override void _UnhandledInput(InputEvent @event)
     {

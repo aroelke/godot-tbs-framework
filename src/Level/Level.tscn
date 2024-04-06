@@ -604,7 +604,6 @@ event = &"cancel"
 [connection signal="CellChanged" from="Cursor" to="." method="OnCursorMoved"]
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]
 [connection signal="CursorMoved" from="Cursor" to="Pointer" method="OnCursorMoved"]
-[connection signal="RequestSkip" from="Cursor" to="." method="OnCursorRequestSkip"]
 [connection signal="PointerMoved" from="Pointer" to="Cursor" method="OnPointerMoved"]
 [connection signal="state_entered" from="State/Root/Idle" to="." method="OnIdleEntered"]
 [connection signal="state_entered" from="State/Root/CancelSelection" to="." method="OnCancelSelectionEntered"]
