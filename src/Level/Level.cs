@@ -39,7 +39,6 @@ public partial class Level : Node2D
     private Camera2DBrain _camera = null;
     private Cursor _cursor = null;
     private Pointer _pointer = null;
-    private Vector2I _cursorPrev = Vector2I.Zero;
     private Unit _selected = null;
     private ControlHint _cancelHint = null;
     private Vector2? _prevZoom = null;
@@ -276,19 +275,7 @@ public partial class Level : Node2D
     public void OnCursorMoved(Vector2I cell)
     {
         if (_selectedState.Active && _traversable.Contains(cell))
-        {
             Overlay.Path = (_path = _path.Add(cell).Clamp(_selected.MoveRange)).ToList();
-
-            if (DeviceManager.Mode == InputMode.Digital)
-            {
-                Vector2I direction = cell - _cursorPrev;
-                Vector2I next = cell + direction;
-                if (Grid.Contains(next) && !_traversable.Contains(next))
-                    Cursor.BreakMovement();
-            }
-        }
-
-        _cursorPrev = cell;
     }
 
     /// <summary>When a cell is selected, act based on what is or isn't in the cell.</summary>
@@ -344,7 +331,6 @@ public partial class Level : Node2D
 
             Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
             Cursor.Grid = Grid;
-            _cursorPrev = Cursor.Cell;
             Pointer.Bounds = Camera.Limits;
 
             foreach (Node child in GetChildren())

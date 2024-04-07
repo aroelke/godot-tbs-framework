@@ -28,7 +28,7 @@ public partial class Cursor : GridNode
     /// <summary>Action for selecting a cell.</summary>
     [Export] public InputActionReference SelectAction = new();
 
-    /// <summary>Cell the cursor occupies. Overrides <c>GridNode.Cell</c> to ensure that the position is updated before any signals fire.</summary>
+    /// <summary>Cell the cursor occupies. Overrides <see cref="GridNode.Cell"/> to ensure that the position is updated before any signals fire.</summary>
     public override Vector2I Cell
     {
         get => base.Cell;
@@ -41,6 +41,18 @@ public partial class Cursor : GridNode
                 Vector2I next = Grid.Clamp(value);
                 if (next != Cell)
                 {
+                    // Briefly break continuous digital movement to allow reaction from the player when the cursor has reached the edge of the soft restriction
+                    if (SoftRestriction.Contains(next))
+                    {
+                        if (DeviceManager.Mode == InputMode.Digital)
+                        {
+                            Vector2I direction = next - base.Cell;
+                            Vector2I further = value + direction;
+                            if (Grid.Contains(further) && !SoftRestriction.Contains(further))
+                                MoveController.ResetEcho();
+                        }
+                    }
+
                     Position = Grid.PositionOf(next);
                     base.Cell = next;
                     EmitSignal(SignalName.CursorMoved, Position + Grid.CellSize/2);
@@ -51,9 +63,6 @@ public partial class Cursor : GridNode
 
     /// <summary>"Soft zone" that breaks cursor continuous movement and skips to the edge of.</summary>
     public HashSet<Vector2I> SoftRestriction = new();
-
-    /// <summary>Briefly break continuous digital movement to allow reaction from the player (e.g. the cursor has reached the edge of the movement range).</summary>
-    public void BreakMovement() => MoveController.ResetEcho();
 
     /// <summary>When a direction is pressd, move the cursor to the adjacent cell there.</summary>
     public void OnDirectionPressed(Vector2I direction) => Cell += direction;
