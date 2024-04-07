@@ -86,17 +86,12 @@ public partial class Cursor : GridNode
 
         if (direction != Vector2I.Zero)
         {
-            Vector2I neighbor = Cell + direction;
             if (SoftRestriction.Count > 0)
             {
-                bool traversable = SoftRestriction.Contains(neighbor);
-                Vector2I target = neighbor;
-                int i = 1;
-                while (Grid.Contains(neighbor + direction*i) && SoftRestriction.Contains(neighbor + direction*i) == traversable)
-                {
-                    target = neighbor + direction*i;
-                    i++;
-                }
+                bool traversable = SoftRestriction.Contains(Cell + direction);
+                Vector2I target = Cell;
+                while (Grid.Contains(target + direction) && SoftRestriction.Contains(target + direction) == traversable)
+                    target += direction;
                 Cell = target;
             }
             else
