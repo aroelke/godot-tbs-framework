@@ -114,27 +114,36 @@ public partial class Cursor : GridNode
             Cell = Grid.CellOf(position);
     }
 
-    /// <summary>Skip in a direction, stopping at the edge of the <see cref="SoftRestriction"/> or the edge of the grid, whichever is first.</summary>
+    /// <summary>Skip in a direction, stopping at the edge of the <see cref="HardRestriction"/>, <see cref="SoftRestriction"/>, or grid, whichever is first.</summary>
     /// <param name="direction">Direction to skip.</param>
     public void OnSkip(Vector2I direction)
     {
-        if ((Cell.Y == 0 && direction.Y < 0) || (Cell.Y == Grid.Size.Y - 1 && direction.Y > 0))
-            direction = direction with { Y = 0 };
-        if ((Cell.X == 0 && direction.X < 0) || (Cell.X == Grid.Size.X - 1 && direction.X > 0))
-            direction = direction with { X = 0 };
-
-        if (direction != Vector2I.Zero)
+        if (HardRestriction.Any())
         {
-            if (SoftRestriction.Count > 0)
+            IEnumerable<Vector2I> ahead = HardRestriction.Where((c) => (c - Cell)*direction > Vector2I.Zero);
+            if (ahead.Any())
+                Cell = ahead.OrderBy((c) => (c*direction.Inverse()).Length()).OrderBy((c) => Cell.DistanceTo(c)).OrderByDescending((c) => ((c - Cell)*direction).Length()).First();
+        }
+        else
+        {
+            if ((Cell.Y == 0 && direction.Y < 0) || (Cell.Y == Grid.Size.Y - 1 && direction.Y > 0))
+                direction = direction with { Y = 0 };
+            if ((Cell.X == 0 && direction.X < 0) || (Cell.X == Grid.Size.X - 1 && direction.X > 0))
+                direction = direction with { X = 0 };
+
+            if (direction != Vector2I.Zero)
             {
-                bool traversable = SoftRestriction.Contains(Cell + direction);
-                Vector2I target = Cell; // Don't want to directly update cell to avoid firing events
-                while (Grid.Contains(target + direction) && SoftRestriction.Contains(target + direction) == traversable)
-                    target += direction;
-                Cell = target;
+                if (SoftRestriction.Any())
+                {
+                    bool traversable = SoftRestriction.Contains(Cell + direction);
+                    Vector2I target = Cell; // Don't want to directly update cell to avoid firing events
+                    while (Grid.Contains(target + direction) && SoftRestriction.Contains(target + direction) == traversable)
+                        target += direction;
+                    Cell = target;
+                }
+                else
+                    Cell = Grid.Clamp(Cell + direction*Grid.Size);
             }
-            else
-                Cell = Grid.Clamp(Cell + direction*Grid.Size);
         }
     }
 
