@@ -1,8 +1,10 @@
-using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using Godot;
 using UI.Controls.Action;
 using UI.Controls.Device;
+using Util;
 
 namespace Level.Object;
 
@@ -22,11 +24,15 @@ public partial class Cursor : GridNode
     /// <param name="cell">Coordinates of the cell that has been selected.</param>
     [Signal] public delegate void CellSelectedEventHandler(Vector2I cell);
 
+    private ImmutableHashSet<Vector2I> _hard = ImmutableHashSet<Vector2I>.Empty;
+
     private DigitalMoveAction _mover = null;
     private DigitalMoveAction MoveController => _mover ??= GetNode<DigitalMoveAction>("MoveController");
 
     /// <summary>Action for selecting a cell.</summary>
     [Export] public InputActionReference SelectAction = new();
+
+    [Export] public bool Wrap = false;
 
     /// <summary>Cell the cursor occupies. Overrides <see cref="GridNode.Cell"/> to ensure that the position is updated before any signals fire.</summary>
     public override Vector2I Cell
@@ -64,8 +70,33 @@ public partial class Cursor : GridNode
     /// <summary>"Soft zone" that breaks cursor continuous movement and skips to the edge of.</summary>
     public HashSet<Vector2I> SoftRestriction = new();
 
+    /// <summary>
+    /// Set of cells the cursor is restricted to moving in.  If empty, the cursor moves normally on the whole grid. Setting this value can cause the cursor to
+    /// move if its current cell is not in the restriction.
+    /// </summary>
+    public ImmutableHashSet<Vector2I> HardRestriction
+    {
+        get => _hard;
+        set
+        {
+            _hard = value;
+            if (_hard.Any() && !_hard.Contains(Cell))
+                Cell = _hard.OrderBy((c) => Cell.DistanceTo(c)).First();
+        }
+    }
+
     /// <summary>When a direction is pressd, move the cursor to the adjacent cell there.</summary>
-    public void OnDirectionPressed(Vector2I direction) => Cell += direction;
+    public void OnDirectionPressed(Vector2I direction)
+    {
+        if (!_hard.Any())
+            Cell += direction;
+        else
+        {
+            IEnumerable<Vector2I> ahead = HardRestriction.Where((c) => (c - Cell)*direction > Vector2I.Zero);
+            if (ahead.Any())
+                Cell = ahead.OrderBy((c) => (c*direction.Inverse()).Length()).OrderBy((c) => Cell.DistanceTo(c)).OrderBy((c) => ((c - Cell)*direction).Length()).First();
+        }
+    }
 
     /// <summary>Update the grid cell when the pointer signals it has moved, unless the cursor is what's controlling movement.</summary>
     /// <param name="position">Position of the pointer.</param>

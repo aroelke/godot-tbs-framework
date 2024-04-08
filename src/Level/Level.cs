@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Godot;
 using GodotStateCharts;
@@ -257,11 +258,15 @@ public partial class Level : Node2D
         IEnumerable<Vector2I> supportable = _selected.SupportableCells();
         Overlay.AttackableCells = attackable.Where((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false));
         Overlay.SupportableCells = supportable.Where((c) => Grid.Occupants.ContainsKey(c) && ((Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false));
+
+        // Restrict cursor movement to actionable cells
+        Cursor.HardRestriction = Overlay.AttackableCells.ToImmutableHashSet().Union(Overlay.SupportableCells);
     }
 
-    /// <summary>Clean up when exiting targeted state.</summary>
+    /// <summary>Clean up displayed ranges and restore cursor freedom when exiting targeting state.</summary>
     public void OnTargetingExited()
     {
+        Cursor.HardRestriction = Cursor.HardRestriction.Clear();
         Overlay.Clear();
     }
 

@@ -19,4 +19,16 @@ public static class Vector2IExtensions
                 return true;
         return false;
     }
+
+    /// <returns>The sum of the two coordinates of the <see cref="Vector2I"/>.</returns>
+    public static int Sum(this Vector2I a) => a.X + a.Y;
+
+    /// <returns>
+    /// The Manhattan distance (sum of the absolute values of the differences in coordinates) between <paramref name="a"/> and
+    /// <paramref name="b"/>.
+    /// </returns>
+    public static int DistanceTo(this Vector2I a, Vector2I b) => (b - a).Abs().Sum();
+
+    /// <returns>A new <see cref="Vector2I"/> with the coordinates of <paramref name="a"/> switched.</returns>
+    public static Vector2I Inverse(this Vector2I a) => new(a.Y, a.X);
 }
