@@ -97,12 +97,20 @@ public partial class Unit : GridNode
         return cells.Keys;
     }
 
+    /// <summary>Compute all of the cells this unit could attack from the given set of source cells.</summary>
+    /// <param name="sources">Cells to compute attack range from.</param>
+    /// <returns>The set of all cells that could be attacked from any of the source cells.</returns>
     public IEnumerable<Vector2I> AttackableCells(IEnumerable<Vector2I> sources) => GetCellsInRange(sources, AttackRange);
 
+    /// <inheritdoc/>
     public IEnumerable<Vector2I> AttackableCells() => AttackableCells(new[] { Cell });
 
+    /// <summary>Compute all of the cells this unit could support from the given set of source cells.</summary>
+    /// <param name="sources">Cells to compute support range from.</param>
+    /// <returns>The set of all cells that could be supported from any of the source cells.</returns>
     public IEnumerable<Vector2I> SupportableCells(IEnumerable<Vector2I> sources) => GetCellsInRange(sources, SupportRange);
 
+    /// <inheritdoc/>
     public IEnumerable<Vector2I> SupportableCells() => SupportableCells(new[] { Cell });
 
     /// <summary>Put the unit in the "selected" state.</summary>

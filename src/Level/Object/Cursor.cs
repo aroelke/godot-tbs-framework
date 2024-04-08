@@ -89,7 +89,7 @@ public partial class Cursor : GridNode
             if (SoftRestriction.Count > 0)
             {
                 bool traversable = SoftRestriction.Contains(Cell + direction);
-                Vector2I target = Cell;
+                Vector2I target = Cell; // Don't want to directly update cell to avoid firing events
                 while (Grid.Contains(target + direction) && SoftRestriction.Contains(target + direction) == traversable)
                     target += direction;
                 Cell = target;
