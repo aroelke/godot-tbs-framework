@@ -261,12 +261,14 @@ public partial class Level : Node2D
 
         // Restrict cursor movement to actionable cells
         Cursor.HardRestriction = Overlay.AttackableCells.ToImmutableHashSet().Union(Overlay.SupportableCells);
+        Cursor.Wrap = true;
     }
 
     /// <summary>Clean up displayed ranges and restore cursor freedom when exiting targeting state.</summary>
     public void OnTargetingExited()
     {
         Cursor.HardRestriction = Cursor.HardRestriction.Clear();
+        Cursor.Wrap = false;
         Overlay.Clear();
     }
 

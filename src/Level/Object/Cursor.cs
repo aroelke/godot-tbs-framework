@@ -32,6 +32,7 @@ public partial class Cursor : GridNode
     /// <summary>Action for selecting a cell.</summary>
     [Export] public InputActionReference SelectAction = new();
 
+    /// <summary>Whether or not the cursor should wrap to the other side if a direction is pressed toward the edge it's on.</summary>
     [Export] public bool Wrap = false;
 
     /// <summary>Cell the cursor occupies. Overrides <see cref="GridNode.Cell"/> to ensure that the position is updated before any signals fire.</summary>
@@ -85,16 +86,23 @@ public partial class Cursor : GridNode
         }
     }
 
-    /// <summary>When a direction is pressd, move the cursor to the adjacent cell there.</summary>
+    /// <summary>When a direction is pressed, move the cursor to the adjacent cell there.</summary>
     public void OnDirectionPressed(Vector2I direction)
     {
         if (!_hard.Any())
-            Cell += direction;
+        {
+            if (Wrap)
+                Cell = (Cell + direction + Grid.Size) % Grid.Size;
+            else
+                Cell += direction;
+        }
         else
         {
             IEnumerable<Vector2I> ahead = HardRestriction.Where((c) => (c - Cell)*direction > Vector2I.Zero);
             if (ahead.Any())
                 Cell = ahead.OrderBy((c) => (c*direction.Inverse()).Length()).OrderBy((c) => Cell.DistanceTo(c)).OrderBy((c) => ((c - Cell)*direction).Length()).First();
+            else if (Wrap)
+                Cell = HardRestriction.OrderBy((c) => (c*direction.Inverse()).Length()).OrderByDescending((c) => ((c - Cell)*direction).Length()).First();
         }
     }
 
