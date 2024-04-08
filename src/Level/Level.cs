@@ -289,9 +289,12 @@ public partial class Level : Node2D
     /// <param name="cell">Coordinates of the cell selection.</param>
     public void OnCellSelected(Vector2I cell)
     {
-        if (_selected is null && Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit unit)
-            _selected = unit;
-        _state.SendEvent(SelectEvent);
+        if (Grid.CellOf(Pointer.Position) == cell)
+        {
+            if (_selected is null && Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit unit)
+                _selected = unit;
+            _state.SendEvent(SelectEvent);
+        }
     }
 
     /// <summary>When the unit finishes moving, move to the next state.</summary>

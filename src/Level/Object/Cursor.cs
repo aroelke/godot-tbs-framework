@@ -110,7 +110,7 @@ public partial class Cursor : GridNode
     /// <param name="position">Position of the pointer.</param>
     public void OnPointerMoved(Vector2 position)
     {
-        if (DeviceManager.Mode != InputMode.Digital)
+        if (DeviceManager.Mode != InputMode.Digital && (!HardRestriction.Any() || HardRestriction.Contains(Grid.CellOf(position))))
             Cell = Grid.CellOf(position);
     }
 
