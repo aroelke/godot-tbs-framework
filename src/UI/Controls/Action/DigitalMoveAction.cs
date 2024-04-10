@@ -98,40 +98,37 @@ public partial class DigitalMoveAction : Node
         else if (@event.IsActionReleased(SkipAction))
             _skip = false;
 
-        if (DeviceManager.Mode == InputMode.Digital)
+        Vector2I prev = _direction;
+
+        Vector2I pressed = new(
+            Convert.ToInt32(@event.IsActionPressed(RightAction)) - Convert.ToInt32(@event.IsActionPressed(LeftAction)),
+            Convert.ToInt32(@event.IsActionPressed(DownAction)) - Convert.ToInt32(@event.IsActionPressed(UpAction))
+        );
+        Vector2I released = new(
+            Convert.ToInt32(@event.IsActionReleased(RightAction)) - Convert.ToInt32(@event.IsActionReleased(LeftAction)),
+            Convert.ToInt32(@event.IsActionReleased(DownAction)) - Convert.ToInt32(@event.IsActionReleased(UpAction))
+        );
+        _direction += pressed - released;
+
+        if (_skip)
         {
-            Vector2I prev = _direction;
+            if (pressed != Vector2I.Zero && _direction != Vector2I.Zero && !@event.IsEcho())
+                EmitSignal(SignalName.Skip, _direction);
+        }
+        else
+        {
+            if (pressed != Vector2I.Zero)
+                EmitSignal(SignalName.DirectionPressed, pressed);
+            if (released != Vector2I.Zero)
+                EmitSignal(SignalName.DirectionReleased, released);
 
-            Vector2I pressed = new(
-                Convert.ToInt32(@event.IsActionPressed(RightAction)) - Convert.ToInt32(@event.IsActionPressed(LeftAction)),
-                Convert.ToInt32(@event.IsActionPressed(DownAction)) - Convert.ToInt32(@event.IsActionPressed(UpAction))
-            );
-            Vector2I released = new(
-                Convert.ToInt32(@event.IsActionReleased(RightAction)) - Convert.ToInt32(@event.IsActionReleased(LeftAction)),
-                Convert.ToInt32(@event.IsActionReleased(DownAction)) - Convert.ToInt32(@event.IsActionReleased(UpAction))
-            );
-            _direction += pressed - released;
-
-            if (_skip)
+            if (prev != _direction)
             {
-                if (pressed != Vector2I.Zero && _direction != Vector2I.Zero && !@event.IsEcho())
-                    EmitSignal(SignalName.Skip, _direction);
-            }
-            else
-            {
-                if (pressed != Vector2I.Zero)
-                    EmitSignal(SignalName.DirectionPressed, pressed);
-                if (released != Vector2I.Zero)
-                    EmitSignal(SignalName.DirectionReleased, released);
+                EchoTimer.Stop();
+                _echoing = false;
 
-                if (prev != _direction)
-                {
-                    EchoTimer.Stop();
-                    _echoing = false;
-
-                    if (_direction != Vector2I.Zero)
-                        EchoTimer.Start(EchoDelay);
-                }
+                if (_direction != Vector2I.Zero)
+                    EchoTimer.Start(EchoDelay);
             }
         }
     }

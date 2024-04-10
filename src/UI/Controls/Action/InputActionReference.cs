@@ -33,8 +33,13 @@ public partial class InputActionReference : Resource
     /// <summary>Convenience property allowing access to any gamepad axis that has been mapped to the action.</summary>
     public JoyAxis GamepadAxis => InputManager.GetInputGamepadAxis(InputAction);
 
+    /// <summary>Convenience property allowing access to the action's dead zone.</summary>
+    public float Deadzone => InputMap.ActionGetDeadzone(InputAction);
+
+    /// <summary>"Context" indicating which type of scene the action applies in (e.g. on the map, in a menu, etc.).</summary>
     public StringName Context { get; private set; } = "";
 
+    /// <summary>Name of the action.</summary>
     public StringName Name { get; private set; } = "";
 
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()

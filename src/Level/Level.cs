@@ -260,6 +260,7 @@ public partial class Level : Node2D
         Overlay.SupportableCells = supportable.Where((c) => Grid.Occupants.ContainsKey(c) && ((Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false));
 
         // Restrict cursor movement to actionable cells
+        Pointer.AnalogTracking = false;
         Cursor.HardRestriction = Overlay.AttackableCells.ToImmutableHashSet().Union(Overlay.SupportableCells);
         Cursor.Wrap = true;
     }
@@ -267,9 +268,11 @@ public partial class Level : Node2D
     /// <summary>Clean up displayed ranges and restore cursor freedom when exiting targeting state.</summary>
     public void OnTargetingExited()
     {
+        Overlay.Clear();
+
+        Pointer.AnalogTracking = true;
         Cursor.HardRestriction = Cursor.HardRestriction.Clear();
         Cursor.Wrap = false;
-        Overlay.Clear();
     }
 
     /// <summary>

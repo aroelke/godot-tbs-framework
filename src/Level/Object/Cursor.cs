@@ -29,6 +29,9 @@ public partial class Cursor : GridNode
     private DigitalMoveAction _mover = null;
     private DigitalMoveAction MoveController => _mover ??= GetNode<DigitalMoveAction>("MoveController");
 
+    private Node _converters = null;
+    private Node Converters => _converters ??= GetNode<Node>("AnalogDigital");
+
     /// <summary>Action for selecting a cell.</summary>
     [Export] public InputActionReference SelectAction = new();
 
@@ -81,8 +84,14 @@ public partial class Cursor : GridNode
         set
         {
             _hard = value;
-            if (_hard.Any() && !_hard.Contains(Cell))
-                Cell = _hard.OrderBy((c) => Cell.DistanceTo(c)).First();
+            if (_hard.Any())
+            {
+                if (!_hard.Contains(Cell))
+                    Cell = _hard.OrderBy((c) => Cell.DistanceTo(c)).First();
+                Converters.ProcessMode = ProcessModeEnum.Inherit;
+            }
+            else
+                Converters.ProcessMode = ProcessModeEnum.Disabled;
         }
     }
 
