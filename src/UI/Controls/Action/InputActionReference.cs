@@ -1,7 +1,7 @@
 using System.Linq;
 using Godot;
 using UI.Controls.Device;
-using Util;
+using Extensions;
 
 namespace UI.Controls.Action;
 

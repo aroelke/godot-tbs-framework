@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using Level.Object;
-using Util;
+using Extensions;
 
 namespace Level.Map;
 

@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Util;
+namespace Extensions;
 
 /// <summary>Extensions for <c>Vector2I</c>.</summary>
 public static class Vector2IExtensions

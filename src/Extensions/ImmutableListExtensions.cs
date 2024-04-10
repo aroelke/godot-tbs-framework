@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace Util;
+namespace Extensions;
 
 /// <summary>Extensions for immutable lists.</summary>
 public static class ImmutableListExtensions

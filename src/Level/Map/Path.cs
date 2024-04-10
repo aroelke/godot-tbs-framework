@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using Util;
+using Extensions;
 
 namespace Level.Map;
 
