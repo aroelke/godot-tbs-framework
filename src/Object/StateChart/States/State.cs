@@ -71,7 +71,7 @@ public abstract partial class State : Node
     }
 
     /// <summary>Initialize the state while building the chart.</summary>
-    public void Initialize()
+    public virtual void Initialize()
     {
         Active = false;
 
@@ -81,7 +81,7 @@ public abstract partial class State : Node
 
     /// <summary>Activate the state.</summary>
     /// <param name="transit">Whether or not to immediately handle a transition, to avoid activating a default state if there is one.</param>
-    public void Enter(bool transit=false)
+    public virtual void Enter(bool transit=false)
     {
         Active = true;
 
@@ -95,7 +95,7 @@ public abstract partial class State : Node
     /// <param name="event">Event that triggered the transition.</param>
     /// <param name="property">This transition was triggered by a property change.</param>
     /// <returns><c>true</c> if a transition ran, and <c>false</c> otherwise.</returns>
-    public bool ProcessTransitions(StringName @event, bool property=false)
+    public virtual bool ProcessTransitions(StringName @event, bool property=false)
     {
         if (!Active)
             return false;
@@ -117,7 +117,7 @@ public abstract partial class State : Node
     public abstract void HandleTransition(Transition transition, State from);
 
     /// <summary>Deactivate the state.</summary>
-    public void Exit()
+    public virtual void Exit()
     {
         _pending = null;
         _remaining = 0;

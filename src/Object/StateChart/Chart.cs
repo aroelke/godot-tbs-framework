@@ -15,6 +15,17 @@ namespace Object.StateChart;
 [Tool]
 public partial class Chart : Node
 {
+    private static void DoRunTransition(Transition transition, State from)
+    {
+        if (from.Active)
+        {
+            transition.EmitSignal(Transition.SignalName.Taken);
+            from.HandleTransition(transition, from);
+        }
+        else
+            GD.PushWarning($"Ignoring request to transition from inactive state {from.Name} to state {transition.To.Name}. This could be caused by multiple state changes in a single frame.");
+    }
+
     private State _root = null;
     private readonly ConcurrentDictionary<StringName, Variant> _properties = new();
     private readonly ConcurrentQueue<StringName> _eventQ = new();
@@ -48,17 +59,6 @@ public partial class Chart : Node
             }
             _busy = false;
         }
-    }
-
-    private void DoRunTransition(Transition transition, State from)
-    {
-        if (from.Active)
-        {
-            transition.EmitSignal(Transition.SignalName.Taken);
-            from.HandleTransition(transition, from);
-        }
-        else
-            GD.PushWarning($"Ignoring request to transition from inactive state {from.Name} to state {transition.To.Name}. This could be caused by multiple state changes in a single frame.");
     }
 
     /// <summary>Send an event to the active state, which could trigger a transition or action.</summary>
