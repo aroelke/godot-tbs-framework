@@ -12,6 +12,7 @@ namespace Object.StateChart;
 /// transitions to other states within the hierarchy. While a state is active, it can receive events, which cause it to trigger transitions to other
 /// states or emit signals.
 /// </summary>
+[Tool]
 public partial class Chart : Node
 {
     private State _root = null;
