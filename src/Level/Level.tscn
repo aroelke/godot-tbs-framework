@@ -436,7 +436,7 @@ expression = "selected"
 
 [sub_resource type="Resource" id="Resource_11ms5"]
 script = ExtResource("21_8eu0e")
-expression = "traversable"
+expression = "traversable && (!occupied || selected)"
 
 [sub_resource type="Resource" id="Resource_uks71"]
 script = ExtResource("21_8eu0e")
