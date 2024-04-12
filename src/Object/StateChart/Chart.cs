@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Godot;
 using Object.StateChart.States;
@@ -27,7 +28,7 @@ public partial class Chart : Node
     }
 
     private State _root = null;
-    private readonly ConcurrentDictionary<StringName, Variant> _properties = new();
+    private ImmutableDictionary<StringName, Variant> _properties = ImmutableDictionary<StringName, Variant>.Empty;
     private readonly ConcurrentQueue<StringName> _eventQ = new();
     private readonly ConcurrentQueue<(Transition, State)> _transitionQ = new();
     private bool _transitionProcessingActive = false;
@@ -61,6 +62,24 @@ public partial class Chart : Node
         }
     }
 
+    /// <summary>
+    /// Dictionary of state chart properties and their values. Setting can cause a transition if the update causes a condition of
+    /// a transition from the active state to become true.
+    /// </summary>
+    public ImmutableDictionary<StringName, Variant> ExpressionProperties
+    {
+        get => _properties;
+        set
+        {
+            if (_properties != value)
+            {
+                _properties = value;
+                _propertyChangePending = true;
+                RunChanges();
+            }
+        }
+    }
+
     /// <summary>Send an event to the active state, which could trigger a transition or action.</summary>
     /// <param name="event">Name of the event to send.</param>
     public void SendEvent(StringName @event)
@@ -77,6 +96,7 @@ public partial class Chart : Node
     /// </summary>
     /// <param name="name">Name of the property to set.</param>
     /// <param name="value">Value to set the property to.</param>
+/*
     public void SetProperty(StringName name, Variant value)
     {
         EnsureReady();
@@ -85,6 +105,7 @@ public partial class Chart : Node
         _propertyChangePending = true;
         RunChanges();
     }
+*/
 
     /// <summary>Execute a transition from a state to its target.</summary>
     /// <param name="transition">Transition to run.</param>
