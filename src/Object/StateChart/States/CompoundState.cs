@@ -106,13 +106,6 @@ public partial class CompoundState : State
         base.Exit();
     }
 
-    public new void AddChild(Node node, bool forceReadableName=false, InternalMode @internal=InternalMode.Disabled)
-    {
-        base.AddChild(node, forceReadableName, @internal);
-        if (Engine.IsEditorHint() && node is State state)
-            Callable.From(() => InitialState = state).CallDeferred();
-    }
-
     public override string[] _GetConfigurationWarnings()
     {
         List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
