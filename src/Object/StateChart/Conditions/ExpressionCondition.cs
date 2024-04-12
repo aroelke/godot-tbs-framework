@@ -5,7 +5,7 @@ using Object.StateChart.States;
 
 namespace Object.StateChart.Conditions;
 
-/// <summary>Transition condition based on computing an expression (written in GDScript!) using <see cref="Chart.ExpressionProperties"/>.</summary>
+/// <summary><see cref="Transition"/> condition based on computing an expression (written in GDScript!) using <see cref="Chart.ExpressionProperties"/>.</summary>
 [GlobalClass, Tool]
 public partial class ExpressionCondition : Condition
 {
@@ -18,7 +18,6 @@ public partial class ExpressionCondition : Condition
         while (IsInstanceValid(node) && node is not Chart)
             node = node.GetParent();
         Chart chart = node as Chart;
-        
         if (!IsInstanceValid(chart))
             throw new ArgumentException("Could not find state chart node.");
         
