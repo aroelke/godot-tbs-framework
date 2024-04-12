@@ -73,6 +73,8 @@ public partial class Chart : Node
         {
             if (_properties != value)
             {
+                EnsureReady();
+
                 _properties = value;
                 _propertyChangePending = true;
                 RunChanges();
@@ -90,31 +92,13 @@ public partial class Chart : Node
         RunChanges();
     }
 
-    /// <summary>
-    /// Set a property of the state chart to a value, which is used to determine transition conditions. Could cause a transition
-    /// if the change causes the condition of an automatic transition from the active state.
-    /// </summary>
-    /// <param name="name">Name of the property to set.</param>
-    /// <param name="value">Value to set the property to.</param>
-/*
-    public void SetProperty(StringName name, Variant value)
-    {
-        EnsureReady();
-
-        _properties[name] = value;
-        _propertyChangePending = true;
-        RunChanges();
-    }
-*/
-
     /// <summary>Execute a transition from a state to its target.</summary>
     /// <param name="transition">Transition to run.</param>
     /// <param name="from">State to transition from.</param>
     public void RunTransition(Transition transition, State from)
     {
-        if (_transitionProcessingActive)
-            _transitionQ.Enqueue((transition, from));
-        else
+        _transitionQ.Enqueue((transition, from));
+        if (!_transitionProcessingActive)
         {
             _transitionProcessingActive = true;
             while (_transitionQ.TryDequeue(out (Transition, State) next))
