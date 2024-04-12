@@ -285,7 +285,7 @@ public partial class Level : Node2D
     /// <param name="cell">Cell the cursor moved to.</param>
     public void OnCursorMoved(Vector2I cell)
     {
-        if (/*_selectedState.Active && */_traversable.Contains(cell))
+        if (_traversable.Contains(cell))
             Overlay.Path = (_path = _path.Add(cell).Clamp(_selected.MoveRange)).ToList();
     }
 
