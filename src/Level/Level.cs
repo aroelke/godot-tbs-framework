@@ -197,21 +197,6 @@ public partial class Level : Node2D
         }
     }
 
-    /// <summary>
-    /// Move the cursor back to the unit's position if it's not there already (waiting for it to move if it's mouse controlled),
-    /// then go back to the previous state (i.e. the one before the one that was canceled).
-    /// </summary>
-    public void OnCancelSelectionEntered()
-    {
-        // In some cases (namely, when the player selects a square outside the selected unit's move range), the cursor should not warp
-        // when canceling selection. This is indicated by nulling the selectd unit before transitioning to the "cancel selection" state
-        if (_selected is not null)
-            WarpCursor(_selected.Cell);
-
-        // Go to idle state
-        _state.SendEvent(DoneEvent);
-    }
-
     /// <summary>Begin moving the selected unit and then wait for it to finish moving.</summary>
     public void OnMovingEntered()
     {
@@ -234,21 +219,6 @@ public partial class Level : Node2D
         (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = _prevDeadzone;
         Camera.Target = _prevTarget;
         _path = null;
-    }
-
-    /// <summary>Move the selected unit back to its starting position and move the pointer there, then go back to "selected" state.</summary>
-    public void OnCancelTargetingEntered()
-    {
-        // Move the selected unit back to its original cell
-        Grid.Occupants.Remove(_selected.Cell);
-        _selected.Cell = _initialCell.Value;
-        _selected.Position = Grid.PositionOf(_selected.Cell);
-        Grid.Occupants[_selected.Cell] = _selected;
-
-        WarpCursor(_selected.Cell);
-
-        _initialCell = null;
-        _state.SendEvent(DoneEvent);
     }
 
     /// <summary>Compute the attack and support ranges of the selected unit from its location.</summary>
@@ -274,6 +244,23 @@ public partial class Level : Node2D
         Pointer.AnalogTracking = true;
         Cursor.HardRestriction = Cursor.HardRestriction.Clear();
         Cursor.Wrap = false;
+    }
+
+    /// <summary>
+    /// Move the selected unit back to its starting position (only does anything when canceling targeting). Then move the cursor to
+    /// the unit's current position, and go back to the previous state.
+    /// </summary>
+    public void OnCancelUnitActionEntered()
+    {
+        // Move the selected unit back to its original cell
+        Grid.Occupants.Remove(_selected.Cell);
+        _selected.Cell = _initialCell.Value;
+        _selected.Position = Grid.PositionOf(_selected.Cell);
+        Grid.Occupants[_selected.Cell] = _selected;
+        _initialCell = null;
+
+        WarpCursor(_selected.Cell);
+        _state.SendEvent(DoneEvent);
     }
 
     /// <summary>

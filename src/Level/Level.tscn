@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=34 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/Level/Level.cs" id="1_r2v0t"]
 [ext_resource type="Resource" uid="uid://hkvw8a5g5l62" path="res://src/UI/Controls/Action/References/Map/MapCancelAction.tres" id="2_2u5dc"]
@@ -23,6 +23,7 @@
 [ext_resource type="Script" path="res://src/Object/StateChart/Conditions/FlagCondition.cs" id="21_7vj21"]
 [ext_resource type="Script" path="res://src/Object/StateChart/Conditions/ExpressionCondition.cs" id="22_jcgoa"]
 [ext_resource type="Script" path="res://src/Object/StateChart/Conditions/InvertCondition.cs" id="23_6etqp"]
+[ext_resource type="Script" path="res://src/Object/StateChart/Conditions/UnCondition.cs" id="24_k1nop"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_vg23h"]
 texture = ExtResource("2_ogyqc")
@@ -430,6 +431,9 @@ sources/2 = SubResource("TileSetAtlasSource_vg23h")
 script = ExtResource("21_7vj21")
 Flag = &"occupied"
 
+[sub_resource type="Resource" id="Resource_f7pbh"]
+script = ExtResource("24_k1nop")
+
 [sub_resource type="Resource" id="Resource_f336q"]
 script = ExtResource("21_7vj21")
 Flag = &"selected"
@@ -529,6 +533,7 @@ Condition = SubResource("Resource_3s6m4")
 [node name="ToIdle" parent="State/Root/CancelSelection" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../Idle")
 Event = &"done"
+Condition = SubResource("Resource_f7pbh")
 
 [node name="UnitSelected" parent="State/Root" instance=ExtResource("19_o30vs")]
 
@@ -550,39 +555,44 @@ Condition = SubResource("Resource_j0hg7")
 [node name="ToCancel" parent="State/Root/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../CancelSelection")
 Event = &"cancel"
+Condition = SubResource("Resource_f7pbh")
 
 [node name="UnitMoving" parent="State/Root" instance=ExtResource("19_o30vs")]
 
 [node name="ToTargeting" parent="State/Root/UnitMoving" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../UnitTargeting")
 Event = &"done"
+Condition = SubResource("Resource_f7pbh")
 
 [node name="CancelTargeting" parent="State/Root" instance=ExtResource("19_o30vs")]
 
 [node name="ToSelected" parent="State/Root/CancelTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../UnitSelected")
 Event = &"done"
+Condition = SubResource("Resource_f7pbh")
 
 [node name="UnitTargeting" parent="State/Root" instance=ExtResource("19_o30vs")]
 
 [node name="ToIdle" parent="State/Root/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../Idle")
 Event = &"select"
+Condition = SubResource("Resource_f7pbh")
 
 [node name="ToCancel" parent="State/Root/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../CancelTargeting")
 Event = &"cancel"
+Condition = SubResource("Resource_f7pbh")
 
 [connection signal="CellChanged" from="Cursor" to="." method="OnCursorMoved"]
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]
 [connection signal="CursorMoved" from="Cursor" to="Pointer" method="OnCursorMoved"]
 [connection signal="PointerMoved" from="Pointer" to="Cursor" method="OnPointerMoved"]
 [connection signal="StateEntered" from="State/Root/Idle" to="." method="OnIdleEntered"]
-[connection signal="StateEntered" from="State/Root/CancelSelection" to="." method="OnCancelSelectionEntered"]
+[connection signal="StateEntered" from="State/Root/CancelSelection" to="." method="OnCancelUnitActionEntered"]
 [connection signal="StateEntered" from="State/Root/UnitSelected" to="." method="OnSelectedEntered"]
 [connection signal="StateExited" from="State/Root/UnitSelected" to="." method="OnSelectedExited"]
 [connection signal="StateEntered" from="State/Root/UnitMoving" to="." method="OnMovingEntered"]
 [connection signal="StateExited" from="State/Root/UnitMoving" to="." method="OnMovingExited"]
-[connection signal="StateEntered" from="State/Root/CancelTargeting" to="." method="OnCancelTargetingEntered"]
+[connection signal="StateEntered" from="State/Root/CancelTargeting" to="." method="OnCancelUnitActionEntered"]
 [connection signal="StateEntered" from="State/Root/UnitTargeting" to="." method="OnTargetingEntered"]
 [connection signal="StateExited" from="State/Root/UnitTargeting" to="." method="OnTargetingExited"]
