@@ -21,9 +21,6 @@ public partial class Transition : Node
     /// <summary>Condition guarding the transition. The transition will only be taken if the condition is satisfied.</summary>
     [Export] public Condition Condition = null;
 
-    /// <summary>Delay after the state is entered before the transition is actually taken.</summary>
-    [Export(PropertyHint.None, "suffix:s")] public double Delay = 0;
-
     /// <summary>Whether or not the transition should wait for an event before triggering.</summary>
     public bool Automatic => Event.IsEmpty;
 

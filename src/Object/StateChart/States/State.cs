@@ -36,20 +36,6 @@ public abstract partial class State : Node
     private Chart _chart = null;
     private bool _active = false;
     private readonly List<Transition> _transitions = new();
-    private Transition _pending = null;
-    private double _remaining = 0;
-
-    private void RunTransition(Transition transition)
-    {
-        if (transition.Delay > 0)
-        {
-            _pending = transition;
-            _remaining = transition.Delay;
-            SetProcess(true);
-        }
-        else
-            _chart.RunTransition(transition, this);
-    }
 
     /// <summary>Whether or not the state is active. Setting the state to inactive also disables processing (preventing signal emission).</summary>
     public bool Active
@@ -88,7 +74,7 @@ public abstract partial class State : Node
         EmitSignal(SignalName.StateEntered);
         foreach (Transition transition in _transitions)
             if (transition.Automatic && transition.EvaluateCondition())
-                RunTransition(transition);
+                _chart.RunTransition(transition, this);
     }
 
     /// <summary>Process all transitions and run the first one that is triggered by the event.</summary>
@@ -105,9 +91,9 @@ public abstract partial class State : Node
         
         foreach (Transition transition in _transitions)
         {
-            if (transition != _pending && (transition.Automatic || (!property && transition.Event == @event)) && transition.EvaluateCondition())
+            if ((transition.Automatic || (!property && transition.Event == @event)) && transition.EvaluateCondition())
             {
-                RunTransition(transition);
+                _chart.RunTransition(transition, this);
                 return true;
             }
         }
@@ -119,10 +105,7 @@ public abstract partial class State : Node
     /// <summary>Deactivate the state.</summary>
     public virtual void Exit()
     {
-        _pending = null;
-        _remaining = 0;
         Active = false;
-
         EmitSignal(SignalName.StateExited);
     }
 
@@ -160,19 +143,6 @@ public abstract partial class State : Node
         base._Process(delta);
 
         if (!Engine.IsEditorHint())
-        {
             EmitSignal(SignalName.StateProcess);
-
-            if (_pending is not null)
-            {
-                _remaining -= delta;
-                if (_remaining <= 0)
-                {
-                    _chart.RunTransition(_pending, this);
-                    _pending = null;
-                    _remaining = 0;
-                }
-            }
-        }
     }
 }
