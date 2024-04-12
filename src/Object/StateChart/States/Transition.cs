@@ -19,14 +19,14 @@ public partial class Transition : Node
     [Export] public StringName Event = "";
 
     /// <summary>Condition guarding the transition. The transition will only be taken if the condition is satisfied.</summary>
-    [Export] public Condition Condition = null;
+    [Export] public Condition Condition = new UnCondition();
 
     /// <summary>Whether or not the transition should wait for an event before triggering.</summary>
     public bool Automatic => Event.IsEmpty;
 
     /// <returns><c>true</c> if there is no <see cref="Condition"/> or if it is satisfied, and <c>false</c> otherwise.</returns>
     /// <exception cref="InvalidCastException">If this transition's parent isn't a <see cref="State"/></exception>
-    public bool EvaluateCondition() => Condition is null || Condition.IsSatisfied(this, GetParent<State>());
+    public bool EvaluateCondition() => Condition.IsSatisfied(this, GetParent<State>());
 
     public override string[] _GetConfigurationWarnings()
     {
