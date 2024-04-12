@@ -13,6 +13,8 @@ using UI.Controls.Action;
 using UI.Controls.Device;
 using UI.HUD;
 using Extensions;
+using Object.StateChart;
+using Object.StateChart.States;
 
 namespace Level;
 
@@ -24,16 +26,16 @@ namespace Level;
 public partial class Level : Node2D
 {
     // State chart events
-    private const string SelectEvent = "select";
-    private const string CancelEvent = "cancel";
-    private const string DoneEvent = "done";
+    private readonly StringName SelectEvent = "select";
+    private readonly StringName CancelEvent = "cancel";
+    private readonly StringName DoneEvent = "done";
     // State chart conditions
-    private const string OccupiedCondition = "occupied";
-    private const string SelectedCondition = "selected";
-    private const string TraversableCondition = "traversable";
+    private readonly StringName OccupiedCondition = "occupied";
+    private readonly StringName SelectedCondition = "selected";
+    private readonly StringName TraversableCondition = "traversable";
 
-//    private StateChart _state = null;
-//    private StateChartState _selectedState = null;
+    private Chart _state = null;
+    private State _selectedState = null;
     private Grid _map = null;
     private Overlay _overlay = null;
     private Camera2DBrain _camera = null;
@@ -207,7 +209,7 @@ public partial class Level : Node2D
             WarpCursor(_selected.Cell);
 
         // Go to idle state
-//        _state.SendEvent(DoneEvent);
+        _state.SendEvent(DoneEvent);
     }
 
     /// <summary>Begin moving the selected unit and then wait for it to finish moving.</summary>
@@ -246,7 +248,7 @@ public partial class Level : Node2D
         WarpCursor(_selected.Cell);
 
         _initialCell = null;
-//        _state.SendEvent(DoneEvent);
+        _state.SendEvent(DoneEvent);
     }
 
     /// <summary>Compute the attack and support ranges of the selected unit from its location.</summary>
@@ -295,7 +297,7 @@ public partial class Level : Node2D
         {
             if (_selected is null && Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit unit)
                 _selected = unit;
-//            _state.SendEvent(SelectEvent);
+            _state.SendEvent(SelectEvent);
         }
     }
 
@@ -303,7 +305,7 @@ public partial class Level : Node2D
     public void OnUnitDoneMoving()
     {
         _selected.DoneMoving -= OnUnitDoneMoving;
-//        _state.SendEvent(DoneEvent);
+        _state.SendEvent(DoneEvent);
     }
 
     /// <summary>When a grid node is added to a group, update its grid.</summary>
@@ -338,8 +340,8 @@ public partial class Level : Node2D
 
         if (!Engine.IsEditorHint())
         {
-//            _state = StateChart.Of(GetNode("State"));
-//            _selectedState = StateChartState.Of(GetNode("State/Root/UnitSelected"));
+            _state = GetNode<Chart>("State");
+            _selectedState = GetNode<State>("State/Root/UnitSelected");
 
             Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
             Cursor.Grid = Grid;
@@ -364,10 +366,10 @@ public partial class Level : Node2D
     public override void _Input(InputEvent @event)
     {
         base._Input(@event);
-/*
+
         if (@event.IsActionReleased(CancelAction))
             _state.SendEvent(CancelEvent);
-*/
+
         if (@event.IsActionPressed(CameraActionDigitalZoomIn))
             Camera.ZoomTarget += Vector2.One*CameraZoomDigitalFactor;
         if (@event.IsActionPressed(CameraActionDigitalZoomOut))
@@ -380,11 +382,10 @@ public partial class Level : Node2D
 
         if (!Engine.IsEditorHint())
         {
-/*
-            _state.SetExpressionProperty(OccupiedCondition, Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit);
-            _state.SetExpressionProperty(SelectedCondition, _selected is not null && Grid.Occupants.ContainsKey(Cursor.Cell) && (Grid.Occupants[Cursor.Cell] as Unit) == _selected);
-            _state.SetExpressionProperty(TraversableCondition, _traversable.Contains(Cursor.Cell));
-*/
+            _state.ExpressionProperties = _state.ExpressionProperties
+                .SetItem(OccupiedCondition, Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit)
+                .SetItem(SelectedCondition, _selected is not null && Grid.Occupants.ContainsKey(Cursor.Cell) && (Grid.Occupants[Cursor.Cell] as Unit) == _selected)
+                .SetItem(TraversableCondition, _traversable.Contains(Cursor.Cell));
 
             float zoom = Input.GetAxis(CameraActionAnalogZoomOut, CameraActionAnalogZoomIn);
             if (zoom != 0)
