@@ -6,7 +6,7 @@ using Object.StateChart.Conditions;
 namespace Object.StateChart.States;
 
 /// <summary>Transition between state chart <see cref="State"/>s. </summary>
-[GlobalClass, Icon("res://icons/statechart/Transition.svg"), Tool]
+[Icon("res://icons/statechart/Transition.svg"), Tool]
 public partial class Transition : Node
 {
     /// <summary>Signals the transition is taken, but before the active <see cref="State"/> is actually exited.</summary>
