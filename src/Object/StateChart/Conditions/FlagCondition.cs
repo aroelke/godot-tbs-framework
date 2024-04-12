@@ -5,6 +5,7 @@ using Object.StateChart.States;
 namespace Object.StateChart.Conditions;
 
 /// <summary><see cref="Transition"/> condition that evaluates a single boolean <see cref="Chart"/> property.</summary>
+[GlobalClass, Icon("res://icons/statechart/FlagCondition.svg"), Tool]
 public partial class FlagCondition : Condition
 {
     /// <summary><see cref="Chart"/> property to evaluate.</summary>

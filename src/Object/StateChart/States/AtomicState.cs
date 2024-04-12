@@ -6,7 +6,7 @@ using Godot;
 namespace Object.StateChart.States;
 
 /// <summary>A state chart <see cref="State"/> that can't have any sub-states.</summary>
-[Tool]
+[Icon("res://icons/statechart/AtomicState.svg"), Tool]
 public partial class AtomicState : State
 {
     public override void HandleTransition(Transition transition, State from) => GetParent<State>().HandleTransition(transition, from);
