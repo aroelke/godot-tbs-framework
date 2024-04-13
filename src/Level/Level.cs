@@ -140,6 +140,9 @@ public partial class Level : Node2D
         CancelHint.Visible = false;
     }
 
+    /// <summary>Choose a selected unit.</summary>
+    public void OnIdleToSelectedTaken() => _selected = Grid.Occupants[Cursor.Cell] as Unit;
+
     /// <summary>Display the total movement, attack, and support ranges of the selected unit and begin drawing the path arrow for it to move on.</summary>
     public void OnSelectedEntered()
     {
@@ -281,11 +284,7 @@ public partial class Level : Node2D
     public void OnCellSelected(Vector2I cell)
     {
         if (Grid.CellOf(Pointer.Position) == cell)
-        {
-            if (_selected is null && Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit unit)
-                _selected = unit;
             _state.SendEvent(SelectEvent);
-        }
     }
 
     /// <summary>When the unit finishes moving, move to the next state.</summary>
