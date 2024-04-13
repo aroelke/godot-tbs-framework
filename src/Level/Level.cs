@@ -237,6 +237,7 @@ public partial class Level : Node2D
         Pointer.AnalogTracking = false;
         Cursor.HardRestriction = Overlay.AttackableCells.ToImmutableHashSet().Union(Overlay.SupportableCells);
         Cursor.Wrap = true;
+        WarpCursor(Cursor.Cell);
     }
 
     /// <summary>Clean up displayed ranges and restore cursor freedom when exiting targeting state.</summary>
