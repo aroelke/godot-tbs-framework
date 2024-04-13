@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using GodotStateCharts;
 using Level.Map;
 using Level.Object;
 using Level.Object.Group;
@@ -14,6 +13,8 @@ using UI.Controls.Action;
 using UI.Controls.Device;
 using UI.HUD;
 using Extensions;
+using Object.StateChart;
+using Object.StateChart.States;
 
 namespace Level;
 
@@ -25,16 +26,16 @@ namespace Level;
 public partial class Level : Node2D
 {
     // State chart events
-    private const string SelectEvent = "select";
-    private const string CancelEvent = "cancel";
-    private const string DoneEvent = "done";
+    private readonly StringName SelectEvent = "select";
+    private readonly StringName CancelEvent = "cancel";
+    private readonly StringName DoneEvent = "done";
     // State chart conditions
-    private const string OccupiedCondition = "occupied";
-    private const string SelectedCondition = "selected";
-    private const string TraversableCondition = "traversable";
+    private readonly StringName OccupiedCondition = "occupied";
+    private readonly StringName SelectedCondition = "selected";
+    private readonly StringName TraversableCondition = "traversable";
 
-    private StateChart _state = null;
-    private StateChartState _selectedState = null;
+    private Chart _state = null;
+    private State _selectedState = null;
     private Grid _map = null;
     private Overlay _overlay = null;
     private Camera2DBrain _camera = null;
@@ -139,6 +140,9 @@ public partial class Level : Node2D
         CancelHint.Visible = false;
     }
 
+    /// <summary>Choose a selected unit.</summary>
+    public void OnIdleToSelectedTaken() => _selected = Grid.Occupants[Cursor.Cell] as Unit;
+
     /// <summary>Display the total movement, attack, and support ranges of the selected unit and begin drawing the path arrow for it to move on.</summary>
     public void OnSelectedEntered()
     {
@@ -196,21 +200,6 @@ public partial class Level : Node2D
         }
     }
 
-    /// <summary>
-    /// Move the cursor back to the unit's position if it's not there already (waiting for it to move if it's mouse controlled),
-    /// then go back to the previous state (i.e. the one before the one that was canceled).
-    /// </summary>
-    public void OnCancelSelectionEntered()
-    {
-        // In some cases (namely, when the player selects a square outside the selected unit's move range), the cursor should not warp
-        // when canceling selection. This is indicated by nulling the selectd unit before transitioning to the "cancel selection" state
-        if (_selected is not null)
-            WarpCursor(_selected.Cell);
-
-        // Go to idle state
-        _state.SendEvent(DoneEvent);
-    }
-
     /// <summary>Begin moving the selected unit and then wait for it to finish moving.</summary>
     public void OnMovingEntered()
     {
@@ -233,21 +222,6 @@ public partial class Level : Node2D
         (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = _prevDeadzone;
         Camera.Target = _prevTarget;
         _path = null;
-    }
-
-    /// <summary>Move the selected unit back to its starting position and move the pointer there, then go back to "selected" state.</summary>
-    public void OnCancelTargetingEntered()
-    {
-        // Move the selected unit back to its original cell
-        Grid.Occupants.Remove(_selected.Cell);
-        _selected.Cell = _initialCell.Value;
-        _selected.Position = Grid.PositionOf(_selected.Cell);
-        Grid.Occupants[_selected.Cell] = _selected;
-
-        WarpCursor(_selected.Cell);
-
-        _initialCell = null;
-        _state.SendEvent(DoneEvent);
     }
 
     /// <summary>Compute the attack and support ranges of the selected unit from its location.</summary>
@@ -276,6 +250,23 @@ public partial class Level : Node2D
     }
 
     /// <summary>
+    /// Move the selected unit back to its starting position (only does anything when canceling targeting). Then move the cursor to
+    /// the unit's current position, and go back to the previous state.
+    /// </summary>
+    public void OnCancelUnitActionEntered()
+    {
+        // Move the selected unit back to its original cell
+        Grid.Occupants.Remove(_selected.Cell);
+        _selected.Cell = _initialCell.Value;
+        _selected.Position = Grid.PositionOf(_selected.Cell);
+        Grid.Occupants[_selected.Cell] = _selected;
+        _initialCell = null;
+
+        WarpCursor(_selected.Cell);
+        _state.SendEvent(DoneEvent);
+    }
+
+    /// <summary>
     /// When the cursor moves:
     /// - While a unit is selected:
     ///   - Update the path that's being drawn
@@ -284,7 +275,7 @@ public partial class Level : Node2D
     /// <param name="cell">Cell the cursor moved to.</param>
     public void OnCursorMoved(Vector2I cell)
     {
-        if (_selectedState.Active && _traversable.Contains(cell))
+        if (_traversable.Contains(cell))
             Overlay.Path = (_path = _path.Add(cell).Clamp(_selected.MoveRange)).ToList();
     }
 
@@ -293,11 +284,7 @@ public partial class Level : Node2D
     public void OnCellSelected(Vector2I cell)
     {
         if (Grid.CellOf(Pointer.Position) == cell)
-        {
-            if (_selected is null && Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit unit)
-                _selected = unit;
             _state.SendEvent(SelectEvent);
-        }
     }
 
     /// <summary>When the unit finishes moving, move to the next state.</summary>
@@ -339,8 +326,8 @@ public partial class Level : Node2D
 
         if (!Engine.IsEditorHint())
         {
-            _state = StateChart.Of(GetNode("State"));
-            _selectedState = StateChartState.Of(GetNode("State/Root/UnitSelected"));
+            _state = GetNode<Chart>("State");
+            _selectedState = GetNode<State>("State/Root/UnitSelected");
 
             Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
             Cursor.Grid = Grid;
@@ -381,9 +368,10 @@ public partial class Level : Node2D
 
         if (!Engine.IsEditorHint())
         {
-            _state.SetExpressionProperty(OccupiedCondition, Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit);
-            _state.SetExpressionProperty(SelectedCondition, _selected is not null && Grid.Occupants.ContainsKey(Cursor.Cell) && (Grid.Occupants[Cursor.Cell] as Unit) == _selected);
-            _state.SetExpressionProperty(TraversableCondition, _traversable.Contains(Cursor.Cell));
+            _state.ExpressionProperties = _state.ExpressionProperties
+                .SetItem(OccupiedCondition, Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit)
+                .SetItem(SelectedCondition, _selected is not null && Grid.Occupants.ContainsKey(Cursor.Cell) && (Grid.Occupants[Cursor.Cell] as Unit) == _selected)
+                .SetItem(TraversableCondition, _traversable.Contains(Cursor.Cell));
 
             float zoom = Input.GetAxis(CameraActionAnalogZoomOut, CameraActionAnalogZoomIn);
             if (zoom != 0)
