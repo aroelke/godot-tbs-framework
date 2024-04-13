@@ -103,6 +103,15 @@ public partial class Level : Node2D
         }
     }
 
+    /// <summary>
+    /// <see cref="Army"/> that gets the first turn. If null, use the first <see cref="Army"/> in the child list.
+    /// After that, go down the child list in order, wrapping when at the end.
+    /// </summary>
+    [Export] public Army StartingArmy = null;
+
+    /// <summary>Turn count (including current turn, so it starts at 1).</summary>
+    [Export] public int Turn = 1;
+
     /// <summary>Map cancel selection action reference (distinct from menu back/cancel).</summary>
     [Export] public InputActionReference CancelAction = new();
 
@@ -127,6 +136,9 @@ public partial class Level : Node2D
 
     /// <summary>Analog action to zoom the camera out.</summary>
     [Export] public InputActionReference CameraActionAnalogZoomOut = new();
+
+    /// <summary>Current army who's taking a turn;</summary>
+    public Army CurrentArmy = null;
 
     /// <summary>Deselect any units and clear drawn ranges.</summary>
     public void OnIdleEntered()
@@ -347,6 +359,9 @@ public partial class Level : Node2D
                     }
                 }
             }
+
+            StartingArmy ??= GetChildren().OfType<Army>().First();
+            CurrentArmy = StartingArmy;
         }
     }
 
