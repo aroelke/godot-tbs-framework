@@ -23,6 +23,36 @@ public partial class Army : GridNodeGroup, IEnumerable<Unit>
     /// <returns><c>true</c> if the unit is in this army or an allied one, and <c>false</c> otherwise.</returns>
     public bool AlliedTo(Unit unit) => Contains(unit) || AlliedTo(unit.Affiliation);
 
+    public Unit Previous(Unit unit)
+    {
+        Unit[] units = GetChildren().OfType<Unit>().ToArray();
+        if (units.Length <= 1)
+            return null;
+
+        int index = Array.IndexOf(units, unit);
+        if (index < 0)
+            return null;
+        else if (index == 0)
+            return units.Last();
+        else
+            return units[index - 1];
+    }
+
+    public Unit Next(Unit unit)
+    {
+        Unit[] units = GetChildren().OfType<Unit>().ToArray();
+        if (units.Length <= 1)
+            return null;
+
+        int index = Array.IndexOf(units, unit);
+        if (index < 0)
+            return null;
+        else if (index < units.Length - 1)
+            return units[index + 1];
+        else
+            return units[0];
+    }
+
     /// <summary>When a <c>Unit</c> is added to the army, update its affiliation to this army.</summary>
     /// <param name="child">Node that was just added.</param>
     public void OnChildEnteredTree(Node child)

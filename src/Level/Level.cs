@@ -163,7 +163,18 @@ public partial class Level : Node2D
     }
 
     /// <summary>Map cancel selection action reference (distinct from menu back/cancel).</summary>
+    [ExportGroup("Cursor Actions")]
     [Export] public InputActionReference CancelAction = new();
+
+    /// <summary>Map "previous" action, which cycles the cursor to the previous unit in the same army or action target, depending on state.</summary>
+    [ExportGroup("Cursor Actions")]
+    [Export] public InputActionReference PreviousAction = new();
+
+    /// <summary>
+    /// Map "next" action, which cycles the cursor to the next unit in the same army or action target, depending on state.
+    /// </summary>
+    [ExportGroup("Cursor Actions")]
+    [Export] public InputActionReference NextAction = new();
 
     [ExportGroup("Camera/Zoom", "CameraZoom")]
 
@@ -445,6 +456,25 @@ public partial class Level : Node2D
             Camera.ZoomTarget += Vector2.One*CameraZoomDigitalFactor;
         if (@event.IsActionPressed(CameraActionDigitalZoomOut))
             Camera.ZoomTarget -= Vector2.One*CameraZoomDigitalFactor;
+    }
+
+    public void OnIdleInput(InputEvent @event)
+    {
+        if (Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit unit)
+        {
+            if (@event.IsActionReleased(PreviousAction))
+            {
+                Unit prev = unit.Affiliation.Previous(unit);
+                if (prev is not null)
+                    Cursor.Cell = prev.Cell;
+            }
+            if (@event.IsActionReleased(NextAction))
+            {
+                Unit next = unit.Affiliation.Next(unit);
+                if (next is not null)
+                    Cursor.Cell = next.Cell;
+            }
+        }
     }
 
     public override void _Process(double delta)

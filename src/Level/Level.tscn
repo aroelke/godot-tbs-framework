@@ -1,11 +1,13 @@
-[gd_scene load_steps=38 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=40 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/Level/Level.cs" id="1_r2v0t"]
 [ext_resource type="Resource" uid="uid://hkvw8a5g5l62" path="res://src/UI/Controls/Action/References/Map/MapCancelAction.tres" id="2_2u5dc"]
 [ext_resource type="Texture2D" uid="uid://cybgq10hqektj" path="res://assets/level/ui/overlay.png" id="2_ogyqc"]
 [ext_resource type="Texture2D" uid="uid://dfppi0pjsv5ut" path="res://assets/level/ui/arrow.png" id="3_1nkpv"]
+[ext_resource type="Resource" uid="uid://c8yddva5eag3s" path="res://src/UI/Controls/Action/References/Map/MapPrevAction.tres" id="3_76mfa"]
 [ext_resource type="Resource" uid="uid://n7vsg71x5cfd" path="res://src/UI/Controls/Action/References/Map/DigitalZoomInAction.tres" id="3_qk2rm"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/UI/Camera2DBrain.tscn" id="3_td8u6"]
+[ext_resource type="Resource" uid="uid://qk7wwaj7u81g" path="res://src/UI/Controls/Action/References/Map/MapNextAction.tres" id="4_gvudp"]
 [ext_resource type="Resource" uid="uid://cwfm1wgikkk0r" path="res://src/UI/Controls/Action/References/Map/AnalogZoomInAction.tres" id="4_n75ik"]
 [ext_resource type="Script" path="res://src/Level/UI/Overlay.cs" id="4_wx588"]
 [ext_resource type="Resource" uid="uid://dc7ud3npxyw0k" path="res://src/UI/Controls/Action/References/Map/DigitalZoomOutAction.tres" id="5_2owqm"]
@@ -423,7 +425,7 @@ tile_size = Vector2i(32, 32)
 terrain_set_0/mode = 0
 terrain_set_0/terrain_0/name = "selection"
 terrain_set_0/terrain_0/color = Color(0.5, 0.34375, 0.25, 1)
-terrain_set_1/mode = 0
+terrain_set_1/mode = 2
 terrain_set_1/terrain_0/name = "path"
 terrain_set_1/terrain_0/color = Color(0.5, 0.34375, 0.25, 1)
 sources/3 = SubResource("TileSetAtlasSource_qo1xq")
@@ -466,6 +468,8 @@ Condition = SubResource("Resource_wojwn")
 [node name="Level" type="Node2D"]
 script = ExtResource("1_r2v0t")
 CancelAction = ExtResource("2_2u5dc")
+PreviousAction = ExtResource("3_76mfa")
+NextAction = ExtResource("4_gvudp")
 CameraActionDigitalZoomIn = ExtResource("3_qk2rm")
 CameraActionAnalogZoomIn = ExtResource("4_n75ik")
 CameraActionDigitalZoomOut = ExtResource("5_2owqm")
@@ -622,6 +626,7 @@ one_shot = true
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]
 [connection signal="CursorMoved" from="Cursor" to="Pointer" method="OnCursorMoved"]
 [connection signal="PointerMoved" from="Pointer" to="Cursor" method="OnPointerMoved"]
+[connection signal="StateInput" from="State/Root/Idle" to="." method="OnIdleInput"]
 [connection signal="Taken" from="State/Root/Idle/ToSelected" to="." method="OnIdleToSelectedTaken"]
 [connection signal="StateEntered" from="State/Root/CancelSelection" to="." method="OnCancelUnitActionEntered"]
 [connection signal="Taken" from="State/Root/CancelSelection/ToIdle" to="." method="OnToIdleTaken" binds= [false]]

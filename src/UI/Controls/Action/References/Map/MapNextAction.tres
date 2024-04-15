@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="InputActionReference" load_steps=2 format=3 uid="uid://qk7wwaj7u81g"]
+
+[ext_resource type="Script" path="res://src/UI/Controls/Action/InputActionReference.cs" id="1_q8py4"]
+
+[resource]
+script = ExtResource("1_q8py4")
+"Input Action" = &"Map.Next"
