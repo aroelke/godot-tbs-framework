@@ -8,7 +8,7 @@ namespace Object.StateChart.Conditions;
 /// <see cref="Transition"/> condition that's satisfied based on the value of a string property. If it's exactly equal to the condition's value,
 /// the condition is satisfied.
 /// </summary>
-[GlobalClass, Tool]
+[GlobalClass, Icon("res://icons/statechart/StringCondition.svg"), Tool]
 public partial class StringCondition : Condition
 {
     /// <summary>Name of the property to test.</summary>
