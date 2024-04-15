@@ -306,6 +306,8 @@ public partial class Level : Node2D
     {
         if (Grid.CellOf(Pointer.Position) == cell)
             _state.SendEvent(SelectEvent);
+        else
+            _state.SendEvent(CancelEvent);
     }
 
     /// <summary>When the unit finishes moving, move to the next state.</summary>
