@@ -33,6 +33,12 @@ public partial class Level : Node2D
     private readonly StringName OccupiedCondition = "occupied";
     private readonly StringName SelectedCondition = "selected";
     private readonly StringName TraversableCondition = "traversable";
+    // State chart occupied values
+    private const string NotOccupied = "";               // Nothing in the cell
+    private const string AllyOccupied = "ally";          // Cell occupied by unit in this turn's army
+    private const string FriendlyOccuipied = "friendly"; // Cell occupied by unit in army allied to this turn's army
+    private const string EnemyOccupied = "enemy";        // Cell occupied by unit in enemy army to this turn's army
+    private const string OtherOccuiped = "other";        // Cell occupied by something else
 
     private Chart _state = null;
     private State _selectedState = null;
@@ -385,7 +391,13 @@ public partial class Level : Node2D
         if (!Engine.IsEditorHint())
         {
             _state.ExpressionProperties = _state.ExpressionProperties
-                .SetItem(OccupiedCondition, Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit)
+                .SetItem(OccupiedCondition, !Grid.Occupants.ContainsKey(Cursor.Cell) ? NotOccupied : Grid.Occupants[Cursor.Cell] switch
+                {
+                    Unit unit when CurrentArmy == unit.Affiliation => AllyOccupied,
+                    Unit unit when CurrentArmy.AlliedTo(unit.Affiliation) => FriendlyOccuipied,
+                    Unit => EnemyOccupied,
+                    _ => OtherOccuiped
+                })
                 .SetItem(SelectedCondition, _selected is not null && Grid.Occupants.ContainsKey(Cursor.Cell) && (Grid.Occupants[Cursor.Cell] as Unit) == _selected)
                 .SetItem(TraversableCondition, _traversable.Contains(Cursor.Cell));
 

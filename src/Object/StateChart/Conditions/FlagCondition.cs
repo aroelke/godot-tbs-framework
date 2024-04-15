@@ -19,7 +19,10 @@ public partial class FlagCondition : Condition
         Chart chart = node as Chart;
         if (!IsInstanceValid(chart))
             throw new ArgumentException("Could not find state chart node.");
-        
+
+        if (chart.ExpressionProperties[Flag].VariantType != Variant.Type.Bool)
+            throw new ArgumentException($"Condition value {chart.ExpressionProperties[Flag]} is not Boolean.");
+
         return chart.ExpressionProperties[Flag].AsBool();
     }
 }
