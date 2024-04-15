@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=36 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/Level/Level.cs" id="1_r2v0t"]
 [ext_resource type="Resource" uid="uid://hkvw8a5g5l62" path="res://src/UI/Controls/Action/References/Map/MapCancelAction.tres" id="2_2u5dc"]
@@ -23,6 +23,7 @@
 [ext_resource type="PackedScene" uid="uid://0b22cirxc7k2" path="res://src/Object/StateChart/States/Transition.tscn" id="20_p4yt1"]
 [ext_resource type="Script" path="res://src/Object/StateChart/Conditions/FlagCondition.cs" id="21_7vj21"]
 [ext_resource type="Script" path="res://src/Object/StateChart/Conditions/ExpressionCondition.cs" id="22_jcgoa"]
+[ext_resource type="Script" path="res://src/Object/StateChart/Conditions/StringCondition.cs" id="22_tix5y"]
 [ext_resource type="Script" path="res://src/Object/StateChart/Conditions/InvertCondition.cs" id="23_6etqp"]
 [ext_resource type="Script" path="res://src/Object/StateChart/Conditions/UnCondition.cs" id="24_k1nop"]
 
@@ -428,9 +429,10 @@ terrain_set_1/terrain_0/color = Color(0.5, 0.34375, 0.25, 1)
 sources/3 = SubResource("TileSetAtlasSource_qo1xq")
 sources/2 = SubResource("TileSetAtlasSource_vg23h")
 
-[sub_resource type="Resource" id="Resource_3s6m4"]
-script = ExtResource("21_7vj21")
-Flag = &"occupied"
+[sub_resource type="Resource" id="Resource_mydqi"]
+script = ExtResource("22_tix5y")
+Property = &"occupied"
+Value = "ally"
 
 [sub_resource type="Resource" id="Resource_f7pbh"]
 script = ExtResource("24_k1nop")
@@ -537,7 +539,7 @@ InitialState = NodePath("Idle")
 [node name="ToSelected" parent="State/Root/Idle" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../UnitSelected")
 Event = &"select"
-Condition = SubResource("Resource_3s6m4")
+Condition = SubResource("Resource_mydqi")
 
 [node name="CancelSelection" parent="State/Root" instance=ExtResource("19_o30vs")]
 
