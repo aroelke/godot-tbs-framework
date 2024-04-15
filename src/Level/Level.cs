@@ -83,7 +83,8 @@ public partial class Level : Node2D
                     foreach (Unit unit in (IEnumerable<Unit>)_armies[_armyIndex])
                         unit.Refresh();
 
-                // Increment the army pointer, wrapping back to the first one if it's at the end, and incrementing the turn count if it did
+                while (value < 0)
+                    value += _armies.Length;
                 _armyIndex = value % _armies.Length;
 
                 // Update the UI
@@ -504,14 +505,7 @@ public partial class Level : Node2D
                 GD.PushError("Cursor is not on an actionable cell during targeting");
             
             if (cells.Length > 1)
-            {
-                int target = Array.IndexOf(cells, Cursor.Cell) + next;
-                if (target == -1)
-                    target = cells.Length - 1;
-                else if (target == cells.Length)
-                    target = 0;
-                Cursor.Cell = cells[target];
-            }
+                Cursor.Cell = cells[(Array.IndexOf(cells, Cursor.Cell) + next + cells.Length) % cells.Length];
         }
     }
 
