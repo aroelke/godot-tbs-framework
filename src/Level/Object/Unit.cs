@@ -66,6 +66,8 @@ public partial class Unit : GridNode
     /// <summary>Speed, in world pixels/second, to move along the path while moving.</summary>
     [Export] public double MoveSpeed = 320;
 
+    public bool Active => !_tree.Get(Done).AsBool();
+
     public IEnumerable<Vector2I> TraversableCells()
     {
         int max = 2*(MoveRange + 1)*(MoveRange + 1) - 2*MoveRange - 1;
@@ -130,6 +132,7 @@ public partial class Unit : GridNode
         _tree.Set(Moving, false);
     }
 
+    /// <summary>Put the unit in its "done" state, indicating it isn't available to act anymore.</summary>
     public void Finish()
     {
         _sprite.Modulate = Colors.White;
@@ -137,6 +140,7 @@ public partial class Unit : GridNode
         _tree.Set(Done, true);
     }
 
+    /// <summary>Put the unit into its "idle" state from being inactive, indicating that it's ready to act again.</summary>
     public void Refresh()
     {
         _sprite.Modulate = Affiliation.Color;

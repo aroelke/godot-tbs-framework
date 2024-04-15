@@ -432,7 +432,7 @@ sources/2 = SubResource("TileSetAtlasSource_vg23h")
 [sub_resource type="Resource" id="Resource_mydqi"]
 script = ExtResource("22_tix5y")
 Property = &"occupied"
-Value = "ally"
+Value = "active"
 
 [sub_resource type="Resource" id="Resource_f7pbh"]
 script = ExtResource("24_k1nop")
@@ -443,7 +443,7 @@ Flag = &"selected"
 
 [sub_resource type="Resource" id="Resource_f7t6t"]
 script = ExtResource("22_jcgoa")
-Expression = "traversable && !occupied"
+Expression = "traversable && occupied.is_empty()"
 
 [sub_resource type="Resource" id="Resource_wojwn"]
 script = ExtResource("21_7vj21")

@@ -30,15 +30,16 @@ public partial class Level : Node2D
     private readonly StringName CancelEvent = "cancel";
     private readonly StringName DoneEvent = "done";
     // State chart conditions
-    private readonly StringName OccupiedCondition = "occupied";
-    private readonly StringName SelectedCondition = "selected";
-    private readonly StringName TraversableCondition = "traversable";
+    private readonly StringName OccupiedCondition = "occupied";       // Current cell occupant (see below for options)
+    private readonly StringName SelectedCondition = "selected";       // Current cell has the selected unit in it
+    private readonly StringName TraversableCondition = "traversable"; // Current cell is traversable
     // State chart occupied values
-    private const string NotOccupied = "";               // Nothing in the cell
-    private const string AllyOccupied = "ally";          // Cell occupied by unit in this turn's army
-    private const string FriendlyOccuipied = "friendly"; // Cell occupied by unit in army allied to this turn's army
-    private const string EnemyOccupied = "enemy";        // Cell occupied by unit in enemy army to this turn's army
-    private const string OtherOccupied = "other";        // Cell occupied by something else
+    private const string NotOccupied = "";                  // Nothing in the cell
+    private const string ActiveAllyOccupied = "active";     // Cell occupied by an active unit in this turn's army
+    private const string InActiveAllyOccupied = "inactive"; // Cell occupied by an inactive unit in this turn's army
+    private const string FriendlyOccuipied = "friendly";    // Cell occupied by unit in army allied to this turn's army
+    private const string EnemyOccupied = "enemy";           // Cell occupied by unit in enemy army to this turn's army
+    private const string OtherOccupied = "other";           // Cell occupied by something else
 
     private Chart _state = null;
     private State _selectedState = null;
@@ -394,7 +395,7 @@ public partial class Level : Node2D
             _state.ExpressionProperties = _state.ExpressionProperties
                 .SetItem(OccupiedCondition, !Grid.Occupants.ContainsKey(Cursor.Cell) ? NotOccupied : Grid.Occupants[Cursor.Cell] switch
                 {
-                    Unit unit when CurrentArmy == unit.Affiliation => AllyOccupied,
+                    Unit unit when CurrentArmy == unit.Affiliation => unit.Active ? ActiveAllyOccupied : InActiveAllyOccupied,
                     Unit unit when CurrentArmy.AlliedTo(unit.Affiliation) => FriendlyOccuipied,
                     Unit => EnemyOccupied,
                     _ => OtherOccupied
