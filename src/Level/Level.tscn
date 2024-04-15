@@ -500,12 +500,20 @@ script = ExtResource("4_wx588")
 
 [node name="HUD" type="Control" parent="UserInterface"]
 layout_mode = 3
-anchors_preset = 2
-anchor_top = 1.0
+anchors_preset = 15
+anchor_right = 1.0
 anchor_bottom = 1.0
-grow_vertical = 0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 theme = ExtResource("8_lhm1v")
+
+[node name="TurnLabel" type="Label" parent="UserInterface/HUD"]
+unique_name_in_owner = true
+layout_mode = 1
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Turn 1: Player"
 
 [node name="Hints" type="HBoxContainer" parent="UserInterface/HUD"]
 layout_mode = 1

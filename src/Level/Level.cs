@@ -58,6 +58,8 @@ public partial class Level : Node2D
     private IEnumerable<Vector2I> _traversable = Array.Empty<Vector2I>(), _attackable = Array.Empty<Vector2I>(), _supportable = Array.Empty<Vector2I>();
     private Army[] _armies = Array.Empty<Army>();
     private int _armyIndex = 0;
+    private int _turn = 1;
+    private Label _turnLabel = null;
 
     private Grid Grid => _map ??= GetNode<Grid>("Grid");
     private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
@@ -65,6 +67,34 @@ public partial class Level : Node2D
     private Cursor Cursor => _cursor ??= GetNode<Cursor>("Cursor");
     private Pointer Pointer => _pointer ??= GetNode<Pointer>("Pointer");
     private ControlHint CancelHint => _cancelHint ??= GetNode<ControlHint>("UserInterface/HUD/Hints/CancelHint");
+    private Label TurnLabel => _turnLabel = GetNode<Label>("%TurnLabel");
+
+    private int CurrentArmy
+    {
+        get => _armyIndex;
+        set
+        {
+            if (_armies.Any())
+            {
+                // Refresh all the units in the current army so they aren't gray anymore and are animated
+                if (!Engine.IsEditorHint())
+                    foreach (Unit unit in (IEnumerable<Unit>)_armies[_armyIndex])
+                        unit.Refresh();
+
+                // Increment the army pointer, wrapping back to the first one if it's at the end, and incrementing the turn count if it did
+                _armyIndex = value % _armies.Length;
+
+                // Update the UI
+                if (!Engine.IsEditorHint())
+                {
+                    TurnLabel.AddThemeColorOverride("font_color", _armies[_armyIndex].Color);
+                    TurnLabel.Text = $"Turn {Turn}: {_armies[_armyIndex].Name}";
+                }
+            }
+            else
+                _armyIndex = 0;
+        }
+    }
 
     /// <summary>
     /// If the cursor isn't in the specified cell, move it to (the center of) that cell. During mouse control, this is done smoothly
@@ -119,7 +149,16 @@ public partial class Level : Node2D
     [Export] public Army StartingArmy = null;
 
     /// <summary>Turn count (including current turn, so it starts at 1).</summary>
-    [Export] public int Turn = 1;
+    [Export] public int Turn
+    {
+        get => _turn;
+        set
+        {
+            _turn = value;
+            if (!Engine.IsEditorHint())
+                _turnLabel.Text = $"Turn {_turn}: {_armies[CurrentArmy].Name}";
+        }
+    }
 
     /// <summary>Map cancel selection action reference (distinct from menu back/cancel).</summary>
     [Export] public InputActionReference CancelAction = new();
@@ -155,15 +194,10 @@ public partial class Level : Node2D
             _selected.Finish();
 
             // Switch to the next army
-            if (!((IEnumerable<Unit>)_armies[_armyIndex]).Where((u) => u.Active).Any())
+            if (!((IEnumerable<Unit>)_armies[CurrentArmy]).Any((u) => u.Active))
             {
-                // Refresh all the units in the current army so they aren't gray anymore and are animated
-                foreach (Unit unit in (IEnumerable<Unit>)_armies[_armyIndex])
-                    unit.Refresh();
-
-                // Increment the army pointer, wrapping back to the first one if it's at the end, and incrementing the turn count if it did
-                _armyIndex = (_armyIndex + 1) % _armies.Length;
-                if (_armyIndex == 0)
+                CurrentArmy++;
+                if (CurrentArmy == Array.IndexOf(_armies, StartingArmy))
                     Turn++;
             }
         }
@@ -386,7 +420,7 @@ public partial class Level : Node2D
 
             _armies = GetChildren().OfType<Army>().ToArray();
             StartingArmy ??= _armies[0];
-            _armyIndex = Array.IndexOf(_armies, StartingArmy);
+            CurrentArmy = Array.IndexOf(_armies, StartingArmy);
         }
     }
 
@@ -413,8 +447,8 @@ public partial class Level : Node2D
                 .SetItem(OccupiedCondition, !Grid.Occupants.ContainsKey(Cursor.Cell) ? NotOccupied : Grid.Occupants[Cursor.Cell] switch
                 {
                     Unit unit when unit == _selected => SelectedOccuiped,
-                    Unit unit when _armies[_armyIndex] == unit.Affiliation => unit.Active ? ActiveAllyOccupied : InActiveAllyOccupied,
-                    Unit unit when _armies[_armyIndex].AlliedTo(unit.Affiliation) => FriendlyOccuipied,
+                    Unit unit when _armies[CurrentArmy] == unit.Affiliation => unit.Active ? ActiveAllyOccupied : InActiveAllyOccupied,
+                    Unit unit when _armies[CurrentArmy].AlliedTo(unit.Affiliation) => FriendlyOccuipied,
                     Unit => EnemyOccupied,
                     _ => OtherOccupied
                 })
