@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://b0cvutx2lj5uy"]
+[gd_scene load_steps=30 format=3 uid="uid://b0cvutx2lj5uy"]
 
 [ext_resource type="Script" path="res://src/Level/Object/Unit.cs" id="1_crlbh"]
 [ext_resource type="Texture2D" uid="uid://3oc7r54iby4a" path="res://assets/level/unit/soldier.png" id="2_ipnjg"]
@@ -205,9 +205,38 @@ tracks/1/keys = {
 "values": [false]
 }
 
+[sub_resource type="Animation" id="Animation_xeq1f"]
+resource_name = "done"
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Path/PathFollow/Sprite:frame_coords")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [Vector2i(0, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Path/PathFollow/Sprite:flip_h")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_txw1y"]
 _data = {
 "RESET": SubResource("Animation_yixnx"),
+"done": SubResource("Animation_xeq1f"),
 "down": SubResource("Animation_kehkl"),
 "idle": SubResource("Animation_dpr7d"),
 "left": SubResource("Animation_c8tpx"),
@@ -245,6 +274,9 @@ blend_mode = 1
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_xy2fh"]
 animation = &"selected"
 
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_m462t"]
+animation = &"done"
+
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_av2ix"]
 advance_mode = 2
 advance_condition = &"selected"
@@ -268,17 +300,27 @@ advance_condition = &"selected"
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_43qbb"]
 advance_mode = 2
 
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_gsdf1"]
+advance_mode = 2
+advance_condition = &"done"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_csre7"]
+advance_mode = 2
+advance_condition = &"idle"
+
 [sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_2xttf"]
 states/End/position = Vector2(771, 213)
 states/Idle/node = SubResource("AnimationNodeAnimation_tm5xh")
 states/Idle/position = Vector2(399, 213)
 states/Moving/node = SubResource("AnimationNodeBlendSpace2D_bw1ab")
-states/Moving/position = Vector2(617, 213)
+states/Moving/position = Vector2(513, 39)
 states/Selected/node = SubResource("AnimationNodeAnimation_xy2fh")
-states/Selected/position = Vector2(502, 44)
+states/Selected/position = Vector2(643, 213)
 states/Start/position = Vector2(249, 213)
-transitions = ["Idle", "Selected", SubResource("AnimationNodeStateMachineTransition_av2ix"), "Selected", "Moving", SubResource("AnimationNodeStateMachineTransition_pq1sv"), "Moving", "Idle", SubResource("AnimationNodeStateMachineTransition_8ispa"), "Selected", "Idle", SubResource("AnimationNodeStateMachineTransition_m6c88"), "Moving", "Selected", SubResource("AnimationNodeStateMachineTransition_jipq2"), "Start", "Idle", SubResource("AnimationNodeStateMachineTransition_43qbb")]
-graph_offset = Vector2(-497, 5)
+states/done/node = SubResource("AnimationNodeAnimation_m462t")
+states/done/position = Vector2(513, 363.117)
+transitions = ["Idle", "Selected", SubResource("AnimationNodeStateMachineTransition_av2ix"), "Selected", "Moving", SubResource("AnimationNodeStateMachineTransition_pq1sv"), "Moving", "Idle", SubResource("AnimationNodeStateMachineTransition_8ispa"), "Selected", "Idle", SubResource("AnimationNodeStateMachineTransition_m6c88"), "Moving", "Selected", SubResource("AnimationNodeStateMachineTransition_jipq2"), "Start", "Idle", SubResource("AnimationNodeStateMachineTransition_43qbb"), "Selected", "done", SubResource("AnimationNodeStateMachineTransition_gsdf1"), "done", "Idle", SubResource("AnimationNodeStateMachineTransition_csre7")]
+graph_offset = Vector2(-73.5496, -52.8826)
 
 [node name="Unit" type="Node2D"]
 script = ExtResource("1_crlbh")
@@ -312,6 +354,7 @@ libraries = {
 }
 tree_root = SubResource("AnimationNodeStateMachine_2xttf")
 anim_player = NodePath("../AnimationPlayer")
+parameters/conditions/done = false
 parameters/conditions/idle = true
 parameters/conditions/moving = false
 parameters/conditions/selected = false

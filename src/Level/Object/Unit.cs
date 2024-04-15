@@ -19,6 +19,7 @@ public partial class Unit : GridNode
     private static readonly StringName Selected = "parameters/conditions/selected";
     private static readonly StringName Moving = "parameters/conditions/moving";
     private static readonly StringName MoveDirection = "parameters/Moving/blend_position";
+    private static readonly StringName Done = "parameters/conditions/done";
 
     /// <summary>Signal that the unit is done moving along its path.</summary>
     [Signal] public delegate void DoneMovingEventHandler();
@@ -127,6 +128,20 @@ public partial class Unit : GridNode
         _tree.Set(Idle, true);
         _tree.Set(Selected, false);
         _tree.Set(Moving, false);
+    }
+
+    public void Finish()
+    {
+        _sprite.Modulate = Colors.White;
+        _tree.Set(Selected, false);
+        _tree.Set(Done, true);
+    }
+
+    public void Refresh()
+    {
+        _sprite.Modulate = Affiliation.Color;
+        _tree.Set(Done, false);
+        _tree.Set(Idle, true);
     }
 
     /// <summary>

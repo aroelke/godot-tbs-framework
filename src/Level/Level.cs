@@ -146,14 +146,15 @@ public partial class Level : Node2D
     /// <summary>Current army who's taking a turn;</summary>
     public Army CurrentArmy = null;
 
-    /// <summary>Deselect any units and clear drawn ranges.</summary>
-    public void OnIdleEntered()
+    /// <summary>Deselect or deactivate the selected <see cref="Unit"/> and clean up after finishing actions.</summary>
+    /// <param name="done">Whether or not the unit completed its action (so it should be deactivated).</param>
+    public void OnToIdleTaken(bool done)
     {
-        if (_selected is not null)
-        {
+        if (done)
+            _selected.Finish();
+        else
             _selected.Deselect();
-            _selected = null;
-        }
+        _selected = null;
 
         CancelHint.Visible = false;
     }
