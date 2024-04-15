@@ -458,6 +458,10 @@ public partial class Level : Node2D
             Camera.ZoomTarget -= Vector2.One*CameraZoomDigitalFactor;
     }
 
+    /// <summary>
+    /// Cycle the cursor between units in the same army using <see cref="PreviousAction"/> and <see cref="NextAction"/>
+    /// while nothing is selected.
+    /// </summary>
     public void OnIdleInput(InputEvent @event)
     {
         if (Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit unit)
@@ -473,6 +477,40 @@ public partial class Level : Node2D
                 Unit next = unit.Affiliation.Next(unit);
                 if (next is not null)
                     Cursor.Cell = next.Cell;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Cycle the cursor between targets of the same action (attack, support, etc.) using <see cref="PreviousAction"/> and <see cref="NextAction"/>
+    /// while choosing targets.
+    /// </summary>
+    public void OnTargetingInput(InputEvent @event)
+    {
+        int next = 0;
+        if (@event.IsActionReleased(PreviousAction))
+            next = -1;
+        else if (@event.IsActionReleased(NextAction))
+            next = 1;
+
+        if (next != 0)
+        {
+            Vector2I[] cells = Array.Empty<Vector2I>();
+            if (Overlay.AttackableCells.Contains(Cursor.Cell))
+                cells = Overlay.AttackableCells.ToArray();
+            else if (Overlay.SupportableCells.Contains(Cursor.Cell))
+                cells = Overlay.SupportableCells.ToArray();
+            else
+                GD.PushError("Cursor is not on an actionable cell during targeting");
+            
+            if (cells.Length > 1)
+            {
+                int target = Array.IndexOf(cells, Cursor.Cell) + next;
+                if (target == -1)
+                    target = cells.Length - 1;
+                else if (target == cells.Length)
+                    target = 0;
+                Cursor.Cell = cells[target];
             }
         }
     }

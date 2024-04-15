@@ -555,9 +555,11 @@ StateChart = NodePath("../../State")
 [node name="State" parent="." instance=ExtResource("17_sd0pe")]
 
 [node name="Root" parent="State" node_paths=PackedStringArray("InitialState") instance=ExtResource("18_k7m3y")]
+process_mode = 4
 InitialState = NodePath("Idle")
 
 [node name="Idle" parent="State/Root" instance=ExtResource("19_o30vs")]
+process_mode = 4
 
 [node name="ToSelected" parent="State/Root/Idle" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../UnitSelected")
@@ -565,6 +567,7 @@ Event = &"select"
 Condition = SubResource("Resource_mydqi")
 
 [node name="CancelSelection" parent="State/Root" instance=ExtResource("19_o30vs")]
+process_mode = 4
 
 [node name="ToIdle" parent="State/Root/CancelSelection" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../Idle")
@@ -572,6 +575,7 @@ Event = &"done"
 Condition = SubResource("Resource_f7pbh")
 
 [node name="UnitSelected" parent="State/Root" instance=ExtResource("19_o30vs")]
+process_mode = 4
 
 [node name="ToTargeting" parent="State/Root/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../UnitTargeting")
@@ -594,6 +598,7 @@ Event = &"cancel"
 Condition = SubResource("Resource_f7pbh")
 
 [node name="UnitMoving" parent="State/Root" instance=ExtResource("19_o30vs")]
+process_mode = 4
 
 [node name="ToTargeting" parent="State/Root/UnitMoving" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../UnitTargeting")
@@ -601,6 +606,7 @@ Event = &"done"
 Condition = SubResource("Resource_f7pbh")
 
 [node name="CancelTargeting" parent="State/Root" instance=ExtResource("19_o30vs")]
+process_mode = 4
 
 [node name="ToSelected" parent="State/Root/CancelTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../UnitSelected")
@@ -608,6 +614,7 @@ Event = &"done"
 Condition = SubResource("Resource_f7pbh")
 
 [node name="UnitTargeting" parent="State/Root" instance=ExtResource("19_o30vs")]
+process_mode = 4
 
 [node name="ToIdle" parent="State/Root/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../Idle")
@@ -638,5 +645,6 @@ one_shot = true
 [connection signal="StateEntered" from="State/Root/CancelTargeting" to="." method="OnCancelUnitActionEntered"]
 [connection signal="StateEntered" from="State/Root/UnitTargeting" to="." method="OnTargetingEntered"]
 [connection signal="StateExited" from="State/Root/UnitTargeting" to="." method="OnTargetingExited"]
+[connection signal="StateInput" from="State/Root/UnitTargeting" to="." method="OnTargetingInput"]
 [connection signal="Taken" from="State/Root/UnitTargeting/ToIdle" to="." method="OnToIdleTaken" binds= [true]]
 [connection signal="timeout" from="TurnAdvance" to="." method="OnTurnAdvance"]
