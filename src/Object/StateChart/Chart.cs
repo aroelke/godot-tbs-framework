@@ -16,6 +16,10 @@ namespace Object.StateChart;
 [Icon("res://icons/statechart/Chart.svg"), Tool]
 public partial class Chart : Node
 {
+    /// <summary>Signals that the state chart has received an event. before any transitions are processed.</summary>
+    /// <param name="event">Name of the received event.</param>
+    [Signal] public delegate void EventReceivedEventHandler(StringName @event);
+
     private static void DoRunTransition(Transition transition, State from)
     {
         if (from.Active)
@@ -56,7 +60,10 @@ public partial class Chart : Node
                     _root.ProcessTransitions("", true);
                 }
                 if (_eventQ.TryDequeue(out StringName @event))
+                {
+                    EmitSignal(SignalName.EventReceived, @event);
                     _root.ProcessTransitions(@event, false);
+                }
             }
             _busy = false;
         }
