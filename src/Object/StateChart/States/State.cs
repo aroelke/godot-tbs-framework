@@ -43,16 +43,13 @@ public abstract partial class State : Node
         get => _active;
         private set
         {
-            if (_active != value)
-            {
-                _active = value;
+            _active = value;
 
-                SetProcess(_active && GetSignalConnectionList(SignalName.StateProcess).Any());
-                SetProcessInput(_active && GetSignalConnectionList(SignalName.StateInput).Any());
-                SetProcessUnhandledInput(_active && GetSignalConnectionList(SignalName.StateUnhandledInput).Any());
+            SetProcess(_active && GetSignalConnectionList(SignalName.StateProcess).Any());
+            SetProcessInput(_active && GetSignalConnectionList(SignalName.StateInput).Any());
+            SetProcessUnhandledInput(_active && GetSignalConnectionList(SignalName.StateUnhandledInput).Any());
 
-                ProcessMode = _active ? ProcessModeEnum.Inherit : ProcessModeEnum.Disabled;
-            }
+            ProcessMode = _active ? ProcessModeEnum.Inherit : ProcessModeEnum.Disabled;
         }
     }
 
