@@ -437,9 +437,10 @@ Value = "active"
 [sub_resource type="Resource" id="Resource_f7pbh"]
 script = ExtResource("24_k1nop")
 
-[sub_resource type="Resource" id="Resource_f336q"]
-script = ExtResource("21_7vj21")
-Flag = &"selected"
+[sub_resource type="Resource" id="Resource_2f828"]
+script = ExtResource("22_tix5y")
+Property = &"occupied"
+Value = "selected"
 
 [sub_resource type="Resource" id="Resource_al1lg"]
 script = ExtResource("21_7vj21")
@@ -562,7 +563,7 @@ Condition = SubResource("Resource_f7pbh")
 [node name="ToTargeting" parent="State/Root/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../UnitTargeting")
 Event = &"select"
-Condition = SubResource("Resource_f336q")
+Condition = SubResource("Resource_2f828")
 
 [node name="ToMoving" parent="State/Root/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../UnitMoving")

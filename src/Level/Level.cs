@@ -31,10 +31,10 @@ public partial class Level : Node2D
     private readonly StringName DoneEvent = "done";
     // State chart conditions
     private readonly StringName OccupiedCondition = "occupied";       // Current cell occupant (see below for options)
-    private readonly StringName SelectedCondition = "selected";       // Current cell has the selected unit in it
     private readonly StringName TraversableCondition = "traversable"; // Current cell is traversable
     // State chart occupied values
     private const string NotOccupied = "";                  // Nothing in the cell
+    private const string SelectedOccuiped = "selected";     // Cell occupied by the selected unit (if there is one)
     private const string ActiveAllyOccupied = "active";     // Cell occupied by an active unit in this turn's army
     private const string InActiveAllyOccupied = "inactive"; // Cell occupied by an inactive unit in this turn's army
     private const string FriendlyOccuipied = "friendly";    // Cell occupied by unit in army allied to this turn's army
@@ -395,12 +395,12 @@ public partial class Level : Node2D
             _state.ExpressionProperties = _state.ExpressionProperties
                 .SetItem(OccupiedCondition, !Grid.Occupants.ContainsKey(Cursor.Cell) ? NotOccupied : Grid.Occupants[Cursor.Cell] switch
                 {
+                    Unit unit when unit == _selected => SelectedOccuiped,
                     Unit unit when CurrentArmy == unit.Affiliation => unit.Active ? ActiveAllyOccupied : InActiveAllyOccupied,
                     Unit unit when CurrentArmy.AlliedTo(unit.Affiliation) => FriendlyOccuipied,
                     Unit => EnemyOccupied,
                     _ => OtherOccupied
                 })
-                .SetItem(SelectedCondition, _selected is not null && Grid.Occupants.ContainsKey(Cursor.Cell) && (Grid.Occupants[Cursor.Cell] as Unit) == _selected)
                 .SetItem(TraversableCondition, _traversable.Contains(Cursor.Cell));
 
             float zoom = Input.GetAxis(CameraActionAnalogZoomOut, CameraActionAnalogZoomIn);
