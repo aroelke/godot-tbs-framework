@@ -60,6 +60,7 @@ public partial class Level : Node2D
     private int _armyIndex = 0;
     private int _turn = 1;
     private Label _turnLabel = null;
+    private Timer _turnAdvance = null;
 
     private Grid Grid => _map ??= GetNode<Grid>("Grid");
     private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
@@ -68,6 +69,7 @@ public partial class Level : Node2D
     private Pointer Pointer => _pointer ??= GetNode<Pointer>("Pointer");
     private ControlHint CancelHint => _cancelHint ??= GetNode<ControlHint>("UserInterface/HUD/Hints/CancelHint");
     private Label TurnLabel => _turnLabel = GetNode<Label>("%TurnLabel");
+    private Timer TurnAdvance => _turnAdvance = GetNode<Timer>("TurnAdvance");
 
     private int CurrentArmy
     {
@@ -195,11 +197,7 @@ public partial class Level : Node2D
 
             // Switch to the next army
             if (!((IEnumerable<Unit>)_armies[CurrentArmy]).Any((u) => u.Active))
-            {
-                CurrentArmy++;
-                if (CurrentArmy == Array.IndexOf(_armies, StartingArmy))
-                    Turn++;
-            }
+                TurnAdvance.Start();
         }
         else
             _selected.Deselect();
@@ -363,6 +361,18 @@ public partial class Level : Node2D
     {
         _selected.DoneMoving -= OnUnitDoneMoving;
         _state.SendEvent(DoneEvent);
+    }
+
+    /// <summary>
+    /// Advance the turn cycle:
+    /// - Go to the next army
+    /// - If returning to <see cref="StartingArmy"/>, increment the turn count
+    /// </summary>
+    public void OnTurnAdvance()
+    {
+        CurrentArmy++;
+        if (CurrentArmy == Array.IndexOf(_armies, StartingArmy))
+            Turn++;
     }
 
     /// <summary>When a grid node is added to a group, update its grid.</summary>

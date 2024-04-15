@@ -614,6 +614,9 @@ To = NodePath("../../CancelTargeting")
 Event = &"cancel"
 Condition = SubResource("Resource_f7pbh")
 
+[node name="TurnAdvance" type="Timer" parent="."]
+one_shot = true
+
 [connection signal="CellChanged" from="Cursor" to="." method="OnCursorMoved"]
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]
 [connection signal="CursorMoved" from="Cursor" to="Pointer" method="OnCursorMoved"]
@@ -630,3 +633,4 @@ Condition = SubResource("Resource_f7pbh")
 [connection signal="StateEntered" from="State/Root/UnitTargeting" to="." method="OnTargetingEntered"]
 [connection signal="StateExited" from="State/Root/UnitTargeting" to="." method="OnTargetingExited"]
 [connection signal="Taken" from="State/Root/UnitTargeting/ToIdle" to="." method="OnToIdleTaken" binds= [true]]
+[connection signal="timeout" from="TurnAdvance" to="." method="OnTurnAdvance"]
