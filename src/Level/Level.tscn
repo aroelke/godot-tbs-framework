@@ -17,7 +17,7 @@
 [ext_resource type="TileSet" uid="uid://twuvc8bf6btx" path="res://src/Level/UI/ActionRanges.tres" id="11_5d5so"]
 [ext_resource type="Resource" uid="uid://c8jgkj5o6iui0" path="res://src/UI/Controls/Action/References/Map/SelectAction.tres" id="11_5p2p1"]
 [ext_resource type="Script" path="res://src/Level/UI/ActionRanges.cs" id="11_a2xnb"]
-[ext_resource type="PackedScene" uid="uid://d2pwsr12t0uxb" path="res://src/Level/UI/Overlay.tscn" id="12_xcqmu"]
+[ext_resource type="PackedScene" uid="uid://d2pwsr12t0uxb" path="res://src/Level/UI/RangeOverlay.tscn" id="12_4dlg7"]
 [ext_resource type="PackedScene" uid="uid://h3yhm0thhl8m" path="res://src/Object/StateChart/StateChartInspector.tscn" id="17_gyc8t"]
 [ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/Object/StateChart/Chart.tscn" id="17_sd0pe"]
 [ext_resource type="PackedScene" uid="uid://bykdjiak4bxvt" path="res://src/Object/StateChart/States/CompoundState.tscn" id="18_k7m3y"]
@@ -94,7 +94,7 @@ layer_3/z_index = 1
 layer_3/tile_data = PackedInt32Array()
 script = ExtResource("11_a2xnb")
 
-[node name="ActionRangeOverlay" parent="." instance=ExtResource("12_xcqmu")]
+[node name="ActionRangeOverlay" parent="." instance=ExtResource("12_4dlg7")]
 layer_0/name = "move"
 layer_0/modulate = Color(0, 0, 1, 0.392157)
 layer_0/navigation_enabled = false

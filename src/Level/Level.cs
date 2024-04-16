@@ -51,7 +51,7 @@ public partial class Level : Node2D
     private Grid _map = null;
     private Path _path = null;
     private ActionRanges _pathOverlay = null;
-    private Overlay _actionRanges = null;
+    private RangeOverlay _actionRanges = null;
     private Camera2DBrain _camera = null;
     private Cursor _cursor = null;
     private Pointer _pointer = null;
@@ -70,7 +70,7 @@ public partial class Level : Node2D
 
     private Grid Grid => _map ??= GetNode<Grid>("Grid");
     private ActionRanges PathOverlay => _pathOverlay ??= GetNode<ActionRanges>("Path");
-    private Overlay ActionRanges => _actionRanges ??= GetNode<Overlay>("ActionRangeOverlay");
+    private RangeOverlay ActionRanges => _actionRanges ??= GetNode<RangeOverlay>("ActionRangeOverlay");
     private Camera2DBrain Camera => _camera ??= GetNode<Camera2DBrain>("Camera");
     private Cursor Cursor => _cursor ??= GetNode<Cursor>("Cursor");
     private Pointer Pointer => _pointer ??= GetNode<Pointer>("Pointer");

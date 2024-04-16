@@ -5,7 +5,7 @@ using Level.Map;
 namespace Level.UI;
 
 /// <summary>A <see cref="Grid"/> overlay used to display information about the grid cells.</summary>
-public partial class Overlay : TileMap
+public partial class RangeOverlay : TileMap
 {
     /// <summary>Get the index of the layer of the given name.</summary>
     private int GetLayerIndex(string name)

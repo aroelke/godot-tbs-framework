@@ -1,10 +1,10 @@
 [gd_scene load_steps=5 format=3 uid="uid://d2pwsr12t0uxb"]
 
-[ext_resource type="Texture2D" uid="uid://cybgq10hqektj" path="res://assets/level/ui/overlay.png" id="1_8hf50"]
-[ext_resource type="Script" path="res://src/Level/UI/Overlay.cs" id="2_d7uxi"]
+[ext_resource type="Texture2D" uid="uid://cybgq10hqektj" path="res://assets/level/ui/overlay.png" id="1_iv0si"]
+[ext_resource type="Script" path="res://src/Level/UI/RangeOverlay.cs" id="2_2kqmr"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_vg23h"]
-texture = ExtResource("1_8hf50")
+texture = ExtResource("1_iv0si")
 texture_region_size = Vector2i(32, 32)
 1:0/0 = 0
 1:0/0/terrain_set = 0
@@ -341,12 +341,9 @@ tile_size = Vector2i(32, 32)
 terrain_set_0/mode = 0
 terrain_set_0/terrain_0/name = "selection"
 terrain_set_0/terrain_0/color = Color(0.5, 0.34375, 0.25, 1)
-terrain_set_1/mode = 2
-terrain_set_1/terrain_0/name = "path"
-terrain_set_1/terrain_0/color = Color(0.5, 0.34375, 0.25, 1)
 sources/2 = SubResource("TileSetAtlasSource_vg23h")
 
-[node name="Overlay" type="TileMap"]
+[node name="RangeOverlay" type="TileMap"]
 tile_set = SubResource("TileSet_0n2px")
 format = 2
-script = ExtResource("2_d7uxi")
+script = ExtResource("2_2kqmr")
