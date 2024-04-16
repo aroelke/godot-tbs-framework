@@ -281,7 +281,7 @@ public partial class Level : Node2D
     /// <param name="event">Name of the event.</param>
     public void OnIdleEventReceived(StringName @event)
     {
-        if (_armies[CurrentArmy] == StartingArmy && Grid.Occupants[Cursor.Cell] is Unit unit && !StartingArmy.AlliedTo(unit))
+        if (_armies[CurrentArmy] == StartingArmy && Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit unit && !StartingArmy.AlliedTo(unit))
         {
             if (@event == SelectEvent)
             {
@@ -529,7 +529,17 @@ public partial class Level : Node2D
             _state.SendEvent(CancelEvent);
 
         if (@event.IsActionReleased(ToggleGlobalDangerZoneAction))
-            ShowGlobalDangerZone = !ShowGlobalDangerZone;
+        {
+            if (Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit unit && !StartingArmy.AlliedTo(unit))
+            {
+                if (ZoneUnits.Contains(unit))
+                    ZoneUnits = ZoneUnits.Remove(unit);
+                else
+                    ZoneUnits = ZoneUnits.Add(unit);
+            }
+            else
+                ShowGlobalDangerZone = !ShowGlobalDangerZone;
+        }
 
         if (@event.IsActionPressed(CameraActionDigitalZoomIn))
             Camera.ZoomTarget += Vector2.One*CameraZoomDigitalFactor;
