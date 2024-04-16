@@ -54,6 +54,7 @@ public partial class Level : Node2D
     private RangeOverlay _actionRanges = null;
     private RangeOverlay _zoneRanges = null;
     private ImmutableHashSet<Unit> _zoneUnits = ImmutableHashSet<Unit>.Empty;
+    private bool _showGlobalZone = false;
     private Camera2DBrain _camera = null;
     private Cursor _cursor = null;
     private Pointer _pointer = null;
@@ -81,6 +82,7 @@ public partial class Level : Node2D
     private Label TurnLabel => _turnLabel = GetNode<Label>("%TurnLabel");
     private Timer TurnAdvance => _turnAdvance = GetNode<Timer>("TurnAdvance");
 
+    /// <summary>Index into the list of <see cref="Army"/> child nodes for which army is taking a turn.</summary>
     private int CurrentArmy
     {
         get => _armyIndex;
@@ -115,11 +117,8 @@ public partial class Level : Node2D
         get => _zoneUnits;
         set
         {
-            if (_zoneUnits != value)
-            {
-                _zoneUnits = value;
-                UpdateDangerZones();
-            }
+            _zoneUnits = value;
+            UpdateDangerZones();
         }
     }
 
@@ -172,10 +171,20 @@ public partial class Level : Node2D
     /// <summary>Update the displayed danger zones to reflect the current positions of the enemy units.</summary>
     private void UpdateDangerZones()
     {
+        // Update local danger zone
         if (_zoneUnits.Any())
-            ZoneRanges["local"] = _zoneUnits.Select((u) => u.AttackableCells(u.TraversableCells()).ToImmutableHashSet()).Aggregate((a, b) => a.Union(b));
+            ZoneRanges["local"] = _zoneUnits.SelectMany((u) => u.AttackableCells(u.TraversableCells())).ToImmutableHashSet();
         else
             ZoneRanges["local"] = ImmutableHashSet<Vector2I>.Empty;
+        
+        // Update global danger zone
+        if (_showGlobalZone)
+            ZoneRanges["global"] = GetChildren().OfType<Army>()
+                .Where((a) => !a.AlliedTo(StartingArmy))
+                .SelectMany((a) => (IEnumerable<Unit>)a)
+                .SelectMany((u) => u.AttackableCells(u.TraversableCells())).ToImmutableHashSet();
+        else
+            ZoneRanges["global"] = ImmutableHashSet<Vector2I>.Empty;
     }
 
     /// <summary>
@@ -195,6 +204,21 @@ public partial class Level : Node2D
                 _turnLabel.Text = $"Turn {_turn}: {_armies[CurrentArmy].Name}";
         }
     }
+
+    /// <summary>Whether or not to show the global danger zone relative to <see cref="StartingArmy"/>.</summary>
+    [Export] public bool ShowGlobalDangerZone
+    {
+        get => _showGlobalZone;
+        set
+        {
+            _showGlobalZone = value;
+            if (!Engine.IsEditorHint())
+                UpdateDangerZones();
+        }
+    }
+
+    /// <summary>Action to toggle the global danger zone.</summary>
+    [Export] public InputActionReference ToggleGlobalDangerZoneAction = new();
 
     /// <summary>Map cancel selection action reference (distinct from menu back/cancel).</summary>
     [ExportGroup("Cursor Actions")]
@@ -503,6 +527,9 @@ public partial class Level : Node2D
 
         if (@event.IsActionReleased(CancelAction))
             _state.SendEvent(CancelEvent);
+
+        if (@event.IsActionReleased(ToggleGlobalDangerZoneAction))
+            ShowGlobalDangerZone = !ShowGlobalDangerZone;
 
         if (@event.IsActionPressed(CameraActionDigitalZoomIn))
             Camera.ZoomTarget += Vector2.One*CameraZoomDigitalFactor;
