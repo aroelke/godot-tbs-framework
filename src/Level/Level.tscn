@@ -88,7 +88,16 @@ layer_2/name = "support"
 layer_2/modulate = Color(0, 1, 0, 0.392157)
 layer_2/tile_data = PackedInt32Array()
 
+[node name="ZoneOverlay" parent="." instance=ExtResource("12_4dlg7")]
+layer_0/name = "local"
+layer_0/modulate = Color(0.498039, 0, 0.247059, 0.392157)
+layer_0/navigation_enabled = false
+layer_1/name = "global"
+layer_1/modulate = Color(0, 0, 0, 0.392157)
+layer_1/tile_data = PackedInt32Array()
+
 [node name="PathOverlay" parent="." instance=ExtResource("12_3wqlu")]
+z_index = 1
 
 [node name="Cursor" parent="." instance=ExtResource("6_3v7mf")]
 
@@ -227,6 +236,7 @@ one_shot = true
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]
 [connection signal="CursorMoved" from="Cursor" to="Pointer" method="OnCursorMoved"]
 [connection signal="PointerMoved" from="Pointer" to="Cursor" method="OnPointerMoved"]
+[connection signal="EventReceived" from="State/Root/Idle" to="." method="OnIdleEventReceived"]
 [connection signal="StateInput" from="State/Root/Idle" to="." method="OnIdleInput"]
 [connection signal="Taken" from="State/Root/Idle/ToSelected" to="." method="OnIdleToSelectedTaken"]
 [connection signal="StateEntered" from="State/Root/CancelSelection" to="." method="OnCancelUnitActionEntered"]
@@ -237,6 +247,7 @@ one_shot = true
 [connection signal="StateEntered" from="State/Root/UnitMoving" to="." method="OnMovingEntered"]
 [connection signal="StateExited" from="State/Root/UnitMoving" to="." method="OnMovingExited"]
 [connection signal="StateEntered" from="State/Root/CancelTargeting" to="." method="OnCancelUnitActionEntered"]
+[connection signal="StateExited" from="State/Root/CancelTargeting" to="." method="OnCancelTargetingExited"]
 [connection signal="StateEntered" from="State/Root/UnitTargeting" to="." method="OnTargetingEntered"]
 [connection signal="StateExited" from="State/Root/UnitTargeting" to="." method="OnTargetingExited"]
 [connection signal="StateInput" from="State/Root/UnitTargeting" to="." method="OnTargetingInput"]

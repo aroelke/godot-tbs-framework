@@ -52,6 +52,8 @@ public partial class Level : Node2D
     private Path _path = null;
     private PathOverlay _pathOverlay = null;
     private RangeOverlay _actionRanges = null;
+    private RangeOverlay _zoneRanges = null;
+    private ImmutableHashSet<Unit> _zoneUnits = ImmutableHashSet<Unit>.Empty;
     private Camera2DBrain _camera = null;
     private Cursor _cursor = null;
     private Pointer _pointer = null;
@@ -71,6 +73,7 @@ public partial class Level : Node2D
     private Grid Grid => _map ??= GetNode<Grid>("Grid");
     private PathOverlay PathOverlay => _pathOverlay ??= GetNode<PathOverlay>("PathOverlay");
     private RangeOverlay ActionRanges => _actionRanges ??= GetNode<RangeOverlay>("ActionRangeOverlay");
+    private RangeOverlay ZoneRanges => _zoneRanges ??= GetNode<RangeOverlay>("ZoneOverlay");
     private Camera2DBrain Camera => _camera ??= GetNode<Camera2DBrain>("Camera");
     private Cursor Cursor => _cursor ??= GetNode<Cursor>("Cursor");
     private Pointer Pointer => _pointer ??= GetNode<Pointer>("Pointer");
@@ -103,6 +106,20 @@ public partial class Level : Node2D
             }
             else
                 _armyIndex = 0;
+        }
+    }
+
+    /// <summary>Units to include in the local danger zone. Updates the highlighted squares when set.</summary>
+    private ImmutableHashSet<Unit> ZoneUnits
+    {
+        get => _zoneUnits;
+        set
+        {
+            if (_zoneUnits != value)
+            {
+                _zoneUnits = value;
+                UpdateDangerZones();
+            }
         }
     }
 
@@ -152,9 +169,18 @@ public partial class Level : Node2D
         }
     }
 
+    /// <summary>Update the displayed danger zones to reflect the current positions of the enemy units.</summary>
+    private void UpdateDangerZones()
+    {
+        if (_zoneUnits.Any())
+            ZoneRanges["local"] = _zoneUnits.Select((u) => u.AttackableCells(u.TraversableCells()).ToImmutableHashSet()).Aggregate((a, b) => a.Union(b));
+        else
+            ZoneRanges["local"] = ImmutableHashSet<Vector2I>.Empty;
+    }
+
     /// <summary>
-    /// <see cref="Army"/> that gets the first turn. If null, use the first <see cref="Army"/> in the child list.
-    /// After that, go down the child list in order, wrapping when at the end.
+    /// <see cref="Army"/> that gets the first turn and is controlled by the player. If null, use the first <see cref="Army"/>
+    /// in the child list. After that, go down the child list in order, wrapping when at the end.
     /// </summary>
     [Export] public Army StartingArmy = null;
 
@@ -178,9 +204,7 @@ public partial class Level : Node2D
     [ExportGroup("Cursor Actions")]
     [Export] public InputActionReference PreviousAction = new();
 
-    /// <summary>
-    /// Map "next" action, which cycles the cursor to the next unit in the same army or action target, depending on state.
-    /// </summary>
+    /// <summary>Map "next" action, which cycles the cursor to the next unit in the same army or action target, depending on state.</summary>
     [ExportGroup("Cursor Actions")]
     [Export] public InputActionReference NextAction = new();
 
@@ -223,6 +247,28 @@ public partial class Level : Node2D
         _selected = null;
 
         CancelHint.Visible = false;
+    }
+
+    /// <summary>
+    /// Handle events that might occur during idle state.
+    /// - select: if the cursor is over a unit enemy to the player during the player's turn, toggle its attack range in the local danger zone
+    /// - cancel: if the cursor is over a unit enemy to the player during the player's turn, remove its attack range from the local danger zone
+    /// </summary>
+    /// <param name="event">Name of the event.</param>
+    public void OnIdleEventReceived(StringName @event)
+    {
+        if (_armies[CurrentArmy] == StartingArmy && Grid.Occupants[Cursor.Cell] is Unit unit && !StartingArmy.AlliedTo(unit))
+        {
+            if (@event == SelectEvent)
+            {
+                if (ZoneUnits.Contains(unit))
+                    ZoneUnits = ZoneUnits.Remove(unit);
+                else
+                    ZoneUnits = ZoneUnits.Add(unit);
+            }
+            else if (@event == CancelEvent && _zoneUnits.Contains(unit))
+                ZoneUnits = ZoneUnits.Remove(unit);
+        }
     }
 
     /// <summary>Choose a selected unit.</summary>
@@ -295,12 +341,13 @@ public partial class Level : Node2D
         Camera.Target = _selected.MotionBox;
     }
 
-    /// <summary>When done moving, restore the camera target (most likely to the cursor).</summary>
+    /// <summary>When done moving, restore the camera target (most likely to the cursor) and update danger zones.</summary>
     public void OnMovingExited()
     {
         (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = _prevDeadzone;
         Camera.Target = _prevTarget;
         _path = null;
+        UpdateDangerZones();
     }
 
     /// <summary>Compute the attack and support ranges of the selected unit from its location.</summary>
@@ -346,6 +393,8 @@ public partial class Level : Node2D
         WarpCursor(_selected.Cell);
         _state.SendEvent(DoneEvent);
     }
+
+    public void OnCancelTargetingExited() => UpdateDangerZones();
 
     /// <summary>
     /// When the cursor moves:
