@@ -47,7 +47,7 @@ public partial class Level : Node2D
     private const string SupportableRange = "support";
 
     private Chart _state = null;
-    private State _selectedState = null;
+    private State _idle = null;
     private Grid _map = null;
     private Path _path = null;
     private PathOverlay _pathOverlay = null;
@@ -273,6 +273,8 @@ public partial class Level : Node2D
         CancelHint.Visible = false;
     }
 
+    public void OnIdleEntered() => OnCursorMoved(Cursor.Cell);
+
     /// <summary>
     /// Handle events that might occur during idle state.
     /// - select: if the cursor is over a unit enemy to the player during the player's turn, toggle its attack range in the local danger zone
@@ -425,12 +427,29 @@ public partial class Level : Node2D
     /// - While a unit is selected:
     ///   - Update the path that's being drawn
     ///   - Briefly break continuous digital movement if the cursor moves to the edge of the traversable region
+    /// - While a unit is not selected, display the action ranges of units it hovers over
     /// </summary>
     /// <param name="cell">Cell the cursor moved to.</param>
     public void OnCursorMoved(Vector2I cell)
     {
         if (_traversable.Contains(cell))
             PathOverlay.Path = (_path = _path.Add(cell).Clamp(_selected.MoveRange)).ToList();
+
+        if (_idle.Active)
+        {
+            ActionRanges.Clear();
+            if (_armies[CurrentArmy] == StartingArmy && Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit unit)
+            {
+                IEnumerable<Vector2I> traversable = unit.TraversableCells();
+                IEnumerable<Vector2I> attackable = unit.AttackableCells(traversable);
+                IEnumerable<Vector2I> supportable = unit.SupportableCells(traversable);
+                bool HasAttackableTarget(Vector2I c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(unit) ?? false);
+                bool HasSupportableTarget(Vector2I c) => Grid.Occupants.ContainsKey(c) && ((Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(unit) ?? false);
+                ActionRanges[TraversableRange] = traversable.ToImmutableHashSet();
+                ActionRanges[AttackableRange] = attackable.Where((c) => (!traversable.Contains(c) && !HasSupportableTarget(c)) || HasAttackableTarget(c)).ToImmutableHashSet();
+                ActionRanges[SupportableRange] = supportable.Where((c) => !traversable.Contains(c) && !HasAttackableTarget(c) && (!attackable.Contains(c) || HasSupportableTarget(c))).ToImmutableHashSet();
+            }
+        }
     }
 
     /// <summary>When a cell is selected, act based on what is or isn't in the cell.</summary>
@@ -495,7 +514,7 @@ public partial class Level : Node2D
         if (!Engine.IsEditorHint())
         {
             _state = GetNode<Chart>("State");
-            _selectedState = GetNode<State>("State/Root/UnitSelected");
+            _idle = GetNode<State>("%Idle");
 
             Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
             Cursor.Grid = Grid;
