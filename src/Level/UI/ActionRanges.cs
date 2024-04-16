@@ -7,7 +7,7 @@ using Level.Map;
 namespace Level.UI;
 
 /// <summary>Map overlay tile set for displaying traversable and attackable cells and managing unit movement.</summary>
-public partial class Overlay : TileMap
+public partial class ActionRanges : TileMap
 {
     // TileSet source ID for the path arrows and indices containing arrowheads.
     // XXX: DEPENDS STRONGLY ON TILESET ORGANIZATION

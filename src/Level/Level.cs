@@ -44,7 +44,7 @@ public partial class Level : Node2D
     private Chart _state = null;
     private State _selectedState = null;
     private Grid _map = null;
-    private Overlay _overlay = null;
+    private ActionRanges _overlay = null;
     private Camera2DBrain _camera = null;
     private Cursor _cursor = null;
     private Pointer _pointer = null;
@@ -63,7 +63,7 @@ public partial class Level : Node2D
     private Timer _turnAdvance = null;
 
     private Grid Grid => _map ??= GetNode<Grid>("Grid");
-    private Overlay Overlay => _overlay ??= GetNode<Overlay>("Overlay");
+    private ActionRanges Overlay => _overlay ??= GetNode<ActionRanges>("ActionRanges");
     private Camera2DBrain Camera => _camera ??= GetNode<Camera2DBrain>("Camera");
     private Cursor Cursor => _cursor ??= GetNode<Cursor>("Cursor");
     private Pointer Pointer => _pointer ??= GetNode<Pointer>("Pointer");
