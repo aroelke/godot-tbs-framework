@@ -21,10 +21,10 @@ Color = Color(0, 0.498039, 1, 1)
 Allies = [NodePath("../Ally")]
 
 [node name="PlayerA" parent="Level/Player" node_paths=PackedStringArray("Affiliation", "Grid") instance=ExtResource("5_ju5kl")]
-position = Vector2(192, 160)
+position = Vector2(192, 128)
 Affiliation = NodePath("..")
 Grid = NodePath("../../Grid")
-Cell = Vector2i(6, 5)
+Cell = Vector2i(6, 4)
 Size = Vector2(32, 32)
 
 [node name="PlayerB" parent="Level/Player" node_paths=PackedStringArray("Affiliation", "Grid") instance=ExtResource("5_ju5kl")]

@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=37 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/Level/Level.cs" id="1_r2v0t"]
 [ext_resource type="Resource" uid="uid://hkvw8a5g5l62" path="res://src/UI/Controls/Action/References/Map/MapCancelAction.tres" id="2_2u5dc"]
@@ -14,9 +14,10 @@
 [ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://src/UI/HUD/HUD.tres" id="8_lhm1v"]
 [ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/UI/HUD/CursorHintIcon.tscn" id="9_i7is8"]
 [ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/UI/HUD/ControlHint.tscn" id="10_dfuji"]
-[ext_resource type="TileSet" uid="uid://bp22ovmxhxts1" path="res://src/Level/UI/Overlay.tres" id="10_xq7pl"]
+[ext_resource type="TileSet" uid="uid://twuvc8bf6btx" path="res://src/Level/UI/ActionRanges.tres" id="11_5d5so"]
 [ext_resource type="Resource" uid="uid://c8jgkj5o6iui0" path="res://src/UI/Controls/Action/References/Map/SelectAction.tres" id="11_5p2p1"]
 [ext_resource type="Script" path="res://src/Level/UI/ActionRanges.cs" id="11_a2xnb"]
+[ext_resource type="PackedScene" uid="uid://d2pwsr12t0uxb" path="res://src/Level/UI/Overlay.tscn" id="12_xcqmu"]
 [ext_resource type="PackedScene" uid="uid://h3yhm0thhl8m" path="res://src/Object/StateChart/StateChartInspector.tscn" id="17_gyc8t"]
 [ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/Object/StateChart/Chart.tscn" id="17_sd0pe"]
 [ext_resource type="PackedScene" uid="uid://bykdjiak4bxvt" path="res://src/Object/StateChart/States/CompoundState.tscn" id="18_k7m3y"]
@@ -77,17 +78,8 @@ Target = NodePath("../Pointer")
 Zoom = Vector2(2, 2)
 Limits = Rect2i(0, 0, 1000000, 1000000)
 
-[node name="DangerZone" type="TileMap" parent="."]
-tile_set = ExtResource("10_xq7pl")
-format = 2
-layer_0/name = "local"
-layer_0/modulate = Color(0.498039, 0, 0.12549, 0.498039)
-layer_1/name = "global"
-layer_1/modulate = Color(0, 0, 0, 0.498039)
-layer_1/tile_data = PackedInt32Array()
-
-[node name="ActionRanges" type="TileMap" parent="."]
-tile_set = ExtResource("10_xq7pl")
+[node name="Path" type="TileMap" parent="."]
+tile_set = ExtResource("11_5d5so")
 format = 2
 layer_0/name = "move"
 layer_0/modulate = Color(0, 0, 1, 0.392157)
@@ -101,6 +93,17 @@ layer_3/name = "path"
 layer_3/z_index = 1
 layer_3/tile_data = PackedInt32Array()
 script = ExtResource("11_a2xnb")
+
+[node name="ActionRangeOverlay" parent="." instance=ExtResource("12_xcqmu")]
+layer_0/name = "move"
+layer_0/modulate = Color(0, 0, 1, 0.392157)
+layer_0/navigation_enabled = false
+layer_1/name = "attack"
+layer_1/modulate = Color(1, 0, 0, 0.392157)
+layer_1/tile_data = PackedInt32Array()
+layer_2/name = "support"
+layer_2/modulate = Color(0, 1, 0, 0.392157)
+layer_2/tile_data = PackedInt32Array()
 
 [node name="Cursor" parent="." instance=ExtResource("6_3v7mf")]
 

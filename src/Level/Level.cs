@@ -41,10 +41,17 @@ public partial class Level : Node2D
     private const string EnemyOccupied = "enemy";           // Cell occupied by unit in enemy army to this turn's army
     private const string OtherOccupied = "other";           // Cell occupied by something else
 
+    // Action range layer names
+    private const string TraversableRange = "move";
+    private const string AttackableRange = "attack";
+    private const string SupportableRange = "support";
+
     private Chart _state = null;
     private State _selectedState = null;
     private Grid _map = null;
-    private ActionRanges _overlay = null;
+    private Path _path = null;
+    private ActionRanges _pathOverlay = null;
+    private Overlay _actionRanges = null;
     private Camera2DBrain _camera = null;
     private Cursor _cursor = null;
     private Pointer _pointer = null;
@@ -54,7 +61,6 @@ public partial class Level : Node2D
     private Vector4 _prevDeadzone = new();
     private BoundedNode2D _prevTarget = null;
     private Vector2I? _initialCell = null;
-    private Path _path = null;
     private IEnumerable<Vector2I> _traversable = Array.Empty<Vector2I>(), _attackable = Array.Empty<Vector2I>(), _supportable = Array.Empty<Vector2I>();
     private Army[] _armies = Array.Empty<Army>();
     private int _armyIndex = 0;
@@ -63,7 +69,8 @@ public partial class Level : Node2D
     private Timer _turnAdvance = null;
 
     private Grid Grid => _map ??= GetNode<Grid>("Grid");
-    private ActionRanges Overlay => _overlay ??= GetNode<ActionRanges>("ActionRanges");
+    private ActionRanges PathOverlay => _pathOverlay ??= GetNode<ActionRanges>("Path");
+    private Overlay ActionRanges => _actionRanges ??= GetNode<Overlay>("ActionRangeOverlay");
     private Camera2DBrain Camera => _camera ??= GetNode<Camera2DBrain>("Camera");
     private Cursor Cursor => _cursor ??= GetNode<Cursor>("Cursor");
     private Pointer Pointer => _pointer ??= GetNode<Pointer>("Pointer");
@@ -233,23 +240,16 @@ public partial class Level : Node2D
         _supportable = _selected.SupportableCells(_traversable);
         _path = Path.Empty(Grid, _traversable).Add(_selected.Cell);
         Cursor.SoftRestriction = _traversable.ToHashSet();
-        Overlay.TraversableCells = _traversable;
-        Overlay.AttackableCells = _attackable.Where((c) => {
-            if (Grid.Occupants.ContainsKey(c) && ((Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false)) // exclude cells occupied by allies
-                return false;
-            else
-                return !Overlay.TraversableCells.Contains(c);
-        });
-        Overlay.SupportableCells = _supportable.Where((c) => {
-            if (Overlay.TraversableCells.Contains(c) || Overlay.AttackableCells.Contains(c))
-                return false;
-            else
-                return !Grid.Occupants.ContainsKey(c) || ((Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false); // include cells occupied by allies
-        });
+
+        bool HasAttackableTarget(Vector2I cell) => Grid.Occupants.ContainsKey(cell) && (!(Grid.Occupants[cell] as Unit)?.Affiliation.AlliedTo(_selected) ?? false);
+        bool HasSupportableTarget(Vector2I cell) => Grid.Occupants.ContainsKey(cell) && ((Grid.Occupants[cell] as Unit)?.Affiliation.AlliedTo(_selected) ?? false);
+        ActionRanges[TraversableRange] = _traversable.ToImmutableHashSet();
+        ActionRanges[AttackableRange] = _attackable.Where((c) => (!_traversable.Contains(c) && !HasSupportableTarget(c)) || HasAttackableTarget(c)).ToImmutableHashSet();
+        ActionRanges[SupportableRange] = _supportable.Where((c) => !_traversable.Contains(c) && !HasAttackableTarget(c) && (!_attackable.Contains(c) || HasSupportableTarget(c))).ToImmutableHashSet();
         CancelHint.Visible = true;
 
         // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
-        Rect2? zoomRect = Overlay.GetEnclosingRect(Grid);
+        Rect2? zoomRect = ActionRanges.GetEnclosingRect(Grid);
         if (zoomRect is not null)
         {
             Vector2 zoomTarget = GetViewportRect().Size/zoomRect.Value.Size;
@@ -268,7 +268,8 @@ public partial class Level : Node2D
         // Clear out movement/action ranges
         _traversable = Array.Empty<Vector2I>();
         Cursor.SoftRestriction.Clear();
-        Overlay.Clear();
+        PathOverlay.Clear();
+        ActionRanges.Clear();
         
         // Restore the camera zoom back to what it was before a unit was selected
         if (_prevZoom is not null)
@@ -308,12 +309,12 @@ public partial class Level : Node2D
         // Show the unit's attack/support ranges
         IEnumerable<Vector2I> attackable = _selected.AttackableCells();
         IEnumerable<Vector2I> supportable = _selected.SupportableCells();
-        Overlay.AttackableCells = attackable.Where((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false));
-        Overlay.SupportableCells = supportable.Where((c) => Grid.Occupants.ContainsKey(c) && ((Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false));
+        ActionRanges[AttackableRange] = attackable.Where((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false)).ToImmutableHashSet();
+        ActionRanges[SupportableRange] = supportable.Where((c) => Grid.Occupants.ContainsKey(c) && ((Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false)).ToImmutableHashSet();
 
         // Restrict cursor movement to actionable cells
         Pointer.AnalogTracking = false;
-        Cursor.HardRestriction = Overlay.AttackableCells.ToImmutableHashSet().Union(Overlay.SupportableCells);
+        Cursor.HardRestriction = ActionRanges[AttackableRange].Union(ActionRanges[SupportableRange]);
         Cursor.Wrap = true;
         WarpCursor(Cursor.Cell);
     }
@@ -321,7 +322,8 @@ public partial class Level : Node2D
     /// <summary>Clean up displayed ranges and restore cursor freedom when exiting targeting state.</summary>
     public void OnTargetingExited()
     {
-        Overlay.Clear();
+        PathOverlay.Clear();
+        ActionRanges.Clear();
 
         Pointer.AnalogTracking = true;
         Cursor.HardRestriction = Cursor.HardRestriction.Clear();
@@ -355,7 +357,7 @@ public partial class Level : Node2D
     public void OnCursorMoved(Vector2I cell)
     {
         if (_traversable.Contains(cell))
-            Overlay.Path = (_path = _path.Add(cell).Clamp(_selected.MoveRange)).ToList();
+            PathOverlay.Path = (_path = _path.Add(cell).Clamp(_selected.MoveRange)).ToList();
     }
 
     /// <summary>When a cell is selected, act based on what is or isn't in the cell.</summary>
@@ -497,10 +499,10 @@ public partial class Level : Node2D
         if (next != 0)
         {
             Vector2I[] cells = Array.Empty<Vector2I>();
-            if (Overlay.AttackableCells.Contains(Cursor.Cell))
-                cells = Overlay.AttackableCells.ToArray();
-            else if (Overlay.SupportableCells.Contains(Cursor.Cell))
-                cells = Overlay.SupportableCells.ToArray();
+            if (ActionRanges[AttackableRange].Contains(Cursor.Cell))
+                cells = ActionRanges[AttackableRange].ToArray();
+            else if (ActionRanges[SupportableRange].Contains(Cursor.Cell))
+                cells = ActionRanges[SupportableRange].ToArray();
             else
                 GD.PushError("Cursor is not on an actionable cell during targeting");
             
