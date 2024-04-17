@@ -450,7 +450,7 @@ public partial class Level : Node2D
         }
         else if (_unitSelected.Active)
         {
-            // While selecting a path, moving the cursor over a targetable unit computes a path to space that can target it
+            // While selecting a path, moving the cursor over a targetable unit computes a path to space that can target it, preferring ending on further spaces
             if (_traversable.Contains(cell))
                 PathOverlay.Path = (_path = _path.Add(cell).Clamp(_selected.MoveRange)).ToList();
             else if (Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit target)
@@ -462,7 +462,7 @@ public partial class Level : Node2D
                     sources = target.AttackableCells(cell).Where(_traversable.Contains);
                 sources = sources.Where((c) => !Grid.Occupants.ContainsKey(c));
                 if (sources.Any() && !sources.Contains(_path[^1]))
-                    PathOverlay.Path = (_path = sources.Select((c) => _path.Add(c).Clamp(_selected.MoveRange)).OrderBy((p) => p.Cost).First()).ToList();
+                    PathOverlay.Path = (_path = sources.Select((c) => _path.Add(c).Clamp(_selected.MoveRange)).OrderBy((p) => p.Cost).OrderByDescending((p) => p[^1].DistanceTo(cell)).First()).ToList();
             }
         }
     }
