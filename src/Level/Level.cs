@@ -462,7 +462,7 @@ public partial class Level : Node2D
                     sources = target.AttackableCells(cell).Where(_traversable.Contains);
                 sources = sources.Where((c) => !Grid.Occupants.ContainsKey(c));
                 if (sources.Any() && !sources.Contains(_path[^1]))
-                    PathOverlay.Path = (_path = sources.Select((c) => _path.Add(c).Clamp(_selected.MoveRange)).OrderBy((p) => p.Cost).OrderByDescending((p) => p[^1].DistanceTo(cell)).First()).ToList();
+                    PathOverlay.Path = (_path = sources.Select((c) => _path.Add(c).Clamp(_selected.MoveRange)).OrderBy((p) => p[^1].DistanceTo(_path[^1])).OrderByDescending((p) => p[^1].DistanceTo(cell)).First()).ToList();
             }
         }
     }
