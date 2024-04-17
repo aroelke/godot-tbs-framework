@@ -31,6 +31,7 @@ public partial class Level : Node2D
     private readonly StringName DoneEvent = "done";
     // State chart conditions
     private readonly StringName OccupiedCondition = "occupied";       // Current cell occupant (see below for options)
+    private readonly StringName TargetCondition = "target";           // Current cell contains a potential target (for attack or support)
     private readonly StringName TraversableCondition = "traversable"; // Current cell is traversable
     // State chart occupied values
     private const string NotOccupied = "";                  // Nothing in the cell
@@ -48,6 +49,7 @@ public partial class Level : Node2D
 
     private Chart _state = null;
     private State _idle = null;
+    private State _unitSelected = null;
     private Grid _map = null;
     private Path _path = null;
     private PathOverlay _pathOverlay = null;
@@ -424,19 +426,15 @@ public partial class Level : Node2D
 
     /// <summary>
     /// When the cursor moves:
-    /// - While a unit is selected:
-    ///   - Update the path that's being drawn
-    ///   - Briefly break continuous digital movement if the cursor moves to the edge of the traversable region
+    /// - While a unit is selected, update the path that's being drawn
     /// - While a unit is not selected, display the action ranges of units it hovers over
     /// </summary>
     /// <param name="cell">Cell the cursor moved to.</param>
     public void OnCursorMoved(Vector2I cell)
     {
-        if (_traversable.Contains(cell))
-            PathOverlay.Path = (_path = _path.Add(cell).Clamp(_selected.MoveRange)).ToList();
-
         if (_idle.Active)
         {
+            // When the cursor moves over a unit while in idle state, display that unit's action ranges, but clear them when it moves off
             ActionRanges.Clear();
             if (_armies[CurrentArmy] == StartingArmy && Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit unit)
             {
@@ -448,6 +446,23 @@ public partial class Level : Node2D
                 ActionRanges[TraversableRange] = traversable.ToImmutableHashSet();
                 ActionRanges[AttackableRange] = attackable.Where((c) => (!traversable.Contains(c) && !HasSupportableTarget(c)) || HasAttackableTarget(c)).ToImmutableHashSet();
                 ActionRanges[SupportableRange] = supportable.Where((c) => !traversable.Contains(c) && !HasAttackableTarget(c) && (!attackable.Contains(c) || HasSupportableTarget(c))).ToImmutableHashSet();
+            }
+        }
+        else if (_unitSelected.Active)
+        {
+            // While selecting a path, moving the cursor over a targetable unit computes a path to space that can target it
+            if (_traversable.Contains(cell))
+                PathOverlay.Path = (_path = _path.Add(cell).Clamp(_selected.MoveRange)).ToList();
+            else if (Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit target)
+            {
+                IEnumerable<Vector2I> sources = Array.Empty<Vector2I>();
+                if (target != _selected && _armies[CurrentArmy].AlliedTo(target) && _supportable.Contains(cell))
+                    sources = target.SupportableCells(cell).Where(_traversable.Contains);
+                else if (!_armies[CurrentArmy].AlliedTo(target) && _attackable.Contains(cell))
+                    sources = target.AttackableCells(cell).Where(_traversable.Contains);
+                sources = sources.Where((c) => !Grid.Occupants.ContainsKey(c));
+                if (sources.Any() && !sources.Contains(_path[^1]))
+                    PathOverlay.Path = (_path = sources.Select((c) => _path.Add(c).Clamp(_selected.MoveRange)).OrderBy((p) => p.Cost).First()).ToList();
             }
         }
     }
@@ -515,6 +530,7 @@ public partial class Level : Node2D
         {
             _state = GetNode<Chart>("State");
             _idle = GetNode<State>("%Idle");
+            _unitSelected = GetNode<State>("%UnitSelected");
 
             Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
             Cursor.Grid = Grid;
@@ -631,6 +647,9 @@ public partial class Level : Node2D
                     Unit => EnemyOccupied,
                     _ => OtherOccupied
                 })
+                .SetItem(TargetCondition, Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit target &&
+                                          ((target != _selected && _armies[CurrentArmy].AlliedTo(target) && _supportable.Contains(Cursor.Cell)) ||
+                                           (!_armies[CurrentArmy].AlliedTo(target) && _attackable.Contains(Cursor.Cell))))
                 .SetItem(TraversableCondition, _traversable.Contains(Cursor.Cell));
 
             float zoom = Input.GetAxis(CameraActionAnalogZoomOut, CameraActionAnalogZoomIn);

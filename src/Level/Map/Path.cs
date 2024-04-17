@@ -67,6 +67,12 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
 
     public Vector2I this[int index] => _cells[index];
 
+    /// <summary>
+    /// Movement cost to traverse the path from beginning to end. Since each cell's "cost' represents the cost to move onto it, the cost of the first cell
+    /// is ignored.
+    /// </summary>
+    public int Cost => _grid.Cost(_cells.TakeLast(_cells.Count - 1));
+
     public int Count => _cells.Count;
     public bool IsReadOnly => true;
     public bool IsSynchronized => false;
@@ -199,7 +205,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// <returns>The path if its cost is less than or equal to <c>cost</c>, and the shortest path between the endpoints otherwise.</returns>
     public Path Clamp(int cost)
     {
-        if (_grid.Cost(_cells.TakeLast(_cells.Count - 1)) > cost)
+        if (Cost > cost)
             return Clear().AddRange(_astar.GetPointPath(_grid.CellId(_cells.First()), _grid.CellId(_cells.Last())).Select((c) => (Vector2I)c));
         else
             return this;
