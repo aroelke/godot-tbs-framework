@@ -112,12 +112,17 @@ layer_2/modulate = Color(0, 1, 0, 0.392157)
 layer_2/tile_data = PackedInt32Array()
 
 [node name="ZoneOverlay" parent="." instance=ExtResource("12_4dlg7")]
-layer_0/name = "local"
-layer_0/modulate = Color(0.498039, 0, 0.247059, 0.392157)
+layer_0/name = "ally traversable"
+layer_0/modulate = Color(0, 0.247059, 0.498039, 0.392157)
 layer_0/navigation_enabled = false
-layer_1/name = "global"
-layer_1/modulate = Color(0, 0, 0, 0.392157)
+layer_1/name = "local danger"
+layer_1/modulate = Color(0.498039, 0, 0.247059, 0.392157)
+layer_1/navigation_enabled = false
 layer_1/tile_data = PackedInt32Array()
+layer_2/name = "global danger"
+layer_2/modulate = Color(0, 0, 0, 0.392157)
+layer_2/navigation_enabled = false
+layer_2/tile_data = PackedInt32Array()
 
 [node name="PathOverlay" parent="." instance=ExtResource("12_3wqlu")]
 z_index = 1

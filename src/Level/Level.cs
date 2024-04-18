@@ -42,6 +42,11 @@ public partial class Level : Node2D
     private const string EnemyOccupied = "enemy";           // Cell occupied by unit in enemy army to this turn's army
     private const string OtherOccupied = "other";           // Cell occupied by something else
 
+    // Zone layer names
+    private const string LocalDangerZone = "local danger";
+    private const string AllyTraversable = "ally traversable";
+    private const string GlobalDanger = "global danger";
+
     private Chart _state = null;
     private State _idle = null, _unitSelected = null;
     private Grid _map = null;
@@ -169,19 +174,25 @@ public partial class Level : Node2D
     private void UpdateDangerZones()
     {
         // Update local danger zone
-        if (_zoneUnits.Any())
-            ZoneOverlay["local"] = _zoneUnits.SelectMany((u) => u.AttackableCells(u.TraversableCells())).ToImmutableHashSet();
+        IEnumerable<Unit> enemies = _zoneUnits.Where((u) => !StartingArmy.AlliedTo(u));
+        IEnumerable<Unit> allies = _zoneUnits.Where(StartingArmy.AlliedTo);
+        if (enemies.Any())
+            ZoneOverlay[LocalDangerZone] = enemies.SelectMany((u) => u.AttackableCells(u.TraversableCells())).ToImmutableHashSet();
         else
-            ZoneOverlay["local"] = ImmutableHashSet<Vector2I>.Empty;
+            ZoneOverlay[LocalDangerZone] = ImmutableHashSet<Vector2I>.Empty;
+        if (allies.Any())
+            ZoneOverlay[AllyTraversable] = allies.SelectMany((u) => u.TraversableCells()).ToImmutableHashSet();
+        else
+            ZoneOverlay[AllyTraversable] = ImmutableHashSet<Vector2I>.Empty;
         
         // Update global danger zone
         if (_showGlobalZone)
-            ZoneOverlay["global"] = GetChildren().OfType<Army>()
+            ZoneOverlay[GlobalDanger] = GetChildren().OfType<Army>()
                 .Where((a) => !a.AlliedTo(StartingArmy))
                 .SelectMany((a) => (IEnumerable<Unit>)a)
                 .SelectMany((u) => u.AttackableCells(u.TraversableCells())).ToImmutableHashSet();
         else
-            ZoneOverlay["global"] = ImmutableHashSet<Vector2I>.Empty;
+            ZoneOverlay[GlobalDanger] = ImmutableHashSet<Vector2I>.Empty;
     }
 
     /// <summary>
@@ -280,7 +291,7 @@ public partial class Level : Node2D
     /// <param name="event">Name of the event.</param>
     public void OnIdleEventReceived(StringName @event)
     {
-        if (_armies[CurrentArmy] == StartingArmy && Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit unit && !StartingArmy.AlliedTo(unit))
+        if (_armies[CurrentArmy] == StartingArmy && Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit unit && !StartingArmy.Contains(unit))
         {
             if (@event == SelectEvent)
             {
@@ -568,12 +579,19 @@ public partial class Level : Node2D
 
         if (@event.IsActionReleased(ToggleGlobalDangerZoneAction))
         {
-            if (Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit unit && !StartingArmy.AlliedTo(unit))
+            if (Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit enemy && !StartingArmy.AlliedTo(enemy))
             {
-                if (ZoneUnits.Contains(unit))
-                    ZoneUnits = ZoneUnits.Remove(unit);
+                if (ZoneUnits.Contains(enemy))
+                    ZoneUnits = ZoneUnits.Remove(enemy);
                 else
-                    ZoneUnits = ZoneUnits.Add(unit);
+                    ZoneUnits = ZoneUnits.Add(enemy);
+            }
+            else if (Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit ally && StartingArmy.AlliedTo(ally))
+            {
+                if (ZoneUnits.Contains(ally))
+                    ZoneUnits = ZoneUnits.Remove(ally);
+                else
+                    ZoneUnits = ZoneUnits.Add(ally);
             }
             else
                 ShowGlobalDangerZone = !ShowGlobalDangerZone;
