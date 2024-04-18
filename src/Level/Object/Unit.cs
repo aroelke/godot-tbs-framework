@@ -4,6 +4,7 @@ using Godot;
 using Level.Object.Group;
 using Object;
 using Extensions;
+using Level.Map;
 
 namespace Level.Object;
 
@@ -113,6 +114,13 @@ public partial class Unit : GridNode
     public IEnumerable<Vector2I> SupportableCells(IEnumerable<Vector2I> sources) => GetCellsInRange(sources, SupportRange);
     public IEnumerable<Vector2I> SupportableCells(Vector2I source) => SupportableCells(new[] { source });
     public IEnumerable<Vector2I> SupportableCells() => SupportableCells(Cell);
+
+    /// <returns>The complete sets of cells this unit can act on.</returns>
+    public ActionRanges ActionRanges()
+    {
+        IEnumerable<Vector2I> traversable = TraversableCells();
+        return new(traversable, AttackableCells(traversable), SupportableCells(traversable));
+    }
 
     /// <summary>Put the unit in the "selected" state.</summary>
     public void Select()
