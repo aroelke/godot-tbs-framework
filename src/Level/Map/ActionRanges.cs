@@ -50,8 +50,8 @@ public readonly struct ActionRanges
     /// Filters out the action ranges based on grid occupants.  <see cref="Traversable"/> and <see cref="Supportable"/> ranges are filtered to remove cells containing enemies and
     /// the <see cref="Attackable"/> range is filtered to remove cells containing allies.
     /// </summary>
-    /// <param name="allies"></param>
-    /// <param name="enemies"></param>
+    /// <param name="allies">Cells containing allied <see cref="Unit"/>s.</param>
+    /// <param name="enemies">Cells containing enemy <see cref="Unit"/>s.</param>
     /// <returns></returns>
     public ActionRanges WithOccupants(IEnumerable<Unit> allies, IEnumerable<Unit> enemies) => new(
         Traversable.Where((c) => !enemies.Any((u) => u.Cell == c)),
@@ -74,6 +74,8 @@ public readonly struct ActionRanges
             this[priority[2]].Where((c) => !self[priority[0]].Contains(c) && !self[priority[1]].Contains(c))
         );
     }
+
+    /// <inheritdoc cref="Exclusive"/>
     public ActionRanges Exclusive() => Exclusive(new[] { RangeOverlay.Traversable, RangeOverlay.Attackable, RangeOverlay.Supportable });
 
     /// <returns>A copy of this set of action ranges with empty sets of cells.</returns>
