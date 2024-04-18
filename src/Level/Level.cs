@@ -61,6 +61,7 @@ public partial class Level : Node2D
     private Cursor _cursor = null;
     private Pointer _pointer = null;
     private Unit _selected = null;
+    private Unit _target = null;
     private ControlHint _cancelHint = null;
     private Vector2? _prevZoom = null;
     private Vector4 _prevDeadzone = new();
@@ -391,12 +392,18 @@ public partial class Level : Node2D
         Pointer.AnalogTracking = false;
         Cursor.HardRestriction = ActionRanges[AttackableRange].Union(ActionRanges[SupportableRange]);
         Cursor.Wrap = true;
-        WarpCursor(Cursor.Cell);
+
+        // If a target has already been selected (because it was shortcutted during the select state), skip through targeting
+        if (_target == null)
+            WarpCursor(Cursor.Cell);
+        else
+            _state.SendEvent(SelectEvent);
     }
 
     /// <summary>Clean up displayed ranges and restore cursor freedom when exiting targeting state.</summary>
     public void OnTargetingExited()
     {
+        _target = null;
         PathOverlay.Clear();
         ActionRanges.Clear();
 
@@ -455,14 +462,19 @@ public partial class Level : Node2D
                 PathOverlay.Path = (_path = _path.Add(cell).Clamp(_selected.MoveRange)).ToList();
             else if (Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit target)
             {
+                _target = null;
                 IEnumerable<Vector2I> sources = Array.Empty<Vector2I>();
                 if (target != _selected && _armies[CurrentArmy].AlliedTo(target) && _supportable.Contains(cell))
                     sources = target.SupportableCells(cell).Where(_traversable.Contains);
                 else if (!_armies[CurrentArmy].AlliedTo(target) && _attackable.Contains(cell))
                     sources = target.AttackableCells(cell).Where(_traversable.Contains);
                 sources = sources.Where((c) => !Grid.Occupants.ContainsKey(c));
-                if (sources.Any() && !sources.Contains(_path[^1]))
-                    PathOverlay.Path = (_path = sources.Select((c) => _path.Add(c).Clamp(_selected.MoveRange)).OrderBy((p) => p[^1].DistanceTo(_path[^1])).OrderByDescending((p) => p[^1].DistanceTo(cell)).First()).ToList();
+                if (sources.Any())
+                {
+                    _target = target;
+                    if (!sources.Contains(_path[^1]))
+                        PathOverlay.Path = (_path = sources.Select((c) => _path.Add(c).Clamp(_selected.MoveRange)).OrderBy((p) => p[^1].DistanceTo(_path[^1])).OrderByDescending((p) => p[^1].DistanceTo(cell)).First()).ToList();
+                }
             }
         }
     }
