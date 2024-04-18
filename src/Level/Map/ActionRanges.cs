@@ -41,18 +41,6 @@ public readonly struct ActionRanges
     /// <summary>Default constructor. Creates an empty set of actionable cells.</summary>
     public ActionRanges() : this(ImmutableHashSet<Vector2I>.Empty, ImmutableHashSet<Vector2I>.Empty, ImmutableHashSet<Vector2I>.Empty) {}
 
-    /// <summary>Maps a <see cref="string"/> name of an action range onto a set of cells.</summary>
-    /// <param name="range">Name of the range. Should be one of <see cref="RangeOverlay.Traversable"/>, <see cref="RangeOverlay.Attackable"/>, or <see cref="RangeOverlay.Supportable"/>.</param>
-    /// <returns>The set of cells corresponding to the name.</returns>
-    /// <exception cref="IndexOutOfRangeException">If the name of the range isn't one of <see cref="RangeOverlay.Traversable"/>, <see cref="RangeOverlay.Attackable"/>, or <see cref="RangeOverlay.Supportable"/>.</exception>
-    public ImmutableHashSet<Vector2I> this[string range] => range switch
-    {
-        TraversableRange => Traversable,
-        AttackableRange  => Attackable,
-        SupportableRange => Supportable,
-        _ => throw new IndexOutOfRangeException($"There is no action range named {range}")
-    };
-
     /// <summary>
     /// Filters out the action ranges based on grid occupants.  <see cref="Traversable"/> and <see cref="Supportable"/> ranges are filtered to remove cells containing enemies and
     /// the <see cref="Attackable"/> range is filtered to remove cells containing allies.
@@ -74,11 +62,11 @@ public readonly struct ActionRanges
     /// <returns>A new set of action ranges whose ranges are mutually exclusive.</returns>
     public ActionRanges Exclusive(string[] priority)
     {
-        ActionRanges self = this;
+        Dictionary<string, ImmutableHashSet<Vector2I>> self = ToDictionary();
         return new(
-            this[priority[0]],
-            this[priority[1]].Where((c) => !self[priority[0]].Contains(c)),
-            this[priority[2]].Where((c) => !self[priority[0]].Contains(c) && !self[priority[1]].Contains(c))
+            self[priority[0]],
+            self[priority[1]].Where((c) => !self[priority[0]].Contains(c)),
+            self[priority[2]].Where((c) => !self[priority[0]].Contains(c) && !self[priority[1]].Contains(c))
         );
     }
 
@@ -88,4 +76,15 @@ public readonly struct ActionRanges
     /// <returns>A copy of this set of action ranges with empty sets of cells.</returns>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static")]
     public ActionRanges Clear() => new();
+
+    /// <summary>
+    /// Convert to a <see cref="Dictionary{string, ImmutableHashSet{Vector2I}}"/> with <see cref="string"/> keys and
+    /// <see cref="ImmutableHashSet{Vector2I}"/> of <see cref="Vector2I"/> values.
+    /// </summary>
+    public Dictionary<string, ImmutableHashSet<Vector2I>> ToDictionary() => new()
+    {
+        { TraversableRange, Traversable },
+        { AttackableRange,  Attackable },
+        { SupportableRange, Supportable }
+    };
 }

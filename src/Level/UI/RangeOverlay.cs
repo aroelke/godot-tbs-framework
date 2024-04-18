@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Godot;
 using Level.Map;
 
@@ -17,9 +19,9 @@ public partial class RangeOverlay : TileMap
     }
 
     /// <summary>The sets of used cells for the overlay.</summary>
-    public ActionRanges UsedCells
+    public IDictionary<string, ImmutableHashSet<Vector2I>> UsedCells
     {
-        get => new(this[ActionRanges.TraversableRange], this[ActionRanges.AttackableRange], this[ActionRanges.SupportableRange]);
+        get => Enumerable.Range(0, GetLayersCount()).ToDictionary((i) => GetLayerName(i), (i) => this[GetLayerName(i)]);
         set
         {
             for (int i = 0; i < GetLayersCount(); i++)
@@ -41,6 +43,10 @@ public partial class RangeOverlay : TileMap
         }
     }
 
+    /// <summary>Compute a rectangle that encloses all the cells that contain tiles in the given layer.</summary>
+    /// <param name="grid">Grid defining cell sizes.</param>
+    /// <param name="layer">Name of the layer to compute the enclosing rectangle for.</param>
+    /// <returns>A rectangle enclosing all of the used cells in the layer, or <c>null</c> if the layer is empty.</returns>
     public Rect2? GetEnclosingRect(Grid grid, string layer)
     {
         Rect2? enclosure = null;
@@ -52,6 +58,9 @@ public partial class RangeOverlay : TileMap
         return enclosure;
     }
 
+    /// <summary>Compute a rectangle that encloses all the used tiles among all layers in the overlay.</summary>
+    /// <param name="grid">Grid defining cell sizes.</param>
+    /// <returns>A rectangle enclosing all of the used cells in the overlay, or <c>null</c> if there are none.</returns>
     public Rect2? GetEnclosingRect(Grid grid)
     {
         Rect2? enclosure = null;

@@ -311,7 +311,7 @@ public partial class Level : Node2D
         _path = Path.Empty(Grid, _actionable.Traversable).Add(_selected.Cell);
         Cursor.SoftRestriction = _actionable.Traversable.ToHashSet();
 
-        ActionOverlay.UsedCells = _actionable.Exclusive();
+        ActionOverlay.UsedCells = _actionable.Exclusive().ToDictionary();
         CancelHint.Visible = true;
 
         // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
@@ -378,7 +378,7 @@ public partial class Level : Node2D
             _selected.AttackableCells().Where((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false)),
             _selected.SupportableCells().Where((c) => Grid.Occupants.ContainsKey(c) && ((Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false))
         );
-        ActionOverlay.UsedCells = actionable;
+        ActionOverlay.UsedCells = actionable.ToDictionary();
 
         // Restrict cursor movement to actionable cells
         Pointer.AnalogTracking = false;
@@ -442,7 +442,7 @@ public partial class Level : Node2D
                     Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => u.Affiliation.AlliedTo(hovered)),
                     Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => !u.Affiliation.AlliedTo(hovered))
                 );
-                ActionOverlay.UsedCells = actionable.Exclusive();
+                ActionOverlay.UsedCells = actionable.Exclusive().ToDictionary();
             }
         }
         else if (_unitSelected.Active)
