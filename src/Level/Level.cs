@@ -433,8 +433,9 @@ public partial class Level : Node2D
     {
         if (_idle.Active)
         {
-            // When the cursor moves over a unit while in idle state, display that unit's action ranges, but clear them when it moves off
             ActionOverlay.Clear();
+
+            // When the cursor moves over a unit while in idle state, display that unit's action ranges, but clear them when it moves off
             if (_armies[CurrentArmy] == StartingArmy && Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit hovered)
             {
                 ActionRanges actionable = hovered.ActionRanges().WithOccupants(
@@ -446,12 +447,13 @@ public partial class Level : Node2D
         }
         else if (_unitSelected.Active)
         {
+            _target = null;
+
             // While selecting a path, moving the cursor over a targetable unit computes a path to space that can target it, preferring ending on further spaces
             if (_actionable.Traversable.Contains(cell))
                 PathOverlay.Path = (_path = _path.Add(cell).Clamp(_selected.MoveRange)).ToList();
             else if (Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit target)
             {
-                _target = null;
                 IEnumerable<Vector2I> sources = Array.Empty<Vector2I>();
                 if (target != _selected && _armies[CurrentArmy].AlliedTo(target) && _actionable.Supportable.Contains(cell))
                     sources = _selected.SupportableCells(cell).Where(_actionable.Traversable.Contains);
