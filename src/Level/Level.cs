@@ -454,9 +454,9 @@ public partial class Level : Node2D
                 _target = null;
                 IEnumerable<Vector2I> sources = Array.Empty<Vector2I>();
                 if (target != _selected && _armies[CurrentArmy].AlliedTo(target) && _actionable.Supportable.Contains(cell))
-                    sources = target.SupportableCells(cell).Where(_actionable.Traversable.Contains);
+                    sources = _selected.SupportableCells(cell).Where(_actionable.Traversable.Contains);
                 else if (!_armies[CurrentArmy].AlliedTo(target) && _actionable.Attackable.Contains(cell))
-                    sources = target.AttackableCells(cell).Where(_actionable.Traversable.Contains);
+                    sources = _selected.AttackableCells(cell).Where(_actionable.Traversable.Contains);
                 sources = sources.Where((c) => !Grid.Occupants.ContainsKey(c));
                 if (sources.Any())
                 {
