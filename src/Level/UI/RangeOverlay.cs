@@ -7,10 +7,6 @@ namespace Level.UI;
 /// <summary>A <see cref="Grid"/> overlay used to display information about the grid cells.</summary>
 public partial class RangeOverlay : TileMap
 {
-    public const string Traversable = "move";
-    public const string Attackable  = "attack";
-    public const string Supportable = "support";
-
     /// <summary>Get the index of the layer of the given name.</summary>
     private int GetLayerIndex(string name)
     {
@@ -23,7 +19,7 @@ public partial class RangeOverlay : TileMap
     /// <summary>The sets of used cells for the overlay.</summary>
     public ActionRanges UsedCells
     {
-        get => new(this[Traversable], this[Attackable], this[Supportable]);
+        get => new(this[ActionRanges.TraversableRange], this[ActionRanges.AttackableRange], this[ActionRanges.SupportableRange]);
         set
         {
             for (int i = 0; i < GetLayersCount(); i++)

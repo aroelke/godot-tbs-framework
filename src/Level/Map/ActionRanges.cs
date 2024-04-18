@@ -11,6 +11,13 @@ namespace Level.Map;
 /// <summary>Contains several sets of <see cref="Grid"/> cells that represent where a <see cref="Unit"/> could move to, attack, and support.</summary>
 public readonly struct ActionRanges
 {
+    /// <summary>Name of the traversable range, for indexing.</summary>
+    public const string TraversableRange = "move";
+    /// <summary>Name of the attackable range, for indexing.</summary>
+    public const string AttackableRange  = "attack";
+    /// <summary>Name of the supportable range, for indexing.</summary>
+    public const string SupportableRange = "support";
+
     /// <summary>Set of cells that can be moved to.</summary>
     public readonly ImmutableHashSet<Vector2I> Traversable;
     /// <summary>Set of cells that could be targeted for attack.</summary>
@@ -40,9 +47,9 @@ public readonly struct ActionRanges
     /// <exception cref="IndexOutOfRangeException">If the name of the range isn't one of <see cref="RangeOverlay.Traversable"/>, <see cref="RangeOverlay.Attackable"/>, or <see cref="RangeOverlay.Supportable"/>.</exception>
     public ImmutableHashSet<Vector2I> this[string range] => range switch
     {
-        RangeOverlay.Traversable => Traversable,
-        RangeOverlay.Attackable  => Attackable,
-        RangeOverlay.Supportable => Supportable,
+        TraversableRange => Traversable,
+        AttackableRange  => Attackable,
+        SupportableRange => Supportable,
         _ => throw new IndexOutOfRangeException($"There is no action range named {range}")
     };
 
@@ -76,7 +83,7 @@ public readonly struct ActionRanges
     }
 
     /// <inheritdoc cref="Exclusive"/>
-    public ActionRanges Exclusive() => Exclusive(new[] { RangeOverlay.Traversable, RangeOverlay.Attackable, RangeOverlay.Supportable });
+    public ActionRanges Exclusive() => Exclusive(new[] { TraversableRange, AttackableRange, SupportableRange });
 
     /// <returns>A copy of this set of action ranges with empty sets of cells.</returns>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static")]

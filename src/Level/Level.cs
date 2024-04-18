@@ -623,10 +623,10 @@ public partial class Level : Node2D
         if (next != 0)
         {
             Vector2I[] cells = Array.Empty<Vector2I>();
-            if (ActionOverlay[RangeOverlay.Attackable].Contains(Cursor.Cell))
-                cells = ActionOverlay[RangeOverlay.Attackable].ToArray();
-            else if (ActionOverlay[RangeOverlay.Supportable].Contains(Cursor.Cell))
-                cells = ActionOverlay[RangeOverlay.Supportable].ToArray();
+            if (ActionOverlay[ActionRanges.AttackableRange].Contains(Cursor.Cell))
+                cells = ActionOverlay[ActionRanges.AttackableRange].ToArray();
+            else if (ActionOverlay[ActionRanges.SupportableRange].Contains(Cursor.Cell))
+                cells = ActionOverlay[ActionRanges.SupportableRange].ToArray();
             else
                 GD.PushError("Cursor is not on an actionable cell during targeting");
             
