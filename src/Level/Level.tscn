@@ -1,4 +1,4 @@
-[gd_scene load_steps=43 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=45 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/Level/Level.cs" id="1_r2v0t"]
 [ext_resource type="Resource" uid="uid://hkvw8a5g5l62" path="res://src/UI/Controls/Action/References/Map/MapCancelAction.tres" id="2_2u5dc"]
@@ -26,9 +26,13 @@
 [ext_resource type="Script" path="res://src/Object/StateChart/Conditions/FlagCondition.cs" id="21_7vj21"]
 [ext_resource type="Script" path="res://src/Object/StateChart/Conditions/StringCondition.cs" id="22_tix5y"]
 [ext_resource type="Script" path="res://src/Object/StateChart/Conditions/InvertCondition.cs" id="23_6etqp"]
+[ext_resource type="PackedScene" uid="uid://dhytcbhqvrpx0" path="res://src/Object/StateChart/Reactions/InputReaction.tscn" id="23_nnivc"]
 [ext_resource type="Script" path="res://src/Object/StateChart/Conditions/UnCondition.cs" id="24_k1nop"]
 [ext_resource type="Script" path="res://src/Object/StateChart/Conditions/AllCondition.cs" id="25_6qv6s"]
 [ext_resource type="Script" path="res://src/Object/StateChart/Conditions/AnyCondition.cs" id="29_kfqmx"]
+
+[sub_resource type="Resource" id="Resource_umt67"]
+script = ExtResource("24_k1nop")
 
 [sub_resource type="Resource" id="Resource_mydqi"]
 script = ExtResource("22_tix5y")
@@ -193,6 +197,9 @@ InitialState = NodePath("Idle")
 unique_name_in_owner = true
 process_mode = 4
 
+[node name="OnInput" parent="State/Root/Idle" instance=ExtResource("23_nnivc")]
+Condition = SubResource("Resource_umt67")
+
 [node name="ToSelected" parent="State/Root/Idle" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../UnitSelected")
 Event = &"select"
@@ -249,6 +256,9 @@ Condition = SubResource("Resource_f7pbh")
 [node name="UnitTargeting" parent="State/Root" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
+[node name="OnInput" parent="State/Root/UnitTargeting" instance=ExtResource("23_nnivc")]
+Condition = SubResource("Resource_umt67")
+
 [node name="ToIdle" parent="State/Root/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../Idle")
 Event = &"select"
@@ -268,7 +278,7 @@ one_shot = true
 [connection signal="PointerMoved" from="Pointer" to="Cursor" method="OnPointerMoved"]
 [connection signal="EventReceived" from="State/Root/Idle" to="." method="OnIdleEventReceived"]
 [connection signal="StateEntered" from="State/Root/Idle" to="." method="OnIdleEntered"]
-[connection signal="StateInput" from="State/Root/Idle" to="." method="OnIdleInput"]
+[connection signal="StateInput" from="State/Root/Idle/OnInput" to="." method="OnIdleInput"]
 [connection signal="Taken" from="State/Root/Idle/ToSelected" to="." method="OnIdleToSelectedTaken"]
 [connection signal="StateEntered" from="State/Root/CancelSelection" to="." method="OnCancelUnitActionEntered"]
 [connection signal="Taken" from="State/Root/CancelSelection/ToIdle" to="." method="OnToIdleTaken" binds= [false]]
@@ -281,6 +291,6 @@ one_shot = true
 [connection signal="StateExited" from="State/Root/CancelTargeting" to="." method="OnCancelTargetingExited"]
 [connection signal="StateEntered" from="State/Root/UnitTargeting" to="." method="OnTargetingEntered"]
 [connection signal="StateExited" from="State/Root/UnitTargeting" to="." method="OnTargetingExited"]
-[connection signal="StateInput" from="State/Root/UnitTargeting" to="." method="OnTargetingInput"]
+[connection signal="StateInput" from="State/Root/UnitTargeting/OnInput" to="." method="OnTargetingInput"]
 [connection signal="Taken" from="State/Root/UnitTargeting/ToIdle" to="." method="OnToIdleTaken" binds= [true]]
 [connection signal="timeout" from="TurnAdvance" to="." method="OnTurnAdvance"]

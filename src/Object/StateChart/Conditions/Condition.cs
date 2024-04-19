@@ -3,7 +3,7 @@ using Object.StateChart.States;
 
 namespace Object.StateChart.Conditions;
 
-/// <summary>Condition guarding a state <see cref="Transition"/>.</summary>
+/// <summary>Condition guarding a state <see cref="Transition"/> or <see cref="Reactions.Reaction"/>.</summary>
 [GlobalClass, Tool]
 public abstract partial class Condition : Resource
 {

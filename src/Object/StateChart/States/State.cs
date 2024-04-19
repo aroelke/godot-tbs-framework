@@ -16,10 +16,6 @@ public abstract partial class State : ChartNode
     /// <param name="delta">Time in seconds since last frame.</param>
     [Signal] public delegate void StateProcessEventHandler(double delta);
 
-    /// <summary>Signals that the state has received an input event while active.</summary>
-    /// <param name="event">Input event description.</param>
-    [Signal] public delegate void StateInputEventHandler(InputEvent @event);
-
     /// <summary>Signals that the state has received an unhandled input event while active.</summary>
     /// <param name="event">Input event description.</param>
     [Signal] public delegate void StateUnhandledInputEventHandler(InputEvent @event);
@@ -45,7 +41,6 @@ public abstract partial class State : ChartNode
             _active = value;
 
             SetProcess(_active && GetSignalConnectionList(SignalName.StateProcess).Any());
-            SetProcessInput(_active && GetSignalConnectionList(SignalName.StateInput).Any());
             SetProcessUnhandledInput(_active && GetSignalConnectionList(SignalName.StateUnhandledInput).Any());
 
             ProcessMode = _active ? ProcessModeEnum.Inherit : ProcessModeEnum.Disabled;
@@ -113,12 +108,6 @@ public abstract partial class State : ChartNode
             warnings.Add("A state needs to have a StateChart ancestor.");
 
         return warnings.ToArray();
-    }
-
-    public override void _Input(InputEvent @event)
-    {
-        base._Input(@event);
-        EmitSignal(SignalName.StateInput, @event);
     }
 
     public override void _UnhandledInput(InputEvent @event)
