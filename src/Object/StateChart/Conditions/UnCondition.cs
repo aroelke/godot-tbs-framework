@@ -10,5 +10,5 @@ namespace Object.StateChart.Conditions;
 [GlobalClass, Icon("res://icons/statechart/UnCondition.svg"), Tool]
 public partial class UnCondition : Condition
 {
-    public override bool IsSatisfied(Transition transition, State from) => true;
+    public override bool IsSatisfied(ChartNode _) => true;
 }

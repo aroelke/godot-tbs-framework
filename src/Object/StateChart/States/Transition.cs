@@ -7,7 +7,7 @@ namespace Object.StateChart.States;
 
 /// <summary>Transition between state chart <see cref="State"/>s. </summary>
 [Icon("res://icons/statechart/Transition.svg"), Tool]
-public partial class Transition : Node
+public partial class Transition : ChartNode
 {
     /// <summary>Signals the transition is taken, but before the active <see cref="State"/> is actually exited.</summary>
     [Signal] public delegate void TakenEventHandler();
@@ -26,7 +26,7 @@ public partial class Transition : Node
 
     /// <returns><c>true</c> if there is no <see cref="Condition"/> or if it is satisfied, and <c>false</c> otherwise.</returns>
     /// <exception cref="InvalidCastException">If this transition's parent isn't a <see cref="State"/></exception>
-    public bool EvaluateCondition() => Condition.IsSatisfied(this, GetParent<State>());
+    public bool EvaluateCondition() => Condition.IsSatisfied(this);
 
     public override string[] _GetConfigurationWarnings()
     {

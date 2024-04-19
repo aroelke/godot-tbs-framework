@@ -12,21 +12,14 @@ public partial class ExpressionCondition : Condition
     /// <summary>Expression to evaluate.</summary>
     [Export(PropertyHint.Expression)] public string Expression = "";
 
-    public override bool IsSatisfied(Transition transition, State from)
+    public override bool IsSatisfied(ChartNode source)
     {
-        Node node = from;
-        while (IsInstanceValid(node) && node is not Chart)
-            node = node.GetParent();
-        Chart chart = node as Chart;
-        if (!IsInstanceValid(chart))
-            throw new ArgumentException("Could not find state chart node.");
-        
         Expression expression = new();
-        string[] properties = chart.ExpressionProperties.Keys.Select((s) => s.ToString()).ToArray();
+        string[] properties = source.StateChart.ExpressionProperties.Keys.Select((s) => s.ToString()).ToArray();
         if (expression.Parse(Expression, properties) != Error.Ok)
             throw new Exception($"Expression parse error: {expression.GetErrorText()} for expression \"{Expression}\"");
 
-        Variant result = expression.Execute(new(properties.Select((s) => chart.ExpressionProperties[s])));
+        Variant result = expression.Execute(new(properties.Select((s) => source.StateChart.ExpressionProperties[s])));
         if (expression.HasExecuteFailed())
             throw new Exception($"Expression execute error: {expression.GetErrorText()} for expression \"{Expression}\"");
 

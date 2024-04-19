@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Godot;
 using Object.StateChart.States;
 
@@ -11,24 +12,18 @@ namespace Object.StateChart.Conditions;
 [GlobalClass, Icon("res://icons/statechart/StringCondition.svg"), Tool]
 public partial class StringCondition : Condition
 {
+    private static readonly Variant.Type[] types = new[] { Variant.Type.String, Variant.Type.StringName };
+
     /// <summary>Name of the property to test.</summary>
     [Export] public StringName Property = "";
 
     /// <summary>Value of the property that satisfies the condition.</summary>
     [Export] public string Value = "";
 
-    public override bool IsSatisfied(Transition transition, State from)
+    public override bool IsSatisfied(ChartNode source)
     {
-        Node node = from;
-        while (IsInstanceValid(node) && node is not Chart)
-            node = node.GetParent();
-        Chart chart = node as Chart;
-        if (!IsInstanceValid(chart))
-            throw new ArgumentException("Could not find state chart node.");
-
-        if (chart.ExpressionProperties[Property].VariantType != Variant.Type.String && chart.ExpressionProperties[Property].VariantType != Variant.Type.StringName)
-            throw new ArgumentException($"Condition value {chart.ExpressionProperties[Property]} is not a string.");
-
-        return chart.ExpressionProperties[Property].AsString() == Value;
+        if (!types.Contains(source.StateChart.ExpressionProperties[Property].VariantType))
+            throw new ArgumentException($"Condition value {source.StateChart.ExpressionProperties[Property]} is not a string.");
+        return source.StateChart.ExpressionProperties[Property].AsString() == Value;
     }
 }

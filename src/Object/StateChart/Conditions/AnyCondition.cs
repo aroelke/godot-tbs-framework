@@ -12,5 +12,5 @@ public partial class AnyCondition : Condition
     /// <summary>Conditions that can be satisfied for this one to be satisfied.</summary>
     [Export] public Condition[] Conditions = Array.Empty<Condition>();
 
-    public override bool IsSatisfied(Transition transition, State from) => !Conditions.Any() || Conditions.Any((c) => c.IsSatisfied(transition, from));
+    public override bool IsSatisfied(ChartNode source) => !Conditions.Any() || Conditions.Any((c) => c.IsSatisfied(source));
 }

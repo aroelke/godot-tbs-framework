@@ -11,18 +11,10 @@ public partial class FlagCondition : Condition
     /// <summary><see cref="Chart"/> property to evaluate.</summary>
     [Export] public StringName Flag = "";
 
-    public override bool IsSatisfied(Transition transition, State from)
+    public override bool IsSatisfied(ChartNode source)
     {
-        Node node = from;
-        while (IsInstanceValid(node) && node is not Chart)
-            node = node.GetParent();
-        Chart chart = node as Chart;
-        if (!IsInstanceValid(chart))
-            throw new ArgumentException("Could not find state chart node.");
-
-        if (chart.ExpressionProperties[Flag].VariantType != Variant.Type.Bool)
-            throw new ArgumentException($"Condition value {chart.ExpressionProperties[Flag]} is not Boolean.");
-
-        return chart.ExpressionProperties[Flag].AsBool();
+        if (source.StateChart.ExpressionProperties[Flag].VariantType != Variant.Type.Bool)
+            throw new ArgumentException($"Condition value {source.StateChart.ExpressionProperties[Flag]} is not Boolean.");
+        return source.StateChart.ExpressionProperties[Flag].AsBool();
     }
 }

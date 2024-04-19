@@ -13,5 +13,5 @@ public partial class InvertCondition : Condition
     /// <summary>Condition to invert.</summary>
     [Export] public Condition Condition;
 
-    public override bool IsSatisfied(Transition transition, State from) => Condition is not null && !Condition.IsSatisfied(transition, from);
+    public override bool IsSatisfied(ChartNode source) => Condition is not null && !Condition.IsSatisfied(source);
 }

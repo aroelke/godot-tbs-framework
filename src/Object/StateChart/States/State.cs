@@ -7,7 +7,7 @@ namespace Object.StateChart.States;
 
 /// <summary>Base class implementing common behavior of all state chart states.</summary>
 [GlobalClass, Tool]
-public abstract partial class State : Node
+public abstract partial class State : ChartNode
 {
     /// <summary>Signals that the state is being entered.</summary>
     [Signal] public delegate void StateEnteredEventHandler();
@@ -33,7 +33,6 @@ public abstract partial class State : Node
 
     private static Chart FindChart(Node node) => node == null ? null : node as Chart ?? FindChart(node.GetParent());
 
-    private Chart _chart = null;
     private bool _active = false;
     private readonly List<Transition> _transitions = new();
 
@@ -71,7 +70,7 @@ public abstract partial class State : Node
         EmitSignal(SignalName.StateEntered);
         foreach (Transition transition in _transitions)
             if (transition.Automatic && transition.EvaluateCondition())
-                _chart.RunTransition(transition, this);
+                StateChart.RunTransition(transition, this);
     }
 
     /// <summary>Process all transitions and run the first one that is triggered by the event.</summary>
@@ -90,7 +89,7 @@ public abstract partial class State : Node
         {
             if ((transition.Automatic || (!property && transition.Event == @event)) && transition.EvaluateCondition())
             {
-                _chart.RunTransition(transition, this);
+                StateChart.RunTransition(transition, this);
                 return true;
             }
         }
@@ -114,13 +113,6 @@ public abstract partial class State : Node
             warnings.Add("A state needs to have a StateChart ancestor.");
 
         return warnings.ToArray();
-    }
-
-    public override void _Ready()
-    {
-        base._Ready();
-        if (!Engine.IsEditorHint())
-            _chart = FindChart(GetParent());
     }
 
     public override void _Input(InputEvent @event)
