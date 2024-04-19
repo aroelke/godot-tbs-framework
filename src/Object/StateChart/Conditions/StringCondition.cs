@@ -1,12 +1,11 @@
 using System;
 using System.Linq;
 using Godot;
-using Object.StateChart.States;
 
 namespace Object.StateChart.Conditions;
 
 /// <summary>
-/// <see cref="Transition"/> condition that's satisfied based on the value of a string property. If it's exactly equal to the condition's value,
+/// <see cref="Chart"/> action condition that's satisfied based on the value of a string property. If it's exactly equal to the condition's value,
 /// the condition is satisfied.
 /// </summary>
 [GlobalClass, Icon("res://icons/statechart/StringCondition.svg"), Tool]

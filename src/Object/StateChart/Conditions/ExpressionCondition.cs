@@ -1,11 +1,10 @@
 using System;
 using System.Linq;
 using Godot;
-using Object.StateChart.States;
 
 namespace Object.StateChart.Conditions;
 
-/// <summary><see cref="Transition"/> condition based on computing an expression (written in GDScript!) using <see cref="Chart.ExpressionProperties"/>.</summary>
+/// <summary><see cref="Chart"/> action condition based on computing an expression (written in GDScript!) using <see cref="Chart.ExpressionProperties"/>.</summary>
 [GlobalClass, Icon("res://icons/statechart/ExpressionCondition.svg"), Tool]
 public partial class ExpressionCondition : Condition
 {

@@ -1,11 +1,10 @@
 using System;
 using System.Linq;
 using Godot;
-using Object.StateChart.States;
 
 namespace Object.StateChart.Conditions;
 
-/// <summary><see cref="Transition"/> condition that is satisfied if any of a set of conditions is satisfied or if there are no conditions to satisfy.</summary>
+/// <summary><see cref="Chart"/> action condition that is satisfied if any of a set of conditions is satisfied or if there are no conditions to satisfy.</summary>
 [GlobalClass, Icon("res://icons/statechart/AnyCondition.svg"), Tool]
 public partial class AnyCondition : Condition
 {

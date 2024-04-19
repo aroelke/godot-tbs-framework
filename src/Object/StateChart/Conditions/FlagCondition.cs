@@ -1,10 +1,9 @@
 using System;
 using Godot;
-using Object.StateChart.States;
 
 namespace Object.StateChart.Conditions;
 
-/// <summary><see cref="Transition"/> condition that evaluates a single boolean <see cref="Chart"/> property.</summary>
+/// <summary><see cref="Chart"/> action condition that evaluates a single boolean <see cref="Chart"/> property.</summary>
 [GlobalClass, Icon("res://icons/statechart/FlagCondition.svg"), Tool]
 public partial class FlagCondition : Condition
 {
