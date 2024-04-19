@@ -24,6 +24,7 @@ public partial class Pointer : BoundedNode2D
     private bool _accelerate = false;
     private TextureRect _mouse = null;
     private CanvasItem _parent = null;
+    private bool _tracking = true;
 
     private CanvasItem Parent => _parent ??= GetParent<CanvasItem>();
 
@@ -81,8 +82,20 @@ public partial class Pointer : BoundedNode2D
     /// <summary>Position of the pointer relative to the viewport.</summary>
     public Vector2 ViewportPosition
     {
-        get => WorldToViewport(GlobalPosition);
-        set => GlobalPosition = ViewportToWorld(value);
+        get => Engine.IsEditorHint() ? GlobalPosition : WorldToViewport(GlobalPosition);
+        set => GlobalPosition = Engine.IsEditorHint() ? value : ViewportToWorld(value);
+    }
+
+    /// <summary>Whether or not the pointer should be visible and move during analog control.</summary>
+    public bool AnalogTracking
+    {
+        get => _tracking;
+        set
+        {
+            _tracking = value;
+            if (DeviceManager.Mode == InputMode.Analog)
+                _mouse.Visible = _tracking;
+        }
     }
 
     /// <summary>The pointer is just a point, but it has to have a zero area so the camera can focus on it.</summary>
@@ -132,7 +145,7 @@ public partial class Pointer : BoundedNode2D
     /// <param name="position">New cursor position.</param>
     public void OnCursorMoved(Vector2 position)
     {
-        if (DeviceManager.Mode == InputMode.Digital)
+        if (DeviceManager.Mode == InputMode.Digital || (DeviceManager.Mode == InputMode.Analog && !_tracking))
         {
             _mouse.Visible = false;
             Input.MouseMode = Input.MouseModeEnum.Hidden;
@@ -185,7 +198,7 @@ public partial class Pointer : BoundedNode2D
             case InputMode.Mouse when Position != ViewportToWorld(InputManager.GetMousePosition()):
                 Warp(ViewportToWorld(InputManager.GetMousePosition()));
                 break;
-            case InputMode.Analog:
+            case InputMode.Analog when _tracking:
                 Vector2 direction = Input.GetVector(LeftAction, RightAction, UpAction, DownAction);
                 if (direction != Vector2.Zero)
                 {

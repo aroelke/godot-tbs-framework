@@ -4,7 +4,7 @@ using System;
 using System.Linq;
 using Godot;
 
-namespace Util;
+namespace Extensions;
 
 /// <summary>Extensions for <c>StringName</c>.</summary>
 public static class StringNameExtensions

@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Godot;
 using Object;
-using Util;
+using Extensions;
 
 namespace UI;
 

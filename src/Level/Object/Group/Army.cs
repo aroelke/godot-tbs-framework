@@ -9,8 +9,11 @@ namespace Level.Object.Group;
 [Tool]
 public partial class Army : GridNodeGroup, IEnumerable<Unit>
 {
+    /// <summary>Color to use for units in this army.</summary>
+    [Export] public Color Color = Colors.White;
+
     /// <summary>Armies to which this army is allied (not including itself).</summary>
-    public Army[] Allies = Array.Empty<Army>();
+    [Export] public Army[] Allies = Array.Empty<Army>();
 
     /// <param name="other">Army to check.</param>
     /// <returns><c>true</c> if the other army is allied with this one, and <c>false</c> otherwise.</returns>
@@ -19,6 +22,36 @@ public partial class Army : GridNodeGroup, IEnumerable<Unit>
     /// <param name="unit">Unit to check.</param>
     /// <returns><c>true</c> if the unit is in this army or an allied one, and <c>false</c> otherwise.</returns>
     public bool AlliedTo(Unit unit) => Contains(unit) || AlliedTo(unit.Affiliation);
+
+    public Unit Previous(Unit unit)
+    {
+        Unit[] units = GetChildren().OfType<Unit>().ToArray();
+        if (units.Length <= 1)
+            return null;
+
+        int index = Array.IndexOf(units, unit);
+        if (index < 0)
+            return null;
+        else if (index == 0)
+            return units.Last();
+        else
+            return units[index - 1];
+    }
+
+    public Unit Next(Unit unit)
+    {
+        Unit[] units = GetChildren().OfType<Unit>().ToArray();
+        if (units.Length <= 1)
+            return null;
+
+        int index = Array.IndexOf(units, unit);
+        if (index < 0)
+            return null;
+        else if (index < units.Length - 1)
+            return units[index + 1];
+        else
+            return units[0];
+    }
 
     /// <summary>When a <c>Unit</c> is added to the army, update its affiliation to this army.</summary>
     /// <param name="child">Node that was just added.</param>
