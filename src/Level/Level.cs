@@ -23,7 +23,7 @@ namespace Level;
 /// all objects in the level may be able to see it and request information from it, but each level has its own manager.
 /// </summary>
 [Tool]
-public partial class Level : Node2D
+public partial class Level : Node
 {
     // State chart events
     private readonly StringName SelectEvent = "select";
@@ -136,7 +136,7 @@ public partial class Level : Node2D
         {
         case InputMode.Mouse:
             // If the input mode is mouse and the cursor is not on the cell's square, move it there over time
-            if (!rect.HasPoint(GetGlobalMousePosition()))
+            if (!rect.HasPoint(Grid.GetGlobalMousePosition()))
             {
                 Tween tween = CreateTween();
                 tween
@@ -329,7 +329,7 @@ public partial class Level : Node2D
         Rect2? zoomRect = ActionOverlay.GetEnclosingRect(Grid);
         if (zoomRect is not null)
         {
-            Vector2 zoomTarget = GetViewportRect().Size/zoomRect.Value.Size;
+            Vector2 zoomTarget = Grid.GetViewportRect().Size/zoomRect.Value.Size;
             zoomTarget = Vector2.One*Mathf.Min(zoomTarget.X, zoomTarget.Y);
             if (Camera.Zoom > zoomTarget)
             {
@@ -541,7 +541,7 @@ public partial class Level : Node2D
             _unitSelected = GetNode<State>("%UnitSelected");
 
             Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
-            Cursor.Grid = Grid;
+            Pointer.World = Cursor.Grid = Grid;
             Pointer.Bounds = Camera.Limits;
 
             foreach (Node child in GetChildren())

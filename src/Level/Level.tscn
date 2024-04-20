@@ -92,7 +92,7 @@ Flag = &"traversable"
 script = ExtResource("23_6etqp")
 Condition = SubResource("Resource_wojwn")
 
-[node name="Level" type="Node2D"]
+[node name="Level" type="Node"]
 script = ExtResource("1_r2v0t")
 ToggleGlobalDangerZoneAction = ExtResource("2_d5jrl")
 CancelAction = ExtResource("2_2u5dc")

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 using Level.Map;
 using Object;
@@ -23,20 +24,17 @@ public partial class Pointer : BoundedNode2D
     private Rect2I _bounds = new(0, 0, 0, 0);
     private bool _accelerate = false;
     private TextureRect _mouse = null;
-    private CanvasItem _parent = null;
     private bool _tracking = true;
-
-    private CanvasItem Parent => _parent ??= GetParent<CanvasItem>();
 
     /// <summary>Convert a position in the level to a position in the viewport.</summary>
     /// <param name="world">Level position.</param>
     /// <returns>Position in the viewport that's at the same place as the one in the level.</returns>
-    private Vector2 WorldToViewport(Vector2 world) => Parent.GetGlobalTransformWithCanvas()*world;
+    private Vector2 WorldToViewport(Vector2 world) => World.GetGlobalTransformWithCanvas()*world;
 
     /// <summary>Convert a position in the viewport to a position in the level.</summary>
     /// <param name="viewport">Viewport position.</param>
     /// <returns>Position in the level that's at the same place as the one in the viewport.</returns>
-    private Vector2 ViewportToWorld(Vector2 viewport) => Parent.GetGlobalTransformWithCanvas().AffineInverse()*viewport;
+    private Vector2 ViewportToWorld(Vector2 viewport) => World.GetGlobalTransformWithCanvas().AffineInverse()*viewport;
 
     /// <summary>Bounding rectangle where the cursor is allowed to move.</summary>
     [Export] public Rect2I Bounds
@@ -50,6 +48,8 @@ public partial class Pointer : BoundedNode2D
             }
         }
     }
+
+    [Export] public CanvasItem World = null;
 
     /// <summary>Speed in screen pixels/second the pointer moves when in analog mode.</summary>
     [ExportGroup("Movement")]
@@ -153,6 +153,16 @@ public partial class Pointer : BoundedNode2D
         }
     }
 
+    public override string[] _GetConfigurationWarnings()
+    {
+        List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
+
+        if (World is null)
+            warnings.Add("The pointer won't be able to convert screen and world coordinates without knowing what the world is.");
+
+        return warnings.ToArray();
+    }
+
     public override void _Ready()
     {
         base._Ready();
@@ -161,7 +171,7 @@ public partial class Pointer : BoundedNode2D
         {
             _mouse = GetNode<TextureRect>("Canvas/Mouse");
             _mouse.Texture = ResourceLoader.Load<Texture2D>(ProjectSettings.GetSetting("display/mouse_cursor/custom_image").As<string>());
-            _mouse.Position = WorldToViewport(Position);
+            Callable.From(() => _mouse.Position = WorldToViewport(Position)).CallDeferred();
             _mouse.Visible = DeviceManager.Mode == InputMode.Analog;
 
             _prevMode = DeviceManager.Mode;
