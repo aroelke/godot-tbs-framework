@@ -48,7 +48,6 @@ public partial class Level : Node
     private const string GlobalDanger = "global danger";
 
     private Chart _state = null;
-    private State _idle = null, _unitSelected = null;
     private Grid _map = null;
     private Path _path = null;
     private PathOverlay _pathOverlay = null;
@@ -537,8 +536,6 @@ public partial class Level : Node
         if (!Engine.IsEditorHint())
         {
             _state = GetNode<Chart>("State");
-            _idle = GetNode<State>("%Idle");
-            _unitSelected = GetNode<State>("%UnitSelected");
 
             Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
             Pointer.World = Cursor.Grid = Grid;

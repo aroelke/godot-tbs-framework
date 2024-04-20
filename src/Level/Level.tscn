@@ -198,7 +198,6 @@ process_mode = 4
 InitialState = NodePath("Idle")
 
 [node name="Idle" parent="State/Root" instance=ExtResource("19_o30vs")]
-unique_name_in_owner = true
 process_mode = 4
 
 [node name="OnInput" parent="State/Root/Idle" instance=ExtResource("23_nnivc")]
@@ -221,7 +220,6 @@ Event = &"done"
 Condition = SubResource("Resource_f7pbh")
 
 [node name="UnitSelected" parent="State/Root" instance=ExtResource("19_o30vs")]
-unique_name_in_owner = true
 process_mode = 4
 
 [node name="OnCursorMoved" parent="State/Root/UnitSelected" instance=ExtResource("25_goaap")]
