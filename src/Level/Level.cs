@@ -30,9 +30,9 @@ public partial class Level : Node2D
     private readonly StringName CancelEvent = "cancel";
     private readonly StringName DoneEvent = "done";
     // State chart conditions
-    private readonly StringName OccupiedCondition = "occupied";       // Current cell occupant (see below for options)
-    private readonly StringName TargetCondition = "target";           // Current cell contains a potential target (for attack or support)
-    private readonly StringName TraversableCondition = "traversable"; // Current cell is traversable
+    private readonly StringName OccupiedProperty = "occupied";       // Current cell occupant (see below for options)
+    private readonly StringName TargetProperty = "target";           // Current cell contains a potential target (for attack or support)
+    private readonly StringName TraversableProperty = "traversable"; // Current cell is traversable
     // State chart occupied values
     private const string NotOccupied = "";                  // Nothing in the cell
     private const string SelectedOccuiped = "selected";     // Cell occupied by the selected unit (if there is one)
@@ -654,7 +654,7 @@ public partial class Level : Node2D
         if (!Engine.IsEditorHint())
         {
             _state.ExpressionProperties = _state.ExpressionProperties
-                .SetItem(OccupiedCondition, !Grid.Occupants.ContainsKey(Cursor.Cell) ? NotOccupied : Grid.Occupants[Cursor.Cell] switch
+                .SetItem(OccupiedProperty, !Grid.Occupants.ContainsKey(Cursor.Cell) ? NotOccupied : Grid.Occupants[Cursor.Cell] switch
                 {
                     Unit unit when unit == _selected => SelectedOccuiped,
                     Unit unit when _armies[CurrentArmy] == unit.Affiliation => unit.Active ? ActiveAllyOccupied : InActiveAllyOccupied,
@@ -662,10 +662,10 @@ public partial class Level : Node2D
                     Unit => EnemyOccupied,
                     _ => OtherOccupied
                 })
-                .SetItem(TargetCondition, Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit target &&
+                .SetItem(TargetProperty, Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit target &&
                                           ((target != _selected && _armies[CurrentArmy].AlliedTo(target) && _actionable.Supportable.Contains(Cursor.Cell)) ||
                                            (!_armies[CurrentArmy].AlliedTo(target) && _actionable.Attackable.Contains(Cursor.Cell))))
-                .SetItem(TraversableCondition, _actionable.Traversable.Contains(Cursor.Cell));
+                .SetItem(TraversableProperty, _actionable.Traversable.Contains(Cursor.Cell));
 
             float zoom = Input.GetAxis(CameraActionAnalogZoomOut, CameraActionAnalogZoomIn);
             if (zoom != 0)
