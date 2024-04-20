@@ -12,14 +12,6 @@ public abstract partial class State : ChartNode
     /// <summary>Signals that the state is being entered.</summary>
     [Signal] public delegate void StateEnteredEventHandler();
 
-    /// <summary>Signals every <see cref="Node._Process" frame while active./></summary>
-    /// <param name="delta">Time in seconds since last frame.</param>
-    [Signal] public delegate void StateProcessEventHandler(double delta);
-
-    /// <summary>Signals that the state has received an unhandled input event while active.</summary>
-    /// <param name="event">Input event description.</param>
-    [Signal] public delegate void StateUnhandledInputEventHandler(InputEvent @event);
-
     /// <summary>Signals that an event has been received while the state is active.</summary>
     /// <param name="event">Name of the event.</param>
     [Signal] public delegate void EventReceivedEventHandler(StringName @event);
@@ -39,10 +31,6 @@ public abstract partial class State : ChartNode
         private set
         {
             _active = value;
-
-            SetProcess(_active && GetSignalConnectionList(SignalName.StateProcess).Any());
-            SetProcessUnhandledInput(_active && GetSignalConnectionList(SignalName.StateUnhandledInput).Any());
-
             ProcessMode = _active ? ProcessModeEnum.Inherit : ProcessModeEnum.Disabled;
         }
     }
@@ -108,19 +96,5 @@ public abstract partial class State : ChartNode
             warnings.Add("A state needs to have a StateChart ancestor.");
 
         return warnings.ToArray();
-    }
-
-    public override void _UnhandledInput(InputEvent @event)
-    {
-        base._UnhandledInput(@event);
-        EmitSignal(SignalName.StateUnhandledInput, @event);
-    }
-
-    public override void _Process(double delta)
-    {
-        base._Process(delta);
-
-        if (!Engine.IsEditorHint())
-            EmitSignal(SignalName.StateProcess);
     }
 }
