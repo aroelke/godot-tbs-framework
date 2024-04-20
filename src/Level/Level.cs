@@ -281,7 +281,7 @@ public partial class Level : Node2D
         CancelHint.Visible = false;
     }
 
-    public void OnIdleEntered() => OnCursorMoved(Cursor.Cell);
+    public void OnIdleEntered() => OnIdleCursorMoved(Cursor.Cell);
 
     /// <summary>
     /// Handle events that might occur during idle state.
@@ -434,49 +434,43 @@ public partial class Level : Node2D
 
     public void OnCancelTargetingExited() => UpdateDangerZones();
 
-    /// <summary>
-    /// When the cursor moves:
-    /// - While a unit is selected, update the path that's being drawn
-    /// - While a unit is not selected, display the action ranges of units it hovers over
-    /// </summary>
-    /// <param name="cell">Cell the cursor moved to.</param>
-    public void OnCursorMoved(Vector2I cell)
+    /// <summary>When the cursor moves over a unit while in idle state, display that unit's action ranges, but clear them when it moves off.</summary>
+    /// <param name="cell">Cell the cursor moved into.</param>
+    public void OnIdleCursorMoved(Vector2I cell)
     {
-        if (_idle.Active)
-        {
-            ActionOverlay.Clear();
+        ActionOverlay.Clear();
 
-            // When the cursor moves over a unit while in idle state, display that unit's action ranges, but clear them when it moves off
-            if (_armies[CurrentArmy] == StartingArmy && Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit hovered)
-            {
-                ActionRanges actionable = hovered.ActionRanges().WithOccupants(
-                    Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => u.Affiliation.AlliedTo(hovered)),
-                    Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => !u.Affiliation.AlliedTo(hovered))
-                );
-                ActionOverlay.UsedCells = actionable.Exclusive().ToDictionary();
-            }
+        if (_armies[CurrentArmy] == StartingArmy && Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit hovered)
+        {
+            ActionRanges actionable = hovered.ActionRanges().WithOccupants(
+                Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => u.Affiliation.AlliedTo(hovered)),
+                Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => !u.Affiliation.AlliedTo(hovered))
+            );
+            ActionOverlay.UsedCells = actionable.Exclusive().ToDictionary();
         }
-        else if (_unitSelected.Active)
-        {
-            _target = null;
+    }
 
-            // While selecting a path, moving the cursor over a targetable unit computes a path to space that can target it, preferring ending on further spaces
-            if (_actionable.Traversable.Contains(cell))
-                PathOverlay.Path = (_path = _path.Add(cell).Clamp(_selected.MoveRange)).ToList();
-            else if (Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit target)
+    /// <summary>While selecting a path, moving the cursor over a targetable unit computes a path to space that can target it, preferring ending on further spaces</summary>
+    /// <param name="cell">Cell the cursor moved into.</param>
+    public void OnSelectedCursorMoved(Vector2I cell)
+    {
+        _target = null;
+
+        if (_actionable.Traversable.Contains(cell))
+            PathOverlay.Path = (_path = _path.Add(cell).Clamp(_selected.MoveRange)).ToList();
+        else if (Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit target)
+        {
+            IEnumerable<Vector2I> sources = Array.Empty<Vector2I>();
+            if (target != _selected && _armies[CurrentArmy].AlliedTo(target) && _actionable.Supportable.Contains(cell))
+                sources = _selected.SupportableCells(cell).Where(_actionable.Traversable.Contains);
+            else if (!_armies[CurrentArmy].AlliedTo(target) && _actionable.Attackable.Contains(cell))
+                sources = _selected.AttackableCells(cell).Where(_actionable.Traversable.Contains);
+            sources = sources.Where((c) => !Grid.Occupants.ContainsKey(c));
+            if (sources.Any())
             {
-                IEnumerable<Vector2I> sources = Array.Empty<Vector2I>();
-                if (target != _selected && _armies[CurrentArmy].AlliedTo(target) && _actionable.Supportable.Contains(cell))
-                    sources = _selected.SupportableCells(cell).Where(_actionable.Traversable.Contains);
-                else if (!_armies[CurrentArmy].AlliedTo(target) && _actionable.Attackable.Contains(cell))
-                    sources = _selected.AttackableCells(cell).Where(_actionable.Traversable.Contains);
-                sources = sources.Where((c) => !Grid.Occupants.ContainsKey(c));
-                if (sources.Any())
-                {
-                    _target = target;
-                    if (!sources.Contains(_path[^1]))
-                        PathOverlay.Path = (_path = sources.Select((c) => _path.Add(c).Clamp(_selected.MoveRange)).OrderBy((p) => p[^1].DistanceTo(_path[^1])).OrderByDescending((p) => p[^1].DistanceTo(cell)).First()).ToList();
-                }
+                _target = target;
+                if (!sources.Contains(_path[^1]))
+                    PathOverlay.Path = (_path = sources.Select((c) => _path.Add(c).Clamp(_selected.MoveRange)).OrderBy((p) => p[^1].DistanceTo(_path[^1])).OrderByDescending((p) => p[^1].DistanceTo(cell)).First()).ToList();
             }
         }
     }
