@@ -29,15 +29,15 @@ public partial class ControlHint : HBoxContainer
     /// <summary>Action to display the icon of.</summary>
     [Export] public InputActionReference Action = new();
 
-    /// <summary>Mouse button map for the mouse input to the action.</summary>
+    /// <summary><see cref="MouseButton"/> map for the mouse input to the action.</summary>
     [ExportGroup("Action Maps")]
     [Export] public MouseIconMap MouseMap = new();
 
-    /// <summary>Keyboard map for the keyboard input to the action.</summary>
+    /// <summary><see cref="Key"/>  map for the keyboard input to the action.</summary>
     [ExportGroup("Action Maps")]
     [Export] public KeyIconMap KeyMap = new();
 
-    /// <summary>Button map for the Playstation game pad input to the action.</summary>
+    /// <summary><see cref="JoyButton"/> map for the game pad input to the action.</summary>
     [ExportGroup("Action Maps")]
     [Export] public GamepadButtonIconMap GamepadMap = new();
 
@@ -51,7 +51,7 @@ public partial class ControlHint : HBoxContainer
         }
     }
 
-    /// <summary>When the input mode changes, also update the icon.</summary>
+    /// <summary>When the input device changes, also update the icon.</summary>
     /// <param name="device">New device being used for input.</param>
     public void OnInputDeviceChanged(InputDevice device, string name) => SelectedDevice = device;
 
