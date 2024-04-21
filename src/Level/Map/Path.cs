@@ -9,7 +9,7 @@ using Extensions;
 namespace Level.Map;
 
 /// <summary>
-/// An ordered list of <c>Vector2I</c>s that guarantees sequential elements are (orthogonally) adjacent and there are no loops. When an attempt
+/// An ordered list of <see cref="Vector2I"/>s that guarantees sequential elements are (orthogonally) adjacent and there are no loops. When an attempt
 /// is made to add a new element, if it's not adjacent to the last element, additional elements are added in between to make sure each element
 /// is adjacent to its neighbors in the list. Individual elements cannot be removed, as the space they were in would just need to be filled back
 /// in.
@@ -17,9 +17,9 @@ namespace Level.Map;
 /// Modifying elements within the list and removing sections are potentially planned future features that will be implemented as needed.
 /// 
 /// Paths are immutable, so any functions that cause changes instead return a new Path with the change made, preserving the old one, as in
-/// <c>ImmutableList</c>.
+/// <see cref="ImmutableList{T}"/>.
 /// 
-/// Paths exist on a <c>Grid</c> within traversable cells that they use to compute segments when needed.
+/// Paths exist on a <see cref="Grid"/> within traversable cells that they use to compute segments when needed.
 /// </summary>
 public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyCollection<Vector2I>, IReadOnlyList<Vector2I>, ICollection, IEnumerable
 {
@@ -56,7 +56,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     private readonly IEnumerable<Vector2I> _traversable;
     private readonly ImmutableList<Vector2I> _cells;
 
-    /// <summary>Private constructor; use <c>Path.Empty()</c> instead.</summary>
+    /// <summary>Private constructor; use <see cref="Empty(Grid, AStar2D, IEnumerable{Vector2I})"/> instead.</summary>
     private Path(Grid grid, AStar2D astar, IEnumerable<Vector2I> traversable, ImmutableList<Vector2I> initial)
     {
         _grid = grid;
@@ -68,8 +68,8 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     public Vector2I this[int index] => _cells[index];
 
     /// <summary>
-    /// Movement cost to traverse the path from beginning to end. Since each cell's "cost' represents the cost to move onto it, the cost of the first cell
-    /// is ignored.
+    /// Movement <see cref="Terrain.Cost"/> to traverse the path from beginning to end. Since each cell's cost represents the cost to move onto it, the first cell
+    /// is ignored
     /// </summary>
     public int Cost => _grid.Cost(_cells.TakeLast(_cells.Count - 1));
 
@@ -79,33 +79,37 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     public object SyncRoot => this;
 
     /// <summary>
-    /// Searches for the specified object and returns the zero-based index of the first occurrence within the range of elements in the <c>Path</c that
+    /// Searches for the specified object and returns the zero-based index of the first occurrence within the range of elements in the path that
     /// starts at the specified index and contains the specified number of elements.
     /// </summary>
-    /// <param name="item">The object to locate in the <c>Path</c>. This value can be <c>null</c> for reference types.</param>
+    /// <param name="item">The object to locate in the path. This value can be <c>null</c> for reference types.</param>
     /// <param name="index">The zero-based starting indexes of the search. 0 (zero) is valid in an empty list.</param>
     /// <param name="count">The number of elements in the section to search.</param>
-    /// <param name="equalityComparer">The equality comparer to use to locate <c>item</c>.</param>
-    /// <returns>The zero-based index of the first occurrence of <c>item</c> within the range of elements in the <c>Path</c> that starts at <c>index</c>
-    /// and contains <c>count</c> number of elements if found; otherwise -1.</returns>
+    /// <param name="equalityComparer">The equality comparer to use to locate <paramref name="item"/>.</param>
+    /// <returns>The zero-based index of the first occurrence of <paramref name="item"/> within the range of elements in the path that starts at
+    /// <paramref name="index"/> and contains <paramref name="count"/> number of elements if found; otherwise -1.</returns>
     public int IndexOf(Vector2I item, int index, int count, IEqualityComparer<Vector2I> equalityComparer) => _cells.IndexOf(item, index, count, equalityComparer);
 
-    /// <summary>Searches for the specified object and returns the zero-based index of the first occurrence within the entire <c>Path</c>.</summary>
-    /// <returns>The zero-based index of the first occurrence of <c>item</c> within the entire immutable list, if found; otherwise, -1.</returns>
+    /// <summary>Searches for the specified object and returns the zero-based index of the first occurrence within the entire path.</summary>
+    /// <returns>The zero-based index of the first occurrence of <paramref name="item"/> within the entire path, if found; otherwise, -1.</returns>
     public int IndexOf(Vector2I item) => _cells.IndexOf(item);
 
     /// <summary>
-    /// Searches for the specified object and returns the zero-based index of the last occurrence within the range of elements in the <c>Path</c> that contains
+    /// Searches for the specified object and returns the zero-based index of the last occurrence within the range of elements in the path that contains
     /// the specified number of elements and ends at the specified index.
     /// </summary>
-    /// <param name="item">The object to locate in the list. The value can be <c>null</c> for reference types.</param>
-    /// <param name="index">The zero-based starting index of the search. 0 (zero) is valid in an empty list.</param>
+    /// <param name="item">The object to locate in the path. The value can be <c>null</c> for reference types.</param>
+    /// <param name="index">The zero-based starting index of the search. 0 (zero) is valid in an empty path.</param>
     /// <param name="count">The number of elements in the section to search.</param>
-    /// <param name="equalityComparer">The equality comparer to match <c>item</c>.</param>
+    /// <param name="equalityComparer">The equality comparer to match <paramref name="item"/>.</param>
+    /// <returns>
+    /// The zero-based index of the last occurrence of <paramref name="item"/> within the range of elements in the path that contains <paramref name="count"/>
+    /// number of elements and ends at <paramref name="item"/>, if found; otherwise, -1.
+    /// </returns>
     public int LastIndexOf(Vector2I item, int index, int count, IEqualityComparer<Vector2I> equalityComparer) => _cells.LastIndexOf(item, index, count, equalityComparer);
 
     /// <summary>Searches for the specified object and returns the zero-based index of the last occurrence within the entire <c>Path</c>.</summary>
-    /// <returns>The zero-based index of the last occurrence of <c>item</c> within the entire the <c>Path</c>, if found; otherwise, -1.</returns>
+    /// <returns>The zero-based index of the last occurrence of <paramref name="item"/> within the entire the path, if found; otherwise, -1.</returns>
     public int LastIndexOf(Vector2I item) => _cells.LastIndexOf(item);
 
     /// <summary>
@@ -113,7 +117,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// well.
     /// </summary>
     /// <param name="value">Cell to add.</param>
-    /// <returns>A new path with <c>value</c> appended, and potentially a contiguous segment between it and the previous end of the path as well.</returns>
+    /// <returns>A new path with <paramref name="value"/> appended, and potentially a contiguous segment between it and the previous end of the path as well.</returns>
     public Path Add(Vector2I value)
     {
         ImmutableList<Vector2I> cells = ImmutableList<Vector2I>.Empty;
@@ -133,8 +137,8 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
 
     /// <summary>Add a collection of cells to the path, inserting segments before and between as needed to ensure that all neighbors are adjacent.</summary>
     /// <param name="items">Cells to add.</param>
-    /// <returns>A new path with <c>items</c> appended, as well as segments before and between in case the first cell in <c>items</c> is not adjacent to the
-    /// previous path end and in case any sequential cells in <c>items</c> are not adjacent.</returns>
+    /// <returns>A new path with <paramref name="items"/> appended, as well as segments before and between in case the first cell in <paramref name="items"/>
+    /// is not adjacent to the previous path end and in case any sequential cells in <paramref name="items"/> are not adjacent.</returns>
     public Path AddRange(IEnumerable<Vector2I> items) => items.Aggregate(this, (p, item) => p.Add(item));
 
     /// <summary>
@@ -142,7 +146,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// </summary>
     /// <param name="index">Path index to add the cell at.</param>
     /// <param name="element">Cell coordinates to insert.</param>
-    /// <returns>A new path with <c>element</c> at <c>index</c> and new segments make sure it's adjacent to its neighbors.</returns>
+    /// <returns>A new path with <paramref name="element"/> at <paramref name="index"/> and new segments make sure it's adjacent to its neighbors.</returns>
     /// <exception cref="NotImplementedException"></exception>
     public Path Insert(int index, Vector2I element)
     {
@@ -155,7 +159,9 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// </summary>
     /// <param name="index">Path index to add the cell at.</param>
     /// <param name="items">Collection of cell coordinates to add.</param>
-    /// <returns>A new path with <c>items</c> at <c>index</c> and new segments making sure each new element is adjacent to its neighbors.</returns>
+    /// <returns>
+    /// A new path with <paramref name="items"/> at <paramref name="index"/> and new segments making sure each new element is adjacent to its neighbors.
+    /// </returns>
     /// <exception cref="NotImplementedException"></exception>
     public Path InsertRange(int index, IEnumerable<Vector2I> items)
     {
@@ -168,8 +174,10 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// <param name="oldValue">Cell to replace.</param>
     /// <param name="newValue">Cell to replace with.</param>
     /// <param name="equalityComparer">The equality comparer to match old and new values.</param>
-    /// <returns>A new path with the first instance of <c>oldValue</c> replaced with <c>newValue</c> and additional segments on either side to make sure
-    /// <c>newValue</c> is adjacent to its neighbors.</returns>
+    /// <returns>
+    /// A new path with the first instance of <paramref name="oldValue"/> replaced with <paramref name="newValue"/> and additional segments on either side to
+    /// make sure <paramref name="newValue"/> is adjacent to its neighbors.
+    /// </returns>
     /// <exception cref="NotImplementedException"></exception>
     public Path Replace(Vector2I oldValue, Vector2I newValue, IEqualityComparer<Vector2I> equalityComparer)
     {
@@ -178,8 +186,10 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
 
     /// <summary>Set the cell at the specified index to a new value, then add segments on either side to ensure that it's adjacent to its neighbors.</summary>
     /// <param name="index">Index to change the cell at.</param>
-    /// <param name="value">New cell at <c>index</c>.</param>
-    /// <returns>A new path with <c>value</c> inserted at <c>index</c> and segments added on either side to ensure the path is contiguous.</returns>
+    /// <param name="value">New cell at <paramref name="index"/>.</param>
+    /// <returns>
+    /// A new path with <paramref name="value"/> inserted at <paramref name="index"/> and segments added on either side to ensure the path is contiguous.
+    /// </returns>
     /// <exception cref="NotImplementedException"></exception>
     public Path SetItem(int index, Vector2I value)
     {
@@ -189,8 +199,10 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// <summary>Remove a sequence of cells from the path, then connect the old neighbors together with the shortest path between them, if necessary.</summary>
     /// <param name="index">Starting index to remove cells from.</param>
     /// <param name="count">Number of cells in the sequence to remove.</param>
-    /// <returns>A new path with <c>count</c> cells removed starting from <c>index</c>. If this results in a path with a hole in it, the new path will have a
-    /// segment inserted that joins the two ends.</returns>
+    /// <returns>
+    /// A new path with <paramref name="count"/> cells removed starting from <paramref name="index"/>. If this results in a path with a hole in it, the new path
+    /// will have a segment inserted that joins the two ends.
+    /// </returns>
     /// <exception cref="NotImplementedException"></exception>
     public Path RemoveRange(int index, int count)
     {
@@ -198,11 +210,13 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     }
 
     /// <summary>
-    /// If the total cost of the cells in the path, except for the first, is greater than the specified value, compute the shortest path between
-    /// the first and last cells.
+    /// If the total <see cref="Terrain.Cost"/> of the cells in the path, except for the first, is greater than the specified value, compute the shortest path
+    /// between the first and last cells.
     /// </summary>
-    /// <param name="cost">Maximum cost of the path.</param>
-    /// <returns>The path if its cost is less than or equal to <c>cost</c>, and the shortest path between the endpoints otherwise.</returns>
+    /// <param name="cost">Maximum <see cref="Cost"/> of the path.</param>
+    /// <returns>
+    /// The path if its <see cref="Cost"/> is less than or equal to <paramref name="cost"/>, and the shortest path between the endpoints otherwise.
+    /// </returns>
     public Path Clamp(int cost)
     {
         if (Cost > cost)
