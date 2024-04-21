@@ -5,6 +5,7 @@ using Level.Object.Group;
 using Object;
 using Extensions;
 using Level.Map;
+using System.Collections.Immutable;
 
 namespace Level.Object;
 
@@ -41,14 +42,8 @@ public partial class Unit : GridNode
     /// The set of all cells that are exactly within <paramref name="ranges"/> distance from at least one element of
     /// <paramref name="sources"/>.
     /// </returns>
-    private IEnumerable<Vector2I> GetCellsInRange(IEnumerable<Vector2I> sources, IEnumerable<int> ranges)
-    {
-        HashSet<Vector2I> inRange = new();
-        foreach (Vector2I source in sources)
-            foreach (int r in ranges)
-                inRange.UnionWith(Grid.GetCellsAtRange(source, r));
-        return inRange;
-    }
+    private IEnumerable<Vector2I> GetCellsInRange(IEnumerable<Vector2I> sources, IEnumerable<int> ranges) =>
+        sources.SelectMany((c) => ranges.SelectMany((r) => Grid.GetCellsAtRange(c, r))).ToImmutableHashSet();
 
     /// <summary>Movement range of the unit, in <see cref="Grid"/> cells.</summary>
     [Export] public int MoveRange = 5;
