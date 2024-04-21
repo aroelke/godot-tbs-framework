@@ -6,7 +6,7 @@ using Object;
 
 namespace Level.Object;
 
-/// <summary>A node representing an object that moves on a grid.</summary>
+/// <summary>A node representing an object that moves on a <see cref="Map.Grid"/>.</summary>
 [Icon("res://icons/GridNode.svg"), GlobalClass, Tool]
 public partial class GridNode : BoundedNode2D
 {
@@ -19,7 +19,7 @@ public partial class GridNode : BoundedNode2D
     /// <summary>Grid on which the containing object sits.</summary>
     [Export] public Grid Grid;
 
-    /// <summary>Cell on the grid that this object currently occupies.</summary>
+    /// <summary>Cell on the <see cref="Map.Grid"/> that this object currently occupies.</summary>
     [Export] public virtual Vector2I Cell
     {
         get => _cell;
@@ -45,7 +45,8 @@ public partial class GridNode : BoundedNode2D
         }
     }
 
-    /// <summary><c>GridNode</c>s have a constant size that is based on the size of the grid cells. </summary>
+    /// <inheritdoc cref="BoundedNode2D.Size"/>
+    /// <remarks>Grid nodes have a constant size that is based on the size of the <see cref="Map.Grid"/> cells.</remarks>
     public override Vector2 Size { get => Grid?.CellSize ?? Vector2.Zero; set {}}
 
     public override string[] _GetConfigurationWarnings()
