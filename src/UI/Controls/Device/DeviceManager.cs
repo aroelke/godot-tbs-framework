@@ -22,7 +22,7 @@ public partial class DeviceManager : Node
     private static InputMode _mode = InputMode.Digital;
     private static DeviceManager _singleton = null;
 
-    /// <summary>Ensures that <c>InputDeviceChanged</c> is only fired once when either the device and/or device name change.</summary>
+    /// <summary>Ensures that <see cref="InputDeviceChanged"/> is only fired once when either the device and/or device name change.</summary>
     /// <param name="device">New input device.</param>
     /// <param name="name">New input device name.</param>
     private static void UpdateDevice(InputDevice device, string name)
