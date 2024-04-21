@@ -14,6 +14,7 @@ using UI.Controls.Device;
 using UI.HUD;
 using Extensions;
 using Object.StateChart;
+using Object.StateChart.States;
 
 namespace Level;
 
@@ -110,7 +111,7 @@ public partial class Level : Node
 
     private Army CurrentArmy => _armies[CurrentArmyIndex];
 
-    /// <summary>Units to include in the local danger zone. Updates the highlighted squares when set.</summary>
+    /// <summary>Units to include in the local unit zones. Updates the highlighted squares when set.</summary>
     private ImmutableHashSet<Unit> ZoneUnits
     {
         get => _zoneUnits;
@@ -122,7 +123,7 @@ public partial class Level : Node
     }
 
     /// <summary>
-    /// If the cursor isn't in the specified cell, move it to (the center of) that cell. During mouse control, this is done smoothly
+    /// If the <see cref="Object.Cursor"/> isn't in the specified cell, move it to (the center of) that cell. During mouse control, this is done smoothly
     /// over time to maintain consistency with the system pointer.
     /// </summary>
     /// <param name="cell">Cell to move the cursor to.</param>
@@ -167,7 +168,7 @@ public partial class Level : Node
         }
     }
 
-    /// <summary>Update the displayed danger zones to reflect the current positions of the enemy units.</summary>
+    /// <summary>Update the displayed danger zones to reflect the current positions of the enemy <see cref="Unit"/>s.</summary>
     private void UpdateDangerZones()
     {
         // Update local danger zone
@@ -268,7 +269,7 @@ public partial class Level : Node
     private Timer TurnAdvance => _turnAdvance = GetNode<Timer>("TurnAdvance");
 
     /// <summary>Deselect or deactivate the selected <see cref="Unit"/> and clean up after finishing actions.</summary>
-    /// <param name="done">Whether or not the unit completed its action (so it should be deactivated).</param>
+    /// <param name="done">Whether or not the <see cref="Unit"/> completed its action (so it should be deactivated).</param>
     public void OnToIdleTaken(bool done)
     {
         if (done)
@@ -286,12 +287,13 @@ public partial class Level : Node
         CancelHint.Visible = false;
     }
 
+    /// <summary>Update the UI when re-entering idle.</summary>
     public void OnIdleEntered() => OnIdleCursorMoved(Cursor.Cell);
 
     /// <summary>
-    /// Handle events that might occur during idle state.
-    /// - select: if the cursor is over a unit enemy to the player during the player's turn, toggle its attack range in the local danger zone
-    /// - cancel: if the cursor is over a unit enemy to the player during the player's turn, remove its attack range from the local danger zone
+    /// Handle events that might occur during idle <see cref="State"/>.
+    /// - select: if the cursor is over a <see cref="Unit"/> enemy to the player during the player's turn, toggle its attack range in the local danger zone
+    /// - cancel: if the cursor is over a <see cref="Unit"/> enemy to the player during the player's turn, remove its attack range from the local danger zone
     /// </summary>
     /// <param name="event">Name of the event.</param>
     public void OnIdleEventReceived(StringName @event)
@@ -312,7 +314,7 @@ public partial class Level : Node
 
     /// <summary>
     /// Advance the turn cycle:
-    /// - Go to the next army
+    /// - Go to the next <see cref="Army"/>
     /// - If returning to <see cref="StartingArmy"/>, increment the turn count
     /// </summary>
     public void OnTurnAdvance()
@@ -322,8 +324,11 @@ public partial class Level : Node
             Turn++;
     }
 
-    /// <summary>When the cursor moves over a unit while in idle state, display that unit's action ranges, but clear them when it moves off.</summary>
-    /// <param name="cell">Cell the cursor moved into.</param>
+    /// <summary>
+    /// When the <see cref="Object.Cursor"/> moves over a <see cref="Unit"/> while in idle <see cref="State"/>, display that <see cref="Unit"/>'s
+    /// action ranges, but clear them when it moves off.
+    /// </summary>
+    /// <param name="cell">Cell the <see cref="Object.Cursor"/> moved into.</param>
     public void OnIdleCursorMoved(Vector2I cell)
     {
         ActionOverlay.Clear();
@@ -339,7 +344,7 @@ public partial class Level : Node
     }
 
     /// <summary>
-    /// Cycle the cursor between units in the same army using <see cref="PreviousAction"/> and <see cref="NextAction"/>
+    /// Cycle the <see cref="Object.Cursor"/> between units in the same army using <see cref="PreviousAction"/> and <see cref="NextAction"/>
     /// while nothing is selected.
     /// </summary>
     public void OnIdleInput(InputEvent @event)
@@ -361,14 +366,14 @@ public partial class Level : Node
         }
     }
 
-    /// <summary>Choose a selected unit.</summary>
+    /// <summary>Choose a selected <see cref="Unit"/>.</summary>
     public void OnIdleToSelectedTaken() => _selected = Grid.Occupants[Cursor.Cell] as Unit;
 #endregion
 #region Unit Selected State
     private ActionRanges _actionable = new();
     private Vector2? _prevZoom = null;
 
-    /// <summary>Display the total movement, attack, and support ranges of the selected unit and begin drawing the path arrow for it to move on.</summary>
+    /// <summary>Display the total movement, attack, and support ranges of the selected <see cref="Unit"/> and begin drawing the path arrow for it to move on.</summary>
     public void OnSelectedEntered()
     {
         _selected.Select();
@@ -399,8 +404,11 @@ public partial class Level : Node
         }
     }
 
-    /// <summary>While selecting a path, moving the cursor over a targetable unit computes a path to space that can target it, preferring ending on further spaces</summary>
-    /// <param name="cell">Cell the cursor moved into.</param>
+    /// <summary>
+    /// While selecting a path, moving the <see cref="Object.Cursor"/> over a targetable <see cref="Unit"/> computes a <see cref="Path"/>
+    /// to space that can target it, preferring ending on further spaces.
+    /// </summary>
+    /// <param name="cell">Cell the <see cref="Object.Cursor"/> moved into.</param>
     public void OnSelectedCursorMoved(Vector2I cell)
     {
         _target = null;
@@ -424,7 +432,7 @@ public partial class Level : Node
         }
     }
 
-    /// <summary>Clean up when exiting selected state.</summary>
+    /// <summary>Clean up when exiting selected <see cref="State"/>.</summary>
     public void OnSelectedExited()
     {
         // Clear out movement/action ranges
@@ -445,14 +453,14 @@ public partial class Level : Node
     private Vector4 _prevDeadzone = Vector4.Zero;
     private BoundedNode2D _prevCameraTarget = null;
 
-    /// <summary>When the unit finishes moving, move to the next state.</summary>
+    /// <summary>When the <see cref="Unit"/> finishes moving, move to the next <see cref="State"/>.</summary>
     public void OnUnitDoneMoving()
     {
         _selected.DoneMoving -= OnUnitDoneMoving;
         _state.SendEvent(DoneEvent);
     }
 
-    /// <summary>Begin moving the selected unit and then wait for it to finish moving.</summary>
+    /// <summary>Begin moving the selected <see cref="Unit"/> and then wait for it to finish moving.</summary>
     public void OnMovingEntered()
     {
         // Move the unit and delete the pathfinder as we don't need it anymore
@@ -468,7 +476,7 @@ public partial class Level : Node
         Camera.Target = _selected.MotionBox;
     }
 
-    /// <summary>When done moving, restore the camera target (most likely to the cursor) and update danger zones.</summary>
+    /// <summary>When done moving, restore the <see cref="Camera2DBrain">camera</see> target (most likely to the cursor) and update danger zones.</summary>
     public void OnMovingExited()
     {
         (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = _prevDeadzone;
@@ -478,7 +486,7 @@ public partial class Level : Node
     }
 #endregion
 #region Targeting State
-    /// <summary>Compute the attack and support ranges of the selected unit from its location.</summary>
+    /// <summary>Compute the attack and support ranges of the selected <see cref="Unit"/> from its location.</summary>
     public void OnTargetingEntered()
     {
         // Show the unit's attack/support ranges
@@ -501,8 +509,8 @@ public partial class Level : Node
     }
 
     /// <summary>
-    /// Cycle the cursor between targets of the same action (attack, support, etc.) using <see cref="PreviousAction"/> and <see cref="NextAction"/>
-    /// while choosing targets.
+    /// Cycle the <see cref="Object.Cursor"/> between targets of the same action (attack, support, etc.) using <see cref="PreviousAction"/>
+    /// and <see cref="NextAction"/> while choosing targets.
     /// </summary>
     public void OnTargetingInput(InputEvent @event)
     {
@@ -527,7 +535,7 @@ public partial class Level : Node
         }
     }
 
-    /// <summary>Clean up displayed ranges and restore cursor freedom when exiting targeting state.</summary>
+    /// <summary>Clean up displayed ranges and restore <see cref="Object.Cursor"/> freedom when exiting targeting <see cref="State"/>.</summary>
     public void OnTargetingExited()
     {
         _target = null;
@@ -541,8 +549,8 @@ public partial class Level : Node
 #endregion
 #region Cancel States
     /// <summary>
-    /// Move the selected unit back to its starting position (only does anything when canceling targeting). Then move the cursor to
-    /// the unit's current position, and go back to the previous state.
+    /// Move the selected <see cref="Unit"/> back to its starting position (only does anything when canceling targeting). Then move the
+    /// <see cref="Object.Cursor"/> to the <see cref="Unit"/>'s current position, and go back to the previous <see cref="State"/>.
     /// </summary>
     public void OnCancelUnitActionEntered()
     {
@@ -570,7 +578,7 @@ public partial class Level : Node
             _state.SendEvent(CancelEvent);
     }
 
-    /// <summary>When a grid node is added to a group, update its grid.</summary>
+    /// <summary>When a <see cref="GridNode"/> is added to a group, update its <see cref="GridNode.Grid"/>.</summary>
     /// <param name="child"></param>
     public void OnChildEnteredGroup(Node child)
     {
