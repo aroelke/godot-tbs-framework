@@ -5,7 +5,7 @@ using Godot;
 
 namespace Object.StateChart.States;
 
-/// <summary>Base class implementing common behavior of all state chart states.</summary>
+/// <summary>Base class implementing common behavior of all <see cref="StateChart"/> states.</summary>
 [GlobalClass, Tool]
 public abstract partial class State : ChartNode
 {
