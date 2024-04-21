@@ -5,8 +5,9 @@ using UI.Controls.Action;
 namespace UI.HUD;
 
 /// <summary>
-/// Hint icon for showing the controls to move the cursor for a particular game pad.  Switches between showing four buttons in
-/// a diamond pattern and showing a single directional pad depending on if all the actions are mapped to the pad in the right way.
+/// Hint icon for showing the controls to move the <see cref="Level.Object.Cursor"/>/<see cref="Level.UI.Pointer"/> for a game pad.
+/// Switches between showing four buttons in a diamond pattern and showing a single directional pad depending on if all the actions
+/// are mapped to the pad in the right way.
 /// </summary>
 [Icon("res://icons/UIIcon.svg"), Tool]
 public partial class GamepadCursorHintIcon : HBoxContainer
@@ -43,11 +44,11 @@ public partial class GamepadCursorHintIcon : HBoxContainer
         };
     }
 
-    /// <summary>Mapping of game pad button on to icon to display.</summary>
+    /// <summary>Mapping of <see cref="JoyButton"/> on to icon to display.</summary>
     [ExportGroup("Icon Maps")]
     [Export] public GamepadButtonIconMap ButtonMap = new();
 
-    /// <summary>Mapping of game pad axis onto icon to display.</summary>
+    /// <summary>Mapping of <see cref="JoyAxis"/> onto icon to display.</summary>
     [ExportGroup("Icon Maps")]
     [Export] public GamepadAxisIconMap AxisMap = new();
 
