@@ -9,7 +9,7 @@ using Level.Map;
 namespace Level.Object;
 
 /// <summary>
-/// A unit that moves around the map.  Mostly is just a visual representation of what's where and interface for the player to
+/// A unit that moves around the map.  Mostly is just a visual representation of what's where and an interface for the player to
 /// interact.
 /// </summary>
 [Tool]
@@ -34,6 +34,13 @@ public partial class Unit : GridNode
     private Path2D Path => _path = GetNode<Path2D>("Path");
     private PathFollow2D PathFollow => _follow = GetNode<PathFollow2D>("Path/PathFollow");
 
+    /// <summary>Get all cells in a set of ranges from a set of source cells.</summary>
+    /// <param name="sources">Cells to compute ranges from.</param>
+    /// <param name="ranges">Ranges to compute from <paramref name="sources"/>.</param>
+    /// <returns>
+    /// The set of all cells that are exactly within <paramref name="ranges"/> distance from at least one element of
+    /// <paramref name="sources"/>.
+    /// </returns>
     private IEnumerable<Vector2I> GetCellsInRange(IEnumerable<Vector2I> sources, IEnumerable<int> ranges)
     {
         HashSet<Vector2I> inRange = new();
@@ -43,7 +50,7 @@ public partial class Unit : GridNode
         return inRange;
     }
 
-    /// <summary>Movement range of the unit, in grid cells.</summary>
+    /// <summary>Movement range of the unit, in <see cref="Grid"/> cells.</summary>
     [Export] public int MoveRange = 5;
 
     /// <summary>Distances from the unit's occupied cell that it can attack.</summary>
@@ -67,8 +74,10 @@ public partial class Unit : GridNode
     /// <summary>Speed, in world pixels/second, to move along the path while moving.</summary>
     [Export] public double MoveSpeed = 320;
 
+    /// <summary>Whether or not the unit has completed its turn.</summary>
     public bool Active => !_tree.Get(Done).AsBool();
 
+    /// <returns>The set of cells that this unit can reach from its position, accounting for <see cref="Terrain.Cost"/>.</returns>
     public IEnumerable<Vector2I> TraversableCells()
     {
         int max = 2*(MoveRange + 1)*(MoveRange + 1) - 2*MoveRange - 1;
@@ -103,16 +112,28 @@ public partial class Unit : GridNode
 
     /// <summary>Compute all of the cells this unit could attack from the given set of source cells.</summary>
     /// <param name="sources">Cells to compute attack range from.</param>
-    /// <returns>The set of all cells that could be attacked from any of the source cells.</returns>
+    /// <returns>The set of all cells that could be attacked from any of the cell <paramref name="sources"/>.</returns>
     public IEnumerable<Vector2I> AttackableCells(IEnumerable<Vector2I> sources) => GetCellsInRange(sources, AttackRange);
+
+    /// <inheritdoc cref="AttackableCells"/>
+    /// <remarks>Uses a singleton set of cells constructed from the single <paramref name="source"/> cell.</remarks>
     public IEnumerable<Vector2I> AttackableCells(Vector2I source) => AttackableCells(new[] { source });
+
+    /// <inheritdoc cref="AttackableCells"/>
+    /// <remarks>Uses the unit's current <see cref="Cell"/> as the source.</remarks>
     public IEnumerable<Vector2I> AttackableCells() => AttackableCells(Cell);
 
     /// <summary>Compute all of the cells this unit could support from the given set of source cells.</summary>
     /// <param name="sources">Cells to compute support range from.</param>
     /// <returns>The set of all cells that could be supported from any of the source cells.</returns>
     public IEnumerable<Vector2I> SupportableCells(IEnumerable<Vector2I> sources) => GetCellsInRange(sources, SupportRange);
+
+    /// <inheritdoc cref="SupportableCells"/>
+    /// <remarks>Uses a singleton set of cells constructed from the single <paramref name="source"/> cell.</remarks>
     public IEnumerable<Vector2I> SupportableCells(Vector2I source) => SupportableCells(new[] { source });
+
+    /// <inheritdoc cref="SupportableCells"/>
+    /// <remarks>Uses the unit's current <see cref="Cell"/> as the source.</remarks>
     public IEnumerable<Vector2I> SupportableCells() => SupportableCells(Cell);
 
     /// <returns>The complete sets of cells this unit can act on.</returns>
@@ -146,7 +167,7 @@ public partial class Unit : GridNode
         _tree.Set(Done, true);
     }
 
-    /// <summary>Put the unit into its "idle" state from being inactive, indicating that it's ready to act again.</summary>
+    /// <summary>Restore the unit into its "idle" state from being inactive, indicating that it's ready to act again.</summary>
     public void Refresh()
     {
         _sprite.Modulate = Affiliation.Color;
@@ -154,13 +175,11 @@ public partial class Unit : GridNode
         _tree.Set(Idle, true);
     }
 
-    /// <summary>
-    /// Box that travels with the motion of the sprite to use for tracking the unit as it moves.  Don't use the unit's actual position, as that
-    /// doesn't update until motion is over.
-    /// </summary>
+    /// <summary>Box that travels with the motion of the sprite to use for tracking the unit as it moves.</summary>
+    /// <remarks>Don't use the unit's actual position, as that doesn't update until motion is over.</remarks>
     public BoundedNode2D MotionBox { get; private set; } = null;
 
-    /// <summary>Move the unit along a path of map cells.  Cells should be contiguous.</summary>
+    /// <summary>Move the unit along a path of <see cref="Grid"/> cells.  Cells should be contiguous.</summary>
     /// <param name="path">Coordinates of the cells to move along.</param>
     public void MoveAlong(List<Vector2I> path)
     {
