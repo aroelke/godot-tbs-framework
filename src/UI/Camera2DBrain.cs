@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Godot;
 using Object;
 using Extensions;
@@ -6,10 +5,7 @@ using Extensions;
 namespace UI;
 
 /// <summary>
-/// "Brain" controlling the camera. Given a target, it will follow it and smoothly move the camera to continue tracking it. It has two zones: a "dead zone,"
-/// which defines the area where the target can be and the camera won't move, and a "soft zone," which defines an area outside the dead zone where the camera
-/// will move smoothly to put the target back into the dead zone. If the target is outside that, the camera will jump to get the target into the soft zone.
-/// The brain can also control zooming.
+/// "Brain" controlling the <see cref="Camera2D"/>. Given a target, it will follow it and smoothly move the camera to continue tracking it.
 /// </summary>
 [Icon("res://icons/Camera2DBrain.svg"), Tool]
 public partial class Camera2DBrain : Node2D
@@ -17,7 +13,7 @@ public partial class Camera2DBrain : Node2D
     /// <summary>Signal that the camera has reached its target and stopped moving.</summary>
     [Signal] public delegate void ReachedTargetEventHandler();
 
-    /// <param name="position">Position relative to the center of the screen to focus on.</param>
+    /// <param name="position">Position relative to the center of the <see cref="Viewport"/> to focus on.</param>
     /// <param name="deadzone">Rectangle defining the dead zone.</param>
     /// <param name="limits">Limits where the center of the camera can be.</param>
     /// <returns>The position the center of the camera should move to.</returns>
@@ -68,7 +64,9 @@ public partial class Camera2DBrain : Node2D
         return position;
     }
 
-    /// <summary>Compute the position to move the screen center to in order to keep the target point inside the dead zone.</summary>
+    /// <summary>
+    /// Compute the position to move the <see cref="Viewport"/> center to in order to keep the target point inside the dead zone.
+    /// </summary>
     /// <param name="box">Target's bounding box.</param>
     /// <param name="deadzone">Box to keep the target's bounding box in.</param>
     /// <param name="limits">Box defining the limits of the camera's movement.</param>
@@ -93,9 +91,11 @@ public partial class Camera2DBrain : Node2D
         }
     }
 
-    /// <summary>Clamp a zoom vector to ensure the camera doesn't zoom out too far to be able to see outside its limits.</summary>
+    /// <summary>Clamp a zoom vector to ensure the <see cref="Camera2D"/> doesn't zoom out too far to be able to see outside its limits.</summary>
     /// <param name="zoom">Zoom vector to clamp.</param>
-    /// <returns>The zoom vector with its components clamped to ensure the viewport rect is inside the camera limits.</returns>
+    /// <returns>
+    /// The zoom vector with its components clamped to ensure the <see cref="Viewport"/> rect is inside the camera limits.
+    /// </returns>
     private Vector2 ClampZoom(Vector2 zoom)
     {
         Vector2 mins = GetScreenRect().Size/Limits.Size;
@@ -148,7 +148,7 @@ public partial class Camera2DBrain : Node2D
     /// <summary>Object the camera is tracking. Can be null to not track anything.</summary>
     [Export] public BoundedNode2D Target = null;
 
-    /// <summary>Camera zoom. Ratio of world pixel size to real pixel size (so a zoom of 2 presents everything in double size).</summary>
+    /// <summary><see cref="Camera2D"/> zoom. Ratio of world pixel size to real pixel size (so a zoom of 2 presents everything in double size).</summary>
     [ExportGroup("Zoom")]
     [Export] public Vector2 Zoom
     {
@@ -240,7 +240,7 @@ public partial class Camera2DBrain : Node2D
         }
     }
 
-    /// <returns>The viewport rectangle.</returns>
+    /// <returns>The <see cref="Viewport"/> rectangle.</returns>
     public Rect2 GetScreenRect()
     {
         if (Engine.IsEditorHint())
@@ -249,7 +249,7 @@ public partial class Camera2DBrain : Node2D
             return Camera.GetViewportRect();
     }
 
-    /// <returns>The viewport rectangle projected onto the world.</returns>
+    /// <returns>The <see cref="Viewport"/> rectangle projected onto the world.</returns>
     public Rect2 GetProjectedViewportRect() => Camera.GetCanvasTransform().AffineInverse()*GetScreenRect();
 
     public override void _Ready()
