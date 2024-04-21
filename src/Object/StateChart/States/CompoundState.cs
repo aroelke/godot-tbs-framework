@@ -5,7 +5,7 @@ using Godot;
 
 namespace Object.StateChart.States;
 
-/// <summary>A state chart <see cref="State"/> that can have one or more sub-states.</summary>
+/// <summary>A <see cref="State"/> that can have one or more sub-<see cref="State"/>s.</summary>
 [Icon("res://icons/statechart/CompoundState.svg"), Tool]
 public partial class CompoundState : State
 {
