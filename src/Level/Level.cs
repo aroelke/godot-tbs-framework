@@ -457,7 +457,7 @@ public partial class Level : Node
     {
         // Move the unit and delete the pathfinder as we don't need it anymore
         Grid.Occupants.Remove(_selected.Cell);
-        _selected.MoveAlong(_path.ToList());
+        _selected.MoveAlong(_path);
         _selected.DoneMoving += OnUnitDoneMoving;
         Grid.Occupants[_selected.Cell] = _selected;
 

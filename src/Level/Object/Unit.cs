@@ -174,9 +174,9 @@ public partial class Unit : GridNode
     /// <remarks>Don't use the unit's actual position, as that doesn't update until motion is over.</remarks>
     public BoundedNode2D MotionBox { get; private set; } = null;
 
-    /// <summary>Move the unit along a path of <see cref="Grid"/> cells.  Cells should be contiguous.</summary>
+    /// <summary>Move the unit along a path of <see cref="Grid"/> cells.</summary>
     /// <param name="path">Coordinates of the cells to move along.</param>
-    public void MoveAlong(List<Vector2I> path)
+    public void MoveAlong(Path path)
     {
         if (path.Count > 0)
         {
