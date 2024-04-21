@@ -90,8 +90,8 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// <paramref name="index"/> and contains <paramref name="count"/> number of elements if found; otherwise -1.</returns>
     public int IndexOf(Vector2I item, int index, int count, IEqualityComparer<Vector2I> equalityComparer) => _cells.IndexOf(item, index, count, equalityComparer);
 
-    /// <summary>Searches for the specified object and returns the zero-based index of the first occurrence within the entire path.</summary>
-    /// <returns>The zero-based index of the first occurrence of <paramref name="item"/> within the entire path, if found; otherwise, -1.</returns>
+    /// <inheritdoc cref="IndexOf"/>
+    /// <remarks>Uses a default index of 0, count of <see cref="Count"/>, and equality comparer.</remarks>
     public int IndexOf(Vector2I item) => _cells.IndexOf(item);
 
     /// <summary>
@@ -108,8 +108,8 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// </returns>
     public int LastIndexOf(Vector2I item, int index, int count, IEqualityComparer<Vector2I> equalityComparer) => _cells.LastIndexOf(item, index, count, equalityComparer);
 
-    /// <summary>Searches for the specified object and returns the zero-based index of the last occurrence within the entire <c>Path</c>.</summary>
-    /// <returns>The zero-based index of the last occurrence of <paramref name="item"/> within the entire the path, if found; otherwise, -1.</returns>
+    /// <inheritdoc cref="LastIndexOf"=/>
+    /// <remarks>Uses a default index of 0, count <see cref="Count"/>, and equality comparer.</remarks>
     public int LastIndexOf(Vector2I item) => _cells.LastIndexOf(item);
 
     /// <summary>
