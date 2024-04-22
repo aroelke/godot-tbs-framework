@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Extensions
 {
-    /// <summary>Extensions for <see cref="IEnumerable{T}"/>s.</summary>
+    /// <summary>Extensions for <see cref="IEnumerable{T}"/>.</summary>
     public static class IEnumerableExtensions
     {
         /// <summary>Project the elements of a collection of collections into a single, flat collection containing each one's elements.</summary>
