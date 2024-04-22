@@ -616,18 +616,12 @@ public partial class Level : Node
             Pointer.World = Cursor.Grid = Grid;
             Pointer.Bounds = Camera.Limits;
 
-            foreach (Node child in GetChildren())
+            foreach (Unit unit in GetChildren().OfType<IEnumerable<Unit>>().Flatten())
             {
-                if (child is IEnumerable<Unit> army)
-                {
-                    foreach (Unit unit in army)
-                    {
-                        unit.Grid = Grid;
-                        unit.Cell = Grid.CellOf(unit.Position);
-                        unit.Position = Grid.PositionOf(unit.Cell);
-                        Grid.Occupants[unit.Cell] = unit;
-                    }
-                }
+                unit.Grid = Grid;
+                unit.Cell = Grid.CellOf(unit.Position);
+                unit.Position = Grid.PositionOf(unit.Cell);
+                Grid.Occupants[unit.Cell] = unit;
             }
 
             _armies = GetChildren().OfType<Army>().ToArray();
