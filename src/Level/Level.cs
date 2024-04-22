@@ -639,20 +639,8 @@ public partial class Level : Node
 
         if (@event.IsActionReleased(ToggleGlobalDangerZoneAction))
         {
-            if (Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit enemy && !StartingArmy.AlliedTo(enemy))
-            {
-                if (ZoneUnits.Contains(enemy))
-                    ZoneUnits = ZoneUnits.Remove(enemy);
-                else
-                    ZoneUnits = ZoneUnits.Add(enemy);
-            }
-            else if (Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit ally && StartingArmy.AlliedTo(ally))
-            {
-                if (ZoneUnits.Contains(ally))
-                    ZoneUnits = ZoneUnits.Remove(ally);
-                else
-                    ZoneUnits = ZoneUnits.Add(ally);
-            }
+            if (Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit unit)
+                ZoneUnits = ZoneUnits.Contains(unit) ? ZoneUnits.Remove(unit) : ZoneUnits.Add(unit);
             else
                 ShowGlobalDangerZone = !ShowGlobalDangerZone;
         }
