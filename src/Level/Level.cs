@@ -298,7 +298,7 @@ public partial class Level : Node
     public void OnTurnAdvance()
     {
         CurrentArmyIndex++;
-        if (CurrentArmyIndex == Array.IndexOf(_armies, StartingArmy))
+        if (CurrentArmy == StartingArmy)
             Turn++;
     }
 
