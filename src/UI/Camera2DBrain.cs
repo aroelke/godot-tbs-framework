@@ -149,20 +149,48 @@ public partial class Camera2DBrain : Node2D
         return localDeadzone;
     }
 
+    /// <summary>Helper function for setting <see cref="Zoom"/> internally without clearing the zoom memory.</summary>
+    private void SetZoom(Vector2 value)
+    {
+        _zoomTween?.Kill();
+        _zoomTarget = _zoom = Engine.IsEditorHint() || !Camera.IsInsideTree() ? value : ClampZoom(value);
+        if (Camera != null)
+            Camera.Zoom = _zoom;
+    }
+
+    /// <summary>Helper function for setting <see cref="ZoomTarget"/> internally without clearing the zoom memory.</summary>
+    private void SetZoomTarget(Vector2 value)
+    {
+        if (Engine.IsEditorHint())
+            _zoomTarget = value;
+        else
+        {
+            _zoomTarget = ClampZoom(value);
+
+            if (_zoomTween.IsValid())
+                _zoomTween.Kill();
+            _zoomTween = CreateTween();
+            _zoomTween
+                .SetTrans(Tween.TransitionType.Sine)
+                .SetEase(Tween.EaseType.Out)
+                .TweenMethod(Callable.From((Vector2 zoom) => Camera.Zoom = _zoom = zoom), Zoom, _zoomTarget, ZoomDuration);
+        }
+    }
+
     /// <summary>Object the camera is tracking. Can be null to not track anything.</summary>
     [Export] public BoundedNode2D Target = null;
 
     /// <summary><see cref="Camera2D"/> zoom. Ratio of world pixel size to real pixel size (so a zoom of 2 presents everything in double size).</summary>
+    /// <remarks>Setting this will clear the zoom memory (so calling <see cref="PopZoom"/> will fail).</remarks>
     [ExportGroup("Zoom")]
     [Export] public Vector2 Zoom
     {
         get => _zoom;
         set
         {
-            _zoomTween?.Kill();
-            _zoomTarget = _zoom = Engine.IsEditorHint() || !Camera.IsInsideTree() ? value : ClampZoom(value);
-            if (Camera != null)
-                Camera.Zoom = _zoom;
+            SetZoom(value);
+            if (!Engine.IsEditorHint())
+                ClearZoomMemory();
         }
     }
 
@@ -244,26 +272,16 @@ public partial class Camera2DBrain : Node2D
     [ExportGroup("Editor")]
     [Export] public bool DrawTargets = false;
 
-    /// <summary> Target zoom level to smoothly zoom to.</summary>
+    /// <summary>Target zoom level to smoothly zoom to.</summary>
+    /// <remarks>Setting this will clear the zoom memory (so calling <see cref="PopZoom"/> will fail).</remarks>
     public Vector2 ZoomTarget
     {
         get => _zoomTarget;
         set
         {
-            if (Engine.IsEditorHint())
-                _zoomTarget = value;
-            else
-            {
-                _zoomTarget = ClampZoom(value);
-
-                if (_zoomTween.IsValid())
-                    _zoomTween.Kill();
-                _zoomTween = CreateTween();
-                _zoomTween
-                    .SetTrans(Tween.TransitionType.Sine)
-                    .SetEase(Tween.EaseType.Out)
-                    .TweenMethod(Callable.From((Vector2 zoom) => Camera.Zoom = _zoom = zoom), Zoom, _zoomTarget, ZoomDuration);
-            }
+            SetZoomTarget(value);
+            if (!Engine.IsEditorHint())
+                ClearZoomMemory();
         }
     }
 
@@ -286,9 +304,9 @@ public partial class Camera2DBrain : Node2D
     {
         _savedZooms.Push(Zoom);
         if (smooth)
-            ZoomTarget = zoom;
+            SetZoomTarget(zoom);
         else
-            Zoom = zoom;
+            SetZoom(zoom);
     }
 
     /// <summary>Restore the most recent previous zoom vector.</summary>
@@ -298,9 +316,9 @@ public partial class Camera2DBrain : Node2D
     {
         Vector2 zoom = Zoom;
         if (smooth)
-            ZoomTarget = _savedZooms.Pop();
+            SetZoomTarget(_savedZooms.Pop());
         else
-            Zoom = _savedZooms.Pop();
+            SetZoom(_savedZooms.Pop());
         return zoom;
     }
 
