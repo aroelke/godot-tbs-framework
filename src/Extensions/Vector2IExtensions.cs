@@ -2,7 +2,7 @@ using Godot;
 
 namespace Extensions;
 
-/// <summary>Extensions for <c>Vector2I</c>.</summary>
+/// <summary>Extensions for <see cref="Vector2I"/>.</summary>
 public static class Vector2IExtensions
 {
     // List of the four cardinal directions
