@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Extensions;
 
-/// <summary>Extensions for immutable lists.</summary>
+/// <summary>Extensions for <see cref="IImmutableList{T}"/>.</summary>
 public static class ImmutableListExtensions
 {
     /// <summary>Remove all loops from a list of elements.  A loop is any sequence within the list that starts and ends with the same element.</summary>
