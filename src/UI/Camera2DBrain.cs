@@ -1,6 +1,8 @@
 using Godot;
 using Object;
 using Extensions;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace UI;
 
@@ -91,6 +93,18 @@ public partial class Camera2DBrain : Node2D
         }
     }
 
+    private Camera2D _camera = null;
+    private Camera2D Camera => _camera ??= GetNodeOrNull<Camera2D>("Camera2D");
+    private Rect2I _limits = new(-1000000, -1000000, 2000000, 2000000);
+
+    private Vector2 _targetPreviousPosition = Vector2.Zero;
+    private Tween _moveTween = null;
+
+    private Vector2 _zoom = Vector2.One;
+    private Vector2 _zoomTarget = Vector2.Zero;
+    private Tween _zoomTween = null;
+    private readonly Stack<Vector2> _savedZooms = new();
+
     /// <summary>Clamp a zoom vector to ensure the <see cref="Camera2D"/> doesn't zoom out too far to be able to see outside its limits.</summary>
     /// <param name="zoom">Zoom vector to clamp.</param>
     /// <returns>
@@ -134,17 +148,6 @@ public partial class Camera2DBrain : Node2D
         return localDeadzone;
     }
 
-    private Camera2D _camera = null;
-    private Camera2D Camera => _camera ??= GetNodeOrNull<Camera2D>("Camera2D");
-    private Rect2I _limits = new(-1000000, -1000000, 2000000, 2000000);
-
-    private Vector2 _targetPreviousPosition = Vector2.Zero;
-    private Tween _moveTween = null;
-
-    private Vector2 _zoom = Vector2.One;
-    private Vector2 _zoomTarget = Vector2.Zero;
-    private Tween _zoomTween = null;
-
     /// <summary>Object the camera is tracking. Can be null to not track anything.</summary>
     [Export] public BoundedNode2D Target = null;
 
@@ -155,6 +158,7 @@ public partial class Camera2DBrain : Node2D
         get => _zoom;
         set
         {
+            _zoomTween?.Kill();
             _zoomTarget = _zoom = Engine.IsEditorHint() || !Camera.IsInsideTree() ? value : ClampZoom(value);
             if (Camera != null)
                 Camera.Zoom = _zoom;
@@ -251,6 +255,37 @@ public partial class Camera2DBrain : Node2D
 
     /// <returns>The <see cref="Viewport"/> rectangle projected onto the world.</returns>
     public Rect2 GetProjectedViewportRect() => Camera.GetCanvasTransform().AffineInverse()*GetScreenRect();
+
+    /// <summary>Set a new zoom vector, saving the old one to be restored later.</summary>
+    /// <param name="zoom">New zoom vector.</param>
+    /// <param name="smooth">Whether or not the transition to the new zoom should be smooth.</param>
+    public void PushZoom(Vector2 zoom, bool smooth=true)
+    {
+        _savedZooms.Push(Zoom);
+        if (smooth)
+            ZoomTarget = zoom;
+        else
+            Zoom = zoom;
+    }
+
+    /// <summary>Restore the most recent previous zoom vector.</summary>
+    /// <param name="smooth">Wehther or not hte transition to the new zoom should be smooth.</param>
+    /// <returns>The current zoom vector before restoring the previous one.</returns>
+    public Vector2 PopZoom(bool smooth=true)
+    {
+        Vector2 zoom = Zoom;
+        if (smooth)
+            ZoomTarget = _savedZooms.Pop();
+        else
+            Zoom = _savedZooms.Pop();
+        return zoom;
+    }
+
+    /// <returns><c>true</c> if there are any saved zoom vectors that can be restored, and <c>false</c> otherwise.</returns>
+    public bool HasZoomMemory() => _savedZooms.Any();
+
+    /// <summary>Delete all memory of previous zoom vectors.</summary>
+    public void ClearZoomMemory() => _savedZooms.Clear();
 
     public override void _Ready()
     {

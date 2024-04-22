@@ -371,7 +371,6 @@ public partial class Level : Node
 #endregion
 #region Unit Selected State
     private ActionRanges _actionable = new();
-    private Vector2? _prevZoom = null;
 
     /// <summary>Display the total movement, attack, and support ranges of the selected <see cref="Unit"/> and begin drawing the path arrow for it to move on.</summary>
     public void OnSelectedEntered()
@@ -397,10 +396,7 @@ public partial class Level : Node
             Vector2 zoomTarget = Grid.GetViewportRect().Size/zoomRect.Value.Size;
             zoomTarget = Vector2.One*Mathf.Min(zoomTarget.X, zoomTarget.Y);
             if (Camera.Zoom > zoomTarget)
-            {
-                _prevZoom = Camera.Zoom;
-                Camera.ZoomTarget = zoomTarget;
-            }
+                Camera.PushZoom(zoomTarget);
         }
     }
 
@@ -442,11 +438,8 @@ public partial class Level : Node
         ActionOverlay.Clear();
         
         // Restore the camera zoom back to what it was before a unit was selected
-        if (_prevZoom is not null)
-        {
-            Camera.ZoomTarget = _prevZoom.Value;
-            _prevZoom = null;
-        }
+        if (Camera.HasZoomMemory())
+            Camera.PopZoom();
     }
 #endregion
 #region Moving State
