@@ -1,11 +1,19 @@
-[gd_scene load_steps=2 format=3 uid="uid://dixhxpjk8n4y6"]
+[gd_scene load_steps=6 format=3 uid="uid://dixhxpjk8n4y6"]
 
 [ext_resource type="Script" path="res://src/UI/Camera2DBrain.cs" id="1_oq6vh"]
+[ext_resource type="Resource" uid="uid://n7vsg71x5cfd" path="res://src/UI/Controls/Action/References/Map/DigitalZoomInAction.tres" id="2_pe8ua"]
+[ext_resource type="Resource" uid="uid://dc7ud3npxyw0k" path="res://src/UI/Controls/Action/References/Map/DigitalZoomOutAction.tres" id="3_3hgeh"]
+[ext_resource type="Resource" uid="uid://cwfm1wgikkk0r" path="res://src/UI/Controls/Action/References/Map/AnalogZoomInAction.tres" id="4_3vvtc"]
+[ext_resource type="Resource" uid="uid://xjnufn7jdu4k" path="res://src/UI/Controls/Action/References/Map/AnalogZoomOutAction.tres" id="5_dhf1d"]
 
 [node name="Camera2DBrain" type="Node2D"]
 z_index = 4096
 z_as_relative = false
 script = ExtResource("1_oq6vh")
+ZoomActionDigitalIn = ExtResource("2_pe8ua")
+ZoomActionDigitalOut = ExtResource("3_3hgeh")
+ZoomActionAnalogIn = ExtResource("4_3vvtc")
+ZoomActionAnalogOut = ExtResource("5_dhf1d")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 limit_left = -1000000

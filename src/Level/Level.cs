@@ -241,28 +241,6 @@ public partial class Level : Node
     /// <summary>Map "next" action, which cycles the cursor to the next unit in the same army or action target, depending on state.</summary>
     [ExportGroup("Cursor Actions")]
     [Export] public InputActionReference NextAction = new();
-
-    [ExportGroup("Camera/Zoom", "CameraZoom")]
-
-    /// <summary>Amount to zoom the camera each time it's digitally zoomed.</summary>
-    [Export] public float CameraZoomDigitalFactor = 0.25f;
-
-    /// <summary>Amount to zoom the camera while it's being zoomed with an analog stick.</summary>
-    [Export] public float CameraZoomAnalogFactor = 2;
-
-    [ExportGroup("Camera/Input Actions", "CameraAction")]
-
-    /// <summary>Digital action to zoom the camera in.</summary>
-    [Export] public InputActionReference CameraActionDigitalZoomIn = new();
-
-    /// <summary>Analog action to zoom the camera in.</summary>
-    [Export] public InputActionReference CameraActionAnalogZoomIn = new();
-
-    /// <summary>Digital action to zoom the camera out.</summary>
-    [Export] public InputActionReference CameraActionDigitalZoomOut = new();
-
-    /// <summary>Analog action to zoom the camera out.</summary>
-    [Export] public InputActionReference CameraActionAnalogZoomOut = new();
 #endregion
 #region Idle State
     private Timer _turnAdvance = null;
@@ -637,11 +615,6 @@ public partial class Level : Node
             else
                 ShowGlobalDangerZone = !ShowGlobalDangerZone;
         }
-
-        if (@event.IsActionPressed(CameraActionDigitalZoomIn))
-            Camera.ZoomTarget += Vector2.One*CameraZoomDigitalFactor;
-        if (@event.IsActionPressed(CameraActionDigitalZoomOut))
-            Camera.ZoomTarget -= Vector2.One*CameraZoomDigitalFactor;
     }
 
     public override void _Process(double delta)
@@ -664,10 +637,6 @@ public partial class Level : Node
                                           ((target != _selected && CurrentArmy.AlliedTo(target) && _actionable.Supportable.Contains(Cursor.Cell)) ||
                                            (!CurrentArmy.AlliedTo(target) && _actionable.Attackable.Contains(Cursor.Cell))))
                 .SetItem(TraversableProperty, _actionable.Traversable.Contains(Cursor.Cell));
-
-            float zoom = Input.GetAxis(CameraActionAnalogZoomOut, CameraActionAnalogZoomIn);
-            if (zoom != 0)
-                Camera.Zoom += Vector2.One*(float)(CameraZoomAnalogFactor*zoom*delta);
         }
     }
 #endregion

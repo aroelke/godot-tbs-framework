@@ -3,6 +3,7 @@ using Object;
 using Extensions;
 using System.Collections.Generic;
 using System.Linq;
+using UI.Controls.Action;
 
 namespace UI;
 
@@ -175,6 +176,28 @@ public partial class Camera2DBrain : Node2D
 
     /// <summary>Amount of time to take to reach the next zoom setting.</summary>
     [Export] public double ZoomDuration = 0.2;
+
+    [ExportGroup("Zoom/Factor", "ZoomFactor")]
+
+    /// <summary>Amount to zoom the <see cref="Camera2D"/> each time it's digitally zoomed.</summary>
+    [Export] public float ZoomFactorDigital = 0.25f;
+
+    /// <summary>Amount to zoom the <see cref="Camera2D"/> while it's being zoomed with an analog stick.</summary>
+    [Export] public float ZoomFactorAnalog = 2;
+
+    [ExportGroup("Zoom/Actions", "ZoomAction")]
+
+    /// <summary>Digital action to zoom the <see cref="Camera2D"/> in.</summary>
+    [Export] public InputActionReference ZoomActionDigitalIn = new();
+
+    /// <summary>Digital action to zoom the <see cref="Camera2D"/> out.</summary>
+    [Export] public InputActionReference ZoomActionDigitalOut = new();
+
+    /// <summary>Analog action to zoom the <see cref="Camera2D"/> in.</summary>
+    [Export] public InputActionReference ZoomActionAnalogIn = new();
+
+    /// <summary>Analog action to zoom the <see cref="Camera2D"/> out.</summary>
+    [Export] public InputActionReference ZoomActionAnalogOut = new();
 
     /// <summary>Box bounding the area in the world that the camera is allowed to see.</summary>
     [ExportGroup("Camera")]
@@ -359,6 +382,16 @@ public partial class Camera2DBrain : Node2D
         }
     }
 
+    public override void _Input(InputEvent @event)
+    {
+        base._Input(@event);
+
+        if (@event.IsActionPressed(ZoomActionDigitalIn))
+            ZoomTarget += Vector2.One*ZoomFactorDigital;
+        if (@event.IsActionPressed(ZoomActionDigitalOut))
+            ZoomTarget -= Vector2.One*ZoomFactorDigital;
+    }
+
     public override void _Process(double delta)
     {
         base._Process(delta);
@@ -392,6 +425,10 @@ public partial class Camera2DBrain : Node2D
                 }
 
                 _targetPreviousPosition = Target.GlobalPosition;
+
+                float zoom = Input.GetAxis(ZoomActionAnalogIn, ZoomActionAnalogOut);
+                if (zoom != 0)
+                    Zoom += Vector2.One*(float)(ZoomFactorAnalog*zoom*delta);
             }
         }
         if (Engine.IsEditorHint() || DrawZones || DrawLimits || DrawTargets)

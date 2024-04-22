@@ -1,16 +1,12 @@
-[gd_scene load_steps=47 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=43 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/Level/Level.cs" id="1_r2v0t"]
 [ext_resource type="Resource" uid="uid://hkvw8a5g5l62" path="res://src/UI/Controls/Action/References/Map/MapCancelAction.tres" id="2_2u5dc"]
 [ext_resource type="Resource" uid="uid://dgi6r3g11lb6x" path="res://src/UI/Controls/Action/References/Map/GlobalDangerZone.tres" id="2_d5jrl"]
 [ext_resource type="Resource" uid="uid://c8yddva5eag3s" path="res://src/UI/Controls/Action/References/Map/MapPrevAction.tres" id="3_76mfa"]
-[ext_resource type="Resource" uid="uid://n7vsg71x5cfd" path="res://src/UI/Controls/Action/References/Map/DigitalZoomInAction.tres" id="3_qk2rm"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/UI/Camera2DBrain.tscn" id="3_td8u6"]
 [ext_resource type="Resource" uid="uid://qk7wwaj7u81g" path="res://src/UI/Controls/Action/References/Map/MapNextAction.tres" id="4_gvudp"]
-[ext_resource type="Resource" uid="uid://cwfm1wgikkk0r" path="res://src/UI/Controls/Action/References/Map/AnalogZoomInAction.tres" id="4_n75ik"]
-[ext_resource type="Resource" uid="uid://dc7ud3npxyw0k" path="res://src/UI/Controls/Action/References/Map/DigitalZoomOutAction.tres" id="5_2owqm"]
 [ext_resource type="PackedScene" uid="uid://bgcsg0l8mj2sn" path="res://src/Level/Object/Cursor.tscn" id="6_3v7mf"]
-[ext_resource type="Resource" uid="uid://xjnufn7jdu4k" path="res://src/UI/Controls/Action/References/Map/AnalogZoomOutAction.tres" id="6_pmkpk"]
 [ext_resource type="PackedScene" uid="uid://bqrqq7jid7qp2" path="res://src/Level/UI/Pointer.tscn" id="7_wxiba"]
 [ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://src/UI/HUD/HUD.tres" id="8_lhm1v"]
 [ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/UI/HUD/CursorHintIcon.tscn" id="9_i7is8"]
@@ -98,10 +94,6 @@ ToggleGlobalDangerZoneAction = ExtResource("2_d5jrl")
 CancelAction = ExtResource("2_2u5dc")
 PreviousAction = ExtResource("3_76mfa")
 NextAction = ExtResource("4_gvudp")
-CameraActionDigitalZoomIn = ExtResource("3_qk2rm")
-CameraActionAnalogZoomIn = ExtResource("4_n75ik")
-CameraActionDigitalZoomOut = ExtResource("5_2owqm")
-CameraActionAnalogZoomOut = ExtResource("6_pmkpk")
 
 [node name="Camera" parent="." node_paths=PackedStringArray("Target") instance=ExtResource("3_td8u6")]
 Target = NodePath("../Pointer")
