@@ -92,7 +92,12 @@ public partial class Unit : GridNode
                 {
                     int cost = cells[current] + Grid.GetTerrain(neighbor).Cost;
                     if ((!cells.ContainsKey(neighbor) || cells[neighbor] > cost) && // cell hasn't been examined yet or this path is shorter to get there
-                        (!Grid.Occupants.ContainsKey(neighbor) || ((Grid.Occupants[neighbor] as Unit)?.Affiliation.AlliedTo(this) ?? false)) && // cell is empty or it's an allied unit
+                        Grid.Occupants.GetValueOrDefault(neighbor) switch // cell is empty or contains an allied unit
+                        {
+                            Unit unit => unit.Affiliation.AlliedTo(this),
+                            null => true,
+                            _ => false
+                        } &&
                         cost <= MoveRange) // cost to get to cell is within range
                     {
                         cells[neighbor] = cost;

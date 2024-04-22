@@ -298,7 +298,7 @@ public partial class Level : Node
     /// <param name="event">Name of the event.</param>
     public void OnIdleEventReceived(StringName @event)
     {
-        if (CurrentArmy == StartingArmy && Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit unit && !StartingArmy.Contains(unit))
+        if (CurrentArmy == StartingArmy && Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit && !StartingArmy.Contains(unit))
         {
             if (@event == SelectEvent)
             {
@@ -333,7 +333,7 @@ public partial class Level : Node
     {
         ActionOverlay.Clear();
 
-        if (CurrentArmy == StartingArmy && Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit hovered)
+        if (CurrentArmy == StartingArmy && Grid.Occupants.GetValueOrDefault(cell) is Unit hovered)
         {
             ActionRanges actionable = hovered.ActionRanges().WithOccupants(
                 Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => u.Affiliation.AlliedTo(hovered)),
@@ -349,7 +349,7 @@ public partial class Level : Node
     /// </summary>
     public void OnIdleInput(InputEvent @event)
     {
-        if (Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit unit)
+        if (Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit)
         {
             if (@event.IsActionReleased(PreviousAction))
             {
@@ -415,7 +415,7 @@ public partial class Level : Node
 
         if (_actionable.Traversable.Contains(cell))
             PathOverlay.Path = (_path = _path.Add(cell).Clamp(_selected.MoveRange)).ToList();
-        else if (Grid.Occupants.ContainsKey(cell) && Grid.Occupants[cell] is Unit target)
+        else if (Grid.Occupants.GetValueOrDefault(cell) is Unit target)
         {
             IEnumerable<Vector2I> sources = Array.Empty<Vector2I>();
             if (target != _selected && CurrentArmy.AlliedTo(target) && _actionable.Supportable.Contains(cell))
@@ -491,8 +491,8 @@ public partial class Level : Node
     {
         // Show the unit's attack/support ranges
         ActionRanges actionable = new(
-            _selected.AttackableCells().Where((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false)),
-            _selected.SupportableCells().Where((c) => Grid.Occupants.ContainsKey(c) && ((Grid.Occupants[c] as Unit)?.Affiliation.AlliedTo(_selected) ?? false))
+            _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Affiliation.AlliedTo(_selected) ?? false),
+            _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Affiliation.AlliedTo(_selected) ?? false)
         );
         ActionOverlay.UsedCells = actionable.ToDictionary();
 
@@ -639,7 +639,7 @@ public partial class Level : Node
 
         if (@event.IsActionReleased(ToggleGlobalDangerZoneAction))
         {
-            if (Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit unit)
+            if (Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit)
                 ZoneUnits = ZoneUnits.Contains(unit) ? ZoneUnits.Remove(unit) : ZoneUnits.Add(unit);
             else
                 ShowGlobalDangerZone = !ShowGlobalDangerZone;
@@ -658,15 +658,16 @@ public partial class Level : Node
         if (!Engine.IsEditorHint())
         {
             _state.ExpressionProperties = _state.ExpressionProperties
-                .SetItem(OccupiedProperty, !Grid.Occupants.ContainsKey(Cursor.Cell) ? NotOccupied : Grid.Occupants[Cursor.Cell] switch
+                .SetItem(OccupiedProperty, Grid.Occupants.GetValueOrDefault(Cursor.Cell) switch
                 {
                     Unit unit when unit == _selected => SelectedOccuiped,
                     Unit unit when CurrentArmy == unit.Affiliation => unit.Active ? ActiveAllyOccupied : InActiveAllyOccupied,
                     Unit unit when CurrentArmy.AlliedTo(unit.Affiliation) => FriendlyOccuipied,
                     Unit => EnemyOccupied,
+                    null => NotOccupied,
                     _ => OtherOccupied
                 })
-                .SetItem(TargetProperty, Grid.Occupants.ContainsKey(Cursor.Cell) && Grid.Occupants[Cursor.Cell] is Unit target &&
+                .SetItem(TargetProperty, Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit target &&
                                           ((target != _selected && CurrentArmy.AlliedTo(target) && _actionable.Supportable.Contains(Cursor.Cell)) ||
                                            (!CurrentArmy.AlliedTo(target) && _actionable.Attackable.Contains(Cursor.Cell))))
                 .SetItem(TraversableProperty, _actionable.Traversable.Contains(Cursor.Cell));
