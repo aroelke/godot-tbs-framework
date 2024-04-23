@@ -30,6 +30,11 @@ mouse_cursor/custom_image="res://assets/ui/mouse.png"
 
 project/assembly_name="SRPG"
 
+[editor]
+
+version_control/plugin_name="GitPlugin"
+version_control/autoload_on_startup=true
+
 [editor_plugins]
 
 enabled=PackedStringArray()
