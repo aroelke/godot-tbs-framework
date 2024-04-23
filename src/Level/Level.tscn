@@ -1,4 +1,4 @@
-[gd_scene load_steps=43 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=44 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/Level/Level.cs" id="1_r2v0t"]
 [ext_resource type="Resource" uid="uid://hkvw8a5g5l62" path="res://src/UI/Controls/Action/References/Map/MapCancelAction.tres" id="2_2u5dc"]
@@ -26,6 +26,7 @@
 [ext_resource type="Script" path="res://src/Object/StateChart/Conditions/UnCondition.cs" id="24_k1nop"]
 [ext_resource type="Script" path="res://src/Object/StateChart/Conditions/AllCondition.cs" id="25_6qv6s"]
 [ext_resource type="PackedScene" uid="uid://dw8x5x0nvkg5k" path="res://src/Object/StateChart/Reactions/CellUpdateReaction.tscn" id="25_goaap"]
+[ext_resource type="AudioStream" uid="uid://bg4mbs7d25qaj" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Select - 1.wav" id="28_dnjya"]
 [ext_resource type="Script" path="res://src/Object/StateChart/Conditions/AnyCondition.cs" id="29_kfqmx"]
 
 [sub_resource type="Resource" id="Resource_umt67"]
@@ -272,6 +273,9 @@ Condition = SubResource("Resource_f7pbh")
 [node name="TurnAdvance" type="Timer" parent="."]
 one_shot = true
 
+[node name="SelectSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("28_dnjya")
+
 [connection signal="CellChanged" from="Cursor" to="State/Root/Idle/OnCursorMoved" method="OnCellUpdated"]
 [connection signal="CellChanged" from="Cursor" to="State/Root/UnitSelected/OnCursorMoved" method="OnCellUpdated"]
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]
@@ -282,11 +286,14 @@ one_shot = true
 [connection signal="StateInput" from="State/Root/Idle/OnInput" to="." method="OnIdleInput"]
 [connection signal="StateCellUpdated" from="State/Root/Idle/OnCursorMoved" to="." method="OnIdleCursorMoved"]
 [connection signal="Taken" from="State/Root/Idle/ToSelected" to="." method="OnIdleToSelectedTaken"]
+[connection signal="Taken" from="State/Root/Idle/ToSelected" to="SelectSound" method="play" binds= [0.0]]
 [connection signal="StateEntered" from="State/Root/CancelSelection" to="." method="OnCancelUnitActionEntered"]
 [connection signal="Taken" from="State/Root/CancelSelection/ToIdle" to="." method="OnToIdleTaken" binds= [false]]
 [connection signal="StateEntered" from="State/Root/UnitSelected" to="." method="OnSelectedEntered"]
 [connection signal="StateExited" from="State/Root/UnitSelected" to="." method="OnSelectedExited"]
 [connection signal="StateCellUpdated" from="State/Root/UnitSelected/OnCursorMoved" to="." method="OnSelectedCursorMoved"]
+[connection signal="Taken" from="State/Root/UnitSelected/ToTargeting" to="SelectSound" method="play" binds= [0.0]]
+[connection signal="Taken" from="State/Root/UnitSelected/ToMoving" to="SelectSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/UnitSelected/ToIdle" to="." method="OnToIdleTaken" binds= [false]]
 [connection signal="StateEntered" from="State/Root/UnitMoving" to="." method="OnMovingEntered"]
 [connection signal="StateExited" from="State/Root/UnitMoving" to="." method="OnMovingExited"]
@@ -296,4 +303,5 @@ one_shot = true
 [connection signal="StateExited" from="State/Root/UnitTargeting" to="." method="OnTargetingExited"]
 [connection signal="StateInput" from="State/Root/UnitTargeting/OnInput" to="." method="OnTargetingInput"]
 [connection signal="Taken" from="State/Root/UnitTargeting/ToIdle" to="." method="OnToIdleTaken" binds= [true]]
+[connection signal="Taken" from="State/Root/UnitTargeting/ToIdle" to="SelectSound" method="play" binds= [0.0]]
 [connection signal="timeout" from="TurnAdvance" to="." method="OnTurnAdvance"]
