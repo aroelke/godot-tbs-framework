@@ -6,7 +6,10 @@ using UI.Controls.Device;
 
 namespace UI.HUD;
 
-/// <summary>Hint icon for showing the controls to move the cursor for the current control scheme.</summary>
+/// <summary>
+/// Hint icon for showing the controls to move the <see cref="Level.Object.Cursor"/>/<see cref="Level.UI.Pointer"/>
+/// for the current control scheme.
+/// </summary>
 [Icon("res://icons/UIIcon.svg"), Tool]
 public partial class CursorHintIcon : HBoxContainer
 {
@@ -27,19 +30,19 @@ public partial class CursorHintIcon : HBoxContainer
 
     private Texture2D GetKeyIcon(Key key) => KeyMap.ContainsKey(key) ? KeyMap[key] : null;
 
-    /// <summary>Mapping of mouse action onto icon to display.</summary>
+    /// <summary>Mapping of <see cref="MouseButton"/> onto icon to display.</summary>
     [ExportGroup("Icon Maps")]
     [Export] public MouseIconMap MouseMap = new();
 
-    /// <summary>Mapping of keyboard key onto icon to display.</summary>
+    /// <summary>Mapping of <see cref="Key"/> onto icon to display.</summary>
     [ExportGroup("Icon Maps")]
     [Export] public KeyIconMap KeyMap = new();
 
-    /// <summary>Mapping of gamepad button onto icon to display.</summary>
+    /// <summary>Mapping of <see cref="JoyButton"/> onto icon to display.</summary>
     [ExportGroup("Icon Maps")]
     [Export] public GamepadButtonIconMap ButtonMap = new();
 
-    /// <summary>Mapping of gamepad axis onto icon to display.</summary>
+    /// <summary>Mapping of <see cref="JoyAxis"/> onto icon to display.</summary>
     [ExportGroup("Icon Maps")]
     [Export] public GamepadAxisIconMap AxisMap = new();
 

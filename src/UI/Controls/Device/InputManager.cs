@@ -1,18 +1,17 @@
 using System.Linq;
 using Godot;
-using UI.Controls.Action;
 
 namespace UI.Controls.Device;
 
 /// <summary>Manages information about and changes in input actions.</summary>
 public partial class InputManager : Node2D
 {
-    /// <summary>Signals that the mouse has entered the screen.</summary>
-    /// <param name="position">Position the mouse entered the screen on (depending on the mouse speed, it might not be on the edge).</param>
+    /// <summary>Signals that the mouse has entered the <see cref="Viewport"/>.</summary>
+    /// <param name="position">Position the mouse entered the <see cref="Viewport"/> on (depending on the mouse speed, it might not be on the edge).</param>
     [Signal] public delegate void MouseEnteredEventHandler(Vector2 position);
 
-    /// <summary>Signals that the mouse has exited the screen.</summary>
-    /// <param name="position">Position on the edge of the screen the mouse exited.</param>
+    /// <summary>Signals that the mouse has exited the <see cref="Viewport"/>.</summary>
+    /// <param name="position">Position on the edge of the <see cref="Viewport"/> the mouse exited.</param>
     [Signal] public delegate void MouseExitedEventHandler(Vector2 position);
 
     /// <summary>Last known position the mouse was on the screen if it's off the screen, or <c>null</c> if it's on the screen.</summary>
@@ -22,10 +21,13 @@ public partial class InputManager : Node2D
     /// <summary>Reference to the autoloaded <c>InputManager</c> node so its signals can be connected.</summary>
     public static InputManager Singleton => _singleton ??= ((SceneTree)Engine.GetMainLoop()).Root.GetNode<InputManager>("InputManager");
 
-    /// <returns><c>true</c> if the mouse is in the window, and <c>false</c> otherwise.</returns>
+    /// <returns><c>true</c> if the mouse is in the <see cref="Viewport"/>, and <c>false</c> otherwise.</returns>
     public static bool IsMouseOnScreen() => _lastKnownPointerPosition is null;
 
-    ///<returns>The position of the mouse on the screen or the position on the edge of the screen closest to where it was last if it's not on screen.</returns>
+    /// <returns>
+    /// The position of the mouse on the <see cref="Viewport"/> or the position on the edge of the <see cref="Viewport"/> closest to where
+    /// it was last if it's not on screen.
+    /// </returns>
     public static Vector2 GetMousePosition() => _lastKnownPointerPosition ?? Singleton.GetViewport().GetMousePosition();
 
     /// <returns>The list of input actions.</returns>
@@ -33,9 +35,9 @@ public partial class InputManager : Node2D
 
     /// <summary>
     /// Get an input event for an action of the desired type, if one is defined.  Assumes there is no more than one of each type of
-    /// <c>InputEvent</c> for any given action.
+    /// <see cref="InputEvent"/> for any given action.
     /// </summary>
-    /// <typeparam name="T">Type of <c>InputEvent</c> to get.</typeparam>
+    /// <typeparam name="T">Type of <see cref="InputEvent"/> to get.</typeparam>
     /// <param name="action">Name of the input action to get the event for.</param>
     /// <returns>The input event of the given type for the action.</returns>
     public static T GetInputEvent<T>(string action) where T : InputEvent
@@ -55,9 +57,12 @@ public partial class InputManager : Node2D
             return InputMap.ActionGetEvents(action).Select((e) => e as T).Where((e) => e is not null).FirstOrDefault();
     }
 
-    /// <summary>Get the mouse button, if any, for an input action.  Assumes there's only one mouse button mapped to the action.</summary>
+    /// <summary>
+    /// Get the <see cref="MouseButton"/>, if any, for an input action.
+    /// Assumes there's only one <see cref="MouseButton"/> mapped to the action.
+    /// </summary>
     /// <param name="action">Name of the action to get the mouse button for.</param>
-    /// <returns>The mouse button corresponding to the action, or <c>MouseButton.None</c> if there isn't one.</returns>
+    /// <returns>The mouse button corresponding to the action, or <see cref="MouseButton.None"/> if there isn't one.</returns>
     public static MouseButton GetInputMouseButton(StringName action)
     {
         InputEventMouseButton button = GetInputEvent<InputEventMouseButton>(action);
@@ -67,9 +72,9 @@ public partial class InputManager : Node2D
             return button.ButtonIndex;
     }
 
-    /// <summary>Get the physical key code, if any, for an input action.  Assumes there's only one key mapped to the action.</summary>
+    /// <summary>Get the physical <see cref="Key"/>, if any, for an input action.  Assumes there's only one <see cref="Key"/> mapped to the action.</summary>
     /// <param name="action">Name of the action to get the code for.</param>
-    /// <returns>The physical key code corresponding to the action, or <c>Key.None</c> if there isn't one.</returns>
+    /// <returns>The physical <see cref="Key"/> corresponding to the action, or <see cref="Key.None"/> if there isn't one.</returns>
     public static Key GetInputKeycode(StringName action)
     {
         InputEventKey key = GetInputEvent<InputEventKey>(action);
@@ -79,9 +84,9 @@ public partial class InputManager : Node2D
             return key.PhysicalKeycode;
     }
 
-    /// <summary>Get the game pad button index, if any, for an input action.  Assumes there's only one game pad button mapped to the action.</summary>
-    /// <param name="action">Name of the action to get the game pad button index for.</param>
-    /// <returns>The game pad button index corresponding to the action, or <c>JoyButton.Invalid</c> if there isn't one.</returns>
+    /// <summary>Get the <see cref="JoyButton"/>, if any, for an input action.  Assumes there's only one <see cref="JoyButton"/> mapped to the action.</summary>
+    /// <param name="action">Name of the action to get the <see cref="JoyButton"/> for.</param>
+    /// <returns>The <see cref="JoyButton"/> corresponding to the action, or <see cref="JoyButton.Invalid"/> if there isn't one.</returns>
     public static JoyButton GetInputGamepadButton(StringName action)
     {
         InputEventJoypadButton button = GetInputEvent<InputEventJoypadButton>(action);
@@ -91,9 +96,9 @@ public partial class InputManager : Node2D
             return button.ButtonIndex;
     }
 
-    /// <summary>Get the game pad axis, if any, for an input action. Assumes there's only one axis mapped to the action.</summary>
-    /// <param name="action">Name of the action to get the game pad axis for.</param>
-    /// <returns>The game pad axis corresponding to the action, or <c>JoyAxis.Invalid</c> if there isn't one.</returns>
+    /// <summary>Get the <see cref="JoyAxis"/>, if any, for an input action. Assumes there's only one <see cref="JoyAxis"/> mapped to the action.</summary>
+    /// <param name="action">Name of the action to get the <see cref="JoyAxis"/> for.</param>
+    /// <returns>The <see cref="JoyAxis"/> corresponding to the action, or <see cref="JoyAxis"/> if there isn't one.</returns>
     public static JoyAxis GetInputGamepadAxis(StringName action)
     {
         InputEventJoypadMotion motion = GetInputEvent<InputEventJoypadMotion>(action);

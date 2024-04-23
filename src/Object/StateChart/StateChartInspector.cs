@@ -6,11 +6,14 @@ using Object.StateChart.States;
 
 namespace Object.StateChart;
 
-/// <summary>UI element that displays the current state and state, transition, and event history of a <see cref="Chart"/>.</summary>
+/// <summary>
+/// UI element that displays the current <see cref="State"/> and <see cref="State"/>, <see cref="Transition"/>, and event history of a
+/// <see cref="Chart"/>.
+/// </summary>
 [Icon("res://icons/statechart/StateChartInspector.svg")]
 public partial class StateChartInspector : MarginContainer
 {
-    /// <summary>Stores the <see cref="Chart"/> history and converts state changes, transitions, and events into strings.</summary>
+    /// <summary>Stores the <see cref="Chart"/> history and converts <see cref="State"/> changes, <see cref="Transition"/>s, and events into strings.</summary>
     private class History
     {
         private ImmutableList<string> _buffer = ImmutableList<string>.Empty;
@@ -52,7 +55,7 @@ public partial class StateChartInspector : MarginContainer
     private History _history = null;
 
     /// <summary>
-    /// Connect all of the <see cref="Chart.EventReceived"/>  <see cref="State.StateEntered"/>, <see cref="State.StateExited"/>, and <see cref="Transition.Taken"/>
+    /// Connect all of the <see cref="Chart.EventReceived"/> <see cref="State.StateEntered"/>, <see cref="State.StateExited"/>, and <see cref="Transition.Taken"/>
     /// signals to handlers that update the UI.
     /// </summary>
     private void ConnectAllSignals()

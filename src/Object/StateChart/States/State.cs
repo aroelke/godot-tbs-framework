@@ -5,24 +5,12 @@ using Godot;
 
 namespace Object.StateChart.States;
 
-/// <summary>Base class implementing common behavior of all state chart states.</summary>
+/// <summary>Base class implementing common behavior of all <see cref="StateChart"/> states.</summary>
 [GlobalClass, Tool]
-public abstract partial class State : Node
+public abstract partial class State : ChartNode
 {
     /// <summary>Signals that the state is being entered.</summary>
     [Signal] public delegate void StateEnteredEventHandler();
-
-    /// <summary>Signals every <see cref="Node._Process" frame while active./></summary>
-    /// <param name="delta">Time in seconds since last frame.</param>
-    [Signal] public delegate void StateProcessEventHandler(double delta);
-
-    /// <summary>Signals that the state has received an input event while active.</summary>
-    /// <param name="event">Input event description.</param>
-    [Signal] public delegate void StateInputEventHandler(InputEvent @event);
-
-    /// <summary>Signals that the state has received an unhandled input event while active.</summary>
-    /// <param name="event">Input event description.</param>
-    [Signal] public delegate void StateUnhandledInputEventHandler(InputEvent @event);
 
     /// <summary>Signals that an event has been received while the state is active.</summary>
     /// <param name="event">Name of the event.</param>
@@ -33,7 +21,6 @@ public abstract partial class State : Node
 
     private static Chart FindChart(Node node) => node == null ? null : node as Chart ?? FindChart(node.GetParent());
 
-    private Chart _chart = null;
     private bool _active = false;
     private readonly List<Transition> _transitions = new();
 
@@ -44,11 +31,6 @@ public abstract partial class State : Node
         private set
         {
             _active = value;
-
-            SetProcess(_active && GetSignalConnectionList(SignalName.StateProcess).Any());
-            SetProcessInput(_active && GetSignalConnectionList(SignalName.StateInput).Any());
-            SetProcessUnhandledInput(_active && GetSignalConnectionList(SignalName.StateUnhandledInput).Any());
-
             ProcessMode = _active ? ProcessModeEnum.Inherit : ProcessModeEnum.Disabled;
         }
     }
@@ -71,7 +53,7 @@ public abstract partial class State : Node
         EmitSignal(SignalName.StateEntered);
         foreach (Transition transition in _transitions)
             if (transition.Automatic && transition.EvaluateCondition())
-                _chart.RunTransition(transition, this);
+                StateChart.RunTransition(transition, this);
     }
 
     /// <summary>Process all transitions and run the first one that is triggered by the event.</summary>
@@ -90,7 +72,7 @@ public abstract partial class State : Node
         {
             if ((transition.Automatic || (!property && transition.Event == @event)) && transition.EvaluateCondition())
             {
-                _chart.RunTransition(transition, this);
+                StateChart.RunTransition(transition, this);
                 return true;
             }
         }
@@ -114,32 +96,5 @@ public abstract partial class State : Node
             warnings.Add("A state needs to have a StateChart ancestor.");
 
         return warnings.ToArray();
-    }
-
-    public override void _Ready()
-    {
-        base._Ready();
-        if (!Engine.IsEditorHint())
-            _chart = FindChart(GetParent());
-    }
-
-    public override void _Input(InputEvent @event)
-    {
-        base._Input(@event);
-        EmitSignal(SignalName.StateInput, @event);
-    }
-
-    public override void _UnhandledInput(InputEvent @event)
-    {
-        base._UnhandledInput(@event);
-        EmitSignal(SignalName.StateUnhandledInput, @event);
-    }
-
-    public override void _Process(double delta)
-    {
-        base._Process(delta);
-
-        if (!Engine.IsEditorHint())
-            EmitSignal(SignalName.StateProcess);
     }
 }

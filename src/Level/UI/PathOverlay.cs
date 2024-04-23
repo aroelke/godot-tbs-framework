@@ -4,7 +4,7 @@ using Godot;
 
 namespace Level.UI;
 
-/// <summary>A <see cref="Grid"/> overlay used to display paths through its cells.</summary>
+/// <summary>A <see cref="Map.Grid"/> overlay used to display paths through its cells.</summary>
 public partial class PathOverlay : TileMap
 {
     // TileSet source ID for the path arrows and indices containing arrowheads.
@@ -16,6 +16,7 @@ public partial class PathOverlay : TileMap
     private static readonly Vector2I LeftArrow = new(7, 1);
 
     /// <summary>List of cells defining the path to draw.</summary>
+    /// <remarks>Is not a <see cref="Map.Path"/> to decouple from <see cref="Map.Grid"/>.</remarks>
     public List<Vector2I> Path
     {
         get => GetUsedCells(0).ToList();

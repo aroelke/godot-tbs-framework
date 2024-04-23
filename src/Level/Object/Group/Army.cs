@@ -5,7 +5,7 @@ using Godot;
 
 namespace Level.Object.Group;
 
-/// <summary>A group of <c>Unit</c> <c>GridNode</c>s that has allies and enemies.</summary>
+/// <summary>A group of <see cref="Unit"/> <see cref="GridNode"/>s that has allies and enemies.</summary>
 [Tool]
 public partial class Army : GridNodeGroup, IEnumerable<Unit>
 {
@@ -16,13 +16,20 @@ public partial class Army : GridNodeGroup, IEnumerable<Unit>
     [Export] public Army[] Allies = Array.Empty<Army>();
 
     /// <param name="other">Army to check.</param>
-    /// <returns><c>true</c> if the other army is allied with this one, and <c>false</c> otherwise.</returns>
+    /// <returns><c>true</c> if <paramref name="other"/> is allied with this one, and <c>false</c> otherwise.</returns>
     public bool AlliedTo(Army other) => other == this || Allies.Contains(other);
 
     /// <param name="unit">Unit to check.</param>
-    /// <returns><c>true</c> if the unit is in this army or an allied one, and <c>false</c> otherwise.</returns>
+    /// <returns><c>true</c> if <paramref name="unit"/> is in this army or an allied one, and <c>false</c> otherwise.</returns>
     public bool AlliedTo(Unit unit) => Contains(unit) || AlliedTo(unit.Affiliation);
 
+    /// <summary>Find the "previous" unit in the list, looping around to the end if needed.</summary>
+    /// <remarks>"Previous" is arbitrarily defined by the order each unit was inserted into the <see cref="SceneTree"/>.</remarks>
+    /// <param name="unit">Unit to find the previous of.</param>
+    /// <returns>
+    /// The <see cref="Unit"/> before <paramref name="unit"/> in the army's children, or the last one if <paramref name="unit"/>
+    /// is the first.
+    /// </returns>
     public Unit Previous(Unit unit)
     {
         Unit[] units = GetChildren().OfType<Unit>().ToArray();
@@ -38,6 +45,13 @@ public partial class Army : GridNodeGroup, IEnumerable<Unit>
             return units[index - 1];
     }
 
+    /// <summary>Find the "next" unit in the list, looping around to the beginning if needed.</summary>
+    /// <remarks>"Next" is arbitrarily defined by the order each unit was inserted into the <see cref="SceneTree"/>.</remarks>
+    /// <param name="unit">Unit to find the next of.</param>
+    /// <returns>
+    /// The <see cref="Unit"/> after <paramref name="unit"/> in the army's children, or the first one if <paramref name="unit"/>
+    /// is the last.
+    /// </returns>
     public Unit Next(Unit unit)
     {
         Unit[] units = GetChildren().OfType<Unit>().ToArray();
@@ -53,7 +67,7 @@ public partial class Army : GridNodeGroup, IEnumerable<Unit>
             return units[0];
     }
 
-    /// <summary>When a <c>Unit</c> is added to the army, update its affiliation to this army.</summary>
+    /// <summary>When a <see cref="Unit"/> is added to the army, update its <see cref="Unit.Affiliation"/> to this army.</summary>
     /// <param name="child">Node that was just added.</param>
     public void OnChildEnteredTree(Node child)
     {
@@ -61,7 +75,7 @@ public partial class Army : GridNodeGroup, IEnumerable<Unit>
             unit.Affiliation = this;
     }
 
-    /// <summary>When a <c>Unit</c> is about to leave the army, clear its affiliation.</summary>
+    /// <summary>When a <see cref="Unit"/> is about to leave the army, clear its <see cref="Unit.Affiliation"/>.</summary>
     /// <param name="child">Node that's leaving the tree.</param>
     public void OnChildExitingTree(Node child)
     {

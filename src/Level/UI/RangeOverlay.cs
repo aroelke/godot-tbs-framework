@@ -43,9 +43,9 @@ public partial class RangeOverlay : TileMap
         }
     }
 
-    /// <summary>Compute a rectangle that encloses all the cells that contain tiles in the given layer.</summary>
+    /// <summary>Compute a <see cref="Rect2"/> that encloses all the cells that contain tiles in the given layer.</summary>
     /// <param name="grid">Grid defining cell sizes.</param>
-    /// <param name="layer">Name of the layer to compute the enclosing rectangle for.</param>
+    /// <param name="layer">Name of the layer.</param>
     /// <returns>A rectangle enclosing all of the used cells in the layer, or <c>null</c> if the layer is empty.</returns>
     public Rect2? GetEnclosingRect(Grid grid, string layer)
     {
@@ -58,7 +58,7 @@ public partial class RangeOverlay : TileMap
         return enclosure;
     }
 
-    /// <summary>Compute a rectangle that encloses all the used tiles among all layers in the overlay.</summary>
+    /// <summary>Compute a <see cref="Rect2"/> that encloses all the used tiles among all layers in the overlay.</summary>
     /// <param name="grid">Grid defining cell sizes.</param>
     /// <returns>A rectangle enclosing all of the used cells in the overlay, or <c>null</c> if there are none.</returns>
     public Rect2? GetEnclosingRect(Grid grid)

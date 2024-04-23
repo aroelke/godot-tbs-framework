@@ -3,11 +3,11 @@ using Object.StateChart.States;
 
 namespace Object.StateChart.Conditions;
 
-/// <summary>Condition guarding a state <see cref="Transition"/>.</summary>
+/// <summary>Condition guarding a state <see cref="Transition"/> or <see cref="Reactions.Reaction"/>.</summary>
 [GlobalClass, Tool]
 public abstract partial class Condition : Resource
 {
-    /// <summary>Determine if the condition for a transition from a state is satisfied.</summary>
+    /// <param name="source">State chart node providing information about the condition.</param>
     /// <returns><c>true</c> if the transition should be taken, and <c>false</c> otherwise.</returns>
-    public abstract bool IsSatisfied(Transition transition, State from);
+    public abstract bool IsSatisfied(ChartNode source);
 }

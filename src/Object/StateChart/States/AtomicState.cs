@@ -5,7 +5,7 @@ using Godot;
 
 namespace Object.StateChart.States;
 
-/// <summary>A state chart <see cref="State"/> that can't have any sub-states.</summary>
+/// <summary>A <see cref="State"/> that can't have any sub-<see cref="State"/>s.</summary>
 [Icon("res://icons/statechart/AtomicState.svg"), Tool]
 public partial class AtomicState : State
 {

@@ -8,11 +8,7 @@ using Extensions;
 
 namespace Level.Object;
 
-/// <summary>
-/// Cursor on the grid used for highlighting a cell and selecting things in it.  Importantly, it does not move itself;
-/// rather, it emits signals to a controller (possibly a <c>PointerProjection</c>) to move it when digital movement
-/// is desired.
-/// </summary>
+/// <summary>Cursor on the <see cref="Map.Grid"/> used for highlighting a cell and selecting things in it.</summary>
 [Tool]
 public partial class Cursor : GridNode
 {
@@ -75,8 +71,8 @@ public partial class Cursor : GridNode
     public HashSet<Vector2I> SoftRestriction = new();
 
     /// <summary>
-    /// Set of cells the cursor is restricted to moving in.  If empty, the cursor moves normally on the whole grid. Setting this value can cause the cursor to
-    /// move if its current cell is not in the restriction.
+    /// Set of cells the cursor is restricted to moving in.  If empty, the cursor moves normally on the whole <see cref="Map.Grid"/>. Setting
+    /// this value can cause the cursor to move if its current cell is not in the restriction.
     /// </summary>
     public ImmutableHashSet<Vector2I> HardRestriction
     {
@@ -115,7 +111,7 @@ public partial class Cursor : GridNode
         }
     }
 
-    /// <summary>Update the grid cell when the pointer signals it has moved, unless the cursor is what's controlling movement.</summary>
+    /// <summary>Update the <see cref="Map.Grid"/> cell when the pointer signals it has moved, unless the cursor is what's controlling movement.</summary>
     /// <param name="position">Position of the pointer.</param>
     public void OnPointerMoved(Vector2 position)
     {
@@ -123,7 +119,9 @@ public partial class Cursor : GridNode
             Cell = Grid.CellOf(position);
     }
 
-    /// <summary>Skip in a direction, stopping at the edge of the <see cref="HardRestriction"/>, <see cref="SoftRestriction"/>, or grid, whichever is first.</summary>
+    /// <summary>
+    /// Skip in a direction, stopping at the edge of the <see cref="HardRestriction"/>, <see cref="SoftRestriction"/>, or <see cref="Map.Grid"/>, whichever is first.
+    /// </summary>
     /// <param name="direction">Direction to skip.</param>
     public void OnSkip(Vector2I direction)
     {

@@ -9,14 +9,15 @@ using Object.StateChart.States;
 namespace Object.StateChart;
 
 /// <summary>
-/// A state chart modeled after <see href="https://github.com/derkork/godot-statecharts"/>. Contains a hierarchy of states that have zero or more
-/// transitions to other states within the hierarchy. While a state is active, it can receive events, which cause it to trigger transitions to other
-/// states or emit signals.
+/// A state chart modeled after <see href="https://github.com/derkork/godot-statecharts"/>. Contains a hierarchy of <see cref="State"/>s that have
+/// zero or more <see cref="Transition"/>s to other states within the hierarchy and <see cref="Reactions.Reaction"/>s to specific events. While a
+/// <see cref="State"/> is active, it can receive events, which cause it to trigger <see cref="Transition"/>s to other <see cref="State"/>s or
+/// emit signals.
 /// </summary>
 [Icon("res://icons/statechart/Chart.svg"), Tool]
 public partial class Chart : Node
 {
-    /// <summary>Signals that the state chart has received an event. before any transitions are processed.</summary>
+    /// <summary>Signals that the state chart has received an event before any transitions are processed.</summary>
     /// <param name="event">Name of the received event.</param>
     [Signal] public delegate void EventReceivedEventHandler(StringName @event);
 
@@ -70,8 +71,8 @@ public partial class Chart : Node
     }
 
     /// <summary>
-    /// Dictionary of state chart properties and their values. Setting can cause a transition if the update causes a condition of
-    /// a transition from the active state to become true.
+    /// Dictionary of state chart properties and their values. Setting can cause a <see cref="Transition"/> if the update causes a
+    /// <see cref="Conditions.Condition"/> of a <see cref="Transition"/> from the active <see cref="State"/> to become true.
     /// </summary>
     public ImmutableDictionary<StringName, Variant> ExpressionProperties
     {
@@ -89,7 +90,7 @@ public partial class Chart : Node
         }
     }
 
-    /// <summary>Send an event to the active state, which could trigger a transition or action.</summary>
+    /// <summary>Send an event to the active <see cref="State"/>, which could trigger a <see cref="Transition"/>.</summary>
     /// <param name="event">Name of the event to send.</param>
     public void SendEvent(StringName @event)
     {
@@ -99,7 +100,7 @@ public partial class Chart : Node
         RunChanges();
     }
 
-    /// <summary>Execute a transition from a state to its target.</summary>
+    /// <summary>Execute a <see cref="Transition"/> from a state to its target.</summary>
     /// <param name="transition">Transition to run.</param>
     /// <param name="from">State to transition from.</param>
     public void RunTransition(Transition transition, State from)
