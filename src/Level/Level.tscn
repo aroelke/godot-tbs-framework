@@ -1,4 +1,4 @@
-[gd_scene load_steps=44 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=45 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/Level/Level.cs" id="1_r2v0t"]
 [ext_resource type="Resource" uid="uid://hkvw8a5g5l62" path="res://src/UI/Controls/Action/References/Map/MapCancelAction.tres" id="2_2u5dc"]
@@ -28,6 +28,7 @@
 [ext_resource type="PackedScene" uid="uid://dw8x5x0nvkg5k" path="res://src/Object/StateChart/Reactions/CellUpdateReaction.tscn" id="25_goaap"]
 [ext_resource type="AudioStream" uid="uid://bg4mbs7d25qaj" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Select - 1.wav" id="28_dnjya"]
 [ext_resource type="Script" path="res://src/Object/StateChart/Conditions/AnyCondition.cs" id="29_kfqmx"]
+[ext_resource type="AudioStream" uid="uid://b4dbo5h2e7ru4" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Cancel - 1.wav" id="29_regtl"]
 
 [sub_resource type="Resource" id="Resource_umt67"]
 script = ExtResource("24_k1nop")
@@ -276,6 +277,9 @@ one_shot = true
 [node name="SelectSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("28_dnjya")
 
+[node name="CancelSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("29_regtl")
+
 [connection signal="CellChanged" from="Cursor" to="State/Root/Idle/OnCursorMoved" method="OnCellUpdated"]
 [connection signal="CellChanged" from="Cursor" to="State/Root/UnitSelected/OnCursorMoved" method="OnCellUpdated"]
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]
@@ -295,6 +299,8 @@ stream = ExtResource("28_dnjya")
 [connection signal="Taken" from="State/Root/UnitSelected/ToTargeting" to="SelectSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/UnitSelected/ToMoving" to="SelectSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/UnitSelected/ToIdle" to="." method="OnToIdleTaken" binds= [false]]
+[connection signal="Taken" from="State/Root/UnitSelected/ToIdle" to="CancelSound" method="play" binds= [0.0]]
+[connection signal="Taken" from="State/Root/UnitSelected/ToCancel" to="CancelSound" method="play" binds= [0.0]]
 [connection signal="StateEntered" from="State/Root/UnitMoving" to="." method="OnMovingEntered"]
 [connection signal="StateExited" from="State/Root/UnitMoving" to="." method="OnMovingExited"]
 [connection signal="StateEntered" from="State/Root/CancelTargeting" to="." method="OnCancelUnitActionEntered"]
@@ -304,4 +310,5 @@ stream = ExtResource("28_dnjya")
 [connection signal="StateInput" from="State/Root/UnitTargeting/OnInput" to="." method="OnTargetingInput"]
 [connection signal="Taken" from="State/Root/UnitTargeting/ToIdle" to="." method="OnToIdleTaken" binds= [true]]
 [connection signal="Taken" from="State/Root/UnitTargeting/ToIdle" to="SelectSound" method="play" binds= [0.0]]
+[connection signal="Taken" from="State/Root/UnitTargeting/ToCancel" to="CancelSound" method="play" binds= [0.0]]
 [connection signal="timeout" from="TurnAdvance" to="." method="OnTurnAdvance"]
