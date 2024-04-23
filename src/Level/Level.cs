@@ -61,6 +61,7 @@ public partial class Level : Node
     private IEnumerator<Army> _armies = null;
     private Vector2I? _initialCell = null;
     private ControlHint _cancelHint = null;
+    private AudioStreamPlayer _errorSound = null;
 
     private Grid Grid => _map ??= GetNode<Grid>("Grid");
     private PathOverlay PathOverlay => _pathOverlay ??= GetNode<PathOverlay>("PathOverlay");
@@ -69,6 +70,7 @@ public partial class Level : Node
     private Cursor Cursor => _cursor ??= GetNode<Cursor>("Cursor");
     private Pointer Pointer => _pointer ??= GetNode<Pointer>("Pointer");
     private ControlHint CancelHint => _cancelHint ??= GetNode<ControlHint>("UserInterface/HUD/Hints/CancelHint");
+    private AudioStreamPlayer ErrorSound => _errorSound ??= GetNode<AudioStreamPlayer>("ErrorSound");
 #endregion
 #region Helper Properties and Methods
     private ImmutableHashSet<Unit> _zoneUnits = ImmutableHashSet<Unit>.Empty;
@@ -383,6 +385,21 @@ public partial class Level : Node
                 if (!sources.Contains(_path[^1]))
                     PathOverlay.Path = (_path = sources.Select((c) => _path.Add(c).Clamp(_selected.MoveRange)).OrderBy((p) => p[^1].DistanceTo(_path[^1])).OrderByDescending((p) => p[^1].DistanceTo(cell)).First()).ToList();
             }
+        }
+    }
+
+    /// <summary>
+    /// If the cursor tries to select a cell that contains an allied, non-selected unit, don't do anything but play a sound to indicate that's
+    /// not allowed.
+    /// </summary>
+    /// <param name="cell">Cell being selected.</param>
+    public void OnSelectedCellSelected(Vector2I cell)
+    {
+        if (_actionable.Traversable.Contains(cell))
+        {
+            Unit highlighted = Grid.Occupants.GetValueOrDefault(cell) as Unit;
+            if (highlighted != _selected && _armies.Current.AlliedTo(highlighted))
+                ErrorSound.Play();
         }
     }
 

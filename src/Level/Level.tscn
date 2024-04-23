@@ -1,4 +1,4 @@
-[gd_scene load_steps=45 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=46 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/Level/Level.cs" id="1_r2v0t"]
 [ext_resource type="Resource" uid="uid://hkvw8a5g5l62" path="res://src/UI/Controls/Action/References/Map/MapCancelAction.tres" id="2_2u5dc"]
@@ -29,6 +29,7 @@
 [ext_resource type="AudioStream" uid="uid://bg4mbs7d25qaj" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Select - 1.wav" id="28_dnjya"]
 [ext_resource type="Script" path="res://src/Object/StateChart/Conditions/AnyCondition.cs" id="29_kfqmx"]
 [ext_resource type="AudioStream" uid="uid://b4dbo5h2e7ru4" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Cancel - 1.wav" id="29_regtl"]
+[ext_resource type="AudioStream" uid="uid://oyebi18i5hmn" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Error - 1.wav" id="30_mo20p"]
 
 [sub_resource type="Resource" id="Resource_umt67"]
 script = ExtResource("24_k1nop")
@@ -219,6 +220,8 @@ process_mode = 4
 [node name="OnCursorMoved" parent="State/Root/UnitSelected" instance=ExtResource("25_goaap")]
 Condition = SubResource("Resource_0wllk")
 
+[node name="OnCellSelected" parent="State/Root/UnitSelected" instance=ExtResource("25_goaap")]
+
 [node name="ToTargeting" parent="State/Root/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../UnitTargeting")
 Event = &"select"
@@ -280,9 +283,13 @@ stream = ExtResource("28_dnjya")
 [node name="CancelSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("29_regtl")
 
+[node name="ErrorSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("30_mo20p")
+
 [connection signal="CellChanged" from="Cursor" to="State/Root/Idle/OnCursorMoved" method="OnCellUpdated"]
 [connection signal="CellChanged" from="Cursor" to="State/Root/UnitSelected/OnCursorMoved" method="OnCellUpdated"]
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]
+[connection signal="CellSelected" from="Cursor" to="State/Root/UnitSelected/OnCellSelected" method="OnCellUpdated"]
 [connection signal="CursorMoved" from="Cursor" to="Pointer" method="OnCursorMoved"]
 [connection signal="PointerMoved" from="Pointer" to="Cursor" method="OnPointerMoved"]
 [connection signal="EventReceived" from="State/Root/Idle" to="." method="OnIdleEventReceived"]
@@ -296,6 +303,7 @@ stream = ExtResource("29_regtl")
 [connection signal="StateEntered" from="State/Root/UnitSelected" to="." method="OnSelectedEntered"]
 [connection signal="StateExited" from="State/Root/UnitSelected" to="." method="OnSelectedExited"]
 [connection signal="StateCellUpdated" from="State/Root/UnitSelected/OnCursorMoved" to="." method="OnSelectedCursorMoved"]
+[connection signal="StateCellUpdated" from="State/Root/UnitSelected/OnCellSelected" to="." method="OnSelectedCellSelected"]
 [connection signal="Taken" from="State/Root/UnitSelected/ToTargeting" to="SelectSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/UnitSelected/ToMoving" to="SelectSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/UnitSelected/ToIdle" to="." method="OnToIdleTaken" binds= [false]]
