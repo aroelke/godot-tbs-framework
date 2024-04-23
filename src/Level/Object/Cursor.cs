@@ -47,6 +47,8 @@ public partial class Cursor : GridNode
                 Vector2I next = Grid.Clamp(value);
                 if (next != Cell)
                 {
+                    GetNode<AudioStreamPlayer>("MoveSound").Play();
+
                     // Briefly break continuous digital movement to allow reaction from the player when the cursor has reached the edge of the soft restriction
                     if (SoftRestriction.Contains(next))
                     {
