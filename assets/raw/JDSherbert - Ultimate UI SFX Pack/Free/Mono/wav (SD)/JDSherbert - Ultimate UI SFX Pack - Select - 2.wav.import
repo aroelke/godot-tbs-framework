@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://b5067qe7osc8o"
+path="res://.godot/imported/JDSherbert - Ultimate UI SFX Pack - Select - 2.wav-1d1f49ef1b8215d8a6ecda2c6a1e20dc.sample"
+
+[deps]
+
+source_file="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (SD)/JDSherbert - Ultimate UI SFX Pack - Select - 2.wav"
+dest_files=["res://.godot/imported/JDSherbert - Ultimate UI SFX Pack - Select - 2.wav-1d1f49ef1b8215d8a6ecda2c6a1e20dc.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0
