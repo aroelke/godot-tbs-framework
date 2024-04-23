@@ -58,8 +58,9 @@ public partial class Level : Node
     private Cursor _cursor = null;
     private Pointer _pointer = null;
     private Unit _selected = null, _target = null;
-    private ControlHint _cancelHint = null;
+    private IEnumerator<Army> _armies = null;
     private Vector2I? _initialCell = null;
+    private ControlHint _cancelHint = null;
 
     private Grid Grid => _map ??= GetNode<Grid>("Grid");
     private PathOverlay PathOverlay => _pathOverlay ??= GetNode<PathOverlay>("PathOverlay");
@@ -70,8 +71,6 @@ public partial class Level : Node
     private ControlHint CancelHint => _cancelHint ??= GetNode<ControlHint>("UserInterface/HUD/Hints/CancelHint");
 #endregion
 #region Helper Properties and Methods
-    private Army[] _armies = Array.Empty<Army>();
-    private int _armyIndex = 0;
     private ImmutableHashSet<Unit> _zoneUnits = ImmutableHashSet<Unit>.Empty;
 
     private RangeOverlay _zoneOverlay = null;
@@ -79,37 +78,6 @@ public partial class Level : Node
 
     private RangeOverlay ZoneOverlay => _zoneOverlay ??= GetNode<RangeOverlay>("ZoneOverlay");
     private Label TurnLabel => _turnLabel = GetNode<Label>("%TurnLabel");
-
-    /// <summary>Index into the list of <see cref="Army"/> child nodes for which army is taking a turn.</summary>
-    private int CurrentArmyIndex
-    {
-        get => _armyIndex;
-        set
-        {
-            if (_armies.Any())
-            {
-                // Refresh all the units in the current army so they aren't gray anymore and are animated
-                if (!Engine.IsEditorHint())
-                    foreach (Unit unit in (IEnumerable<Unit>)_armies[_armyIndex])
-                        unit.Refresh();
-
-                while (value < 0)
-                    value += _armies.Length;
-                _armyIndex = value % _armies.Length;
-
-                // Update the UI
-                if (!Engine.IsEditorHint())
-                {
-                    TurnLabel.AddThemeColorOverride("font_color", _armies[_armyIndex].Color);
-                    TurnLabel.Text = $"Turn {Turn}: {_armies[_armyIndex].Name}";
-                }
-            }
-            else
-                _armyIndex = 0;
-        }
-    }
-
-    private Army CurrentArmy => _armies[CurrentArmyIndex];
 
     /// <summary>Units to include in the local unit zones. Updates the highlighted squares when set.</summary>
     private ImmutableHashSet<Unit> ZoneUnits
@@ -192,6 +160,13 @@ public partial class Level : Node
         else
             ZoneOverlay[GlobalDanger] = ImmutableHashSet<Vector2I>.Empty;
     }
+
+    /// <summary>Update the UI turn counter for the current turn and change its color to match the army.</summary>
+    private void UpdateTurnCounter()
+    {
+        TurnLabel.AddThemeColorOverride("font_color", _armies.Current.Color);
+        TurnLabel.Text = $"Turn {Turn}: {_armies.Current.Name}";
+    }
 #endregion
 #region Exports
     private int _turn = 1;
@@ -211,7 +186,7 @@ public partial class Level : Node
         {
             _turn = value;
             if (!Engine.IsEditorHint())
-                _turnLabel.Text = $"Turn {_turn}: {CurrentArmy.Name}";
+                _turnLabel.Text = $"Turn {_turn}: {_armies.Current.Name}";
         }
     }
 
@@ -255,7 +230,7 @@ public partial class Level : Node
             _selected.Finish();
 
             // Switch to the next army
-            if (!((IEnumerable<Unit>)CurrentArmy).Any((u) => u.Active))
+            if (!((IEnumerable<Unit>)_armies.Current).Any((u) => u.Active))
                 TurnAdvance.Start();
         }
         else
@@ -276,7 +251,7 @@ public partial class Level : Node
     /// <param name="event">Name of the event.</param>
     public void OnIdleEventReceived(StringName @event)
     {
-        if (CurrentArmy == StartingArmy && Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit && !StartingArmy.Contains(unit))
+        if (_armies.Current == StartingArmy && Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit && !StartingArmy.Contains(unit))
         {
             if (@event == SelectEvent)
             {
@@ -293,13 +268,18 @@ public partial class Level : Node
     /// <summary>
     /// Advance the turn cycle:
     /// - Go to the next <see cref="Army"/>
-    /// - If returning to <see cref="StartingArmy"/>, increment the turn count
+    /// - If returning to <see cref="StartingArmy"/>, increment <see cref="Turn"/>
     /// </summary>
     public void OnTurnAdvance()
     {
-        CurrentArmyIndex++;
-        if (CurrentArmy == StartingArmy)
+        // Refresh all the units in the current army so they aren't gray anymore and are animated
+        foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
+            unit.Refresh();
+
+        if (_armies.MoveNext() && _armies.Current == StartingArmy)
             Turn++;
+        
+        UpdateTurnCounter();
     }
 
     /// <summary>
@@ -311,7 +291,7 @@ public partial class Level : Node
     {
         ActionOverlay.Clear();
 
-        if (CurrentArmy == StartingArmy && Grid.Occupants.GetValueOrDefault(cell) is Unit hovered)
+        if (_armies.Current == StartingArmy && Grid.Occupants.GetValueOrDefault(cell) is Unit hovered)
         {
             ActionRanges actionable = hovered.ActionRanges().WithOccupants(
                 Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => u.Affiliation.AlliedTo(hovered)),
@@ -392,9 +372,9 @@ public partial class Level : Node
         else if (Grid.Occupants.GetValueOrDefault(cell) is Unit target)
         {
             IEnumerable<Vector2I> sources = Array.Empty<Vector2I>();
-            if (target != _selected && CurrentArmy.AlliedTo(target) && _actionable.Supportable.Contains(cell))
+            if (target != _selected && _armies.Current.AlliedTo(target) && _actionable.Supportable.Contains(cell))
                 sources = _selected.SupportableCells(cell).Where(_actionable.Traversable.Contains);
-            else if (!CurrentArmy.AlliedTo(target) && _actionable.Attackable.Contains(cell))
+            else if (!_armies.Current.AlliedTo(target) && _actionable.Attackable.Contains(cell))
                 sources = _selected.AttackableCells(cell).Where(_actionable.Traversable.Contains);
             sources = sources.Where((c) => !Grid.Occupants.ContainsKey(c));
             if (sources.Any())
@@ -595,9 +575,14 @@ public partial class Level : Node
                 Grid.Occupants[unit.Cell] = unit;
             }
 
-            _armies = GetChildren().OfType<Army>().ToArray();
-            StartingArmy ??= _armies[0];
-            CurrentArmyIndex = Array.IndexOf(_armies, StartingArmy);
+            _armies = GetChildren().OfType<Army>().GetCyclicalEnumerator();
+            if (StartingArmy is null)
+                StartingArmy = _armies.Current;
+            else // Advance the army enumerator until it's pointing at StartingArmy
+                while (_armies.Current != StartingArmy)
+                    if (!_armies.MoveNext())
+                        break;
+            UpdateTurnCounter();
         }
     }
 
@@ -627,15 +612,15 @@ public partial class Level : Node
                 .SetItem(OccupiedProperty, Grid.Occupants.GetValueOrDefault(Cursor.Cell) switch
                 {
                     Unit unit when unit == _selected => SelectedOccuiped,
-                    Unit unit when CurrentArmy == unit.Affiliation => unit.Active ? ActiveAllyOccupied : InActiveAllyOccupied,
-                    Unit unit when CurrentArmy.AlliedTo(unit.Affiliation) => FriendlyOccuipied,
+                    Unit unit when _armies.Current == unit.Affiliation => unit.Active ? ActiveAllyOccupied : InActiveAllyOccupied,
+                    Unit unit when _armies.Current.AlliedTo(unit.Affiliation) => FriendlyOccuipied,
                     Unit => EnemyOccupied,
                     null => NotOccupied,
                     _ => OtherOccupied
                 })
                 .SetItem(TargetProperty, Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit target &&
-                                          ((target != _selected && CurrentArmy.AlliedTo(target) && _actionable.Supportable.Contains(Cursor.Cell)) ||
-                                           (!CurrentArmy.AlliedTo(target) && _actionable.Attackable.Contains(Cursor.Cell))))
+                                          ((target != _selected && _armies.Current.AlliedTo(target) && _actionable.Supportable.Contains(Cursor.Cell)) ||
+                                           (!_armies.Current.AlliedTo(target) && _actionable.Attackable.Contains(Cursor.Cell))))
                 .SetItem(TraversableProperty, _actionable.Traversable.Contains(Cursor.Cell));
         }
     }
