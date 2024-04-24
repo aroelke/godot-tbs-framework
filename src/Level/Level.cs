@@ -61,7 +61,7 @@ public partial class Level : Node
     private IEnumerator<Army> _armies = null;
     private Vector2I? _initialCell = null;
     private ControlHint _cancelHint = null;
-    private AudioStreamPlayer _errorSound = null;
+    private AudioStreamPlayer _errorSound = null, _zoneOnSound = null, _zoneOffSound = null;
 
     private Grid Grid => _map ??= GetNode<Grid>("Grid");
     private PathOverlay PathOverlay => _pathOverlay ??= GetNode<PathOverlay>("PathOverlay");
@@ -71,6 +71,8 @@ public partial class Level : Node
     private Pointer Pointer => _pointer ??= GetNode<Pointer>("Pointer");
     private ControlHint CancelHint => _cancelHint ??= GetNode<ControlHint>("UserInterface/HUD/Hints/CancelHint");
     private AudioStreamPlayer ErrorSound => _errorSound ??= GetNode<AudioStreamPlayer>("ErrorSound");
+    private AudioStreamPlayer ZoneOnSound => _zoneOnSound ??= GetNode<AudioStreamPlayer>("ZoneOnSound");
+    private AudioStreamPlayer ZoneOffSound => _zoneOffSound ??= GetNode<AudioStreamPlayer>("ZoneOffSound");
 #endregion
 #region Helper Properties and Methods
     private ImmutableHashSet<Unit> _zoneUnits = ImmutableHashSet<Unit>.Empty;
@@ -169,6 +171,9 @@ public partial class Level : Node
         TurnLabel.AddThemeColorOverride("font_color", _armies.Current.Color);
         TurnLabel.Text = $"Turn {Turn}: {_armies.Current.Name}";
     }
+
+    /// <returns>The audio player that plays the "zone on" or "zone off" sound depending on <paramref name="on"/>.</returns>
+    private AudioStreamPlayer ZoneUpdateSound(bool on) => on ? ZoneOnSound : ZoneOffSound;
 #endregion
 #region Exports
     private int _turn = 1;
@@ -264,6 +269,7 @@ public partial class Level : Node
             }
             else if (@event == CancelEvent && ZoneUnits.Contains(unit))
                 ZoneUnits = ZoneUnits.Remove(unit);
+            ZoneUpdateSound(ZoneUnits.Contains(unit)).Play();
         }
     }
 
@@ -613,9 +619,15 @@ public partial class Level : Node
         if (@event.IsActionReleased(ToggleGlobalDangerZoneAction))
         {
             if (Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit)
+            {
                 ZoneUnits = ZoneUnits.Contains(unit) ? ZoneUnits.Remove(unit) : ZoneUnits.Add(unit);
+                ZoneUpdateSound(ZoneUnits.Contains(unit)).Play();
+            }
             else
+            {
                 ShowGlobalDangerZone = !ShowGlobalDangerZone;
+                ZoneUpdateSound(ShowGlobalDangerZone).Play();
+            }
         }
     }
 
