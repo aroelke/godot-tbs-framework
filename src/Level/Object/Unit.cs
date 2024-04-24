@@ -20,7 +20,7 @@ public partial class Unit : GridNode
     private static readonly StringName Idle = "parameters/conditions/idle";
     private static readonly StringName Selected = "parameters/conditions/selected";
     private static readonly StringName Moving = "parameters/conditions/moving";
-    private static readonly StringName MoveDirection = "parameters/Moving/blend_position";
+    private static readonly StringName MoveDirection = "parameters/Moving/Walking/blend_position";
     private static readonly StringName Done = "parameters/conditions/done";
 
     /// <summary>Signal that the unit is done moving along its path.</summary>
