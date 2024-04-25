@@ -319,13 +319,13 @@ public partial class Level : Node
     {
         if (Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit)
         {
-            if (@event.IsActionReleased(PreviousAction))
+            if (@event.IsActionPressed(PreviousAction))
             {
                 Unit prev = unit.Affiliation.Previous(unit);
                 if (prev is not null)
                     Cursor.Cell = prev.Cell;
             }
-            if (@event.IsActionReleased(NextAction))
+            if (@event.IsActionPressed(NextAction))
             {
                 Unit next = unit.Affiliation.Next(unit);
                 if (next is not null)
@@ -455,7 +455,7 @@ public partial class Level : Node
     /// <summary>Press the cancel button during movement to skip to the end.</summary>
     public void OnMovingInput(InputEvent @event)
     {
-        if (@event.IsActionReleased(CancelAction))
+        if (@event.IsActionPressed(CancelAction))
             _selected.SkipMoving();
     }
 
@@ -498,9 +498,9 @@ public partial class Level : Node
     public void OnTargetingInput(InputEvent @event)
     {
         int next = 0;
-        if (@event.IsActionReleased(PreviousAction))
+        if (@event.IsActionPressed(PreviousAction))
             next = -1;
-        else if (@event.IsActionReleased(NextAction))
+        else if (@event.IsActionPressed(NextAction))
             next = 1;
 
         if (next != 0)
@@ -628,10 +628,10 @@ public partial class Level : Node
     {
         base._Input(@event);
 
-        if (@event.IsActionReleased(CancelAction))
+        if (@event.IsActionPressed(CancelAction))
             _state.SendEvent(CancelEvent);
 
-        if (@event.IsActionReleased(ToggleGlobalDangerZoneAction))
+        if (@event.IsActionPressed(ToggleGlobalDangerZoneAction))
         {
             if (Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit)
             {

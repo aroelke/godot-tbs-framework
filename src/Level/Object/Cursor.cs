@@ -162,7 +162,7 @@ public partial class Cursor : GridNode
     public override void _UnhandledInput(InputEvent @event)
     {
         base._UnhandledInput(@event);
-        if (@event.IsActionReleased(SelectAction))
+        if (@event.IsActionPressed(SelectAction))
             EmitSignal(SignalName.CellSelected, Grid.CellOf(Position));
     }
 }
