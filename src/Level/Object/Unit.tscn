@@ -1,6 +1,7 @@
-[gd_scene load_steps=36 format=3 uid="uid://b0cvutx2lj5uy"]
+[gd_scene load_steps=37 format=3 uid="uid://b0cvutx2lj5uy"]
 
 [ext_resource type="Script" path="res://src/Level/Object/Unit.cs" id="1_crlbh"]
+[ext_resource type="Resource" uid="uid://c8jgkj5o6iui0" path="res://src/UI/Controls/Action/References/Map/SelectAction.tres" id="2_inbct"]
 [ext_resource type="Texture2D" uid="uid://3oc7r54iby4a" path="res://assets/level/unit/soldier.png" id="2_ipnjg"]
 [ext_resource type="Script" path="res://src/Object/BoundedNode2D.cs" id="3_pmja0"]
 [ext_resource type="AudioStream" uid="uid://c5ud71mb4e0xa" path="res://assets/raw/RPG_Essentials_Free/12_Player_Movement_SFX/03_Step_grass_03.wav" id="4_bt2yt"]
@@ -375,6 +376,7 @@ graph_offset = Vector2(-73.5496, -63.9727)
 
 [node name="Unit" type="Node2D"]
 script = ExtResource("1_crlbh")
+MoveAccelerateAction = ExtResource("2_inbct")
 
 [node name="Path" type="Path2D" parent="."]
 

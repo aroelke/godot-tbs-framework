@@ -7,6 +7,7 @@ using Extensions;
 using Level.Map;
 using System.Collections.Immutable;
 using System;
+using UI.Controls.Action;
 
 namespace Level.Object;
 
@@ -67,8 +68,16 @@ public partial class Unit : GridNode
         }
     }
 
-    /// <summary>Speed, in world pixels/second, to move along the path while moving.</summary>
+    [ExportGroup("Path Traversal", "Move")]
+
+    /// <summary>Base speed, in world pixels/second, to move along the path while moving.</summary>
     [Export] public double MoveSpeed = 320;
+
+    /// <summary>Action to use to accelerate the unit while it's moving. </summary>
+    [Export] public InputActionReference MoveAccelerateAction = new();
+
+    /// <summary>Factor to multiply <see cref="MoveSpeed"/> by while <see cref="MoveAccelerateAction"/> is held down.</summary>
+    [Export] public double MoveAccelerationFactor = 2;
 
     /// <summary>Whether or not the unit has completed its turn.</summary>
     public bool Active => !_tree.Get(Done).AsBool();
@@ -225,6 +234,16 @@ public partial class Unit : GridNode
             MotionBox.Size = Size;
             SetProcess(false);
         }
+    }
+
+    public override void _Input(InputEvent @event)
+    {
+        base._Input(@event);
+
+        if (@event.IsActionPressed(MoveAccelerateAction))
+            MoveSpeed *= MoveAccelerationFactor;
+        else if (@event.IsActionReleased(MoveAccelerateAction))
+            MoveSpeed /= MoveAccelerationFactor;
     }
 
     public override void _Process(double delta)
