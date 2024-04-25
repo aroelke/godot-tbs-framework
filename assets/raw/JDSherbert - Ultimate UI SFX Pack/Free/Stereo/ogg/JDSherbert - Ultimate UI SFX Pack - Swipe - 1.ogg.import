@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://d0olxjfxlqe7x"
+path="res://.godot/imported/JDSherbert - Ultimate UI SFX Pack - Swipe - 1.ogg-c27bbe2385613af5832aa79c31dc2de7.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Stereo/ogg/JDSherbert - Ultimate UI SFX Pack - Swipe - 1.ogg"
+dest_files=["res://.godot/imported/JDSherbert - Ultimate UI SFX Pack - Swipe - 1.ogg-c27bbe2385613af5832aa79c31dc2de7.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

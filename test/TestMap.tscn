@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://bmfxux38ovtj2"]
+[gd_scene load_steps=7 format=3 uid="uid://bmfxux38ovtj2"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/Level/Level.tscn" id="1_h3e4w"]
+[ext_resource type="AudioStream" uid="uid://l7x6ygaf3aqq" path="res://assets/raw/Legendary_JRPG_Battle_Music_Pack/main-theme04_loop/main-theme04_loop.ogg" id="2_5c8dd"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/Level/Map/Grid.tscn" id="2_trttl"]
 [ext_resource type="Resource" uid="uid://bn6uq3ysywt60" path="res://src/Level/Map/Terrain/plain.tres" id="3_ft5ge"]
 [ext_resource type="PackedScene" uid="uid://1ev2yxu31ow" path="res://src/Level/Object/Group/Army.tscn" id="4_xrn4s"]
@@ -9,6 +10,7 @@
 [node name="TestMap" type="Node2D"]
 
 [node name="Level" parent="." node_paths=PackedStringArray("StartingArmy") instance=ExtResource("1_h3e4w")]
+BackgroundMusic = ExtResource("2_5c8dd")
 StartingArmy = NodePath("Player")
 
 [node name="Grid" parent="Level" instance=ExtResource("2_trttl")]

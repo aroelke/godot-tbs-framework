@@ -25,6 +25,9 @@ public partial class Cursor : GridNode
     private DigitalMoveAction _mover = null;
     private DigitalMoveAction MoveController => _mover ??= GetNode<DigitalMoveAction>("MoveController");
 
+    private AudioStreamPlayer _moveSound = null;
+    private AudioStreamPlayer MoveSound => _moveSound ??= GetNode<AudioStreamPlayer>("MoveSound");
+
     private Node _converters = null;
     private Node Converters => _converters ??= GetNode<Node>("AnalogDigital");
 
@@ -47,6 +50,8 @@ public partial class Cursor : GridNode
                 Vector2I next = Grid.Clamp(value);
                 if (next != Cell)
                 {
+                    MoveSound.Play();
+
                     // Briefly break continuous digital movement to allow reaction from the player when the cursor has reached the edge of the soft restriction
                     if (SoftRestriction.Contains(next))
                     {

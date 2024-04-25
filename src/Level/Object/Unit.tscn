@@ -1,8 +1,9 @@
-[gd_scene load_steps=31 format=3 uid="uid://b0cvutx2lj5uy"]
+[gd_scene load_steps=36 format=3 uid="uid://b0cvutx2lj5uy"]
 
 [ext_resource type="Script" path="res://src/Level/Object/Unit.cs" id="1_crlbh"]
 [ext_resource type="Texture2D" uid="uid://3oc7r54iby4a" path="res://assets/level/unit/soldier.png" id="2_ipnjg"]
 [ext_resource type="Script" path="res://src/Object/BoundedNode2D.cs" id="3_pmja0"]
+[ext_resource type="AudioStream" uid="uid://c5ud71mb4e0xa" path="res://assets/raw/RPG_Essentials_Free/12_Player_Movement_SFX/03_Step_grass_03.wav" id="4_bt2yt"]
 
 [sub_resource type="Animation" id="Animation_yixnx"]
 length = 0.001
@@ -25,6 +26,18 @@ tracks/1/path = NodePath("Path/PathFollow/Sprite:flip_h")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("StepSound:playing")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
@@ -63,6 +76,7 @@ tracks/1/keys = {
 resource_name = "down"
 length = 0.8
 loop_mode = 1
+step = 0.05
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -204,6 +218,23 @@ tracks/1/keys = {
 "values": [false]
 }
 
+[sub_resource type="Animation" id="Animation_4fniv"]
+resource_name = "step"
+length = 0.1
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("StepSound:playing")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+
 [sub_resource type="Animation" id="Animation_kk35a"]
 resource_name = "up"
 length = 0.8
@@ -242,34 +273,50 @@ _data = {
 "left": SubResource("Animation_c8tpx"),
 "right": SubResource("Animation_48wh4"),
 "selected": SubResource("Animation_p0gt1"),
+"step": SubResource("Animation_4fniv"),
 "up": SubResource("Animation_kk35a")
 }
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_tm5xh"]
 animation = &"idle"
 
-[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_mdava"]
+[sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_hynby"]
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_urwiy"]
+animation = &"step"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_3bl6l"]
 animation = &"left"
 
-[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_4y680"]
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_q1ymx"]
 animation = &"right"
 
-[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_gn78g"]
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_6v7go"]
 animation = &"down"
 
-[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_wiya8"]
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_em5py"]
 animation = &"up"
 
-[sub_resource type="AnimationNodeBlendSpace2D" id="AnimationNodeBlendSpace2D_bw1ab"]
-blend_point_0/node = SubResource("AnimationNodeAnimation_mdava")
+[sub_resource type="AnimationNodeBlendSpace2D" id="AnimationNodeBlendSpace2D_nav0g"]
+blend_point_0/node = SubResource("AnimationNodeAnimation_3bl6l")
 blend_point_0/pos = Vector2(-1, 0)
-blend_point_1/node = SubResource("AnimationNodeAnimation_4y680")
+blend_point_1/node = SubResource("AnimationNodeAnimation_q1ymx")
 blend_point_1/pos = Vector2(1, 0)
-blend_point_2/node = SubResource("AnimationNodeAnimation_gn78g")
+blend_point_2/node = SubResource("AnimationNodeAnimation_6v7go")
 blend_point_2/pos = Vector2(0, 1)
-blend_point_3/node = SubResource("AnimationNodeAnimation_wiya8")
+blend_point_3/node = SubResource("AnimationNodeAnimation_em5py")
 blend_point_3/pos = Vector2(0, -1)
-blend_mode = 1
+
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_aicjt"]
+graph_offset = Vector2(-472.14, 0)
+nodes/Blend/node = SubResource("AnimationNodeBlend2_hynby")
+nodes/Blend/position = Vector2(0, 160)
+nodes/Steps/node = SubResource("AnimationNodeAnimation_urwiy")
+nodes/Steps/position = Vector2(-260, 280)
+nodes/Walking/node = SubResource("AnimationNodeBlendSpace2D_nav0g")
+nodes/Walking/position = Vector2(-280, 100)
+nodes/output/position = Vector2(180, 180)
+node_connections = [&"Blend", 0, &"Walking", &"Blend", 1, &"Steps", &"output", 0, &"Blend"]
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_xy2fh"]
 animation = &"selected"
@@ -281,21 +328,9 @@ animation = &"done"
 advance_mode = 2
 advance_condition = &"selected"
 
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_pq1sv"]
-advance_mode = 2
-advance_condition = &"moving"
-
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_8ispa"]
-advance_mode = 2
-advance_condition = &"idle"
-
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_m6c88"]
 advance_mode = 2
 advance_condition = &"idle"
-
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_jipq2"]
-advance_mode = 2
-advance_condition = &"selected"
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_43qbb"]
 advance_mode = 2
@@ -308,23 +343,35 @@ advance_condition = &"done"
 advance_mode = 2
 advance_condition = &"idle"
 
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_xakrc"]
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_nrnfq"]
+advance_mode = 2
+advance_condition = &"idle"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_1tawo"]
 advance_mode = 2
 advance_condition = &"done"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_gjd0r"]
+advance_mode = 2
+advance_condition = &"moving"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_otyyn"]
+advance_mode = 2
+advance_condition = &"selected"
 
 [sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_2xttf"]
 states/End/position = Vector2(771, 213)
 states/Idle/node = SubResource("AnimationNodeAnimation_tm5xh")
 states/Idle/position = Vector2(399, 213)
-states/Moving/node = SubResource("AnimationNodeBlendSpace2D_bw1ab")
-states/Moving/position = Vector2(513, 39)
+states/Moving/node = SubResource("AnimationNodeBlendTree_aicjt")
+states/Moving/position = Vector2(466, 39.0273)
 states/Selected/node = SubResource("AnimationNodeAnimation_xy2fh")
 states/Selected/position = Vector2(643, 213)
 states/Start/position = Vector2(249, 213)
 states/done/node = SubResource("AnimationNodeAnimation_m462t")
-states/done/position = Vector2(513, 363.117)
-transitions = ["Idle", "Selected", SubResource("AnimationNodeStateMachineTransition_av2ix"), "Selected", "Moving", SubResource("AnimationNodeStateMachineTransition_pq1sv"), "Moving", "Idle", SubResource("AnimationNodeStateMachineTransition_8ispa"), "Selected", "Idle", SubResource("AnimationNodeStateMachineTransition_m6c88"), "Moving", "Selected", SubResource("AnimationNodeStateMachineTransition_jipq2"), "Start", "Idle", SubResource("AnimationNodeStateMachineTransition_43qbb"), "Selected", "done", SubResource("AnimationNodeStateMachineTransition_gsdf1"), "done", "Idle", SubResource("AnimationNodeStateMachineTransition_csre7"), "Moving", "done", SubResource("AnimationNodeStateMachineTransition_xakrc")]
-graph_offset = Vector2(-73.5496, -52.8826)
+states/done/position = Vector2(466, 364.117)
+transitions = ["Idle", "Selected", SubResource("AnimationNodeStateMachineTransition_av2ix"), "Selected", "Idle", SubResource("AnimationNodeStateMachineTransition_m6c88"), "Start", "Idle", SubResource("AnimationNodeStateMachineTransition_43qbb"), "Selected", "done", SubResource("AnimationNodeStateMachineTransition_gsdf1"), "done", "Idle", SubResource("AnimationNodeStateMachineTransition_csre7"), "Moving", "Idle", SubResource("AnimationNodeStateMachineTransition_nrnfq"), "Moving", "done", SubResource("AnimationNodeStateMachineTransition_1tawo"), "Selected", "Moving", SubResource("AnimationNodeStateMachineTransition_gjd0r"), "Moving", "Selected", SubResource("AnimationNodeStateMachineTransition_otyyn")]
+graph_offset = Vector2(-73.5496, -63.9727)
 
 [node name="Unit" type="Node2D"]
 script = ExtResource("1_crlbh")
@@ -353,13 +400,14 @@ libraries = {
 autoplay = "RESET"
 
 [node name="AnimationTree" type="AnimationTree" parent="."]
-libraries = {
-"": SubResource("AnimationLibrary_txw1y")
-}
 tree_root = SubResource("AnimationNodeStateMachine_2xttf")
 anim_player = NodePath("../AnimationPlayer")
 parameters/conditions/done = false
 parameters/conditions/idle = true
 parameters/conditions/moving = false
 parameters/conditions/selected = false
-parameters/Moving/blend_position = Vector2(0, 1)
+parameters/Moving/Blend/blend_amount = 0.5
+parameters/Moving/Walking/blend_position = Vector2(0, 0)
+
+[node name="StepSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_bt2yt")
