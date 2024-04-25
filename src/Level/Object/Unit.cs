@@ -140,7 +140,11 @@ public partial class Unit : GridNode
     public ActionRanges ActionRanges()
     {
         IEnumerable<Vector2I> traversable = TraversableCells();
-        return new(traversable, AttackableCells(traversable.Where((c) => !Grid.Occupants.ContainsKey(c))), SupportableCells(traversable.Where((c) => !Grid.Occupants.ContainsKey(c))));
+        return new(
+            traversable,
+            AttackableCells(traversable.Where((c) => !Grid.Occupants.ContainsKey(c) || Grid.Occupants[c] == this)),
+            SupportableCells(traversable.Where((c) => !Grid.Occupants.ContainsKey(c) || Grid.Occupants[c] == this))
+        );
     }
 
     /// <summary>Put the unit in the "selected" state.</summary>
