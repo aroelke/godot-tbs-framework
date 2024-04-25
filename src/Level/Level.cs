@@ -179,6 +179,8 @@ public partial class Level : Node
     private int _turn = 1;
     private bool _showGlobalZone = false;
 
+    [Export] public AudioStream BackgroundMusic = null;
+
     /// <summary>
     /// <see cref="Army"/> that gets the first turn and is controlled by the player. If null, use the first <see cref="Army"/>
     /// in the child list. After that, go down the child list in order, wrapping when at the end.
@@ -575,6 +577,10 @@ public partial class Level : Node
         if (!GetChildren().Where((c) => c is Army).Any())
             warnings.Add("There are not any armies to assign units to.");
 
+        // Make sure there's background music
+        if (BackgroundMusic is null)
+            warnings.Add("Background music hasn't been added. Whatever's playing will stop.");
+
         return warnings.ToArray();
     }
 
@@ -606,6 +612,8 @@ public partial class Level : Node
                     if (!_armies.MoveNext())
                         break;
             UpdateTurnCounter();
+
+            MusicController.Play(BackgroundMusic);
         }
     }
 
