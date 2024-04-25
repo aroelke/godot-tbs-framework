@@ -191,7 +191,7 @@ public partial class Unit : GridNode
         {
             foreach (Vector2I cell in path)
                 Path.Curve.AddPoint(Grid.PositionOf(cell) - Position);
-            Cell = path.Last();
+            Cell = path[^1];
             _tree.Set(Selected, false);
             _tree.Set(Moving, true);
             SetProcess(true);
