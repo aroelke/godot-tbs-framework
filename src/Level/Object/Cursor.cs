@@ -110,7 +110,23 @@ public partial class Cursor : GridNode
         {
             IEnumerable<Vector2I> ahead = HardRestriction.Where((c) => (c - Cell)*direction > Vector2I.Zero);
             if (ahead.Any())
-                Cell = ahead.OrderBy((c) => (c*direction.Inverse()).Length()).OrderBy((c) => Cell.DistanceTo(c)).OrderBy((c) => ((c - Cell)*direction).Length()).First();
+                Cell = ahead.OrderBy((a, b) => {
+                    // Prioritize closer cells
+                    int dA = (a - Cell).Abs().Sum();
+                    int dB = (b - Cell).Abs().Sum();
+                    if (dA != dB)
+                        return dA - dB;
+
+                    // ...but smaller angles (larger dot products) if distance is equal
+                    float thetaA = (a - Cell).Normalized().Dot(direction);
+                    float thetaB = (b - Cell).Normalized().Dot(direction);
+                    if (thetaA < thetaB)
+                        return 1;
+                    else if (thetaA > thetaB)
+                        return -1;
+                    else
+                        return 0;
+                }).First();
             else if (Wrap)
                 Cell = HardRestriction.OrderBy((c) => (c*direction.Inverse()).Length()).OrderByDescending((c) => ((c - Cell)*direction).Length()).First();
         }

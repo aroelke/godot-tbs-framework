@@ -20,6 +20,13 @@ public static class Vector2IExtensions
         return false;
     }
 
+    /// <summary>Normalize a <see cref="Vector2I"/> into a unit vector (which isn't necessarily of integer type!).</summary>
+    public static Vector2 Normalized(this Vector2I a) => ((Vector2)a).Normalized();
+
+    /// <summary>Compute the dot product of two <see cref="Vector2I"/>s.</summary>
+    /// <returns><paramref name="a"/> dot <paramref name="b"/>, or <c>a.X*b.X + a.Y*b.Y</c>.</returns>
+    public static int Dot(this Vector2I a, Vector2I b) => (a*b).Sum();
+
     /// <returns>The sum of the two coordinates of the <see cref="Vector2I"/>.</returns>
     public static int Sum(this Vector2I a) => a.X + a.Y;
 
