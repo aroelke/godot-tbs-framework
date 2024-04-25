@@ -247,6 +247,8 @@ Condition = SubResource("Resource_f7pbh")
 [node name="UnitMoving" parent="State/Root" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
+[node name="OnInput" parent="State/Root/UnitMoving" instance=ExtResource("23_nnivc")]
+
 [node name="ToTargeting" parent="State/Root/UnitMoving" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../UnitTargeting")
 Event = &"done"
@@ -319,6 +321,7 @@ stream = ExtResource("32_e2hk2")
 [connection signal="Taken" from="State/Root/UnitSelected/ToCancel" to="CancelSound" method="play" binds= [0.0]]
 [connection signal="StateEntered" from="State/Root/UnitMoving" to="." method="OnMovingEntered"]
 [connection signal="StateExited" from="State/Root/UnitMoving" to="." method="OnMovingExited"]
+[connection signal="StateInput" from="State/Root/UnitMoving/OnInput" to="." method="OnMovingInput"]
 [connection signal="StateEntered" from="State/Root/CancelTargeting" to="." method="OnCancelUnitActionEntered"]
 [connection signal="StateExited" from="State/Root/CancelTargeting" to="." method="OnCancelTargetingExited"]
 [connection signal="StateEntered" from="State/Root/UnitTargeting" to="." method="OnTargetingEntered"]

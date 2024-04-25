@@ -6,6 +6,7 @@ using Object;
 using Extensions;
 using Level.Map;
 using System.Collections.Immutable;
+using System;
 
 namespace Level.Object;
 
@@ -196,6 +197,15 @@ public partial class Unit : GridNode
             _tree.Set(Moving, true);
             SetProcess(true);
         }
+    }
+
+    /// <summary>If this unit is moving, skip straight to the end of the path.</summary>
+    /// <exception cref="InvalidOperationException">If the unit is not moving.</exception>
+    public void SkipMoving()
+    {
+        if (!_tree.Get(Moving).AsBool())
+            throw new InvalidOperationException($"Unit {Name} isn't moving");
+        PathFollow.ProgressRatio = 1;
     }
 
     public override void _Ready()

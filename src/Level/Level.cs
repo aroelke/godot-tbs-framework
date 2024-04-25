@@ -452,6 +452,13 @@ public partial class Level : Node
         Camera.Target = _selected.MotionBox;
     }
 
+    /// <summary>Press the cancel button during movement to skip to the end.</summary>
+    public void OnMovingInput(InputEvent @event)
+    {
+        if (@event.IsActionReleased(CancelAction))
+            _selected.SkipMoving();
+    }
+
     /// <summary>When done moving, restore the <see cref="Camera2DBrain">camera</see> target (most likely to the cursor) and update danger zones.</summary>
     public void OnMovingExited()
     {
