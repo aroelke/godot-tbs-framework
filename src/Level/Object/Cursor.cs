@@ -5,6 +5,7 @@ using Godot;
 using UI.Controls.Action;
 using UI.Controls.Device;
 using Extensions;
+using System.ComponentModel;
 
 namespace Level.Object;
 
@@ -123,11 +124,25 @@ public partial class Cursor : GridNode
                         return 1;
                     else if (thetaA > thetaB)
                         return -1;
-                    else
-                        return 0;
+
+                    return 0;
                 }).First();
             else if (Wrap)
-                Cell = HardRestriction.OrderBy((c) => (c*direction.Inverse()).Length()).OrderByDescending((c) => ((c - Cell)*direction).Length()).First();
+                Cell = HardRestriction.OrderBy((c) => (c - Cell).ProjectionsTo(direction).Abs(), (a, b) => {
+                    // Prioritize cells further away along direction
+                    if (a.X > b.X)
+                        return -1;
+                    else if (a.X < b.X)
+                        return 1;
+
+                    // ... but cells closer along direction's inverse
+                    if (a.Y < b.Y)
+                        return -1;
+                    else if (a.Y > b.Y)
+                        return 1;
+                    
+                    return 0;
+                }).First();
         }
     }
 
