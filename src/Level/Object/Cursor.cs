@@ -164,7 +164,21 @@ public partial class Cursor : GridNode
         {
             IEnumerable<Vector2I> ahead = HardRestriction.Where((c) => (c - Cell)*direction > Vector2I.Zero);
             if (ahead.Any())
-                Cell = ahead.OrderBy((c) => (c*direction.Inverse()).Length()).OrderBy((c) => Cell.DistanceTo(c)).OrderByDescending((c) => ((c - Cell)*direction).Length()).First();
+                Cell = ahead.OrderBy((c) => (c - Cell).ProjectionsTo(direction).Abs(), (a, b) => {
+                    // Prioritize cells further away along direction
+                    if (a.X > b.X)
+                        return -1;
+                    else if (a.X < b.X)
+                        return 1;
+
+                    // ... but cells closer along direction's inverse
+                    if (a.Y < b.Y)
+                        return -1;
+                    else if (a.Y > b.Y)
+                        return 1;
+                    
+                    return 0;
+                }).First();
         }
         else
         {
