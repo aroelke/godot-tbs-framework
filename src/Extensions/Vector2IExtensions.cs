@@ -36,6 +36,10 @@ public static class Vector2IExtensions
     /// </returns>
     public static int DistanceTo(this Vector2I a, Vector2I b) => (b - a).Abs().Sum();
 
+    /// <summary>Find the parallel and perpendicular projections of a <see cref="Vector2I"/> onto another.</summary>
+    /// <returns>
+    /// A new <see cref="Vector2"/> whose X component is the length of the vector that's parallel to <paramref name="b"/>
+    /// and whose Y component is the length of the vector that's perpendicular to <paramref name="b"/>.</returns>
     public static Vector2 ProjectionsTo(this Vector2I a, Vector2I b)
     {
         float parallel = ((Vector2)a).Dot(b.Normalized());
