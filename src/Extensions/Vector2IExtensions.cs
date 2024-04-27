@@ -45,7 +45,4 @@ public static class Vector2IExtensions
         float parallel = ((Vector2)a).Dot(b.Normalized());
         return new(parallel, (a - parallel*b.Normalized()).Length());
     }
-
-    /// <returns>A new <see cref="Vector2I"/> with the coordinates of <paramref name="a"/> switched.</returns>
-    public static Vector2I Inverse(this Vector2I a) => new(a.Y, a.X);
 }
