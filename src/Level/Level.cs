@@ -386,7 +386,7 @@ public partial class Level : Node
                 sources = _selected.SupportableCells(cell).Where(_actionable.Traversable.Contains);
             else if (!_armies.Current.AlliedTo(target) && _actionable.Attackable.Contains(cell))
                 sources = _selected.AttackableCells(cell).Where(_actionable.Traversable.Contains);
-            sources = sources.Where((c) => !Grid.Occupants.ContainsKey(c));
+            sources = sources.Where((c) => !Grid.Occupants.ContainsKey(c) || Grid.Occupants[c] == _selected);
             if (sources.Any())
             {
                 _target = target;
