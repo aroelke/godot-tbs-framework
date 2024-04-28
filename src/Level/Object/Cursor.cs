@@ -21,6 +21,27 @@ public partial class Cursor : GridNode
     /// <param name="cell">Coordinates of the cell that has been selected.</param>
     [Signal] public delegate void CellSelectedEventHandler(Vector2I cell);
 
+    /// <summary>
+    /// Compares two vector projections whose X values are their components along a direction and Y values are their components perpendicular
+    /// to it such that vectors that are longer along the parallel axis are lesser. If they're the same distance, then ones that are shorter
+    /// along the perpendicular axis are lesser.
+    /// </summary>
+    private static readonly IComparer<Vector2> FurtherAlongDirection = Comparer<Vector2>.Create((a, b) => {
+        // Prioritize cells further away along direction
+        if (a.X > b.X)
+            return -1;
+        else if (a.X < b.X)
+            return 1;
+
+        // ... but cells closer along direction's inverse
+        if (a.Y < b.Y)
+            return -1;
+        else if (a.Y > b.Y)
+            return 1;
+        
+        return 0;
+    });
+
     private ImmutableHashSet<Vector2I> _hard = ImmutableHashSet<Vector2I>.Empty;
 
     private DigitalMoveAction _mover = null;
@@ -128,21 +149,7 @@ public partial class Cursor : GridNode
                     return 0;
                 }).First();
             else if (Wrap)
-                Cell = HardRestriction.OrderBy((c) => (c - Cell).ProjectionsTo(direction).Abs(), (a, b) => {
-                    // Prioritize cells further away along direction
-                    if (a.X > b.X)
-                        return -1;
-                    else if (a.X < b.X)
-                        return 1;
-
-                    // ... but cells closer along direction's inverse
-                    if (a.Y < b.Y)
-                        return -1;
-                    else if (a.Y > b.Y)
-                        return 1;
-                    
-                    return 0;
-                }).First();
+                Cell = HardRestriction.OrderBy((c) => (c - Cell).ProjectionsTo(direction).Abs(), FurtherAlongDirection).First();
         }
     }
 
@@ -164,21 +171,7 @@ public partial class Cursor : GridNode
         {
             IEnumerable<Vector2I> ahead = HardRestriction.Where((c) => (c - Cell)*direction > Vector2I.Zero);
             if (ahead.Any())
-                Cell = ahead.OrderBy((c) => (c - Cell).ProjectionsTo(direction).Abs(), (a, b) => {
-                    // Prioritize cells further away along direction
-                    if (a.X > b.X)
-                        return -1;
-                    else if (a.X < b.X)
-                        return 1;
-
-                    // ... but cells closer along direction's inverse
-                    if (a.Y < b.Y)
-                        return -1;
-                    else if (a.Y > b.Y)
-                        return 1;
-                    
-                    return 0;
-                }).First();
+                Cell = ahead.OrderBy((c) => (c - Cell).ProjectionsTo(direction).Abs(), FurtherAlongDirection).First();
         }
         else
         {
