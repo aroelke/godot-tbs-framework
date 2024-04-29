@@ -1,4 +1,4 @@
-namespace Object
+namespace Nodes
 {
     namespace StateChart
     {

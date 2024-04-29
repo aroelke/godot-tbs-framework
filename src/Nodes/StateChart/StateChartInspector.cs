@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using Object.StateChart.States;
+using Nodes.StateChart.States;
 
-namespace Object.StateChart;
+namespace Nodes.StateChart;
 
 /// <summary>
 /// UI element that displays the current <see cref="State"/> and <see cref="State"/>, <see cref="Transition"/>, and event history of a

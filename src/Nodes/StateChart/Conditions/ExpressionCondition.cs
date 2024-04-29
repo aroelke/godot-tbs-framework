@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using Godot;
 
-namespace Object.StateChart.Conditions;
+namespace Nodes.StateChart.Conditions;
 
 /// <summary><see cref="Chart"/> action condition based on computing an expression (written in GDScript!) using <see cref="Chart.ExpressionProperties"/>.</summary>
 [GlobalClass, Icon("res://icons/statechart/ExpressionCondition.svg"), Tool]

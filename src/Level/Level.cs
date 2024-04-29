@@ -7,14 +7,14 @@ using Level.Map;
 using Level.Object;
 using Level.Object.Group;
 using Level.UI;
-using Object;
+using Nodes;
 using UI;
 using UI.Controls.Action;
 using UI.Controls.Device;
 using UI.HUD;
 using Extensions;
-using Object.StateChart;
-using Object.StateChart.States;
+using Nodes.StateChart;
+using Nodes.StateChart.States;
 
 namespace Level;
 

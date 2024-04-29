@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Godot;
-using Object.StateChart.Conditions;
-using Object.StateChart.States;
+using Nodes.StateChart.Conditions;
+using Nodes.StateChart.States;
 
-namespace Object.StateChart.Reactions;
+namespace Nodes.StateChart.Reactions;
 
 /// <summary><see cref="State"/>-specific reaction to a trigger that should cause an action without a transition.</summary>
 [GlobalClass, Icon("res://icons/statechart/Reaction.svg"), Tool]

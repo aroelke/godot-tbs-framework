@@ -1,6 +1,6 @@
 using Godot;
 
-namespace  Object.StateChart.Reactions;
+namespace  Nodes.StateChart.Reactions;
 
 /// <summary>
 /// Allows a <see cref="States.State"/> to react to events regarding individual <see cref="Level.Map.Grid"/> cells. The name of the reaction

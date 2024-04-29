@@ -1,7 +1,7 @@
 using Godot;
-using Object.StateChart.States;
+using Nodes.StateChart.States;
 
-namespace Object.StateChart.Conditions;
+namespace Nodes.StateChart.Conditions;
 
 /// <summary>Condition guarding a state <see cref="Transition"/> or <see cref="Reactions.Reaction"/>.</summary>
 [GlobalClass, Tool]

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using Level.Object.Group;
-using Object;
+using Nodes;
 using Extensions;
 using Level.Map;
 using System.Collections.Immutable;

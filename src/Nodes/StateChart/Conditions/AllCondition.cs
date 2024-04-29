@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using Godot;
 
-namespace Object.StateChart.Conditions;
+namespace Nodes.StateChart.Conditions;
 
 /// <summary><see cref="Chart"/> action condition that is satisfied if all of a list of constituent conditions are satisfied, or if there aren't any.</summary>
 [GlobalClass, Icon("res://icons/statechart/AllCondition.svg"), Tool]

@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using Object.StateChart.States;
+using Nodes.StateChart.States;
 
-namespace Object.StateChart;
+namespace Nodes.StateChart;
 
 /// <summary>
 /// A state chart modeled after <see href="https://github.com/derkork/godot-statecharts"/>. Contains a hierarchy of <see cref="State"/>s that have

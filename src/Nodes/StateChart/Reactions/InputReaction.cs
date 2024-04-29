@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Object.StateChart.Reactions;
+namespace Nodes.StateChart.Reactions;
 
 /// <summary>Allows a <see cref="State"/> to react to input events.</summary>
 public partial class InputReaction : Reaction

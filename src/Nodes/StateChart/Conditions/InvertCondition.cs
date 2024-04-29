@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Object.StateChart.Conditions;
+namespace Nodes.StateChart.Conditions;
 
 /// <summary>
 /// <see cref="Chart"/> action condition that evaluates as the Boolean opposite of another condition, i.e. that condition should not be satisfied

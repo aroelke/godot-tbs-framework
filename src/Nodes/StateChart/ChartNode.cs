@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 
-namespace Object.StateChart;
+namespace Nodes.StateChart;
 
 /// <summary>A component of a <see cref="Chart"/>.</summary>
 [GlobalClass, Icon("res://icons/statechart/ChartNode.svg"), Tool]
