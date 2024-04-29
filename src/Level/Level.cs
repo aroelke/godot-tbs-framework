@@ -442,17 +442,17 @@ public partial class Level : Node
     /// <summary>Begin moving the selected <see cref="Unit"/> and then wait for it to finish moving.</summary>
     public void OnMovingEntered()
     {
-        // Move the unit and delete the pathfinder as we don't need it anymore
-        Grid.Occupants.Remove(_selected.Cell);
-        _selected.MoveAlong(_path);
-        _selected.DoneMoving += OnUnitDoneMoving;
-        Grid.Occupants[_selected.Cell] = _selected;
-
         // Track the unit as it's moving
         _prevDeadzone = new(Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight);
         (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = Vector4.Zero;
         _prevCameraTarget = Camera.Target;
         Camera.Target = _selected.MotionBox;
+
+        // Move the unit and delete the pathfinder as we don't need it anymore
+        Grid.Occupants.Remove(_selected.Cell);
+        _selected.DoneMoving += OnUnitDoneMoving;
+        Grid.Occupants[_path[^1]] = _selected;
+        _selected.MoveAlong(_path); // must be last in case it fires right away
     }
 
     /// <summary>Press the cancel button during movement to skip to the end.</summary>

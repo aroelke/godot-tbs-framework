@@ -197,7 +197,12 @@ public partial class Unit : GridNode
     /// <param name="path">Coordinates of the cells to move along.</param>
     public void MoveAlong(Path path)
     {
-        if (path.Count > 0)
+        if (path[0] != Cell)
+            throw new ArgumentException("The first cell in the path must be the unit's cell");
+
+        if (path.Count == 1)
+            EmitSignal(SignalName.DoneMoving);
+        else if (path.Count > 1)
         {
             foreach (Vector2I cell in path)
                 Path.Curve.AddPoint(Grid.PositionOf(cell) - Position);
