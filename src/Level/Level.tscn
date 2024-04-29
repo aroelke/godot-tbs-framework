@@ -14,20 +14,20 @@
 [ext_resource type="Resource" uid="uid://c8jgkj5o6iui0" path="res://src/UI/Controls/Action/References/Map/SelectAction.tres" id="11_5p2p1"]
 [ext_resource type="PackedScene" path="res://src/Level/UI/PathOverlay.tscn" id="12_3wqlu"]
 [ext_resource type="PackedScene" path="res://src/Level/UI/RangeOverlay.tscn" id="12_4dlg7"]
-[ext_resource type="PackedScene" path="res://src/Object/StateChart/StateChartInspector.tscn" id="17_gyc8t"]
-[ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/Object/StateChart/Chart.tscn" id="17_sd0pe"]
-[ext_resource type="PackedScene" uid="uid://bykdjiak4bxvt" path="res://src/Object/StateChart/States/CompoundState.tscn" id="18_k7m3y"]
-[ext_resource type="PackedScene" uid="uid://lrf5ywt1n230" path="res://src/Object/StateChart/States/AtomicState.tscn" id="19_o30vs"]
-[ext_resource type="PackedScene" uid="uid://0b22cirxc7k2" path="res://src/Object/StateChart/States/Transition.tscn" id="20_p4yt1"]
-[ext_resource type="Script" path="res://src/Object/StateChart/Conditions/FlagCondition.cs" id="21_7vj21"]
-[ext_resource type="Script" path="res://src/Object/StateChart/Conditions/StringCondition.cs" id="22_tix5y"]
-[ext_resource type="Script" path="res://src/Object/StateChart/Conditions/InvertCondition.cs" id="23_6etqp"]
-[ext_resource type="PackedScene" uid="uid://dhytcbhqvrpx0" path="res://src/Object/StateChart/Reactions/InputReaction.tscn" id="23_nnivc"]
-[ext_resource type="Script" path="res://src/Object/StateChart/Conditions/UnCondition.cs" id="24_k1nop"]
-[ext_resource type="Script" path="res://src/Object/StateChart/Conditions/AllCondition.cs" id="25_6qv6s"]
-[ext_resource type="PackedScene" uid="uid://dw8x5x0nvkg5k" path="res://src/Object/StateChart/Reactions/CellUpdateReaction.tscn" id="25_goaap"]
+[ext_resource type="PackedScene" uid="uid://h3yhm0thhl8m" path="res://src/Nodes/StateChart/StateChartInspector.tscn" id="17_gyc8t"]
+[ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/Nodes/StateChart/Chart.tscn" id="17_sd0pe"]
+[ext_resource type="PackedScene" uid="uid://bykdjiak4bxvt" path="res://src/Nodes/StateChart/States/CompoundState.tscn" id="18_k7m3y"]
+[ext_resource type="PackedScene" uid="uid://lrf5ywt1n230" path="res://src/Nodes/StateChart/States/AtomicState.tscn" id="19_o30vs"]
+[ext_resource type="PackedScene" uid="uid://0b22cirxc7k2" path="res://src/Nodes/StateChart/States/Transition.tscn" id="20_p4yt1"]
+[ext_resource type="Script" path="res://src/Nodes/StateChart/Conditions/FlagCondition.cs" id="21_7vj21"]
+[ext_resource type="Script" path="res://src/Nodes/StateChart/Conditions/StringCondition.cs" id="22_tix5y"]
+[ext_resource type="Script" path="res://src/Nodes/StateChart/Conditions/InvertCondition.cs" id="23_6etqp"]
+[ext_resource type="PackedScene" uid="uid://dhytcbhqvrpx0" path="res://src/Nodes/StateChart/Reactions/InputReaction.tscn" id="23_nnivc"]
+[ext_resource type="Script" path="res://src/Nodes/StateChart/Conditions/UnCondition.cs" id="24_k1nop"]
+[ext_resource type="Script" path="res://src/Nodes/StateChart/Conditions/AllCondition.cs" id="25_6qv6s"]
+[ext_resource type="PackedScene" uid="uid://dw8x5x0nvkg5k" path="res://src/Nodes/StateChart/Reactions/CellUpdateReaction.tscn" id="25_goaap"]
 [ext_resource type="AudioStream" uid="uid://bg4mbs7d25qaj" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Select - 1.wav" id="28_dnjya"]
-[ext_resource type="Script" path="res://src/Object/StateChart/Conditions/AnyCondition.cs" id="29_kfqmx"]
+[ext_resource type="Script" path="res://src/Nodes/StateChart/Conditions/AnyCondition.cs" id="29_kfqmx"]
 [ext_resource type="AudioStream" uid="uid://b4dbo5h2e7ru4" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Cancel - 1.wav" id="29_regtl"]
 [ext_resource type="AudioStream" uid="uid://oyebi18i5hmn" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Error - 1.wav" id="30_mo20p"]
 [ext_resource type="AudioStream" uid="uid://dx4swhb5suesh" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Open - 1.wav" id="31_yh2xe"]
@@ -182,7 +182,7 @@ visible = false
 layout_mode = 2
 Action = ExtResource("2_2u5dc")
 
-[node name="StateChartInspector" parent="UserInterface" node_paths=PackedStringArray("StateChart") instance=ExtResource("17_gyc8t")]
+[node name="StateChartInspector" parent="UserInterface" instance=ExtResource("17_gyc8t")]
 anchors_preset = 1
 anchor_left = 1.0
 anchor_bottom = 0.0
@@ -190,7 +190,6 @@ offset_left = -354.0
 offset_bottom = 304.0
 grow_horizontal = 0
 grow_vertical = 1
-StateChart = NodePath("../../State")
 
 [node name="State" parent="." instance=ExtResource("17_sd0pe")]
 

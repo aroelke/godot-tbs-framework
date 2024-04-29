@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://src/Level/Object/Unit.cs" id="1_crlbh"]
 [ext_resource type="Resource" uid="uid://c8jgkj5o6iui0" path="res://src/UI/Controls/Action/References/Map/SelectAction.tres" id="2_inbct"]
 [ext_resource type="Texture2D" uid="uid://3oc7r54iby4a" path="res://assets/level/unit/soldier.png" id="2_ipnjg"]
-[ext_resource type="Script" path="res://src/Object/BoundedNode2D.cs" id="3_pmja0"]
+[ext_resource type="Script" path="res://src/Nodes/BoundedNode2D.cs" id="3_pmja0"]
 [ext_resource type="AudioStream" uid="uid://c5ud71mb4e0xa" path="res://assets/raw/RPG_Essentials_Free/12_Player_Movement_SFX/03_Step_grass_03.wav" id="4_bt2yt"]
 
 [sub_resource type="Animation" id="Animation_yixnx"]
