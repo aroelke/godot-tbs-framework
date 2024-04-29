@@ -307,9 +307,10 @@ blend_point_2/node = SubResource("AnimationNodeAnimation_6v7go")
 blend_point_2/pos = Vector2(0, 1)
 blend_point_3/node = SubResource("AnimationNodeAnimation_em5py")
 blend_point_3/pos = Vector2(0, -1)
+blend_mode = 1
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_aicjt"]
-graph_offset = Vector2(-472.14, 0)
+graph_offset = Vector2(-595, 24)
 nodes/Blend/node = SubResource("AnimationNodeBlend2_hynby")
 nodes/Blend/position = Vector2(0, 160)
 nodes/Steps/node = SubResource("AnimationNodeAnimation_urwiy")
@@ -372,7 +373,7 @@ states/Start/position = Vector2(249, 213)
 states/done/node = SubResource("AnimationNodeAnimation_m462t")
 states/done/position = Vector2(466, 364.117)
 transitions = ["Idle", "Selected", SubResource("AnimationNodeStateMachineTransition_av2ix"), "Selected", "Idle", SubResource("AnimationNodeStateMachineTransition_m6c88"), "Start", "Idle", SubResource("AnimationNodeStateMachineTransition_43qbb"), "Selected", "done", SubResource("AnimationNodeStateMachineTransition_gsdf1"), "done", "Idle", SubResource("AnimationNodeStateMachineTransition_csre7"), "Moving", "Idle", SubResource("AnimationNodeStateMachineTransition_nrnfq"), "Moving", "done", SubResource("AnimationNodeStateMachineTransition_1tawo"), "Selected", "Moving", SubResource("AnimationNodeStateMachineTransition_gjd0r"), "Moving", "Selected", SubResource("AnimationNodeStateMachineTransition_otyyn")]
-graph_offset = Vector2(-73.5496, -63.9727)
+graph_offset = Vector2(-209.55, -66.9727)
 
 [node name="Unit" type="Node2D"]
 script = ExtResource("1_crlbh")
