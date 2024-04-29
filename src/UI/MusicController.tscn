@@ -3,4 +3,5 @@
 [ext_resource type="Script" path="res://src/UI/MusicController.cs" id="1_47wwv"]
 
 [node name="MusicController" type="AudioStreamPlayer"]
+volume_db = -10.0
 script = ExtResource("1_47wwv")
