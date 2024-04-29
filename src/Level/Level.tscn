@@ -1,4 +1,4 @@
-[gd_scene load_steps=48 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=49 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/Level/Level.cs" id="1_r2v0t"]
 [ext_resource type="Resource" uid="uid://hkvw8a5g5l62" path="res://src/UI/Controls/Action/References/Map/MapCancelAction.tres" id="2_2u5dc"]
@@ -47,11 +47,6 @@ Value = "active"
 [sub_resource type="Resource" id="Resource_f7pbh"]
 script = ExtResource("24_k1nop")
 
-[sub_resource type="Resource" id="Resource_2f828"]
-script = ExtResource("22_tix5y")
-Property = &"occupied"
-Value = "selected"
-
 [sub_resource type="Resource" id="Resource_4c3ly"]
 script = ExtResource("21_7vj21")
 Flag = &"traversable"
@@ -61,9 +56,18 @@ script = ExtResource("22_tix5y")
 Property = &"occupied"
 Value = ""
 
+[sub_resource type="Resource" id="Resource_lmaao"]
+script = ExtResource("22_tix5y")
+Property = &"occupied"
+Value = "selected"
+
+[sub_resource type="Resource" id="Resource_rpjvf"]
+script = ExtResource("29_kfqmx")
+Conditions = [SubResource("Resource_mqluk"), SubResource("Resource_lmaao")]
+
 [sub_resource type="Resource" id="Resource_w328r"]
 script = ExtResource("25_6qv6s")
-Conditions = [SubResource("Resource_4c3ly"), SubResource("Resource_mqluk")]
+Conditions = [SubResource("Resource_4c3ly"), SubResource("Resource_rpjvf")]
 
 [sub_resource type="Resource" id="Resource_npdxk"]
 script = ExtResource("21_7vj21")
@@ -224,11 +228,6 @@ Condition = SubResource("Resource_0wllk")
 
 [node name="OnCellSelected" parent="State/Root/UnitSelected" instance=ExtResource("25_goaap")]
 
-[node name="ToTargeting" parent="State/Root/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../UnitTargeting")
-Event = &"select"
-Condition = SubResource("Resource_2f828")
-
 [node name="ToMoving" parent="State/Root/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../UnitMoving")
 Event = &"select"
@@ -314,7 +313,6 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateExited" from="State/Root/UnitSelected" to="." method="OnSelectedExited"]
 [connection signal="StateCellUpdated" from="State/Root/UnitSelected/OnCursorMoved" to="." method="OnSelectedCursorMoved"]
 [connection signal="StateCellUpdated" from="State/Root/UnitSelected/OnCellSelected" to="." method="OnSelectedCellSelected"]
-[connection signal="Taken" from="State/Root/UnitSelected/ToTargeting" to="SelectSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/UnitSelected/ToMoving" to="SelectSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/UnitSelected/ToIdle" to="." method="OnToIdleTaken" binds= [false]]
 [connection signal="Taken" from="State/Root/UnitSelected/ToIdle" to="CancelSound" method="play" binds= [0.0]]
