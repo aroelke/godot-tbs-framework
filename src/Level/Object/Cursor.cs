@@ -5,7 +5,6 @@ using Godot;
 using UI.Controls.Action;
 using UI.Controls.Device;
 using Extensions;
-using System.ComponentModel;
 using Nodes;
 
 namespace Level.Object;
@@ -14,7 +13,7 @@ namespace Level.Object;
 [Tool]
 public partial class Cursor : GridNode
 {
-    private NodeCache _cache;
+    private readonly NodeCache _cache;
 
     /// <summary>Emitted when the cursor moves to a new cell.</summary>
     /// <param name="cell">Position of the center of the cell moved to.</param>
@@ -116,6 +115,11 @@ public partial class Cursor : GridNode
         }
     }
 
+    public Cursor() : base()
+    {
+        _cache = new(this);
+    }
+
     /// <summary>When a direction is pressed, move the cursor to the adjacent cell there.</summary>
     public void OnDirectionPressed(Vector2I direction)
     {
@@ -199,11 +203,5 @@ public partial class Cursor : GridNode
         base._UnhandledInput(@event);
         if (@event.IsActionPressed(SelectAction))
             EmitSignal(SignalName.CellSelected, Grid.CellOf(Position));
-    }
-
-    public override void _Ready()
-    {
-        base._Ready();
-        _cache = new(this);
     }
 }
