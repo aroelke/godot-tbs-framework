@@ -6,6 +6,7 @@ using UI.Controls.Action;
 using UI.Controls.Device;
 using Extensions;
 using System.ComponentModel;
+using Nodes;
 
 namespace Level.Object;
 
@@ -13,6 +14,8 @@ namespace Level.Object;
 [Tool]
 public partial class Cursor : GridNode
 {
+    private NodeCache _cache;
+
     /// <summary>Emitted when the cursor moves to a new cell.</summary>
     /// <param name="cell">Position of the center of the cell moved to.</param>
     [Signal] public delegate void CursorMovedEventHandler(Vector2 position);
@@ -44,14 +47,9 @@ public partial class Cursor : GridNode
 
     private ImmutableHashSet<Vector2I> _hard = ImmutableHashSet<Vector2I>.Empty;
 
-    private DigitalMoveAction _mover = null;
-    private DigitalMoveAction MoveController => _mover ??= GetNode<DigitalMoveAction>("MoveController");
-
-    private AudioStreamPlayer _moveSound = null;
-    private AudioStreamPlayer MoveSound => _moveSound ??= GetNode<AudioStreamPlayer>("MoveSound");
-
-    private Node _converters = null;
-    private Node Converters => _converters ??= GetNode<Node>("AnalogDigital");
+    private DigitalMoveAction MoveController => _cache.GetNode<DigitalMoveAction>("MoveController");
+    private AudioStreamPlayer MoveSound => _cache.GetNode<AudioStreamPlayer>("MoveSound");
+    private Node Converters => _cache.GetNode<Node>("AnalogDigital");
 
     /// <summary>Action for selecting a cell.</summary>
     [Export] public InputActionReference SelectAction = new();
@@ -201,5 +199,11 @@ public partial class Cursor : GridNode
         base._UnhandledInput(@event);
         if (@event.IsActionPressed(SelectAction))
             EmitSignal(SignalName.CellSelected, Grid.CellOf(Position));
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+        _cache = new(this);
     }
 }
