@@ -3,6 +3,7 @@ using Godot;
 using UI.Controls.Icons;
 using UI.Controls.Action;
 using UI.Controls.Device;
+using Nodes;
 
 namespace UI.HUD;
 
@@ -13,20 +14,17 @@ namespace UI.HUD;
 [Icon("res://icons/UIIcon.svg"), Tool]
 public partial class CursorHintIcon : HBoxContainer
 {
-    private TextureRect _mouseIcon = null;
-    private GridContainer _keyboardIcon = null;
-    private TextureRect _upKeyIcon = null, _leftKeyIcon = null, _downKeyIcon = null, _rightKeyIcon = null;
-    private GamepadCursorHintIcon _gamepadIcon = null;
+    private readonly NodeCache _cache;
 
     private Dictionary<InputDevice, Control> _icons = new();
 
-    private TextureRect MouseIcon => _mouseIcon ??= GetNode<TextureRect>("Mouse");
-    private GridContainer KeyboardIcon => _keyboardIcon ??= GetNode<GridContainer>("Keyboard");
-    private TextureRect UpKeyIcon => _upKeyIcon ??= GetNode<TextureRect>("Keyboard/Up");
-    private TextureRect LeftKeyIcon => _leftKeyIcon ??= GetNode<TextureRect>("Keyboard/Left");
-    private TextureRect DownKeyIcon => _downKeyIcon ??= GetNode<TextureRect>("Keyboard/Down");
-    private TextureRect RightKeyIcon => _rightKeyIcon = GetNode<TextureRect>("Keyboard/Right");
-    private GamepadCursorHintIcon GamepadIcon => _gamepadIcon ??= GetNode<GamepadCursorHintIcon>("Gamepad");
+    private TextureRect MouseIcon => _cache.GetNode<TextureRect>("Mouse");
+    private GridContainer KeyboardIcon => _cache.GetNode<GridContainer>("Keyboard");
+    private TextureRect UpKeyIcon => _cache.GetNode<TextureRect>("Keyboard/Up");
+    private TextureRect LeftKeyIcon => _cache.GetNode<TextureRect>("Keyboard/Left");
+    private TextureRect DownKeyIcon => _cache.GetNode<TextureRect>("Keyboard/Down");
+    private TextureRect RightKeyIcon => _cache.GetNode<TextureRect>("Keyboard/Right");
+    private GamepadCursorHintIcon GamepadIcon => _cache.GetNode<GamepadCursorHintIcon>("Gamepad");
 
     private Texture2D GetKeyIcon(Key key) => KeyMap.ContainsKey(key) ? KeyMap[key] : null;
 
@@ -74,6 +72,11 @@ public partial class CursorHintIcon : HBoxContainer
             foreach ((InputDevice device, Control icon) in _icons)
                 icon.Visible = device == value;
         }
+    }
+
+    public CursorHintIcon() : base()
+    {
+        _cache = new(this);
     }
 
     /// <summary>When the input changes, switch the icon to the correct device.</summary>
