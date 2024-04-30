@@ -1,6 +1,7 @@
 using Godot;
 using UI.Controls.Icons;
 using UI.Controls.Action;
+using Nodes;
 
 namespace UI.HUD;
 
@@ -12,6 +13,8 @@ namespace UI.HUD;
 [Icon("res://icons/UIIcon.svg"), Tool]
 public partial class GamepadCursorHintIcon : HBoxContainer
 {
+    private readonly NodeCache _cache;
+
     private Texture2D GetButtonIcon(JoyButton b) => ButtonMap is not null && ButtonMap.ContainsKey(b) ? ButtonMap[b] : null;
 
     private GridContainer _individual = null;
@@ -19,13 +22,13 @@ public partial class GamepadCursorHintIcon : HBoxContainer
     private TextureRect _unified = null;
     private TextureRect _analog = null;
 
-    private GridContainer IndividualIcons => _individual ??= GetNode<GridContainer>("Individual");
-    private TextureRect UpIcon => _upIcon ??= GetNode<TextureRect>("Individual/Up");
-    private TextureRect LeftIcon => _leftIcon ??= GetNode<TextureRect>("Individual/Left");
-    private TextureRect DownIcon => _downIcon ??= GetNode<TextureRect>("Individual/Down");
-    private TextureRect RightIcon => _rightIcon ??= GetNode<TextureRect>("Individual/Right");
-    private TextureRect UnifiedIcon => _unified ??= GetNode<TextureRect>("Unified");
-    private TextureRect AnalogIcon => _analog ??= GetNode<TextureRect>("Analog");
+    private GridContainer IndividualIcons => _cache.GetNode<GridContainer>("Individual");
+    private TextureRect UpIcon => _cache.GetNode<TextureRect>("Individual/Up");
+    private TextureRect LeftIcon => _cache.GetNode<TextureRect>("Individual/Left");
+    private TextureRect DownIcon => _cache.GetNode<TextureRect>("Individual/Down");
+    private TextureRect RightIcon => _cache.GetNode<TextureRect>("Individual/Right");
+    private TextureRect UnifiedIcon => _cache.GetNode<TextureRect>("Unified");
+    private TextureRect AnalogIcon => _cache.GetNode<TextureRect>("Analog");
 
     private void Update()
     {
@@ -84,6 +87,11 @@ public partial class GamepadCursorHintIcon : HBoxContainer
                 UnifiedIcon.Visible = !value;
             }
         }
+    }
+
+    public GamepadCursorHintIcon() : base()
+    {
+        _cache = new(this);
     }
 
     public override void _Ready()
