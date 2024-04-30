@@ -181,9 +181,11 @@ public partial class Level : Node
     /// <see cref="Army"/> that gets the first turn and is controlled by the player. If null, use the first <see cref="Army"/>
     /// in the child list. After that, go down the child list in order, wrapping when at the end.
     /// </summary>
+    [ExportGroup("Turn Control")]
     [Export] public Army StartingArmy = null;
 
     /// <summary>Turn count (including current turn, so it starts at 1).</summary>
+    [ExportGroup("Turn Control")]
     [Export] public int Turn
     {
         get => _turn;
@@ -196,6 +198,7 @@ public partial class Level : Node
     }
 
     /// <summary>Whether or not to show the global danger zone relative to <see cref="StartingArmy"/>.</summary>
+    [ExportGroup("Range Overlay")]
     [Export] public bool ShowGlobalDangerZone
     {
         get => _showGlobalZone;
@@ -208,9 +211,11 @@ public partial class Level : Node
     }
 
     /// <summary>Action to toggle the global danger zone.</summary>
+    [ExportGroup("Range Overlay")]
     [Export] public InputActionReference ToggleGlobalDangerZoneAction = new();
 
     /// <summary>Modulate color for the action range overlay to use during idle state to differentiate from the one displayed while selecting a move path.</summary>
+    [ExportGroup("Range Overlay")]
     [Export] public Color ActionRangeIdleModulate = new(1, 1, 1, 0.66f);
 
     /// <summary>Map cancel selection action reference (distinct from menu back/cancel).</summary>
