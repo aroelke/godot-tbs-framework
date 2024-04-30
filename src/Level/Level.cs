@@ -25,6 +25,13 @@ namespace Level;
 [Tool]
 public partial class Level : Node
 {
+    private readonly NodeCache _cache;
+
+    public Level() : base()
+    {
+        _cache = new(this);
+    }
+
 #region Constants
     // State chart events
     private readonly StringName SelectEvent = "select";
@@ -49,39 +56,28 @@ public partial class Level : Node
     private const string GlobalDanger = "global danger";
 #endregion
 #region Declarations
-    private Chart _state = null;
-    private Grid _map = null;
     private Path _path = null;
-    private PathOverlay _pathOverlay = null;
-    private RangeOverlay _actionOverlay = null;
-    private Camera2DBrain _camera = null;
-    private Cursor _cursor = null;
-    private Pointer _pointer = null;
     private Unit _selected = null, _target = null;
     private IEnumerator<Army> _armies = null;
     private Vector2I? _initialCell = null;
-    private ControlHint _cancelHint = null;
-    private AudioStreamPlayer _errorSound = null, _zoneOnSound = null, _zoneOffSound = null;
 
-    private Grid Grid => _map ??= GetNode<Grid>("Grid");
-    private PathOverlay PathOverlay => _pathOverlay ??= GetNode<PathOverlay>("PathOverlay");
-    private RangeOverlay ActionOverlay => _actionOverlay ??= GetNode<RangeOverlay>("ActionRangeOverlay");
-    private Camera2DBrain Camera => _camera ??= GetNode<Camera2DBrain>("Camera");
-    private Cursor Cursor => _cursor ??= GetNode<Cursor>("Cursor");
-    private Pointer Pointer => _pointer ??= GetNode<Pointer>("Pointer");
-    private ControlHint CancelHint => _cancelHint ??= GetNode<ControlHint>("UserInterface/HUD/Hints/CancelHint");
-    private AudioStreamPlayer ErrorSound => _errorSound ??= GetNode<AudioStreamPlayer>("ErrorSound");
-    private AudioStreamPlayer ZoneOnSound => _zoneOnSound ??= GetNode<AudioStreamPlayer>("ZoneOnSound");
-    private AudioStreamPlayer ZoneOffSound => _zoneOffSound ??= GetNode<AudioStreamPlayer>("ZoneOffSound");
+    private Chart StateChart => _cache.GetNode<Chart>("State");
+    private Grid Grid => _cache.GetNode<Grid>("Grid");
+    private PathOverlay PathOverlay => _cache.GetNode<PathOverlay>("PathOverlay");
+    private RangeOverlay ActionOverlay => _cache.GetNode<RangeOverlay>("ActionRangeOverlay");
+    private Camera2DBrain Camera => _cache.GetNode<Camera2DBrain>("Camera");
+    private Cursor Cursor => _cache.GetNode<Cursor>("Cursor");
+    private Pointer Pointer => _cache.GetNode<Pointer>("Pointer");
+    private ControlHint CancelHint => _cache.GetNode<ControlHint>("UserInterface/HUD/Hints/CancelHint");
+    private AudioStreamPlayer ErrorSound => _cache.GetNode<AudioStreamPlayer>("ErrorSound");
+    private AudioStreamPlayer ZoneOnSound => _cache.GetNode<AudioStreamPlayer>("ZoneOnSound");
+    private AudioStreamPlayer ZoneOffSound => _cache.GetNode<AudioStreamPlayer>("ZoneOffSound");
 #endregion
 #region Helper Properties and Methods
     private ImmutableHashSet<Unit> _zoneUnits = ImmutableHashSet<Unit>.Empty;
 
-    private RangeOverlay _zoneOverlay = null;
-    private Label _turnLabel = null;
-
-    private RangeOverlay ZoneOverlay => _zoneOverlay ??= GetNode<RangeOverlay>("ZoneOverlay");
-    private Label TurnLabel => _turnLabel = GetNode<Label>("%TurnLabel");
+    private RangeOverlay ZoneOverlay => _cache.GetNode<RangeOverlay>("ZoneOverlay");
+    private Label TurnLabel => _cache.GetNode<Label>("%TurnLabel");
 
     /// <summary>Units to include in the local unit zones. Updates the highlighted squares when set.</summary>
     private ImmutableHashSet<Unit> ZoneUnits
@@ -195,7 +191,7 @@ public partial class Level : Node
         {
             _turn = value;
             if (!Engine.IsEditorHint())
-                _turnLabel.Text = $"Turn {_turn}: {_armies.Current.Name}";
+                TurnLabel.Text = $"Turn {_turn}: {_armies.Current.Name}";
         }
     }
 
@@ -227,8 +223,7 @@ public partial class Level : Node
     [Export] public InputActionReference NextAction = new();
 #endregion
 #region Idle State
-    private Timer _turnAdvance = null;
-    private Timer TurnAdvance => _turnAdvance = GetNode<Timer>("TurnAdvance");
+    private Timer TurnAdvance => _cache.GetNode<Timer>("TurnAdvance");
 
     /// <summary>Deselect or deactivate the selected <see cref="Unit"/> and clean up after finishing actions.</summary>
     /// <param name="done">Whether or not the <see cref="Unit"/> completed its action (so it should be deactivated).</param>
@@ -436,7 +431,7 @@ public partial class Level : Node
     public void OnUnitDoneMoving()
     {
         _selected.DoneMoving -= OnUnitDoneMoving;
-        _state.SendEvent(DoneEvent);
+        StateChart.SendEvent(DoneEvent);
     }
 
     /// <summary>Begin moving the selected <see cref="Unit"/> and then wait for it to finish moving.</summary>
@@ -491,7 +486,7 @@ public partial class Level : Node
         if (_target == null)
             WarpCursor(Cursor.Cell);
         else
-            _state.SendEvent(SelectEvent);
+            StateChart.SendEvent(SelectEvent);
     }
 
     /// <summary>
@@ -548,7 +543,7 @@ public partial class Level : Node
         _initialCell = null;
 
         WarpCursor(_selected.Cell);
-        _state.SendEvent(DoneEvent);
+        StateChart.SendEvent(DoneEvent);
     }
 
     public void OnCancelTargetingExited() => UpdateDangerZones();
@@ -559,9 +554,9 @@ public partial class Level : Node
     public void OnCellSelected(Vector2I cell)
     {
         if (Grid.CellOf(Pointer.Position) == cell)
-            _state.SendEvent(SelectEvent);
+            StateChart.SendEvent(SelectEvent);
         else
-            _state.SendEvent(CancelEvent);
+            StateChart.SendEvent(CancelEvent);
     }
 
     /// <summary>When a <see cref="GridNode"/> is added to a group, update its <see cref="GridNode.Grid"/>.</summary>
@@ -600,8 +595,6 @@ public partial class Level : Node
 
         if (!Engine.IsEditorHint())
         {
-            _state = GetNode<Chart>("State");
-
             Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
             Pointer.World = Cursor.Grid = Grid;
             Pointer.Bounds = Camera.Limits;
@@ -632,7 +625,7 @@ public partial class Level : Node
         base._Input(@event);
 
         if (@event.IsActionPressed(CancelAction))
-            _state.SendEvent(CancelEvent);
+            StateChart.SendEvent(CancelEvent);
 
         if (@event.IsActionPressed(ToggleGlobalDangerZoneAction))
         {
@@ -655,7 +648,7 @@ public partial class Level : Node
 
         if (!Engine.IsEditorHint())
         {
-            _state.ExpressionProperties = _state.ExpressionProperties
+            StateChart.ExpressionProperties = StateChart.ExpressionProperties
                 .SetItem(OccupiedProperty, Grid.Occupants.GetValueOrDefault(Cursor.Cell) switch
                 {
                     Unit unit when unit == _selected => SelectedOccuiped,
