@@ -210,6 +210,9 @@ public partial class Level : Node
     /// <summary>Action to toggle the global danger zone.</summary>
     [Export] public InputActionReference ToggleGlobalDangerZoneAction = new();
 
+    /// <summary>Modulate color for the action range overlay to use during idle state to differentiate from the one displayed while selecting a move path.</summary>
+    [Export] public Color ActionRangeIdleModulate = new(1, 1, 1, 0.66f);
+
     /// <summary>Map cancel selection action reference (distinct from menu back/cancel).</summary>
     [ExportGroup("Cursor Actions")]
     [Export] public InputActionReference CancelAction = new();
@@ -245,7 +248,11 @@ public partial class Level : Node
     }
 
     /// <summary>Update the UI when re-entering idle.</summary>
-    public void OnIdleEntered() => OnIdleCursorMoved(Cursor.Cell);
+    public void OnIdleEntered()
+    {
+        ActionOverlay.Modulate = ActionRangeIdleModulate;
+        OnIdleCursorMoved(Cursor.Cell);
+    }
 
     /// <summary>
     /// Handle events that might occur during idle <see cref="State"/>.
@@ -331,6 +338,8 @@ public partial class Level : Node
 
     /// <summary>Choose a selected <see cref="Unit"/>.</summary>
     public void OnIdleToSelectedTaken() => _selected = Grid.Occupants[Cursor.Cell] as Unit;
+
+    public void OnIdleExited() => ActionOverlay.Modulate = Colors.White;
 #endregion
 #region Unit Selected State
     private ActionRanges _actionable = new();

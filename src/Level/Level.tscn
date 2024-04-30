@@ -303,6 +303,7 @@ stream = ExtResource("32_e2hk2")
 [connection signal="PointerMoved" from="Pointer" to="Cursor" method="OnPointerMoved"]
 [connection signal="EventReceived" from="State/Root/Idle" to="." method="OnIdleEventReceived"]
 [connection signal="StateEntered" from="State/Root/Idle" to="." method="OnIdleEntered"]
+[connection signal="StateExited" from="State/Root/Idle" to="." method="OnIdleExited"]
 [connection signal="StateInput" from="State/Root/Idle/OnInput" to="." method="OnIdleInput"]
 [connection signal="StateCellUpdated" from="State/Root/Idle/OnCursorMoved" to="." method="OnIdleCursorMoved"]
 [connection signal="Taken" from="State/Root/Idle/ToSelected" to="." method="OnIdleToSelectedTaken"]
