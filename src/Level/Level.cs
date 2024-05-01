@@ -161,13 +161,6 @@ public partial class Level : Node
             ZoneOverlay[GlobalDanger] = ImmutableHashSet<Vector2I>.Empty;
     }
 
-    /// <summary>Update the UI turn counter for the current turn and change its color to match the army.</summary>
-    private void UpdateTurnCounter()
-    {
-        TurnLabel.AddThemeColorOverride("font_color", _armies.Current.Color);
-        TurnLabel.Text = $"Turn {Turn}: {_armies.Current.Name}";
-    }
-
     /// <returns>The audio player that plays the "zone on" or "zone off" sound depending on <paramref name="on"/>.</returns>
     private AudioStreamPlayer ZoneUpdateSound(bool on) => on ? ZoneOnSound : ZoneOffSound;
 #endregion
@@ -231,24 +224,11 @@ public partial class Level : Node
     [Export] public InputActionReference NextAction = new();
 #endregion
 #region Idle State
-    private Timer TurnAdvance => _cache.GetNode<Timer>("TurnAdvance");
-
-    /// <summary>Deselect or deactivate the selected <see cref="Unit"/> and clean up after finishing actions.</summary>
-    /// <param name="done">Whether or not the <see cref="Unit"/> completed its action (so it should be deactivated).</param>
-    public void OnToIdleTaken(bool done)
+    /// <summary>Deselect the selected <see cref="Unit"/> and clean up after canceling actions.</summary>
+    public void OnToIdleTaken()
     {
-        if (done)
-        {
-            _selected.Finish();
-
-            // Switch to the next army
-            if (!((IEnumerable<Unit>)_armies.Current).Any((u) => u.Active))
-                TurnAdvance.Start();
-        }
-        else
-            _selected.Deselect();
+        _selected.Deselect();
         _selected = null;
-
         CancelHint.Visible = false;
     }
 
@@ -280,23 +260,6 @@ public partial class Level : Node
                 ZoneUnits = ZoneUnits.Remove(unit);
             ZoneUpdateSound(ZoneUnits.Contains(unit)).Play();
         }
-    }
-
-    /// <summary>
-    /// Advance the turn cycle:
-    /// - Go to the next <see cref="Army"/>
-    /// - If returning to <see cref="StartingArmy"/>, increment <see cref="Turn"/>
-    /// </summary>
-    public void OnTurnAdvance()
-    {
-        // Refresh all the units in the current army so they aren't gray anymore and are animated
-        foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
-            unit.Refresh();
-
-        if (_armies.MoveNext() && _armies.Current == StartingArmy)
-            Turn++;
-        
-        UpdateTurnCounter();
     }
 
     /// <summary>
@@ -540,6 +503,44 @@ public partial class Level : Node
         Pointer.AnalogTracking = true;
         Cursor.HardRestriction = Cursor.HardRestriction.Clear();
         Cursor.Wrap = false;
+    }
+#endregion
+#region Turn Advancing
+    private Timer TurnAdvance => _cache.GetNode<Timer>("TurnAdvance");
+
+    /// <summary>Update the UI turn counter for the current turn and change its color to match the army.</summary>
+    private void UpdateTurnCounter()
+    {
+        TurnLabel.AddThemeColorOverride("font_color", _armies.Current.Color);
+        TurnLabel.Text = $"Turn {Turn}: {_armies.Current.Name}";
+    }
+
+    /// <summary>
+    /// Clean up after finishing a unit's action, then go to the next army if it was the last available unit in the current army, incrementing the turn
+    /// counter when going back to <see cref="StartingArmy"/>.
+    /// </summary>
+    public async void OnTurnAdvancingEntered()
+    {
+        _selected.Finish();
+        _selected = null;
+        CancelHint.Visible = false;
+
+        if (!((IEnumerable<Unit>)_armies.Current).Any((u) => u.Active))
+        {
+            TurnAdvance.Start();
+            await ToSignal(TurnAdvance, Timer.SignalName.Timeout);
+
+            // Refresh all the units in the current army so they aren't gray anymore and are animated
+            foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
+                unit.Refresh();
+
+            if (_armies.MoveNext() && _armies.Current == StartingArmy)
+                Turn++;
+            UpdateTurnCounter();
+
+            WarpCursor(((IEnumerable<Unit>)_armies.Current).First().Cell);
+        }
+        StateChart.SendEvent(DoneEvent);
     }
 #endregion
 #region Cancel States
