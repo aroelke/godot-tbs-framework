@@ -293,13 +293,13 @@ public partial class Level : Node
             {
                 Unit prev = unit.Affiliation.Previous(unit);
                 if (prev is not null)
-                    Cursor.Cell = prev.Cell;
+                    WarpCursor(prev.Cell);
             }
             if (@event.IsActionPressed(NextAction))
             {
                 Unit next = unit.Affiliation.Next(unit);
                 if (next is not null)
-                    Cursor.Cell = next.Cell;
+                    WarpCursor(next.Cell);
             }
         }
     }
@@ -489,7 +489,7 @@ public partial class Level : Node
                 GD.PushError("Cursor is not on an actionable cell during targeting");
             
             if (cells.Length > 1)
-                Cursor.Cell = cells[(Array.IndexOf(cells, Cursor.Cell) + next + cells.Length) % cells.Length];
+                WarpCursor(cells[(Array.IndexOf(cells, Cursor.Cell) + next + cells.Length) % cells.Length]);
         }
     }
 
