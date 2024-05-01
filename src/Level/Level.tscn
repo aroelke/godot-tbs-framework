@@ -44,9 +44,6 @@ script = ExtResource("22_tix5y")
 Property = &"occupied"
 Value = "active"
 
-[sub_resource type="Resource" id="Resource_f7pbh"]
-script = ExtResource("24_k1nop")
-
 [sub_resource type="Resource" id="Resource_4c3ly"]
 script = ExtResource("21_7vj21")
 Flag = &"traversable"
@@ -96,6 +93,9 @@ Flag = &"traversable"
 [sub_resource type="Resource" id="Resource_j0hg7"]
 script = ExtResource("23_6etqp")
 Condition = SubResource("Resource_wojwn")
+
+[sub_resource type="Resource" id="Resource_f7pbh"]
+script = ExtResource("24_k1nop")
 
 [sub_resource type="Resource" id="Resource_m8qte"]
 script = ExtResource("24_k1nop")
@@ -215,14 +215,6 @@ To = NodePath("../../UnitSelected")
 Event = &"select"
 Condition = SubResource("Resource_mydqi")
 
-[node name="CancelSelection" parent="State/Root" instance=ExtResource("19_o30vs")]
-process_mode = 4
-
-[node name="ToIdle" parent="State/Root/CancelSelection" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../Idle")
-Event = &"done"
-Condition = SubResource("Resource_f7pbh")
-
 [node name="UnitSelected" parent="State/Root" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
@@ -241,8 +233,8 @@ To = NodePath("../../Idle")
 Event = &"select"
 Condition = SubResource("Resource_j0hg7")
 
-[node name="ToCancel" parent="State/Root/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../CancelSelection")
+[node name="ToIdleOnCancel" parent="State/Root/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../Idle")
 Event = &"cancel"
 Condition = SubResource("Resource_f7pbh")
 
@@ -253,14 +245,6 @@ process_mode = 4
 
 [node name="ToTargeting" parent="State/Root/UnitMoving" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../UnitTargeting")
-Event = &"done"
-Condition = SubResource("Resource_f7pbh")
-
-[node name="CancelTargeting" parent="State/Root" instance=ExtResource("19_o30vs")]
-process_mode = 4
-
-[node name="ToSelected" parent="State/Root/CancelTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../UnitSelected")
 Event = &"done"
 Condition = SubResource("Resource_f7pbh")
 
@@ -275,8 +259,8 @@ To = NodePath("../../TurnAdvancing")
 Event = &"select"
 Condition = SubResource("Resource_f7pbh")
 
-[node name="ToCancel" parent="State/Root/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../CancelTargeting")
+[node name="ToSelected" parent="State/Root/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../UnitSelected")
 Event = &"cancel"
 Condition = SubResource("Resource_f7pbh")
 
@@ -319,8 +303,6 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateCellUpdated" from="State/Root/Idle/OnCursorMoved" to="." method="OnIdleCursorMoved"]
 [connection signal="Taken" from="State/Root/Idle/ToSelected" to="." method="OnIdleToSelectedTaken"]
 [connection signal="Taken" from="State/Root/Idle/ToSelected" to="SelectSound" method="play" binds= [0.0]]
-[connection signal="StateEntered" from="State/Root/CancelSelection" to="." method="OnCancelUnitActionEntered"]
-[connection signal="Taken" from="State/Root/CancelSelection/ToIdle" to="." method="OnToIdleTaken"]
 [connection signal="StateEntered" from="State/Root/UnitSelected" to="." method="OnSelectedEntered"]
 [connection signal="StateExited" from="State/Root/UnitSelected" to="." method="OnSelectedExited"]
 [connection signal="StateCellUpdated" from="State/Root/UnitSelected/OnCursorMoved" to="." method="OnSelectedCursorMoved"]
@@ -328,15 +310,15 @@ stream = ExtResource("32_e2hk2")
 [connection signal="Taken" from="State/Root/UnitSelected/ToMoving" to="SelectSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/UnitSelected/ToIdle" to="." method="OnToIdleTaken"]
 [connection signal="Taken" from="State/Root/UnitSelected/ToIdle" to="CancelSound" method="play" binds= [0.0]]
-[connection signal="Taken" from="State/Root/UnitSelected/ToCancel" to="CancelSound" method="play" binds= [0.0]]
+[connection signal="Taken" from="State/Root/UnitSelected/ToIdleOnCancel" to="." method="OnSelectedCanceled"]
+[connection signal="Taken" from="State/Root/UnitSelected/ToIdleOnCancel" to="CancelSound" method="play" binds= [0.0]]
 [connection signal="StateEntered" from="State/Root/UnitMoving" to="." method="OnMovingEntered"]
 [connection signal="StateExited" from="State/Root/UnitMoving" to="." method="OnMovingExited"]
 [connection signal="StateInput" from="State/Root/UnitMoving/OnInput" to="." method="OnMovingInput"]
-[connection signal="StateEntered" from="State/Root/CancelTargeting" to="." method="OnCancelUnitActionEntered"]
-[connection signal="StateExited" from="State/Root/CancelTargeting" to="." method="OnCancelTargetingExited"]
 [connection signal="StateEntered" from="State/Root/UnitTargeting" to="." method="OnTargetingEntered"]
 [connection signal="StateExited" from="State/Root/UnitTargeting" to="." method="OnTargetingExited"]
 [connection signal="StateInput" from="State/Root/UnitTargeting/OnInput" to="." method="OnTargetingInput"]
 [connection signal="Taken" from="State/Root/UnitTargeting/ToAdvancing" to="SelectSound" method="play" binds= [0.0]]
-[connection signal="Taken" from="State/Root/UnitTargeting/ToCancel" to="CancelSound" method="play" binds= [0.0]]
+[connection signal="Taken" from="State/Root/UnitTargeting/ToSelected" to="." method="OnTargetingCanceled"]
+[connection signal="Taken" from="State/Root/UnitTargeting/ToSelected" to="CancelSound" method="play" binds= [0.0]]
 [connection signal="StateEntered" from="State/Root/TurnAdvancing" to="." method="OnTurnAdvancingEntered"]

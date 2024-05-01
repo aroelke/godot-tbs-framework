@@ -90,12 +90,38 @@ public partial class Level : Node
         }
     }
 
+    /// <summary>Wait for a signal, blocking input while waiting for it.</summary>
+    /// <param name="source">Instance sending the signal.</param>
+    /// <param name="signal">Name of the signal to wait for.</param>
+    private async void HoldInputForSignal(GodotObject source, StringName signal)
+    {
+        ProcessModeEnum chartProcess = StateChart.ProcessMode;
+
+        SetProcessInput(false);
+        SetProcessUnhandledInput(false);
+        Cursor.SetProcessInput(false);
+        Cursor.SetProcessUnhandledInput(false);
+        Pointer.SetProcessInput(false);
+        Pointer.SetProcessUnhandledInput(false);
+        StateChart.ProcessMode = ProcessModeEnum.Disabled;
+
+        await ToSignal(source, signal);
+
+        SetProcessInput(true);
+        SetProcessUnhandledInput(true);
+        Cursor.SetProcessInput(true);
+        Cursor.SetProcessUnhandledInput(true);
+        Pointer.SetProcessInput(true);
+        Pointer.SetProcessUnhandledInput(true);
+        StateChart.ProcessMode = chartProcess;
+    }
+
     /// <summary>
     /// If the <see cref="Object.Cursor"/> isn't in the specified cell, move it to (the center of) that cell. During mouse control, this is done smoothly
-    /// over time to maintain consistency with the system pointer.
+    /// over time to maintain consistency with the system pointer, and other inputs are disabled while it moves.
     /// </summary>
     /// <param name="cell">Cell to move the cursor to.</param>
-    private async void WarpCursor(Vector2I cell)
+    private void WarpCursor(Vector2I cell)
     {
         Rect2 rect = Grid.CellRect(cell);
         switch (DeviceManager.Mode)
@@ -120,7 +146,7 @@ public partial class Level : Node
 
                 BoundedNode2D target = Camera.Target;
                 Camera.Target = Grid.Occupants[cell];
-                await ToSignal(tween, Tween.SignalName.Finished);
+                HoldInputForSignal(tween, Tween.SignalName.Finished);
                 tween.Kill();
                 Camera.Target = target;
             }
@@ -386,6 +412,13 @@ public partial class Level : Node
         }
     }
 
+    /// <summary>Move the <see cref="Object.Cursor"/> back to the selected <see cref="Unit"/> and then deselect it.</summary>
+    public void OnSelectedCanceled()
+    {
+        CancelUnitAction();
+        OnToIdleTaken();
+    }
+
     /// <summary>Clean up when exiting selected <see cref="State"/>.</summary>
     public void OnSelectedExited()
     {
@@ -493,6 +526,13 @@ public partial class Level : Node
         }
     }
 
+    /// <summary>Move the selected <see cref="Unit"/> and <see cref="Object.Cursor"/> back to the cell the unit was at before it moved.</summary>
+    public void OnTargetingCanceled()
+    {
+        CancelUnitAction();
+        UpdateDangerZones();
+    }
+
     /// <summary>Clean up displayed ranges and restore <see cref="Object.Cursor"/> freedom when exiting targeting <see cref="State"/>.</summary>
     public void OnTargetingExited()
     {
@@ -543,12 +583,12 @@ public partial class Level : Node
         StateChart.SendEvent(DoneEvent);
     }
 #endregion
-#region Cancel States
+#region State Independent
     /// <summary>
     /// Move the selected <see cref="Unit"/> back to its starting position (only does anything when canceling targeting). Then move the
     /// <see cref="Object.Cursor"/> to the <see cref="Unit"/>'s current position, and go back to the previous <see cref="State"/>.
     /// </summary>
-    public void OnCancelUnitActionEntered()
+    public void CancelUnitAction()
     {
         // Move the selected unit back to its original cell
         Grid.Occupants.Remove(_selected.Cell);
@@ -556,14 +596,9 @@ public partial class Level : Node
         _selected.Position = Grid.PositionOf(_selected.Cell);
         Grid.Occupants[_selected.Cell] = _selected;
         _initialCell = null;
-
         WarpCursor(_selected.Cell);
-        StateChart.SendEvent(DoneEvent);
     }
 
-    public void OnCancelTargetingExited() => UpdateDangerZones();
-#endregion
-#region State Independent
     /// <summary>When a cell is selected, act based on what is or isn't in the cell.</summary>
     /// <param name="cell">Coordinates of the cell selection.</param>
     public void OnCellSelected(Vector2I cell)
