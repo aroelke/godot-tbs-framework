@@ -2,10 +2,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using Level.Object.Group;
-using Object;
+using Nodes;
 using Extensions;
 using Level.Map;
 using System.Collections.Immutable;
+using System;
+using UI.Controls.Action;
 
 namespace Level.Object;
 
@@ -16,6 +18,8 @@ namespace Level.Object;
 [Tool]
 public partial class Unit : GridNode
 {
+    private readonly NodeCache _cache;
+
     // AnimationTree parameters
     private static readonly StringName Idle = "parameters/conditions/idle";
     private static readonly StringName Selected = "parameters/conditions/selected";
@@ -26,14 +30,12 @@ public partial class Unit : GridNode
     /// <summary>Signal that the unit is done moving along its path.</summary>
     [Signal] public delegate void DoneMovingEventHandler();
 
-    private Path2D _path = null;
-    private PathFollow2D _follow = null;
-    private Sprite2D _sprite = null;
     private Army _affiliation = null;
-    private AnimationTree _tree = null;
 
-    private Path2D Path => _path = GetNode<Path2D>("Path");
-    private PathFollow2D PathFollow => _follow = GetNode<PathFollow2D>("Path/PathFollow");
+    private Path2D Path => _cache.GetNode<Path2D>("Path");
+    private PathFollow2D PathFollow => _cache.GetNode<PathFollow2D>("Path/PathFollow");
+    private Sprite2D Sprite => _cache.GetNodeOrNull<Sprite2D>("Path/PathFollow/Sprite");
+    private AnimationTree Tree => _cache.GetNode<AnimationTree>("AnimationTree");
 
     /// <summary>Get all cells in a set of ranges from a set of source cells.</summary>
     /// <param name="sources">Cells to compute ranges from.</param>
@@ -61,16 +63,29 @@ public partial class Unit : GridNode
         set
         {
             _affiliation = value;
-            if (_sprite is not null && _affiliation is not null)
-                _sprite.Modulate = _affiliation.Color;
+            if (Sprite is not null && _affiliation is not null)
+                Sprite.Modulate = _affiliation.Color;
         }
     }
 
-    /// <summary>Speed, in world pixels/second, to move along the path while moving.</summary>
+    [ExportGroup("Path Traversal", "Move")]
+
+    /// <summary>Base speed, in world pixels/second, to move along the path while moving.</summary>
     [Export] public double MoveSpeed = 320;
 
+    /// <summary>Action to use to accelerate the unit while it's moving. </summary>
+    [Export] public InputActionReference MoveAccelerateAction = new();
+
+    /// <summary>Factor to multiply <see cref="MoveSpeed"/> by while <see cref="MoveAccelerateAction"/> is held down.</summary>
+    [Export] public double MoveAccelerationFactor = 2;
+
     /// <summary>Whether or not the unit has completed its turn.</summary>
-    public bool Active => !_tree.Get(Done).AsBool();
+    public bool Active => !Tree.Get(Done).AsBool();
+
+    public Unit() : base()
+    {
+        _cache = new(this);
+    }
 
     /// <returns>The set of cells that this unit can reach from its position, accounting for <see cref="Terrain.Cost"/>.</returns>
     public IEnumerable<Vector2I> TraversableCells()
@@ -140,77 +155,101 @@ public partial class Unit : GridNode
     public ActionRanges ActionRanges()
     {
         IEnumerable<Vector2I> traversable = TraversableCells();
-        return new(traversable, AttackableCells(traversable.Where((c) => !Grid.Occupants.ContainsKey(c))), SupportableCells(traversable.Where((c) => !Grid.Occupants.ContainsKey(c))));
+        return new(
+            traversable,
+            AttackableCells(traversable.Where((c) => !Grid.Occupants.ContainsKey(c) || Grid.Occupants[c] == this)),
+            SupportableCells(traversable.Where((c) => !Grid.Occupants.ContainsKey(c) || Grid.Occupants[c] == this))
+        );
     }
 
     /// <summary>Put the unit in the "selected" state.</summary>
     public void Select()
     {
-        _tree.Set(Idle, false);
-        _tree.Set(Selected, true);
-        _tree.Set(Moving, false);
+        Tree.Set(Idle, false);
+        Tree.Set(Selected, true);
+        Tree.Set(Moving, false);
     }
 
     /// <summary>Put the unit in the "idle" state.</summary>
     public void Deselect()
     {
-        _tree.Set(Idle, true);
-        _tree.Set(Selected, false);
-        _tree.Set(Moving, false);
+        Tree.Set(Idle, true);
+        Tree.Set(Selected, false);
+        Tree.Set(Moving, false);
     }
 
     /// <summary>Put the unit in its "done" state, indicating it isn't available to act anymore.</summary>
     public void Finish()
     {
-        _sprite.Modulate = Colors.White;
-        _tree.Set(Selected, false);
-        _tree.Set(Done, true);
+        Sprite.Modulate = Colors.White;
+        Tree.Set(Selected, false);
+        Tree.Set(Done, true);
     }
 
     /// <summary>Restore the unit into its "idle" state from being inactive, indicating that it's ready to act again.</summary>
     public void Refresh()
     {
-        _sprite.Modulate = Affiliation.Color;
-        _tree.Set(Done, false);
-        _tree.Set(Idle, true);
+        Sprite.Modulate = Affiliation.Color;
+        Tree.Set(Done, false);
+        Tree.Set(Idle, true);
     }
 
     /// <summary>Box that travels with the motion of the sprite to use for tracking the unit as it moves.</summary>
     /// <remarks>Don't use the unit's actual position, as that doesn't update until motion is over.</remarks>
-    public BoundedNode2D MotionBox { get; private set; } = null;
+    public BoundedNode2D MotionBox => _cache.GetNode<BoundedNode2D>("Path/PathFollow/Bounds");
 
     /// <summary>Move the unit along a path of <see cref="Grid"/> cells.</summary>
     /// <param name="path">Coordinates of the cells to move along.</param>
     public void MoveAlong(Path path)
     {
-        if (path.Count > 0)
+        if (path[0] != Cell)
+            throw new ArgumentException("The first cell in the path must be the unit's cell");
+
+        if (path.Count == 1)
+            EmitSignal(SignalName.DoneMoving);
+        else if (path.Count > 1)
         {
             foreach (Vector2I cell in path)
                 Path.Curve.AddPoint(Grid.PositionOf(cell) - Position);
-            Cell = path.Last();
-            _tree.Set(Selected, false);
-            _tree.Set(Moving, true);
+            Cell = path[^1];
+            Tree.Set(Selected, false);
+            Tree.Set(Moving, true);
             SetProcess(true);
         }
+    }
+
+    /// <summary>If this unit is moving, skip straight to the end of the path.</summary>
+    /// <exception cref="InvalidOperationException">If the unit is not moving.</exception>
+    public void SkipMoving()
+    {
+        if (!Tree.Get(Moving).AsBool())
+            throw new InvalidOperationException($"Unit {Name} isn't moving");
+        PathFollow.ProgressRatio = 1;
     }
 
     public override void _Ready()
     {
         base._Ready();
 
-        _tree = GetNode<AnimationTree>("AnimationTree");
-
-        _sprite = GetNode<Sprite2D>("Path/PathFollow/Sprite");
         if (_affiliation is not null)
-            _sprite.Modulate = _affiliation.Color;
+            Sprite.Modulate = _affiliation.Color;
 
         if (!Engine.IsEditorHint())
         {
             Path.Curve = new();
-            MotionBox = GetNode<BoundedNode2D>("Path/PathFollow/Bounds");
             MotionBox.Size = Size;
             SetProcess(false);
         }
+    }
+
+    public override void _Input(InputEvent @event)
+    {
+        base._Input(@event);
+
+        if (@event.IsActionPressed(MoveAccelerateAction))
+            MoveSpeed *= MoveAccelerationFactor;
+        else if (@event.IsActionReleased(MoveAccelerateAction))
+            MoveSpeed /= MoveAccelerationFactor;
     }
 
     public override void _Process(double delta)
@@ -223,12 +262,12 @@ public partial class Unit : GridNode
             PathFollow.Progress += (float)(MoveSpeed*delta);
             Vector2 change = PathFollow.Position - prev;
             if (change != Vector2.Zero)
-                _tree.Set(MoveDirection, change);
+                Tree.Set(MoveDirection, change);
 
             if (PathFollow.ProgressRatio >= 1)
             {
-                _tree.Set(Selected, true);
-                _tree.Set(Moving, false);
+                Tree.Set(Selected, true);
+                Tree.Set(Moving, false);
                 PathFollow.Progress = 0;
                 Position = Grid.PositionOf(Cell);
                 Path.Curve.ClearPoints();
@@ -239,7 +278,7 @@ public partial class Unit : GridNode
         else
         {
             if (_affiliation is not null)
-                _sprite.Modulate = _affiliation.Color;
+                Sprite.Modulate = _affiliation.Color;
         }
     }
 }

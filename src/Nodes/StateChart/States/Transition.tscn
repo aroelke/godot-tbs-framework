@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://0b22cirxc7k2"]
+
+[ext_resource type="Script" path="res://src/Nodes/StateChart/States/Transition.cs" id="1_4ibtt"]
+
+[node name="Transition" type="Node"]
+script = ExtResource("1_4ibtt")

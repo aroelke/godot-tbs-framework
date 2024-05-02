@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using Level.Map;
-using Object;
+using Nodes;
 using UI.Controls.Action;
 using UI.Controls.Device;
 
@@ -16,14 +16,17 @@ namespace Level.UI;
 [Tool]
 public partial class Pointer : BoundedNode2D
 {
+    private readonly NodeCache _cache;
+
     /// <summary>Signals that the virtual pointer has moved in the canvas.</summary>
     /// <param name="position">Position of the virtual pointer.</param>
     [Signal] public delegate void PointerMovedEventHandler(Vector2 position);
 
     private InputMode _prevMode = default;
     private bool _accelerate = false;
-    private TextureRect _mouse = null;
     private bool _tracking = true;
+
+    private TextureRect Mouse => _cache.GetNode<TextureRect>("Canvas/Mouse");
 
     /// <summary>Convert a position in the <see cref="World"/> to a position in the <see cref="Viewport"/>.</summary>
     /// <param name="world"><see cref="World"/> position.</param>
@@ -84,13 +87,18 @@ public partial class Pointer : BoundedNode2D
         {
             _tracking = value;
             if (DeviceManager.Mode == InputMode.Analog)
-                _mouse.Visible = _tracking;
+                Mouse.Visible = _tracking;
         }
     }
 
     /// <inheritdoc cref="BoundedNode2D.Size"/>
     /// <remarks>The pointer is just a point, but it has to have a zero area so the camera can focus on it.</remarks>
     public override Vector2 Size { get => Vector2.Zero; set {}}
+
+    public Pointer() : base()
+    {
+        _cache = new(this);
+    }
 
     /// <summary>Move the cursor to a new location that's not bounded by <see cref="Bounds"/>, and update listeners that the move occurred.</summary>
     /// <param name="position">Position to warp to.</param>
@@ -110,12 +118,12 @@ public partial class Pointer : BoundedNode2D
         switch (mode)
         {
         case InputMode.Mouse:
-            _mouse.Visible = false;
+            Mouse.Visible = false;
             Input.MouseMode = Input.MouseModeEnum.Visible;
             GetViewport().WarpMouse(WorldToViewport(Position));
             break;
         case InputMode.Analog:
-            _mouse.Visible = true;
+            Mouse.Visible = true;
             Input.MouseMode = Input.MouseModeEnum.Hidden;
             if (_prevMode == InputMode.Mouse)
                 Warp(ViewportToWorld(InputManager.GetMousePosition()));
@@ -138,7 +146,7 @@ public partial class Pointer : BoundedNode2D
     {
         if (DeviceManager.Mode == InputMode.Digital || (DeviceManager.Mode == InputMode.Analog && !_tracking))
         {
-            _mouse.Visible = false;
+            Mouse.Visible = false;
             Input.MouseMode = Input.MouseModeEnum.Hidden;
             Warp(position);
         }
@@ -160,10 +168,9 @@ public partial class Pointer : BoundedNode2D
 
         if (!Engine.IsEditorHint())
         {
-            _mouse = GetNode<TextureRect>("Canvas/Mouse");
-            _mouse.Texture = ResourceLoader.Load<Texture2D>(ProjectSettings.GetSetting("display/mouse_cursor/custom_image").As<string>());
-            Callable.From(() => _mouse.Position = WorldToViewport(Position)).CallDeferred();
-            _mouse.Visible = DeviceManager.Mode == InputMode.Analog;
+            Mouse.Texture = ResourceLoader.Load<Texture2D>(ProjectSettings.GetSetting("display/mouse_cursor/custom_image").As<string>());
+            Callable.From(() => Mouse.Position = WorldToViewport(Position)).CallDeferred();
+            Mouse.Visible = DeviceManager.Mode == InputMode.Analog;
 
             _prevMode = DeviceManager.Mode;
             Input.MouseMode = DeviceManager.Mode == InputMode.Mouse ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Hidden;
@@ -172,7 +179,7 @@ public partial class Pointer : BoundedNode2D
             InputManager.Singleton.MouseEntered += OnMouseEntered;
             InputManager.Singleton.MouseExited += OnMouseExited;
 
-            GetViewport().SizeChanged += () => _mouse.Scale = (GetViewport().GetScreenTransform() with { Origin = Vector2.Zero }).AffineInverse()*Vector2.One;
+            GetViewport().SizeChanged += () => Mouse.Scale = (GetViewport().GetScreenTransform() with { Origin = Vector2.Zero }).AffineInverse()*Vector2.One;
         }
     }
 
@@ -208,7 +215,7 @@ public partial class Pointer : BoundedNode2D
                 }
                 break;
             }
-            _mouse.Position = WorldToViewport(Position);
+            Mouse.Position = WorldToViewport(Position);
         }
     }
 }

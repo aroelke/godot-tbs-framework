@@ -5,6 +5,7 @@ using Godot;
 using UI.Controls.Action;
 using UI.Controls.Device;
 using Extensions;
+using Nodes;
 
 namespace Level.Object;
 
@@ -12,6 +13,8 @@ namespace Level.Object;
 [Tool]
 public partial class Cursor : GridNode
 {
+    private readonly NodeCache _cache;
+
     /// <summary>Emitted when the cursor moves to a new cell.</summary>
     /// <param name="cell">Position of the center of the cell moved to.</param>
     [Signal] public delegate void CursorMovedEventHandler(Vector2 position);
@@ -20,16 +23,32 @@ public partial class Cursor : GridNode
     /// <param name="cell">Coordinates of the cell that has been selected.</param>
     [Signal] public delegate void CellSelectedEventHandler(Vector2I cell);
 
+    /// <summary>
+    /// Compares two vector projections whose X values are their components along a direction and Y values are their components perpendicular
+    /// to it such that vectors that are longer along the parallel axis are lesser. If they're the same distance, then ones that are shorter
+    /// along the perpendicular axis are lesser.
+    /// </summary>
+    private static readonly IComparer<Vector2> FurtherAlongDirection = Comparer<Vector2>.Create((a, b) => {
+        // Prioritize cells further away along direction
+        if (a.X > b.X)
+            return -1;
+        else if (a.X < b.X)
+            return 1;
+
+        // ... but cells closer along direction's inverse
+        if (a.Y < b.Y)
+            return -1;
+        else if (a.Y > b.Y)
+            return 1;
+        
+        return 0;
+    });
+
     private ImmutableHashSet<Vector2I> _hard = ImmutableHashSet<Vector2I>.Empty;
 
-    private DigitalMoveAction _mover = null;
-    private DigitalMoveAction MoveController => _mover ??= GetNode<DigitalMoveAction>("MoveController");
-
-    private AudioStreamPlayer _moveSound = null;
-    private AudioStreamPlayer MoveSound => _moveSound ??= GetNode<AudioStreamPlayer>("MoveSound");
-
-    private Node _converters = null;
-    private Node Converters => _converters ??= GetNode<Node>("AnalogDigital");
+    private DigitalMoveAction MoveController => _cache.GetNode<DigitalMoveAction>("MoveController");
+    private AudioStreamPlayer MoveSound => _cache.GetNode<AudioStreamPlayer>("MoveSound");
+    private Node Converters => _cache.GetNode<Node>("AnalogDigital");
 
     /// <summary>Action for selecting a cell.</summary>
     [Export] public InputActionReference SelectAction = new();
@@ -96,6 +115,11 @@ public partial class Cursor : GridNode
         }
     }
 
+    public Cursor() : base()
+    {
+        _cache = new(this);
+    }
+
     /// <summary>When a direction is pressed, move the cursor to the adjacent cell there.</summary>
     public void OnDirectionPressed(Vector2I direction)
     {
@@ -110,9 +134,24 @@ public partial class Cursor : GridNode
         {
             IEnumerable<Vector2I> ahead = HardRestriction.Where((c) => (c - Cell)*direction > Vector2I.Zero);
             if (ahead.Any())
-                Cell = ahead.OrderBy((c) => (c*direction.Inverse()).Length()).OrderBy((c) => Cell.DistanceTo(c)).OrderBy((c) => ((c - Cell)*direction).Length()).First();
+                Cell = ahead.OrderBy((c) => ((c - Cell).Abs().Sum(), (c - Cell).Normalized().Dot(direction)), (a, b) => {
+                    (int dA, float thetaA) = a;
+                    (int dB, float thetaB) = b;
+
+                    // Prioritize closer cells
+                    if (dA != dB)
+                        return dA - dB;
+
+                    // ...but smaller angles (larger dot products) if distance is equal
+                    if (thetaA < thetaB)
+                        return 1;
+                    else if (thetaA > thetaB)
+                        return -1;
+
+                    return 0;
+                }).First();
             else if (Wrap)
-                Cell = HardRestriction.OrderBy((c) => (c*direction.Inverse()).Length()).OrderByDescending((c) => ((c - Cell)*direction).Length()).First();
+                Cell = HardRestriction.OrderBy((c) => (c - Cell).ProjectionsTo(direction).Abs(), FurtherAlongDirection).First();
         }
     }
 
@@ -134,7 +173,7 @@ public partial class Cursor : GridNode
         {
             IEnumerable<Vector2I> ahead = HardRestriction.Where((c) => (c - Cell)*direction > Vector2I.Zero);
             if (ahead.Any())
-                Cell = ahead.OrderBy((c) => (c*direction.Inverse()).Length()).OrderBy((c) => Cell.DistanceTo(c)).OrderByDescending((c) => ((c - Cell)*direction).Length()).First();
+                Cell = ahead.OrderBy((c) => (c - Cell).ProjectionsTo(direction).Abs(), FurtherAlongDirection).First();
         }
         else
         {
@@ -162,7 +201,7 @@ public partial class Cursor : GridNode
     public override void _UnhandledInput(InputEvent @event)
     {
         base._UnhandledInput(@event);
-        if (@event.IsActionReleased(SelectAction))
+        if (@event.IsActionPressed(SelectAction))
             EmitSignal(SignalName.CellSelected, Grid.CellOf(Position));
     }
 }

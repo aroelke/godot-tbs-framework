@@ -3,6 +3,7 @@ using Godot;
 using UI.Controls.Icons;
 using UI.Controls.Action;
 using UI.Controls.Device;
+using Nodes;
 
 namespace UI.HUD;
 
@@ -10,12 +11,13 @@ namespace UI.HUD;
 [Icon("res://icons/UIIcon.svg"), Tool]
 public partial class ControlHint : HBoxContainer
 {
-    private Dictionary<InputDevice, TextureRect> _icons = new();
-    private TextureRect _mouseIcon = null, _keyIcon = null, _gamepadIcon = null;
+    private readonly NodeCache _cache;
 
-    private TextureRect MouseIcon => _mouseIcon ??= GetNode<TextureRect>("Mouse");
-    private TextureRect KeyboardIcon => _keyIcon ??= GetNode<TextureRect>("Keyboard");
-    private TextureRect GamepadIcon => _gamepadIcon ??= GetNode<TextureRect>("Gamepad");
+    private Dictionary<InputDevice, TextureRect> _icons = new();
+
+    private TextureRect MouseIcon => _cache.GetNode<TextureRect>("Mouse");
+    private TextureRect KeyboardIcon => _cache.GetNode<TextureRect>("Keyboard");
+    private TextureRect GamepadIcon => _cache.GetNode<TextureRect>("Gamepad");
 
     private void Update()
     {
@@ -23,7 +25,7 @@ public partial class ControlHint : HBoxContainer
         KeyboardIcon.Texture = !KeyMap.ContainsKey(Action.Key) ? null : KeyMap[Action.Key];
         GamepadIcon.Texture = !GamepadMap.ContainsKey(Action.GamepadButton) ? null : GamepadMap[Action.GamepadButton];
 
-        GetNode<Label>("Label").Text = $": {Action.Name}";
+        _cache.GetNode<Label>("Label").Text = $": {Action.Name}";
     }
 
     /// <summary>Action to display the icon of.</summary>
@@ -49,6 +51,11 @@ public partial class ControlHint : HBoxContainer
             foreach ((InputDevice device, TextureRect icon) in _icons)
                 icon.Visible = device == value;
         }
+    }
+
+    public ControlHint() : base()
+    {
+        _cache = new(this);
     }
 
     /// <summary>When the input device changes, also update the icon.</summary>

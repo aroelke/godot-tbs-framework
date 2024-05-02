@@ -1,5 +1,6 @@
 using System;
 using Godot;
+using Nodes;
 using UI.Controls.Device;
 
 namespace UI.Controls.Action;
@@ -7,6 +8,8 @@ namespace UI.Controls.Action;
 /// <summary>Object component that enables the object to be controlled digitally (e.g. with keyboard keys or gamepad buttons).</summary>
 public partial class DigitalMoveAction : Node
 {
+    private readonly NodeCache _cache;
+
     /// <summary>Signals that a new direction has been pressed.</summary>
     /// <param name="direction">Direction that was pressed.</param>
     [Signal] public delegate void DirectionPressedEventHandler(Vector2I direction);
@@ -24,12 +27,11 @@ public partial class DigitalMoveAction : Node
     [Signal] public delegate void SkipEventHandler(Vector2I direction);
 
     private Vector2I _direction = Vector2I.Zero;
-    private Timer _timer = null;
     private bool _echoing = false;
     private bool _reset = false;
     private bool _skip = false;
 
-    private Timer EchoTimer => _timer = GetNode<Timer>("EchoTimer");
+    private Timer EchoTimer => _cache.GetNode<Timer>("EchoTimer");
 
     private bool IsEchoing() => !_skip && _direction != Vector2I.Zero;
 
@@ -59,6 +61,11 @@ public partial class DigitalMoveAction : Node
     /// <summary>Delay between moves while holding an input down.</summary>
     [ExportGroup("Echo Control")]
     [Export] public double EchoInterval = 0.03;
+
+    public DigitalMoveAction() : base()
+    {
+        _cache = new(this);
+    }
 
     /// <summary>Reset the echo timer so its next timeout is on the delay rather than the interval.</summary>
     public void ResetEcho()

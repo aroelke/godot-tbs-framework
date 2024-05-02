@@ -1,5 +1,5 @@
 using Godot;
-using Object;
+using Nodes;
 using Extensions;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +13,8 @@ namespace UI;
 [Icon("res://icons/Camera2DBrain.svg"), Tool]
 public partial class Camera2DBrain : Node2D
 {
+    private readonly NodeCache _cache;
+
     /// <summary>Signal that the camera has reached its target and stopped moving.</summary>
     [Signal] public delegate void ReachedTargetEventHandler();
 
@@ -94,8 +96,6 @@ public partial class Camera2DBrain : Node2D
         }
     }
 
-    private Camera2D _camera = null;
-    private Camera2D Camera => _camera ??= GetNodeOrNull<Camera2D>("Camera2D");
     private Rect2I _limits = new(-1000000, -1000000, 2000000, 2000000);
 
     private Vector2 _targetPreviousPosition = Vector2.Zero;
@@ -105,6 +105,8 @@ public partial class Camera2DBrain : Node2D
     private Vector2 _zoomTarget = Vector2.Zero;
     private Tween _zoomTween = null;
     private readonly Stack<Vector2> _savedZooms = new();
+
+    private Camera2D Camera => _cache.GetNodeOrNull<Camera2D>("Camera2D");
 
     /// <summary>Clamp a zoom vector to ensure the <see cref="Camera2D"/> doesn't zoom out too far to be able to see outside its limits.</summary>
     /// <param name="zoom">Zoom vector to clamp.</param>
@@ -283,6 +285,11 @@ public partial class Camera2DBrain : Node2D
             if (!Engine.IsEditorHint())
                 ClearZoomMemory();
         }
+    }
+
+    public Camera2DBrain() : base()
+    {
+        _cache = new(this);
     }
 
     /// <returns>The <see cref="Viewport"/> rectangle.</returns>

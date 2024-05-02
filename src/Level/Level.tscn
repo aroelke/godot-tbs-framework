@@ -1,4 +1,4 @@
-[gd_scene load_steps=48 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=50 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/Level/Level.cs" id="1_r2v0t"]
 [ext_resource type="Resource" uid="uid://hkvw8a5g5l62" path="res://src/UI/Controls/Action/References/Map/MapCancelAction.tres" id="2_2u5dc"]
@@ -14,20 +14,20 @@
 [ext_resource type="Resource" uid="uid://c8jgkj5o6iui0" path="res://src/UI/Controls/Action/References/Map/SelectAction.tres" id="11_5p2p1"]
 [ext_resource type="PackedScene" uid="uid://bnnydb3ggsdth" path="res://src/Level/UI/PathOverlay.tscn" id="12_3wqlu"]
 [ext_resource type="PackedScene" uid="uid://d2pwsr12t0uxb" path="res://src/Level/UI/RangeOverlay.tscn" id="12_4dlg7"]
-[ext_resource type="PackedScene" uid="uid://h3yhm0thhl8m" path="res://src/Object/StateChart/StateChartInspector.tscn" id="17_gyc8t"]
-[ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/Object/StateChart/Chart.tscn" id="17_sd0pe"]
-[ext_resource type="PackedScene" uid="uid://bykdjiak4bxvt" path="res://src/Object/StateChart/States/CompoundState.tscn" id="18_k7m3y"]
-[ext_resource type="PackedScene" uid="uid://lrf5ywt1n230" path="res://src/Object/StateChart/States/AtomicState.tscn" id="19_o30vs"]
-[ext_resource type="PackedScene" uid="uid://0b22cirxc7k2" path="res://src/Object/StateChart/States/Transition.tscn" id="20_p4yt1"]
-[ext_resource type="Script" path="res://src/Object/StateChart/Conditions/FlagCondition.cs" id="21_7vj21"]
-[ext_resource type="Script" path="res://src/Object/StateChart/Conditions/StringCondition.cs" id="22_tix5y"]
-[ext_resource type="Script" path="res://src/Object/StateChart/Conditions/InvertCondition.cs" id="23_6etqp"]
-[ext_resource type="PackedScene" uid="uid://dhytcbhqvrpx0" path="res://src/Object/StateChart/Reactions/InputReaction.tscn" id="23_nnivc"]
-[ext_resource type="Script" path="res://src/Object/StateChart/Conditions/UnCondition.cs" id="24_k1nop"]
-[ext_resource type="Script" path="res://src/Object/StateChart/Conditions/AllCondition.cs" id="25_6qv6s"]
-[ext_resource type="PackedScene" uid="uid://dw8x5x0nvkg5k" path="res://src/Object/StateChart/Reactions/CellUpdateReaction.tscn" id="25_goaap"]
+[ext_resource type="PackedScene" uid="uid://h3yhm0thhl8m" path="res://src/Nodes/StateChart/StateChartInspector.tscn" id="17_gyc8t"]
+[ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/Nodes/StateChart/Chart.tscn" id="17_sd0pe"]
+[ext_resource type="PackedScene" uid="uid://bykdjiak4bxvt" path="res://src/Nodes/StateChart/States/CompoundState.tscn" id="18_k7m3y"]
+[ext_resource type="PackedScene" uid="uid://lrf5ywt1n230" path="res://src/Nodes/StateChart/States/AtomicState.tscn" id="19_o30vs"]
+[ext_resource type="PackedScene" uid="uid://0b22cirxc7k2" path="res://src/Nodes/StateChart/States/Transition.tscn" id="20_p4yt1"]
+[ext_resource type="Script" path="res://src/Nodes/StateChart/Conditions/FlagCondition.cs" id="21_7vj21"]
+[ext_resource type="Script" path="res://src/Nodes/StateChart/Conditions/StringCondition.cs" id="22_tix5y"]
+[ext_resource type="Script" path="res://src/Nodes/StateChart/Conditions/InvertCondition.cs" id="23_6etqp"]
+[ext_resource type="PackedScene" uid="uid://dhytcbhqvrpx0" path="res://src/Nodes/StateChart/Reactions/InputReaction.tscn" id="23_nnivc"]
+[ext_resource type="Script" path="res://src/Nodes/StateChart/Conditions/UnCondition.cs" id="24_k1nop"]
+[ext_resource type="Script" path="res://src/Nodes/StateChart/Conditions/AllCondition.cs" id="25_6qv6s"]
+[ext_resource type="PackedScene" uid="uid://dw8x5x0nvkg5k" path="res://src/Nodes/StateChart/Reactions/CellUpdateReaction.tscn" id="25_goaap"]
 [ext_resource type="AudioStream" uid="uid://bg4mbs7d25qaj" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Select - 1.wav" id="28_dnjya"]
-[ext_resource type="Script" path="res://src/Object/StateChart/Conditions/AnyCondition.cs" id="29_kfqmx"]
+[ext_resource type="Script" path="res://src/Nodes/StateChart/Conditions/AnyCondition.cs" id="29_kfqmx"]
 [ext_resource type="AudioStream" uid="uid://b4dbo5h2e7ru4" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Cancel - 1.wav" id="29_regtl"]
 [ext_resource type="AudioStream" uid="uid://oyebi18i5hmn" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Error - 1.wav" id="30_mo20p"]
 [ext_resource type="AudioStream" uid="uid://dx4swhb5suesh" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Open - 1.wav" id="31_yh2xe"]
@@ -44,14 +44,6 @@ script = ExtResource("22_tix5y")
 Property = &"occupied"
 Value = "active"
 
-[sub_resource type="Resource" id="Resource_f7pbh"]
-script = ExtResource("24_k1nop")
-
-[sub_resource type="Resource" id="Resource_2f828"]
-script = ExtResource("22_tix5y")
-Property = &"occupied"
-Value = "selected"
-
 [sub_resource type="Resource" id="Resource_4c3ly"]
 script = ExtResource("21_7vj21")
 Flag = &"traversable"
@@ -61,9 +53,18 @@ script = ExtResource("22_tix5y")
 Property = &"occupied"
 Value = ""
 
+[sub_resource type="Resource" id="Resource_lmaao"]
+script = ExtResource("22_tix5y")
+Property = &"occupied"
+Value = "selected"
+
+[sub_resource type="Resource" id="Resource_rpjvf"]
+script = ExtResource("29_kfqmx")
+Conditions = [SubResource("Resource_mqluk"), SubResource("Resource_lmaao")]
+
 [sub_resource type="Resource" id="Resource_w328r"]
 script = ExtResource("25_6qv6s")
-Conditions = [SubResource("Resource_4c3ly"), SubResource("Resource_mqluk")]
+Conditions = [SubResource("Resource_4c3ly"), SubResource("Resource_rpjvf")]
 
 [sub_resource type="Resource" id="Resource_npdxk"]
 script = ExtResource("21_7vj21")
@@ -92,6 +93,12 @@ Flag = &"traversable"
 [sub_resource type="Resource" id="Resource_j0hg7"]
 script = ExtResource("23_6etqp")
 Condition = SubResource("Resource_wojwn")
+
+[sub_resource type="Resource" id="Resource_f7pbh"]
+script = ExtResource("24_k1nop")
+
+[sub_resource type="Resource" id="Resource_m8qte"]
+script = ExtResource("24_k1nop")
 
 [node name="Level" type="Node"]
 script = ExtResource("1_r2v0t")
@@ -208,14 +215,6 @@ To = NodePath("../../UnitSelected")
 Event = &"select"
 Condition = SubResource("Resource_mydqi")
 
-[node name="CancelSelection" parent="State/Root" instance=ExtResource("19_o30vs")]
-process_mode = 4
-
-[node name="ToIdle" parent="State/Root/CancelSelection" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../Idle")
-Event = &"done"
-Condition = SubResource("Resource_f7pbh")
-
 [node name="UnitSelected" parent="State/Root" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
@@ -223,11 +222,6 @@ process_mode = 4
 Condition = SubResource("Resource_0wllk")
 
 [node name="OnCellSelected" parent="State/Root/UnitSelected" instance=ExtResource("25_goaap")]
-
-[node name="ToTargeting" parent="State/Root/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../UnitTargeting")
-Event = &"select"
-Condition = SubResource("Resource_2f828")
 
 [node name="ToMoving" parent="State/Root/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../UnitMoving")
@@ -239,24 +233,18 @@ To = NodePath("../../Idle")
 Event = &"select"
 Condition = SubResource("Resource_j0hg7")
 
-[node name="ToCancel" parent="State/Root/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../CancelSelection")
+[node name="ToIdleOnCancel" parent="State/Root/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../Idle")
 Event = &"cancel"
 Condition = SubResource("Resource_f7pbh")
 
 [node name="UnitMoving" parent="State/Root" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
+[node name="OnInput" parent="State/Root/UnitMoving" instance=ExtResource("23_nnivc")]
+
 [node name="ToTargeting" parent="State/Root/UnitMoving" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../UnitTargeting")
-Event = &"done"
-Condition = SubResource("Resource_f7pbh")
-
-[node name="CancelTargeting" parent="State/Root" instance=ExtResource("19_o30vs")]
-process_mode = 4
-
-[node name="ToSelected" parent="State/Root/CancelTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../UnitSelected")
 Event = &"done"
 Condition = SubResource("Resource_f7pbh")
 
@@ -266,15 +254,23 @@ process_mode = 4
 [node name="OnInput" parent="State/Root/UnitTargeting" instance=ExtResource("23_nnivc")]
 Condition = SubResource("Resource_umt67")
 
-[node name="ToIdle" parent="State/Root/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../Idle")
+[node name="ToAdvancing" parent="State/Root/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../TurnAdvancing")
 Event = &"select"
 Condition = SubResource("Resource_f7pbh")
 
-[node name="ToCancel" parent="State/Root/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../CancelTargeting")
+[node name="ToSelected" parent="State/Root/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../UnitSelected")
 Event = &"cancel"
 Condition = SubResource("Resource_f7pbh")
+
+[node name="TurnAdvancing" parent="State/Root" instance=ExtResource("19_o30vs")]
+process_mode = 4
+
+[node name="ToIdle" parent="State/Root/TurnAdvancing" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../Idle")
+Event = &"done"
+Condition = SubResource("Resource_m8qte")
 
 [node name="TurnAdvance" type="Timer" parent="."]
 one_shot = true
@@ -302,29 +298,27 @@ stream = ExtResource("32_e2hk2")
 [connection signal="PointerMoved" from="Pointer" to="Cursor" method="OnPointerMoved"]
 [connection signal="EventReceived" from="State/Root/Idle" to="." method="OnIdleEventReceived"]
 [connection signal="StateEntered" from="State/Root/Idle" to="." method="OnIdleEntered"]
+[connection signal="StateExited" from="State/Root/Idle" to="." method="OnIdleExited"]
 [connection signal="StateInput" from="State/Root/Idle/OnInput" to="." method="OnIdleInput"]
 [connection signal="StateCellUpdated" from="State/Root/Idle/OnCursorMoved" to="." method="OnIdleCursorMoved"]
 [connection signal="Taken" from="State/Root/Idle/ToSelected" to="." method="OnIdleToSelectedTaken"]
 [connection signal="Taken" from="State/Root/Idle/ToSelected" to="SelectSound" method="play" binds= [0.0]]
-[connection signal="StateEntered" from="State/Root/CancelSelection" to="." method="OnCancelUnitActionEntered"]
-[connection signal="Taken" from="State/Root/CancelSelection/ToIdle" to="." method="OnToIdleTaken" binds= [false]]
 [connection signal="StateEntered" from="State/Root/UnitSelected" to="." method="OnSelectedEntered"]
 [connection signal="StateExited" from="State/Root/UnitSelected" to="." method="OnSelectedExited"]
 [connection signal="StateCellUpdated" from="State/Root/UnitSelected/OnCursorMoved" to="." method="OnSelectedCursorMoved"]
 [connection signal="StateCellUpdated" from="State/Root/UnitSelected/OnCellSelected" to="." method="OnSelectedCellSelected"]
-[connection signal="Taken" from="State/Root/UnitSelected/ToTargeting" to="SelectSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/UnitSelected/ToMoving" to="SelectSound" method="play" binds= [0.0]]
-[connection signal="Taken" from="State/Root/UnitSelected/ToIdle" to="." method="OnToIdleTaken" binds= [false]]
+[connection signal="Taken" from="State/Root/UnitSelected/ToIdle" to="." method="OnSelectedToIdleTaken"]
 [connection signal="Taken" from="State/Root/UnitSelected/ToIdle" to="CancelSound" method="play" binds= [0.0]]
-[connection signal="Taken" from="State/Root/UnitSelected/ToCancel" to="CancelSound" method="play" binds= [0.0]]
+[connection signal="Taken" from="State/Root/UnitSelected/ToIdleOnCancel" to="." method="OnSelectedCanceled"]
+[connection signal="Taken" from="State/Root/UnitSelected/ToIdleOnCancel" to="CancelSound" method="play" binds= [0.0]]
 [connection signal="StateEntered" from="State/Root/UnitMoving" to="." method="OnMovingEntered"]
 [connection signal="StateExited" from="State/Root/UnitMoving" to="." method="OnMovingExited"]
-[connection signal="StateEntered" from="State/Root/CancelTargeting" to="." method="OnCancelUnitActionEntered"]
-[connection signal="StateExited" from="State/Root/CancelTargeting" to="." method="OnCancelTargetingExited"]
+[connection signal="StateInput" from="State/Root/UnitMoving/OnInput" to="." method="OnMovingInput"]
 [connection signal="StateEntered" from="State/Root/UnitTargeting" to="." method="OnTargetingEntered"]
 [connection signal="StateExited" from="State/Root/UnitTargeting" to="." method="OnTargetingExited"]
 [connection signal="StateInput" from="State/Root/UnitTargeting/OnInput" to="." method="OnTargetingInput"]
-[connection signal="Taken" from="State/Root/UnitTargeting/ToIdle" to="." method="OnToIdleTaken" binds= [true]]
-[connection signal="Taken" from="State/Root/UnitTargeting/ToIdle" to="SelectSound" method="play" binds= [0.0]]
-[connection signal="Taken" from="State/Root/UnitTargeting/ToCancel" to="CancelSound" method="play" binds= [0.0]]
-[connection signal="timeout" from="TurnAdvance" to="." method="OnTurnAdvance"]
+[connection signal="Taken" from="State/Root/UnitTargeting/ToAdvancing" to="SelectSound" method="play" binds= [0.0]]
+[connection signal="Taken" from="State/Root/UnitTargeting/ToSelected" to="." method="OnTargetingCanceled"]
+[connection signal="Taken" from="State/Root/UnitTargeting/ToSelected" to="CancelSound" method="play" binds= [0.0]]
+[connection signal="StateEntered" from="State/Root/TurnAdvancing" to="." method="OnTurnAdvancingEntered"]
