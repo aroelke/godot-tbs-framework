@@ -90,38 +90,12 @@ public partial class Level : Node
         }
     }
 
-    /// <summary>Wait for a signal, blocking input while waiting for it.</summary>
-    /// <param name="source">Instance sending the signal.</param>
-    /// <param name="signal">Name of the signal to wait for.</param>
-    private async void HoldInputForSignal(GodotObject source, StringName signal)
-    {
-        ProcessModeEnum chartProcess = StateChart.ProcessMode;
-
-        SetProcessInput(false);
-        SetProcessUnhandledInput(false);
-        Cursor.SetProcessInput(false);
-        Cursor.SetProcessUnhandledInput(false);
-        Pointer.SetProcessInput(false);
-        Pointer.SetProcessUnhandledInput(false);
-        StateChart.ProcessMode = ProcessModeEnum.Disabled;
-
-        await ToSignal(source, signal);
-
-        SetProcessInput(true);
-        SetProcessUnhandledInput(true);
-        Cursor.SetProcessInput(true);
-        Cursor.SetProcessUnhandledInput(true);
-        Pointer.SetProcessInput(true);
-        Pointer.SetProcessUnhandledInput(true);
-        StateChart.ProcessMode = chartProcess;
-    }
-
     /// <summary>
     /// If the <see cref="Object.Cursor"/> isn't in the specified cell, move it to (the center of) that cell. During mouse control, this is done smoothly
     /// over time to maintain consistency with the system pointer, and other inputs are disabled while it moves.
     /// </summary>
     /// <param name="cell">Cell to move the cursor to.</param>
-    private void WarpCursor(Vector2I cell)
+    private async void WarpCursor(Vector2I cell)
     {
         Rect2 rect = Grid.CellRect(cell);
         switch (DeviceManager.Mode)
@@ -130,6 +104,21 @@ public partial class Level : Node
             // If the input mode is mouse and the cursor is not on the cell's square, move it there over time
             if (!rect.HasPoint(Grid.GetGlobalMousePosition()))
             {
+                ProcessModeEnum chartProcessMode = StateChart.ProcessMode;
+                void ToggleProcessInput(bool on)
+                {
+                    if (!on)
+                        chartProcessMode = StateChart.ProcessMode;
+
+                    SetProcessInput(on);
+                    SetProcessUnhandledInput(on);
+                    Cursor.SetProcessInput(on);
+                    Cursor.SetProcessUnhandledInput(on);
+                    Pointer.SetProcessInput(on);
+                    Pointer.SetProcessUnhandledInput(on);
+                    StateChart.ProcessMode = on ? chartProcessMode : ProcessModeEnum.Disabled;
+                }
+
                 Tween tween = CreateTween();
                 tween
                     .SetTrans(Tween.TransitionType.Cubic)
@@ -146,8 +135,10 @@ public partial class Level : Node
 
                 BoundedNode2D target = Camera.Target;
                 Camera.Target = Grid.Occupants[cell];
-                HoldInputForSignal(tween, Tween.SignalName.Finished);
+                ToggleProcessInput(false);
+                await ToSignal(tween, Tween.SignalName.Finished);
                 tween.Kill();
+                ToggleProcessInput(true);
                 Camera.Target = target;
             }
             break;
