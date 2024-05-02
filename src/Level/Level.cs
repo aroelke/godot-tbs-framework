@@ -241,14 +241,6 @@ public partial class Level : Node
     [Export] public InputActionReference NextAction = new();
 #endregion
 #region Idle State
-    /// <summary>Deselect the selected <see cref="Unit"/> and clean up after canceling actions.</summary>
-    public void OnToIdleTaken()
-    {
-        _selected.Deselect();
-        _selected = null;
-        CancelHint.Visible = false;
-    }
-
     /// <summary>Update the UI when re-entering idle.</summary>
     public void OnIdleEntered()
     {
@@ -403,11 +395,19 @@ public partial class Level : Node
         }
     }
 
+    /// <summary>Deselect the selected <see cref="Unit"/> and clean up after canceling actions.</summary>
+    public void OnSelectedToIdleTaken()
+    {
+        _selected.Deselect();
+        _selected = null;
+        CancelHint.Visible = false;
+    }
+
     /// <summary>Move the <see cref="Object.Cursor"/> back to the selected <see cref="Unit"/> and then deselect it.</summary>
     public void OnSelectedCanceled()
     {
         CancelUnitAction();
-        OnToIdleTaken();
+        OnSelectedToIdleTaken();
     }
 
     /// <summary>Clean up when exiting selected <see cref="State"/>.</summary>

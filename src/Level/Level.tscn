@@ -308,7 +308,7 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateCellUpdated" from="State/Root/UnitSelected/OnCursorMoved" to="." method="OnSelectedCursorMoved"]
 [connection signal="StateCellUpdated" from="State/Root/UnitSelected/OnCellSelected" to="." method="OnSelectedCellSelected"]
 [connection signal="Taken" from="State/Root/UnitSelected/ToMoving" to="SelectSound" method="play" binds= [0.0]]
-[connection signal="Taken" from="State/Root/UnitSelected/ToIdle" to="." method="OnToIdleTaken"]
+[connection signal="Taken" from="State/Root/UnitSelected/ToIdle" to="." method="OnSelectedToIdleTaken"]
 [connection signal="Taken" from="State/Root/UnitSelected/ToIdle" to="CancelSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/UnitSelected/ToIdleOnCancel" to="." method="OnSelectedCanceled"]
 [connection signal="Taken" from="State/Root/UnitSelected/ToIdleOnCancel" to="CancelSound" method="play" binds= [0.0]]
