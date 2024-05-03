@@ -1,11 +1,11 @@
 [gd_scene load_steps=7 format=3 uid="uid://bmfxux38ovtj2"]
 
-[ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/Level/Level.tscn" id="1_h3e4w"]
+[ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/Scenes/Level/Level.tscn" id="1_h3e4w"]
 [ext_resource type="AudioStream" uid="uid://l7x6ygaf3aqq" path="res://assets/raw/Legendary_JRPG_Battle_Music_Pack/main-theme04_loop/main-theme04_loop.ogg" id="2_5c8dd"]
-[ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/Level/Map/Grid.tscn" id="2_trttl"]
-[ext_resource type="Resource" uid="uid://bn6uq3ysywt60" path="res://src/Level/Map/Terrain/plain.tres" id="3_ft5ge"]
-[ext_resource type="PackedScene" uid="uid://1ev2yxu31ow" path="res://src/Level/Object/Group/Army.tscn" id="4_xrn4s"]
-[ext_resource type="PackedScene" uid="uid://b0cvutx2lj5uy" path="res://src/Level/Object/Unit.tscn" id="5_ju5kl"]
+[ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/Scenes/Level/Map/Grid.tscn" id="2_trttl"]
+[ext_resource type="Resource" uid="uid://bn6uq3ysywt60" path="res://src/Scenes/Level/Map/Terrain/plain.tres" id="3_ft5ge"]
+[ext_resource type="PackedScene" uid="uid://1ev2yxu31ow" path="res://src/Scenes/Level/Object/Group/Army.tscn" id="4_xrn4s"]
+[ext_resource type="PackedScene" uid="uid://b0cvutx2lj5uy" path="res://src/Scenes/Level/Object/Unit.tscn" id="5_ju5kl"]
 
 [node name="TestMap" type="Node2D"]
 
@@ -18,9 +18,8 @@ layer_0/tile_data = PackedInt32Array(589837, 0, 0, 655373, 0, 0, 720909, 0, 0, 7
 layer_1/tile_data = PackedInt32Array(589833, 0, 4, 655369, 0, 5, 589834, 65536, 4, 655370, 65536, 5, 589855, 0, 4, 655391, 0, 5, 589856, 65536, 4, 655392, 65536, 5, 1245204, 0, 4, 1310740, 0, 5, 1245205, 65536, 4, 1310741, 65536, 5, 65546, 196608, 6, 131082, 196608, 7, 65547, 262144, 6, 131083, 262144, 7, 262154, 196608, 6, 327690, 196608, 7, 262155, 262144, 6, 327691, 262144, 7)
 DefaultTerrain = ExtResource("3_ft5ge")
 
-[node name="Player" parent="Level" node_paths=PackedStringArray("Allies") instance=ExtResource("4_xrn4s")]
+[node name="Player" parent="Level" instance=ExtResource("4_xrn4s")]
 Color = Color(0, 0.498039, 1, 1)
-Allies = [NodePath("../Ally")]
 
 [node name="PlayerA" parent="Level/Player" node_paths=PackedStringArray("Affiliation", "Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(192, 128)
@@ -75,9 +74,8 @@ Grid = NodePath("../../Grid")
 Cell = Vector2i(9, 8)
 Size = Vector2(32, 32)
 
-[node name="Ally" parent="Level" node_paths=PackedStringArray("Allies") instance=ExtResource("4_xrn4s")]
+[node name="Ally" parent="Level" instance=ExtResource("4_xrn4s")]
 Color = Color(0, 1, 0, 1)
-Allies = [NodePath("../Player")]
 
 [node name="AllyA" parent="Level/Ally" node_paths=PackedStringArray("Affiliation", "Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(256, 192)

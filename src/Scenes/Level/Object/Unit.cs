@@ -1,0 +1,284 @@
+using System.Collections.Generic;
+using System.Linq;
+using Godot;
+using Nodes;
+using Extensions;
+using System.Collections.Immutable;
+using System;
+using UI.Controls.Action;
+using Scenes.Level.Map;
+using Scenes.Level.Object.Group;
+
+namespace Scenes.Level.Object;
+
+/// <summary>
+/// A unit that moves around the map.  Mostly is just a visual representation of what's where and an interface for the player to
+/// interact.
+/// </summary>
+[Tool]
+public partial class Unit : GridNode
+{
+    private readonly NodeCache _cache;
+
+    // AnimationTree parameters
+    private static readonly StringName Idle = "parameters/conditions/idle";
+    private static readonly StringName Selected = "parameters/conditions/selected";
+    private static readonly StringName Moving = "parameters/conditions/moving";
+    private static readonly StringName MoveDirection = "parameters/Moving/Walking/blend_position";
+    private static readonly StringName Done = "parameters/conditions/done";
+
+    /// <summary>Signal that the unit is done moving along its path.</summary>
+    [Signal] public delegate void DoneMovingEventHandler();
+
+    private Army _affiliation = null;
+
+    private Path2D Path => _cache.GetNode<Path2D>("Path");
+    private PathFollow2D PathFollow => _cache.GetNode<PathFollow2D>("Path/PathFollow");
+    private Sprite2D Sprite => _cache.GetNodeOrNull<Sprite2D>("Path/PathFollow/Sprite");
+    private AnimationTree Tree => _cache.GetNode<AnimationTree>("AnimationTree");
+
+    /// <summary>Get all cells in a set of ranges from a set of source cells.</summary>
+    /// <param name="sources">Cells to compute ranges from.</param>
+    /// <param name="ranges">Ranges to compute from <paramref name="sources"/>.</param>
+    /// <returns>
+    /// The set of all cells that are exactly within <paramref name="ranges"/> distance from at least one element of
+    /// <paramref name="sources"/>.
+    /// </returns>
+    private IEnumerable<Vector2I> GetCellsInRange(IEnumerable<Vector2I> sources, IEnumerable<int> ranges) =>
+        sources.SelectMany((c) => ranges.SelectMany((r) => Grid.GetCellsAtRange(c, r))).ToImmutableHashSet();
+
+    /// <summary>Movement range of the unit, in <see cref="Grid"/> cells.</summary>
+    [Export] public int MoveRange = 5;
+
+    /// <summary>Distances from the unit's occupied cell that it can attack.</summary>
+    [Export] public int[] AttackRange = new[] { 1, 2 };
+
+    /// <summary>Distances from the unit's occupied cell that it can support.</summary>
+    [Export] public int[] SupportRange = new[] { 1, 2, 3 };
+
+    /// <summary>Army to which this unit belongs, to determine its allies and enemies.</summary>
+    [Export] public Army Affiliation
+    {
+        get => _affiliation;
+        set
+        {
+            _affiliation = value;
+            if (Sprite is not null && _affiliation is not null)
+                Sprite.Modulate = _affiliation.Color;
+        }
+    }
+
+    [ExportGroup("Path Traversal", "Move")]
+
+    /// <summary>Base speed, in world pixels/second, to move along the path while moving.</summary>
+    [Export] public double MoveSpeed = 320;
+
+    /// <summary>Action to use to accelerate the unit while it's moving. </summary>
+    [Export] public InputActionReference MoveAccelerateAction = new();
+
+    /// <summary>Factor to multiply <see cref="MoveSpeed"/> by while <see cref="MoveAccelerateAction"/> is held down.</summary>
+    [Export] public double MoveAccelerationFactor = 2;
+
+    /// <summary>Whether or not the unit has completed its turn.</summary>
+    public bool Active => !Tree.Get(Done).AsBool();
+
+    public Unit() : base()
+    {
+        _cache = new(this);
+    }
+
+    /// <returns>The set of cells that this unit can reach from its position, accounting for <see cref="Terrain.Cost"/>.</returns>
+    public IEnumerable<Vector2I> TraversableCells()
+    {
+        int max = 2*(MoveRange + 1)*(MoveRange + 1) - 2*MoveRange - 1;
+
+        Dictionary<Vector2I, int> cells = new(max) {{ Cell, 0 }};
+        Queue<Vector2I> potential = new(max);
+
+        potential.Enqueue(Cell);
+        while (potential.Count > 0)
+        {
+            Vector2I current = potential.Dequeue();
+
+            foreach (Vector2I direction in Vector2IExtensions.Directions)
+            {
+                Vector2I neighbor = current + direction;
+                if (Grid.Contains(neighbor))
+                {
+                    int cost = cells[current] + Grid.GetTerrain(neighbor).Cost;
+                    if ((!cells.ContainsKey(neighbor) || cells[neighbor] > cost) && // cell hasn't been examined yet or this path is shorter to get there
+                        Grid.Occupants.GetValueOrDefault(neighbor) switch // cell is empty or contains an allied unit
+                        {
+                            Unit unit => unit.Affiliation.AlliedTo(this),
+                            null => true,
+                            _ => false
+                        } &&
+                        cost <= MoveRange) // cost to get to cell is within range
+                    {
+                        cells[neighbor] = cost;
+                        potential.Enqueue(neighbor);
+                    }
+                }
+            }
+        }
+
+        return cells.Keys;
+    }
+
+    /// <summary>Compute all of the cells this unit could attack from the given set of source cells.</summary>
+    /// <param name="sources">Cells to compute attack range from.</param>
+    /// <returns>The set of all cells that could be attacked from any of the cell <paramref name="sources"/>.</returns>
+    public IEnumerable<Vector2I> AttackableCells(IEnumerable<Vector2I> sources) => GetCellsInRange(sources, AttackRange);
+
+    /// <inheritdoc cref="AttackableCells"/>
+    /// <remarks>Uses a singleton set of cells constructed from the single <paramref name="source"/> cell.</remarks>
+    public IEnumerable<Vector2I> AttackableCells(Vector2I source) => AttackableCells(new[] { source });
+
+    /// <inheritdoc cref="AttackableCells"/>
+    /// <remarks>Uses the unit's current <see cref="Cell"/> as the source.</remarks>
+    public IEnumerable<Vector2I> AttackableCells() => AttackableCells(Cell);
+
+    /// <summary>Compute all of the cells this unit could support from the given set of source cells.</summary>
+    /// <param name="sources">Cells to compute support range from.</param>
+    /// <returns>The set of all cells that could be supported from any of the source cells.</returns>
+    public IEnumerable<Vector2I> SupportableCells(IEnumerable<Vector2I> sources) => GetCellsInRange(sources, SupportRange);
+
+    /// <inheritdoc cref="SupportableCells"/>
+    /// <remarks>Uses a singleton set of cells constructed from the single <paramref name="source"/> cell.</remarks>
+    public IEnumerable<Vector2I> SupportableCells(Vector2I source) => SupportableCells(new[] { source });
+
+    /// <inheritdoc cref="SupportableCells"/>
+    /// <remarks>Uses the unit's current <see cref="Cell"/> as the source.</remarks>
+    public IEnumerable<Vector2I> SupportableCells() => SupportableCells(Cell);
+
+    /// <returns>The complete sets of cells this unit can act on.</returns>
+    public ActionRanges ActionRanges()
+    {
+        IEnumerable<Vector2I> traversable = TraversableCells();
+        return new(
+            traversable,
+            AttackableCells(traversable.Where((c) => !Grid.Occupants.ContainsKey(c) || Grid.Occupants[c] == this)),
+            SupportableCells(traversable.Where((c) => !Grid.Occupants.ContainsKey(c) || Grid.Occupants[c] == this))
+        );
+    }
+
+    /// <summary>Put the unit in the "selected" state.</summary>
+    public void Select()
+    {
+        Tree.Set(Idle, false);
+        Tree.Set(Selected, true);
+        Tree.Set(Moving, false);
+    }
+
+    /// <summary>Put the unit in the "idle" state.</summary>
+    public void Deselect()
+    {
+        Tree.Set(Idle, true);
+        Tree.Set(Selected, false);
+        Tree.Set(Moving, false);
+    }
+
+    /// <summary>Put the unit in its "done" state, indicating it isn't available to act anymore.</summary>
+    public void Finish()
+    {
+        Sprite.Modulate = Colors.White;
+        Tree.Set(Selected, false);
+        Tree.Set(Done, true);
+    }
+
+    /// <summary>Restore the unit into its "idle" state from being inactive, indicating that it's ready to act again.</summary>
+    public void Refresh()
+    {
+        Sprite.Modulate = Affiliation.Color;
+        Tree.Set(Done, false);
+        Tree.Set(Idle, true);
+    }
+
+    /// <summary>Box that travels with the motion of the sprite to use for tracking the unit as it moves.</summary>
+    /// <remarks>Don't use the unit's actual position, as that doesn't update until motion is over.</remarks>
+    public BoundedNode2D MotionBox => _cache.GetNode<BoundedNode2D>("Path/PathFollow/Bounds");
+
+    /// <summary>Move the unit along a path of <see cref="Grid"/> cells.</summary>
+    /// <param name="path">Coordinates of the cells to move along.</param>
+    public void MoveAlong(Path path)
+    {
+        if (path[0] != Cell)
+            throw new ArgumentException("The first cell in the path must be the unit's cell");
+
+        if (path.Count == 1)
+            EmitSignal(SignalName.DoneMoving);
+        else if (path.Count > 1)
+        {
+            foreach (Vector2I cell in path)
+                Path.Curve.AddPoint(Grid.PositionOf(cell) - Position);
+            Cell = path[^1];
+            Tree.Set(Selected, false);
+            Tree.Set(Moving, true);
+            SetProcess(true);
+        }
+    }
+
+    /// <summary>If this unit is moving, skip straight to the end of the path.</summary>
+    /// <exception cref="InvalidOperationException">If the unit is not moving.</exception>
+    public void SkipMoving()
+    {
+        if (!Tree.Get(Moving).AsBool())
+            throw new InvalidOperationException($"Unit {Name} isn't moving");
+        PathFollow.ProgressRatio = 1;
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+
+        if (_affiliation is not null)
+            Sprite.Modulate = _affiliation.Color;
+
+        if (!Engine.IsEditorHint())
+        {
+            Path.Curve = new();
+            MotionBox.Size = Size;
+            SetProcess(false);
+        }
+    }
+
+    public override void _Input(InputEvent @event)
+    {
+        base._Input(@event);
+
+        if (@event.IsActionPressed(MoveAccelerateAction))
+            MoveSpeed *= MoveAccelerationFactor;
+        else if (@event.IsActionReleased(MoveAccelerateAction))
+            MoveSpeed /= MoveAccelerationFactor;
+    }
+
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+
+        if (!Engine.IsEditorHint())
+        {
+            Vector2 prev = PathFollow.Position;
+            PathFollow.Progress += (float)(MoveSpeed*delta);
+            Vector2 change = PathFollow.Position - prev;
+            if (change != Vector2.Zero)
+                Tree.Set(MoveDirection, change);
+
+            if (PathFollow.ProgressRatio >= 1)
+            {
+                Tree.Set(Selected, true);
+                Tree.Set(Moving, false);
+                PathFollow.Progress = 0;
+                Position = Grid.PositionOf(Cell);
+                Path.Curve.ClearPoints();
+                SetProcess(false);
+                EmitSignal(SignalName.DoneMoving);
+            }
+        }
+        else
+        {
+            if (_affiliation is not null)
+                Sprite.Modulate = _affiliation.Color;
+        }
+    }
+}
