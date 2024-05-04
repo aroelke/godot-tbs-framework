@@ -1,6 +1,6 @@
 [gd_scene load_steps=50 format=3 uid="uid://p5cw5rndfqun"]
 
-[ext_resource type="Script" path="res://src/Scenes/Level/Level.cs" id="1_r2v0t"]
+[ext_resource type="Script" path="res://src/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="Resource" uid="uid://hkvw8a5g5l62" path="res://src/UI/Controls/Action/References/Map/MapCancelAction.tres" id="2_2u5dc"]
 [ext_resource type="Resource" uid="uid://dgi6r3g11lb6x" path="res://src/UI/Controls/Action/References/Map/GlobalDangerZone.tres" id="2_d5jrl"]
 [ext_resource type="Resource" uid="uid://c8yddva5eag3s" path="res://src/UI/Controls/Action/References/Map/MapPrevAction.tres" id="3_76mfa"]
@@ -100,7 +100,7 @@ script = ExtResource("24_k1nop")
 [sub_resource type="Resource" id="Resource_m8qte"]
 script = ExtResource("24_k1nop")
 
-[node name="Level" type="Node"]
+[node name="LevelManager" type="Node"]
 script = ExtResource("1_r2v0t")
 ToggleGlobalDangerZoneAction = ExtResource("2_d5jrl")
 CancelAction = ExtResource("2_2u5dc")

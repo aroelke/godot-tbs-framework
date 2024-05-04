@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://bmfxux38ovtj2"]
 
-[ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/Scenes/Level/Level.tscn" id="1_h3e4w"]
+[ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/Scenes/Level/LevelManager.tscn" id="1_h3e4w"]
 [ext_resource type="AudioStream" uid="uid://l7x6ygaf3aqq" path="res://assets/raw/Legendary_JRPG_Battle_Music_Pack/main-theme04_loop/main-theme04_loop.ogg" id="2_5c8dd"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/Scenes/Level/Map/Grid.tscn" id="2_trttl"]
 [ext_resource type="Resource" uid="uid://bn6uq3ysywt60" path="res://src/Scenes/Level/Map/Terrain/plain.tres" id="3_ft5ge"]

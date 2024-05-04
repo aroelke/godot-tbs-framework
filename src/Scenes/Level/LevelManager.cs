@@ -23,11 +23,11 @@ namespace Scenes.Level;
 /// all objects in the level may be able to see it and request information from it, but each level has its own manager.
 /// </summary>
 [Tool]
-public partial class Level : Node
+public partial class LevelManager : Node
 {
     private readonly NodeCache _cache;
 
-    public Level() : base()
+    public LevelManager() : base()
     {
         _cache = new(this);
     }
