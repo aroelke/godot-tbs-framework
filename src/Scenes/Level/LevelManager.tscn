@@ -251,12 +251,13 @@ Condition = SubResource("Resource_f7pbh")
 [node name="UnitTargeting" parent="State/Root" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
+[node name="OnCellSelected" parent="State/Root/UnitTargeting" instance=ExtResource("25_goaap")]
+
 [node name="OnInput" parent="State/Root/UnitTargeting" instance=ExtResource("23_nnivc")]
-Condition = SubResource("Resource_umt67")
 
 [node name="ToAdvancing" parent="State/Root/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../TurnAdvancing")
-Event = &"select"
+Event = &"done"
 Condition = SubResource("Resource_f7pbh")
 
 [node name="ToSelected" parent="State/Root/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
@@ -294,6 +295,7 @@ stream = ExtResource("32_e2hk2")
 [connection signal="CellChanged" from="Cursor" to="State/Root/UnitSelected/OnCursorMoved" method="OnCellUpdated"]
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]
 [connection signal="CellSelected" from="Cursor" to="State/Root/UnitSelected/OnCellSelected" method="OnCellUpdated"]
+[connection signal="CellSelected" from="Cursor" to="State/Root/UnitTargeting/OnCellSelected" method="OnCellUpdated"]
 [connection signal="CursorMoved" from="Cursor" to="Pointer" method="OnCursorMoved"]
 [connection signal="PointerMoved" from="Pointer" to="Cursor" method="OnPointerMoved"]
 [connection signal="EventReceived" from="State/Root/Idle" to="." method="OnIdleEventReceived"]
@@ -317,8 +319,8 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateInput" from="State/Root/UnitMoving/OnInput" to="." method="OnMovingInput"]
 [connection signal="StateEntered" from="State/Root/UnitTargeting" to="." method="OnTargetingEntered"]
 [connection signal="StateExited" from="State/Root/UnitTargeting" to="." method="OnTargetingExited"]
+[connection signal="StateCellUpdated" from="State/Root/UnitTargeting/OnCellSelected" to="." method="OnTargetSelected"]
 [connection signal="StateInput" from="State/Root/UnitTargeting/OnInput" to="." method="OnTargetingInput"]
-[connection signal="Taken" from="State/Root/UnitTargeting/ToAdvancing" to="SelectSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/UnitTargeting/ToSelected" to="." method="OnTargetingCanceled"]
 [connection signal="Taken" from="State/Root/UnitTargeting/ToSelected" to="CancelSound" method="play" binds= [0.0]]
 [connection signal="StateEntered" from="State/Root/TurnAdvancing" to="." method="OnTurnAdvancingEntered"]

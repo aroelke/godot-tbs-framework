@@ -69,6 +69,7 @@ public partial class LevelManager : Node
     private Cursor Cursor => _cache.GetNode<Cursor>("Cursor");
     private Pointer Pointer => _cache.GetNode<Pointer>("Pointer");
     private ControlHint CancelHint => _cache.GetNode<ControlHint>("UserInterface/HUD/Hints/CancelHint");
+    private AudioStreamPlayer SelectSound => _cache.GetNode<AudioStreamPlayer>("SelectSound");
     private AudioStreamPlayer ErrorSound => _cache.GetNode<AudioStreamPlayer>("ErrorSound");
     private AudioStreamPlayer ZoneOnSound => _cache.GetNode<AudioStreamPlayer>("ZoneOnSound");
     private AudioStreamPlayer ZoneOffSound => _cache.GetNode<AudioStreamPlayer>("ZoneOffSound");
@@ -432,7 +433,7 @@ public partial class LevelManager : Node
     public void OnUnitDoneMoving()
     {
         _selected.DoneMoving -= OnUnitDoneMoving;
-        StateChart.SendEvent(DoneEvent);
+        Callable.From(() => StateChart.SendEvent(DoneEvent)).CallDeferred();
     }
 
     /// <summary>Begin moving the selected <see cref="Unit"/> and then wait for it to finish moving.</summary>
@@ -524,6 +525,32 @@ public partial class LevelManager : Node
         UpdateDangerZones();
     }
 
+    /// <summary>If a target is selected, begin combat fighting that target.  Otherwise, just end the selected <see cref="Unit"/>'s turn.</summary>
+    /// <param name="cell">Cell being selected.</param>
+    public void OnTargetSelected(Vector2I cell)
+    {
+        if (Cursor.HardRestriction.Any())
+        {
+            if (Grid.CellOf(Pointer.Position) == cell && Grid.Occupants[cell] != _selected)
+            {
+                SceneManager.Singleton.CombatFinished += OnCombatFinished;
+                SceneManager.BeginCombat();
+            }
+        }
+        else
+        {
+            SelectSound.Play();
+            StateChart.SendEvent(DoneEvent);
+        }
+    }
+
+    /// <summary>When combat is done, end the selected <see cref="Unit"/>'s turn.</summary>
+    public void OnCombatFinished()
+    {
+        StateChart.SendEvent(DoneEvent);
+        SceneManager.Singleton.CombatFinished -= OnCombatFinished;
+    }
+
     /// <summary>Clean up displayed ranges and restore <see cref="Object.Cursor"/> freedom when exiting targeting <see cref="State"/>.</summary>
     public void OnTargetingExited()
     {
@@ -571,7 +598,7 @@ public partial class LevelManager : Node
 
             WarpCursor(((IEnumerable<Unit>)_armies.Current).First().Cell);
         }
-        StateChart.SendEvent(DoneEvent);
+        Callable.From(() => StateChart.SendEvent(DoneEvent)).CallDeferred();
     }
 #endregion
 #region State Independent
