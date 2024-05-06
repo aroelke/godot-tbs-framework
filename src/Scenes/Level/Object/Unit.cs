@@ -62,9 +62,12 @@ public partial class Unit : GridNode
         get => _affiliation;
         set
         {
-            _affiliation = value;
-            if (Sprite is not null && _affiliation is not null)
-                Sprite.Modulate = _affiliation.Color;
+            if (_affiliation != value)
+            {
+                _affiliation = value;
+                if (Sprite is not null && _affiliation is not null)
+                    Sprite.Modulate = _affiliation.Color;
+            }
         }
     }
 

@@ -75,14 +75,6 @@ public partial class Army : GridNodeGroup, IEnumerable<Unit>
             unit.Affiliation = this;
     }
 
-    /// <summary>When a <see cref="Unit"/> is about to leave the army, clear its <see cref="Unit.Affiliation"/>.</summary>
-    /// <param name="child">Node that's leaving the tree.</param>
-    public void OnChildExitingTree(Node child)
-    {
-        if (child is Unit unit && unit.Affiliation == this)
-            unit.Affiliation = null;
-    }
-
     public override void _Ready()
     {
         base._Ready();
