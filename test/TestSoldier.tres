@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="Class" load_steps=2 format=3 uid="uid://bqexj8hqh32xd"]
+
+[ext_resource type="Script" path="res://src/Data/Class.cs" id="1_1e3k7"]
+
+[resource]
+script = ExtResource("1_1e3k7")
+CombatAnimationPath = "res://src/Scenes/Combat/Animations/Characters/SoldierCombatAnimation.tscn"
