@@ -5,7 +5,6 @@ using Nodes;
 using Extensions;
 using System.Collections.Immutable;
 using System;
-using UI.Controls.Action;
 using Scenes.Level.Map;
 using Scenes.Level.Object.Group;
 using Data;
@@ -79,9 +78,6 @@ public partial class Unit : GridNode
 
     /// <summary>Base speed, in world pixels/second, to move along the path while moving.</summary>
     [Export] public double MoveSpeed = 320;
-
-    /// <summary>Action to use to accelerate the unit while it's moving. </summary>
-    [Export] public InputActionReference MoveAccelerateAction = new();
 
     /// <summary>Factor to multiply <see cref="MoveSpeed"/> by while <see cref="MoveAccelerateAction"/> is held down.</summary>
     [Export] public double MoveAccelerationFactor = 2;
@@ -249,16 +245,6 @@ public partial class Unit : GridNode
         }
     }
 
-    public override void _Input(InputEvent @event)
-    {
-        base._Input(@event);
-
-        if (@event.IsActionPressed(MoveAccelerateAction))
-            MoveSpeed *= MoveAccelerationFactor;
-        else if (@event.IsActionReleased(MoveAccelerateAction))
-            MoveSpeed /= MoveAccelerationFactor;
-    }
-
     public override void _Process(double delta)
     {
         base._Process(delta);
@@ -266,7 +252,7 @@ public partial class Unit : GridNode
         if (!Engine.IsEditorHint())
         {
             Vector2 prev = PathFollow.Position;
-            PathFollow.Progress += (float)(MoveSpeed*delta);
+            PathFollow.Progress += (float)(MoveSpeed*(UnitEvents.Accelerate ? MoveAccelerationFactor : 1)*delta);
             Vector2 change = PathFollow.Position - prev;
             if (change != Vector2.Zero)
                 Tree.Set(MoveDirection, change);

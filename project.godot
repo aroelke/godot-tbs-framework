@@ -20,6 +20,7 @@ InputManager="*res://src/UI/Controls/Device/InputManager.cs"
 DeviceManager="*res://src/UI/Controls/Device/DeviceManager.tscn"
 MusicController="*res://src/UI/MusicController.tscn"
 SceneManager="*res://src/Scenes/SceneManager.tscn"
+UnitEvents="*res://src/Scenes/Level/UnitEvents.tscn"
 
 [display]
 
