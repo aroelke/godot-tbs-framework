@@ -488,7 +488,7 @@ public partial class LevelManager : Node
         if (_target == null)
             WarpCursor(Cursor.Cell);
         else
-            StateChart.SendEvent(SelectEvent);
+            Callable.From(() => OnTargetSelected(_target)).CallDeferred();
     }
 
     /// <summary>
@@ -527,17 +527,14 @@ public partial class LevelManager : Node
 
     /// <summary>If a target is selected, begin combat fighting that target.  Otherwise, just end the selected <see cref="Unit"/>'s turn.</summary>
     /// <param name="cell">Cell being selected.</param>
-    public void OnTargetSelected(Vector2I cell)
+    public void OnTargetingCellSelected(Vector2I cell)
     {
         if (Cursor.HardRestriction.Any())
         {
             if (Grid.CellOf(Pointer.Position) == cell && Grid.Occupants[cell] != _selected)
             {
                 if (Grid.Occupants[cell] is Unit target)
-                {
-                    SceneManager.Singleton.CombatFinished += OnCombatFinished;
-                    SceneManager.BeginCombat(_selected, target, true);
-                }
+                    OnTargetSelected(target);
                 else
                     StateChart.SendEvent(DoneEvent);
             }
@@ -547,6 +544,14 @@ public partial class LevelManager : Node
             SelectSound.Play();
             StateChart.SendEvent(DoneEvent);
         }
+    }
+
+    /// <summary>Begin combat when a target is selected.</summary>
+    /// <param name="target">Unit targeted for combat or support.</param>
+    public void OnTargetSelected(Unit target)
+    {
+        SceneManager.Singleton.CombatFinished += OnCombatFinished;
+        SceneManager.BeginCombat(_selected, target, true);
     }
 
     /// <summary>When combat is done, end the selected <see cref="Unit"/>'s turn.</summary>
