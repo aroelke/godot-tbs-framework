@@ -159,6 +159,7 @@ _data = {
 
 [node name="TestSoldierCombatAnimation" type="Node2D"]
 script = ExtResource("1_og255")
+Size = Vector2(61, 51)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
@@ -167,5 +168,6 @@ libraries = {
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("3_n278u")
+centered = false
 hframes = 4
 vframes = 3

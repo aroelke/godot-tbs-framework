@@ -4,7 +4,7 @@ using Nodes;
 namespace Scenes.Combat.Animations;
 
 [GlobalClass, Tool]
-public partial class CombatAnimation : Node2D
+public partial class CombatAnimation : BoundedNode2D
 {
     private readonly NodeCache _cache;
 

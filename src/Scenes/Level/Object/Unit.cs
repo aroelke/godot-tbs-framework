@@ -8,6 +8,7 @@ using System;
 using UI.Controls.Action;
 using Scenes.Level.Map;
 using Scenes.Level.Object.Group;
+using Data;
 
 namespace Scenes.Level.Object;
 
@@ -46,6 +47,9 @@ public partial class Unit : GridNode
     /// </returns>
     private IEnumerable<Vector2I> GetCellsInRange(IEnumerable<Vector2I> sources, IEnumerable<int> ranges) =>
         sources.SelectMany((c) => ranges.SelectMany((r) => Grid.GetCellsAtRange(c, r))).ToImmutableHashSet();
+
+    /// <summary>Class this unit belongs to, defining some of its stats and animations.</summary>
+    [Export] public Class Class = null;
 
     /// <summary>Movement range of the unit, in <see cref="Grid"/> cells.</summary>
     [Export] public int MoveRange = 5;

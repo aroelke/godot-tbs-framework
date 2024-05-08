@@ -1,5 +1,8 @@
 using System;
 using Godot;
+using Scenes.Combat;
+using Scenes.Combat.Animations;
+using Scenes.Level.Object;
 
 namespace Scenes;
 
@@ -11,13 +14,13 @@ public partial class SceneManager : Node
 
     private static SceneManager _singleton = null;
     private static Node CurrentLevel = null;
-    private static Node Combat = null;
+    private static CombatScene Combat = null;
 
     /// <summary>Reference to the autoloaded scene manager.</summary>
     public static SceneManager Singleton => _singleton ??= ((SceneTree)Engine.GetMainLoop()).Root.GetNode<SceneManager>("SceneManager");
 
     /// <summary>Begin the combat animation by switching to the <see cref="Combat.CombatScene"/>, remembering where to return when the animation completes.</summary>
-    public static void BeginCombat() => Singleton.DoBeginCombat();
+    public static void BeginCombat(Unit left, Unit right, bool attackLeft) => Singleton.DoBeginCombat(left, right, attackLeft);
 
     /// <summary>End combat and return to the previous scene.</summary>
     public static void EndCombat() => Singleton.DoEndCombat();
@@ -25,7 +28,7 @@ public partial class SceneManager : Node
     /// <summary>Scene to instantiate when displaying a combat animation.</summary>
     [Export] public PackedScene CombatScene = null;
 
-    private void DoBeginCombat()
+    private void DoBeginCombat(Unit left, Unit right, bool attackLeft)
     {
         if (CurrentLevel is not null)
             throw new InvalidOperationException("Combat has already begun.");
@@ -33,8 +36,13 @@ public partial class SceneManager : Node
         CurrentLevel = Singleton.GetTree().CurrentScene;
         GetTree().Root.RemoveChild(CurrentLevel);
 
-        Combat = Singleton.CombatScene.Instantiate();
+        Combat = Singleton.CombatScene.Instantiate<CombatScene>();
         GetTree().Root.AddChild(Combat);
+        CombatAnimation leftAnimation = left.Class.CombatAnimations.Instantiate<CombatAnimation>();
+        leftAnimation.Modulate = left.Affiliation.Color;
+        CombatAnimation rightAnimation = right.Class.CombatAnimations.Instantiate<CombatAnimation>();
+        rightAnimation.Modulate = right.Affiliation.Color;
+        Combat.Start(leftAnimation, rightAnimation);
     }
 
     private void DoEndCombat()

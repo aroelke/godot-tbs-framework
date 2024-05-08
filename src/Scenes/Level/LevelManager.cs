@@ -533,8 +533,13 @@ public partial class LevelManager : Node
         {
             if (Grid.CellOf(Pointer.Position) == cell && Grid.Occupants[cell] != _selected)
             {
-                SceneManager.Singleton.CombatFinished += OnCombatFinished;
-                SceneManager.BeginCombat();
+                if (Grid.Occupants[cell] is Unit target)
+                {
+                    SceneManager.Singleton.CombatFinished += OnCombatFinished;
+                    SceneManager.BeginCombat(_selected, target, true);
+                }
+                else
+                    StateChart.SendEvent(DoneEvent);
             }
         }
         else
