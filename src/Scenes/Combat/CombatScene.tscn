@@ -19,10 +19,20 @@ one_shot = true
 [node name="Left" parent="." instance=ExtResource("2_xevfw")]
 visible = false
 position = Vector2(44, 64)
+Left = false
+
+[node name="Sprite" parent="Left" index="1"]
+offset = Vector2(0, 0)
+flip_h = true
 
 [node name="Right" parent="." instance=ExtResource("2_xevfw")]
 visible = false
 position = Vector2(116, 64)
+Left = false
+
+[node name="Sprite" parent="Right" index="1"]
+offset = Vector2(0, 0)
+flip_h = true
 
 [connection signal="timeout" from="CombatDelay" to="." method="OnTimerTimeout"]
 
