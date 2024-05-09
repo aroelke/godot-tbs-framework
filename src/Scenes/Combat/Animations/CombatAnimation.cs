@@ -22,6 +22,8 @@ public partial class CombatAnimation : BoundedNode2D
 
     [Signal] public delegate void AttackStrikeEventHandler();
 
+    [Signal] public delegate void AttackFinishedEventHandler();
+
     private AnimationPlayer Animations => _cache.GetNode<AnimationPlayer>("AnimationPlayer");
 
     [Export] public bool Left = false;
@@ -35,6 +37,7 @@ public partial class CombatAnimation : BoundedNode2D
         Animations.Play(left ? AttackLeft : AttackRight);
         await ToSignal(Animations, AnimationPlayer.SignalName.AnimationFinished);
         ZIndex = 0;
+        EmitSignal(SignalName.AttackFinished);
     }
     public void Attack() => Attack(Left);
 }

@@ -13,7 +13,7 @@ public partial class CombatScene : Node
     /// <summary>Set up the combat scene and then begin animation.</summary>
     /// <param name="left">Unit to display on the left side of the screen.</param>
     /// <param name="right">Unit to display on the right side of the screen.</param>
-    public void Start(CombatAnimation left, CombatAnimation right)
+    public async void Start(CombatAnimation left, CombatAnimation right)
     {
         AddChild(left);
         AddChild(right);
@@ -25,7 +25,9 @@ public partial class CombatScene : Node
 
         left.Attack();
         right.Idle();
-//        right.Attack(false);
+        await ToSignal(left, CombatAnimation.SignalName.AttackFinished);
+        left.Idle();
+        right.Attack();
         GetNode<Timer>("CombatDelay").Start();
     }
 }
