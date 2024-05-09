@@ -140,8 +140,10 @@ layer_2/tile_data = PackedInt32Array()
 z_index = 1
 
 [node name="Cursor" parent="." instance=ExtResource("6_3v7mf")]
+DebugColor = Color(0, 0, 0, 0)
 
 [node name="Pointer" parent="." instance=ExtResource("10_meiip")]
+DebugColor = Color(0, 0, 0, 0)
 
 [node name="UserInterface" type="CanvasLayer" parent="."]
 

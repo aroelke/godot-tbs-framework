@@ -18,10 +18,14 @@ public partial class CombatScene : Node
         AddChild(left);
         AddChild(right);
 
-        right.Position = new(GetViewport().GetVisibleRect().End.X - right.Size.X, 0);
+        left.Left = true;
+        left.Position  = new(44, 64);
+        right.Left = false;
+        right.Position = new(116, 64);
 
-        left.Attack(true);
-        right.Attack(false);
+        left.Attack();
+        right.Idle();
+//        right.Attack(false);
         GetNode<Timer>("CombatDelay").Start();
     }
 }
