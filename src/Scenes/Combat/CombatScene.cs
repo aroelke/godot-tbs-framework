@@ -8,6 +8,12 @@ public partial class CombatScene : Node
 {
     private CombatAnimation _left = null, _right = null;
 
+    /// <summary>Position to display the left unit's sprite.</summary>
+    [Export] public Vector2 Left  = new(44, 64);
+
+    /// <summary>Position to display the right unit's sprite.</summary>
+    [Export] public Vector2 Right = new(116, 64);
+
     public void OnTimerTimeout() => SceneManager.EndCombat();
 
     /// <summary>Set up the combat scene and then begin animation.</summary>
@@ -19,9 +25,9 @@ public partial class CombatScene : Node
         AddChild(right);
 
         left.Left = true;
-        left.Position  = new(44, 64);
+        left.Position  = Left;
         right.Left = false;
-        right.Position = new(116, 64);
+        right.Position = Right;
 
         left.Attack();
         right.Idle();
