@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://src/Scenes/Combat/CombatScene.cs" id="1_h22l5"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/UI/Camera2DBrain.tscn" id="2_qyxbl"]
-[ext_resource type="PackedScene" uid="uid://ca2abfv6n477v" path="res://test/TestSoldierCombatAnimation.tscn" id="2_xevfw"]
+[ext_resource type="PackedScene" uid="uid://d27657huq736q" path="res://test/TestSoldierCombatAnimation.tscn" id="2_xevfw"]
 
 [node name="CombatScene" type="Node"]
 script = ExtResource("1_h22l5")

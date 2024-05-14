@@ -6,7 +6,7 @@
 [ext_resource type="Resource" uid="uid://bn6uq3ysywt60" path="res://src/Scenes/Level/Map/Terrain/plain.tres" id="3_ft5ge"]
 [ext_resource type="PackedScene" uid="uid://1ev2yxu31ow" path="res://src/Scenes/Level/Object/Group/Army.tscn" id="4_xrn4s"]
 [ext_resource type="PackedScene" uid="uid://b0cvutx2lj5uy" path="res://src/Scenes/Level/Object/Unit.tscn" id="5_ju5kl"]
-[ext_resource type="Resource" uid="uid://bqexj8hqh32xd" path="res://test/TestSoldier.tres" id="7_crsy2"]
+[ext_resource type="Resource" path="res://test/TestSoldier.tres" id="7_crsy2"]
 
 [node name="TestMap" type="Node2D"]
 
