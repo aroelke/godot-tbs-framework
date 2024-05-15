@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://bn2dxlvq8lqj6"]
+[gd_scene load_steps=5 format=3 uid="uid://bn2dxlvq8lqj6"]
 
 [ext_resource type="Script" path="res://src/Scenes/Combat/CombatScene.cs" id="1_h22l5"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/UI/Camera2DBrain.tscn" id="2_qyxbl"]
 [ext_resource type="PackedScene" uid="uid://d27657huq736q" path="res://test/TestSoldierCombatAnimation.tscn" id="2_xevfw"]
+[ext_resource type="AudioStream" uid="uid://bpdw8kugq2tx2" path="res://assets/raw/RPG_Essentials_Free/10_Battle_SFX/15_Impact_flesh_02.wav" id="3_djjqq"]
 
 [node name="CombatScene" type="Node"]
 script = ExtResource("1_h22l5")
@@ -11,6 +12,10 @@ script = ExtResource("1_h22l5")
 Zoom = Vector2(8, 8)
 ZoomMax = Vector2(8, 8)
 Limits = Rect2i(0, 0, 2000000, 2000000)
+
+[node name="HitSound" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("3_djjqq")
 
 [node name="CombatDelay" type="Timer" parent="."]
 wait_time = 3.0
