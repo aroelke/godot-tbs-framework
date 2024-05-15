@@ -38,11 +38,7 @@ public partial class SceneManager : Node
 
         Combat = Singleton.CombatScene.Instantiate<CombatScene>();
         GetTree().Root.AddChild(Combat);
-        CombatAnimation leftAnimation = left.Class.CombatAnimations.Instantiate<CombatAnimation>();
-        leftAnimation.Modulate = left.Affiliation.Color;
-        CombatAnimation rightAnimation = right.Class.CombatAnimations.Instantiate<CombatAnimation>();
-        rightAnimation.Modulate = right.Affiliation.Color;
-        Combat.Start(leftAnimation, rightAnimation);
+        Combat.Start(left, right);
     }
 
     private void DoEndCombat()

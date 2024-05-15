@@ -1,6 +1,7 @@
 using Godot;
 using Nodes;
 using Scenes.Combat.Animations;
+using Scenes.Level.Object;
 
 namespace Scenes.Combat;
 
@@ -29,23 +30,28 @@ public partial class CombatScene : Node
     /// <summary>Set up the combat scene and then begin animation.</summary>
     /// <param name="left">Unit to display on the left side of the screen.</param>
     /// <param name="right">Unit to display on the right side of the screen.</param>
-    public async void Start(CombatAnimation left, CombatAnimation right)
+    public async void Start(Unit left, Unit right)
     {
-        AddChild(left);
-        AddChild(right);
+        CombatAnimation leftAnimation = left.Class.CombatAnimations.Instantiate<CombatAnimation>();
+        leftAnimation.Modulate = left.Affiliation.Color;
+        CombatAnimation rightAnimation = right.Class.CombatAnimations.Instantiate<CombatAnimation>();
+        rightAnimation.Modulate = right.Affiliation.Color;
 
-        left.Left = true;
-        left.Position  = Left;
-        left.AttackStrike += OnAttackStrike;
-        right.Left = false;
-        right.Position = Right;
-        right.AttackStrike += OnAttackStrike;
+        AddChild(leftAnimation);
+        AddChild(rightAnimation);
 
-        left.Attack();
-        right.Idle();
-        await ToSignal(left, CombatAnimation.SignalName.AttackFinished);
-        left.Idle();
-        right.Attack();
+        leftAnimation.Left = true;
+        leftAnimation.Position  = Left;
+        leftAnimation.AttackStrike += OnAttackStrike;
+        rightAnimation.Left = false;
+        rightAnimation.Position = Right;
+        rightAnimation.AttackStrike += OnAttackStrike;
+
+        leftAnimation.Attack();
+        rightAnimation.Idle();
+        await ToSignal(leftAnimation, CombatAnimation.SignalName.AttackFinished);
+        leftAnimation.Idle();
+        rightAnimation.Attack();
         GetNode<Timer>("CombatDelay").Start();
     }
 }
