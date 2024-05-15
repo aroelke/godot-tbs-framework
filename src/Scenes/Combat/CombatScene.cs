@@ -47,11 +47,22 @@ public partial class CombatScene : Node
         rightAnimation.Position = Right;
         rightAnimation.AttackStrike += OnAttackStrike;
 
+        leftAnimation.ZIndex = 1;
         leftAnimation.Attack();
         rightAnimation.Idle();
-        await ToSignal(leftAnimation, CombatAnimation.SignalName.AttackFinished);
+        await ToSignal(leftAnimation, CombatAnimation.SignalName.AnimationFinished);
+        leftAnimation.Return();
+        await ToSignal(leftAnimation, CombatAnimation.SignalName.AnimationFinished);
+        leftAnimation.ZIndex = 0;
+
+        rightAnimation.ZIndex = 1;
         leftAnimation.Idle();
         rightAnimation.Attack();
+        await ToSignal(rightAnimation, CombatAnimation.SignalName.AnimationFinished);
+        rightAnimation.Return();
+        await ToSignal(rightAnimation, CombatAnimation.SignalName.AnimationFinished);
+        rightAnimation.ZIndex = 0;
+
         GetNode<Timer>("CombatDelay").Start();
     }
 }

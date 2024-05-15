@@ -18,7 +18,6 @@ unique_name_in_owner = true
 stream = ExtResource("3_djjqq")
 
 [node name="CombatDelay" type="Timer" parent="."]
-wait_time = 3.0
 one_shot = true
 
 [node name="Left" parent="." instance=ExtResource("2_xevfw")]
@@ -31,7 +30,7 @@ position = Vector2(116, 64)
 Left = false
 
 [node name="Sprite" parent="Right" index="1"]
-offset = Vector2(-48, -52)
+offset = Vector2(0, 0)
 flip_h = true
 
 [connection signal="timeout" from="CombatDelay" to="." method="OnTimerTimeout"]

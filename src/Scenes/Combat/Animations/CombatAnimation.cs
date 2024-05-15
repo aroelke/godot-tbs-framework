@@ -16,15 +16,16 @@ public partial class CombatAnimation : BoundedNode2D
 
     private static readonly StringName IdleAnimation = "RESET";
     private static readonly StringName AttackAnimation = "attack";
+    private static readonly StringName ReturnAnimation = "return";
+
+    /// <summary>Signals that the current animation has completed.</summary>
+    [Signal] public delegate void AnimationFinishedEventHandler();
 
     /// <summary>Signals that the camera should begin to shake for an animation frame.</summary>
     [Signal] public delegate void ShakeCameraEventHandler();
 
     /// <summary>Signals the frame in which the attack animation connects (or misses) with the opponent.</summary>
     [Signal] public delegate void AttackStrikeEventHandler();
-
-    /// <summary>Signals that the attack animation has completed.</summary>
-    [Signal] public delegate void AttackFinishedEventHandler();
 
     private bool _left = true;
     private Vector2 _spriteOffset = Vector2.Zero;
@@ -74,12 +75,12 @@ public partial class CombatAnimation : BoundedNode2D
     public void Idle() => Animations.Play(IdleAnimation);
 
     /// <summary>Play the attack animation.</summary>
-    public async void Attack()
-    {
-        ZIndex = 1;
-        Animations.Play(AttackAnimation);
-        await ToSignal(Animations, AnimationPlayer.SignalName.AnimationFinished);
-        ZIndex = 0;
-        EmitSignal(SignalName.AttackFinished);
-    }
+    public void Attack() => Animations.Play(AttackAnimation);
+
+    /// <summary>Play the return-to-idle-from-attacking animation.</summary>
+    public void Return() => Animations.Play(ReturnAnimation);
+
+    /// <summary>Forward the <see cref="AnimationPlayer"/>'s <see cref="AnimationMixer.SignalName.AnimationFinished"/> signal to any listeners.</summary>
+    /// <param name="name">Name of the animation that completed.</param>
+    public void OnAnimationFinished(StringName name) => EmitSignal(SignalName.AnimationFinished);
 }
