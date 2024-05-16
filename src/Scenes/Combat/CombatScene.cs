@@ -50,17 +50,13 @@ public partial class CombatScene : Node
         leftAnimation.ZIndex = 1;
         leftAnimation.Attack();
         rightAnimation.Idle();
-        await ToSignal(leftAnimation, CombatAnimation.SignalName.AnimationFinished);
-        leftAnimation.Return();
-        await ToSignal(leftAnimation, CombatAnimation.SignalName.AnimationFinished);
+        await ToSignal(leftAnimation, CombatAnimation.SignalName.Returned);
         leftAnimation.ZIndex = 0;
 
         rightAnimation.ZIndex = 1;
         leftAnimation.Idle();
         rightAnimation.Attack();
-        await ToSignal(rightAnimation, CombatAnimation.SignalName.AnimationFinished);
-        rightAnimation.Return();
-        await ToSignal(rightAnimation, CombatAnimation.SignalName.AnimationFinished);
+        await ToSignal(rightAnimation, CombatAnimation.SignalName.Returned);
         rightAnimation.ZIndex = 0;
 
         GetNode<Timer>("CombatDelay").Start();
