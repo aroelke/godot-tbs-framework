@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://bn2dxlvq8lqj6"]
+[gd_scene load_steps=6 format=3 uid="uid://bn2dxlvq8lqj6"]
 
 [ext_resource type="Script" path="res://src/Scenes/Combat/CombatScene.cs" id="1_h22l5"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/UI/Camera2DBrain.tscn" id="2_qyxbl"]
 [ext_resource type="PackedScene" uid="uid://d27657huq736q" path="res://test/TestSoldierCombatAnimation.tscn" id="2_xevfw"]
 [ext_resource type="AudioStream" uid="uid://bpdw8kugq2tx2" path="res://assets/raw/RPG_Essentials_Free/10_Battle_SFX/15_Impact_flesh_02.wav" id="3_djjqq"]
+[ext_resource type="AudioStream" uid="uid://7xjekp6wlo14" path="res://assets/raw/RPG_Essentials_Free/10_Battle_SFX/35_Miss_Evade_02.wav" id="4_3j5b2"]
 
 [node name="CombatScene" type="Node"]
 script = ExtResource("1_h22l5")
@@ -16,6 +17,10 @@ Limits = Rect2i(0, 0, 2000000, 2000000)
 [node name="HitSound" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true
 stream = ExtResource("3_djjqq")
+
+[node name="MissSound" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("4_3j5b2")
 
 [node name="CombatDelay" type="Timer" parent="."]
 one_shot = true

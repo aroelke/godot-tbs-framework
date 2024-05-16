@@ -8,11 +8,13 @@ namespace Scenes.Combat;
 /// <summary>Scene used to display the results of combat in a cut scene.</summary>
 public partial class CombatScene : Node
 {
-    private NodeCache _cache;
-
+    private readonly NodeCache _cache;
     public CombatScene() : base() => _cache = new(this);
 
+    private static bool leftMiss = false, rightMiss = true;
+
     private AudioStreamPlayer HitSound => _cache.GetNode<AudioStreamPlayer>("%HitSound");
+    private AudioStreamPlayer MissSound => _cache.GetNode<AudioStreamPlayer>("%MissSound");
 
     /// <summary>Position to display the left unit's sprite.</summary>
     [Export] public Vector2 Left  = new(44, 64);
@@ -20,11 +22,19 @@ public partial class CombatScene : Node
     /// <summary>Position to display the right unit's sprite.</summary>
     [Export] public Vector2 Right = new(116, 64);
 
-    public void OnTimerTimeout() => SceneManager.EndCombat();
-
-    public void OnAttackStrike()
+    public void OnTimerTimeout()
     {
-        HitSound.Play();
+        leftMiss = !leftMiss;
+        rightMiss = !rightMiss;
+        SceneManager.EndCombat();
+    }
+
+    public void OnAttackStrike(bool miss)
+    {
+        if (miss)
+            MissSound.Play();
+        else
+            HitSound.Play();
     }
 
     /// <summary>Set up the combat scene and then begin animation.</summary>
@@ -42,10 +52,27 @@ public partial class CombatScene : Node
 
         leftAnimation.Left = true;
         leftAnimation.Position = Left;
-        leftAnimation.AttackStrike += OnAttackStrike;
+        leftAnimation.AttackStrike += () => OnAttackStrike(leftMiss);
+        if (leftMiss)
+        {
+            leftAnimation.AttackDodged += () => {
+                rightAnimation.ZIndex = 2;
+                rightAnimation.Dodge();
+            };
+            leftAnimation.Returning += rightAnimation.DodgeReturn;
+        }
+
         rightAnimation.Left = false;
         rightAnimation.Position = Right;
-        rightAnimation.AttackStrike += OnAttackStrike;
+        rightAnimation.AttackStrike += () => OnAttackStrike(rightMiss);
+        if (rightMiss)
+        {
+            rightAnimation.AttackDodged += () => {
+                leftAnimation.ZIndex = 2;
+                leftAnimation.Dodge();
+            };
+            rightAnimation.Returning += leftAnimation.DodgeReturn;
+        }
 
         static void InitiateAttack(CombatAnimation attacker, CombatAnimation defender)
         {

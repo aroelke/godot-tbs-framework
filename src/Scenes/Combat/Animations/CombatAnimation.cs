@@ -8,15 +8,13 @@ namespace Scenes.Combat.Animations;
 public partial class CombatAnimation : BoundedNode2D
 {
     private readonly NodeCache _cache;
-
-    public CombatAnimation() : base()
-    {
-        _cache = new(this);
-    }
+    public CombatAnimation() : base() => _cache = new(this);
 
     private static readonly StringName IdleAnimation = "RESET";
     private static readonly StringName AttackAnimation = "attack";
-    private static readonly StringName ReturnAnimation = "return";
+    private static readonly StringName AttackReturnAnimation = "attack_return";
+    private static readonly StringName DodgeAnimation = "dodge";
+    private static readonly StringName DodgeReturnAnimation = "dodge_return";
 
     /// <summary>Signals that the current animation has completed.</summary>
     [Signal] public delegate void AnimationFinishedEventHandler();
@@ -24,8 +22,15 @@ public partial class CombatAnimation : BoundedNode2D
     /// <summary>Signals that the camera should begin to shake for an animation frame.</summary>
     [Signal] public delegate void ShakeCameraEventHandler();
 
+    /// <summary>Signals that the attack is about to land, so the opponent's dodge animation should begin now.</summary>
+    /// <remarks>Currently, all dodge animations are expected to be 0.1 seconds long, so this fires 0.1 seconds before the attack lands.</remarks>
+    [Signal] public delegate void AttackDodgedEventHandler();
+
     /// <summary>Signals the frame in which the attack animation connects (or misses) with the opponent.</summary>
     [Signal] public delegate void AttackStrikeEventHandler();
+
+    /// <summary>Signals that the animation for returning to idle has begun.</summary>
+    [Signal] public delegate void ReturningEventHandler();
 
     /// <summary>Signals that the complete animation sequence has completed and the unit is back in its idle pose.</summary>
     [Signal] public delegate void ReturnedEventHandler();
@@ -79,6 +84,12 @@ public partial class CombatAnimation : BoundedNode2D
 
     /// <summary>Play the attack animation.</summary>
     public void Attack() => Animations.Play(AttackAnimation);
+
+    /// <summary>Play the dodgee animation.</summary>
+    public void Dodge() => Animations.Play(DodgeAnimation);
+
+    /// <summary>Play the animation for returning to idle from a dodge pose.</summary>
+    public void DodgeReturn() => Animations.Play(DodgeReturnAnimation);
 
     /// <summary>Forward the <see cref="AnimationPlayer"/>'s <see cref="AnimationMixer.SignalName.AnimationFinished"/> signal to any listeners.</summary>
     /// <param name="name">Name of the animation that completed.</param>
