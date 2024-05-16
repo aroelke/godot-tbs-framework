@@ -80,9 +80,6 @@ public partial class CombatAnimation : BoundedNode2D
     /// <summary>Play the attack animation.</summary>
     public void Attack() => Animations.Play(AttackAnimation);
 
-    /// <summary>Play the return-to-idle-from-attacking animation.</summary>
-    public void Return() => Animations.Play(ReturnAnimation);
-
     /// <summary>Forward the <see cref="AnimationPlayer"/>'s <see cref="AnimationMixer.SignalName.AnimationFinished"/> signal to any listeners.</summary>
     /// <param name="name">Name of the animation that completed.</param>
     public void OnAnimationFinished(StringName name) => EmitSignal(SignalName.AnimationFinished);
