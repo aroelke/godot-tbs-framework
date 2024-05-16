@@ -30,7 +30,7 @@ public partial class CombatScene : Node
     /// <summary>Set up the combat scene and then begin animation.</summary>
     /// <param name="left">Unit to display on the left side of the screen.</param>
     /// <param name="right">Unit to display on the right side of the screen.</param>
-    public async void Start(Unit left, Unit right)
+    public void Start(Unit left, Unit right)
     {
         CombatAnimation leftAnimation = left.Class.CombatAnimations.Instantiate<CombatAnimation>();
         leftAnimation.Modulate = left.Affiliation.Color;
@@ -41,24 +41,22 @@ public partial class CombatScene : Node
         AddChild(rightAnimation);
 
         leftAnimation.Left = true;
-        leftAnimation.Position  = Left;
+        leftAnimation.Position = Left;
         leftAnimation.AttackStrike += OnAttackStrike;
         rightAnimation.Left = false;
         rightAnimation.Position = Right;
         rightAnimation.AttackStrike += OnAttackStrike;
 
-        leftAnimation.ZIndex = 1;
-        leftAnimation.Attack();
-        rightAnimation.Idle();
-        await ToSignal(leftAnimation, CombatAnimation.SignalName.Returned);
-        leftAnimation.ZIndex = 0;
+        static void InitiateAttack(CombatAnimation attacker, CombatAnimation defender)
+        {
+            attacker.ZIndex = 1;
+            attacker.Attack();
+            defender.ZIndex = 0;
+            defender.Idle();
+        }
 
-        rightAnimation.ZIndex = 1;
-        leftAnimation.Idle();
-        rightAnimation.Attack();
-        await ToSignal(rightAnimation, CombatAnimation.SignalName.Returned);
-        rightAnimation.ZIndex = 0;
-
-        GetNode<Timer>("CombatDelay").Start();
+        InitiateAttack(leftAnimation, rightAnimation);
+        leftAnimation.Returned += () => InitiateAttack(rightAnimation, leftAnimation);
+        rightAnimation.Returned += () => GetNode<Timer>("CombatDelay").Start();
     }
 }
