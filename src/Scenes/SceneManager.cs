@@ -42,7 +42,8 @@ public partial class SceneManager : Node
         Combat.Start(left, right, ImmutableList.Create(new CombatAction[]
         {
             new() { Actor = left, Target = right, Hit = true },
-            new() { Actor = right, Target = left, Hit = false }
+            new() { Actor = right, Target = left, Hit = false },
+            new() { Actor = left, Target = right, Hit = true }
         }));
     }
 
