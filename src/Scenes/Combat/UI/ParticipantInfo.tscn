@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://cvch4ay3dx0wv"]
+
+[ext_resource type="Script" path="res://src/Scenes/Combat/UI/ParticipantInfo.cs" id="1_ecooa"]
+
+[node name="ParticipantData" type="VBoxContainer"]
+script = ExtResource("1_ecooa")
+
+[node name="DamageLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Damage: 0"
+
+[node name="HitChanceLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Hit Chance: 0%"

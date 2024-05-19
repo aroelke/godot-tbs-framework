@@ -5,6 +5,8 @@ using System.Linq;
 using Godot;
 using Nodes;
 using Scenes.Combat.Animations;
+using Scenes.Combat.Data;
+using Scenes.Combat.UI;
 using Scenes.Level.Object;
 
 namespace Scenes.Combat;
@@ -19,6 +21,8 @@ public partial class CombatScene : Node
 
     private AudioStreamPlayer HitSound => _cache.GetNode<AudioStreamPlayer>("%HitSound");
     private AudioStreamPlayer MissSound => _cache.GetNode<AudioStreamPlayer>("%MissSound");
+    private ParticipantInfo LeftInfo => _cache.GetNode<ParticipantInfo>("%LeftInfo");
+    private ParticipantInfo RightInfo => _cache.GetNode<ParticipantInfo>("%RightInfo");
 
     private async void RunTurn(Queue<CombatAction> actions)
     {
@@ -83,24 +87,29 @@ public partial class CombatScene : Node
     }
 
     /// <summary>Set up the combat scene and then begin animation.</summary>
-    /// <param name="left">Unit to display on the left side of the screen.</param>
-    /// <param name="right">Unit to display on the right side of the screen.</param>
+    /// <param name="left">Constant information about the unit on the left side of the screen.</param>
+    /// <param name="right">Constant information about the unit on the right side of the screen.</param>
     /// <param name="actions">Action that will be performed each turn in combat. The length of the queue determines the number of turns.</param>
     /// <exception cref="ArgumentException">If any <see cref="CombatAction"/> contains an _animations[action.Actor] who isn't participating in this combat.</exception>
-    public void Start(Unit left, Unit right, IImmutableList<CombatAction> actions)
+    public void Start(ParticipantData left, ParticipantData right, IImmutableList<CombatAction> actions)
     {
         foreach (CombatAction action in actions)
-            if (action.Actor != left && action.Actor != right)
+            if (action.Actor != left.Unit && action.Actor != right.Unit)
                 throw new ArgumentException($"CombatAction _animations[action.Actor] {action.Actor.Name} is not a participant in combat");
 
-        _animations[left] = left.Class.CombatAnimations.Instantiate<CombatAnimation>();
-        _animations[left].Modulate = left.Affiliation.Color;
-        _animations[left].Position = Left;
-        _animations[left].Left = true;
-        _animations[right] = right.Class.CombatAnimations.Instantiate<CombatAnimation>();
-        _animations[right].Modulate = right.Affiliation.Color;
-        _animations[right].Position = Right;
-        _animations[right].Left = false;
+        _animations[left.Unit] = left.Unit.Class.CombatAnimations.Instantiate<CombatAnimation>();
+        _animations[left.Unit].Modulate = left.Unit.Affiliation.Color;
+        _animations[left.Unit].Position = Left;
+        _animations[left.Unit].Left = true;
+        LeftInfo.Damage = actions.Where((a) => a.Actor == left.Unit).Select((a) => a.Damage).ToArray();
+        LeftInfo.HitChance = left.HitChance;
+
+        _animations[right.Unit] = right.Unit.Class.CombatAnimations.Instantiate<CombatAnimation>();
+        _animations[right.Unit].Modulate = right.Unit.Affiliation.Color;
+        _animations[right.Unit].Position = Right;
+        _animations[right.Unit].Left = false;
+        RightInfo.Damage = actions.Where((a) => a.Actor == right.Unit).Select((a) => a.Damage).ToArray();
+        RightInfo.HitChance = right.HitChance;
 
         Queue<CombatAction> q = new(actions);
         foreach ((_, CombatAnimation animation) in _animations)

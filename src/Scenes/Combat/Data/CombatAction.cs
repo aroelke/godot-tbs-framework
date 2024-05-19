@@ -1,6 +1,6 @@
 using Scenes.Level.Object;
 
-namespace Scenes.Combat;
+namespace Scenes.Combat.Data;
 
 /// <summary>Data structure holding the information needed to choreograph one turn of combat.</summary>
 public struct CombatAction

@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using Godot;
 using Scenes.Combat;
 using Scenes.Combat.Animations;
+using Scenes.Combat.Data;
 using Scenes.Level.Object;
 
 namespace Scenes;
@@ -39,7 +40,7 @@ public partial class SceneManager : Node
 
         Combat = Singleton.CombatScene.Instantiate<CombatScene>();
         GetTree().Root.AddChild(Combat);
-        Combat.Start(left, right, ImmutableList.Create(new CombatAction[]
+        Combat.Start(new(left, 100), new(right, 0), ImmutableList.Create(new CombatAction[]
         {
             new() { Actor = left, Target = right, Hit = true },
             new() { Actor = right, Target = left, Hit = false },
