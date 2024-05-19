@@ -20,7 +20,7 @@ public partial class CombatScene : Node
     private AudioStreamPlayer HitSound => _cache.GetNode<AudioStreamPlayer>("%HitSound");
     private AudioStreamPlayer MissSound => _cache.GetNode<AudioStreamPlayer>("%MissSound");
 
-    private void RunTurn(Queue<CombatAction> actions)
+    private async void RunTurn(Queue<CombatAction> actions)
     {
         // Reset all participants
         foreach ((_, CombatAnimation animation) in _animations)
@@ -33,44 +33,34 @@ public partial class CombatScene : Node
         if (actions.Any())
         {
             CombatAction action = actions.Dequeue();
-            CombatAnimation actor = _animations[action.Actor];
-            CombatAnimation target = _animations[action.Target];
+            void OnHit() => OnAttackStrike(true);
+            void OnMiss() => OnAttackStrike(false);
 
+            // Set up animation triggers
             if (action.Hit)
             {
-                void OnHit()
-                {
-                    OnAttackStrike(true);
-                    actor.AttackStrike -= OnHit;
-                }
-                actor.AttackStrike += OnHit;
+                _animations[action.Actor].ZIndex = 1;
+                _animations[action.Actor].AttackStrike += OnHit;
             }
             else
             {
-                void OnDodge()
-                {
-                    target.ZIndex = 2;
-                    target.Dodge();
-                    actor.AttackDodged -= OnDodge;
-                }
-                actor.AttackDodged += OnDodge;
-
-                void OnMiss()
-                {
-                    OnAttackStrike(false);
-                    actor.AttackStrike -= OnMiss;
-                }
-                actor.AttackStrike += OnMiss;
-
-                void OnReturning()
-                {
-                    target.DodgeReturn();
-                    actor.Returning -= OnReturning;
-                }
-                actor.Returning += OnReturning;
+                _animations[action.Target].ZIndex = 1;
+                _animations[action.Actor].AttackDodged += _animations[action.Target].Dodge;
+                _animations[action.Actor].AttackStrike += OnMiss;
+                _animations[action.Actor].Returning += _animations[action.Target].DodgeReturn;
             }
-            actor.ZIndex = 1;
-            actor.Attack();
+
+            // Begin the animation sequence, then clean up triggers when it's done
+            _animations[action.Actor].Attack();
+            await ToSignal(_animations[action.Actor], CombatAnimation.SignalName.Returned);
+            if (action.Hit)
+                _animations[action.Actor].AttackStrike -= OnHit;
+            else
+            {
+                _animations[action.Actor].AttackDodged -= _animations[action.Target].Dodge;
+                _animations[action.Actor].AttackStrike -= OnMiss;
+                _animations[action.Actor].Returning -= _animations[action.Target].DodgeReturn;
+            }
         }
         else
             GetNode<Timer>("CombatDelay").Start();
@@ -96,12 +86,12 @@ public partial class CombatScene : Node
     /// <param name="left">Unit to display on the left side of the screen.</param>
     /// <param name="right">Unit to display on the right side of the screen.</param>
     /// <param name="actions">Action that will be performed each turn in combat. The length of the queue determines the number of turns.</param>
-    /// <exception cref="ArgumentException">If any <see cref="CombatAction"/> contains an actor who isn't participating in this combat.</exception>
+    /// <exception cref="ArgumentException">If any <see cref="CombatAction"/> contains an _animations[action.Actor] who isn't participating in this combat.</exception>
     public void Start(Unit left, Unit right, IImmutableList<CombatAction> actions)
     {
         foreach (CombatAction action in actions)
             if (action.Actor != left && action.Actor != right)
-                throw new ArgumentException($"CombatAction actor {action.Actor.Name} is not a participant in combat");
+                throw new ArgumentException($"CombatAction _animations[action.Actor] {action.Actor.Name} is not a participant in combat");
 
         _animations[left] = left.Class.CombatAnimations.Instantiate<CombatAnimation>();
         _animations[left].Modulate = left.Affiliation.Color;
