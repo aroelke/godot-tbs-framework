@@ -16,6 +16,9 @@ public readonly struct ParticipantData
     /// <remarks>For display only, as the actual result of each attack is pre-computed.</remarks>
     public readonly int HitChance = 0;
 
+    public readonly int MaxHealth = 10;
+    public readonly int CurrentHealth = 10;
+
     public ParticipantData(Unit unit = null, int hit = 0)
     {
         Unit = unit;

@@ -74,7 +74,6 @@ offset_right = 1240.0
 offset_bottom = 920.0
 grow_horizontal = 0
 grow_vertical = 0
-HorizontalAlignment = 2
 
 [connection signal="timeout" from="CombatDelay" to="." method="OnTimerTimeout"]
 
