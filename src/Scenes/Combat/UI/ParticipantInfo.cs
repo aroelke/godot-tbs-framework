@@ -107,4 +107,18 @@ public partial class ParticipantInfo : GridContainer
             }
         }
     }
+
+    /// <summary>Smoothly transition health to a new value.</summary>
+    /// <remarks>Note that the actual value of <see cref="CurrentHealth"/> doesn't update until the transition is done.</remarks>
+    /// <param name="value">New health value.</param>
+    /// <param name="duration">Amount of time to take to transition it.</param>
+    public void TransitionHealth(int value, double duration)
+    {
+        int next = Mathf.Clamp(value, 0, MaxHealth);
+        CreateTween().TweenMethod(Callable.From((float hp) => {
+            HealthLabel.Text = $"HP: {(int)hp}";
+            HealthBar.Value = hp;
+        }), CurrentHealth, value, duration)
+        .Finished += () => CurrentHealth = value;
+    }
 }
