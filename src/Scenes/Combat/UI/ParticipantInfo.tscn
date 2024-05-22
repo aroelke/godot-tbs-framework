@@ -9,6 +9,7 @@ columns = 3
 script = ExtResource("1_ecooa")
 
 [node name="HealthLabel" type="Label" parent="."]
+unique_name_in_owner = true
 layout_mode = 2
 text = "HP: 10"
 
@@ -27,13 +28,12 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(128, 0)
 layout_mode = 2
 size_flags_vertical = 4
-max_value = 10.0
-value = 10.0
+max_value = 1000.0
+value = 1000.0
 texture_under = ExtResource("2_gwwsr")
 texture_progress = ExtResource("3_kfgb6")
 
 [node name="HitChanceTitle" type="Label" parent="."]
-unique_name_in_owner = true
 layout_mode = 2
 text = "Hit Chance:"
 horizontal_alignment = 2

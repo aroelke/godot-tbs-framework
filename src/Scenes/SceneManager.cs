@@ -42,9 +42,9 @@ public partial class SceneManager : Node
         GetTree().Root.AddChild(Combat);
         Combat.Start(new(left, 100), new(right, 0), ImmutableList.Create(new CombatAction[]
         {
-            new() { Actor = left, Target = right, Hit = true },
-            new() { Actor = right, Target = left, Hit = false },
-            new() { Actor = left, Target = right, Hit = true }
+            new() { Actor = left, Target = right, Damage = 5, Hit = true },
+            new() { Actor = right, Target = left, Damage = 1, Hit = false },
+            new() { Actor = left, Target = right, Damage = 5, Hit = true }
         }));
     }
 

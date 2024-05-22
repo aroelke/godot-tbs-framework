@@ -18,6 +18,7 @@ public partial class CombatScene : Node
     public CombatScene() : base() => _cache = new(this);
 
     private readonly Dictionary<Unit, CombatAnimation> _animations = new();
+    private readonly Dictionary<Unit, ParticipantInfo> _infos = new();
 
     private AudioStreamPlayer HitSound => _cache.GetNode<AudioStreamPlayer>("%HitSound");
     private AudioStreamPlayer MissSound => _cache.GetNode<AudioStreamPlayer>("%MissSound");
@@ -37,7 +38,11 @@ public partial class CombatScene : Node
         if (actions.Any())
         {
             CombatAction action = actions.Dequeue();
-            void OnHit() => OnAttackStrike(true);
+            void OnHit()
+            {
+                OnAttackStrike(true);
+                _infos[action.Target].TransitionHealth(_infos[action.Target].CurrentHealth - action.Damage, 0.3);
+            }
             void OnMiss() => OnAttackStrike(false);
 
             // Set up animation triggers
@@ -101,6 +106,9 @@ public partial class CombatScene : Node
         _animations[left.Unit].Modulate = left.Unit.Affiliation.Color;
         _animations[left.Unit].Position = Left;
         _animations[left.Unit].Left = true;
+        _infos[left.Unit] = LeftInfo;
+        LeftInfo.MaxHealth = left.MaxHealth;
+        LeftInfo.CurrentHealth = left.CurrentHealth;
         LeftInfo.Damage = actions.Where((a) => a.Actor == left.Unit).Select((a) => a.Damage).ToArray();
         LeftInfo.HitChance = left.HitChance;
 
@@ -108,6 +116,9 @@ public partial class CombatScene : Node
         _animations[right.Unit].Modulate = right.Unit.Affiliation.Color;
         _animations[right.Unit].Position = Right;
         _animations[right.Unit].Left = false;
+        _infos[right.Unit] = RightInfo;
+        RightInfo.MaxHealth = right.MaxHealth;
+        RightInfo.CurrentHealth = right.CurrentHealth;
         RightInfo.Damage = actions.Where((a) => a.Actor == right.Unit).Select((a) => a.Damage).ToArray();
         RightInfo.HitChance = right.HitChance;
 

@@ -21,6 +21,9 @@ public partial class ParticipantInfo : GridContainer
     private Label DamageLabel => _cache.GetNodeOrNull<Label>("%DamageLabel");
     private Label HitChanceLabel => _cache.GetNodeOrNull<Label>("%HitChanceLabel");
 
+    /// <summary>Amount to scale the health value internally so the health bar transitions smoothly.</summary>
+    [Export] public float HealthScale = 100;
+
     /// <summary>Max health of the character.</summary>
     [Export] public int MaxHealth
     {
@@ -32,7 +35,7 @@ public partial class ParticipantInfo : GridContainer
             {
                 _maxHealth = next;
                 if (HealthBar is not null)
-                    HealthBar.MaxValue = _maxHealth;
+                    HealthBar.MaxValue = _maxHealth*HealthScale;
 
                 if (CurrentHealth > _maxHealth)
                     CurrentHealth = _maxHealth;
@@ -54,7 +57,7 @@ public partial class ParticipantInfo : GridContainer
                 if (HealthLabel is not null)
                     HealthLabel.Text = $"HP: {_currentHealth}";
                 if (HealthBar is not null)
-                    HealthBar.Value = _currentHealth;
+                    HealthBar.Value = _currentHealth*HealthScale;
             }
         }
     }
@@ -116,9 +119,9 @@ public partial class ParticipantInfo : GridContainer
     {
         int next = Mathf.Clamp(value, 0, MaxHealth);
         CreateTween().TweenMethod(Callable.From((float hp) => {
-            HealthLabel.Text = $"HP: {(int)hp}";
+            HealthLabel.Text = $"HP: {(int)(hp/HealthScale)}";
             HealthBar.Value = hp;
-        }), CurrentHealth, value, duration)
+        }), CurrentHealth*HealthScale, value*HealthScale, duration)
         .Finished += () => CurrentHealth = value;
     }
 }
