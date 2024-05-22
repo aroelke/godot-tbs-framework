@@ -18,7 +18,9 @@ public partial class ParticipantInfo : GridContainer
 
     private Label HealthLabel => _cache.GetNodeOrNull<Label>("%HealthLabel");
     private TextureProgressBar HealthBar => _cache.GetNodeOrNull<TextureProgressBar>("%HealthBar");
+    private Label DamageTitle => _cache.GetNodeOrNull<Label>("%DamageTitle");
     private Label DamageLabel => _cache.GetNodeOrNull<Label>("%DamageLabel");
+    private Label HitChanceTitle => _cache.GetNodeOrNull<Label>("%HitChanceTitle");
     private Label HitChanceLabel => _cache.GetNodeOrNull<Label>("%HitChanceLabel");
 
     /// <summary>Amount to scale the health value internally so the health bar transitions smoothly.</summary>
@@ -81,11 +83,21 @@ public partial class ParticipantInfo : GridContainer
             if (_damage != value)
             {
                 _damage = value;
+
+                bool heal = _damage.Length == 1 && _damage[0] < 0;
+                if (DamageTitle is not null)
+                {
+                    DamageTitle.Visible = _damage.Any();
+                    if (heal)
+                        DamageTitle.Text = "Healing:";
+                    else
+                        DamageTitle.Text = "Damage:";
+                }
                 if (DamageLabel is not null)
                 {
                     DamageLabel.Visible = _damage.Any();
-                    if (_damage.Length == 1 && _damage[0] < 0)
-                        DamageLabel.Text = _damage[0].ToString();
+                    if (heal)
+                        DamageLabel.Text = Math.Abs(_damage[0]).ToString();
                     else
                         DamageLabel.Text = string.Join(" + ", _damage);
                 }
@@ -102,6 +114,8 @@ public partial class ParticipantInfo : GridContainer
             if (_hit != value)
             {
                 _hit = value;
+                if (HitChanceTitle is not null)
+                    HitChanceTitle.Visible = _hit >= 0;
                 if (HitChanceLabel is not null)
                 {
                     HitChanceLabel.Visible = _hit >= 0;
