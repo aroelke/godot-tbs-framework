@@ -76,10 +76,10 @@ public partial class CombatScene : Node
     }
 
     /// <summary>Position to display the left unit's sprite.</summary>
-    [Export] public Vector2 Left  = new(44, 64);
+    [Export] public Vector2 Left  = new(44, 80);
 
     /// <summary>Position to display the right unit's sprite.</summary>
-    [Export] public Vector2 Right = new(116, 64);
+    [Export] public Vector2 Right = new(116, 80);
 
     public void OnTimerTimeout() => SceneManager.EndCombat();
 
