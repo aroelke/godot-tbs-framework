@@ -59,28 +59,39 @@ grow_horizontal = 2
 grow_vertical = 0
 theme = ExtResource("6_rchi6")
 
-[node name="LeftInfo" parent="CanvasLayer/ParticipantInfo" instance=ExtResource("6_ag6sl")]
-unique_name_in_owner = true
+[node name="GridContainer" type="HBoxContainer" parent="CanvasLayer/ParticipantInfo"]
 layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_top = -50.0
-offset_right = 248.0
-grow_vertical = 0
-
-[node name="RightInfo" parent="CanvasLayer/ParticipantInfo" instance=ExtResource("6_ag6sl")]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -248.0
-offset_top = -50.0
-grow_horizontal = 0
-grow_vertical = 0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SpacerLeft" type="Control" parent="CanvasLayer/ParticipantInfo/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.8
+
+[node name="LeftInfo" parent="CanvasLayer/ParticipantInfo/GridContainer" instance=ExtResource("6_ag6sl")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="SpacerCenter" type="Control" parent="CanvasLayer/ParticipantInfo/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RightInfo" parent="CanvasLayer/ParticipantInfo/GridContainer" instance=ExtResource("6_ag6sl")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="SpacerRight" type="Control" parent="CanvasLayer/ParticipantInfo/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.8
 
 [connection signal="timeout" from="CombatDelay" to="." method="OnTimerTimeout"]
 
