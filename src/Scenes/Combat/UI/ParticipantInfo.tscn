@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=3 uid="uid://cvch4ay3dx0wv"]
 
 [ext_resource type="Script" path="res://src/Scenes/Combat/UI/ParticipantInfo.cs" id="1_ecooa"]
-[ext_resource type="Texture2D" uid="uid://cyutvyiuw00t" path="res://assets/raw/Pixel Health Bar/Bar/no health bar.png" id="2_gwwsr"]
-[ext_resource type="Texture2D" uid="uid://dvstcx8u7scs4" path="res://assets/raw/Pixel Health Bar/Bar/health bar.png" id="3_kfgb6"]
+[ext_resource type="Texture2D" uid="uid://blfcbg8bx2epd" path="res://assets/raw/Pixel Health Bar/Bar/no health bar (2x).png" id="2_3b0kp"]
+[ext_resource type="Texture2D" uid="uid://cuanvqgifu4u3" path="res://assets/raw/Pixel Health Bar/Health/health (2x).png" id="3_qcb3p"]
 
 [node name="ParticipantData" type="GridContainer"]
 columns = 3
@@ -31,8 +31,8 @@ layout_mode = 2
 size_flags_vertical = 4
 max_value = 1000.0
 value = 1000.0
-texture_under = ExtResource("2_gwwsr")
-texture_progress = ExtResource("3_kfgb6")
+texture_under = ExtResource("2_3b0kp")
+texture_progress = ExtResource("3_qcb3p")
 
 [node name="HitChanceTitle" type="Label" parent="."]
 unique_name_in_owner = true
