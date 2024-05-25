@@ -35,23 +35,28 @@ stream = ExtResource("4_3j5b2")
 one_shot = true
 
 [node name="Left" parent="." instance=ExtResource("2_xevfw")]
+visible = false
 position = Vector2(44, 80)
 
 [node name="Right" parent="." instance=ExtResource("2_xevfw")]
+visible = false
 position = Vector2(116, 80)
 Left = false
 
 [node name="Sprite" parent="Right" index="1"]
-offset = Vector2(-48, -52)
+offset = Vector2(0, 0)
 flip_h = true
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
-[node name="ParticipantInfo" type="Control" parent="CanvasLayer"]
-layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="ParticipantInfo" type="Panel" parent="CanvasLayer"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -252.0
+grow_horizontal = 2
+grow_vertical = 0
 theme = ExtResource("6_rchi6")
 
 [node name="LeftInfo" parent="CanvasLayer/ParticipantInfo" instance=ExtResource("6_ag6sl")]
@@ -60,9 +65,8 @@ layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_top = 870.0
-offset_right = 116.0
-offset_bottom = 920.0
+offset_top = -50.0
+offset_right = 248.0
 grow_vertical = 0
 
 [node name="RightInfo" parent="CanvasLayer/ParticipantInfo" instance=ExtResource("6_ag6sl")]
@@ -73,10 +77,8 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 1124.0
-offset_top = 870.0
-offset_right = 1240.0
-offset_bottom = 920.0
+offset_left = -248.0
+offset_top = -50.0
 grow_horizontal = 0
 grow_vertical = 0
 
