@@ -8,6 +8,7 @@ using System;
 using Scenes.Level.Map;
 using Scenes.Level.Object.Group;
 using Data;
+using Scenes.Level.Object.Components;
 
 namespace Scenes.Level.Object;
 
@@ -16,7 +17,7 @@ namespace Scenes.Level.Object;
 /// interact.
 /// </summary>
 [Tool]
-public partial class Unit : GridNode
+public partial class Unit : GridNode, IHasHealth
 {
     private readonly NodeCache _cache;
 
@@ -84,6 +85,8 @@ public partial class Unit : GridNode
 
     /// <summary>Whether or not the unit has completed its turn.</summary>
     public bool Active => !Tree.Get(Done).AsBool();
+
+    public HealthComponent Health => _cache.GetNode<HealthComponent>("Health");
 
     public Unit() : base()
     {
