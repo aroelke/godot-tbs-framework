@@ -40,11 +40,7 @@ public partial class SceneManager : Node
 
         Combat = Singleton.CombatScene.Instantiate<CombatScene>();
         GetTree().Root.AddChild(Combat);
-        Combat.Start(
-            new(left, CombatCalculations.HitChance(left, right)),
-            new(right, CombatCalculations.HitChance(right, left)),
-            actions
-        );
+        Combat.Start(left, right, actions);
     }
 
     private void DoEndCombat()

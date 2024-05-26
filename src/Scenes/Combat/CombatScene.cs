@@ -92,35 +92,35 @@ public partial class CombatScene : Node
     }
 
     /// <summary>Set up the combat scene and then begin animation.</summary>
-    /// <param name="left">Constant information about the unit on the left side of the screen.</param>
-    /// <param name="right">Constant information about the unit on the right side of the screen.</param>
+    /// <param name="left">Unit on the left side of the screen.</param>
+    /// <param name="right">Unit on the right side of the screen.</param>
     /// <param name="actions">Action that will be performed each turn in combat. The length of the queue determines the number of turns.</param>
     /// <exception cref="ArgumentException">If any <see cref="CombatAction"/> contains an _animations[action.Actor] who isn't participating in this combat.</exception>
-    public void Start(ParticipantData left, ParticipantData right, IImmutableList<CombatAction> actions)
+    public void Start(Unit left, Unit right, IImmutableList<CombatAction> actions)
     {
         foreach (CombatAction action in actions)
-            if (action.Actor != left.Unit && action.Actor != right.Unit)
+            if (action.Actor != left && action.Actor != right)
                 throw new ArgumentException($"CombatAction {action.Actor.Name} is not a participant in combat");
 
-        _animations[left.Unit] = left.Unit.Class.CombatAnimations.Instantiate<CombatAnimation>();
-        _animations[left.Unit].Modulate = left.Unit.Affiliation.Color;
-        _animations[left.Unit].Position = LeftPosition;
-        _animations[left.Unit].Left = true;
-        _infos[left.Unit] = LeftInfo;
-        LeftInfo.MaxHealth = left.Unit.Health.Maximum;
-        LeftInfo.CurrentHealth = left.Unit.Health.Value;
-        LeftInfo.Damage = actions.Where((a) => a.Actor == left.Unit).Select((a) => a.Damage).ToArray();
-        LeftInfo.HitChance = left.HitChance;
+        _animations[left] = left.Class.CombatAnimations.Instantiate<CombatAnimation>();
+        _animations[left].Modulate = left.Affiliation.Color;
+        _animations[left].Position = LeftPosition;
+        _animations[left].Left = true;
+        _infos[left] = LeftInfo;
+        LeftInfo.MaxHealth = left.Health.Maximum;
+        LeftInfo.CurrentHealth = left.Health.Value;
+        LeftInfo.Damage = actions.Where((a) => a.Actor == left).Select((a) => a.Damage).ToArray();
+        LeftInfo.HitChance = Mathf.Clamp(CombatCalculations.HitChance(left, right), 0, 100);
 
-        _animations[right.Unit] = right.Unit.Class.CombatAnimations.Instantiate<CombatAnimation>();
-        _animations[right.Unit].Modulate = right.Unit.Affiliation.Color;
-        _animations[right.Unit].Position = RightPosition;
-        _animations[right.Unit].Left = false;
-        _infos[right.Unit] = RightInfo;
-        RightInfo.MaxHealth = right.Unit.Health.Maximum;
-        RightInfo.CurrentHealth = right.Unit.Health.Value;
-        RightInfo.Damage = actions.Where((a) => a.Actor == right.Unit).Select((a) => a.Damage).ToArray();
-        RightInfo.HitChance = right.HitChance;
+        _animations[right] = right.Class.CombatAnimations.Instantiate<CombatAnimation>();
+        _animations[right].Modulate = right.Affiliation.Color;
+        _animations[right].Position = RightPosition;
+        _animations[right].Left = false;
+        _infos[right] = RightInfo;
+        RightInfo.MaxHealth = right.Health.Maximum;
+        RightInfo.CurrentHealth = right.Health.Value;
+        RightInfo.Damage = actions.Where((a) => a.Actor == right).Select((a) => a.Damage).ToArray();
+        RightInfo.HitChance = Mathf.Clamp(CombatCalculations.HitChance(right, left), 0, 100);
 
         Queue<CombatAction> q = new(actions);
         foreach ((_, CombatAnimation animation) in _animations)
