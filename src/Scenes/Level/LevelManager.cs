@@ -553,8 +553,9 @@ public partial class LevelManager : Node
     /// <param name="target">Unit targeted for combat or support.</param>
     public void OnTargetSelected(Unit target)
     {
+        _target = target;
         SceneManager.Singleton.CombatFinished += OnCombatFinished;
-        SceneManager.BeginCombat(_selected, target, _combatResults = CombatCalculations.CombatResults(_selected, _target));
+        SceneManager.BeginCombat(_selected, target, _combatResults = CombatCalculations.CombatResults(_selected, target));
     }
 
     /// <summary>When combat is done, end the selected <see cref="Unit"/>'s turn.</summary>
