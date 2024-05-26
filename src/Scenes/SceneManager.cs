@@ -40,12 +40,11 @@ public partial class SceneManager : Node
 
         Combat = Singleton.CombatScene.Instantiate<CombatScene>();
         GetTree().Root.AddChild(Combat);
-        Combat.Start(new(left, 100), new(right, 0), ImmutableList.Create(new CombatAction[]
-        {
-            new() { Actor = left, Target = right, Damage = 5, Hit = true },
-            new() { Actor = right, Target = left, Damage = 1, Hit = false },
-            new() { Actor = left, Target = right, Damage = 5, Hit = true }
-        }));
+        Combat.Start(
+            new(left, CombatCalculations.HitChance(left, right)),
+            new(right, CombatCalculations.HitChance(right, left)),
+            CombatCalculations.CombatResults(left, right)
+        );
     }
 
     private void DoEndCombat()
