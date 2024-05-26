@@ -10,6 +10,8 @@ namespace Scenes.Level;
 /// </summary>
 public partial class UnitEvents : Node
 {
+    [Signal] public delegate void UnitDefeatedEventHandler(Unit defeated);
+
     private static UnitEvents _singleton = null;
 
     /// <summary>Reference to the autoloaded <see cref="Unit"/> event bus.</summary>

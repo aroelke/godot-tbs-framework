@@ -431,3 +431,5 @@ stream = ExtResource("4_bt2yt")
 [node name="Health" parent="." instance=ExtResource("6_jxbfo")]
 Maximum = 10
 Value = 10
+
+[connection signal="ValueChanged" from="Health" to="." method="OnHealthChanged"]

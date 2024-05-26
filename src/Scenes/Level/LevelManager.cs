@@ -560,6 +560,7 @@ public partial class LevelManager : Node
     /// <summary>When combat is done, end the selected <see cref="Unit"/>'s turn.</summary>
     public void OnCombatFinished()
     {
+        _selected.Health.Value -= CombatCalculations.TotalDamage(_selected, _combatResults);
         _target.Health.Value -= CombatCalculations.TotalDamage(_target, _combatResults);
         _combatResults = null;
         StateChart.SendEvent(DoneEvent);
@@ -607,8 +608,11 @@ public partial class LevelManager : Node
             foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
                 unit.Refresh();
 
-            if (_armies.MoveNext() && _armies.Current == StartingArmy)
-                Turn++;
+            do
+            {
+                if (_armies.MoveNext() && _armies.Current == StartingArmy)
+                    Turn++;
+            } while (!((IEnumerable<Unit>)_armies.Current).Any());
             UpdateTurnCounter();
 
             WarpCursor(((IEnumerable<Unit>)_armies.Current).First().Cell);
@@ -650,6 +654,13 @@ public partial class LevelManager : Node
             gd.Grid = Grid;
     }
 
+    public void OnUnitDefeated(Unit defeated)
+    {
+        GD.Print($"Defeated unit ${defeated.Name}!");
+        Grid.Occupants[defeated.Cell] = null;
+        defeated.QueueFree();
+    }
+
     public override string[] _GetConfigurationWarnings()
     {
         List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
@@ -689,6 +700,7 @@ public partial class LevelManager : Node
                 unit.Position = Grid.PositionOf(unit.Cell);
                 Grid.Occupants[unit.Cell] = unit;
             }
+            UnitEvents.Singleton.UnitDefeated += OnUnitDefeated;
 
             _armies = GetChildren().OfType<Army>().GetCyclicalEnumerator();
             if (StartingArmy is null)
