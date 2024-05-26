@@ -214,6 +214,14 @@ public partial class Unit : GridNode, IHasHealth
         Tree.Set(Idle, true);
     }
 
+    /// <summary>Play the unit's death animation and then remove it from the scene.</summary>
+    public void Die()
+    {
+        GD.Print($"Defeated unit ${Name}!");
+        Grid.Occupants[Cell] = null;
+        QueueFree();
+    }
+
     /// <summary>Box that travels with the motion of the sprite to use for tracking the unit as it moves.</summary>
     /// <remarks>Don't use the unit's actual position, as that doesn't update until motion is over.</remarks>
     public BoundedNode2D MotionBox => _cache.GetNode<BoundedNode2D>("Path/PathFollow/Bounds");

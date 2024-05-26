@@ -655,12 +655,7 @@ public partial class LevelManager : Node
             gd.Grid = Grid;
     }
 
-    public void OnUnitDefeated(Unit defeated)
-    {
-        GD.Print($"Defeated unit ${defeated.Name}!");
-        Grid.Occupants[defeated.Cell] = null;
-        defeated.QueueFree();
-    }
+    public void OnUnitDefeated(Unit defeated) => defeated.Die();
 
     public override string[] _GetConfigurationWarnings()
     {
