@@ -50,8 +50,8 @@ public partial class Unit : GridNode
     /// <summary>Class this unit belongs to, defining some of its stats and animations.</summary>
     [Export] public Class Class = null;
 
-    /// <summary>Movement range of the unit, in <see cref="Grid"/> cells.</summary>
-    [Export] public int MoveRange = 5;
+    /// <summary>Stats this unit has that determine its movement range and combat performance.</summary>
+    [Export] public Stats Stats = new();
 
     /// <summary>Distances from the unit's occupied cell that it can attack.</summary>
     [Export] public int[] AttackRange = new[] { 1, 2 };
@@ -93,7 +93,7 @@ public partial class Unit : GridNode
     /// <returns>The set of cells that this unit can reach from its position, accounting for <see cref="Terrain.Cost"/>.</returns>
     public IEnumerable<Vector2I> TraversableCells()
     {
-        int max = 2*(MoveRange + 1)*(MoveRange + 1) - 2*MoveRange - 1;
+        int max = 2*(Stats.Move + 1)*(Stats.Move + 1) - 2*Stats.Move - 1;
 
         Dictionary<Vector2I, int> cells = new(max) {{ Cell, 0 }};
         Queue<Vector2I> potential = new(max);
@@ -116,7 +116,7 @@ public partial class Unit : GridNode
                             null => true,
                             _ => false
                         } &&
-                        cost <= MoveRange) // cost to get to cell is within range
+                        cost <= Stats.Move) // cost to get to cell is within range
                     {
                         cells[neighbor] = cost;
                         potential.Enqueue(neighbor);
