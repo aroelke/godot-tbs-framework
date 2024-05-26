@@ -9,6 +9,8 @@ namespace Scenes.Combat.Data;
 /// <summary>Utility for computing combat stats and results.</summary>
 public static class CombatCalculations
 {
+    private static readonly Random rnd = new();
+
     /// <summary>
     /// Determine how much damage an attacking <see cref="Unit"/> will deal to a defending one. The formula is currently:
     /// <code>
@@ -55,11 +57,11 @@ public static class CombatCalculations
     public static ImmutableList<CombatAction> CombatResults(Unit a, Unit b)
     {
         ImmutableList<CombatAction> actions = ImmutableList.Create<CombatAction>(
-            new() { Actor = a, Target = b, Damage = Damage(a, b), Hit = true },
-            new() { Actor = b, Target = a, Damage = Damage(b, a), Hit = false }
+            new() { Actor = a, Target = b, Damage = Damage(a, b), Hit = rnd.Next(100) < HitChance(a, b) },
+            new() { Actor = b, Target = a, Damage = Damage(b, a), Hit = rnd.Next(100) < HitChance(b, a) }
         );
         if (FollowUp(a, b) is (Unit doubler, Unit doublee))
-            return actions.Add(new() { Actor = doubler, Target = doublee, Damage = Damage(doubler, doublee), Hit = true });
+            return actions.Add(new() { Actor = doubler, Target = doublee, Damage = Damage(doubler, doublee), Hit = rnd.Next(100) < HitChance(doubler, doublee) });
         else
             return actions;
     }
