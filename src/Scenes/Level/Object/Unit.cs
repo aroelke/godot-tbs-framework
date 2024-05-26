@@ -32,6 +32,7 @@ public partial class Unit : GridNode, IHasHealth
     [Signal] public delegate void DoneMovingEventHandler();
 
     private Army _affiliation = null;
+    private Stats _stats = new();
 
     private Path2D Path => _cache.GetNode<Path2D>("Path");
     private PathFollow2D PathFollow => _cache.GetNode<PathFollow2D>("Path/PathFollow");
@@ -52,7 +53,19 @@ public partial class Unit : GridNode, IHasHealth
     [Export] public Class Class = null;
 
     /// <summary>Stats this unit has that determine its movement range and combat performance.</summary>
-    [Export] public Stats Stats = new();
+    [Export] public Stats Stats
+    {
+        get => _stats;
+        set
+        {
+            if (_stats != value)
+            {
+                _stats = value;
+                if (Health is not null)
+                    Health.Maximum = _stats.Health;
+            }
+        }
+    }
 
     /// <summary>Distances from the unit's occupied cell that it can attack.</summary>
     [Export] public int[] AttackRange = new[] { 1, 2 };
@@ -86,7 +99,8 @@ public partial class Unit : GridNode, IHasHealth
     /// <summary>Whether or not the unit has completed its turn.</summary>
     public bool Active => !Tree.Get(Done).AsBool();
 
-    public HealthComponent Health => _cache.GetNode<HealthComponent>("Health");
+    /// <summary>Component maintaining the unit's health during the level.</summary>
+    public HealthComponent Health => _cache.GetNodeOrNull<HealthComponent>("Health");
 
     public Unit() : base()
     {
@@ -246,6 +260,8 @@ public partial class Unit : GridNode, IHasHealth
             MotionBox.Size = Size;
             SetProcess(false);
         }
+
+        Health.Value = Health.Maximum = Stats.Health;
     }
 
     public override void _Process(double delta)

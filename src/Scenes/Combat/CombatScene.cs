@@ -76,10 +76,10 @@ public partial class CombatScene : Node
     }
 
     /// <summary>Position to display the left unit's sprite.</summary>
-    [Export] public Vector2 Left  = new(44, 80);
+    [Export] public Vector2 LeftPosition  = new(44, 80);
 
     /// <summary>Position to display the right unit's sprite.</summary>
-    [Export] public Vector2 Right = new(116, 80);
+    [Export] public Vector2 RightPosition = new(116, 80);
 
     public void OnTimerTimeout() => SceneManager.EndCombat();
 
@@ -100,25 +100,25 @@ public partial class CombatScene : Node
     {
         foreach (CombatAction action in actions)
             if (action.Actor != left.Unit && action.Actor != right.Unit)
-                throw new ArgumentException($"CombatAction _animations[action.Actor] {action.Actor.Name} is not a participant in combat");
+                throw new ArgumentException($"CombatAction {action.Actor.Name} is not a participant in combat");
 
         _animations[left.Unit] = left.Unit.Class.CombatAnimations.Instantiate<CombatAnimation>();
         _animations[left.Unit].Modulate = left.Unit.Affiliation.Color;
-        _animations[left.Unit].Position = Left;
+        _animations[left.Unit].Position = LeftPosition;
         _animations[left.Unit].Left = true;
         _infos[left.Unit] = LeftInfo;
-        LeftInfo.MaxHealth = left.MaxHealth;
-        LeftInfo.CurrentHealth = left.CurrentHealth;
+        LeftInfo.MaxHealth = left.Unit.Health.Maximum;
+        LeftInfo.CurrentHealth = left.Unit.Health.Value;
         LeftInfo.Damage = actions.Where((a) => a.Actor == left.Unit).Select((a) => a.Damage).ToArray();
         LeftInfo.HitChance = left.HitChance;
 
         _animations[right.Unit] = right.Unit.Class.CombatAnimations.Instantiate<CombatAnimation>();
         _animations[right.Unit].Modulate = right.Unit.Affiliation.Color;
-        _animations[right.Unit].Position = Right;
+        _animations[right.Unit].Position = RightPosition;
         _animations[right.Unit].Left = false;
         _infos[right.Unit] = RightInfo;
-        RightInfo.MaxHealth = right.MaxHealth;
-        RightInfo.CurrentHealth = right.CurrentHealth;
+        RightInfo.MaxHealth = right.Unit.Health.Maximum;
+        RightInfo.CurrentHealth = right.Unit.Health.Value;
         RightInfo.Damage = actions.Where((a) => a.Actor == right.Unit).Select((a) => a.Damage).ToArray();
         RightInfo.HitChance = right.HitChance;
 

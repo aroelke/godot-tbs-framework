@@ -11,6 +11,7 @@ public interface IHasHealth
 }
 
 /// <summary>Node component maintaining health. Signals when health changes.</summary>
+[Tool]
 public partial class HealthComponent : Node
 {
     /// <summary>Indicates that the current health value has changed.</summary>
@@ -20,7 +21,7 @@ public partial class HealthComponent : Node
     private int _max = 0, _current = 0;
 
     /// <summary>Max health value. Is always nonnegative. If set to a value below <see cref="Value"/>, also changes <see cref="Value"/>.</summary>
-    [Export] public int MaxValue
+    [Export] public int Maximum
     {
         get => _max;
         set
@@ -35,13 +36,13 @@ public partial class HealthComponent : Node
         }
     }
 
-    /// <summary>Current health value. Is always between 0 and <see cref="MaxValue"/>, inclusive.</summary>
+    /// <summary>Current health value. Is always between 0 and <see cref="Maximum"/>, inclusive.</summary>
     [Export] public int Value
     {
         get => _current;
         set
         {
-            int next = Mathf.Clamp(value, 0, MaxValue);
+            int next = Mathf.Clamp(value, 0, Maximum);
             if (_current != next)
             {
                 _current = next;

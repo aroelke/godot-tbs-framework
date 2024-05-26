@@ -15,6 +15,7 @@ using Scenes.Level.UI;
 using Scenes.Level.Object;
 using Scenes.Level.Object.Group;
 using Scenes.Level.Map;
+using Scenes.Combat.Data;
 
 namespace Scenes.Level;
 
@@ -469,6 +470,8 @@ public partial class LevelManager : Node
     }
 #endregion
 #region Targeting State
+    private ImmutableList<CombatAction> _combatResults = null;
+
     /// <summary>Compute the attack and support ranges of the selected <see cref="Unit"/> from its location.</summary>
     public void OnTargetingEntered()
     {
@@ -551,12 +554,14 @@ public partial class LevelManager : Node
     public void OnTargetSelected(Unit target)
     {
         SceneManager.Singleton.CombatFinished += OnCombatFinished;
-        SceneManager.BeginCombat(_selected, target, true);
+        SceneManager.BeginCombat(_selected, target, _combatResults = CombatCalculations.CombatResults(_selected, _target));
     }
 
     /// <summary>When combat is done, end the selected <see cref="Unit"/>'s turn.</summary>
     public void OnCombatFinished()
     {
+        _target.Health.Value -= CombatCalculations.TotalDamage(_target, _combatResults);
+        _combatResults = null;
         StateChart.SendEvent(DoneEvent);
         SceneManager.Singleton.CombatFinished -= OnCombatFinished;
     }

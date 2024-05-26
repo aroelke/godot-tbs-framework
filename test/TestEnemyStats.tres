@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_wk2ta")
-Health = 10
+Health = 8
 Attack = 1
 Defense = 0
 Healing = 0

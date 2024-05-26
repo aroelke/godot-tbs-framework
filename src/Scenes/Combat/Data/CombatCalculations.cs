@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Scenes.Level.Object;
 
 namespace Scenes.Combat.Data;
@@ -61,4 +63,6 @@ public static class CombatCalculations
         else
             return actions;
     }
+
+    public static int TotalDamage(Unit target, IEnumerable<CombatAction> actions) => actions.Where((a) => a.Hit && a.Target == target).Select((a) => a.Damage).Sum();
 }

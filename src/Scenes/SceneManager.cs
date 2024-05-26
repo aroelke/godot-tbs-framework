@@ -22,7 +22,7 @@ public partial class SceneManager : Node
     public static SceneManager Singleton => _singleton ??= ((SceneTree)Engine.GetMainLoop()).Root.GetNode<SceneManager>("SceneManager");
 
     /// <summary>Begin the combat animation by switching to the <see cref="Combat.CombatScene"/>, remembering where to return when the animation completes.</summary>
-    public static void BeginCombat(Unit left, Unit right, bool attackLeft) => Singleton.DoBeginCombat(left, right, attackLeft);
+    public static void BeginCombat(Unit left, Unit right, IImmutableList<CombatAction> actions) => Singleton.DoBeginCombat(left, right, actions);
 
     /// <summary>End combat and return to the previous scene.</summary>
     public static void EndCombat() => Singleton.DoEndCombat();
@@ -30,7 +30,7 @@ public partial class SceneManager : Node
     /// <summary>Scene to instantiate when displaying a combat animation.</summary>
     [Export] public PackedScene CombatScene = null;
 
-    private void DoBeginCombat(Unit left, Unit right, bool attackLeft)
+    private void DoBeginCombat(Unit left, Unit right, IImmutableList<CombatAction> actions)
     {
         if (CurrentLevel is not null)
             throw new InvalidOperationException("Combat has already begun.");
@@ -43,7 +43,7 @@ public partial class SceneManager : Node
         Combat.Start(
             new(left, CombatCalculations.HitChance(left, right)),
             new(right, CombatCalculations.HitChance(right, left)),
-            CombatCalculations.CombatResults(left, right)
+            actions
         );
     }
 

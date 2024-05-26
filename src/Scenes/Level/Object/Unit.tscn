@@ -429,3 +429,5 @@ parameters/Moving/Walking/blend_position = Vector2(0, 0)
 stream = ExtResource("4_bt2yt")
 
 [node name="Health" parent="." instance=ExtResource("6_jxbfo")]
+Maximum = 10
+Value = 10
