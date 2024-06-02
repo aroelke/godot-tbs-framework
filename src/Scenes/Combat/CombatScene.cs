@@ -68,6 +68,8 @@ public partial class CombatScene : Node
                 _animations[action.Actor].AttackStrike -= OnHit;
                 if (_infos[action.Target].CurrentHealth == 0)
                 {
+                    if (actions.Any())
+                        throw new ArgumentException("Target died, but there are more actions in combat!");
                     _animations[action.Target].Die();
                     DeathSound.Play();
                     await ToSignal(_animations[action.Target], CombatAnimation.SignalName.AnimationFinished);

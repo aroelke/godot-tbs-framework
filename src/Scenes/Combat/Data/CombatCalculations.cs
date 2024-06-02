@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Security.Principal;
 using Scenes.Level.Object;
 
 namespace Scenes.Combat.Data;
@@ -56,14 +57,30 @@ public static class CombatCalculations
     /// <returns>A list of data structures specifying the action taken during each round of combat.</returns>
     public static ImmutableList<CombatAction> CombatResults(Unit a, Unit b)
     {
+        // Compute complete combat action list
         ImmutableList<CombatAction> actions = ImmutableList.Create<CombatAction>(
             new() { Actor = a, Target = b, Damage = Damage(a, b), Hit = rnd.Next(100) < HitChance(a, b) },
             new() { Actor = b, Target = a, Damage = Damage(b, a), Hit = rnd.Next(100) < HitChance(b, a) }
         );
         if (FollowUp(a, b) is (Unit doubler, Unit doublee))
-            return actions.Add(new() { Actor = doubler, Target = doublee, Damage = Damage(doubler, doublee), Hit = rnd.Next(100) < HitChance(doubler, doublee) });
-        else
-            return actions;
+            actions = actions.Add(new() { Actor = doubler, Target = doublee, Damage = Damage(doubler, doublee), Hit = rnd.Next(100) < HitChance(doubler, doublee) });
+
+        // Remove actions that happen after someone dies
+        Dictionary<Unit, int> remaining = new()
+        {
+            { a, a.Health.Value },
+            { b, b.Health.Value }
+        };
+        int amount = 0;
+        foreach (CombatAction action in actions)
+        {
+            remaining[action.Target] -= action.Damage;
+            amount++;
+            if (remaining[action.Target] <= 0)
+                break;
+        }
+
+        return actions.Take(amount).ToImmutableList();
     }
 
     public static int TotalDamage(Unit target, IEnumerable<CombatAction> actions) => actions.Where((a) => a.Hit && a.Target == target).Select((a) => a.Damage).Sum();
