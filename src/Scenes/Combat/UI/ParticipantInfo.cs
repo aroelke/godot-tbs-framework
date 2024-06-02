@@ -135,7 +135,7 @@ public partial class ParticipantInfo : GridContainer
         CreateTween().TweenMethod(Callable.From((float hp) => {
             HealthLabel.Text = $"HP: {(int)(hp/HealthScale)}";
             HealthBar.Value = hp;
-        }), CurrentHealth*HealthScale, value*HealthScale, duration)
-        .Finished += () => CurrentHealth = value;
+        }), CurrentHealth*HealthScale, next*HealthScale, duration)
+        .Finished += () => CurrentHealth = next;
     }
 }
