@@ -63,7 +63,14 @@ public partial class CombatScene : Node
             _animations[action.Actor].Attack();
             await ToSignal(_animations[action.Actor], CombatAnimation.SignalName.Returned);
             if (action.Hit)
+            {
                 _animations[action.Actor].AttackStrike -= OnHit;
+                if (_infos[action.Target].CurrentHealth == 0)
+                {
+                    _animations[action.Target].Die();
+                    await ToSignal(_animations[action.Target], CombatAnimation.SignalName.AnimationFinished);
+                }
+            }
             else
             {
                 _animations[action.Actor].AttackDodged -= _animations[action.Target].Dodge;
