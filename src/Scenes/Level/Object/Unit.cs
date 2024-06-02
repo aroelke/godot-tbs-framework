@@ -246,12 +246,6 @@ public partial class Unit : GridNode, IHasHealth
         }
     }
 
-    public void OnHealthChanged(int value)
-    {
-        if (value == 0)
-            UnitEvents.Singleton.EmitSignal(UnitEvents.SignalName.UnitDefeated, this);
-    }
-
     /// <summary>If this unit is moving, skip straight to the end of the path.</summary>
     /// <exception cref="InvalidOperationException">If the unit is not moving.</exception>
     public void SkipMoving()
@@ -259,6 +253,12 @@ public partial class Unit : GridNode, IHasHealth
         if (!Tree.Get(Moving).AsBool())
             throw new InvalidOperationException($"Unit {Name} isn't moving");
         PathFollow.ProgressRatio = 1;
+    }
+
+    public void OnHealthChanged(int value)
+    {
+        if (value == 0)
+            UnitEvents.Singleton.EmitSignal(UnitEvents.SignalName.UnitDefeated, this);
     }
 
     public override void _Ready()
