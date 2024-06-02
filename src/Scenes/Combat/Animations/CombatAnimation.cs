@@ -15,6 +15,7 @@ public partial class CombatAnimation : BoundedNode2D
     private static readonly StringName AttackReturnAnimation = "attack_return";
     private static readonly StringName DodgeAnimation = "dodge";
     private static readonly StringName DodgeReturnAnimation = "dodge_return";
+    private static readonly StringName DieAnimation = "die";
 
     /// <summary>Signals that the current animation has completed.</summary>
     [Signal] public delegate void AnimationFinishedEventHandler();
@@ -91,7 +92,16 @@ public partial class CombatAnimation : BoundedNode2D
     /// <summary>Play the animation for returning to idle from a dodge pose.</summary>
     public void DodgeReturn() => Animations.Play(DodgeReturnAnimation);
 
+    public void Die() => Animations.Play(DieAnimation);
+
     /// <summary>Forward the <see cref="AnimationPlayer"/>'s <see cref="AnimationMixer.SignalName.AnimationFinished"/> signal to any listeners.</summary>
     /// <param name="name">Name of the animation that completed.</param>
     public void OnAnimationFinished(StringName name) => EmitSignal(SignalName.AnimationFinished);
+
+    public override void _Ready()
+    {
+        base._Ready();
+        if (!Engine.IsEditorHint())
+            Sprite.Material = (Material)Sprite.Material.Duplicate();
+    }
 }
