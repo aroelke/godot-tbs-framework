@@ -22,6 +22,7 @@ public partial class CombatScene : Node
 
     private AudioStreamPlayer HitSound => _cache.GetNode<AudioStreamPlayer>("%HitSound");
     private AudioStreamPlayer MissSound => _cache.GetNode<AudioStreamPlayer>("%MissSound");
+    private AudioStreamPlayer DeathSound => _cache.GetNode<AudioStreamPlayer>("DeathSound");
     private ParticipantInfo LeftInfo => _cache.GetNode<ParticipantInfo>("%LeftInfo");
     private ParticipantInfo RightInfo => _cache.GetNode<ParticipantInfo>("%RightInfo");
 
@@ -68,6 +69,7 @@ public partial class CombatScene : Node
                 if (_infos[action.Target].CurrentHealth == 0)
                 {
                     _animations[action.Target].Die();
+                    DeathSound.Play();
                     await ToSignal(_animations[action.Target], CombatAnimation.SignalName.AnimationFinished);
                 }
             }
