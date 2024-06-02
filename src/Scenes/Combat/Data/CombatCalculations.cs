@@ -83,5 +83,9 @@ public static class CombatCalculations
         return actions.Take(amount).ToImmutableList();
     }
 
+    /// <summary>Compute the total amount of damage dealt to a participant in combat</summary>
+    /// <param name="target">Participant to compute damage for.</param>
+    /// <param name="actions">Actions describing what happened in combat.</param>
+    /// <returns>The total amount of damage dealt to <paramref name="target"/> based on <paramref name="actions"/>.</returns>
     public static int TotalDamage(Unit target, IEnumerable<CombatAction> actions) => actions.Where((a) => a.Hit && a.Target == target).Select((a) => a.Damage).Sum();
 }
