@@ -35,6 +35,11 @@ stream = ExtResource("4_3j5b2")
 [node name="DeathSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("6_owx48")
 
+[node name="HitDelay" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 0.3
+one_shot = true
+
 [node name="CombatDelay" type="Timer" parent="."]
 one_shot = true
 

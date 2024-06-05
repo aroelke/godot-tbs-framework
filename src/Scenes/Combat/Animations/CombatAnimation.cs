@@ -86,12 +86,16 @@ public partial class CombatAnimation : BoundedNode2D
     /// <summary>Play the attack animation.</summary>
     public void Attack() => Animations.Play(AttackAnimation);
 
+    /// <summary>Play the return-from-attack animation.</summary>
+    public void AttackReturn() => Animations.Play(AttackReturnAnimation);
+
     /// <summary>Play the dodgee animation.</summary>
     public void Dodge() => Animations.Play(DodgeAnimation);
 
     /// <summary>Play the animation for returning to idle from a dodge pose.</summary>
     public void DodgeReturn() => Animations.Play(DodgeReturnAnimation);
 
+    /// <summary>Play the death animation.</summary>
     public void Die() => Animations.Play(DieAnimation);
 
     /// <summary>Forward the <see cref="AnimationPlayer"/>'s <see cref="AnimationMixer.SignalName.AnimationFinished"/> signal to any listeners.</summary>
