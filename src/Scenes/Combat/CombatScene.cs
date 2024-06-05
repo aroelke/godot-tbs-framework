@@ -26,6 +26,7 @@ public partial class CombatScene : Node
     private ParticipantInfo LeftInfo => _cache.GetNode<ParticipantInfo>("%LeftInfo");
     private ParticipantInfo RightInfo => _cache.GetNode<ParticipantInfo>("%RightInfo");
     private Timer HitDelay => _cache.GetNode<Timer>("%HitDelay");
+    private Timer TurnDelay => _cache.GetNode<Timer>("%TurnDelay");
 
     /// <summary>Position to display the left unit's sprite.</summary>
     [Export] public Vector2 LeftPosition  = new(44, 80);
@@ -134,6 +135,9 @@ public partial class CombatScene : Node
                 _animations[action.Actor].AttackDodged -= _animations[action.Target].Dodge;
                 _animations[action.Actor].AttackStrike -= OnMiss;
             }
+
+            TurnDelay.Start();
+            await ToSignal(TurnDelay, Timer.SignalName.Timeout);
         }
         GetNode<Timer>("CombatDelay").Start();
     }

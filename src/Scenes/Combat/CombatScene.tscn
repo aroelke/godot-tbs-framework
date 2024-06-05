@@ -40,7 +40,13 @@ unique_name_in_owner = true
 wait_time = 0.3
 one_shot = true
 
+[node name="TurnDelay" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 0.1
+one_shot = true
+
 [node name="CombatDelay" type="Timer" parent="."]
+wait_time = 0.9
 one_shot = true
 
 [node name="Left" parent="." instance=ExtResource("2_xevfw")]
