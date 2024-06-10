@@ -4,6 +4,7 @@ using Extensions;
 using System.Collections.Generic;
 using System.Linq;
 using UI.Controls.Action;
+using System;
 
 namespace UI;
 
@@ -14,6 +15,7 @@ namespace UI;
 public partial class Camera2DBrain : Node2D
 {
     private readonly NodeCache _cache;
+    public Camera2DBrain() : base() => _cache = new(this);
 
     /// <summary>Signal that the camera has reached its target and stopped moving.</summary>
     [Signal] public delegate void ReachedTargetEventHandler();
@@ -105,6 +107,9 @@ public partial class Camera2DBrain : Node2D
     private Vector2 _zoomTarget = Vector2.Zero;
     private Tween _zoomTween = null;
     private readonly Stack<Vector2> _savedZooms = new();
+
+    private float _noiseY = 0;
+    private double _trauma = 0;
 
     private Camera2D Camera => _cache.GetNodeOrNull<Camera2D>("Camera2D");
 
@@ -262,6 +267,23 @@ public partial class Camera2DBrain : Node2D
     /// <summary>Time in seconds the camera should move to get the target to re-enter the dead zone from within the soft zone.</summary>
     [Export(PropertyHint.None, "suffix:s")] public double DeadZoneSmoothTime = 0.25;
 
+    [ExportGroup("Shake", "Shake")]
+
+    /// <summary>Amount to reduce shake magnitude every second</summary>
+    [Export] public float ShakeDecay = 0.6f;
+
+    /// <summary>Maximum amount the camera can offset while shaking.</summary>
+    [Export] public Vector2 ShakeMaxOffset = new(75, 150);
+
+    /// <summary>Maximum amount the camera can rotate while shaking.</summary>
+    [Export] public float ShakeMaxRoll = 0.2f;
+
+    /// <summary>Exponent to apply to shake magnitude when computing camera offset. Higher amount means smoother shake (because the magnitude is between 0 and 1).</summary>
+    [Export] public float ShakeTraumaExponent = 2;
+
+    /// <summary>Noise generator for camera shaking.</summary>
+    [Export] public FastNoiseLite ShakeNoise = null;
+
     /// <summary>Draw the camera zones for help with debugging and visualization.</summary>
     [ExportGroup("Editor")]
     [Export] public bool DrawZones = false;
@@ -287,9 +309,11 @@ public partial class Camera2DBrain : Node2D
         }
     }
 
-    public Camera2DBrain() : base()
+    /// <summary>Magnitude the camera is shaking.</summary>
+    public double Trauma
     {
-        _cache = new(this);
+        get => _trauma;
+        set => _trauma = Mathf.Clamp(value, 0, 1);
     }
 
     /// <returns>The <see cref="Viewport"/> rectangle.</returns>
@@ -351,6 +375,9 @@ public partial class Camera2DBrain : Node2D
         _zoomTarget = _zoom;
         _zoomTween = CreateTween();
         _zoomTween.Kill();
+
+        GD.Randomize();
+        ShakeNoise.Seed = (int)GD.Randi();
 
         GlobalPosition = Camera.GetScreenCenterPosition();
     }
@@ -454,6 +481,15 @@ public partial class Camera2DBrain : Node2D
                 float zoom = Input.GetAxis(ZoomActionAnalogIn, ZoomActionAnalogOut);
                 if (zoom != 0)
                     Zoom += Vector2.One*(float)(ZoomFactorAnalog*zoom*delta);
+            }
+
+            if (_trauma != 0)
+            {
+                Trauma -= ShakeDecay*delta;
+                double amount = Math.Pow(_trauma, ShakeTraumaExponent);
+                _noiseY++;
+                Camera.Rotation = (float)(ShakeMaxRoll*amount*ShakeNoise.GetNoise2D(ShakeNoise.Seed, _noiseY));
+                Camera.Offset = ShakeMaxOffset*(float)amount*new Vector2(ShakeNoise.GetNoise2D(1000, _noiseY), ShakeNoise.GetNoise2D(2000, _noiseY));
             }
         }
         if (Engine.IsEditorHint() || DrawZones || DrawLimits || DrawTargets)

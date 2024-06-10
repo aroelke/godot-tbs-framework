@@ -14,12 +14,12 @@
 script = ExtResource("1_h22l5")
 
 [node name="Background" type="Sprite2D" parent="."]
-position = Vector2(0, -48)
+position = Vector2(-73, -48)
 scale = Vector2(0.131449, 0.131449)
 texture = ExtResource("2_hevui")
 centered = false
 
-[node name="Camera2DBrain" parent="." instance=ExtResource("2_qyxbl")]
+[node name="Camera" parent="." instance=ExtResource("2_qyxbl")]
 Zoom = Vector2(8, 8)
 ZoomMax = Vector2(8, 8)
 Limits = Rect2i(0, 0, 2000000, 2000000)

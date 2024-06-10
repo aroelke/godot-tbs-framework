@@ -1,4 +1,4 @@
-[gd_scene load_steps=50 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=51 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="Resource" uid="uid://hkvw8a5g5l62" path="res://src/UI/Controls/Action/References/Map/MapCancelAction.tres" id="2_2u5dc"]
@@ -32,6 +32,9 @@
 [ext_resource type="AudioStream" uid="uid://oyebi18i5hmn" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Error - 1.wav" id="30_mo20p"]
 [ext_resource type="AudioStream" uid="uid://dx4swhb5suesh" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Open - 1.wav" id="31_yh2xe"]
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
+seed = 888552029
 
 [sub_resource type="Resource" id="Resource_umt67"]
 script = ExtResource("24_k1nop")
@@ -111,6 +114,10 @@ NextAction = ExtResource("4_gvudp")
 Target = NodePath("../Pointer")
 Zoom = Vector2(2, 2)
 Limits = Rect2i(0, 0, 1000000, 1000000)
+ShakeDecay = 0.8
+ShakeMaxOffset = Vector2(100, 75)
+ShakeMaxRoll = 0.0
+ShakeNoise = SubResource("FastNoiseLite_spp7l")
 
 [node name="ActionRangeOverlay" parent="." instance=ExtResource("7_bm2jx")]
 layer_0/name = "move"

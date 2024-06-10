@@ -8,6 +8,7 @@ using Scenes.Combat.Animations;
 using Scenes.Combat.Data;
 using Scenes.Combat.UI;
 using Scenes.Level.Object;
+using UI;
 
 namespace Scenes.Combat;
 
@@ -20,6 +21,7 @@ public partial class CombatScene : Node
     private readonly Dictionary<Unit, CombatAnimation> _animations = new();
     private readonly Dictionary<Unit, ParticipantInfo> _infos = new();
 
+    private Camera2DBrain Camera => _cache.GetNode<Camera2DBrain>("Camera");
     private AudioStreamPlayer HitSound => _cache.GetNode<AudioStreamPlayer>("%HitSound");
     private AudioStreamPlayer MissSound => _cache.GetNode<AudioStreamPlayer>("%MissSound");
     private AudioStreamPlayer DeathSound => _cache.GetNode<AudioStreamPlayer>("DeathSound");
@@ -86,6 +88,7 @@ public partial class CombatScene : Node
             void OnHit()
             {
                 OnAttackStrike(true);
+                Camera.Trauma += 0.2f;
                 _infos[action.Target].TransitionHealth(_infos[action.Target].CurrentHealth - action.Damage, 0.3);
             }
             void OnMiss() => OnAttackStrike(false);
