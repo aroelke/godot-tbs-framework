@@ -38,14 +38,6 @@ public partial class CombatScene : Node
 
     public void OnTimerTimeout() => SceneManager.EndCombat();
 
-    public void OnAttackStrike(bool hit)
-    {
-        if (hit)
-            HitSound.Play();
-        else
-            MissSound.Play();
-    }
-
     /// <summary>Set up the combat scene and then begin animation.</summary>
     /// <param name="left">Unit on the left side of the screen.</param>
     /// <param name="right">Unit on the right side of the screen.</param>
@@ -87,11 +79,11 @@ public partial class CombatScene : Node
             void OnDodge() =>  _animations[action.Target].PlayAnimation(CombatAnimation.DodgeAnimation);
             void OnHit()
             {
-                OnAttackStrike(true);
+                HitSound.Play();
                 Camera.Trauma += 0.2f;
                 _infos[action.Target].TransitionHealth(_infos[action.Target].CurrentHealth - action.Damage, 0.3);
             }
-            void OnMiss() => OnAttackStrike(false);
+            void OnMiss() => MissSound.Play();
 
             // Reset all participants
             foreach ((_, CombatAnimation animation) in _animations)
