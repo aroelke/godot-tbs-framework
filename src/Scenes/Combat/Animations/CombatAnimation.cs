@@ -30,12 +30,6 @@ public partial class CombatAnimation : BoundedNode2D
     /// <summary>Signals the frame in which the attack animation connects (or misses) with the opponent.</summary>
     [Signal] public delegate void AttackStrikeEventHandler();
 
-    /// <summary>Signals that the animation for returning to idle has begun.</summary>
-    [Signal] public delegate void ReturningEventHandler();
-
-    /// <summary>Signals that the complete animation sequence has completed and the unit is back in its idle pose.</summary>
-    [Signal] public delegate void ReturnedEventHandler();
-
     private bool _left = true;
     private Vector2 _spriteOffset = Vector2.Zero;
     private AnimationPlayer Animations => _cache.GetNode<AnimationPlayer>("AnimationPlayer");
