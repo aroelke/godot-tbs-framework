@@ -82,6 +82,7 @@ public partial class CombatScene : Node
         // Play the combat sequence
         foreach (CombatAction action in actions)
         {
+            void OnDodge() =>  _animations[action.Target].PlayAnimation(CombatAnimation.DodgeAnimation);
             void OnHit()
             {
                 OnAttackStrike(true);
@@ -93,7 +94,7 @@ public partial class CombatScene : Node
             foreach ((_, CombatAnimation animation) in _animations)
             {
                 animation.ZIndex = 0;
-                animation.Idle();
+                animation.PlayAnimation(CombatAnimation.IdleAnimation);
             }
 
             // Set up animation triggers
@@ -105,18 +106,18 @@ public partial class CombatScene : Node
             else
             {
                 _animations[action.Target].ZIndex = 1;
-                _animations[action.Actor].AttackDodged += _animations[action.Target].Dodge;
+                _animations[action.Actor].AttackDodged += OnDodge;
                 _animations[action.Actor].AttackStrike += OnMiss;
             }
 
             // Play the animation sequence for the turn
-            _animations[action.Actor].Attack();
+            _animations[action.Actor].PlayAnimation(CombatAnimation.AttackAnimation);
             await ToSignal(_animations[action.Actor], CombatAnimation.SignalName.AnimationFinished);
             HitDelay.Start();
             await ToSignal(HitDelay, Timer.SignalName.Timeout);
-            _animations[action.Actor].AttackReturn();
+            _animations[action.Actor].PlayAnimation(CombatAnimation.AttackReturnAnimation);
             if (!action.Hit)
-                _animations[action.Target].DodgeReturn();
+                _animations[action.Target].PlayAnimation(CombatAnimation.DodgeReturnAnimation);
             await ToSignal(_animations[action.Actor], CombatAnimation.SignalName.AnimationFinished);
 
             // Clean up any triggers
@@ -125,14 +126,14 @@ public partial class CombatScene : Node
                 _animations[action.Actor].AttackStrike -= OnHit;
                 if (_infos[action.Target].CurrentHealth == 0)
                 {
-                    _animations[action.Target].Die();
+                    _animations[action.Target].PlayAnimation(CombatAnimation.DieAnimation);
                     DeathSound.Play();
                     await ToSignal(_animations[action.Target], CombatAnimation.SignalName.AnimationFinished);
                 }
             }
             else
             {
-                _animations[action.Actor].AttackDodged -= _animations[action.Target].Dodge;
+                _animations[action.Actor].AttackDodged -= OnDodge;
                 _animations[action.Actor].AttackStrike -= OnMiss;
             }
 

@@ -10,12 +10,12 @@ public partial class CombatAnimation : BoundedNode2D
     private readonly NodeCache _cache;
     public CombatAnimation() : base() => _cache = new(this);
 
-    private static readonly StringName IdleAnimation = "RESET";
-    private static readonly StringName AttackAnimation = "attack";
-    private static readonly StringName AttackReturnAnimation = "attack_return";
-    private static readonly StringName DodgeAnimation = "dodge";
-    private static readonly StringName DodgeReturnAnimation = "dodge_return";
-    private static readonly StringName DieAnimation = "die";
+    public static readonly StringName IdleAnimation = "RESET";
+    public static readonly StringName AttackAnimation = "attack";
+    public static readonly StringName AttackReturnAnimation = "attack_return";
+    public static readonly StringName DodgeAnimation = "dodge";
+    public static readonly StringName DodgeReturnAnimation = "dodge_return";
+    public static readonly StringName DieAnimation = "die";
 
     /// <summary>Signals that the current animation has completed.</summary>
     [Signal] public delegate void AnimationFinishedEventHandler();
@@ -74,23 +74,9 @@ public partial class CombatAnimation : BoundedNode2D
         }
     }
 
-    /// <summary>Set the sprite back to its idle pose.</summary>
-    public void Idle() => Animations.Play(IdleAnimation);
-
-    /// <summary>Play the attack animation.</summary>
-    public void Attack() => Animations.Play(AttackAnimation);
-
-    /// <summary>Play the return-from-attack animation.</summary>
-    public void AttackReturn() => Animations.Play(AttackReturnAnimation);
-
-    /// <summary>Play the dodgee animation.</summary>
-    public void Dodge() => Animations.Play(DodgeAnimation);
-
-    /// <summary>Play the animation for returning to idle from a dodge pose.</summary>
-    public void DodgeReturn() => Animations.Play(DodgeReturnAnimation);
-
-    /// <summary>Play the death animation.</summary>
-    public void Die() => Animations.Play(DieAnimation);
+    /// <summary>Play a combat animation.</summary>
+    /// <param name="name">Name of the animation to play.</param>
+    public void PlayAnimation(StringName name) => Animations.Play(name);
 
     /// <summary>Forward the <see cref="AnimationPlayer"/>'s <see cref="AnimationMixer.SignalName.AnimationFinished"/> signal to any listeners.</summary>
     /// <param name="name">Name of the animation that completed.</param>
