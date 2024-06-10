@@ -1,13 +1,15 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using Godot;
 using Nodes;
+using Nodes.Components;
 
 namespace Scenes.Combat.UI;
 
 /// <summary>Combat UI element that displays constant information about a character participating in combat.</summary>
 [Tool]
-public partial class ParticipantInfo : GridContainer
+public partial class ParticipantInfo : GridContainer, IHasHealth
 {
     private readonly  NodeCache _cache;
     public ParticipantInfo() : base() => _cache = new(this);
@@ -25,44 +27,6 @@ public partial class ParticipantInfo : GridContainer
 
     /// <summary>Amount to scale the health value internally so the health bar transitions smoothly.</summary>
     [Export] public float HealthScale = 100;
-
-    /// <summary>Max health of the character.</summary>
-    [Export] public int MaxHealth
-    {
-        get => _maxHealth;
-        set
-        {
-            int next = Mathf.Max(0, value);
-            if (_maxHealth != next)
-            {
-                _maxHealth = next;
-                if (HealthBar is not null)
-                    HealthBar.MaxValue = _maxHealth*HealthScale;
-
-                if (CurrentHealth > _maxHealth)
-                    CurrentHealth = _maxHealth;
-            }
-        }
-    }
-
-    /// <summary>"Current" health of the character.</summary>
-    /// <remarks>The character's actual current health is updated elsewhere; this is just for display purposes.</remarks>
-    [Export] public int CurrentHealth
-    {
-        get => _currentHealth;
-        set
-        {
-            int next = Mathf.Clamp(value, 0, MaxHealth);
-            if (_currentHealth != next)
-            {
-                _currentHealth = next;
-                if (HealthLabel is not null)
-                    HealthLabel.Text = $"HP: {_currentHealth}";
-                if (HealthBar is not null)
-                    HealthBar.Value = _currentHealth*HealthScale;
-            }
-        }
-    }
 
     /// <summary>Amount of damage each action will deal. Use a negative number to indicate healing. Use an empty array to hide, e.g. for buffing.</summary>
     /// <exception cref="ArgumentException">If a damage sequence contains both positive (damage) and negative (healing) values.</exception>
@@ -125,16 +89,40 @@ public partial class ParticipantInfo : GridContainer
         }
     }
 
+    public HealthComponent Health
+    {
+        get => _cache.GetNode<HealthComponent>("Health");
+        set
+        {
+            HealthComponent health = _cache.GetNodeOrNull<HealthComponent>("Health");
+            if (value is not null && health is not null)
+            {
+                health.Maximum = value.Maximum;
+                health.Value = value.Value;
+
+                if (HealthBar is not null)
+                {
+                    HealthBar.MaxValue = health.Maximum*HealthScale;
+                    HealthBar.Value = health.Value*HealthScale;
+                }
+                if (HealthLabel is not null)
+                    HealthLabel.Text = $"HP: {health.Value}";
+            }
+        }
+    }
+
     /// <summary>Smoothly transition health to a new value.</summary>
     /// <remarks>Note that the actual value of <see cref="CurrentHealth"/> doesn't update until the transition is done.</remarks>
     /// <param name="value">New health value.</param>
     /// <param name="duration">Amount of time to take to transition it.</param>
     public void TransitionHealth(int value, double duration)
     {
-        int next = Mathf.Clamp(value, 0, MaxHealth);
+        int next = Mathf.Clamp(value, 0, Health.Maximum);
         CreateTween().TweenMethod(Callable.From((float hp) => {
-            HealthLabel.Text = $"HP: {(int)(hp/HealthScale)}";
             HealthBar.Value = hp;
-        }), CurrentHealth*HealthScale, next*HealthScale, duration).Finished += () => CurrentHealth = next;
+            Health.Value = (int)(hp/HealthScale);
+        }), Health.Value*HealthScale, next*HealthScale, duration).Finished += () => Debug.Assert(Health.Value == next, "Health does not match value after transitioning.");
     }
+
+    public void OnHealthChanged(int value) =>  HealthLabel.Text = $"HP: {value}";
 }

@@ -55,8 +55,7 @@ public partial class CombatScene : Node
         _animations[left].Position = LeftPosition;
         _animations[left].Left = true;
         _infos[left] = LeftInfo;
-        LeftInfo.MaxHealth = left.Health.Maximum;
-        LeftInfo.CurrentHealth = left.Health.Value;
+        LeftInfo.Health = left.Health;
         LeftInfo.Damage = actions.Where((a) => a.Actor == left).Select((a) => a.Damage).ToArray();
         LeftInfo.HitChance = Mathf.Clamp(CombatCalculations.HitChance(left, right), 0, 100);
 
@@ -65,8 +64,7 @@ public partial class CombatScene : Node
         _animations[right].Position = RightPosition;
         _animations[right].Left = false;
         _infos[right] = RightInfo;
-        RightInfo.MaxHealth = right.Health.Maximum;
-        RightInfo.CurrentHealth = right.Health.Value;
+        RightInfo.Health = right.Health;
         RightInfo.Damage = actions.Where((a) => a.Actor == right).Select((a) => a.Damage).ToArray();
         RightInfo.HitChance = Mathf.Clamp(CombatCalculations.HitChance(right, left), 0, 100);
 
@@ -81,7 +79,7 @@ public partial class CombatScene : Node
             {
                 HitSound.Play();
                 Camera.Trauma += 0.2f;
-                _infos[action.Target].TransitionHealth(_infos[action.Target].CurrentHealth - action.Damage, 0.3);
+                _infos[action.Target].TransitionHealth(_infos[action.Target].Health.Value - action.Damage, 0.3);
             }
             void OnMiss() => MissSound.Play();
 
@@ -119,7 +117,7 @@ public partial class CombatScene : Node
             if (action.Hit)
             {
                 _animations[action.Actor].AttackStrike -= OnHit;
-                if (_infos[action.Target].CurrentHealth == 0)
+                if (_infos[action.Target].Health.Value == 0)
                 {
                     _animations[action.Target].PlayAnimation(CombatAnimation.DieAnimation);
                     DeathSound.Play();

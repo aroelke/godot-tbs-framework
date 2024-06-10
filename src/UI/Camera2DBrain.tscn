@@ -8,7 +8,7 @@
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_np3kc"]
 noise_type = 3
-seed = 1231902107
+seed = 476506074
 fractal_type = 3
 
 [node name="Camera2DBrain" type="Node2D"]
