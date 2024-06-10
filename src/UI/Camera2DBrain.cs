@@ -279,7 +279,7 @@ public partial class Camera2DBrain : Node2D
     [Export] public float ShakeMaxRoll = 0.2f;
 
     /// <summary>Exponent to apply to shake magnitude when computing camera offset. Higher amount means smoother shake (because the magnitude is between 0 and 1).</summary>
-    [Export] public float ShakeTraumaExponent = 2;
+    [Export] public double ShakeTraumaExponent = 2;
 
     /// <summary>Noise generator for camera shaking.</summary>
     [Export] public FastNoiseLite ShakeNoise = null;
