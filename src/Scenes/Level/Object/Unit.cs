@@ -8,7 +8,7 @@ using System;
 using Scenes.Level.Map;
 using Scenes.Level.Object.Group;
 using Data;
-using Scenes.Level.Object.Components;
+using Nodes.Components;
 
 namespace Scenes.Level.Object;
 
