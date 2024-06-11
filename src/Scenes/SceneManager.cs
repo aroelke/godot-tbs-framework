@@ -44,13 +44,14 @@ public partial class SceneManager : Node
         GetTree().Root.RemoveChild(CurrentLevel);
         Combat = Singleton.CombatScene.Instantiate<CombatScene>();
         GetTree().Root.AddChild(Combat);
+        Combat.Initialize(left, right, actions);
         GetTree().CurrentScene = Combat;
 
         tween = CreateTween();
         tween.TweenProperty(GetNode<ColorRect>("%Black"), $"{ColorRect.PropertyName.Modulate}:a", 0, TransitionTime/2);
         await ToSignal(tween, Tween.SignalName.Finished);
 
-        Combat.Start(left, right, actions);
+        Combat.Start();
     }
 
     private async void DoEndCombat()

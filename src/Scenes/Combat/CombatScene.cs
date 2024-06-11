@@ -20,6 +20,7 @@ public partial class CombatScene : Node
 
     private readonly Dictionary<Unit, CombatAnimation> _animations = new();
     private readonly Dictionary<Unit, ParticipantInfo> _infos = new();
+    private IImmutableList<CombatAction> _actions = null;
 
     private Camera2DBrain Camera => _cache.GetNode<Camera2DBrain>("Camera");
     private AudioStreamPlayer HitSound => _cache.GetNode<AudioStreamPlayer>("%HitSound");
@@ -38,25 +39,26 @@ public partial class CombatScene : Node
 
     public void OnTimerTimeout() => SceneManager.EndCombat();
 
-    /// <summary>Set up the combat scene and then begin animation.</summary>
+    /// <summary>Set up the combat scene.</summary>
     /// <param name="left">Unit on the left side of the screen.</param>
     /// <param name="right">Unit on the right side of the screen.</param>
-    /// <param name="actions">Action that will be performed each turn in combat. The length of the queue determines the number of turns.</param>
+    /// <param name="actions">List of actions that will be performed each turn in combat. The length of the list determines the number of turns.</param>
     /// <exception cref="ArgumentException">If any <see cref="CombatAction"/> contains an _animations[action.Actor] who isn't participating in this combat.</exception>
-    public async void Start(Unit left, Unit right, IImmutableList<CombatAction> actions)
+    public void Initialize(Unit left, Unit right, IImmutableList<CombatAction> actions)
     {
         foreach (CombatAction action in actions)
             if (action.Actor != left && action.Actor != right)
                 throw new ArgumentException($"CombatAction {action.Actor.Name} is not a participant in combat");
 
-        // Initialize animations
+        _actions = actions;
+
         _animations[left] = left.Class.CombatAnimations.Instantiate<CombatAnimation>();
         _animations[left].Modulate = left.Affiliation.Color;
         _animations[left].Position = LeftPosition;
         _animations[left].Left = true;
         _infos[left] = LeftInfo;
         LeftInfo.Health = left.Health;
-        LeftInfo.Damage = actions.Where((a) => a.Actor == left).Select((a) => a.Damage).ToArray();
+        LeftInfo.Damage = _actions.Where((a) => a.Actor == left).Select((a) => a.Damage).ToArray();
         LeftInfo.HitChance = Mathf.Clamp(CombatCalculations.HitChance(left, right), 0, 100);
 
         _animations[right] = right.Class.CombatAnimations.Instantiate<CombatAnimation>();
@@ -65,14 +67,18 @@ public partial class CombatScene : Node
         _animations[right].Left = false;
         _infos[right] = RightInfo;
         RightInfo.Health = right.Health;
-        RightInfo.Damage = actions.Where((a) => a.Actor == right).Select((a) => a.Damage).ToArray();
+        RightInfo.Damage = _actions.Where((a) => a.Actor == right).Select((a) => a.Damage).ToArray();
         RightInfo.HitChance = Mathf.Clamp(CombatCalculations.HitChance(right, left), 0, 100);
 
         foreach ((_, CombatAnimation animation) in _animations)
             AddChild(animation);
+    }
 
+    /// <summary>Run the full combat animation.</summary>
+    public async void Start()
+    {
         // Play the combat sequence
-        foreach (CombatAction action in actions)
+        foreach (CombatAction action in _actions)
         {
             void OnDodge() =>  _animations[action.Target].PlayAnimation(CombatAnimation.DodgeAnimation);
             void OnHit()
