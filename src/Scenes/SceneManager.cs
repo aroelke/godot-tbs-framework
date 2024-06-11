@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 using Godot;
+using Nodes;
 using Scenes.Combat;
 using Scenes.Combat.Data;
 using Scenes.Level.Object;
@@ -11,6 +13,9 @@ namespace Scenes;
 /// <summary>Global autoloaded scene manager used to change scenes and enter or exit combat.</summary>
 public partial class SceneManager : Node
 {
+    private NodeCache _cache = null;
+    public SceneManager() : base() => _cache = new(this);
+
     /// <summary>Signals that the combat cut scene has completed.</summary>
     [Signal] public delegate void CombatFinishedEventHandler();
 
@@ -27,26 +32,32 @@ public partial class SceneManager : Node
     /// <summary>End combat and return to the previous scene.</summary>
     public static void EndCombat() => Singleton.DoEndCombat();
 
-    [Export] public double TransitionTime = 1;
+    private SceneTransition FadeToBlack => _cache.GetNode<SceneTransition>("Transitions/FadeToBlack");
 
     /// <summary>Scene to instantiate when displaying a combat animation.</summary>
     [Export] public PackedScene CombatScene = null;
+
+    private async Task DoSceneTransition(Node target)
+    {
+        await FadeToBlack.TransitionIn();
+
+        GetTree().Root.RemoveChild(GetTree().CurrentScene);
+        GetTree().Root.AddChild(target);
+        GetTree().CurrentScene = target;
+
+        await FadeToBlack.TransitionOut();
+    }
 
     private async void DoBeginCombat(Unit left, Unit right, IImmutableList<CombatAction> actions)
     {
         if (CurrentLevel is not null)
             throw new InvalidOperationException("Combat has already begun.");
 
-        await GetNode<SceneTransition>("Transitions/FadeToBlack").TransitionIn();
-
-        CurrentLevel = Singleton.GetTree().CurrentScene;
-        GetTree().Root.RemoveChild(CurrentLevel);
         Combat = Singleton.CombatScene.Instantiate<CombatScene>();
-        GetTree().Root.AddChild(Combat);
         Combat.Initialize(left, right, actions);
-        GetTree().CurrentScene = Combat;
+        CurrentLevel = Singleton.GetTree().CurrentScene;
 
-        await GetNode<SceneTransition>("Transitions/FadeToBlack").TransitionOut();
+        await DoSceneTransition(Combat);
 
         Combat.Start();
     }
@@ -58,15 +69,9 @@ public partial class SceneManager : Node
 
         EmitSignal(SignalName.CombatFinished);
 
-        await GetNode<SceneTransition>("Transitions/FadeToBlack").TransitionIn();
+        await DoSceneTransition(CurrentLevel);
 
-        GetTree().Root.RemoveChild(Combat);
-        GetTree().Root.AddChild(CurrentLevel);
-        GetTree().CurrentScene = CurrentLevel;
         CurrentLevel = null;
-
-        await GetNode<SceneTransition>("Transitions/FadeToBlack").TransitionOut();
-
         Combat.QueueFree();
         Combat = null;
     }
