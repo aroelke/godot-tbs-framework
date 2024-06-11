@@ -4,6 +4,7 @@ using Godot;
 using Scenes.Combat;
 using Scenes.Combat.Data;
 using Scenes.Level.Object;
+using Scenes.Transitions;
 
 namespace Scenes;
 
@@ -36,9 +37,7 @@ public partial class SceneManager : Node
         if (CurrentLevel is not null)
             throw new InvalidOperationException("Combat has already begun.");
 
-        Tween tween = CreateTween();
-        tween.TweenProperty(GetNode<ColorRect>("%Black"), $"{ColorRect.PropertyName.Modulate}:a", 1, TransitionTime/2);
-        await ToSignal(tween, Tween.SignalName.Finished);
+        await GetNode<SceneTransition>("Transitions/FadeToBlack").TransitionIn();
 
         CurrentLevel = Singleton.GetTree().CurrentScene;
         GetTree().Root.RemoveChild(CurrentLevel);
@@ -47,9 +46,7 @@ public partial class SceneManager : Node
         Combat.Initialize(left, right, actions);
         GetTree().CurrentScene = Combat;
 
-        tween = CreateTween();
-        tween.TweenProperty(GetNode<ColorRect>("%Black"), $"{ColorRect.PropertyName.Modulate}:a", 0, TransitionTime/2);
-        await ToSignal(tween, Tween.SignalName.Finished);
+        await GetNode<SceneTransition>("Transitions/FadeToBlack").TransitionOut();
 
         Combat.Start();
     }
@@ -61,26 +58,16 @@ public partial class SceneManager : Node
 
         EmitSignal(SignalName.CombatFinished);
 
-        Tween tween = CreateTween();
-        tween.TweenProperty(GetNode<ColorRect>("%Black"), $"{ColorRect.PropertyName.Modulate}:a", 1, TransitionTime/2);
-        await ToSignal(tween, Tween.SignalName.Finished);
+        await GetNode<SceneTransition>("Transitions/FadeToBlack").TransitionIn();
 
         GetTree().Root.RemoveChild(Combat);
         GetTree().Root.AddChild(CurrentLevel);
         GetTree().CurrentScene = CurrentLevel;
         CurrentLevel = null;
 
-        tween = CreateTween();
-        tween.TweenProperty(GetNode<ColorRect>("%Black"), $"{ColorRect.PropertyName.Modulate}:a", 0, TransitionTime/2);
-        await ToSignal(tween, Tween.SignalName.Finished);
+        await GetNode<SceneTransition>("Transitions/FadeToBlack").TransitionOut();
 
         Combat.QueueFree();
         Combat = null;
-    }
-
-    public override void _Ready()
-    {
-        base._Ready();
-        GetNode<ColorRect>("%Black").Modulate = Colors.Black with { A = 0 };
     }
 }
