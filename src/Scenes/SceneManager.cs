@@ -67,6 +67,7 @@ public partial class SceneManager : Node
         GetTree().Root.AddChild(CurrentLevel);
         GetTree().CurrentScene = CurrentLevel;
         CurrentLevel = null;
+        EmitSignal(SignalName.CombatFinished);
 
         tween = CreateTween();
         tween.TweenProperty(GetNode<ColorRect>("%Black"), $"{ColorRect.PropertyName.Modulate}:a", 0, TransitionTime/2);
@@ -74,7 +75,6 @@ public partial class SceneManager : Node
 
         Combat.QueueFree();
         Combat = null;
-        EmitSignal(SignalName.CombatFinished);
     }
 
     public override void _Ready()
