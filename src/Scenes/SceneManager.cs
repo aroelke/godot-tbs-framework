@@ -58,7 +58,9 @@ public partial class SceneManager : Node
     {
         if (CurrentLevel is null)
             throw new InvalidOperationException("There is no level to return to");
-        
+
+        EmitSignal(SignalName.CombatFinished);
+
         Tween tween = CreateTween();
         tween.TweenProperty(GetNode<ColorRect>("%Black"), $"{ColorRect.PropertyName.Modulate}:a", 1, TransitionTime/2);
         await ToSignal(tween, Tween.SignalName.Finished);
@@ -67,7 +69,6 @@ public partial class SceneManager : Node
         GetTree().Root.AddChild(CurrentLevel);
         GetTree().CurrentScene = CurrentLevel;
         CurrentLevel = null;
-        EmitSignal(SignalName.CombatFinished);
 
         tween = CreateTween();
         tween.TweenProperty(GetNode<ColorRect>("%Black"), $"{ColorRect.PropertyName.Modulate}:a", 0, TransitionTime/2);
