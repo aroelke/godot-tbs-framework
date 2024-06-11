@@ -4,6 +4,7 @@ using Nodes;
 
 namespace Scenes.Transitions;
 
+/// <summary>Simple scene transition that fades to a color and then back into the next scene.</summary>
 public partial class FadeToBlackTransition : SceneTransition
 {
     private readonly NodeCache _cache;
@@ -13,6 +14,8 @@ public partial class FadeToBlackTransition : SceneTransition
 
     private ColorRect Overlay => _cache.GetNodeOrNull<ColorRect>("Overlay");
 
+    /// <summary>Color to fade to. Does not have to be black, despite the class name.</summary>
+    /// <remarks>Make sure the color isn't fully transparent, or no fading will happen!</remarks>
     [Export] public Color Color
     {
         get => _color;
@@ -27,6 +30,7 @@ public partial class FadeToBlackTransition : SceneTransition
         }
     }
 
+    /// <summary>Total time to fade in and out. Each part (fade in and fade out) take half of this time.</summary>
     [Export] public double TransitionTime = 1;
 
     public override async Task TransitionIn()
