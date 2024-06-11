@@ -2,7 +2,6 @@ using System;
 using System.Collections.Immutable;
 using Godot;
 using Scenes.Combat;
-using Scenes.Combat.Animations;
 using Scenes.Combat.Data;
 using Scenes.Level.Object;
 
@@ -27,33 +26,59 @@ public partial class SceneManager : Node
     /// <summary>End combat and return to the previous scene.</summary>
     public static void EndCombat() => Singleton.DoEndCombat();
 
+    [Export] public double TransitionTime = 1;
+
     /// <summary>Scene to instantiate when displaying a combat animation.</summary>
     [Export] public PackedScene CombatScene = null;
 
-    private void DoBeginCombat(Unit left, Unit right, IImmutableList<CombatAction> actions)
+    private async void DoBeginCombat(Unit left, Unit right, IImmutableList<CombatAction> actions)
     {
         if (CurrentLevel is not null)
             throw new InvalidOperationException("Combat has already begun.");
 
+        Tween tween = CreateTween();
+        tween.TweenProperty(GetNode<ColorRect>("%Black"), $"{ColorRect.PropertyName.Modulate}:a", 1, TransitionTime/2);
+        await ToSignal(tween, Tween.SignalName.Finished);
+
         CurrentLevel = Singleton.GetTree().CurrentScene;
         GetTree().Root.RemoveChild(CurrentLevel);
-
         Combat = Singleton.CombatScene.Instantiate<CombatScene>();
         GetTree().Root.AddChild(Combat);
+        GetTree().CurrentScene = Combat;
+
+        tween = CreateTween();
+        tween.TweenProperty(GetNode<ColorRect>("%Black"), $"{ColorRect.PropertyName.Modulate}:a", 0, TransitionTime/2);
+        await ToSignal(tween, Tween.SignalName.Finished);
+
         Combat.Start(left, right, actions);
     }
 
-    private void DoEndCombat()
+    private async void DoEndCombat()
     {
         if (CurrentLevel is null)
             throw new InvalidOperationException("There is no level to return to");
+        
+        Tween tween = CreateTween();
+        tween.TweenProperty(GetNode<ColorRect>("%Black"), $"{ColorRect.PropertyName.Modulate}:a", 1, TransitionTime/2);
+        await ToSignal(tween, Tween.SignalName.Finished);
 
-        Callable.From(() => {
-            Combat.Free();
-            GetTree().Root.AddChild(CurrentLevel);
-            GetTree().CurrentScene = CurrentLevel;
-            CurrentLevel = null;
-            EmitSignal(SignalName.CombatFinished);
-        }).CallDeferred();
+        GetTree().Root.RemoveChild(Combat);
+        GetTree().Root.AddChild(CurrentLevel);
+        GetTree().CurrentScene = CurrentLevel;
+        CurrentLevel = null;
+
+        tween = CreateTween();
+        tween.TweenProperty(GetNode<ColorRect>("%Black"), $"{ColorRect.PropertyName.Modulate}:a", 0, TransitionTime/2);
+        await ToSignal(tween, Tween.SignalName.Finished);
+
+        Combat.QueueFree();
+        Combat = null;
+        EmitSignal(SignalName.CombatFinished);
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+        GetNode<ColorRect>("%Black").Modulate = Colors.Black with { A = 0 };
     }
 }

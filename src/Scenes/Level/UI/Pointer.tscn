@@ -18,6 +18,7 @@ AccelerateAction = ExtResource("6_xjb88")
 DebugColor = Color(0, 0, 0, 0)
 
 [node name="Canvas" type="CanvasLayer" parent="."]
+layer = 2
 
 [node name="Mouse" type="TextureRect" parent="Canvas"]
 offset_left = 1.0
