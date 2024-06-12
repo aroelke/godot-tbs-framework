@@ -38,6 +38,12 @@ public partial class CombatScene : Node
     /// <summary>Position to display the right unit's sprite.</summary>
     [Export] public Vector2 RightPosition = new(116, 80);
 
+    /// <summary>Duration for the health bar to change when HP changes.</summary>
+    [Export(PropertyHint.None, "suffix:s")] public double HealthBarTransitionDuration = 0.3;
+
+    /// <summary>Amount of camera shake trauma for a normal hit.</summary>
+    [Export] public double CameraShakeHitTrauma = 0.2;
+
     public void OnTimerTimeout() => SceneManager.EndCombat();
 
     /// <summary>Set up the combat scene.</summary>
@@ -88,8 +94,8 @@ public partial class CombatScene : Node
                 HitSparks.Position = _animations[action.Actor].Position + _animations[action.Actor].ContactPoint;
                 HitSparks.ZIndex = _animations[action.Actor].ZIndex + 1;
                 HitSparks.Emitting = true;
-                Camera.Trauma += 0.2f;
-                _infos[action.Target].TransitionHealth(_infos[action.Target].Health.Value - action.Damage, 0.3);
+                Camera.Trauma += CameraShakeHitTrauma;
+                _infos[action.Target].TransitionHealth(_infos[action.Target].Health.Value - action.Damage, HealthBarTransitionDuration);
             }
             void OnMiss() => MissSound.Play();
 
