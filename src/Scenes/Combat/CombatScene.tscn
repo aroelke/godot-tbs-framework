@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://bn2dxlvq8lqj6"]
+[gd_scene load_steps=14 format=3 uid="uid://bn2dxlvq8lqj6"]
 
 [ext_resource type="Script" path="res://src/Scenes/Combat/CombatScene.cs" id="1_h22l5"]
 [ext_resource type="Texture2D" uid="uid://bbrmt3ob1fnsh" path="res://assets/raw/Free-Summer-Pixel-Art-Backgrounds/PNG/summer 2/Summer2.png" id="2_hevui"]
@@ -9,6 +9,24 @@
 [ext_resource type="PackedScene" uid="uid://cvch4ay3dx0wv" path="res://src/Scenes/Combat/UI/ParticipantInfo.tscn" id="6_ag6sl"]
 [ext_resource type="AudioStream" uid="uid://bna3rsl1okrab" path="res://assets/raw/RPG_Essentials_Free/10_Battle_SFX/69_Enemy_death_01.wav" id="6_owx48"]
 [ext_resource type="Theme" uid="uid://fr2dcmadshbl" path="res://src/Scenes/Combat/UI/ParticipantInfo.tres" id="6_rchi6"]
+[ext_resource type="Texture2D" uid="uid://c1elo1xqw04us" path="res://assets/combat/spark.png" id="7_5me5v"]
+
+[sub_resource type="Curve" id="Curve_7nqbs"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.07923, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_v2lww"]
+curve = SubResource("Curve_7nqbs")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_w5sv2"]
+particle_flag_disable_z = true
+spread = 180.0
+initial_velocity_min = 100.0
+initial_velocity_max = 100.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.01
+scale_max = 0.01
+scale_curve = SubResource("CurveTexture_v2lww")
 
 [node name="CombatScene" type="Node"]
 script = ExtResource("1_h22l5")
@@ -24,16 +42,33 @@ Zoom = Vector2(8, 8)
 ZoomMax = Vector2(8, 8)
 Limits = Rect2i(0, 0, 2000000, 2000000)
 
-[node name="HitSound" type="AudioStreamPlayer" parent="."]
+[node name="SoundLibrary" type="Node" parent="."]
+
+[node name="HitSound" type="AudioStreamPlayer" parent="SoundLibrary"]
 unique_name_in_owner = true
 stream = ExtResource("3_djjqq")
 
-[node name="MissSound" type="AudioStreamPlayer" parent="."]
+[node name="MissSound" type="AudioStreamPlayer" parent="SoundLibrary"]
 unique_name_in_owner = true
 stream = ExtResource("4_3j5b2")
 
-[node name="DeathSound" type="AudioStreamPlayer" parent="."]
+[node name="DeathSound" type="AudioStreamPlayer" parent="SoundLibrary"]
+unique_name_in_owner = true
 stream = ExtResource("6_owx48")
+
+[node name="EffectLibrary" type="Node" parent="."]
+
+[node name="HitSparks" type="GPUParticles2D" parent="EffectLibrary"]
+unique_name_in_owner = true
+emitting = false
+amount = 48
+process_material = SubResource("ParticleProcessMaterial_w5sv2")
+texture = ExtResource("7_5me5v")
+lifetime = 0.5
+one_shot = true
+speed_scale = 2.0
+explosiveness = 1.0
+fixed_fps = 60
 
 [node name="HitDelay" type="Timer" parent="."]
 unique_name_in_owner = true

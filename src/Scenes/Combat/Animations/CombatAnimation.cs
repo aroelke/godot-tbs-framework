@@ -74,6 +74,12 @@ public partial class CombatAnimation : BoundedNode2D
         }
     }
 
+    /// <summary>Offset on the animation where contact is made with the target during an attack, for use with hit effects.</summary>
+    [Export] public Vector2 ContactOffset = new(0, 0);
+
+    /// <summary>Point on the animation where contact is made with the target during an attack, accounting for which way it's facing.</summary>
+    public Vector2 ContactPoint => Left ? ContactOffset : ContactOffset with { X = -ContactOffset.X };
+
     /// <summary>Play a combat animation.</summary>
     /// <param name="name">Name of the animation to play.</param>
     public void PlayAnimation(StringName name) => Animations.Play(name);

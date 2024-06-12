@@ -25,7 +25,8 @@ public partial class CombatScene : Node
     private Camera2DBrain Camera => _cache.GetNode<Camera2DBrain>("Camera");
     private AudioStreamPlayer HitSound => _cache.GetNode<AudioStreamPlayer>("%HitSound");
     private AudioStreamPlayer MissSound => _cache.GetNode<AudioStreamPlayer>("%MissSound");
-    private AudioStreamPlayer DeathSound => _cache.GetNode<AudioStreamPlayer>("DeathSound");
+    private AudioStreamPlayer DeathSound => _cache.GetNode<AudioStreamPlayer>("%DeathSound");
+    private GpuParticles2D HitSparks => _cache.GetNode<GpuParticles2D>("%HitSparks");
     private ParticipantInfo LeftInfo => _cache.GetNode<ParticipantInfo>("%LeftInfo");
     private ParticipantInfo RightInfo => _cache.GetNode<ParticipantInfo>("%RightInfo");
     private Timer HitDelay => _cache.GetNode<Timer>("%HitDelay");
@@ -84,6 +85,9 @@ public partial class CombatScene : Node
             void OnHit()
             {
                 HitSound.Play();
+                HitSparks.Position = _animations[action.Actor].Position + _animations[action.Actor].ContactPoint;
+                HitSparks.ZIndex = _animations[action.Actor].ZIndex + 1;
+                HitSparks.Emitting = true;
                 Camera.Trauma += 0.2f;
                 _infos[action.Target].TransitionHealth(_infos[action.Target].Health.Value - action.Damage, 0.3);
             }
