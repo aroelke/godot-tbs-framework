@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Godot;
 using Nodes;
 
@@ -84,9 +85,24 @@ public partial class CombatAnimation : BoundedNode2D
     /// <param name="name">Name of the animation to play.</param>
     public void PlayAnimation(StringName name) => Animations.Play(name);
 
-    /// <summary>Forward the <see cref="AnimationPlayer"/>'s <see cref="AnimationMixer.SignalName.AnimationFinished"/> signal to any listeners.</summary>
+    /// <summary>
+    /// Forward the <see cref="AnimationPlayer"/>'s <see cref="AnimationMixer.SignalName.AnimationFinished"/> signal to any listeners. Also plays the\
+    /// idle animation when returning from an action.
+    /// </summary>
     /// <param name="name">Name of the animation that completed.</param>
-    public void OnAnimationFinished(StringName name) => EmitSignal(SignalName.AnimationFinished);
+    public void OnAnimationFinished(StringName name)
+    {
+        if (name == AttackReturnAnimation || name == DodgeReturnAnimation)
+            Animations.Play(IdleAnimation);
+        EmitSignal(SignalName.AnimationFinished);
+    }
+
+    /// <summary>If a non-idle animation is playing, wait for it to end.</summary>
+    public async Task ActionFinished()
+    {
+        if (Animations.CurrentAnimation != IdleAnimation && Animations.IsPlaying())
+            await ToSignal(Animations, AnimationPlayer.SignalName.AnimationFinished);
+    }
 
     public override void _Ready()
     {

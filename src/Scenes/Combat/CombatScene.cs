@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading.Tasks;
 using Godot;
 using Nodes;
 using Scenes.Combat.Animations;
@@ -31,6 +32,14 @@ public partial class CombatScene : Node
     private ParticipantInfo RightInfo => _cache.GetNode<ParticipantInfo>("%RightInfo");
     private Timer HitDelay => _cache.GetNode<Timer>("%HitDelay");
     private Timer TurnDelay => _cache.GetNode<Timer>("%TurnDelay");
+
+    /// <summary>Wait for all actors in an action to complete their current animation, if they are acting.</summary>
+    /// <param name="action">Action whose actors could be acting.</param>
+    private async Task ActionCompleted(CombatAction action)
+    {
+        await _animations[action.Actor].ActionFinished();
+        await _animations[action.Target].ActionFinished();
+    }
 
     /// <summary>Position to display the left unit's sprite.</summary>
     [Export] public Vector2 LeftPosition  = new(44, 80);
@@ -121,13 +130,13 @@ public partial class CombatScene : Node
 
             // Play the animation sequence for the turn
             _animations[action.Actor].PlayAnimation(CombatAnimation.AttackAnimation);
-            await ToSignal(_animations[action.Actor], CombatAnimation.SignalName.AnimationFinished);
+            await ActionCompleted(action);
             HitDelay.Start();
             await ToSignal(HitDelay, Timer.SignalName.Timeout);
             _animations[action.Actor].PlayAnimation(CombatAnimation.AttackReturnAnimation);
             if (!action.Hit)
                 _animations[action.Target].PlayAnimation(CombatAnimation.DodgeReturnAnimation);
-            await ToSignal(_animations[action.Actor], CombatAnimation.SignalName.AnimationFinished);
+            await ActionCompleted(action);
 
             // Clean up any triggers
             if (action.Hit)
