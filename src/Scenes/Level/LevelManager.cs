@@ -37,6 +37,7 @@ public partial class LevelManager : Node
     // State chart events
     private readonly StringName SelectEvent = "select";
     private readonly StringName CancelEvent = "cancel";
+    private readonly StringName WaitEvent = "wait";
     private readonly StringName DoneEvent = "done";
     // State chart conditions
     private readonly StringName OccupiedProperty = "occupied";       // Current cell occupant (see below for options)
@@ -564,8 +565,9 @@ public partial class LevelManager : Node
         _selected.Health.Value -= CombatCalculations.TotalDamage(_selected, _combatResults);
         _target.Health.Value -= CombatCalculations.TotalDamage(_target, _combatResults);
         _combatResults = null;
-        StateChart.SendEvent(DoneEvent);
+        StateChart.SendEvent(WaitEvent);
         SceneManager.Singleton.CombatFinished -= OnCombatFinished;
+        SceneManager.Singleton.TransitionCompleted += OnTransitionedFromCombat;
     }
 
     /// <summary>Clean up displayed ranges and restore <see cref="Object.Cursor"/> freedom when exiting targeting <see cref="State"/>.</summary>
@@ -578,6 +580,13 @@ public partial class LevelManager : Node
         Pointer.AnalogTracking = true;
         Cursor.HardRestriction = Cursor.HardRestriction.Clear();
         Cursor.Wrap = false;
+    }
+#endregion
+#region Waiting for Transition
+    public void OnTransitionedFromCombat()
+    {
+        StateChart.SendEvent(DoneEvent);
+        SceneManager.Singleton.TransitionCompleted -= OnTransitionedFromCombat;
     }
 #endregion
 #region Turn Advancing

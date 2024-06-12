@@ -13,11 +13,14 @@ namespace Scenes;
 /// <summary>Global autoloaded scene manager used to change scenes and enter or exit combat.</summary>
 public partial class SceneManager : Node
 {
-    private NodeCache _cache = null;
+    private readonly NodeCache _cache = null;
     public SceneManager() : base() => _cache = new(this);
 
     /// <summary>Signals that the combat cut scene has completed.</summary>
     [Signal] public delegate void CombatFinishedEventHandler();
+
+    /// <summary>Signals that a transition to a new scene has completed.</summary>
+    [Signal] public delegate void TransitionCompletedEventHandler();
 
     private static SceneManager _singleton = null;
     private static Node CurrentLevel = null;
@@ -46,6 +49,8 @@ public partial class SceneManager : Node
         GetTree().CurrentScene = target;
 
         await FadeToBlack.TransitionOut();
+
+        EmitSignal(SignalName.TransitionCompleted);
     }
 
     private async void DoBeginCombat(Unit left, Unit right, IImmutableList<CombatAction> actions)
