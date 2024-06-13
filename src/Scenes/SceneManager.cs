@@ -42,13 +42,14 @@ public partial class SceneManager : Node
     /// <summary>Scene to instantiate when displaying a combat animation.</summary>
     [Export] public PackedScene CombatScene = null;
 
-    private async Task DoSceneTransition(Node target)
+    private async Task DoSceneTransition(Node target, AudioStream bgm)
     {
         await FadeToBlack.TransitionIn();
 
         GetTree().Root.RemoveChild(GetTree().CurrentScene);
         GetTree().Root.AddChild(target);
         GetTree().CurrentScene = target;
+        MusicController.Play(bgm);
 
         await FadeToBlack.TransitionOut();
 
@@ -63,11 +64,8 @@ public partial class SceneManager : Node
         Combat = Singleton.CombatScene.Instantiate<CombatScene>();
         Combat.Initialize(left, right, actions);
         CurrentLevel = Singleton.GetTree().CurrentScene;
-        static void PlayCombatBGM() => MusicController.Play(Combat.BackgroundMusic);
 
-        FadeToBlack.TransitionFinished += PlayCombatBGM;
-        await DoSceneTransition(Combat);
-        FadeToBlack.TransitionFinished -= PlayCombatBGM;
+        await DoSceneTransition(Combat, Combat.BackgroundMusic);
 
         Combat.Start();
     }
@@ -78,11 +76,8 @@ public partial class SceneManager : Node
             throw new InvalidOperationException("There is no level to return to");
 
         EmitSignal(SignalName.CombatFinished);
-        static void PlayLevelBGM() => MusicController.Play(CurrentLevel.GetNode<LevelManager>("LevelManager").BackgroundMusic);
 
-        FadeToBlack.TransitionFinished += PlayLevelBGM;
-        await DoSceneTransition(CurrentLevel);
-        FadeToBlack.TransitionFinished -= PlayLevelBGM;
+        await DoSceneTransition(CurrentLevel, CurrentLevel.GetNode<LevelManager>("LevelManager").BackgroundMusic);
 
         CurrentLevel = null;
         Combat.QueueFree();
