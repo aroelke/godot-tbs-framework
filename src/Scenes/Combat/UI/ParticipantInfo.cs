@@ -111,16 +111,16 @@ public partial class ParticipantInfo : GridContainer, IHasHealth
         }
     }
 
-    public void OnHealthChanged(float value)
+    public void OnHealthChanged(int value)
     {
-        void UpdateHealth(float hp)
+        void UpdateHealth(double hp)
         {
-            HealthBar.Value = (int)hp;
+            HealthBar.Value = hp;
             HealthLabel.Text = $"HP: {(int)hp}";
         }
 
         if (!Engine.IsEditorHint() && IsInsideTree())
-            CreateTween().TweenProperty(HealthBar, new(TextureProgressBar.PropertyName.Value), value, TransitionDuration);
+            CreateTween().TweenMethod(Callable.From<double>(UpdateHealth), HealthBar.Value, value, TransitionDuration);
         else
             UpdateHealth(value);
     }
