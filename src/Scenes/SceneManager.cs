@@ -5,8 +5,10 @@ using Godot;
 using Nodes;
 using Scenes.Combat;
 using Scenes.Combat.Data;
+using Scenes.Level;
 using Scenes.Level.Object;
 using Scenes.Transitions;
+using UI;
 
 namespace Scenes;
 
@@ -61,8 +63,11 @@ public partial class SceneManager : Node
         Combat = Singleton.CombatScene.Instantiate<CombatScene>();
         Combat.Initialize(left, right, actions);
         CurrentLevel = Singleton.GetTree().CurrentScene;
+        static void PlayCombatBGM() => MusicController.Play(Combat.BackgroundMusic);
 
+        FadeToBlack.TransitionFinished += PlayCombatBGM;
         await DoSceneTransition(Combat);
+        FadeToBlack.TransitionFinished -= PlayCombatBGM;
 
         Combat.Start();
     }
@@ -73,8 +78,11 @@ public partial class SceneManager : Node
             throw new InvalidOperationException("There is no level to return to");
 
         EmitSignal(SignalName.CombatFinished);
+        static void PlayLevelBGM() => MusicController.Play(CurrentLevel.GetNode<LevelManager>("LevelManager").BackgroundMusic);
 
+        FadeToBlack.TransitionFinished += PlayLevelBGM;
         await DoSceneTransition(CurrentLevel);
+        FadeToBlack.TransitionFinished -= PlayLevelBGM;
 
         CurrentLevel = null;
         Combat.QueueFree();

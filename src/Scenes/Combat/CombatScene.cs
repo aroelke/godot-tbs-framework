@@ -42,6 +42,8 @@ public partial class CombatScene : Node
         await _animations[action.Target].ActionFinished();
     }
 
+    [Export] public AudioStream BackgroundMusic = null;
+
     /// <summary>Position to display the left unit's sprite.</summary>
     [Export] public Vector2 LeftPosition  = new(44, 80);
 
