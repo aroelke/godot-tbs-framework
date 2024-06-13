@@ -119,8 +119,6 @@ public partial class ParticipantInfo : GridContainer, IHasHealth
             HealthLabel.Text = $"HP: {(int)hp}";
         }
 
-        GD.Print(IsInsideTree());
-
         if (!Engine.IsEditorHint() && IsInsideTree())
             CreateTween().TweenProperty(HealthBar, new(TextureProgressBar.PropertyName.Value), value, TransitionDuration);
         else
