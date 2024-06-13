@@ -8,7 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://b0cvutx2lj5uy" path="res://src/Scenes/Level/Object/Unit.tscn" id="5_ju5kl"]
 [ext_resource type="Resource" uid="uid://bqexj8hqh32xd" path="res://test/TestSoldier.tres" id="7_crsy2"]
 [ext_resource type="Resource" uid="uid://rw7lv271d7de" path="res://test/TestPlayerStats.tres" id="8_1sr4q"]
-[ext_resource type="Resource" path="res://test/TestAllyStats.tres" id="9_awc5y"]
+[ext_resource type="Resource" uid="uid://blftirgdcpabh" path="res://test/TestAllyStats.tres" id="9_awc5y"]
 [ext_resource type="Resource" path="res://test/TestEnemyStats.tres" id="9_g2gda"]
 
 [node name="TestMap" type="Node2D"]

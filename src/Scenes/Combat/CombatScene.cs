@@ -26,6 +26,7 @@ public partial class CombatScene : Node
     private Camera2DBrain Camera => _cache.GetNode<Camera2DBrain>("Camera");
     private AudioStreamPlayer HitSound => _cache.GetNode<AudioStreamPlayer>("%HitSound");
     private AudioStreamPlayer MissSound => _cache.GetNode<AudioStreamPlayer>("%MissSound");
+    private AudioStreamPlayer BlockSound => _cache.GetNode<AudioStreamPlayer>("%BlockSound");
     private AudioStreamPlayer DeathSound => _cache.GetNode<AudioStreamPlayer>("%DeathSound");
     private GpuParticles2D HitSparks => _cache.GetNode<GpuParticles2D>("%HitSparks");
     private ParticipantInfo LeftInfo => _cache.GetNode<ParticipantInfo>("%LeftInfo");
@@ -99,12 +100,17 @@ public partial class CombatScene : Node
             void OnDodge() =>  _animations[action.Target].PlayAnimation(CombatAnimation.DodgeAnimation);
             void OnHit()
             {
-                HitSound.Play();
-                HitSparks.Position = _animations[action.Actor].Position + _animations[action.Actor].ContactPoint;
-                HitSparks.ZIndex = _animations[action.Actor].ZIndex + 1;
-                HitSparks.Emitting = true;
-                Camera.Trauma += CameraShakeHitTrauma;
-                _infos[action.Target].Health.Value = _infos[action.Target].Health.Value - action.Damage;
+                if (action.Damage > 0)
+                {
+                    HitSound.Play();
+                    HitSparks.Position = _animations[action.Actor].Position + _animations[action.Actor].ContactPoint;
+                    HitSparks.ZIndex = _animations[action.Actor].ZIndex + 1;
+                    HitSparks.Emitting = true;
+                    Camera.Trauma += CameraShakeHitTrauma;
+                    _infos[action.Target].Health.Value = _infos[action.Target].Health.Value - action.Damage;
+                }
+                else
+                    BlockSound.Play();
             }
             void OnMiss() => MissSound.Play();
 
