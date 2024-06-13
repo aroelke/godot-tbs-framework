@@ -104,7 +104,7 @@ public partial class CombatScene : Node
                 HitSparks.ZIndex = _animations[action.Actor].ZIndex + 1;
                 HitSparks.Emitting = true;
                 Camera.Trauma += CameraShakeHitTrauma;
-                _infos[action.Target].TransitionHealth(_infos[action.Target].Health.Value - action.Damage, HealthBarTransitionDuration);
+                _infos[action.Target].Health.Value = _infos[action.Target].Health.Value - action.Damage;
             }
             void OnMiss() => MissSound.Play();
 

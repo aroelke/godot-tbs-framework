@@ -25,9 +25,6 @@ public partial class ParticipantInfo : GridContainer, IHasHealth
     private Label HitChanceTitle => _cache.GetNodeOrNull<Label>("%HitChanceTitle");
     private Label HitChanceLabel => _cache.GetNodeOrNull<Label>("%HitChanceLabel");
 
-    /// <summary>Amount to scale the health value internally so the health bar transitions smoothly.</summary>
-    [Export] public float HealthScale = 100;
-
     /// <summary>Amount of damage each action will deal. Use a negative number to indicate healing. Use an empty array to hide, e.g. for buffing.</summary>
     /// <exception cref="ArgumentException">If a damage sequence contains both positive (damage) and negative (healing) values.</exception>
     [Export] public int[] Damage
@@ -89,6 +86,9 @@ public partial class ParticipantInfo : GridContainer, IHasHealth
         }
     }
 
+    /// <summary>Amount of time to take to update the health bar when health is changed.</summary>
+    [Export(PropertyHint.None, "suffix:s")] public double TransitionDuration = 0.3;
+
     public HealthComponent Health
     {
         get => _cache.GetNode<HealthComponent>("Health");
@@ -102,8 +102,8 @@ public partial class ParticipantInfo : GridContainer, IHasHealth
 
                 if (HealthBar is not null)
                 {
-                    HealthBar.MaxValue = health.Maximum*HealthScale;
-                    HealthBar.Value = health.Value*HealthScale;
+                    HealthBar.MaxValue = health.Maximum;
+                    HealthBar.Value = health.Value;
                 }
                 if (HealthLabel is not null)
                     HealthLabel.Text = $"HP: {health.Value}";
@@ -111,18 +111,19 @@ public partial class ParticipantInfo : GridContainer, IHasHealth
         }
     }
 
-    /// <summary>Smoothly transition health to a new value.</summary>
-    /// <remarks>Note that the actual value of <see cref="CurrentHealth"/> doesn't update until the transition is done.</remarks>
-    /// <param name="value">New health value.</param>
-    /// <param name="duration">Amount of time to take to transition it.</param>
-    public void TransitionHealth(int value, double duration)
+    public void OnHealthChanged(float value)
     {
-        int next = Mathf.Clamp(value, 0, Health.Maximum);
-        CreateTween().TweenMethod(Callable.From((float hp) => {
-            HealthBar.Value = hp;
-            Health.Value = (int)(hp/HealthScale);
-        }), Health.Value*HealthScale, next*HealthScale, duration).Finished += () => Debug.Assert(Health.Value == next, "Health does not match value after transitioning.");
-    }
+        void UpdateHealth(float hp)
+        {
+            HealthBar.Value = (int)hp;
+            HealthLabel.Text = $"HP: {(int)hp}";
+        }
 
-    public void OnHealthChanged(int value) =>  HealthLabel.Text = $"HP: {value}";
+        GD.Print(IsInsideTree());
+
+        if (!Engine.IsEditorHint() && IsInsideTree())
+            CreateTween().TweenProperty(HealthBar, new(TextureProgressBar.PropertyName.Value), value, TransitionDuration);
+        else
+            UpdateHealth(value);
+    }
 }
