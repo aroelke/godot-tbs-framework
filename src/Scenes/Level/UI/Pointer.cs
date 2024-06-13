@@ -174,11 +174,29 @@ public partial class Pointer : BoundedNode2D
             _prevMode = DeviceManager.Mode;
             Input.MouseMode = DeviceManager.Mode == InputMode.Mouse ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Hidden;
 
+            GetViewport().SizeChanged += () => Mouse.Scale = (GetViewport().GetScreenTransform() with { Origin = Vector2.Zero }).AffineInverse()*Vector2.One;
+        }
+    }
+
+    public override void _EnterTree()
+    {
+        base._EnterTree();
+
+        if (!Engine.IsEditorHint())
+        {
             DeviceManager.Singleton.InputModeChanged += OnInputModeChanged;
             InputManager.Singleton.MouseEntered += OnMouseEntered;
             InputManager.Singleton.MouseExited += OnMouseExited;
+        }
+    }
 
-            GetViewport().SizeChanged += () => Mouse.Scale = (GetViewport().GetScreenTransform() with { Origin = Vector2.Zero }).AffineInverse()*Vector2.One;
+    public override void _ExitTree()
+    {
+        if (!Engine.IsEditorHint())
+        {
+            DeviceManager.Singleton.InputModeChanged -= OnInputModeChanged;
+            InputManager.Singleton.MouseEntered -= OnMouseEntered;
+            InputManager.Singleton.MouseExited -= OnMouseExited;
         }
     }
 
