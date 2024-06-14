@@ -58,6 +58,8 @@ public partial class MusicController : AudioStreamPlayer
     /// <summary>Stop playing the current song.</summary>
     public static new void Stop() => ((AudioStreamPlayer)Singleton).Stop();
 
+    /// <summary>Reset music playback position memory.</summary>
+    /// <param name="bgm">Track whose playback position is to be forgotten. Omit or set to <c>null</c> to forget all playback positions.</param>
     public static void ResetPlayback(AudioStream bgm=null)
     {
         if (bgm is null)
@@ -66,5 +68,6 @@ public partial class MusicController : AudioStreamPlayer
             _positions.Remove(bgm);
     }
 
+    /// <summary>Volume to fade to when fading between music tracks.</summary>
     [Export(PropertyHint.None, "suffix:dB")] public float FadeVolume = -25;
 }
