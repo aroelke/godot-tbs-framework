@@ -19,7 +19,7 @@ public partial class MusicController : AudioStreamPlayer
     /// <param name="music">Song to play. If <c>null</c>, the current song won't stop.</param>
     /// <param name="outDuration">Time in seconds to fade out the current track.</param>
     /// <param name="inDuration">Time in seconds to fade out the current track.</param>
-    public static async void Play(AudioStream music=null, double outDuration=0, double inDuration=0)
+    public static async void PlayTrack(AudioStream music=null, double outDuration=0, double inDuration=0)
     {
         if (music is not null)
         {
@@ -39,7 +39,7 @@ public partial class MusicController : AudioStreamPlayer
                 }
             
                 Singleton.Stream = music;
-                ((AudioStreamPlayer)Singleton).Play(_positions.GetValueOrDefault(Singleton.Stream));
+                Singleton.Play(_positions.GetValueOrDefault(Singleton.Stream));
 
                 if (inDuration > 0)
                 {
@@ -52,7 +52,7 @@ public partial class MusicController : AudioStreamPlayer
             }
         }
         else if (Singleton.Stream is not null && !Singleton.Playing)
-            ((AudioStreamPlayer)Singleton).Play();
+            Singleton.Play();
     }
 
     /// <summary>Stop playing the current song.</summary>
