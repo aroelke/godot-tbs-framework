@@ -716,6 +716,7 @@ public partial class LevelManager : Node
                         break;
             UpdateTurnCounter();
 
+            MusicController.ResetPlayback();
             MusicController.Play(BackgroundMusic);
         }
     }

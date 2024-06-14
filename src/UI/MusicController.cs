@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Godot;
 
 namespace UI;
@@ -6,6 +7,7 @@ namespace UI;
 public partial class MusicController : AudioStreamPlayer
 {
     private static MusicController _singleton = null;
+    private static readonly Dictionary<AudioStream, float> _positions = new();
 
     /// <summary>
     /// Reference to the auto-loaded music controller to help with signal connection. Other functions and properties should be accessed via
@@ -25,15 +27,19 @@ public partial class MusicController : AudioStreamPlayer
             {
                 float volume = Singleton.VolumeDb;
 
-                if (outDuration > 0)
+                if (Singleton.Stream is not null)
                 {
-                    Tween fade = Singleton.CreateTween();
-                    fade.TweenProperty(Singleton, new(AudioStreamPlayer.PropertyName.VolumeDb), Singleton.FadeVolume, outDuration);
-                    await Singleton.ToSignal(fade, Tween.SignalName.Finished);
+                    if (outDuration > 0)
+                    {
+                        Tween fade = Singleton.CreateTween();
+                        fade.TweenProperty(Singleton, new(AudioStreamPlayer.PropertyName.VolumeDb), Singleton.FadeVolume, outDuration);
+                        await Singleton.ToSignal(fade, Tween.SignalName.Finished);
+                    }
+                    _positions[Singleton.Stream] = Singleton.GetPlaybackPosition();
                 }
-
+            
                 Singleton.Stream = music;
-                ((AudioStreamPlayer)_singleton).Play();
+                ((AudioStreamPlayer)Singleton).Play(_positions.GetValueOrDefault(Singleton.Stream));
 
                 if (inDuration > 0)
                 {
@@ -46,11 +52,19 @@ public partial class MusicController : AudioStreamPlayer
             }
         }
         else if (Singleton.Stream is not null && !Singleton.Playing)
-            ((AudioStreamPlayer)_singleton).Play();
+            ((AudioStreamPlayer)Singleton).Play();
     }
 
     /// <summary>Stop playing the current song.</summary>
     public static new void Stop() => ((AudioStreamPlayer)Singleton).Stop();
 
-    [Export(PropertyHint.None, "suffix:dB")] public float FadeVolume = -20;
+    public static void ResetPlayback(AudioStream bgm=null)
+    {
+        if (bgm is null)
+            _positions.Clear();
+        else
+            _positions.Remove(bgm);
+    }
+
+    [Export(PropertyHint.None, "suffix:dB")] public float FadeVolume = -25;
 }
