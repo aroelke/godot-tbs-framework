@@ -1,4 +1,4 @@
-[gd_scene load_steps=39 format=3 uid="uid://b0cvutx2lj5uy"]
+[gd_scene load_steps=41 format=3 uid="uid://b0cvutx2lj5uy"]
 
 [ext_resource type="Script" path="res://src/Scenes/Level/Object/Unit.cs" id="1_crlbh"]
 [ext_resource type="Script" path="res://src/Data/Stats.cs" id="2_fgj32"]
@@ -6,6 +6,8 @@
 [ext_resource type="Script" path="res://src/Nodes/BoundedNode2D.cs" id="3_pmja0"]
 [ext_resource type="AudioStream" uid="uid://c5ud71mb4e0xa" path="res://assets/raw/RPG_Essentials_Free/12_Player_Movement_SFX/03_Step_grass_03.wav" id="4_bt2yt"]
 [ext_resource type="PackedScene" uid="uid://duggsftmu8x6l" path="res://src/Nodes/Components/HealthComponent.tscn" id="6_jxbfo"]
+[ext_resource type="Texture2D" uid="uid://cqrnta1uxyfcy" path="res://assets/raw/Pixel Health Bar/Bar/empty health bar.png" id="7_jx118"]
+[ext_resource type="Texture2D" uid="uid://dvstcx8u7scs4" path="res://assets/raw/Pixel Health Bar/Bar/health bar.png" id="8_m6b0i"]
 
 [sub_resource type="Resource" id="Resource_gr881"]
 script = ExtResource("2_fgj32")
@@ -432,4 +434,30 @@ stream = ExtResource("4_bt2yt")
 Maximum = 10
 Value = 10
 
+[node name="Control" type="Control" parent="."]
+z_index = 1
+z_as_relative = false
+layout_mode = 3
+anchors_preset = 0
+offset_left = 4.0
+offset_top = 23.0
+offset_right = 28.0
+offset_bottom = 29.0
+
+[node name="TextureProgressBar" type="TextureProgressBar" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+max_value = 10.0
+step = 0.01
+value = 10.0
+nine_patch_stretch = true
+texture_over = ExtResource("7_jx118")
+texture_progress = ExtResource("8_m6b0i")
+
+[connection signal="MaximumChanged" from="Health" to="Control/TextureProgressBar" method="set_max"]
 [connection signal="ValueChanged" from="Health" to="." method="OnHealthChanged"]
+[connection signal="ValueChanged" from="Health" to="Control/TextureProgressBar" method="set_value"]
