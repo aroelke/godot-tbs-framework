@@ -411,6 +411,32 @@ frame = 5
 script = ExtResource("3_pmja0")
 DebugColor = Color(0, 0, 0, 0)
 
+[node name="Control" type="Control" parent="Path/PathFollow"]
+z_index = 1
+z_as_relative = false
+layout_mode = 3
+anchors_preset = 0
+offset_left = 4.0
+offset_top = 23.0
+offset_right = 28.0
+offset_bottom = 29.0
+mouse_filter = 2
+
+[node name="TextureProgressBar" type="TextureProgressBar" parent="Path/PathFollow/Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+max_value = 10.0
+step = 0.01
+value = 10.0
+nine_patch_stretch = true
+texture_over = ExtResource("7_jx118")
+texture_progress = ExtResource("8_m6b0i")
+
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
 "": SubResource("AnimationLibrary_txw1y")
@@ -434,30 +460,6 @@ stream = ExtResource("4_bt2yt")
 Maximum = 10
 Value = 10
 
-[node name="Control" type="Control" parent="."]
-z_index = 1
-z_as_relative = false
-layout_mode = 3
-anchors_preset = 0
-offset_left = 4.0
-offset_top = 23.0
-offset_right = 28.0
-offset_bottom = 29.0
-
-[node name="TextureProgressBar" type="TextureProgressBar" parent="Control"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-max_value = 10.0
-step = 0.01
-value = 10.0
-nine_patch_stretch = true
-texture_over = ExtResource("7_jx118")
-texture_progress = ExtResource("8_m6b0i")
-
-[connection signal="MaximumChanged" from="Health" to="Control/TextureProgressBar" method="set_max"]
+[connection signal="MaximumChanged" from="Health" to="Path/PathFollow/Control/TextureProgressBar" method="set_max"]
 [connection signal="ValueChanged" from="Health" to="." method="OnHealthChanged"]
-[connection signal="ValueChanged" from="Health" to="Control/TextureProgressBar" method="set_value"]
+[connection signal="ValueChanged" from="Health" to="Path/PathFollow/Control/TextureProgressBar" method="set_value"]
