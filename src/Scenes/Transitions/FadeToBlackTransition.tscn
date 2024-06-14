@@ -11,6 +11,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_nuq2l")
+TransitionTime = 1.0
 
 [node name="Overlay" type="ColorRect" parent="."]
 layout_mode = 1

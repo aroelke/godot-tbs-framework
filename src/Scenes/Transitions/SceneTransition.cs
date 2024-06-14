@@ -10,6 +10,9 @@ public partial class SceneTransition : Control
     /// <summary>Signals that the transition (in or out) is finished.</summary>
     [Signal] public delegate void TransitionFinishedEventHandler();
 
+    /// <summary>Total time to complete the transition.</summary>
+    [Export] public double TransitionTime = 0;
+
     /// <summary>Play the part of the transition animation that leaves the current scene (goes into the next scene).</summary>
     public virtual Task TransitionIn()
     {

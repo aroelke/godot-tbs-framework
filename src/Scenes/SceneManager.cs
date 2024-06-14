@@ -44,12 +44,13 @@ public partial class SceneManager : Node
 
     private async Task DoSceneTransition(Node target, AudioStream bgm)
     {
+        MusicController.Play(bgm, outDuration:FadeToBlack.TransitionTime/2);
+
         await FadeToBlack.TransitionIn();
 
         GetTree().Root.RemoveChild(GetTree().CurrentScene);
         GetTree().Root.AddChild(target);
         GetTree().CurrentScene = target;
-        MusicController.Play(bgm);
 
         await FadeToBlack.TransitionOut();
 

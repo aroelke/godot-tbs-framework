@@ -30,9 +30,6 @@ public partial class FadeToBlackTransition : SceneTransition
         }
     }
 
-    /// <summary>Total time to fade in and out. Each part (fade in and fade out) take half of this time.</summary>
-    [Export] public double TransitionTime = 1;
-
     public override async Task TransitionIn()
     {
         Tween tween = CreateTween();
