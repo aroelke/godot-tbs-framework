@@ -412,8 +412,6 @@ script = ExtResource("3_pmja0")
 DebugColor = Color(0, 0, 0, 0)
 
 [node name="Control" type="Control" parent="Path/PathFollow"]
-z_index = 1
-z_as_relative = false
 layout_mode = 3
 anchors_preset = 0
 offset_left = 4.0
