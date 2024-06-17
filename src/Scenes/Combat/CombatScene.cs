@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Godot;
 using Nodes;
-using Nodes.StateChart.States;
 using Scenes.Combat.Animations;
 using Scenes.Combat.Data;
 using Scenes.Combat.UI;
@@ -21,9 +20,12 @@ public partial class CombatScene : Node
     private readonly NodeCache _cache;
     public CombatScene() : base() => _cache = new(this);
 
+    [Signal] public delegate void TimeExpiredEventHandler();
+
     private readonly Dictionary<Unit, CombatAnimation> _animations = new();
     private readonly Dictionary<Unit, ParticipantInfo> _infos = new();
     private IImmutableList<CombatAction> _actions = null;
+    private double _remaining = 0;
     private bool _canceled = false;
 
     private Camera2DBrain Camera => _cache.GetNode<Camera2DBrain>("Camera");
@@ -34,8 +36,6 @@ public partial class CombatScene : Node
     private GpuParticles2D HitSparks => _cache.GetNode<GpuParticles2D>("%HitSparks");
     private ParticipantInfo LeftInfo => _cache.GetNode<ParticipantInfo>("%LeftInfo");
     private ParticipantInfo RightInfo => _cache.GetNode<ParticipantInfo>("%RightInfo");
-    private Timer HitDelay => _cache.GetNode<Timer>("%HitDelay");
-    private Timer TurnDelay => _cache.GetNode<Timer>("%TurnDelay");
     private Timer TransitionDelay => _cache.GetNode<Timer>("%TransitionDelay");
 
     /// <summary>Wait for all actors in an action to complete their current animation, if they are acting.</summary>
@@ -46,6 +46,15 @@ public partial class CombatScene : Node
         await _animations[action.Target].ActionFinished();
     }
 
+    /// <summary>Wait for a specified amount of time.</summary>
+    /// <param name="time">Amount of time to wait, in seconds.</param>
+    private async Task Delay(double time)
+    {
+        _remaining = time;
+        await ToSignal(this, SignalName.TimeExpired);
+    }
+
+    /// <summary>Background music to play during the combat scene.</summary>
     [Export] public AudioStream BackgroundMusic = null;
 
     /// <summary>Position to display the left unit's sprite.</summary>
@@ -56,6 +65,12 @@ public partial class CombatScene : Node
 
     /// <summary>Duration for the health bar to change when HP changes.</summary>
     [Export(PropertyHint.None, "suffix:s")] public double HealthBarTransitionDuration = 0.3;
+
+    /// <summary>Delay after striking (hit or miss) before returning to idle.</summary>
+    [Export(PropertyHint.None, "suffix:s")] public double HitDelay = 0.3;
+
+    /// <summary>Delay between combat turns.</summary>
+    [Export(PropertyHint.None, "suffix:s")] public double TurnDelay = 0.1;
 
     /// <summary>Amount of camera shake trauma for a normal hit.</summary>
     [Export] public double CameraShakeHitTrauma = 0.2;
@@ -86,6 +101,7 @@ public partial class CombatScene : Node
         LeftInfo.Health = left.Health;
         LeftInfo.Damage = _actions.Where((a) => a.Actor == left).Select((a) => a.Damage).ToArray();
         LeftInfo.HitChance = Mathf.Clamp(CombatCalculations.HitChance(left, right), 0, 100);
+        LeftInfo.TransitionDuration = HitDelay;
 
         _animations[right] = right.Class.CombatAnimations.Instantiate<CombatAnimation>();
         _animations[right].Modulate = right.Affiliation.Color;
@@ -95,6 +111,7 @@ public partial class CombatScene : Node
         RightInfo.Health = right.Health;
         RightInfo.Damage = _actions.Where((a) => a.Actor == right).Select((a) => a.Damage).ToArray();
         RightInfo.HitChance = Mathf.Clamp(CombatCalculations.HitChance(right, left), 0, 100);
+        RightInfo.TransitionDuration = HitDelay;
 
         foreach ((_, CombatAnimation animation) in _animations)
             AddChild(animation);
@@ -146,8 +163,7 @@ public partial class CombatScene : Node
             // Play the animation sequence for the turn
             _animations[action.Actor].PlayAnimation(CombatAnimation.AttackAnimation);
             await ActionCompleted(action);
-            HitDelay.Start();
-            await ToSignal(HitDelay, Timer.SignalName.Timeout);
+            await Delay(HitDelay);
             _animations[action.Actor].PlayAnimation(CombatAnimation.AttackReturnAnimation);
             if (!action.Hit)
                 _animations[action.Target].PlayAnimation(CombatAnimation.DodgeReturnAnimation);
@@ -169,9 +185,7 @@ public partial class CombatScene : Node
                 _animations[action.Actor].AttackDodged -= OnDodge;
                 _animations[action.Actor].AttackStrike -= OnMiss;
             }
-
-            TurnDelay.Start();
-            await ToSignal(TurnDelay, Timer.SignalName.Timeout);
+            await Delay(TurnDelay);
         }
 
         if (!_canceled)
@@ -186,6 +200,17 @@ public partial class CombatScene : Node
         {
             _canceled = true;
             SceneManager.EndCombat();
+        }
+    }
+
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+        if (_remaining > 0)
+        {
+            _remaining = Math.Max(_remaining - delta, 0);
+            if (_remaining == 0)
+                EmitSignal(SignalName.TimeExpired);
         }
     }
 }

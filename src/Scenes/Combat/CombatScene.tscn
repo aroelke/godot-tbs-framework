@@ -79,19 +79,7 @@ speed_scale = 2.0
 explosiveness = 1.0
 fixed_fps = 60
 
-[node name="DelayTimers" type="Node" parent="."]
-
-[node name="HitDelay" type="Timer" parent="DelayTimers"]
-unique_name_in_owner = true
-wait_time = 0.3
-one_shot = true
-
-[node name="TurnDelay" type="Timer" parent="DelayTimers"]
-unique_name_in_owner = true
-wait_time = 0.1
-one_shot = true
-
-[node name="TransitionDelay" type="Timer" parent="DelayTimers"]
+[node name="TransitionDelay" type="Timer" parent="."]
 unique_name_in_owner = true
 wait_time = 0.9
 one_shot = true
@@ -155,7 +143,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.8
 
-[connection signal="timeout" from="DelayTimers/TransitionDelay" to="." method="OnTimerTimeout"]
+[connection signal="timeout" from="TransitionDelay" to="." method="OnTimerTimeout"]
 
 [editable path="Left"]
 [editable path="Right"]
