@@ -5,11 +5,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Godot;
 using Nodes;
+using Nodes.StateChart.States;
 using Scenes.Combat.Animations;
 using Scenes.Combat.Data;
 using Scenes.Combat.UI;
 using Scenes.Level.Object;
 using UI;
+using UI.Controls.Action;
 
 namespace Scenes.Combat;
 
@@ -22,6 +24,7 @@ public partial class CombatScene : Node
     private readonly Dictionary<Unit, CombatAnimation> _animations = new();
     private readonly Dictionary<Unit, ParticipantInfo> _infos = new();
     private IImmutableList<CombatAction> _actions = null;
+    private bool _canceled = false;
 
     private Camera2DBrain Camera => _cache.GetNode<Camera2DBrain>("Camera");
     private AudioStreamPlayer HitSound => _cache.GetNode<AudioStreamPlayer>("%HitSound");
@@ -33,6 +36,7 @@ public partial class CombatScene : Node
     private ParticipantInfo RightInfo => _cache.GetNode<ParticipantInfo>("%RightInfo");
     private Timer HitDelay => _cache.GetNode<Timer>("%HitDelay");
     private Timer TurnDelay => _cache.GetNode<Timer>("%TurnDelay");
+    private Timer TransitionDelay => _cache.GetNode<Timer>("%TransitionDelay");
 
     /// <summary>Wait for all actors in an action to complete their current animation, if they are acting.</summary>
     /// <param name="action">Action whose actors could be acting.</param>
@@ -55,6 +59,9 @@ public partial class CombatScene : Node
 
     /// <summary>Amount of camera shake trauma for a normal hit.</summary>
     [Export] public double CameraShakeHitTrauma = 0.2;
+
+    /// <summary>Action to use for skipping the combat animation.</summary>
+    [Export] public InputActionReference SkipAction = new();
 
     public void OnTimerTimeout() => SceneManager.EndCombat();
 
@@ -166,6 +173,19 @@ public partial class CombatScene : Node
             TurnDelay.Start();
             await ToSignal(TurnDelay, Timer.SignalName.Timeout);
         }
-        GetNode<Timer>("CombatDelay").Start();
+
+        if (!_canceled)
+            TransitionDelay.Start();
+    }
+
+    public override void _Input(InputEvent @event)
+    {
+        base._Input(@event);
+
+        if (@event.IsActionPressed(SkipAction) && !_canceled)
+        {
+            _canceled = true;
+            SceneManager.EndCombat();
+        }
     }
 }
