@@ -8,6 +8,7 @@ using Nodes;
 using Scenes.Combat.Animations;
 using Scenes.Combat.Data;
 using Scenes.Combat.UI;
+using Scenes.Level;
 using Scenes.Level.Object;
 using UI;
 using UI.Controls.Action;
@@ -54,6 +55,13 @@ public partial class CombatScene : Node
         await ToSignal(this, SignalName.TimeExpired);
     }
 
+    private void EndCombat()
+    {
+        UnitEvents.Singleton.UnitAccelerate -= OnAccelerate;
+        UnitEvents.Singleton.UnitDecelerate -= OnDeclerate;
+        SceneManager.EndCombat();
+    }
+
     /// <summary>Background music to play during the combat scene.</summary>
     [Export] public AudioStream BackgroundMusic = null;
 
@@ -72,13 +80,14 @@ public partial class CombatScene : Node
     /// <summary>Delay between combat turns.</summary>
     [Export(PropertyHint.None, "suffix:s")] public double TurnDelay = 0.1;
 
+    /// <summary>Amount to speed up the animation while the accelerate button is held down.</summary>
+    [Export] public float AccelerationFactor = 2;
+
     /// <summary>Amount of camera shake trauma for a normal hit.</summary>
     [Export] public double CameraShakeHitTrauma = 0.2;
 
     /// <summary>Action to use for skipping the combat animation.</summary>
     [Export] public InputActionReference SkipAction = new();
-
-    public void OnTimerTimeout() => SceneManager.EndCombat();
 
     /// <summary>Set up the combat scene.</summary>
     /// <param name="left">Unit on the left side of the screen.</param>
@@ -120,6 +129,12 @@ public partial class CombatScene : Node
     /// <summary>Run the full combat animation.</summary>
     public async void Start()
     {
+        if (UnitEvents.Accelerate)
+            foreach ((_, CombatAnimation animation) in _animations)
+                animation.AnimationSpeedScale = AccelerationFactor;
+        UnitEvents.Singleton.UnitAccelerate += OnAccelerate;
+        UnitEvents.Singleton.UnitDecelerate += OnDeclerate;
+
         // Play the combat sequence
         foreach (CombatAction action in _actions)
         {
@@ -192,6 +207,20 @@ public partial class CombatScene : Node
             TransitionDelay.Start();
     }
 
+    public void OnAccelerate()
+    {
+        foreach ((_, CombatAnimation animation) in _animations)
+            animation.AnimationSpeedScale = AccelerationFactor;
+    }
+
+    public void OnDeclerate()
+    {
+        foreach ((_, CombatAnimation animation) in _animations)
+            animation.AnimationSpeedScale = 1;
+    }
+
+    public void OnTimerTimeout() => EndCombat();
+
     public override void _Input(InputEvent @event)
     {
         base._Input(@event);
@@ -199,7 +228,7 @@ public partial class CombatScene : Node
         if (@event.IsActionPressed(SkipAction) && !_canceled)
         {
             _canceled = true;
-            SceneManager.EndCombat();
+            EndCombat();
         }
     }
 
@@ -208,7 +237,7 @@ public partial class CombatScene : Node
         base._Process(delta);
         if (_remaining > 0)
         {
-            _remaining = Math.Max(_remaining - delta, 0);
+            _remaining = Math.Max(_remaining - delta*(UnitEvents.Accelerate ? AccelerationFactor : 1), 0);
             if (_remaining == 0)
                 EmitSignal(SignalName.TimeExpired);
         }

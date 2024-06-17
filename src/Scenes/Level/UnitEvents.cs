@@ -10,6 +10,14 @@ namespace Scenes.Level;
 /// </summary>
 public partial class UnitEvents : Node
 {
+    /// <summary>Signals that units should begin to move faster.</summary>
+    [Signal] public delegate void UnitAccelerateEventHandler();
+
+    /// <summary>Signals that units should stop moving faster.</summary>
+    [Signal] public delegate void UnitDecelerateEventHandler();
+
+    /// <summary>Signals that a unit has been defeated.</summary>
+    /// <param name="defeated">The unit that was defeated.</param>
     [Signal] public delegate void UnitDefeatedEventHandler(Unit defeated);
 
     private static UnitEvents _singleton = null;
@@ -28,8 +36,14 @@ public partial class UnitEvents : Node
         base._UnhandledInput(@event);
 
         if (@event.IsActionPressed(MoveAccelerateAction))
+        {
             Accelerate = true;
+            EmitSignal(SignalName.UnitAccelerate);
+        }
         else if (@event.IsActionReleased(MoveAccelerateAction))
+        {
             Accelerate = false;
+            EmitSignal(SignalName.UnitDecelerate);
+        }
     }
 }

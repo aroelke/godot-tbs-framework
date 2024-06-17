@@ -87,11 +87,13 @@ one_shot = true
 [node name="Left" parent="." instance=ExtResource("2_xevfw")]
 visible = false
 position = Vector2(44, 80)
+AnimationSpeedScale = 1.0
 
 [node name="Right" parent="." instance=ExtResource("2_xevfw")]
 visible = false
 position = Vector2(116, 80)
 Left = false
+AnimationSpeedScale = 1.0
 
 [node name="Sprite" parent="Right" index="1"]
 offset = Vector2(0, 0)

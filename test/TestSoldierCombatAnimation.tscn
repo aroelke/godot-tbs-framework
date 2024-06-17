@@ -280,6 +280,7 @@ shader_parameter/overlay = Color(1, 1, 1, 0)
 [node name="TestSoldierCombatAnimation" type="Node2D"]
 script = ExtResource("1_og255")
 ReflectionOffset = Vector2(-48, -52)
+AnimationSpeedScale = 1.0
 ContactOffset = Vector2(71, -22)
 Size = Vector2(61, 51)
 

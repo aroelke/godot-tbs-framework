@@ -33,7 +33,7 @@ public partial class CombatAnimation : BoundedNode2D
 
     private bool _left = true;
     private Vector2 _spriteOffset = Vector2.Zero;
-    private AnimationPlayer Animations => _cache.GetNode<AnimationPlayer>("AnimationPlayer");
+    private AnimationPlayer Animations => _cache.GetNodeOrNull<AnimationPlayer>("AnimationPlayer");
     private Sprite2D Sprite => _cache.GetNodeOrNull<Sprite2D>("Sprite");
 
     /// <summary>Whether or not the animation is on the left or right side of the screen (and facing toward the other side).</summary>
@@ -72,6 +72,17 @@ public partial class CombatAnimation : BoundedNode2D
         {
             if (Sprite is not null)
                 Sprite.Position = Left ? value : value with { X = -value.X };
+        }
+    }
+
+    /// <summary>Animation speed scaling ratio. Higher numbers mean faster animation, and negative numbers mean play animations backwards.</summary>
+    [Export] public float AnimationSpeedScale
+    {
+        get => Animations?.SpeedScale ?? 1;
+        set
+        {
+            if (Animations is not null)
+                Animations.SpeedScale = value;
         }
     }
 
