@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://c11sm4jjy0flk"]
+
+[ext_resource type="Script" path="res://src/Scenes/PauseManager.cs" id="1_ifjsa"]
+[ext_resource type="Resource" uid="uid://b2jdposiqnlcn" path="res://src/UI/Controls/Action/References/Global/PauseAction.tres" id="2_ygsba"]
+
+[node name="PauseManager" type="Node"]
+process_mode = 3
+script = ExtResource("1_ifjsa")
+PauseAction = ExtResource("2_ygsba")

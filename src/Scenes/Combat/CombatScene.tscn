@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://bn2dxlvq8lqj6"]
+[gd_scene load_steps=18 format=3 uid="uid://bn2dxlvq8lqj6"]
 
 [ext_resource type="Script" path="res://src/Scenes/Combat/CombatScene.cs" id="1_h22l5"]
 [ext_resource type="Texture2D" uid="uid://bbrmt3ob1fnsh" path="res://assets/raw/Free-Summer-Pixel-Art-Backgrounds/PNG/summer 2/Summer2.png" id="2_hevui"]
@@ -8,6 +8,7 @@
 [ext_resource type="AudioStream" uid="uid://bpdw8kugq2tx2" path="res://assets/raw/RPG_Essentials_Free/10_Battle_SFX/15_Impact_flesh_02.wav" id="3_djjqq"]
 [ext_resource type="Resource" uid="uid://hkvw8a5g5l62" path="res://src/UI/Controls/Action/References/Map/MapCancelAction.tres" id="3_jyggq"]
 [ext_resource type="AudioStream" uid="uid://7xjekp6wlo14" path="res://assets/raw/RPG_Essentials_Free/10_Battle_SFX/35_Miss_Evade_02.wav" id="4_3j5b2"]
+[ext_resource type="PackedScene" uid="uid://c11sm4jjy0flk" path="res://src/Scenes/PauseManager.tscn" id="4_kbq0h"]
 [ext_resource type="AudioStream" uid="uid://8fitqbqe8crf" path="res://assets/raw/RPG_Essentials_Free/10_Battle_SFX/39_Block_03.wav" id="6_27q0q"]
 [ext_resource type="PackedScene" uid="uid://cvch4ay3dx0wv" path="res://src/Scenes/Combat/UI/ParticipantInfo.tscn" id="6_ag6sl"]
 [ext_resource type="AudioStream" uid="uid://bna3rsl1okrab" path="res://assets/raw/RPG_Essentials_Free/10_Battle_SFX/69_Enemy_death_01.wav" id="6_owx48"]
@@ -35,6 +36,8 @@ scale_curve = SubResource("CurveTexture_v2lww")
 script = ExtResource("1_h22l5")
 BackgroundMusic = ExtResource("2_k4ewr")
 SkipAction = ExtResource("3_jyggq")
+
+[node name="PauseManager" parent="." instance=ExtResource("4_kbq0h")]
 
 [node name="Background" type="Sprite2D" parent="."]
 position = Vector2(-73, -48)
@@ -78,6 +81,7 @@ one_shot = true
 speed_scale = 2.0
 explosiveness = 1.0
 fixed_fps = 60
+interpolate = false
 
 [node name="TransitionDelay" type="Timer" parent="."]
 unique_name_in_owner = true
@@ -87,13 +91,11 @@ one_shot = true
 [node name="Left" parent="." instance=ExtResource("2_xevfw")]
 visible = false
 position = Vector2(44, 80)
-AnimationSpeedScale = 1.0
 
 [node name="Right" parent="." instance=ExtResource("2_xevfw")]
 visible = false
 position = Vector2(116, 80)
 Left = false
-AnimationSpeedScale = 1.0
 
 [node name="Sprite" parent="Right" index="1"]
 offset = Vector2(0, 0)
@@ -145,6 +147,31 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.8
 
+[node name="PauseOverlay" type="Panel" parent="CanvasLayer"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("6_rchi6")
+
+[node name="PauseLabel" type="Label" parent="CanvasLayer/PauseOverlay"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -11.5
+offset_right = 20.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "Paused"
+
+[connection signal="PauseStateChanged" from="PauseManager" to="CanvasLayer/PauseOverlay" method="set_visible"]
 [connection signal="timeout" from="TransitionDelay" to="." method="OnTimerTimeout"]
 
 [editable path="Left"]
