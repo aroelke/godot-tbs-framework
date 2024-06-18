@@ -18,6 +18,16 @@ public partial class FastForwardComponent : Node
     /// <summary>Whether or not fast-forwarding is active.</summary>
     public bool Active { get; private set; } = false;
 
+    public override void _EnterTree()
+    {
+        base._EnterTree();
+        if (Input.IsActionPressed(Action))
+        {
+            Active = true;
+            EmitSignal(SignalName.Accelerate);
+        }
+    }
+
     public override void _Input(InputEvent @event)
     {
         base._Input(@event);
