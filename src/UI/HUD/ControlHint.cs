@@ -21,9 +21,9 @@ public partial class ControlHint : HBoxContainer
 
     private void Update()
     {
-        MouseIcon.Texture = !MouseMap.ContainsKey(Action.MouseButton) ? null : MouseMap[Action.MouseButton];
-        KeyboardIcon.Texture = !KeyMap.ContainsKey(Action.Key) ? null : KeyMap[Action.Key];
-        GamepadIcon.Texture = !GamepadMap.ContainsKey(Action.GamepadButton) ? null : GamepadMap[Action.GamepadButton];
+        MouseIcon.Texture = !MouseMap.ContainsKey(Action) ? null : MouseMap[Action];
+        KeyboardIcon.Texture = !KeyMap.ContainsKey(Action) ? null : KeyMap[Action];
+        GamepadIcon.Texture = !GamepadMap.ContainsKey(Action) ? null : GamepadMap[Action];
 
         _cache.GetNode<Label>("Label").Text = $": {Action.Name}";
     }
