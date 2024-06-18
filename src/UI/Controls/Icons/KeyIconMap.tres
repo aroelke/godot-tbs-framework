@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="KeyIconMap" load_steps=12 format=3 uid="uid://q61hgr3qsv4g"]
+[gd_resource type="Resource" script_class="KeyIconMap" load_steps=13 format=3 uid="uid://q61hgr3qsv4g"]
 
 [ext_resource type="Texture2D" uid="uid://dnxdklj5eo2mi" path="res://assets/ui/icons/controls/keyboard/down.png" id="1_8fecj"]
 [ext_resource type="Script" path="res://src/UI/Controls/Icons/KeyIconMap.cs" id="1_b4ydg"]
@@ -11,10 +11,12 @@
 [ext_resource type="Texture2D" uid="uid://b3vori1d0m2s7" path="res://assets/ui/icons/controls/keyboard/space.png" id="4_oghol"]
 [ext_resource type="Texture2D" uid="uid://du3fgeyabo5t5" path="res://assets/ui/icons/controls/keyboard/s.png" id="6_t2hvc"]
 [ext_resource type="Texture2D" uid="uid://daehle27h57cr" path="res://assets/ui/icons/controls/keyboard/w.png" id="9_jhhkk"]
+[ext_resource type="Texture2D" uid="uid://bgqrhdtpn0i1y" path="res://assets/ui/icons/controls/keyboard/tab.png" id="9_l20x1"]
 
 [resource]
 script = ExtResource("1_b4ydg")
 Space = ExtResource("4_oghol")
+Tab = ExtResource("9_l20x1")
 Escape = ExtResource("4_ni5hh")
 A = ExtResource("1_eajsw")
 D = ExtResource("2_ego81")

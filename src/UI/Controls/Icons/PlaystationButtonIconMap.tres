@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="IndividualGamepadButtonIconMap" load_steps=11 format=3 uid="uid://ca444m32ts5x2"]
+[gd_resource type="Resource" script_class="IndividualGamepadButtonIconMap" load_steps=12 format=3 uid="uid://ca444m32ts5x2"]
 
 [ext_resource type="Script" path="res://src/UI/Controls/Icons/IndividualGamepadButtonIconMap.cs" id="1_f34yc"]
 [ext_resource type="Texture2D" uid="uid://ctvir25bpi7e1" path="res://assets/ui/icons/controls/playstation/cross.png" id="1_y6dub"]
@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://b8opi1ojes3lf" path="res://assets/ui/icons/controls/playstation/dpadup.png" id="7_14col"]
 [ext_resource type="Texture2D" uid="uid://680tydejo7y" path="res://assets/ui/icons/controls/playstation/square.png" id="8_mue74"]
 [ext_resource type="Texture2D" uid="uid://bnhfvij8f2iga" path="res://assets/ui/icons/controls/playstation/triangle.png" id="9_bnll3"]
+[ext_resource type="Texture2D" uid="uid://cgehegx08c2gy" path="res://assets/ui/icons/controls/playstation/options.png" id="9_tv67r"]
 
 [resource]
 script = ExtResource("1_f34yc")
@@ -22,3 +23,4 @@ DpadUp = ExtResource("7_14col")
 DpadDown = ExtResource("4_y06h3")
 DpadLeft = ExtResource("5_b61v4")
 DpadRight = ExtResource("6_6egw1")
+Start = ExtResource("9_tv67r")

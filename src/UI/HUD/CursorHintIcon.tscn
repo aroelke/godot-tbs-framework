@@ -20,6 +20,7 @@
 [node name="CursorHintIcon" type="HBoxContainer"]
 offset_right = 15.0
 offset_bottom = 28.0
+theme_override_constants/separation = 4
 script = ExtResource("1_go8iq")
 MouseMap = ExtResource("2_ah0pi")
 KeyMap = ExtResource("3_ofd1p")
