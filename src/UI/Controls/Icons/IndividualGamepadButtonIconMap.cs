@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using UI.Controls.Action;
 
 namespace UI.Controls.Icons;
 
 /// <summary>Resource mapping a specific gamepad's buttons to icons to display for them.</summary>
 [GlobalClass, Tool]
-public partial class IndividualGamepadButtonIconMap : Resource
+public partial class IndividualGamepadButtonIconMap : IconMap
 {
     private readonly Dictionary<JoyButton, Texture2D> _icons = Enum.GetValues<JoyButton>().ToDictionary((k) => k, _ => (Texture2D)null);
     private readonly Dictionary<StringName, JoyButton> _names = Enum.GetValues<JoyButton>().ToDictionary((k) => new StringName(Enum.GetName(k)), (k) => k);
@@ -16,6 +17,7 @@ public partial class IndividualGamepadButtonIconMap : Resource
     public ICollection<Texture2D> Values => _icons.Values;
     public int Count => _icons.Count;
     public Texture2D this[JoyButton key] { get => _icons[key]; set => _icons[key] = value; }
+    public override Texture2D this[InputActionReference action] { get => this[action.GamepadButton]; set => this[action.GamepadButton] = value; }
 
     /// <summary>Generic icon to display for the directional pad, with no directions pressed.</summary>
     [Export] public Texture2D Dpad = null;
@@ -84,4 +86,5 @@ public partial class IndividualGamepadButtonIconMap : Resource
     }
 
     public bool ContainsKey(JoyButton key) => _icons.ContainsKey(key);
+    public override bool ContainsKey(InputActionReference action) => ContainsKey(action.GamepadButton);
 }

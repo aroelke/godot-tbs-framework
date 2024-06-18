@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using UI.Controls.Action;
 
 namespace UI.Controls.Icons;
 
 /// <summary>Resource mapping keyboard keys onto icons to display for them.</summary>
 [GlobalClass, Tool]
-public partial class KeyIconMap : Resource
+public partial class KeyIconMap : IconMap
 {
     private readonly Dictionary<Key, Texture2D> _icons = Enum.GetValues<Key>().ToDictionary((k) => k, _ => (Texture2D)null);
     private readonly Dictionary<StringName, Key> _names = Enum.GetValues<Key>().ToDictionary((k) => new StringName(Enum.GetName(k)), (k) => k);
@@ -16,6 +17,7 @@ public partial class KeyIconMap : Resource
     public ICollection<Texture2D> Values => _icons.Values;
     public int Count => _icons.Count;
     public Texture2D this[Key key] { get => _icons[key]; set => _icons[key] = value; }
+    public override Texture2D this[InputActionReference action] { get => this[action.Key]; set => this[action.Key] = value; }
 
     /// <summary>Space bar icon.</summary>
     [Export] public Texture2D Space
@@ -95,4 +97,5 @@ public partial class KeyIconMap : Resource
     }
 
     public bool ContainsKey(Key key) => _icons.ContainsKey(key);
+    public override bool ContainsKey(InputActionReference action) => ContainsKey(action.Key);
 }
