@@ -1,4 +1,4 @@
-[gd_scene load_steps=41 format=3 uid="uid://b0cvutx2lj5uy"]
+[gd_scene load_steps=43 format=3 uid="uid://b0cvutx2lj5uy"]
 
 [ext_resource type="Script" path="res://src/Scenes/Level/Object/Unit.cs" id="1_crlbh"]
 [ext_resource type="Script" path="res://src/Data/Stats.cs" id="2_fgj32"]
@@ -8,6 +8,8 @@
 [ext_resource type="PackedScene" uid="uid://duggsftmu8x6l" path="res://src/Nodes/Components/HealthComponent.tscn" id="6_jxbfo"]
 [ext_resource type="Texture2D" uid="uid://cqrnta1uxyfcy" path="res://assets/raw/Pixel Health Bar/Bar/empty health bar.png" id="7_jx118"]
 [ext_resource type="Texture2D" uid="uid://dvstcx8u7scs4" path="res://assets/raw/Pixel Health Bar/Bar/health bar.png" id="8_m6b0i"]
+[ext_resource type="PackedScene" uid="uid://bmt2twqcbchie" path="res://src/Nodes/Components/FastForwardComponent.tscn" id="9_cy0he"]
+[ext_resource type="Resource" uid="uid://c8jgkj5o6iui0" path="res://src/UI/Controls/Action/References/Map/SelectAction.tres" id="10_tioj8"]
 
 [sub_resource type="Resource" id="Resource_gr881"]
 script = ExtResource("2_fgj32")
@@ -393,6 +395,13 @@ graph_offset = Vector2(-209.55, -66.9727)
 script = ExtResource("1_crlbh")
 Stats = SubResource("Resource_gr881")
 
+[node name="Health" parent="." instance=ExtResource("6_jxbfo")]
+Maximum = 10
+Value = 10
+
+[node name="Accelerate" parent="." instance=ExtResource("9_cy0he")]
+Action = ExtResource("10_tioj8")
+
 [node name="Path" type="Path2D" parent="."]
 
 [node name="PathFollow" type="PathFollow2D" parent="Path"]
@@ -453,10 +462,6 @@ parameters/Moving/Walking/blend_position = Vector2(0, 0)
 
 [node name="StepSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("4_bt2yt")
-
-[node name="Health" parent="." instance=ExtResource("6_jxbfo")]
-Maximum = 10
-Value = 10
 
 [connection signal="MaximumChanged" from="Health" to="Path/PathFollow/Control/TextureProgressBar" method="set_max"]
 [connection signal="ValueChanged" from="Health" to="." method="OnHealthChanged"]

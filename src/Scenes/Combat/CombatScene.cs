@@ -8,7 +8,6 @@ using Nodes;
 using Scenes.Combat.Animations;
 using Scenes.Combat.Data;
 using Scenes.Combat.UI;
-using Scenes.Level;
 using Scenes.Level.Object;
 using UI;
 using UI.Controls.Action;
@@ -29,6 +28,7 @@ public partial class CombatScene : Node
     private double _remaining = 0;
     private bool _canceled = false;
 
+    private FastForwardComponent FastForward => _cache.GetNode<FastForwardComponent>("FastForward");
     private Camera2DBrain Camera => _cache.GetNode<Camera2DBrain>("Camera");
     private AudioStreamPlayer HitSound => _cache.GetNode<AudioStreamPlayer>("%HitSound");
     private AudioStreamPlayer MissSound => _cache.GetNode<AudioStreamPlayer>("%MissSound");
@@ -53,13 +53,6 @@ public partial class CombatScene : Node
     {
         _remaining = time;
         await ToSignal(this, SignalName.TimeExpired);
-    }
-
-    private void EndCombat()
-    {
-        UnitEvents.Singleton.UnitAccelerate -= OnAccelerate;
-        UnitEvents.Singleton.UnitDecelerate -= OnDeclerate;
-        SceneManager.EndCombat();
     }
 
     /// <summary>Background music to play during the combat scene.</summary>
@@ -129,12 +122,6 @@ public partial class CombatScene : Node
     /// <summary>Run the full combat animation.</summary>
     public async void Start()
     {
-        if (UnitEvents.Accelerate)
-            foreach ((_, CombatAnimation animation) in _animations)
-                animation.AnimationSpeedScale = AccelerationFactor;
-        UnitEvents.Singleton.UnitAccelerate += OnAccelerate;
-        UnitEvents.Singleton.UnitDecelerate += OnDeclerate;
-
         // Play the combat sequence
         foreach (CombatAction action in _actions)
         {
@@ -213,13 +200,13 @@ public partial class CombatScene : Node
             animation.AnimationSpeedScale = AccelerationFactor;
     }
 
-    public void OnDeclerate()
+    public void OnDecelerate()
     {
         foreach ((_, CombatAnimation animation) in _animations)
             animation.AnimationSpeedScale = 1;
     }
 
-    public void OnTimerTimeout() => EndCombat();
+    public void OnTimerTimeout() => SceneManager.EndCombat();
 
     public override void _Input(InputEvent @event)
     {
@@ -228,7 +215,7 @@ public partial class CombatScene : Node
         if (@event.IsActionPressed(SkipAction) && !_canceled)
         {
             _canceled = true;
-            EndCombat();
+            SceneManager.EndCombat();
         }
     }
 
@@ -237,7 +224,7 @@ public partial class CombatScene : Node
         base._Process(delta);
         if (_remaining > 0)
         {
-            _remaining = Math.Max(_remaining - delta*(UnitEvents.Accelerate ? AccelerationFactor : 1), 0);
+            _remaining = Math.Max(_remaining - delta*(FastForward.Active ? AccelerationFactor : 1), 0);
             if (_remaining == 0)
                 EmitSignal(SignalName.TimeExpired);
         }

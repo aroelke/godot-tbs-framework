@@ -34,6 +34,7 @@ public partial class Unit : GridNode, IHasHealth
     private Army _affiliation = null;
     private Stats _stats = new();
 
+    private FastForwardComponent Accelerate => _cache.GetNode<FastForwardComponent>("Accelerate");
     private Path2D Path => _cache.GetNode<Path2D>("Path");
     private PathFollow2D PathFollow => _cache.GetNode<PathFollow2D>("Path/PathFollow");
     private Sprite2D Sprite => _cache.GetNodeOrNull<Sprite2D>("Path/PathFollow/Sprite");
@@ -285,7 +286,7 @@ public partial class Unit : GridNode, IHasHealth
         if (!Engine.IsEditorHint())
         {
             Vector2 prev = PathFollow.Position;
-            PathFollow.Progress += (float)(MoveSpeed*(UnitEvents.Accelerate ? MoveAccelerationFactor : 1)*delta);
+            PathFollow.Progress += (float)(MoveSpeed*(Accelerate.Active ? MoveAccelerationFactor : 1)*delta);
             Vector2 change = PathFollow.Position - prev;
             if (change != Vector2.Zero)
                 Tree.Set(MoveDirection, change);
