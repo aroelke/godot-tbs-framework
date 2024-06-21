@@ -76,5 +76,12 @@ public partial class IndividualGamepadButtonIconMap : Resource
         set => _icons[JoyButton.DpadRight] = value;
     }
 
+    /// <summary>Menu button (PS3- Start, PS4+ Options, Xbox Start, Nintendo +)
+    [Export] public Texture2D Start
+    {
+        get => _icons[JoyButton.Start];
+        set => _icons[JoyButton.Start] = value;
+    }
+
     public bool ContainsKey(JoyButton key) => _icons.ContainsKey(key);
 }

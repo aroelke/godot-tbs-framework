@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://b6l6yygxg4kn8"]
+
+[ext_resource type="Script" path="res://src/Scenes/Level/UnitEvents.cs" id="1_bc0d1"]
+[ext_resource type="Resource" uid="uid://c8jgkj5o6iui0" path="res://src/UI/Controls/Action/References/Map/SelectAction.tres" id="2_mj5qa"]
+
+[node name="UnitEvents" type="Node"]
+script = ExtResource("1_bc0d1")
+MoveAccelerateAction = ExtResource("2_mj5qa")

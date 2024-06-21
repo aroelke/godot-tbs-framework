@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Stats" load_steps=2 format=3 uid="uid://xatocb6uwrwx"]
+
+[ext_resource type="Script" path="res://src/Data/Stats.cs" id="1_wk2ta"]
+
+[resource]
+script = ExtResource("1_wk2ta")
+Health = 8
+Attack = 1
+Defense = 0
+Healing = 0
+Accuracy = 0
+Evasion = 0
+Agility = 0
+Move = 5

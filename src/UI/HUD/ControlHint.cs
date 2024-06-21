@@ -21,8 +21,8 @@ public partial class ControlHint : HBoxContainer
 
     private void Update()
     {
-        MouseIcon.Texture = !MouseMap.ContainsKey(Action.MouseButton) ? null : MouseMap[Action.MouseButton];
         KeyboardIcon.Texture = !KeyMap.ContainsKey(Action.Key) ? null : KeyMap[Action.Key];
+        MouseIcon.Texture = !MouseMap.ContainsKey(Action.MouseButton) ? (FallBackToKeyboard ? KeyboardIcon.Texture : null) : MouseMap[Action.MouseButton];
         GamepadIcon.Texture = !GamepadMap.ContainsKey(Action.GamepadButton) ? null : GamepadMap[Action.GamepadButton];
 
         _cache.GetNode<Label>("Label").Text = $": {Action.Name}";
@@ -30,6 +30,9 @@ public partial class ControlHint : HBoxContainer
 
     /// <summary>Action to display the icon of.</summary>
     [Export] public InputActionReference Action = new();
+
+    /// <summary>Whether or not to fall back to the keyboard icon when a mouse icon for an action doesn't exist.</summary>
+    [Export] public bool FallBackToKeyboard = false;
 
     /// <summary><see cref="MouseButton"/> map for the mouse input to the action.</summary>
     [ExportGroup("Action Maps")]
@@ -62,6 +65,13 @@ public partial class ControlHint : HBoxContainer
     /// <param name="device">New device being used for input.</param>
     public void OnInputDeviceChanged(InputDevice device, string name) => SelectedDevice = device;
 
+    public override void _EnterTree()
+    {
+        base._EnterTree();
+        if (!Engine.IsEditorHint())
+            DeviceManager.Singleton.InputDeviceChanged += OnInputDeviceChanged;
+    }
+
     public override void _Ready()
     {
         base._Ready();
@@ -74,7 +84,6 @@ public partial class ControlHint : HBoxContainer
                 { InputDevice.Gamepad, GamepadIcon }
             };
             SelectedDevice = DeviceManager.Device;
-            DeviceManager.Singleton.InputDeviceChanged += OnInputDeviceChanged;
 
             Update();
         }
@@ -85,5 +94,12 @@ public partial class ControlHint : HBoxContainer
         base._Process(delta);
         if (Engine.IsEditorHint())
             Update();
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+        if (!Engine.IsEditorHint())
+            DeviceManager.Singleton.InputDeviceChanged -= OnInputDeviceChanged;
     }
 }

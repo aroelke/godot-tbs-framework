@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Stats" load_steps=2 format=3 uid="uid://blftirgdcpabh"]
+
+[ext_resource type="Script" path="res://src/Data/Stats.cs" id="1_dws8v"]
+
+[resource]
+script = ExtResource("1_dws8v")
+Health = 10
+Attack = 1
+Defense = 0
+Healing = 0
+Accuracy = 100
+Evasion = 0
+Agility = 0
+Move = 5

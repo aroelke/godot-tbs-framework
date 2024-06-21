@@ -11,6 +11,7 @@ script = ExtResource("2_cir3c")
 "Input Action" = &""
 
 [node name="ControlHint" type="HBoxContainer"]
+theme_override_constants/separation = 4
 script = ExtResource("1_y8x7b")
 Action = SubResource("Resource_cdt7q")
 MouseMap = ExtResource("3_2hhue")

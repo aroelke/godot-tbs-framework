@@ -83,6 +83,13 @@ public partial class CursorHintIcon : HBoxContainer
     /// <param name="device">New input device.</param>
     public void OnInputDeviceChanged(InputDevice device, string name) => SelectedDevice = device;
 
+    public override void _EnterTree()
+    {
+        base._EnterTree();
+        if (!Engine.IsEditorHint())
+            DeviceManager.Singleton.InputDeviceChanged += OnInputDeviceChanged;
+    }
+
     public override void _Ready()
     {
         base._Ready();
@@ -96,7 +103,6 @@ public partial class CursorHintIcon : HBoxContainer
                 { InputDevice.Gamepad, GamepadIcon }
             };
             SelectedDevice = DeviceManager.Device;
-            DeviceManager.Singleton.InputDeviceChanged += OnInputDeviceChanged;
         }
     }
 
@@ -118,5 +124,12 @@ public partial class CursorHintIcon : HBoxContainer
             GamepadIcon.DownAction = DownAction;
             GamepadIcon.RightAction = RightAction;
         }
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+        if (!Engine.IsEditorHint())
+            DeviceManager.Singleton.InputDeviceChanged -= OnInputDeviceChanged;
     }
 }

@@ -18,6 +18,7 @@
 [node name="GamepadCursorHintIcon" type="HBoxContainer"]
 offset_right = 12.0
 offset_bottom = 8.0
+theme_override_constants/separation = 4
 script = ExtResource("1_247tv")
 ButtonMap = ExtResource("2_lslgt")
 AxisMap = ExtResource("3_wxn4i")
