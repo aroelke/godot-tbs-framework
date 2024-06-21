@@ -34,7 +34,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = 1378114812
+seed = -1100882435
 
 [sub_resource type="Resource" id="Resource_umt67"]
 script = ExtResource("24_k1nop")
@@ -194,6 +194,7 @@ Action = ExtResource("11_5p2p1")
 visible = false
 layout_mode = 2
 Action = ExtResource("2_2u5dc")
+SelectedDevice = 0
 
 [node name="StateChartInspector" parent="UserInterface" node_paths=PackedStringArray("StateChart") instance=ExtResource("17_gyc8t")]
 anchors_preset = 1

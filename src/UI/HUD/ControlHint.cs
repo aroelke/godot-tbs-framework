@@ -12,20 +12,23 @@ namespace UI.HUD;
 public partial class ControlHint : HBoxContainer
 {
     private readonly NodeCache _cache;
+    public ControlHint() : base() => _cache = new(this);
 
-    private Dictionary<InputDevice, TextureRect> _icons = new();
+    private InputDevice _selected = InputDevice.Keyboard;
+    private readonly Dictionary<InputDevice, IconMap> _maps = new()
+    {
+        { InputDevice.Mouse,    new MouseIconMap()         },
+        { InputDevice.Keyboard, new KeyIconMap()           },
+        { InputDevice.Gamepad,  new GamepadButtonIconMap() }
+    };
 
-    private TextureRect MouseIcon => _cache.GetNode<TextureRect>("Mouse");
-    private TextureRect KeyboardIcon => _cache.GetNode<TextureRect>("Keyboard");
-    private TextureRect GamepadIcon => _cache.GetNode<TextureRect>("Gamepad");
+    private TextureRect Icon => _cache.GetNodeOrNull<TextureRect>("Icon");
+    private Label Label => _cache.GetNodeOrNull<Label>("Label");
 
     private void Update()
     {
-        KeyboardIcon.Texture = !KeyMap.ContainsKey(Action) ? null : KeyMap[Action];
-        MouseIcon.Texture = !MouseMap.ContainsKey(Action) ? (FallBackToKeyboard ? KeyboardIcon.Texture : null) : MouseMap[Action];
-        GamepadIcon.Texture = !GamepadMap.ContainsKey(Action) ? null : GamepadMap[Action];
-
-        _cache.GetNode<Label>("Label").Text = $": {Action.Name}";
+        Icon.Texture = !_maps[SelectedDevice].ContainsKey(Action) ? null : _maps[SelectedDevice][Action];
+        Label.Text = $": {Action.Name}";
     }
 
     /// <summary>Action to display the icon of.</summary>
@@ -34,31 +37,58 @@ public partial class ControlHint : HBoxContainer
     /// <summary>Whether or not to fall back to the keyboard icon when a mouse icon for an action doesn't exist.</summary>
     [Export] public bool FallBackToKeyboard = false;
 
-    /// <summary><see cref="MouseButton"/> map for the mouse input to the action.</summary>
-    [ExportGroup("Action Maps")]
-    [Export] public MouseIconMap MouseMap = new();
-
-    /// <summary><see cref="Key"/>  map for the keyboard input to the action.</summary>
-    [ExportGroup("Action Maps")]
-    [Export] public KeyIconMap KeyMap = new();
-
-    /// <summary><see cref="JoyButton"/> map for the game pad input to the action.</summary>
-    [ExportGroup("Action Maps")]
-    [Export] public GamepadButtonIconMap GamepadMap = new();
-
     /// <summary>Switch the device to use for the icon to display.</summary>
-    public InputDevice SelectedDevice
+    [Export] public InputDevice SelectedDevice
     {
+        get => _selected;
         set
         {
-            foreach ((InputDevice device, TextureRect icon) in _icons)
-                icon.Visible = device == value;
+            if (_selected != value)
+            {
+                _selected = value;
+                if (Icon is not null && Label is not null)
+                    Update();
+            }
         }
     }
 
-    public ControlHint() : base()
+    /// <summary><see cref="MouseButton"/> map for the mouse input to the action.</summary>
+    [ExportGroup("Action Maps")]
+    [Export] public MouseIconMap MouseMap
     {
-        _cache = new(this);
+        get => _maps[InputDevice.Mouse] as MouseIconMap;
+        set
+        {
+            _maps[InputDevice.Mouse] = value;
+            if (Icon is not null && Label is not null)
+                Update();
+        }
+    }
+
+    /// <summary><see cref="Key"/> map for the keyboard input to the action.</summary>
+    [ExportGroup("Action Maps")]
+    [Export] public KeyIconMap KeyMap
+    {
+        get => _maps[InputDevice.Keyboard] as KeyIconMap;
+        set
+        {
+            _maps[InputDevice.Keyboard] = value;
+            if (Icon is not null && Label is not null)
+                Update();
+        }
+    }
+
+    /// <summary><see cref="JoyButton"/> map for the game pad input to the action.</summary>
+    [ExportGroup("Action Maps")]
+    [Export] public GamepadButtonIconMap GamepadButtonIconMap
+    {
+        get => _maps[InputDevice.Gamepad] as GamepadButtonIconMap;
+        set
+        {
+            _maps[InputDevice.Gamepad] = value;
+            if (Icon is not null && Label is not null)
+                Update();
+        }
     }
 
     /// <summary>When the input device changes, also update the icon.</summary>
@@ -75,25 +105,7 @@ public partial class ControlHint : HBoxContainer
     public override void _Ready()
     {
         base._Ready();
-        if (!Engine.IsEditorHint())
-        {
-            _icons = new()
-            {
-                { InputDevice.Mouse, MouseIcon },
-                { InputDevice.Keyboard, KeyboardIcon },
-                { InputDevice.Gamepad, GamepadIcon }
-            };
-            SelectedDevice = DeviceManager.Device;
-
-            Update();
-        }
-    }
-
-    public override void _Process(double delta)
-    {
-        base._Process(delta);
-        if (Engine.IsEditorHint())
-            Update();
+        SelectedDevice = Engine.IsEditorHint() ? InputDevice.Mouse : DeviceManager.Device;
     }
 
     public override void _ExitTree()
