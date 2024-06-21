@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Godot;
 using Nodes;
 using UI.Controls.Action;
@@ -16,14 +17,18 @@ namespace Scenes.Level.UI;
 public partial class Pointer : BoundedNode2D
 {
     private readonly NodeCache _cache;
+    public Pointer() : base() => _cache = new(this);
 
     /// <summary>Signals that the virtual pointer has moved in the canvas.</summary>
     /// <param name="position">Position of the virtual pointer.</param>
     [Signal] public delegate void PointerMovedEventHandler(Vector2 position);
 
+    [Signal] public delegate void FlightCompletedEventHandler();
+
     private InputMode _prevMode = default;
     private bool _accelerate = false;
     private bool _tracking = true;
+    private Tween _flyer = null;
 
     private TextureRect Mouse => _cache.GetNode<TextureRect>("Canvas/Mouse");
 
@@ -94,20 +99,43 @@ public partial class Pointer : BoundedNode2D
     /// <remarks>The pointer is just a point, but it has to have a zero area so the camera can focus on it.</remarks>
     public override Vector2 Size { get => Vector2.Zero; set {}}
 
-    public Pointer() : base()
-    {
-        _cache = new(this);
-    }
-
-    /// <summary>Move the cursor to a new location that's not bounded by <see cref="Bounds"/>, and update listeners that the move occurred.</summary>
+    /// <summary>
+    /// Move the pointer to a new location that's not bounded by <see cref="Bounds"/>, and update listeners that the move occurred. If the pointer is currently
+    /// on its way to a new position due to <see cref="Fly"/>, cancel the movement.
+    /// </summary>
     /// <param name="position">Position to warp to.</param>
     public void Warp(Vector2 position)
     {
         if (Position != position)
         {
+            if (_flyer.IsValid())
+                _flyer.Kill();
             Position = position;
             EmitSignal(SignalName.PointerMoved, Position);
         }
+    }
+
+    /// <summary>Move the pointer to a new position over time. Update listeners that the move ocurred afterward.</summary>
+    /// <param name="target"></param>
+    /// <param name="duration"></param>
+    public void Fly(Vector2 target, double duration)
+    {
+        if (_flyer.IsValid())
+            _flyer.Kill();
+        _flyer = CreateTween();
+
+        _flyer.SetTrans(Tween.TransitionType.Cubic).SetEase(Tween.EaseType.Out).TweenMethod(
+            Callable.From((Vector2 position) => {
+                Position = position;
+                GetViewport().WarpMouse(ViewportPosition);
+            }),
+            Position,
+            target,
+            duration
+        ).Finished += () => {
+            EmitSignal(SignalName.PointerMoved, Position);
+            EmitSignal(SignalName.FlightCompleted);
+        };
     }
 
     /// <summary>When the input mode changes, update visibility and move things around to make sure real/virtual mouse positions are consistent.</summary>
@@ -167,6 +195,9 @@ public partial class Pointer : BoundedNode2D
 
         if (!Engine.IsEditorHint())
         {
+            _flyer = CreateTween();
+            _flyer.Kill();
+
             Mouse.Texture = ResourceLoader.Load<Texture2D>(ProjectSettings.GetSetting("display/mouse_cursor/custom_image").As<string>());
             Callable.From(() => Mouse.Position = WorldToViewport(Position)).CallDeferred();
             Mouse.Visible = DeviceManager.Mode == InputMode.Analog;
@@ -218,19 +249,22 @@ public partial class Pointer : BoundedNode2D
 
         if (!Engine.IsEditorHint())
         {
-            switch (DeviceManager.Mode)
+            if (!_flyer.IsValid())
             {
-            case InputMode.Mouse when Position != ViewportToWorld(InputManager.GetMousePosition()):
-                Warp(ViewportToWorld(InputManager.GetMousePosition()));
-                break;
-            case InputMode.Analog when _tracking:
-                Vector2 direction = Input.GetVector(LeftAction, RightAction, UpAction, DownAction);
-                if (direction != Vector2.Zero)
+                switch (DeviceManager.Mode)
                 {
-                    double speed = _accelerate ? (Speed*Acceleration) : Speed;
-                    Warp((Position + direction*(float)(speed*delta)).Clamp(Bounds.Position, Bounds.End));
+                case InputMode.Mouse when Position != ViewportToWorld(InputManager.GetMousePosition()):
+                    Warp(ViewportToWorld(InputManager.GetMousePosition()));
+                    break;
+                case InputMode.Analog when _tracking:
+                    Vector2 direction = Input.GetVector(LeftAction, RightAction, UpAction, DownAction);
+                    if (direction != Vector2.Zero)
+                    {
+                        double speed = _accelerate ? (Speed*Acceleration) : Speed;
+                        Warp((Position + direction*(float)(speed*delta)).Clamp(Bounds.Position, Bounds.End));
+                    }
+                    break;
                 }
-                break;
             }
             Mouse.Position = WorldToViewport(Position);
         }

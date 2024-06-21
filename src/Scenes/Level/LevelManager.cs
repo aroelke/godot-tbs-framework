@@ -122,25 +122,11 @@ public partial class LevelManager : Node
                     StateChart.ProcessMode = on ? chartProcessMode : ProcessModeEnum.Disabled;
                 }
 
-                Tween tween = CreateTween();
-                tween
-                    .SetTrans(Tween.TransitionType.Cubic)
-                    .SetEase(Tween.EaseType.Out)
-                    .TweenMethod(
-                        Callable.From((Vector2 position) => {
-                            Pointer.Position = position;
-                            GetViewport().WarpMouse(Pointer.ViewportPosition);
-                        }),
-                        Pointer.Position,
-                        Grid.PositionOf(cell) + Grid.CellSize/2,
-                        Camera.DeadZoneSmoothTime
-                    );
-
+                Pointer.Fly(Grid.PositionOf(cell) + Grid.CellSize/2, Camera.DeadZoneSmoothTime);
                 BoundedNode2D target = Camera.Target;
                 Camera.Target = Grid.Occupants[cell];
                 ToggleProcessInput(false);
-                await ToSignal(tween, Tween.SignalName.Finished);
-                tween.Kill();
+                await ToSignal(Pointer, Pointer.SignalName.FlightCompleted);
                 ToggleProcessInput(true);
                 Camera.Target = target;
             }
