@@ -206,7 +206,14 @@ public partial class CombatScene : Node
             animation.AnimationSpeedScale = 1;
     }
 
-    public void OnTimerTimeout() => SceneManager.EndCombat();
+    public void OnTimerTimeout()
+    {
+        if (!_canceled)
+        {
+            _canceled = true;
+            SceneManager.EndCombat();
+        }
+    }
 
     public override void _Input(InputEvent @event)
     {
@@ -214,6 +221,7 @@ public partial class CombatScene : Node
 
         if (@event.IsActionPressed(SkipAction) && !_canceled)
         {
+            TransitionDelay.Stop();
             _canceled = true;
             SceneManager.EndCombat();
         }
