@@ -14,7 +14,8 @@ public partial class ControlHint : HBoxContainer
     private readonly NodeCache _cache;
     public ControlHint() : base() => _cache = new(this);
 
-    private InputDevice _selected = InputDevice.Keyboard;
+    private InputActionReference _action = new();
+    private InputDevice _selected = default;
     private readonly Dictionary<InputDevice, IconMap> _maps = new()
     {
         { InputDevice.Mouse,    new MouseIconMap()         },
@@ -25,17 +26,30 @@ public partial class ControlHint : HBoxContainer
     private TextureRect Icon => _cache.GetNodeOrNull<TextureRect>("Icon");
     private Label Label => _cache.GetNodeOrNull<Label>("Label");
 
-    private void Update()
+    private void Update(InputDevice device, InputActionReference action)
     {
-        Icon.Texture = !_maps[SelectedDevice].ContainsKey(Action) ? null : _maps[SelectedDevice][Action];
-        Label.Text = $": {Action.Name}";
+        if (Icon is not null)
+            Icon.Texture = _maps[device][action] ?? _maps[FallBackDevice][action];
+        if (Label is not null)
+            Label.Text = $": {action.Name}";
     }
 
     /// <summary>Action to display the icon of.</summary>
-    [Export] public InputActionReference Action = new();
+    [Export] public InputActionReference Action
+    {
+        get => _action;
+        set
+        {
+            if (_action != value)
+            {
+                _action = value;
+                Update(SelectedDevice, _action);
+            }
+        }
+    }
 
     /// <summary>Whether or not to fall back to the keyboard icon when a mouse icon for an action doesn't exist.</summary>
-    [Export] public bool FallBackToKeyboard = false;
+    [Export] public InputDevice FallBackDevice = InputDevice.Keyboard;
 
     /// <summary>Switch the device to use for the icon to display.</summary>
     [Export] public InputDevice SelectedDevice
@@ -46,8 +60,7 @@ public partial class ControlHint : HBoxContainer
             if (_selected != value)
             {
                 _selected = value;
-                if (Icon is not null && Label is not null)
-                    Update();
+                Update(_selected, Action);
             }
         }
     }
@@ -60,8 +73,7 @@ public partial class ControlHint : HBoxContainer
         set
         {
             _maps[InputDevice.Mouse] = value;
-            if (Icon is not null && Label is not null)
-                Update();
+            Update(SelectedDevice, Action);
         }
     }
 
@@ -73,8 +85,7 @@ public partial class ControlHint : HBoxContainer
         set
         {
             _maps[InputDevice.Keyboard] = value;
-            if (Icon is not null && Label is not null)
-                Update();
+            Update(SelectedDevice, Action);
         }
     }
 
@@ -86,8 +97,7 @@ public partial class ControlHint : HBoxContainer
         set
         {
             _maps[InputDevice.Gamepad] = value;
-            if (Icon is not null && Label is not null)
-                Update();
+            Update(SelectedDevice, Action);
         }
     }
 
@@ -98,14 +108,13 @@ public partial class ControlHint : HBoxContainer
     public override void _EnterTree()
     {
         base._EnterTree();
-        if (!Engine.IsEditorHint())
+        if (Engine.IsEditorHint())
+            SelectedDevice = InputDevice.Mouse;
+        else
+        {
+            SelectedDevice = DeviceManager.Device;
             DeviceManager.Singleton.InputDeviceChanged += OnInputDeviceChanged;
-    }
-
-    public override void _Ready()
-    {
-        base._Ready();
-        SelectedDevice = Engine.IsEditorHint() ? InputDevice.Mouse : DeviceManager.Device;
+        }
     }
 
     public override void _ExitTree()
