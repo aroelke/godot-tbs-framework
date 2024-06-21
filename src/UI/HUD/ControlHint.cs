@@ -21,8 +21,8 @@ public partial class ControlHint : HBoxContainer
 
     private void Update()
     {
-        MouseIcon.Texture = !MouseMap.ContainsKey(Action) ? null : MouseMap[Action];
         KeyboardIcon.Texture = !KeyMap.ContainsKey(Action) ? null : KeyMap[Action];
+        MouseIcon.Texture = !MouseMap.ContainsKey(Action) ? (FallBackToKeyboard ? KeyboardIcon.Texture : null) : MouseMap[Action];
         GamepadIcon.Texture = !GamepadMap.ContainsKey(Action) ? null : GamepadMap[Action];
 
         _cache.GetNode<Label>("Label").Text = $": {Action.Name}";
@@ -30,6 +30,9 @@ public partial class ControlHint : HBoxContainer
 
     /// <summary>Action to display the icon of.</summary>
     [Export] public InputActionReference Action = new();
+
+    /// <summary>Whether or not to fall back to the keyboard icon when a mouse icon for an action doesn't exist.</summary>
+    [Export] public bool FallBackToKeyboard = false;
 
     /// <summary><see cref="MouseButton"/> map for the mouse input to the action.</summary>
     [ExportGroup("Action Maps")]
