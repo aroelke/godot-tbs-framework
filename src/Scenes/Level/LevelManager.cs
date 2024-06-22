@@ -27,17 +27,14 @@ namespace Scenes.Level;
 public partial class LevelManager : Node
 {
     private readonly NodeCache _cache;
-
-    public LevelManager() : base()
-    {
-        _cache = new(this);
-    }
+    public LevelManager() : base() => _cache = new(this);
 
 #region Constants
     // State chart events
     private readonly StringName SelectEvent = "select";
     private readonly StringName CancelEvent = "cancel";
     private readonly StringName WaitEvent = "wait";
+    private readonly StringName HoldEvent = "hold";
     private readonly StringName DoneEvent = "done";
     // State chart conditions
     private readonly StringName OccupiedProperty = "occupied";       // Current cell occupant (see below for options)
@@ -128,6 +125,35 @@ public partial class LevelManager : Node
                 ToggleProcessInput(false);
                 await ToSignal(Pointer, Pointer.SignalName.FlightCompleted);
                 ToggleProcessInput(true);
+                Camera.Target = target;
+            }
+            break;
+        // If the input mode is digital or analog, just warp the cursor back to the cell
+        case InputMode.Digital:
+            Cursor.Cell = cell;
+            break;
+        case InputMode.Analog:
+            if (!rect.HasPoint(Pointer.Position))
+                Pointer.Warp(rect.GetCenter());
+            break;
+        }
+    }
+
+    private async void WarpCursorAndHold(Vector2I cell)
+    {
+        Rect2 rect = Grid.CellRect(cell);
+        switch (DeviceManager.Mode)
+        {
+        case InputMode.Mouse:
+            // If the input mode is mouse and the cursor is not on the cell's square, move it there over time
+            if (!rect.HasPoint(Grid.GetGlobalMousePosition()))
+            {
+                Pointer.Fly(Grid.PositionOf(cell) + Grid.CellSize/2, Camera.DeadZoneSmoothTime);
+                BoundedNode2D target = Camera.Target;
+                Camera.Target = Grid.Occupants[cell];
+                StateChart.SendEvent(HoldEvent);
+                await ToSignal(Pointer, Pointer.SignalName.FlightCompleted);
+                StateChart.SendEvent(DoneEvent);
                 Camera.Target = target;
             }
             break;
@@ -289,23 +315,27 @@ public partial class LevelManager : Node
         {
             if (@event.IsActionPressed(PreviousAction))
             {
+                ActionOverlay.Clear();
                 Unit prev = unit.Affiliation.Previous(unit);
                 if (prev is not null)
-                    WarpCursor(prev.Cell);
+                    WarpCursorAndHold(prev.Cell);
             }
             if (@event.IsActionPressed(NextAction))
             {
+                ActionOverlay.Clear();
                 Unit next = unit.Affiliation.Next(unit);
                 if (next is not null)
-                    WarpCursor(next.Cell);
+                    WarpCursorAndHold(next.Cell);
             }
         }
     }
 
     /// <summary>Choose a selected <see cref="Unit"/>.</summary>
-    public void OnIdleToSelectedTaken() => _selected = Grid.Occupants[Cursor.Cell] as Unit;
-
-    public void OnIdleExited() => ActionOverlay.Modulate = Colors.White;
+    public void OnIdleToSelectedTaken()
+    {
+        ActionOverlay.Modulate = Colors.White;
+        _selected = Grid.Occupants[Cursor.Cell] as Unit;
+    }
 #endregion
 #region Unit Selected State
     private ActionRanges _actionable = new();
