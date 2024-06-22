@@ -511,10 +511,13 @@ public partial class LevelManager : Node
         ActionOverlay.UsedCells = actionable.ToDictionary();
 
         // Restrict cursor movement to actionable cells
-        Pointer.AnalogTracking = false;
-        Cursor.HardRestriction = actionable.Attackable.Union(actionable.Supportable);
-        Cursor.Wrap = true;
-        Callable.From<Vector2I>(WarpCursorAndHold).CallDeferred(Cursor.Cell);
+        if (_target is null)
+        {
+            Pointer.AnalogTracking = false;
+            Cursor.HardRestriction = actionable.Attackable.Union(actionable.Supportable);
+            Cursor.Wrap = true;
+            Callable.From(() => WarpCursorAndHold(Cursor.Cell)).CallDeferred();
+        }
     }
 
     /// <summary>
@@ -549,6 +552,7 @@ public partial class LevelManager : Node
     {
         CancelUnitAction();
         UpdateDangerZones();
+        OnTargetingExited();
     }
 
     /// <summary>If a target is selected, begin combat fighting that target.  Otherwise, just end the selected <see cref="Unit"/>'s turn.</summary>
@@ -587,6 +591,7 @@ public partial class LevelManager : Node
         _selected.Health.Value -= CombatCalculations.TotalDamage(_selected, _combatResults);
         _target.Health.Value -= CombatCalculations.TotalDamage(_target, _combatResults);
         _combatResults = null;
+        OnTargetingExited();
         StateChart.SendEvent(WaitEvent);
         SceneManager.Singleton.CombatFinished -= OnCombatFinished;
         SceneManager.Singleton.TransitionCompleted += OnTransitionedFromCombat;
@@ -596,7 +601,6 @@ public partial class LevelManager : Node
     public void OnTargetingExited()
     {
         _target = null;
-        PathOverlay.Clear();
         ActionOverlay.Clear();
 
         Pointer.AnalogTracking = true;
