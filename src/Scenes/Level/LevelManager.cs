@@ -16,6 +16,7 @@ using Scenes.Level.Object;
 using Scenes.Level.Object.Group;
 using Scenes.Level.Map;
 using Scenes.Combat.Data;
+using System.Threading.Tasks;
 
 namespace Scenes.Level;
 
@@ -257,11 +258,7 @@ public partial class LevelManager : Node
 #endregion
 #region Idle State
     /// <summary>Update the UI when re-entering idle.</summary>
-    public void OnIdleEntered()
-    {
-        ActionOverlay.Modulate = ActionRangeIdleModulate;
-        OnIdleCursorMoved(Cursor.Cell);
-    }
+    public void OnIdleEntered() => ActionOverlay.Modulate = ActionRangeIdleModulate;
 
     /// <summary>
     /// Handle events that might occur during idle <see cref="State"/>.
@@ -337,6 +334,14 @@ public partial class LevelManager : Node
 #endregion
 #region Unit Selected State
     private ActionRanges _actionable = new();
+
+    /// <summary>Set the selected <see cref="Unit"/> to its idle state and the deselect it.</summary>
+    private void DeselectUnit()
+    {
+        _selected.Deselect();
+        _selected = null;
+        CancelHint.Visible = false;
+    }
 
     /// <summary>Display the total movement, attack, and support ranges of the selected <see cref="Unit"/> and begin drawing the path arrow for it to move on.</summary>
     public void OnSelectedEntered()
@@ -415,27 +420,31 @@ public partial class LevelManager : Node
     /// <summary>Deselect the selected <see cref="Unit"/> and clean up after canceling actions.</summary>
     public void OnSelectedToIdleTaken()
     {
-        _selected.Deselect();
-        _selected = null;
-        CancelHint.Visible = false;
+        DeselectUnit();
+        PathOverlay.Clear();
     }
 
     /// <summary>Move the <see cref="Object.Cursor"/> back to the selected <see cref="Unit"/> and then deselect it.</summary>
     public void OnSelectedCanceled()
     {
-        CancelUnitAction();
-        OnSelectedToIdleTaken();
+        _initialCell = null;
+        PathOverlay.Clear();
+        Callable.From<Vector2I>(WarpCursorAndHold).CallDeferred(_selected.Cell);
+        DeselectUnit();
     }
 
-    /// <summary>Clean up when exiting selected <see cref="State"/>.</summary>
-    public void OnSelectedExited()
+    /// <summary>Clean up overlays when movement destination is chosen.</summary>
+    public void OnDestinationChosen()
     {
         // Clear out movement/action ranges
         _actionable = _actionable.Clear();
         Cursor.SoftRestriction.Clear();
         PathOverlay.Clear();
         ActionOverlay.Clear();
-        
+    }
+
+    public void OnSelectedExited()
+    {
         // Restore the camera zoom back to what it was before a unit was selected
         if (Camera.HasZoomMemory())
             Camera.PopZoom();
