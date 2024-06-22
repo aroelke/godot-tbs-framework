@@ -313,20 +313,18 @@ public partial class LevelManager : Node
     {
         if (Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit)
         {
+            void SelectUnit(Func<Unit, Unit> selector)
+            {
+                ActionOverlay.Clear();
+                Unit selected = selector(unit);
+                if (selected is not null)
+                    WarpCursorAndHold(selected.Cell);
+            }
+
             if (@event.IsActionPressed(PreviousAction))
-            {
-                ActionOverlay.Clear();
-                Unit prev = unit.Affiliation.Previous(unit);
-                if (prev is not null)
-                    WarpCursorAndHold(prev.Cell);
-            }
+                SelectUnit(unit.Affiliation.Previous);
             if (@event.IsActionPressed(NextAction))
-            {
-                ActionOverlay.Clear();
-                Unit next = unit.Affiliation.Next(unit);
-                if (next is not null)
-                    WarpCursorAndHold(next.Cell);
-            }
+                SelectUnit(unit.Affiliation.Next);
         }
     }
 
