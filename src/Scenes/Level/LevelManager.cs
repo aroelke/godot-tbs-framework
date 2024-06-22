@@ -491,6 +491,10 @@ public partial class LevelManager : Node
         Camera.Target = _prevCameraTarget;
         _path = null;
         UpdateDangerZones();
+
+        // If a target has already been selected (because it was shortcutted during the select state), skip through targeting
+        if (_target is not null)
+            Callable.From<Unit>(OnTargetSelected).CallDeferred(_target);
     }
 #endregion
 #region Targeting State
@@ -510,12 +514,7 @@ public partial class LevelManager : Node
         Pointer.AnalogTracking = false;
         Cursor.HardRestriction = actionable.Attackable.Union(actionable.Supportable);
         Cursor.Wrap = true;
-
-        // If a target has already been selected (because it was shortcutted during the select state), skip through targeting
-        if (_target == null)
-            WarpCursor(Cursor.Cell);
-        else
-            Callable.From(() => OnTargetSelected(_target)).CallDeferred();
+        Callable.From<Vector2I>(WarpCursorAndHold).CallDeferred(Cursor.Cell);
     }
 
     /// <summary>
