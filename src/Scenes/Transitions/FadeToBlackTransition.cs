@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Godot;
 using Nodes;
 
@@ -11,6 +10,7 @@ public partial class FadeToBlackTransition : SceneTransition
     public FadeToBlackTransition() : base() => _cache = new(this);
 
     private Color _color = Colors.Black;
+    private Tween _tween = null;
 
     private ColorRect Overlay => _cache.GetNodeOrNull<ColorRect>("Overlay");
 
@@ -30,25 +30,27 @@ public partial class FadeToBlackTransition : SceneTransition
         }
     }
 
-    public override async Task TransitionIn()
+    public override void TransitionOut()
     {
-        Tween tween = CreateTween();
-        tween.TweenProperty(Overlay, $"{ColorRect.PropertyName.Modulate}:a", 1, TransitionTime/2);
-        await ToSignal(tween, Tween.SignalName.Finished);
-        await base.TransitionIn();
+        if (_tween.IsValid())
+            _tween.Kill();
+        _tween = CreateTween();
+        _tween.TweenProperty(Overlay, $"{ColorRect.PropertyName.Modulate}:a", 1, TransitionTime/2).Finished += () => EmitSignal(SignalName.TransitionedOut);
     }
 
-    public override async Task TransitionOut()
+    public override void TransitionIn()
     {
-        Tween tween = CreateTween();
-        tween.TweenProperty(Overlay, $"{ColorRect.PropertyName.Modulate}:a", 0, TransitionTime/2);
-        await ToSignal(tween, Tween.SignalName.Finished);
-        await base.TransitionOut();
+        if (_tween.IsValid())
+            _tween.Kill();
+        _tween = CreateTween();
+        _tween.TweenProperty(Overlay, $"{ColorRect.PropertyName.Modulate}:a", 0, TransitionTime/2).Finished += () => EmitSignal(SignalName.TransitionedIn);
     }
 
     public override void _Ready()
     {
         base._Ready();
+        _tween = CreateTween();
+        _tween.Kill();
         Overlay.Modulate = _color with { A = 0 };
     }
 }

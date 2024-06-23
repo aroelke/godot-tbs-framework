@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Immutable;
-using System.Threading.Tasks;
 using Godot;
 using Nodes;
 using Scenes.Combat;
@@ -21,6 +20,9 @@ public partial class SceneManager : Node
     /// <summary>Signals that the combat cut scene has completed.</summary>
     [Signal] public delegate void CombatFinishedEventHandler();
 
+    /// <summary>Signals that a transition to a new scene has begun.</summary>
+    [Signal] public delegate void TransitionStartedEventHandler();
+
     /// <summary>Signals that a transition to a new scene has completed.</summary>
     [Signal] public delegate void TransitionCompletedEventHandler();
 
@@ -37,27 +39,22 @@ public partial class SceneManager : Node
     /// <summary>End combat and return to the previous scene.</summary>
     public static void EndCombat() => Singleton.DoEndCombat();
 
+    private Node _target = null;
+
     private SceneTransition FadeToBlack => _cache.GetNode<SceneTransition>("Transitions/FadeToBlack");
 
     /// <summary>Scene to instantiate when displaying a combat animation.</summary>
     [Export] public PackedScene CombatScene = null;
 
-    private async Task DoSceneTransition(Node target, AudioStream bgm)
+    private void DoSceneTransition(Node target, AudioStream bgm)
     {
+        _target = target;
+        EmitSignal(SignalName.TransitionStarted);
         MusicController.PlayTrack(bgm, outDuration:FadeToBlack.TransitionTime/2, inDuration:FadeToBlack.TransitionTime/2);
-
-        await FadeToBlack.TransitionIn();
-
-        GetTree().Root.RemoveChild(GetTree().CurrentScene);
-        GetTree().Root.AddChild(target);
-        GetTree().CurrentScene = target;
-
-        await FadeToBlack.TransitionOut();
-
-        EmitSignal(SignalName.TransitionCompleted);
+        FadeToBlack.TransitionOut();
     }
 
-    private async void DoBeginCombat(Unit left, Unit right, IImmutableList<CombatAction> actions)
+    private void DoBeginCombat(Unit left, Unit right, IImmutableList<CombatAction> actions)
     {
         if (CurrentLevel is not null)
             throw new InvalidOperationException("Combat has already begun.");
@@ -66,22 +63,40 @@ public partial class SceneManager : Node
         Combat.Initialize(left, right, actions);
         CurrentLevel = Singleton.GetTree().CurrentScene;
 
-        await DoSceneTransition(Combat, Combat.BackgroundMusic);
-
-        Combat.Start();
+        FadeToBlack.TransitionedIn += Combat.Start;
+        DoSceneTransition(Combat, Combat.BackgroundMusic);
     }
 
-    private async void DoEndCombat()
+    private void DoEndCombat()
     {
         if (CurrentLevel is null)
             throw new InvalidOperationException("There is no level to return to");
 
+        void CleanUp()
+        {
+            Combat.QueueFree();
+            Combat = null;
+            FadeToBlack.TransitionedOut -= CleanUp;
+        }
+
+        FadeToBlack.TransitionedOut += CleanUp;
+        FadeToBlack.TransitionedIn -= Combat.Start;
         EmitSignal(SignalName.CombatFinished);
-
-        await DoSceneTransition(CurrentLevel, CurrentLevel.GetNode<LevelManager>("LevelManager").BackgroundMusic);
-
+        DoSceneTransition(CurrentLevel, CurrentLevel.GetNode<LevelManager>("LevelManager").BackgroundMusic);
         CurrentLevel = null;
-        Combat.QueueFree();
-        Combat = null;
+    }
+
+    public void OnTransitionedOut()
+    {
+        GetTree().Root.RemoveChild(GetTree().CurrentScene);
+        GetTree().Root.AddChild(_target);
+        GetTree().CurrentScene = _target;
+        FadeToBlack.TransitionIn();
+    }
+
+    public void OnTransitionedIn()
+    {
+        _target = null;
+        EmitSignal(SignalName.TransitionCompleted);
     }
 }
