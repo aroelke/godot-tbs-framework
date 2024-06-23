@@ -96,51 +96,7 @@ public partial class LevelManager : Node
     /// over time to maintain consistency with the system pointer, and other inputs are disabled while it moves.
     /// </summary>
     /// <param name="cell">Cell to move the cursor to.</param>
-    private async void WarpCursor(Vector2I cell)
-    {
-        Rect2 rect = Grid.CellRect(cell);
-        switch (DeviceManager.Mode)
-        {
-        case InputMode.Mouse:
-            // If the input mode is mouse and the cursor is not on the cell's square, move it there over time
-            if (!rect.HasPoint(Grid.GetGlobalMousePosition()))
-            {
-                ProcessModeEnum chartProcessMode = StateChart.ProcessMode;
-                void ToggleProcessInput(bool on)
-                {
-                    if (!on)
-                        chartProcessMode = StateChart.ProcessMode;
-
-                    SetProcessInput(on);
-                    SetProcessUnhandledInput(on);
-                    Cursor.SetProcessInput(on);
-                    Cursor.SetProcessUnhandledInput(on);
-                    Pointer.SetProcessInput(on);
-                    Pointer.SetProcessUnhandledInput(on);
-                    StateChart.ProcessMode = on ? chartProcessMode : ProcessModeEnum.Disabled;
-                }
-
-                Pointer.Fly(Grid.PositionOf(cell) + Grid.CellSize/2, Camera.DeadZoneSmoothTime);
-                BoundedNode2D target = Camera.Target;
-                Camera.Target = Grid.Occupants[cell];
-                ToggleProcessInput(false);
-                await ToSignal(Pointer, Pointer.SignalName.FlightCompleted);
-                ToggleProcessInput(true);
-                Camera.Target = target;
-            }
-            break;
-        // If the input mode is digital or analog, just warp the cursor back to the cell
-        case InputMode.Digital:
-            Cursor.Cell = cell;
-            break;
-        case InputMode.Analog:
-            if (!rect.HasPoint(Pointer.Position))
-                Pointer.Warp(rect.GetCenter());
-            break;
-        }
-    }
-
-    private async void WarpCursorAndHold(Vector2I cell)
+    private async void MoveCursor(Vector2I cell)
     {
         Rect2 rect = Grid.CellRect(cell);
         switch (DeviceManager.Mode)
@@ -315,7 +271,7 @@ public partial class LevelManager : Node
                 ActionOverlay.Clear();
                 Unit selected = selector(unit);
                 if (selected is not null)
-                    WarpCursorAndHold(selected.Cell);
+                    MoveCursor(selected.Cell);
             }
 
             if (@event.IsActionPressed(PreviousAction))
@@ -429,7 +385,7 @@ public partial class LevelManager : Node
     {
         _initialCell = null;
         PathOverlay.Clear();
-        Callable.From<Vector2I>(WarpCursorAndHold).CallDeferred(_selected.Cell);
+        Callable.From<Vector2I>(MoveCursor).CallDeferred(_selected.Cell);
         DeselectUnit();
     }
 
@@ -516,7 +472,7 @@ public partial class LevelManager : Node
             Pointer.AnalogTracking = false;
             Cursor.HardRestriction = actionable.Attackable.Union(actionable.Supportable);
             Cursor.Wrap = true;
-            Callable.From(() => WarpCursorAndHold(Cursor.Cell)).CallDeferred();
+            Callable.From(() => MoveCursor(Cursor.Cell)).CallDeferred();
         }
     }
 
@@ -543,7 +499,7 @@ public partial class LevelManager : Node
                 GD.PushError("Cursor is not on an actionable cell during targeting");
             
             if (cells.Length > 1)
-                WarpCursorAndHold(cells[(Array.IndexOf(cells, Cursor.Cell) + next + cells.Length) % cells.Length]);
+                MoveCursor(cells[(Array.IndexOf(cells, Cursor.Cell) + next + cells.Length) % cells.Length]);
         }
     }
 
@@ -556,7 +512,7 @@ public partial class LevelManager : Node
         _selected.Position = Grid.PositionOf(_selected.Cell);
         Grid.Occupants[_selected.Cell] = _selected;
         _initialCell = null;
-        Callable.From<Vector2I>(WarpCursorAndHold).CallDeferred(_selected.Cell);
+        Callable.From<Vector2I>(MoveCursor).CallDeferred(_selected.Cell);
 
         UpdateDangerZones();
         OnTargetingExited();
@@ -662,7 +618,7 @@ public partial class LevelManager : Node
         Callable.From(() => {
             StateChart.SendEvent(DoneEvent);
             if (advance)
-                Callable.From<Vector2I>(WarpCursorAndHold).CallDeferred(((IEnumerable<Unit>)_armies.Current).First().Cell);
+                Callable.From<Vector2I>(MoveCursor).CallDeferred(((IEnumerable<Unit>)_armies.Current).First().Cell);
         }).CallDeferred();
     }
 #endregion
