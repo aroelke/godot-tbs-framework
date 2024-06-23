@@ -543,7 +543,7 @@ public partial class LevelManager : Node
                 GD.PushError("Cursor is not on an actionable cell during targeting");
             
             if (cells.Length > 1)
-                WarpCursor(cells[(Array.IndexOf(cells, Cursor.Cell) + next + cells.Length) % cells.Length]);
+                WarpCursorAndHold(cells[(Array.IndexOf(cells, Cursor.Cell) + next + cells.Length) % cells.Length]);
         }
     }
 
