@@ -16,7 +16,6 @@ using Scenes.Level.Object;
 using Scenes.Level.Object.Group;
 using Scenes.Level.Map;
 using Scenes.Combat.Data;
-using System.Threading.Tasks;
 
 namespace Scenes.Level;
 
@@ -34,7 +33,7 @@ public partial class LevelManager : Node
     // State chart events
     private readonly StringName SelectEvent = "select";
     private readonly StringName CancelEvent = "cancel";
-    private readonly StringName HoldEvent = "hold";
+    private readonly StringName WaitEvent = "wait";
     private readonly StringName DoneEvent = "done";
     // State chart conditions
     private readonly StringName OccupiedProperty = "occupied";       // Current cell occupant (see below for options)
@@ -107,7 +106,7 @@ public partial class LevelManager : Node
                 Pointer.Fly(Grid.PositionOf(cell) + Grid.CellSize/2, Camera.DeadZoneSmoothTime);
                 BoundedNode2D target = Camera.Target;
                 Camera.Target = Grid.Occupants[cell];
-                StateChart.SendEvent(HoldEvent);
+                StateChart.SendEvent(WaitEvent);
                 await ToSignal(Pointer, Pointer.SignalName.FlightCompleted);
                 StateChart.SendEvent(DoneEvent);
                 Camera.Target = target;
@@ -546,7 +545,7 @@ public partial class LevelManager : Node
     public void OnTargetSelected(Unit target)
     {
         _target = target;
-        StateChart.SendEvent(HoldEvent);
+        StateChart.SendEvent(WaitEvent);
         SceneManager.Singleton.CombatFinished += OnCombatFinished;
         SceneManager.BeginCombat(_selected, target, _combatResults = CombatCalculations.CombatResults(_selected, target));
     }

@@ -35,7 +35,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = 1624722389
+seed = 84343468
 
 [sub_resource type="Resource" id="Resource_umt67"]
 script = ExtResource("24_k1nop")
@@ -296,7 +296,7 @@ Condition = SubResource("Resource_m8qte")
 
 [node name="ToWaiting" parent="State/Root/Active" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../Waiting")
-Event = &"hold"
+Event = &"wait"
 Condition = SubResource("Resource_njji8")
 
 [node name="Waiting" parent="State/Root" instance=ExtResource("19_o30vs")]
