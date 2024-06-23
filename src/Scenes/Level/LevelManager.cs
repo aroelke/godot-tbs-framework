@@ -34,7 +34,6 @@ public partial class LevelManager : Node
     // State chart events
     private readonly StringName SelectEvent = "select";
     private readonly StringName CancelEvent = "cancel";
-    private readonly StringName WaitEvent = "wait";
     private readonly StringName HoldEvent = "hold";
     private readonly StringName DoneEvent = "done";
     // State chart conditions
