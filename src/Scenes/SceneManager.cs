@@ -17,9 +17,6 @@ public partial class SceneManager : Node
     private readonly NodeCache _cache = null;
     public SceneManager() : base() => _cache = new(this);
 
-    /// <summary>Signals that the combat cut scene has completed.</summary>
-    [Signal] public delegate void CombatFinishedEventHandler();
-
     /// <summary>Signals that a transition to a new scene has begun.</summary>
     [Signal] public delegate void TransitionStartedEventHandler();
 
@@ -81,7 +78,6 @@ public partial class SceneManager : Node
 
         FadeToBlack.TransitionedOut += CleanUp;
         FadeToBlack.TransitionedIn -= Combat.Start;
-        EmitSignal(SignalName.CombatFinished);
         DoSceneTransition(CurrentLevel, CurrentLevel.GetNode<LevelManager>("LevelManager").BackgroundMusic);
         CurrentLevel = null;
     }

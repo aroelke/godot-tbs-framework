@@ -8,7 +8,7 @@ namespace Nodes.StateChart.Reactions;
 
 /// <summary><see cref="State"/>-specific reaction to a trigger that should cause an action without a transition.</summary>
 [GlobalClass, Icon("res://icons/statechart/Reaction.svg"), Tool]
-public abstract partial class Reaction : ChartNode
+public partial class Reaction : ChartNode
 {
     private State _state = null;
 

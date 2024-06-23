@@ -1,4 +1,4 @@
-[gd_scene load_steps=54 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=56 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="Resource" uid="uid://hkvw8a5g5l62" path="res://src/UI/Controls/Action/References/Map/MapCancelAction.tres" id="2_2u5dc"]
@@ -29,13 +29,14 @@
 [ext_resource type="PackedScene" uid="uid://dw8x5x0nvkg5k" path="res://src/Nodes/StateChart/Reactions/CellUpdateReaction.tscn" id="25_goaap"]
 [ext_resource type="AudioStream" uid="uid://bg4mbs7d25qaj" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Select - 1.wav" id="28_dnjya"]
 [ext_resource type="Script" path="res://src/Nodes/StateChart/Conditions/AnyCondition.cs" id="29_kfqmx"]
+[ext_resource type="PackedScene" uid="uid://b7i65c130fgfs" path="res://src/Nodes/StateChart/Reactions/EnterTreeReaction.tscn" id="29_o6hju"]
 [ext_resource type="AudioStream" uid="uid://b4dbo5h2e7ru4" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Cancel - 1.wav" id="29_regtl"]
 [ext_resource type="AudioStream" uid="uid://oyebi18i5hmn" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Error - 1.wav" id="30_mo20p"]
 [ext_resource type="AudioStream" uid="uid://dx4swhb5suesh" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Open - 1.wav" id="31_yh2xe"]
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -782682939
+seed = 182284093
 
 [sub_resource type="Resource" id="Resource_umt67"]
 script = ExtResource("24_k1nop")
@@ -99,6 +100,9 @@ script = ExtResource("23_6etqp")
 Condition = SubResource("Resource_wojwn")
 
 [sub_resource type="Resource" id="Resource_f7pbh"]
+script = ExtResource("24_k1nop")
+
+[sub_resource type="Resource" id="Resource_58eyu"]
 script = ExtResource("24_k1nop")
 
 [sub_resource type="Resource" id="Resource_m8qte"]
@@ -281,10 +285,20 @@ To = NodePath("../../UnitSelected")
 Event = &"cancel"
 Condition = SubResource("Resource_f7pbh")
 
-[node name="ToAdvancing" parent="State/Root/Active/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../TurnAdvancing")
+[node name="ToCombat" parent="State/Root/Active/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../InCombat")
 Event = &"done"
 Condition = SubResource("Resource_f7pbh")
+
+[node name="InCombat" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
+process_mode = 4
+
+[node name="OnEnteredTree" parent="State/Root/Active/InCombat" instance=ExtResource("29_o6hju")]
+
+[node name="ToAdvancing" parent="State/Root/Active/InCombat" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../TurnAdvancing")
+Event = &"done"
+Condition = SubResource("Resource_58eyu")
 
 [node name="TurnAdvancing" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
 process_mode = 4
@@ -355,5 +369,6 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateInput" from="State/Root/Active/UnitTargeting/OnInput" to="." method="OnTargetingInput"]
 [connection signal="Taken" from="State/Root/Active/UnitTargeting/ToSelected" to="." method="OnTargetingCanceled"]
 [connection signal="Taken" from="State/Root/Active/UnitTargeting/ToSelected" to="CancelSound" method="play" binds= [0.0]]
-[connection signal="Taken" from="State/Root/Active/UnitTargeting/ToAdvancing" to="." method="OnTargetingExited"]
+[connection signal="Taken" from="State/Root/Active/UnitTargeting/ToCombat" to="." method="OnTargetingExited"]
+[connection signal="StateEnteredTree" from="State/Root/Active/InCombat/OnEnteredTree" to="." method="OnCombatEnteredTree"]
 [connection signal="StateEntered" from="State/Root/Active/TurnAdvancing" to="." method="OnTurnAdvancingEntered"]

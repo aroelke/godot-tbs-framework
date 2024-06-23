@@ -513,6 +513,7 @@ public partial class LevelManager : Node
         _initialCell = null;
         Callable.From<Vector2I>(MoveCursor).CallDeferred(_selected.Cell);
 
+        _target = null;
         UpdateDangerZones();
         OnTargetingExited();
     }
@@ -543,38 +544,36 @@ public partial class LevelManager : Node
     public void OnTargetSelected(Unit target)
     {
         _target = target;
-        StateChart.SendEvent(WaitEvent);
-        SceneManager.Singleton.CombatFinished += OnCombatFinished;
+        StateChart.SendEvent(DoneEvent);
         SceneManager.BeginCombat(_selected, target, _combatResults = CombatCalculations.CombatResults(_selected, target));
-    }
-
-    /// <summary>When combat is done, end the selected <see cref="Unit"/>'s turn.</summary>
-    public void OnCombatFinished()
-    {
-        _selected.Health.Value -= CombatCalculations.TotalDamage(_selected, _combatResults);
-        _target.Health.Value -= CombatCalculations.TotalDamage(_target, _combatResults);
-        _combatResults = null;
-        ActionOverlay.Clear();
-        SceneManager.Singleton.CombatFinished -= OnCombatFinished;
-        SceneManager.Singleton.TransitionCompleted += OnTransitionedFromCombat;
-    }
-
-    public void OnTransitionedFromCombat()
-    {
-        StateChart.SendEvent(DoneEvent); // Exit waiting state
-        StateChart.SendEvent(DoneEvent); // Exit targeting state
-        SceneManager.Singleton.TransitionCompleted -= OnTransitionedFromCombat;
     }
 
     /// <summary>Clean up displayed ranges and restore <see cref="Object.Cursor"/> freedom when exiting targeting <see cref="State"/>.</summary>
     public void OnTargetingExited()
     {
-        _target = null;
         ActionOverlay.Clear();
-
         Pointer.AnalogTracking = true;
         Cursor.HardRestriction = Cursor.HardRestriction.Clear();
         Cursor.Wrap = false;
+    }
+#endregion
+#region In Combat
+    /// <summary>Update the map to reflect combat results when it's added back to the tree.</summary>
+    public void OnCombatEnteredTree()
+    {
+        _selected.Health.Value -= CombatCalculations.TotalDamage(_selected, _combatResults);
+        _target.Health.Value -= CombatCalculations.TotalDamage(_target, _combatResults);
+        _target = null;
+        _combatResults = null;
+        ActionOverlay.Clear();
+        SceneManager.Singleton.TransitionCompleted += OnTransitionedFromCombat;
+    }
+
+    /// <summary>Finish waiting once the transition back has completed.</summary>
+    public void OnTransitionedFromCombat()
+    {
+        StateChart.SendEvent(DoneEvent);
+        SceneManager.Singleton.TransitionCompleted -= OnTransitionedFromCombat;
     }
 #endregion
 #region Turn Advancing
