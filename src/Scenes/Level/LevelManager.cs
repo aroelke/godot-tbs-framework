@@ -635,7 +635,8 @@ public partial class LevelManager : Node
         _selected = null;
         CancelHint.Visible = false;
 
-        if (!((IEnumerable<Unit>)_armies.Current).Any((u) => u.Active))
+        bool advance = !((IEnumerable<Unit>)_armies.Current).Any((u) => u.Active);
+        if (advance)
         {
             TurnAdvance.Start();
             await ToSignal(TurnAdvance, Timer.SignalName.Timeout);
@@ -650,10 +651,12 @@ public partial class LevelManager : Node
                     Turn++;
             } while (!((IEnumerable<Unit>)_armies.Current).Any());
             UpdateTurnCounter();
-
-            WarpCursor(((IEnumerable<Unit>)_armies.Current).First().Cell);
         }
-        Callable.From(() => StateChart.SendEvent(DoneEvent)).CallDeferred();
+        Callable.From(() => {
+            StateChart.SendEvent(DoneEvent);
+            if (advance)
+                Callable.From<Vector2I>(WarpCursorAndHold).CallDeferred(((IEnumerable<Unit>)_armies.Current).First().Cell);
+        }).CallDeferred();
     }
 #endregion
 #region State Independent
