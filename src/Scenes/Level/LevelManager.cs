@@ -232,10 +232,13 @@ public partial class LevelManager : Node
                     ZoneUnits = ZoneUnits.Remove(unit);
                 else
                     ZoneUnits = ZoneUnits.Add(unit);
+                ZoneUpdateSound(ZoneUnits.Contains(unit)).Play();
             }
             else if (@event == CancelEvent && ZoneUnits.Contains(unit))
+            {
                 ZoneUnits = ZoneUnits.Remove(unit);
-            ZoneUpdateSound(ZoneUnits.Contains(unit)).Play();
+                ZoneUpdateSound(ZoneUnits.Contains(unit)).Play();
+            }
         }
     }
 
