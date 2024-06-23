@@ -550,7 +550,14 @@ public partial class LevelManager : Node
     /// <summary>Move the selected <see cref="Unit"/> and <see cref="Object.Cursor"/> back to the cell the unit was at before it moved.</summary>
     public void OnTargetingCanceled()
     {
-        CancelUnitAction();
+        // Move the selected unit back to its original cell
+        Grid.Occupants.Remove(_selected.Cell);
+        _selected.Cell = _initialCell.Value;
+        _selected.Position = Grid.PositionOf(_selected.Cell);
+        Grid.Occupants[_selected.Cell] = _selected;
+        _initialCell = null;
+        Callable.From<Vector2I>(WarpCursorAndHold).CallDeferred(_selected.Cell);
+
         UpdateDangerZones();
         OnTargetingExited();
     }
@@ -660,21 +667,6 @@ public partial class LevelManager : Node
     }
 #endregion
 #region State Independent
-    /// <summary>
-    /// Move the selected <see cref="Unit"/> back to its starting position (only does anything when canceling targeting). Then move the
-    /// <see cref="Object.Cursor"/> to the <see cref="Unit"/>'s current position, and go back to the previous <see cref="State"/>.
-    /// </summary>
-    public void CancelUnitAction()
-    {
-        // Move the selected unit back to its original cell
-        Grid.Occupants.Remove(_selected.Cell);
-        _selected.Cell = _initialCell.Value;
-        _selected.Position = Grid.PositionOf(_selected.Cell);
-        Grid.Occupants[_selected.Cell] = _selected;
-        _initialCell = null;
-        WarpCursor(_selected.Cell);
-    }
-
     /// <summary>When a cell is selected, act based on what is or isn't in the cell.</summary>
     /// <param name="cell">Coordinates of the cell selection.</param>
     public void OnCellSelected(Vector2I cell)
