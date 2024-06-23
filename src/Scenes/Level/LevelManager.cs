@@ -547,6 +547,7 @@ public partial class LevelManager : Node
     public void OnTargetSelected(Unit target)
     {
         _target = target;
+        StateChart.SendEvent(HoldEvent);
         SceneManager.Singleton.CombatFinished += OnCombatFinished;
         SceneManager.BeginCombat(_selected, target, _combatResults = CombatCalculations.CombatResults(_selected, target));
     }
@@ -557,10 +558,16 @@ public partial class LevelManager : Node
         _selected.Health.Value -= CombatCalculations.TotalDamage(_selected, _combatResults);
         _target.Health.Value -= CombatCalculations.TotalDamage(_target, _combatResults);
         _combatResults = null;
-        OnTargetingExited();
-        StateChart.SendEvent(WaitEvent);
+        ActionOverlay.Clear();
         SceneManager.Singleton.CombatFinished -= OnCombatFinished;
         SceneManager.Singleton.TransitionCompleted += OnTransitionedFromCombat;
+    }
+
+    public void OnTransitionedFromCombat()
+    {
+        StateChart.SendEvent(DoneEvent); // Exit waiting state
+        StateChart.SendEvent(DoneEvent); // Exit targeting state
+        SceneManager.Singleton.TransitionCompleted -= OnTransitionedFromCombat;
     }
 
     /// <summary>Clean up displayed ranges and restore <see cref="Object.Cursor"/> freedom when exiting targeting <see cref="State"/>.</summary>
@@ -572,13 +579,6 @@ public partial class LevelManager : Node
         Pointer.AnalogTracking = true;
         Cursor.HardRestriction = Cursor.HardRestriction.Clear();
         Cursor.Wrap = false;
-    }
-#endregion
-#region Waiting for Transition
-    public void OnTransitionedFromCombat()
-    {
-        StateChart.SendEvent(DoneEvent);
-        SceneManager.Singleton.TransitionCompleted -= OnTransitionedFromCombat;
     }
 #endregion
 #region Turn Advancing
