@@ -452,30 +452,28 @@ public partial class LevelManager : Node
         // If a target has already been selected (because it was shortcutted during the select state), skip through targeting
         if (_target is not null)
             Callable.From<Unit>(OnTargetSelected).CallDeferred(_target);
+        else
+        {
+            // Show the unit's attack/support ranges
+            ActionRanges actionable = new(
+                _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Affiliation.AlliedTo(_selected) ?? false),
+                _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Affiliation.AlliedTo(_selected) ?? false)
+            );
+            ActionOverlay.UsedCells = actionable.ToDictionary();
+
+            // Restrict cursor movement to actionable cells
+            if (_target is null)
+            {
+                Pointer.AnalogTracking = false;
+                Cursor.HardRestriction = actionable.Attackable.Union(actionable.Supportable);
+                Cursor.Wrap = true;
+                Callable.From(() => MoveCursor(Cursor.Cell)).CallDeferred();
+            }
+        }
     }
 #endregion
 #region Targeting State
     private ImmutableList<CombatAction> _combatResults = null;
-
-    /// <summary>Compute the attack and support ranges of the selected <see cref="Unit"/> from its location.</summary>
-    public void OnTargetingEntered()
-    {
-        // Show the unit's attack/support ranges
-        ActionRanges actionable = new(
-            _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Affiliation.AlliedTo(_selected) ?? false),
-            _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Affiliation.AlliedTo(_selected) ?? false)
-        );
-        ActionOverlay.UsedCells = actionable.ToDictionary();
-
-        // Restrict cursor movement to actionable cells
-        if (_target is null)
-        {
-            Pointer.AnalogTracking = false;
-            Cursor.HardRestriction = actionable.Attackable.Union(actionable.Supportable);
-            Cursor.Wrap = true;
-            Callable.From(() => MoveCursor(Cursor.Cell)).CallDeferred();
-        }
-    }
 
     /// <summary>
     /// Cycle the <see cref="Object.Cursor"/> between targets of the same action (attack, support, etc.) using <see cref="PreviousAction"/>
@@ -595,8 +593,12 @@ public partial class LevelManager : Node
     /// </summary>
     public async void OnTurnAdvancingEntered()
     {
-        _selected.Finish();
-        _selected = null;
+        // If the selected unit died, there might not be one anymore
+        if (_selected is not null)
+        {
+            _selected.Finish();
+            _selected = null;
+        }
         CancelHint.Visible = false;
 
         bool advance = !((IEnumerable<Unit>)_armies.Current).Any((u) => u.Active);
@@ -642,7 +644,12 @@ public partial class LevelManager : Node
             gd.Grid = Grid;
     }
 
-    public void OnUnitDefeated(Unit defeated) => defeated.Die();
+    public void OnUnitDefeated(Unit defeated)
+    {
+        if (_selected == defeated)
+            _selected = null;
+        defeated.Die();
+    }
 
     public override string[] _GetConfigurationWarnings()
     {
