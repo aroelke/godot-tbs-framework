@@ -200,6 +200,12 @@ public partial class Pointer : BoundedNode2D
             Warp(ViewportToWorld(InputManager.GetMousePosition()));
     }
 
+    public void OnFlyingEntered()
+    {
+        Mouse.Visible = true;
+        Input.MouseMode = Input.MouseModeEnum.Hidden;
+    }
+
     public void OnFlyingExited()
     {
         if (_flyer.IsValid())

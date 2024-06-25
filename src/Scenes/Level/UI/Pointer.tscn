@@ -153,4 +153,5 @@ texture = ExtResource("7_tpxfn")
 [connection signal="StateEntered" from="ControlState/Root/Active/Mouse" to="." method="OnMouseStateEntered"]
 [connection signal="Taken" from="ControlState/Root/Active/Mouse/ToAnalog" to="." method="OnMouseToAnalogTaken"]
 [connection signal="StateProcess" from="ControlState/Root/Active/Mouse/OnProcess" to="." method="OnMouseStateProcess"]
+[connection signal="StateEntered" from="ControlState/Root/Flying" to="." method="OnFlyingEntered"]
 [connection signal="StateExited" from="ControlState/Root/Flying" to="." method="OnFlyingExited"]
