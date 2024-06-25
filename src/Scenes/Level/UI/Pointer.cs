@@ -151,13 +151,19 @@ public partial class Pointer : BoundedNode2D
         ControlState.ExpressionProperties = ControlState.ExpressionProperties.SetItem(ModeProperty, Enum.GetName(mode));
     }
 
-    public void OnTransitionToAnalogTaken()
+    public void OnDigitalStateEntered()
     {
-        Mouse.Visible = true;
+        Mouse.Visible = false;
         Input.MouseMode = Input.MouseModeEnum.Hidden;
     }
 
     public void OnMouseToAnalogTaken() => Warp(ViewportToWorld(InputManager.GetMousePosition()));
+
+    public void OnAnalogStateEntered()
+    {
+        Mouse.Visible = _tracking;
+        Input.MouseMode = Input.MouseModeEnum.Hidden;
+    }
 
     public void OnAnalogStateUnhandledInput(InputEvent @event)
     {
@@ -169,7 +175,7 @@ public partial class Pointer : BoundedNode2D
 
     public void OnAnalogStateProcess(double delta)
     {
-        if (!_tracking)
+        if (_tracking)
         {
             Vector2 direction = Input.GetVector(LeftAction, RightAction, UpAction, DownAction);
             if (direction != Vector2.Zero)
@@ -180,11 +186,12 @@ public partial class Pointer : BoundedNode2D
         }
     }
 
-    public void OnTransitionToMouseTaken()
+    public void OnTransitionToMouseTaken() => GetViewport().WarpMouse(WorldToViewport(Position));
+
+    public void OnMouseStateEntered()
     {
         Mouse.Visible = false;
         Input.MouseMode = Input.MouseModeEnum.Visible;
-        GetViewport().WarpMouse(WorldToViewport(Position));
     }
 
     public void OnMouseStateProcess(double delta)
@@ -212,11 +219,7 @@ public partial class Pointer : BoundedNode2D
     public void OnCursorMoved(Vector2 position)
     {
         if (DeviceManager.Mode == InputMode.Digital || (DeviceManager.Mode == InputMode.Analog && !_tracking))
-        {
-            Mouse.Visible = false;
-            Input.MouseMode = Input.MouseModeEnum.Hidden;
             Warp(position);
-        }
     }
 
     public override string[] _GetConfigurationWarnings()

@@ -144,12 +144,13 @@ offset_bottom = 48.0
 mouse_filter = 2
 texture = ExtResource("7_tpxfn")
 
-[connection signal="Taken" from="ControlState/Root/Active/Digital/ToAnalog" to="." method="OnTransitionToAnalogTaken"]
+[connection signal="StateEntered" from="ControlState/Root/Active/Digital" to="." method="OnDigitalStateEntered"]
 [connection signal="Taken" from="ControlState/Root/Active/Digital/ToMouse" to="." method="OnTransitionToMouseTaken"]
+[connection signal="StateEntered" from="ControlState/Root/Active/Analog" to="." method="OnAnalogStateEntered"]
 [connection signal="Taken" from="ControlState/Root/Active/Analog/ToMouse" to="." method="OnTransitionToMouseTaken"]
 [connection signal="StateUnhandledInput" from="ControlState/Root/Active/Analog/OnUnhandledInput" to="." method="OnAnalogStateUnhandledInput"]
 [connection signal="StateProcess" from="ControlState/Root/Active/Analog/OnProcess" to="." method="OnAnalogStateProcess"]
+[connection signal="StateEntered" from="ControlState/Root/Active/Mouse" to="." method="OnMouseStateEntered"]
 [connection signal="Taken" from="ControlState/Root/Active/Mouse/ToAnalog" to="." method="OnMouseToAnalogTaken"]
-[connection signal="Taken" from="ControlState/Root/Active/Mouse/ToAnalog" to="." method="OnTransitionToAnalogTaken"]
 [connection signal="StateProcess" from="ControlState/Root/Active/Mouse/OnProcess" to="." method="OnMouseStateProcess"]
 [connection signal="StateExited" from="ControlState/Root/Flying" to="." method="OnFlyingExited"]
