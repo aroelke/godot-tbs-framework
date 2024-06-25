@@ -131,6 +131,7 @@ process_mode = 4
 
 [node name="ToActive" parent="ControlState/Root/Flying" node_paths=PackedStringArray("To") instance=ExtResource("11_cc66o")]
 To = NodePath("../../Active/History")
+Event = &"done"
 Condition = SubResource("Resource_kxrw0")
 
 [node name="Canvas" type="CanvasLayer" parent="."]
@@ -151,3 +152,4 @@ texture = ExtResource("7_tpxfn")
 [connection signal="Taken" from="ControlState/Root/Active/Mouse/ToAnalog" to="." method="OnMouseToAnalogTaken"]
 [connection signal="Taken" from="ControlState/Root/Active/Mouse/ToAnalog" to="." method="OnTransitionToAnalogTaken"]
 [connection signal="StateProcess" from="ControlState/Root/Active/Mouse/OnProcess" to="." method="OnMouseStateProcess"]
+[connection signal="StateExited" from="ControlState/Root/Flying" to="." method="OnFlyingExited"]

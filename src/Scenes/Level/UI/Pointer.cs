@@ -26,6 +26,8 @@ public partial class Pointer : BoundedNode2D
     [Signal] public delegate void FlightCompletedEventHandler();
 
     private static readonly StringName ModeProperty = "mode";
+    private static readonly StringName FlyEvent = "fly";
+    private static readonly StringName DoneEvent = "done";
 
     private bool _accelerate = false;
     private bool _tracking = true;
@@ -110,8 +112,7 @@ public partial class Pointer : BoundedNode2D
     {
         if (Position != position)
         {
-            if (_flyer.IsValid())
-                _flyer.Kill();
+            ControlState.SendEvent(DoneEvent);
             Position = position;
             EmitSignal(SignalName.PointerMoved, Position);
         }
@@ -122,6 +123,8 @@ public partial class Pointer : BoundedNode2D
     /// <param name="duration"></param>
     public void Fly(Vector2 target, double duration)
     {
+        ControlState.SendEvent(FlyEvent);
+
         if (_flyer.IsValid())
             _flyer.Kill();
         _flyer = CreateTween();
@@ -135,6 +138,7 @@ public partial class Pointer : BoundedNode2D
             target,
             duration
         ).Finished += () => {
+            ControlState.SendEvent(DoneEvent);
             EmitSignal(SignalName.PointerMoved, Position);
             EmitSignal(SignalName.FlightCompleted);
         };
@@ -165,7 +169,7 @@ public partial class Pointer : BoundedNode2D
 
     public void OnAnalogStateProcess(double delta)
     {
-        if (!_flyer.IsValid() && _tracking)
+        if (!_tracking)
         {
             Vector2 direction = Input.GetVector(LeftAction, RightAction, UpAction, DownAction);
             if (direction != Vector2.Zero)
@@ -185,8 +189,14 @@ public partial class Pointer : BoundedNode2D
 
     public void OnMouseStateProcess(double delta)
     {
-        if (!_flyer.IsValid() && Position != ViewportToWorld(InputManager.GetMousePosition()))
+        if (Position != ViewportToWorld(InputManager.GetMousePosition()))
             Warp(ViewportToWorld(InputManager.GetMousePosition()));
+    }
+
+    public void OnFlyingExited()
+    {
+        if (_flyer.IsValid())
+            _flyer.Kill();
     }
 
     /// <summary>When the mouse enters the <see cref="Viewport"/>, warp to its entry position.</summary>
