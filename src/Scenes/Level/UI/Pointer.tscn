@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://bqrqq7jid7qp2"]
+[gd_scene load_steps=25 format=3 uid="uid://bqrqq7jid7qp2"]
 
 [ext_resource type="Script" path="res://src/Scenes/Level/UI/Pointer.cs" id="1_1w8tr"]
 [ext_resource type="Resource" uid="uid://b5chrwy1ey3sm" path="res://src/UI/Controls/Action/References/Global/AnalogUpAction.tres" id="2_cpjm1"]
@@ -6,7 +6,54 @@
 [ext_resource type="Resource" uid="uid://b53yph2kmwkvl" path="res://src/UI/Controls/Action/References/Global/AnalogDownAction.tres" id="4_cds1s"]
 [ext_resource type="Resource" uid="uid://cnlbmhk1rudn0" path="res://src/UI/Controls/Action/References/Global/AnalogRightAction.tres" id="5_adb60"]
 [ext_resource type="Resource" uid="uid://dsjbjmgsqqd7w" path="res://src/UI/Controls/Action/References/Map/AccelerateAction.tres" id="6_xjb88"]
+[ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/Nodes/StateChart/Chart.tscn" id="7_3n6fq"]
 [ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://assets/ui/mouse.png" id="7_tpxfn"]
+[ext_resource type="PackedScene" uid="uid://bykdjiak4bxvt" path="res://src/Nodes/StateChart/States/CompoundState.tscn" id="8_4fc38"]
+[ext_resource type="PackedScene" uid="uid://dnfp4qfxs85wh" path="res://src/Nodes/StateChart/States/HistoryState.tscn" id="9_g87en"]
+[ext_resource type="PackedScene" uid="uid://lrf5ywt1n230" path="res://src/Nodes/StateChart/States/AtomicState.tscn" id="9_g122p"]
+[ext_resource type="PackedScene" uid="uid://0b22cirxc7k2" path="res://src/Nodes/StateChart/States/Transition.tscn" id="11_cc66o"]
+[ext_resource type="Script" path="res://src/Nodes/StateChart/Conditions/StringCondition.cs" id="12_2aden"]
+[ext_resource type="Script" path="res://src/Nodes/StateChart/Conditions/UnCondition.cs" id="12_ylcnh"]
+[ext_resource type="PackedScene" uid="uid://bajcy40oic1wf" path="res://src/Nodes/StateChart/Reactions/ProcessReaction.tscn" id="13_aqk4g"]
+
+[sub_resource type="Resource" id="Resource_eewfv"]
+script = ExtResource("12_2aden")
+Property = &"mode"
+Value = "Analog"
+
+[sub_resource type="Resource" id="Resource_7fgyd"]
+script = ExtResource("12_2aden")
+Property = &"mode"
+Value = "Mouse"
+
+[sub_resource type="Resource" id="Resource_rigok"]
+script = ExtResource("12_2aden")
+Property = &"mode"
+Value = "Digital"
+
+[sub_resource type="Resource" id="Resource_ys2j2"]
+script = ExtResource("12_2aden")
+Property = &"mode"
+Value = "Mouse"
+
+[sub_resource type="Resource" id="Resource_huup2"]
+script = ExtResource("12_ylcnh")
+
+[sub_resource type="Resource" id="Resource_mlqyi"]
+script = ExtResource("12_2aden")
+Property = &"mode"
+Value = "Digital"
+
+[sub_resource type="Resource" id="Resource_jd7u7"]
+script = ExtResource("12_2aden")
+Property = &"mode"
+Value = "Analog"
+
+[sub_resource type="Resource" id="Resource_3ccod"]
+script = ExtResource("12_ylcnh")
+
+[sub_resource type="Resource" id="Resource_kxrw0"]
+script = ExtResource("12_ylcnh")
 
 [node name="Pointer" type="Node2D"]
 script = ExtResource("1_1w8tr")
@@ -17,6 +64,68 @@ RightAction = ExtResource("5_adb60")
 AccelerateAction = ExtResource("6_xjb88")
 DebugColor = Color(0, 0, 0, 0)
 
+[node name="ControlState" parent="." instance=ExtResource("7_3n6fq")]
+
+[node name="Root" parent="ControlState" node_paths=PackedStringArray("InitialState") instance=ExtResource("8_4fc38")]
+process_mode = 4
+InitialState = NodePath("Active")
+
+[node name="Active" parent="ControlState/Root" node_paths=PackedStringArray("InitialState") instance=ExtResource("8_4fc38")]
+process_mode = 4
+InitialState = NodePath("Digital")
+
+[node name="History" parent="ControlState/Root/Active" instance=ExtResource("9_g87en")]
+
+[node name="Digital" parent="ControlState/Root/Active" instance=ExtResource("9_g122p")]
+process_mode = 4
+
+[node name="ToAnalog" parent="ControlState/Root/Active/Digital" node_paths=PackedStringArray("To") instance=ExtResource("11_cc66o")]
+To = NodePath("../../Analog")
+Condition = SubResource("Resource_eewfv")
+
+[node name="ToMouse" parent="ControlState/Root/Active/Digital" node_paths=PackedStringArray("To") instance=ExtResource("11_cc66o")]
+To = NodePath("../../Mouse")
+Condition = SubResource("Resource_7fgyd")
+
+[node name="Analog" parent="ControlState/Root/Active" instance=ExtResource("9_g122p")]
+process_mode = 4
+
+[node name="ToDigital" parent="ControlState/Root/Active/Analog" node_paths=PackedStringArray("To") instance=ExtResource("11_cc66o")]
+To = NodePath("../../Digital")
+Condition = SubResource("Resource_rigok")
+
+[node name="ToMouse" parent="ControlState/Root/Active/Analog" node_paths=PackedStringArray("To") instance=ExtResource("11_cc66o")]
+To = NodePath("../../Mouse")
+Condition = SubResource("Resource_ys2j2")
+
+[node name="OnProcess" parent="ControlState/Root/Active/Analog" instance=ExtResource("13_aqk4g")]
+Condition = SubResource("Resource_huup2")
+
+[node name="Mouse" parent="ControlState/Root/Active" instance=ExtResource("9_g122p")]
+process_mode = 4
+
+[node name="ToDigital" parent="ControlState/Root/Active/Mouse" node_paths=PackedStringArray("To") instance=ExtResource("11_cc66o")]
+To = NodePath("../../Digital")
+Condition = SubResource("Resource_mlqyi")
+
+[node name="ToAnalog" parent="ControlState/Root/Active/Mouse" node_paths=PackedStringArray("To") instance=ExtResource("11_cc66o")]
+To = NodePath("../../Analog")
+Condition = SubResource("Resource_jd7u7")
+
+[node name="OnProcess" parent="ControlState/Root/Active/Mouse" instance=ExtResource("13_aqk4g")]
+
+[node name="ToFlying" parent="ControlState/Root/Active" node_paths=PackedStringArray("To") instance=ExtResource("11_cc66o")]
+To = NodePath("../../Flying")
+Event = &"fly"
+Condition = SubResource("Resource_3ccod")
+
+[node name="Flying" parent="ControlState/Root" instance=ExtResource("9_g122p")]
+process_mode = 4
+
+[node name="ToActive" parent="ControlState/Root/Flying" node_paths=PackedStringArray("To") instance=ExtResource("11_cc66o")]
+To = NodePath("../../Active/History")
+Condition = SubResource("Resource_kxrw0")
+
 [node name="Canvas" type="CanvasLayer" parent="."]
 layer = 2
 
@@ -26,3 +135,6 @@ offset_right = 49.0
 offset_bottom = 48.0
 mouse_filter = 2
 texture = ExtResource("7_tpxfn")
+
+[connection signal="StateProcess" from="ControlState/Root/Active/Analog/OnProcess" to="." method="OnAnalogStateProcess"]
+[connection signal="StateProcess" from="ControlState/Root/Active/Mouse/OnProcess" to="." method="OnMouseStateProcess"]

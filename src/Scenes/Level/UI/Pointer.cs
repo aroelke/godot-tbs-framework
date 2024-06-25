@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Godot;
 using Nodes;
+using Nodes.StateChart;
 using UI.Controls.Action;
 using UI.Controls.Device;
 
@@ -25,11 +25,14 @@ public partial class Pointer : BoundedNode2D
 
     [Signal] public delegate void FlightCompletedEventHandler();
 
+    private static readonly StringName ModeProperty = "mode";
+
     private InputMode _prevMode = default;
     private bool _accelerate = false;
     private bool _tracking = true;
     private Tween _flyer = null;
 
+    private Chart ControlState => _cache.GetNode<Chart>("ControlState");
     private TextureRect Mouse => _cache.GetNode<TextureRect>("Canvas/Mouse");
 
     /// <summary>Convert a position in the <see cref="World"/> to a position in the <see cref="Viewport"/>.</summary>
@@ -142,6 +145,8 @@ public partial class Pointer : BoundedNode2D
     /// <param name="mode">New input mode.</param>
     public void OnInputModeChanged(InputMode mode)
     {
+        ControlState.ExpressionProperties = ControlState.ExpressionProperties.SetItem(ModeProperty, Enum.GetName(mode));
+
         switch (mode)
         {
         case InputMode.Mouse:
@@ -157,6 +162,25 @@ public partial class Pointer : BoundedNode2D
             break;
         }
         _prevMode = mode;
+    }
+
+    public void OnAnalogStateProcess(double delta)
+    {
+        if (!_flyer.IsValid() && _tracking)
+        {
+            Vector2 direction = Input.GetVector(LeftAction, RightAction, UpAction, DownAction);
+            if (direction != Vector2.Zero)
+            {
+                double speed = _accelerate ? (Speed*Acceleration) : Speed;
+                Warp((Position + direction*(float)(speed*delta)).Clamp(Bounds.Position, Bounds.End));
+            }
+        }
+    }
+
+    public void OnMouseStateProcess(double delta)
+    {
+        if (!_flyer.IsValid() && Position != ViewportToWorld(InputManager.GetMousePosition()))
+            Warp(ViewportToWorld(InputManager.GetMousePosition()));
     }
 
     /// <summary>When the mouse enters the <see cref="Viewport"/>, warp to its entry position.</summary>
@@ -195,6 +219,8 @@ public partial class Pointer : BoundedNode2D
 
         if (!Engine.IsEditorHint())
         {
+            ControlState.ExpressionProperties = ControlState.ExpressionProperties.SetItem(ModeProperty, Enum.GetName(DeviceManager.Mode));
+
             _flyer = CreateTween();
             _flyer.Kill();
 
@@ -248,25 +274,6 @@ public partial class Pointer : BoundedNode2D
         base._Process(delta);
 
         if (!Engine.IsEditorHint())
-        {
-            if (!_flyer.IsValid())
-            {
-                switch (DeviceManager.Mode)
-                {
-                case InputMode.Mouse when Position != ViewportToWorld(InputManager.GetMousePosition()):
-                    Warp(ViewportToWorld(InputManager.GetMousePosition()));
-                    break;
-                case InputMode.Analog when _tracking:
-                    Vector2 direction = Input.GetVector(LeftAction, RightAction, UpAction, DownAction);
-                    if (direction != Vector2.Zero)
-                    {
-                        double speed = _accelerate ? (Speed*Acceleration) : Speed;
-                        Warp((Position + direction*(float)(speed*delta)).Clamp(Bounds.Position, Bounds.End));
-                    }
-                    break;
-                }
-            }
             Mouse.Position = WorldToViewport(Position);
-        }
     }
 }
