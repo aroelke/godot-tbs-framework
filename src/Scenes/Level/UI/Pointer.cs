@@ -27,7 +27,6 @@ public partial class Pointer : BoundedNode2D
 
     private static readonly StringName ModeProperty = "mode";
 
-    private InputMode _prevMode = default;
     private bool _accelerate = false;
     private bool _tracking = true;
     private Tween _flyer = null;
@@ -146,23 +145,15 @@ public partial class Pointer : BoundedNode2D
     public void OnInputModeChanged(InputMode mode)
     {
         ControlState.ExpressionProperties = ControlState.ExpressionProperties.SetItem(ModeProperty, Enum.GetName(mode));
-
-        switch (mode)
-        {
-        case InputMode.Mouse:
-            Mouse.Visible = false;
-            Input.MouseMode = Input.MouseModeEnum.Visible;
-            GetViewport().WarpMouse(WorldToViewport(Position));
-            break;
-        case InputMode.Analog:
-            Mouse.Visible = true;
-            Input.MouseMode = Input.MouseModeEnum.Hidden;
-            if (_prevMode == InputMode.Mouse)
-                Warp(ViewportToWorld(InputManager.GetMousePosition()));
-            break;
-        }
-        _prevMode = mode;
     }
+
+    public void OnTransitionToAnalogTaken()
+    {
+        Mouse.Visible = true;
+        Input.MouseMode = Input.MouseModeEnum.Hidden;
+    }
+
+    public void OnMouseToAnalogTaken() => Warp(ViewportToWorld(InputManager.GetMousePosition()));
 
     public void OnAnalogStateUnhandledInput(InputEvent @event)
     {
@@ -183,6 +174,13 @@ public partial class Pointer : BoundedNode2D
                 Warp((Position + direction*(float)(speed*delta)).Clamp(Bounds.Position, Bounds.End));
             }
         }
+    }
+
+    public void OnTransitionToMouseTaken()
+    {
+        Mouse.Visible = false;
+        Input.MouseMode = Input.MouseModeEnum.Visible;
+        GetViewport().WarpMouse(WorldToViewport(Position));
     }
 
     public void OnMouseStateProcess(double delta)
@@ -236,7 +234,6 @@ public partial class Pointer : BoundedNode2D
             Callable.From(() => Mouse.Position = WorldToViewport(Position)).CallDeferred();
             Mouse.Visible = DeviceManager.Mode == InputMode.Analog;
 
-            _prevMode = DeviceManager.Mode;
             Input.MouseMode = DeviceManager.Mode == InputMode.Mouse ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Hidden;
 
             GetViewport().SizeChanged += () => Mouse.Scale = (GetViewport().GetScreenTransform() with { Origin = Vector2.Zero }).AffineInverse()*Vector2.One;
