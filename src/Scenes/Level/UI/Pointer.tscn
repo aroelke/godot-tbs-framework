@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://bqrqq7jid7qp2"]
+[gd_scene load_steps=27 format=3 uid="uid://bqrqq7jid7qp2"]
 
 [ext_resource type="Script" path="res://src/Scenes/Level/UI/Pointer.cs" id="1_1w8tr"]
 [ext_resource type="Resource" uid="uid://b5chrwy1ey3sm" path="res://src/UI/Controls/Action/References/Global/AnalogUpAction.tres" id="2_cpjm1"]
@@ -15,6 +15,7 @@
 [ext_resource type="Script" path="res://src/Nodes/StateChart/Conditions/StringCondition.cs" id="12_2aden"]
 [ext_resource type="Script" path="res://src/Nodes/StateChart/Conditions/UnCondition.cs" id="12_ylcnh"]
 [ext_resource type="PackedScene" uid="uid://bajcy40oic1wf" path="res://src/Nodes/StateChart/Reactions/ProcessReaction.tscn" id="13_aqk4g"]
+[ext_resource type="PackedScene" uid="uid://djew2nxucmtwl" path="res://src/Nodes/StateChart/Reactions/UnhandledInputReaction.tscn" id="13_tv7qm"]
 
 [sub_resource type="Resource" id="Resource_eewfv"]
 script = ExtResource("12_2aden")
@@ -35,6 +36,9 @@ Value = "Digital"
 script = ExtResource("12_2aden")
 Property = &"mode"
 Value = "Mouse"
+
+[sub_resource type="Resource" id="Resource_1upme"]
+script = ExtResource("12_ylcnh")
 
 [sub_resource type="Resource" id="Resource_huup2"]
 script = ExtResource("12_ylcnh")
@@ -98,6 +102,9 @@ Condition = SubResource("Resource_rigok")
 To = NodePath("../../Mouse")
 Condition = SubResource("Resource_ys2j2")
 
+[node name="OnUnhandledInput" parent="ControlState/Root/Active/Analog" instance=ExtResource("13_tv7qm")]
+Condition = SubResource("Resource_1upme")
+
 [node name="OnProcess" parent="ControlState/Root/Active/Analog" instance=ExtResource("13_aqk4g")]
 Condition = SubResource("Resource_huup2")
 
@@ -136,5 +143,6 @@ offset_bottom = 48.0
 mouse_filter = 2
 texture = ExtResource("7_tpxfn")
 
+[connection signal="StateUnhandledInput" from="ControlState/Root/Active/Analog/OnUnhandledInput" to="." method="OnAnalogStateUnhandledInput"]
 [connection signal="StateProcess" from="ControlState/Root/Active/Analog/OnProcess" to="." method="OnAnalogStateProcess"]
 [connection signal="StateProcess" from="ControlState/Root/Active/Mouse/OnProcess" to="." method="OnMouseStateProcess"]

@@ -164,6 +164,14 @@ public partial class Pointer : BoundedNode2D
         _prevMode = mode;
     }
 
+    public void OnAnalogStateUnhandledInput(InputEvent @event)
+    {
+        if (@event.IsActionPressed(AccelerateAction))
+            _accelerate = true;
+        if (@event.IsActionReleased(AccelerateAction))
+            _accelerate = false;
+    }
+
     public void OnAnalogStateProcess(double delta)
     {
         if (!_flyer.IsValid() && _tracking)
@@ -254,18 +262,6 @@ public partial class Pointer : BoundedNode2D
             DeviceManager.Singleton.InputModeChanged -= OnInputModeChanged;
             InputManager.Singleton.MouseEntered -= OnMouseEntered;
             InputManager.Singleton.MouseExited -= OnMouseExited;
-        }
-    }
-
-    public override void _UnhandledInput(InputEvent @event)
-    {
-        base._UnhandledInput(@event);
-        if (DeviceManager.Mode == InputMode.Analog)
-        {
-            if (@event.IsActionPressed(AccelerateAction))
-                _accelerate = true;
-            if (@event.IsActionReleased(AccelerateAction))
-                _accelerate = false;
         }
     }
 
