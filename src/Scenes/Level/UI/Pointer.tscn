@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://bqrqq7jid7qp2"]
+[gd_scene load_steps=29 format=3 uid="uid://bqrqq7jid7qp2"]
 
 [ext_resource type="Script" path="res://src/Scenes/Level/UI/Pointer.cs" id="1_1w8tr"]
 [ext_resource type="Resource" uid="uid://b5chrwy1ey3sm" path="res://src/UI/Controls/Action/References/Global/AnalogUpAction.tres" id="2_cpjm1"]
@@ -56,7 +56,13 @@ Value = "Analog"
 [sub_resource type="Resource" id="Resource_3ccod"]
 script = ExtResource("12_ylcnh")
 
+[sub_resource type="Resource" id="Resource_vuta3"]
+script = ExtResource("12_ylcnh")
+
 [sub_resource type="Resource" id="Resource_kxrw0"]
+script = ExtResource("12_ylcnh")
+
+[sub_resource type="Resource" id="Resource_0s27s"]
 script = ExtResource("12_ylcnh")
 
 [node name="Pointer" type="Node2D"]
@@ -126,6 +132,11 @@ To = NodePath("../../Flying")
 Event = &"fly"
 Condition = SubResource("Resource_3ccod")
 
+[node name="ToWaiting" parent="ControlState/Root/Active" node_paths=PackedStringArray("To") instance=ExtResource("11_cc66o")]
+To = NodePath("../../Waiting")
+Event = &"wait"
+Condition = SubResource("Resource_vuta3")
+
 [node name="Flying" parent="ControlState/Root" instance=ExtResource("9_g122p")]
 process_mode = 4
 
@@ -133,6 +144,14 @@ process_mode = 4
 To = NodePath("../../Active/History")
 Event = &"done"
 Condition = SubResource("Resource_kxrw0")
+
+[node name="Waiting" parent="ControlState/Root" instance=ExtResource("9_g122p")]
+process_mode = 4
+
+[node name="ToActive" parent="ControlState/Root/Waiting" node_paths=PackedStringArray("To") instance=ExtResource("11_cc66o")]
+To = NodePath("../../Active/History")
+Event = &"done"
+Condition = SubResource("Resource_0s27s")
 
 [node name="Canvas" type="CanvasLayer" parent="."]
 layer = 2
@@ -145,9 +164,7 @@ mouse_filter = 2
 texture = ExtResource("7_tpxfn")
 
 [connection signal="StateEntered" from="ControlState/Root/Active/Digital" to="." method="OnDigitalStateEntered"]
-[connection signal="Taken" from="ControlState/Root/Active/Digital/ToMouse" to="." method="OnTransitionToMouseTaken"]
 [connection signal="StateEntered" from="ControlState/Root/Active/Analog" to="." method="OnAnalogStateEntered"]
-[connection signal="Taken" from="ControlState/Root/Active/Analog/ToMouse" to="." method="OnTransitionToMouseTaken"]
 [connection signal="StateUnhandledInput" from="ControlState/Root/Active/Analog/OnUnhandledInput" to="." method="OnAnalogStateUnhandledInput"]
 [connection signal="StateProcess" from="ControlState/Root/Active/Analog/OnProcess" to="." method="OnAnalogStateProcess"]
 [connection signal="StateEntered" from="ControlState/Root/Active/Mouse" to="." method="OnMouseStateEntered"]
@@ -155,3 +172,4 @@ texture = ExtResource("7_tpxfn")
 [connection signal="StateProcess" from="ControlState/Root/Active/Mouse/OnProcess" to="." method="OnMouseStateProcess"]
 [connection signal="StateEntered" from="ControlState/Root/Flying" to="." method="OnFlyingEntered"]
 [connection signal="StateExited" from="ControlState/Root/Flying" to="." method="OnFlyingExited"]
+[connection signal="StateEntered" from="ControlState/Root/Waiting" to="." method="OnWaitingEntered"]

@@ -558,6 +558,11 @@ public partial class LevelManager : Node
     }
 #endregion
 #region In Combat
+    public void OnCombatEntered()
+    {
+        Pointer.StartWaiting();
+    }
+
     /// <summary>Update the map to reflect combat results when it's added back to the tree.</summary>
     public void OnCombatEnteredTree()
     {
@@ -574,6 +579,11 @@ public partial class LevelManager : Node
     {
         StateChart.SendEvent(DoneEvent);
         SceneManager.Singleton.TransitionCompleted -= OnTransitionedFromCombat;
+    }
+
+    public void OnCombatExited()
+    {
+        Pointer.StopWaiting();
     }
 #endregion
 #region Turn Advancing

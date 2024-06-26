@@ -36,7 +36,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -404560953
+seed = 773915940
 
 [sub_resource type="Resource" id="Resource_umt67"]
 script = ExtResource("24_k1nop")
@@ -381,6 +381,8 @@ stream = ExtResource("32_e2hk2")
 [connection signal="Taken" from="State/Root/Active/UnitTargeting/ToSelected" to="." method="OnTargetingCanceled"]
 [connection signal="Taken" from="State/Root/Active/UnitTargeting/ToSelected" to="CancelSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/Active/UnitTargeting/ToCombat" to="." method="OnTargetingExited"]
+[connection signal="StateEntered" from="State/Root/Active/InCombat" to="." method="OnCombatEntered"]
+[connection signal="StateExited" from="State/Root/Active/InCombat" to="." method="OnCombatExited"]
 [connection signal="StateEnteredTree" from="State/Root/Active/InCombat/OnEnteredTree" to="." method="OnCombatEnteredTree"]
 [connection signal="StateEntered" from="State/Root/Active/TurnAdvancing" to="." method="OnTurnAdvancingEntered"]
 

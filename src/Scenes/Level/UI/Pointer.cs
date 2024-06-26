@@ -27,6 +27,7 @@ public partial class Pointer : BoundedNode2D
 
     private static readonly StringName ModeProperty = "mode";
     private static readonly StringName FlyEvent = "fly";
+    private static readonly StringName WaitEvent = "wait";
     private static readonly StringName DoneEvent = "done";
 
     private bool _accelerate = false;
@@ -144,8 +145,10 @@ public partial class Pointer : BoundedNode2D
         };
     }
 
-    /// <summary>When the input mode changes, update visibility and move things around to make sure real/virtual mouse positions are consistent.</summary>
-    /// <param name="mode">New input mode.</param>
+    public void StartWaiting() => ControlState.SendEvent(WaitEvent);
+
+    public void StopWaiting() => ControlState.SendEvent(DoneEvent);
+
     public void OnInputModeChanged(InputMode mode)
     {
         ControlState.ExpressionProperties = ControlState.ExpressionProperties.SetItem(ModeProperty, Enum.GetName(mode));
@@ -190,6 +193,7 @@ public partial class Pointer : BoundedNode2D
 
     public void OnMouseStateEntered()
     {
+        GetViewport().WarpMouse(WorldToViewport(Position));
         Mouse.Visible = false;
         Input.MouseMode = Input.MouseModeEnum.Visible;
     }
@@ -210,6 +214,12 @@ public partial class Pointer : BoundedNode2D
     {
         if (_flyer.IsValid())
             _flyer.Kill();
+    }
+
+    public void OnWaitingEntered()
+    {
+        Mouse.Visible = false;
+        Input.MouseMode = Input.MouseModeEnum.Hidden;
     }
 
     /// <summary>When the mouse enters the <see cref="Viewport"/>, warp to its entry position.</summary>
