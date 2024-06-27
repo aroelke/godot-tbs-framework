@@ -9,6 +9,7 @@ namespace UI.Controls.Action;
 public partial class DigitalMoveAction : Node
 {
     private readonly NodeCache _cache;
+    public DigitalMoveAction() : base() => _cache = new(this);
 
     /// <summary>Signals that a new direction has been pressed.</summary>
     /// <param name="direction">Direction that was pressed.</param>
@@ -34,6 +35,11 @@ public partial class DigitalMoveAction : Node
     private Timer EchoTimer => _cache.GetNode<Timer>("EchoTimer");
 
     private bool IsEchoing() => !_skip && _direction != Vector2I.Zero;
+
+    private Vector2I ActionVector(Predicate<StringName> pressed) => new(
+        Convert.ToInt32(pressed(RightAction)) - Convert.ToInt32(pressed(LeftAction)),
+        Convert.ToInt32(pressed(DownAction)) - Convert.ToInt32(pressed(UpAction))
+    );
 
     /// <summary>Move up action.</summary>
     [ExportGroup("Input Actions")]
@@ -61,11 +67,6 @@ public partial class DigitalMoveAction : Node
     /// <summary>Delay between moves while holding an input down.</summary>
     [ExportGroup("Echo Control")]
     [Export] public double EchoInterval = 0.03;
-
-    public DigitalMoveAction() : base()
-    {
-        _cache = new(this);
-    }
 
     /// <summary>Reset the echo timer so its next timeout is on the delay rather than the interval.</summary>
     public void ResetEcho()
@@ -100,10 +101,7 @@ public partial class DigitalMoveAction : Node
     {
         base._EnterTree();
 
-        _direction = new(
-            Convert.ToInt32(Input.IsActionPressed(RightAction)) - Convert.ToInt32(Input.IsActionPressed(LeftAction)),
-            Convert.ToInt32(Input.IsActionPressed(DownAction)) - Convert.ToInt32(Input.IsActionPressed(UpAction))
-        );
+        _direction = ActionVector((n) => Input.IsActionPressed(n));
         if (_direction != Vector2I.Zero)
         {
             Callable.From<Vector2I>((d) => {
@@ -131,14 +129,8 @@ public partial class DigitalMoveAction : Node
 
         Vector2I prev = _direction;
 
-        Vector2I pressed = new(
-            Convert.ToInt32(@event.IsActionPressed(RightAction)) - Convert.ToInt32(@event.IsActionPressed(LeftAction)),
-            Convert.ToInt32(@event.IsActionPressed(DownAction)) - Convert.ToInt32(@event.IsActionPressed(UpAction))
-        );
-        Vector2I released = new(
-            Convert.ToInt32(@event.IsActionReleased(RightAction)) - Convert.ToInt32(@event.IsActionReleased(LeftAction)),
-            Convert.ToInt32(@event.IsActionReleased(DownAction)) - Convert.ToInt32(@event.IsActionReleased(UpAction))
-        );
+        Vector2I pressed = ActionVector((n) => @event.IsActionPressed(n));
+        Vector2I released = ActionVector((n) => @event.IsActionReleased(n));
         _direction += pressed - released;
 
         if (_skip)
