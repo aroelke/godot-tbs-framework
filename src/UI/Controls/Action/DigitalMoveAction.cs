@@ -96,6 +96,30 @@ public partial class DigitalMoveAction : Node
         }
     }
 
+    public override void _EnterTree()
+    {
+        base._EnterTree();
+
+        _direction = new(
+            Convert.ToInt32(Input.IsActionPressed(RightAction)) - Convert.ToInt32(Input.IsActionPressed(LeftAction)),
+            Convert.ToInt32(Input.IsActionPressed(DownAction)) - Convert.ToInt32(Input.IsActionPressed(UpAction))
+        );
+        if (_direction != Vector2I.Zero)
+        {
+            Callable.From<Vector2I>((d) => {
+                EmitSignal(SignalName.DirectionPressed, d);
+                EchoTimer.Start(EchoInterval);
+            }).CallDeferred(_direction);
+        }
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+        EchoTimer.Stop();
+        _direction = Vector2I.Zero;
+    }
+
     public override void _UnhandledInput(InputEvent @event)
     {
         base._UnhandledInput(@event);
