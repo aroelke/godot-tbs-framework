@@ -560,6 +560,7 @@ public partial class LevelManager : Node
 #region In Combat
     public void OnCombatEntered()
     {
+        Cursor.Halt();
         Pointer.StartWaiting();
     }
 
@@ -584,6 +585,7 @@ public partial class LevelManager : Node
     public void OnCombatExited()
     {
         Pointer.StopWaiting();
+        Cursor.Resume();
     }
 #endregion
 #region Turn Advancing
