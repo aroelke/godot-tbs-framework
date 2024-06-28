@@ -421,6 +421,8 @@ public partial class LevelManager : Node
     /// <summary>Begin moving the selected <see cref="Unit"/> and then wait for it to finish moving.</summary>
     public void OnMovingEntered()
     {
+        Cursor.Halt();
+
         // Track the unit as it's moving
         _prevDeadzone = new(Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight);
         (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = Vector4.Zero;
@@ -448,6 +450,7 @@ public partial class LevelManager : Node
         Camera.Target = _prevCameraTarget;
         _path = null;
         UpdateDangerZones();
+        Cursor.Resume();
 
         // If a target has already been selected (because it was shortcutted during the select state), skip through targeting
         if (_target is not null)
