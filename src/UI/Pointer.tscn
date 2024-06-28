@@ -140,6 +140,7 @@ Event = &"wait"
 Condition = SubResource("Resource_vuta3")
 
 [node name="Flying" parent="ControlState/Root" instance=ExtResource("10_fcy41")]
+unique_name_in_owner = true
 process_mode = 4
 
 [node name="ToActive" parent="ControlState/Root/Flying" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]

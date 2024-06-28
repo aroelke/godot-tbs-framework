@@ -25,6 +25,8 @@ public partial class Pointer : BoundedNode2D
     /// <param name="position">Position of the virtual pointer.</param>
     [Signal] public delegate void PointerMovedEventHandler(Vector2 position);
 
+    [Signal] public delegate void FlightStartedEventHandler(Vector2 target);
+
     [Signal] public delegate void FlightCompletedEventHandler();
 
     private static readonly StringName ModeProperty = "mode";
@@ -110,9 +112,6 @@ public partial class Pointer : BoundedNode2D
         }
     }
 
-    /// <summary>Whether or not the pointer is currently flying toward a position and can't be controlled.</summary>
-    public bool InFlight => FlyingState?.Active ?? false;
-
     /// <inheritdoc cref="BoundedNode2D.Size"/>
     /// <remarks>The pointer is just a point, but it has to have a zero area so the camera can focus on it.</remarks>
     public override Vector2 Size { get => Vector2.Zero; set {}}
@@ -138,6 +137,7 @@ public partial class Pointer : BoundedNode2D
     public void Fly(Vector2 target, double duration)
     {
         ControlState.SendEvent(FlyEvent);
+        EmitSignal(SignalName.FlightStarted, target);
 
         if (_flyer.IsValid())
             _flyer.Kill();

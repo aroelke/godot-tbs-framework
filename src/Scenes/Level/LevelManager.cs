@@ -6,7 +6,6 @@ using Godot;
 using Nodes;
 using UI;
 using UI.Controls.Action;
-using UI.Controls.Device;
 using UI.HUD;
 using Extensions;
 using Nodes.StateChart;
@@ -86,25 +85,6 @@ public partial class LevelManager : Node
         {
             _zoneUnits = value;
             UpdateDangerZones();
-        }
-    }
-
-    /// <summary>
-    /// If the <see cref="Object.Cursor"/> isn't in the specified cell, move it to (the center of) that cell. During mouse control, this is done smoothly
-    /// over time to maintain consistency with the system pointer, and other inputs are disabled while it moves.
-    /// </summary>
-    /// <param name="cell">Cell to move the cursor to.</param>
-    private async void MoveCursor(Vector2I cell)
-    {
-        Cursor.Cell = cell;
-        if (Pointer.InFlight)
-        {
-            StateChart.SendEvent(WaitEvent);
-            BoundedNode2D target = Camera.Target;
-            Camera.Target = Grid.Occupants.ContainsKey(cell) ? Grid.Occupants[cell] : Camera.Target;
-            await ToSignal(Pointer, Pointer.SignalName.FlightCompleted);
-            Camera.Target = target;
-            StateChart.SendEvent(DoneEvent);
         }
     }
 
@@ -257,7 +237,7 @@ public partial class LevelManager : Node
                 ActionOverlay.Clear();
                 Unit selected = selector(unit);
                 if (selected is not null)
-                    MoveCursor(selected.Cell);
+                    Cursor.Cell = selected.Cell;
             }
 
             if (@event.IsActionPressed(PreviousAction))
@@ -371,7 +351,7 @@ public partial class LevelManager : Node
     {
         _initialCell = null;
         PathOverlay.Clear();
-        Callable.From<Vector2I>(MoveCursor).CallDeferred(_selected.Cell);
+        Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(_selected.Cell);
         DeselectUnit();
     }
 
@@ -455,7 +435,6 @@ public partial class LevelManager : Node
                 Pointer.AnalogTracking = false;
                 Cursor.HardRestriction = actionable.Attackable.Union(actionable.Supportable);
                 Cursor.Wrap = true;
-                Callable.From(() => MoveCursor(Cursor.Cell)).CallDeferred();
             }
         }
     }
@@ -486,7 +465,7 @@ public partial class LevelManager : Node
                 GD.PushError("Cursor is not on an actionable cell during targeting");
             
             if (cells.Length > 1)
-                MoveCursor(cells[(Array.IndexOf(cells, Cursor.Cell) + next + cells.Length) % cells.Length]);
+                Cursor.Cell = cells[(Array.IndexOf(cells, Cursor.Cell) + next + cells.Length) % cells.Length];
         }
     }
 
@@ -499,7 +478,7 @@ public partial class LevelManager : Node
         _selected.Position = Grid.PositionOf(_selected.Cell);
         Grid.Occupants[_selected.Cell] = _selected;
         _initialCell = null;
-        Callable.From<Vector2I>(MoveCursor).CallDeferred(_selected.Cell);
+        Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(_selected.Cell);
 
         _target = null;
         UpdateDangerZones();
@@ -620,11 +599,29 @@ public partial class LevelManager : Node
         Callable.From(() => {
             StateChart.SendEvent(DoneEvent);
             if (advance)
-                Callable.From<Vector2I>(MoveCursor).CallDeferred(((IEnumerable<Unit>)_armies.Current).First().Cell);
+                Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(((IEnumerable<Unit>)_armies.Current).First().Cell);
         }).CallDeferred();
     }
 #endregion
 #region State Independent
+    private BoundedNode2D _cameraTarget = null;
+
+    /// <summary>When the pointer starts flying, we need to wait for it to finish. Also focus the camera on its target if there's something there.</summary>
+    /// <param name="target">Position the pointer is going to fly to.</param>
+    public void OnPointerFlightStarted(Vector2 target)
+    {
+        StateChart.SendEvent(WaitEvent);
+        _cameraTarget = Camera.Target;
+        Camera.Target = Grid.Occupants.ContainsKey(Grid.CellOf(target)) ? Grid.Occupants[Grid.CellOf(target)] : Camera.Target;
+    }
+
+    /// <summary>When the pointer finished flying, return to the previous state.</summary>
+    public void OnPointerFlightCompleted()
+    {
+        Camera.Target = _cameraTarget;
+        StateChart.SendEvent(DoneEvent);
+    }
+
     /// <summary>When a cell is selected, act based on what is or isn't in the cell.</summary>
     /// <param name="cell">Coordinates of the cell selection.</param>
     public void OnCellSelected(Vector2I cell)
