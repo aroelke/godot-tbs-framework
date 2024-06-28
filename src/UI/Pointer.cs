@@ -158,26 +158,35 @@ public partial class Pointer : BoundedNode2D
         };
     }
 
+    /// <summary>Disable input and wait for an event to complete, hiding the mouse while doing so.</summary>
     public void StartWaiting() => ControlState.SendEvent(WaitEvent);
 
+    /// <summary>Re-enable input.</summary>
     public void StopWaiting() => ControlState.SendEvent(DoneEvent);
 
+    /// <summary>Update the state whenever input mode changes.</summary>
+    /// <param name="mode">New input mode.</param>
     public void OnInputModeChanged(InputMode mode) => ControlState.ExpressionProperties = ControlState.ExpressionProperties.SetItem(ModeProperty, Enum.GetName(mode));
 
+    /// <summary>When entering digital state, hide both the virtual and system pointers, as the pointer is not used for control in that state.</summary>
     public void OnDigitalStateEntered()
     {
         Mouse.Visible = false;
         Input.MouseMode = Input.MouseModeEnum.Hidden;
     }
 
+    /// <summary>When changing input mode from mouse to analog, warp the pointer to where the mouse is.</summary>
     public void OnMouseToAnalogTaken() => Warp(ViewportToWorld(InputManager.GetMousePosition()));
 
+    /// <summary>When entering analog state, make sure the virtual pointer is visible (unless analog input should be treated as digital) and the system pointer is invisible.</summary>
     public void OnAnalogStateEntered()
     {
         Mouse.Visible = _tracking;
         Input.MouseMode = Input.MouseModeEnum.Hidden;
     }
 
+    /// <summary>While the accelerate button is held down, move the pointer faster.</summary>
+    /// <param name="event">Input event describing the input.</param>
     public void OnAnalogStateUnhandledInput(InputEvent @event)
     {
         if (@event.IsActionPressed(AccelerateAction))
@@ -186,6 +195,8 @@ public partial class Pointer : BoundedNode2D
             _accelerate = false;
     }
 
+    /// <summary>During analog input state, move the pointer according to the movement axis.</summary>
+    /// <param name="delta">Time since the last process step.</param>
     public void OnAnalogStateProcess(double delta)
     {
         if (_tracking)
@@ -199,8 +210,13 @@ public partial class Pointer : BoundedNode2D
         }
     }
 
+    /// <summary>When changing to mouse input, move the mouse to the pointer's location to ensure overall motion is contiguous.</summary>
     public void OnTransitionToMouseTaken() => GetViewport().WarpMouse(WorldToViewport(Position));
 
+    /// <summary>
+    /// When changing to mouse input, move the mouse to the pointer's location to ensure overall motion is contiguous and make the virtual pointer
+    /// invisible and system pointer visible.
+    /// </summary>
     public void OnMouseStateEntered()
     {
         GetViewport().WarpMouse(WorldToViewport(Position));
@@ -208,24 +224,35 @@ public partial class Pointer : BoundedNode2D
         Input.MouseMode = Input.MouseModeEnum.Visible;
     }
 
+    /// <summary>During mouse control, move to the mouse position every step.</summary>
+    /// <param name="delta">Time since last process step.</param>
     public void OnMouseStateProcess(double delta)
     {
         if (Position != ViewportToWorld(InputManager.GetMousePosition()))
             Warp(ViewportToWorld(InputManager.GetMousePosition()));
     }
 
+    /// <summary>
+    /// When starting to fly to a location, make the virtual pointer visible and system mouse invisible so it doesn't jitter if moved while flying. Re-entering
+    /// the appropriate state after flying is complete will automatically update the pointers to the correct visibilities.
+    /// </summary>
     public void OnFlyingEntered()
     {
         Mouse.Visible = true;
         Input.MouseMode = Input.MouseModeEnum.Hidden;
     }
 
+    /// <summary>When done flying, kill the tween controlling it in case flight is ended before it has completed movement.</summary>
     public void OnFlyingExited()
     {
         if (_flyer.IsValid())
             _flyer.Kill();
     }
 
+    /// <summary>
+    /// When entering the waiting state, hide the mouse for the duration of the wait. Its visibility will be restored automatically by the state it
+    /// returns to.
+    /// </summary>
     public void OnWaitingEntered()
     {
         Mouse.Visible = false;
