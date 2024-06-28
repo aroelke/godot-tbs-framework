@@ -232,11 +232,11 @@ public partial class Pointer : BoundedNode2D
     public void OnMouseExited(Vector2 position) => Warp(ViewportToWorld(position));
 
     /// <summary>When the cursor moves during digital input, warp to its location.</summary>
-    /// <param name="position">New cursor position.</param>
-    public void OnCursorMoved(Vector2 position)
+    /// <param name="region">New region enclosed by the cursor.</param>
+    public void OnCursorMoved(Rect2 region)
     {
         if (DigitalState.Active || (AnalogState.Active && !_tracking))
-            Warp(position);
+            Warp(region.GetCenter());
     }
 
     public override string[] _GetConfigurationWarnings()

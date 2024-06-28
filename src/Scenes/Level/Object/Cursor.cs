@@ -16,9 +16,9 @@ public partial class Cursor : GridNode
     private readonly NodeCache _cache;
     public Cursor() : base() => _cache = new(this);
 
-    /// <summary>Emitted when the cursor moves to a new cell.</summary>
-    /// <param name="cell">Position of the center of the cell moved to.</param>
-    [Signal] public delegate void CursorMovedEventHandler(Vector2 position);
+    /// <summary>Emitted when the cursor moves to a new location.</summary>
+    /// <param name="region">Region enclosed by the cursor after movement.</param>
+    [Signal] public delegate void CursorMovedEventHandler(Rect2 region);
 
     /// <summary>Signals that a cell has been selected.</summary>
     /// <param name="cell">Coordinates of the cell that has been selected.</param>
@@ -87,7 +87,7 @@ public partial class Cursor : GridNode
 
                     Position = Grid.PositionOf(next);
                     base.Cell = next;
-                    EmitSignal(SignalName.CursorMoved, Position + Grid.CellSize/2);
+                    EmitSignal(SignalName.CursorMoved, Grid.CellRect(next));
                 }
             }
         }
