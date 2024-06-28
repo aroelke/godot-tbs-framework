@@ -72,7 +72,6 @@ LeftAction = ExtResource("3_dxib6")
 DownAction = ExtResource("4_cds1s")
 RightAction = ExtResource("5_adb60")
 AccelerateAction = ExtResource("6_xjb88")
-DebugColor = Color(0, 0, 0, 0)
 
 [node name="ControlState" parent="." instance=ExtResource("7_3n6fq")]
 

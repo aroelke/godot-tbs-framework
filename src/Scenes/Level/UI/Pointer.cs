@@ -37,9 +37,9 @@ public partial class Pointer : BoundedNode2D
 
     private Chart ControlState => _cache.GetNode<Chart>("ControlState");
     private TextureRect Mouse => _cache.GetNode<TextureRect>("Canvas/Mouse");
-    private State DigitalState => _cache.GetNode<State>("%Digital");
-    private State AnalogState => _cache.GetNode<State>("%Analog");
-    private State MouseState => _cache.GetNode<State>("%Mouse");
+    private State DigitalState => _cache.GetNodeOrNull<State>("%Digital");
+    private State AnalogState => _cache.GetNodeOrNull<State>("%Analog");
+    private State MouseState => _cache.GetNodeOrNull<State>("%Mouse");
 
     /// <summary>Convert a position in the <see cref="World"/> to a position in the <see cref="Viewport"/>.</summary>
     /// <param name="world"><see cref="World"/> position.</param>
@@ -99,7 +99,7 @@ public partial class Pointer : BoundedNode2D
         set
         {
             _tracking = value;
-            if (AnalogState.Active)
+            if (AnalogState?.Active ?? false)
                 Mouse.Visible = _tracking;
         }
     }
