@@ -7,12 +7,12 @@ using Nodes.StateChart.States;
 using UI.Controls.Action;
 using UI.Controls.Device;
 
-namespace Scenes.Level.UI;
+namespace UI;
 
 /// <summary>
 /// Virtual mouse pointer that lives in the game world but has a projection onto the UI canvas and is controlled via analog stick.
-/// Is only visible during analog control; during digital control, it and the main mouse become invisible in favor of the
-/// <see cref="Object.Cursor"/>; during mouse control the system mouse is visible.
+/// Is only visible during analog control; during digital control, it and the main mouse become invisible in favor of a
+/// cursor; during mouse control the system mouse is visible.
 /// </summary>
 [Tool]
 public partial class Pointer : BoundedNode2D

@@ -11,7 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://bnnydb3ggsdth" path="res://src/Scenes/Level/UI/PathOverlay.tscn" id="8_7cjxr"]
 [ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/UI/HUD/CursorHintIcon.tscn" id="9_i7is8"]
 [ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/UI/HUD/ControlHint.tscn" id="10_dfuji"]
-[ext_resource type="PackedScene" uid="uid://bqrqq7jid7qp2" path="res://src/Scenes/Level/UI/Pointer.tscn" id="10_meiip"]
+[ext_resource type="PackedScene" uid="uid://bqrqq7jid7qp2" path="res://src/UI/Pointer.tscn" id="10_h4rp7"]
 [ext_resource type="Resource" uid="uid://c8jgkj5o6iui0" path="res://src/UI/Controls/Action/References/Map/SelectAction.tres" id="11_5p2p1"]
 [ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://src/UI/HUD/Hints.tres" id="11_7flpq"]
 [ext_resource type="PackedScene" uid="uid://h3yhm0thhl8m" path="res://src/Nodes/StateChart/StateChartInspector.tscn" id="17_gyc8t"]
@@ -36,7 +36,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = 773915940
+seed = 1492648371
 
 [sub_resource type="Resource" id="Resource_umt67"]
 script = ExtResource("24_k1nop")
@@ -160,7 +160,7 @@ z_index = 1
 [node name="Cursor" parent="." instance=ExtResource("6_3v7mf")]
 DebugColor = Color(0, 0, 0, 0)
 
-[node name="Pointer" parent="." instance=ExtResource("10_meiip")]
+[node name="Pointer" parent="." instance=ExtResource("10_h4rp7")]
 
 [node name="UserInterface" type="CanvasLayer" parent="."]
 
