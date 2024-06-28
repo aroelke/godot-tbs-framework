@@ -66,6 +66,7 @@ public partial class Pointer : BoundedNode2D
     [ExportGroup("Movement")]
     [Export] public double Acceleration = 3;
 
+    /// <summary>Default time to warp during mouse control.</summary>
     [ExportGroup("Movement")]
     [Export(PropertyHint.None, "suffix:s")] public double DefaultFlightTime = 0.25;
 
