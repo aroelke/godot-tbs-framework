@@ -41,6 +41,7 @@ public partial class Pointer : BoundedNode2D
     private State DigitalState => _cache.GetNodeOrNull<State>("%Digital");
     private State AnalogState => _cache.GetNodeOrNull<State>("%Analog");
     private State MouseState => _cache.GetNodeOrNull<State>("%Mouse");
+    private State FlyingState => _cache.GetNodeOrNull<State>("%Flying");
 
     /// <summary>Convert a position in the <see cref="World"/> to a position in the <see cref="Viewport"/>.</summary>
     /// <param name="world"><see cref="World"/> position.</param>
@@ -108,6 +109,9 @@ public partial class Pointer : BoundedNode2D
                 Mouse.Visible = _tracking;
         }
     }
+
+    /// <summary>Whether or not the pointer is currently flying toward a position and can't be controlled.</summary>
+    public bool InFlight => FlyingState?.Active ?? false;
 
     /// <inheritdoc cref="BoundedNode2D.Size"/>
     /// <remarks>The pointer is just a point, but it has to have a zero area so the camera can focus on it.</remarks>

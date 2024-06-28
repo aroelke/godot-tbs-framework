@@ -96,30 +96,15 @@ public partial class LevelManager : Node
     /// <param name="cell">Cell to move the cursor to.</param>
     private async void MoveCursor(Vector2I cell)
     {
-        Rect2 rect = Grid.CellRect(cell);
-        switch (DeviceManager.Mode)
+        Cursor.Cell = cell;
+        if (Pointer.InFlight)
         {
-        case InputMode.Mouse:
-            // If the input mode is mouse and the cursor is not on the cell's square, move it there over time
-            if (!rect.HasPoint(Grid.GetGlobalMousePosition()))
-            {
-                Pointer.Fly(Grid.PositionOf(cell) + Grid.CellSize/2, Camera.DeadZoneSmoothTime);
-                BoundedNode2D target = Camera.Target;
-                Camera.Target = Grid.Occupants[cell];
-                StateChart.SendEvent(WaitEvent);
-                await ToSignal(Pointer, Pointer.SignalName.FlightCompleted);
-                StateChart.SendEvent(DoneEvent);
-                Camera.Target = target;
-            }
-            break;
-        // If the input mode is digital or analog, just warp the cursor back to the cell
-        case InputMode.Digital:
-            Cursor.Cell = cell;
-            break;
-        case InputMode.Analog:
-            if (!rect.HasPoint(Pointer.Position))
-                Pointer.Warp(rect.GetCenter());
-            break;
+            StateChart.SendEvent(WaitEvent);
+            BoundedNode2D target = Camera.Target;
+            Camera.Target = Grid.Occupants.ContainsKey(cell) ? Grid.Occupants[cell] : Camera.Target;
+            await ToSignal(Pointer, Pointer.SignalName.FlightCompleted);
+            Camera.Target = target;
+            StateChart.SendEvent(DoneEvent);
         }
     }
 
@@ -696,6 +681,7 @@ public partial class LevelManager : Node
             Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
             Pointer.World = Cursor.Grid = Grid;
             Pointer.Bounds = Camera.Limits;
+            Pointer.DefaultFlightTime = Camera.DeadZoneSmoothTime;
 
             foreach (Unit unit in GetChildren().OfType<IEnumerable<Unit>>().Flatten())
             {
