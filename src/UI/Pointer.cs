@@ -210,9 +210,6 @@ public partial class Pointer : BoundedNode2D
         }
     }
 
-    /// <summary>When changing to mouse input, move the mouse to the pointer's location to ensure overall motion is contiguous.</summary>
-    public void OnTransitionToMouseTaken() => GetViewport().WarpMouse(WorldToViewport(Position));
-
     /// <summary>
     /// When changing to mouse input, move the mouse to the pointer's location to ensure overall motion is contiguous and make the virtual pointer
     /// invisible and system pointer visible.
