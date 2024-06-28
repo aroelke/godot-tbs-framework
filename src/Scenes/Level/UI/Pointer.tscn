@@ -87,6 +87,7 @@ InitialState = NodePath("Digital")
 [node name="History" parent="ControlState/Root/Active" instance=ExtResource("9_g87en")]
 
 [node name="Digital" parent="ControlState/Root/Active" instance=ExtResource("9_g122p")]
+unique_name_in_owner = true
 process_mode = 4
 
 [node name="ToAnalog" parent="ControlState/Root/Active/Digital" node_paths=PackedStringArray("To") instance=ExtResource("11_cc66o")]
@@ -98,6 +99,7 @@ To = NodePath("../../Mouse")
 Condition = SubResource("Resource_7fgyd")
 
 [node name="Analog" parent="ControlState/Root/Active" instance=ExtResource("9_g122p")]
+unique_name_in_owner = true
 process_mode = 4
 
 [node name="ToDigital" parent="ControlState/Root/Active/Analog" node_paths=PackedStringArray("To") instance=ExtResource("11_cc66o")]
@@ -115,6 +117,7 @@ Condition = SubResource("Resource_1upme")
 Condition = SubResource("Resource_huup2")
 
 [node name="Mouse" parent="ControlState/Root/Active" instance=ExtResource("9_g122p")]
+unique_name_in_owner = true
 process_mode = 4
 
 [node name="ToDigital" parent="ControlState/Root/Active/Mouse" node_paths=PackedStringArray("To") instance=ExtResource("11_cc66o")]

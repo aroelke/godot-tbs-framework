@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Godot;
 using Nodes;
 using Nodes.StateChart;
+using Nodes.StateChart.States;
 using UI.Controls.Action;
 using UI.Controls.Device;
 
@@ -36,6 +37,9 @@ public partial class Pointer : BoundedNode2D
 
     private Chart ControlState => _cache.GetNode<Chart>("ControlState");
     private TextureRect Mouse => _cache.GetNode<TextureRect>("Canvas/Mouse");
+    private State DigitalState => _cache.GetNode<State>("%Digital");
+    private State AnalogState => _cache.GetNode<State>("%Analog");
+    private State MouseState => _cache.GetNode<State>("%Mouse");
 
     /// <summary>Convert a position in the <see cref="World"/> to a position in the <see cref="Viewport"/>.</summary>
     /// <param name="world"><see cref="World"/> position.</param>
@@ -95,7 +99,7 @@ public partial class Pointer : BoundedNode2D
         set
         {
             _tracking = value;
-            if (DeviceManager.Mode == InputMode.Analog)
+            if (AnalogState.Active)
                 Mouse.Visible = _tracking;
         }
     }
@@ -149,10 +153,7 @@ public partial class Pointer : BoundedNode2D
 
     public void StopWaiting() => ControlState.SendEvent(DoneEvent);
 
-    public void OnInputModeChanged(InputMode mode)
-    {
-        ControlState.ExpressionProperties = ControlState.ExpressionProperties.SetItem(ModeProperty, Enum.GetName(mode));
-    }
+    public void OnInputModeChanged(InputMode mode) => ControlState.ExpressionProperties = ControlState.ExpressionProperties.SetItem(ModeProperty, Enum.GetName(mode));
 
     public void OnDigitalStateEntered()
     {
@@ -234,7 +235,7 @@ public partial class Pointer : BoundedNode2D
     /// <param name="position">New cursor position.</param>
     public void OnCursorMoved(Vector2 position)
     {
-        if (DeviceManager.Mode == InputMode.Digital || (DeviceManager.Mode == InputMode.Analog && !_tracking))
+        if (DigitalState.Active || (AnalogState.Active && !_tracking))
             Warp(position);
     }
 
@@ -261,9 +262,7 @@ public partial class Pointer : BoundedNode2D
 
             Mouse.Texture = ResourceLoader.Load<Texture2D>(ProjectSettings.GetSetting("display/mouse_cursor/custom_image").As<string>());
             Callable.From(() => Mouse.Position = WorldToViewport(Position)).CallDeferred();
-            Mouse.Visible = DeviceManager.Mode == InputMode.Analog;
-
-            Input.MouseMode = DeviceManager.Mode == InputMode.Mouse ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Hidden;
+            OnInputModeChanged(DeviceManager.Mode);
 
             GetViewport().SizeChanged += () => Mouse.Scale = (GetViewport().GetScreenTransform() with { Origin = Vector2.Zero }).AffineInverse()*Vector2.One;
         }
