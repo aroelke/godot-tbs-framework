@@ -57,6 +57,7 @@ public partial class LevelManager : Node
     private Unit _selected = null, _target = null;
     private IEnumerator<Army> _armies = null;
     private Vector2I? _initialCell = null;
+    private BoundedNode2D _prevCameraTarget = null;
 
     private Chart StateChart => _cache.GetNode<Chart>("State");
     private Grid Grid => _cache.GetNode<Grid>("Grid");
@@ -374,7 +375,6 @@ public partial class LevelManager : Node
 #endregion
 #region Moving State
     private Vector4 _prevDeadzone = Vector4.Zero;
-    private BoundedNode2D _prevCameraTarget = null;
 
     /// <summary>When the <see cref="Unit"/> finishes moving, move to the next <see cref="State"/>.</summary>
     public void OnUnitDoneMoving()
@@ -604,21 +604,19 @@ public partial class LevelManager : Node
     }
 #endregion
 #region State Independent
-    private BoundedNode2D _cameraTarget = null;
-
     /// <summary>When the pointer starts flying, we need to wait for it to finish. Also focus the camera on its target if there's something there.</summary>
     /// <param name="target">Position the pointer is going to fly to.</param>
     public void OnPointerFlightStarted(Vector2 target)
     {
         StateChart.SendEvent(WaitEvent);
-        _cameraTarget = Camera.Target;
+        _prevCameraTarget = Camera.Target;
         Camera.Target = Grid.Occupants.ContainsKey(Grid.CellOf(target)) ? Grid.Occupants[Grid.CellOf(target)] : Camera.Target;
     }
 
     /// <summary>When the pointer finished flying, return to the previous state.</summary>
     public void OnPointerFlightCompleted()
     {
-        Camera.Target = _cameraTarget;
+        Camera.Target = _prevCameraTarget;
         StateChart.SendEvent(DoneEvent);
     }
 
