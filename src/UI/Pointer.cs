@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Extensions;
 using Godot;
 using Nodes;
 using Nodes.StateChart;
@@ -59,11 +60,14 @@ public partial class Pointer : BoundedNode2D
 
     /// <summary>Speed in screen pixels/second the pointer moves when in analog mode.</summary>
     [ExportGroup("Movement")]
-    [Export] public double Speed = 1200;
+    [Export(PropertyHint.None, "suffix:px/s")] public double Speed = 1200;
 
     /// <summary>Multiplier applied to the pointer speed when the accelerate button is held down in analog mode.</summary>
     [ExportGroup("Movement")]
     [Export] public double Acceleration = 3;
+
+    [ExportGroup("Movement")]
+    [Export(PropertyHint.None, "suffix:s")] public double DefaultFlightTime = 0.25;
 
     /// <summary>Action to move the pointer up.</summary>
     [ExportGroup("Input Actions/Movement")]
@@ -235,8 +239,13 @@ public partial class Pointer : BoundedNode2D
     /// <param name="region">New region enclosed by the cursor.</param>
     public void OnCursorMoved(Rect2 region)
     {
-        if (DigitalState.Active || (AnalogState.Active && !_tracking))
-            Warp(region.GetCenter());
+        if (!region.Contains(Position, perimeter:true))
+        {
+            if (MouseState.Active)
+                Fly(region.GetCenter(), DefaultFlightTime);
+            else
+                Warp(region.GetCenter());
+        }
     }
 
     public override string[] _GetConfigurationWarnings()
