@@ -28,6 +28,7 @@ public partial class DigitalMoveAction : Node
     [Signal] public delegate void SkipEventHandler(Vector2I direction);
 
     private Vector2I _direction = Vector2I.Zero;
+    private bool _process = false;
     private bool _echoing = false;
     private bool _reset = false;
     private bool _skip = false;
@@ -90,10 +91,10 @@ public partial class DigitalMoveAction : Node
         else
         {
             EmitSignal(SignalName.DirectionEchoed, _direction);
-            if (EchoInterval > GetPhysicsProcessDeltaTime())
-                EchoTimer.Start(EchoInterval);
-            else
+            if (_process)
                 _echoing = true;
+            else
+                EchoTimer.Start(EchoInterval);
         }
     }
 
@@ -116,6 +117,12 @@ public partial class DigitalMoveAction : Node
         base._ExitTree();
         EchoTimer.Stop();
         _direction = Vector2I.Zero;
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+        _process = EchoInterval < 1.0/Engine.PhysicsTicksPerSecond;
     }
 
     public override void _UnhandledInput(InputEvent @event)
