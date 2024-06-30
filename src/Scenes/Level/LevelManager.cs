@@ -221,7 +221,7 @@ public partial class LevelManager : Node
                 Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => u.Affiliation.AlliedTo(hovered)),
                 Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => !u.Affiliation.AlliedTo(hovered))
             );
-            ActionOverlay.UsedCells = actionable.Exclusive().ToDictionary();
+            System.Threading.ThreadPool.QueueUserWorkItem((_) => ActionOverlay.UsedCells = actionable.Exclusive().ToDictionary());
         }
     }
 
