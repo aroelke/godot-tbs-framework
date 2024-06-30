@@ -90,7 +90,7 @@ public partial class DigitalMoveAction : Node
         else
         {
             EmitSignal(SignalName.DirectionEchoed, _direction);
-            if (EchoInterval > GetProcessDeltaTime())
+            if (EchoInterval > GetPhysicsProcessDeltaTime())
                 EchoTimer.Start(EchoInterval);
             else
                 _echoing = true;
@@ -156,9 +156,9 @@ public partial class DigitalMoveAction : Node
         }
     }
 
-    public override void _Process(double delta)
+    public override void _PhysicsProcess(double delta)
     {
-        base._Process(delta);
+        base._PhysicsProcess(delta);
         if (DeviceManager.Mode == InputMode.Digital && _echoing)
             EmitSignal(SignalName.DirectionEchoed, _direction);
     }
