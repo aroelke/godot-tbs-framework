@@ -361,13 +361,14 @@ public partial class LevelManager : Node
     {
         // Clear out movement/action ranges
         _actionable = _actionable.Clear();
-        Cursor.SoftRestriction.Clear();
         PathOverlay.Clear();
         ActionOverlay.Clear();
     }
 
     public void OnSelectedExited()
     {
+        Cursor.SoftRestriction.Clear();
+
         // Restore the camera zoom back to what it was before a unit was selected
         if (Camera.HasZoomMemory())
             Camera.PopZoom();
