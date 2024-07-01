@@ -15,6 +15,7 @@
 [ext_resource type="PackedScene" uid="uid://djew2nxucmtwl" path="res://src/Nodes/StateChart/Reactions/UnhandledInputReaction.tscn" id="13_57sak"]
 [ext_resource type="Script" path="res://src/Nodes/StateChart/Conditions/UnCondition.cs" id="14_xq8gn"]
 [ext_resource type="PackedScene" uid="uid://bajcy40oic1wf" path="res://src/Nodes/StateChart/Reactions/ProcessReaction.tscn" id="15_n3x6e"]
+[ext_resource type="PackedScene" uid="uid://o14hjfw71flw" path="res://src/Nodes/StateChart/Reactions/PhysicsProcessReaction.tscn" id="16_qorhx"]
 [ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://assets/ui/mouse.png" id="16_sbop6"]
 
 [sub_resource type="Resource" id="Resource_eewfv"]
@@ -38,9 +39,6 @@ Property = &"mode"
 Value = "Mouse"
 
 [sub_resource type="Resource" id="Resource_1upme"]
-script = ExtResource("14_xq8gn")
-
-[sub_resource type="Resource" id="Resource_huup2"]
 script = ExtResource("14_xq8gn")
 
 [sub_resource type="Resource" id="Resource_mlqyi"]
@@ -112,8 +110,7 @@ Condition = SubResource("Resource_ys2j2")
 [node name="OnUnhandledInput" parent="ControlState/Root/Active/Analog" instance=ExtResource("13_57sak")]
 Condition = SubResource("Resource_1upme")
 
-[node name="OnProcess" parent="ControlState/Root/Active/Analog" instance=ExtResource("15_n3x6e")]
-Condition = SubResource("Resource_huup2")
+[node name="OnPhysicsProcess" parent="ControlState/Root/Active/Analog" instance=ExtResource("16_qorhx")]
 
 [node name="Mouse" parent="ControlState/Root/Active" instance=ExtResource("10_fcy41")]
 unique_name_in_owner = true
@@ -169,7 +166,7 @@ texture = ExtResource("16_sbop6")
 [connection signal="StateEntered" from="ControlState/Root/Active/Digital" to="." method="OnDigitalStateEntered"]
 [connection signal="StateEntered" from="ControlState/Root/Active/Analog" to="." method="OnAnalogStateEntered"]
 [connection signal="StateUnhandledInput" from="ControlState/Root/Active/Analog/OnUnhandledInput" to="." method="OnAnalogStateUnhandledInput"]
-[connection signal="StateProcess" from="ControlState/Root/Active/Analog/OnProcess" to="." method="OnAnalogStateProcess"]
+[connection signal="StatePhysicsProcess" from="ControlState/Root/Active/Analog/OnPhysicsProcess" to="." method="OnAnalogStatePhysicsProcess"]
 [connection signal="StateEntered" from="ControlState/Root/Active/Mouse" to="." method="OnMouseStateEntered"]
 [connection signal="Taken" from="ControlState/Root/Active/Mouse/ToAnalog" to="." method="OnMouseToAnalogTaken"]
 [connection signal="StateProcess" from="ControlState/Root/Active/Mouse/OnProcess" to="." method="OnMouseStateProcess"]

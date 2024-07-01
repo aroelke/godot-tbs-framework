@@ -197,7 +197,7 @@ public partial class Pointer : BoundedNode2D
 
     /// <summary>During analog input state, move the pointer according to the movement axis.</summary>
     /// <param name="delta">Time since the last process step.</param>
-    public void OnAnalogStateProcess(double delta)
+    public void OnAnalogStatePhysicsProcess(double delta)
     {
         if (_tracking)
         {
