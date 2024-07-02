@@ -190,7 +190,11 @@ public partial class CombatScene : Node
                 _animations[action.Actor].AttackDodged -= OnDodge;
                 _animations[action.Actor].AttackStrike -= OnMiss;
             }
-            await Delay(TurnDelay);
+
+            if (LeftInfo.Health.Value == 0 || RightInfo.Health.Value == 0)
+                break;
+            else
+                await Delay(TurnDelay);
         }
 
         if (!_canceled)
