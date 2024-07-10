@@ -25,8 +25,11 @@ public partial class Pointer : BoundedNode2D
     /// <param name="position">Position of the virtual pointer.</param>
     [Signal] public delegate void PointerMovedEventHandler(Vector2 position);
 
+    /// <summary>Signals that the pointer has begun moving to a new position over time. During flight, the cursor doesn't respond to input.</summary>
+    /// <param name="target">Position the cursor is moving to.</param>
     [Signal] public delegate void FlightStartedEventHandler(Vector2 target);
 
+    /// <summary>Signals that the pointer has finished moving to its target position.</summary>
     [Signal] public delegate void FlightCompletedEventHandler();
 
     private static readonly StringName ModeProperty = "mode";
