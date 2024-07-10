@@ -32,7 +32,7 @@ public partial class Unit : GridNode, IHasHealth
     /// <summary>Signal that the unit is done moving along its path.</summary>
     [Signal] public delegate void DoneMovingEventHandler();
 
-    private Army _affiliation = null;
+    private Faction _faction = null;
     private Stats _stats = new();
 
     private FastForwardComponent Accelerate => _cache.GetNode<FastForwardComponent>("Accelerate");
@@ -75,17 +75,17 @@ public partial class Unit : GridNode, IHasHealth
     /// <summary>Distances from the unit's occupied cell that it can support.</summary>
     [Export] public int[] SupportRange = new[] { 1, 2, 3 };
 
-    /// <summary>Army to which this unit belongs, to determine its allies and enemies.</summary>
-    [Export] public Army Affiliation
+    /// <summary>Faction to which this unit belongs, to determine its allies and enemies.</summary>
+    [Export] public Faction Faction
     {
-        get => _affiliation;
+        get => _faction;
         set
         {
-            if (_affiliation != value)
+            if (_faction != value)
             {
-                _affiliation = value;
-                if (Sprite is not null && _affiliation is not null)
-                    Sprite.Modulate = _affiliation.Color;
+                _faction = value;
+                if (Sprite is not null && _faction is not null)
+                    Sprite.Modulate = _faction.Color;
             }
         }
     }
@@ -126,7 +126,7 @@ public partial class Unit : GridNode, IHasHealth
                     if ((!cells.ContainsKey(neighbor) || cells[neighbor] > cost) && // cell hasn't been examined yet or this path is shorter to get there
                         Grid.Occupants.GetValueOrDefault(neighbor) switch // cell is empty or contains an allied unit
                         {
-                            Unit unit => unit.Affiliation.AlliedTo(this),
+                            Unit unit => unit.Faction.AlliedTo(this),
                             null => true,
                             _ => false
                         } &&
@@ -206,7 +206,7 @@ public partial class Unit : GridNode, IHasHealth
     /// <summary>Restore the unit into its "idle" state from being inactive, indicating that it's ready to act again.</summary>
     public void Refresh()
     {
-        Sprite.Modulate = Affiliation.Color;
+        Sprite.Modulate = Faction.Color;
         Tree.Set(Done, false);
         Tree.Set(Idle, true);
     }
@@ -262,8 +262,8 @@ public partial class Unit : GridNode, IHasHealth
     {
         base._Ready();
 
-        if (_affiliation is not null)
-            Sprite.Modulate = _affiliation.Color;
+        if (_faction is not null)
+            Sprite.Modulate = _faction.Color;
 
         if (!Engine.IsEditorHint())
         {
@@ -300,8 +300,8 @@ public partial class Unit : GridNode, IHasHealth
         }
         else
         {
-            if (_affiliation is not null)
-                Sprite.Modulate = _affiliation.Color;
+            if (_faction is not null)
+                Sprite.Modulate = _faction.Color;
         }
     }
 }

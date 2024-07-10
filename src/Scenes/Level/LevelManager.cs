@@ -93,8 +93,8 @@ public partial class LevelManager : Node
     private void UpdateDangerZones()
     {
         // Update local danger zone
-        IEnumerable<Unit> enemies = ZoneUnits.Where((u) => !StartingArmy.AlliedTo(u));
-        IEnumerable<Unit> allies = ZoneUnits.Where(StartingArmy.AlliedTo);
+        IEnumerable<Unit> enemies = ZoneUnits.Where((u) => !StartingArmy.Faction.AlliedTo(u));
+        IEnumerable<Unit> allies = ZoneUnits.Where(StartingArmy.Faction.AlliedTo);
         if (enemies.Any())
             ZoneOverlay[LocalDangerZone] = enemies.SelectMany((u) => u.AttackableCells(u.TraversableCells())).ToImmutableHashSet();
         else
@@ -107,7 +107,7 @@ public partial class LevelManager : Node
         // Update global danger zone
         if (ShowGlobalDangerZone)
             ZoneOverlay[GlobalDanger] = GetChildren().OfType<Army>()
-                .Where((a) => !a.AlliedTo(StartingArmy))
+                .Where((a) => !a.Faction.AlliedTo(StartingArmy.Faction))
                 .SelectMany((a) => (IEnumerable<Unit>)a)
                 .SelectMany((u) => u.AttackableCells(u.TraversableCells())).ToImmutableHashSet();
         else
@@ -218,8 +218,8 @@ public partial class LevelManager : Node
         if (_armies.Current == StartingArmy && Grid.Occupants.GetValueOrDefault(cell) is Unit hovered)
         {
             ActionRanges actionable = hovered.ActionRanges().WithOccupants(
-                Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => u.Affiliation.AlliedTo(hovered)),
-                Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => !u.Affiliation.AlliedTo(hovered))
+                Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => u.Faction.AlliedTo(hovered)),
+                Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => !u.Faction.AlliedTo(hovered))
             );
             System.Threading.ThreadPool.QueueUserWorkItem((_) => ActionOverlay.UsedCells = actionable.Exclusive().ToDictionary());
         }
@@ -241,10 +241,11 @@ public partial class LevelManager : Node
                     Cursor.Cell = selected.Cell;
             }
 
+            Army army = GetChildren().OfType<Army>().Where((a) => a.Contains(unit)).First();
             if (@event.IsActionPressed(PreviousAction))
-                SelectUnit(unit.Affiliation.Previous);
+                SelectUnit(army.Previous);
             if (@event.IsActionPressed(NextAction))
-                SelectUnit(unit.Affiliation.Next);
+                SelectUnit(army.Next);
         }
     }
 
@@ -274,8 +275,8 @@ public partial class LevelManager : Node
 
         // Compute move/attack/support ranges for selected unit
         _actionable = _selected.ActionRanges().WithOccupants(
-            Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => u.Affiliation.AlliedTo(_selected)),
-            Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => !u.Affiliation.AlliedTo(_selected))
+            Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => u.Faction.AlliedTo(_selected)),
+            Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => !u.Faction.AlliedTo(_selected))
         );
         _path = Path.Empty(Grid, _actionable.Traversable).Add(_selected.Cell);
         Cursor.SoftRestriction = _actionable.Traversable.ToHashSet();
@@ -308,9 +309,9 @@ public partial class LevelManager : Node
         else if (Grid.Occupants.GetValueOrDefault(cell) is Unit target)
         {
             IEnumerable<Vector2I> sources = Array.Empty<Vector2I>();
-            if (target != _selected && _armies.Current.AlliedTo(target) && _actionable.Supportable.Contains(cell))
+            if (target != _selected && _armies.Current.Faction.AlliedTo(target) && _actionable.Supportable.Contains(cell))
                 sources = _selected.SupportableCells(cell).Where(_actionable.Traversable.Contains);
-            else if (!_armies.Current.AlliedTo(target) && _actionable.Attackable.Contains(cell))
+            else if (!_armies.Current.Faction.AlliedTo(target) && _actionable.Attackable.Contains(cell))
                 sources = _selected.AttackableCells(cell).Where(_actionable.Traversable.Contains);
             sources = sources.Where((c) => !Grid.Occupants.ContainsKey(c) || Grid.Occupants[c] == _selected);
             if (sources.Any())
@@ -335,7 +336,7 @@ public partial class LevelManager : Node
         if (_actionable.Traversable.Contains(cell))
         {
             Unit highlighted = Grid.Occupants.GetValueOrDefault(cell) as Unit;
-            if (highlighted != _selected && _armies.Current.AlliedTo(highlighted))
+            if (highlighted != _selected && _armies.Current.Faction.AlliedTo(highlighted))
                 ErrorSound.Play();
         }
     }
@@ -425,8 +426,8 @@ public partial class LevelManager : Node
         {
             // Show the unit's attack/support ranges
             ActionRanges actionable = new(
-                _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Affiliation.AlliedTo(_selected) ?? false),
-                _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Affiliation.AlliedTo(_selected) ?? false)
+                _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false),
+                _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false)
             );
             ActionOverlay.UsedCells = actionable.ToDictionary();
 
@@ -562,8 +563,8 @@ public partial class LevelManager : Node
     /// <summary>Update the UI turn counter for the current turn and change its color to match the army.</summary>
     private void UpdateTurnCounter()
     {
-        TurnLabel.AddThemeColorOverride("font_color", _armies.Current.Color);
-        TurnLabel.Text = $"Turn {Turn}: {_armies.Current.Name}";
+        TurnLabel.AddThemeColorOverride("font_color", _armies.Current.Faction.Color);
+        TurnLabel.Text = $"Turn {Turn}: {_armies.Current.Faction.Name}";
     }
 
     /// <summary>
@@ -734,15 +735,15 @@ public partial class LevelManager : Node
                 .SetItem(OccupiedProperty, Grid.Occupants.GetValueOrDefault(Cursor.Cell) switch
                 {
                     Unit unit when unit == _selected => SelectedOccuiped,
-                    Unit unit when _armies.Current == unit.Affiliation => unit.Active ? ActiveAllyOccupied : InActiveAllyOccupied,
-                    Unit unit when _armies.Current.AlliedTo(unit.Affiliation) => FriendlyOccuipied,
+                    Unit unit when _armies.Current.Faction == unit.Faction => unit.Active ? ActiveAllyOccupied : InActiveAllyOccupied,
+                    Unit unit when _armies.Current.Faction.AlliedTo(unit.Faction) => FriendlyOccuipied,
                     Unit => EnemyOccupied,
                     null => NotOccupied,
                     _ => OtherOccupied
                 })
                 .SetItem(TargetProperty, Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit target &&
-                                          ((target != _selected && _armies.Current.AlliedTo(target) && _actionable.Supportable.Contains(Cursor.Cell)) ||
-                                           (!_armies.Current.AlliedTo(target) && _actionable.Attackable.Contains(Cursor.Cell))))
+                                          ((target != _selected && _armies.Current.Faction.AlliedTo(target) && _actionable.Supportable.Contains(Cursor.Cell)) ||
+                                           (!_armies.Current.Faction.AlliedTo(target) && _actionable.Attackable.Contains(Cursor.Cell))))
                 .SetItem(TraversableProperty, _actionable.Traversable.Contains(Cursor.Cell));
         }
     }

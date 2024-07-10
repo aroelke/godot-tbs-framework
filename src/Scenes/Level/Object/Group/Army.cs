@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Data;
 using Godot;
 
 namespace Scenes.Level.Object.Group;
@@ -9,19 +10,7 @@ namespace Scenes.Level.Object.Group;
 [Tool]
 public partial class Army : GridNodeGroup, IEnumerable<Unit>
 {
-    /// <summary>Color to use for units in this army.</summary>
-    [Export] public Color Color = Colors.White;
-
-    /// <summary>Armies to which this army is allied (not including itself).</summary>
-    [Export] public Army[] Allies = Array.Empty<Army>();
-
-    /// <param name="other">Army to check.</param>
-    /// <returns><c>true</c> if <paramref name="other"/> is allied with this one, and <c>false</c> otherwise.</returns>
-    public bool AlliedTo(Army other) => other == this || Allies.Contains(other);
-
-    /// <param name="unit">Unit to check.</param>
-    /// <returns><c>true</c> if <paramref name="unit"/> is in this army or an allied one, and <c>false</c> otherwise.</returns>
-    public bool AlliedTo(Unit unit) => Contains(unit) || AlliedTo(unit.Affiliation);
+    [Export] public Faction Faction = null;
 
     /// <summary>Find the "previous" unit in the list, looping around to the end if needed.</summary>
     /// <remarks>"Previous" is arbitrarily defined by the order each unit was inserted into the <see cref="SceneTree"/>.</remarks>
@@ -72,7 +61,7 @@ public partial class Army : GridNodeGroup, IEnumerable<Unit>
     public void OnChildEnteredTree(Node child)
     {
         if (child is Unit unit)
-            unit.Affiliation = this;
+            unit.Faction = Faction;
     }
 
     public override void _Ready()
@@ -80,7 +69,7 @@ public partial class Army : GridNodeGroup, IEnumerable<Unit>
         base._Ready();
 
         foreach (Unit unit in (IEnumerable<Unit>)this)
-            unit.Affiliation = this;
+            unit.Faction = Faction;
     }
 
     IEnumerator<Unit> IEnumerable<Unit>.GetEnumerator() => GetChildren().OfType<Unit>().GetEnumerator();

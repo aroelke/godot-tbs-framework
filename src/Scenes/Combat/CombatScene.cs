@@ -97,7 +97,7 @@ public partial class CombatScene : Node
         _actions = actions;
 
         _animations[left] = left.Class.CombatAnimations.Instantiate<CombatAnimation>();
-        _animations[left].Modulate = left.Affiliation.Color;
+        _animations[left].Modulate = left.Faction.Color;
         _animations[left].Position = LeftPosition;
         _animations[left].Left = true;
         _animations[left].StepTaken += () => StepSound.Play();
@@ -108,7 +108,7 @@ public partial class CombatScene : Node
         LeftInfo.TransitionDuration = HitDelay;
 
         _animations[right] = right.Class.CombatAnimations.Instantiate<CombatAnimation>();
-        _animations[right].Modulate = right.Affiliation.Color;
+        _animations[right].Modulate = right.Faction.Color;
         _animations[right].Position = RightPosition;
         _animations[right].Left = false;
         _animations[right].StepTaken += () => StepSound.Play();
