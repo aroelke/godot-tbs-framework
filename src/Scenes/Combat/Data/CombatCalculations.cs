@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Security.Principal;
 using Scenes.Level.Object;
 
 namespace Scenes.Combat.Data;

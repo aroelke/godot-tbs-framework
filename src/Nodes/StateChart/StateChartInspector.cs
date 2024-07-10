@@ -13,6 +13,9 @@ namespace Nodes.StateChart;
 [Icon("res://icons/statechart/StateChartInspector.svg")]
 public partial class StateChartInspector : MarginContainer
 {
+    private readonly NodeCache _cache;
+    public StateChartInspector() : base() { _cache = new(this); }
+
     /// <summary>Stores the <see cref="Chart"/> history and converts <see cref="State"/> changes, <see cref="Transition"/>s, and events into strings.</summary>
     private class History
     {
@@ -48,11 +51,12 @@ public partial class StateChartInspector : MarginContainer
         }
     }
 
-    private Tree _tree = null;
-    private TextEdit _historyEdit = null;
     private readonly Dictionary<State, (State.StateEnteredEventHandler, State.StateExitedEventHandler)> _connectedStates = new();
     private readonly Dictionary<Transition, Transition.TakenEventHandler> _connectedTransitions = new();
     private History _history = null;
+
+    private Tree Tree => _cache.GetNode<Tree>("%Tree");
+    private TextEdit HistoryEdit => _cache.GetNode<TextEdit>("%HistoryEdit");
 
     /// <summary>
     /// Connect all of the <see cref="Chart.EventReceived"/> <see cref="State.StateEntered"/>, <see cref="State.StateExited"/>, and <see cref="Transition.Taken"/>
@@ -119,16 +123,16 @@ public partial class StateChartInspector : MarginContainer
         Visible = Enabled;
     }
 
-    /// <summary>Find the active <see cref="State"/>s in the <see cref="Chart"/> and create a <see cref="Tree"/> representing them.</summary>
-    /// <param name="root">Node to find child <see cref="State"/>s in to add to the <see cref="Tree"/>.</param>
-    /// <param name="parent">Item in the <see cref="Tree"/> to add to.</param>
+    /// <summary>Find the active <see cref="State"/>s in the <see cref="Chart"/> and create a <see cref="Godot.Tree"/> representing them.</summary>
+    /// <param name="root">Node to find child <see cref="State"/>s in to add to the <see cref="Godot.Tree"/>.</param>
+    /// <param name="parent">Item in the <see cref="Godot.Tree"/> to add to.</param>
     private void CollectActiveStates(Node root, TreeItem parent)
     {
         foreach (State state in root.GetChildren().OfType<State>())
         {
             if (state.Active)
             {
-                TreeItem item = _tree.CreateItem(parent);
+                TreeItem item = Tree.CreateItem(parent);
                 item.SetText(0, state.Name);
                 CollectActiveStates(state, item);
             }
@@ -137,20 +141,26 @@ public partial class StateChartInspector : MarginContainer
 
     private void ClearHistory()
     {
-        _historyEdit.Text = "";
+        HistoryEdit.Text = "";
         _history.Clear();
     }
 
+    /// <summary>Whether or not to show the state of a <see cref="Chart"/> in the UI.</summary>
     [Export] public bool Enabled = true;
 
+    /// <summary>State chart whose state is to be tracked.</summary>
     [Export] public Chart StateChart = null;
 
+    /// <summary>Maximum number of <see cref="Chart"/> history lines to show.</summary>
     [Export] public int MaximumLines = 300;
 
+    /// <summary>Don't show events sent to the <see cref="Chart"/> in the history.</summary>
     [Export] public bool IgnoreEvents = false;
 
+    /// <summary>Don't show <see cref="State"/> changes in the <see cref="Chart"/> in the history.</summary>
     [Export] public bool IgnoreStateChanges = false;
 
+    /// <summary>Don't show <see cref="State"/> in the <see cref="Chart"/> in the history.</summary>
     [Export] public bool IgnoreTransitions = false;
 
     /// <summary>Change the <see cref="Chart"/> to inspect in the UI.</summary>
@@ -211,10 +221,10 @@ public partial class StateChartInspector : MarginContainer
     /// <summary>Update the UI if it's been changed.</summary>
     public void OnTimerTimeout()
     {
-        if (_historyEdit.Visible && _history.Dirty)
+        if (HistoryEdit.Visible && _history.Dirty)
         {
-            _historyEdit.Text = _history.GetHistoryText();
-            _historyEdit.ScrollVertical = _historyEdit.GetLineCount() - 1;
+            HistoryEdit.Text = _history.GetHistoryText();
+            HistoryEdit.ScrollVertical = HistoryEdit.GetLineCount() - 1;
         }
     }
 
@@ -228,12 +238,9 @@ public partial class StateChartInspector : MarginContainer
 
         ProcessMode = ProcessModeEnum.Always;
 
-        _tree = GetNode<Tree>("%Tree");
-        _historyEdit = GetNode<TextEdit>("%HistoryEdit");
-
         _history = new History { MaximumLines = MaximumLines };
 
-        GetNode<Button>("%CopyToClipboardButton").Pressed += () => DisplayServer.ClipboardSet(_historyEdit.Text);
+        GetNode<Button>("%CopyToClipboardButton").Pressed += () => DisplayServer.ClipboardSet(HistoryEdit.Text);
         GetNode<Button>("%ClearButton").Pressed += ClearHistory;
 
         InspectChart(StateChart);
@@ -247,12 +254,12 @@ public partial class StateChartInspector : MarginContainer
     {
         base._Process(delta);
 
-        _tree.Clear();
+        Tree.Clear();
 
         if (!IsInstanceValid(StateChart))
             return;
         
-        TreeItem root = _tree.CreateItem();
+        TreeItem root = Tree.CreateItem();
         root.SetText(0, StateChart.Name);
 
         CollectActiveStates(StateChart, root);
