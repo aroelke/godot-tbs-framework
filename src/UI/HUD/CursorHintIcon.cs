@@ -15,6 +15,7 @@ namespace UI.HUD;
 public partial class CursorHintIcon : HBoxContainer
 {
     private readonly NodeCache _cache;
+    public CursorHintIcon() : base() => _cache = new(this);
 
     private Dictionary<InputDevice, Control> _icons = new();
 
@@ -72,11 +73,6 @@ public partial class CursorHintIcon : HBoxContainer
             foreach ((InputDevice device, Control icon) in _icons)
                 icon.Visible = device == value;
         }
-    }
-
-    public CursorHintIcon() : base()
-    {
-        _cache = new(this);
     }
 
     /// <summary>When the input changes, switch the icon to the correct device.</summary>

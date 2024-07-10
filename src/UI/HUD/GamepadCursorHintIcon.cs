@@ -14,6 +14,7 @@ namespace UI.HUD;
 public partial class GamepadCursorHintIcon : HBoxContainer
 {
     private readonly NodeCache _cache;
+    public GamepadCursorHintIcon() : base() => _cache = new(this);
 
     private Texture2D GetButtonIcon(JoyButton b) => ButtonMap is not null && ButtonMap.ContainsKey(b) ? ButtonMap[b] : null;
 
@@ -87,11 +88,6 @@ public partial class GamepadCursorHintIcon : HBoxContainer
                 UnifiedIcon.Visible = !value;
             }
         }
-    }
-
-    public GamepadCursorHintIcon() : base()
-    {
-        _cache = new(this);
     }
 
     public override void _Ready()

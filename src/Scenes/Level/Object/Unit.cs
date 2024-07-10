@@ -20,6 +20,7 @@ namespace Scenes.Level.Object;
 public partial class Unit : GridNode, IHasHealth
 {
     private readonly NodeCache _cache;
+    public Unit() : base() => _cache = new(this);
 
     // AnimationTree parameters
     private static readonly StringName Idle = "parameters/conditions/idle";
@@ -102,11 +103,6 @@ public partial class Unit : GridNode, IHasHealth
 
     /// <summary>Component maintaining the unit's health during the level.</summary>
     public HealthComponent Health => _cache.GetNodeOrNull<HealthComponent>("Health");
-
-    public Unit() : base()
-    {
-        _cache = new(this);
-    }
 
     /// <returns>The set of cells that this unit can reach from its position, accounting for <see cref="Terrain.Cost"/>.</returns>
     public IEnumerable<Vector2I> TraversableCells()
