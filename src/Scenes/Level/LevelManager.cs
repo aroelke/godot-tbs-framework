@@ -15,6 +15,7 @@ using Scenes.Level.Object;
 using Scenes.Level.Object.Group;
 using Scenes.Level.Map;
 using Scenes.Combat.Data;
+using Data;
 
 namespace Scenes.Level;
 
@@ -92,9 +93,11 @@ public partial class LevelManager : Node
     /// <summary>Update the displayed danger zones to reflect the current positions of the enemy <see cref="Unit"/>s.</summary>
     private void UpdateDangerZones()
     {
+        Faction player = GetChildren().OfType<Army>().Where((a) => a.Faction.IsPlayer).First().Faction;
+
         // Update local danger zone
-        IEnumerable<Unit> enemies = ZoneUnits.Where((u) => !StartingArmy.Faction.AlliedTo(u));
-        IEnumerable<Unit> allies = ZoneUnits.Where(StartingArmy.Faction.AlliedTo);
+        IEnumerable<Unit> enemies = ZoneUnits.Where((u) => !player.AlliedTo(u));
+        IEnumerable<Unit> allies = ZoneUnits.Where(player.AlliedTo);
         if (enemies.Any())
             ZoneOverlay[LocalDangerZone] = enemies.SelectMany((u) => u.AttackableCells(u.TraversableCells())).ToImmutableHashSet();
         else
@@ -107,7 +110,7 @@ public partial class LevelManager : Node
         // Update global danger zone
         if (ShowGlobalDangerZone)
             ZoneOverlay[GlobalDanger] = GetChildren().OfType<Army>()
-                .Where((a) => !a.Faction.AlliedTo(StartingArmy.Faction))
+                .Where((a) => !a.Faction.AlliedTo(player))
                 .SelectMany((a) => (IEnumerable<Unit>)a)
                 .SelectMany((u) => u.AttackableCells(u.TraversableCells())).ToImmutableHashSet();
         else
@@ -143,7 +146,7 @@ public partial class LevelManager : Node
         }
     }
 
-    /// <summary>Whether or not to show the global danger zone relative to <see cref="StartingArmy"/>.</summary>
+    /// <summary>Whether or not to show the global danger zone relative to the player's <see cref="Army"/>.</summary>
     [ExportGroup("Range Overlay")]
     [Export] public bool ShowGlobalDangerZone
     {
@@ -188,7 +191,7 @@ public partial class LevelManager : Node
     /// <param name="event">Name of the event.</param>
     public void OnIdleEventReceived(StringName @event)
     {
-        if (_armies.Current == StartingArmy && Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit && !StartingArmy.Contains(unit))
+        if (_armies.Current.Faction.IsPlayer && Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit && !_armies.Current.Contains(unit))
         {
             if (@event == SelectEvent)
             {
@@ -215,7 +218,7 @@ public partial class LevelManager : Node
     {
         ActionOverlay.Clear();
 
-        if (_armies.Current == StartingArmy && Grid.Occupants.GetValueOrDefault(cell) is Unit hovered)
+        if (_armies.Current.Faction.IsPlayer && Grid.Occupants.GetValueOrDefault(cell) is Unit hovered)
         {
             ActionRanges actionable = hovered.ActionRanges().WithOccupants(
                 Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => u.Faction.AlliedTo(hovered)),
@@ -661,6 +664,9 @@ public partial class LevelManager : Node
         // Make sure there are units to control and to fight.
         if (!GetChildren().Where((c) => c is Army).Any())
             warnings.Add("There are not any armies to assign units to.");
+
+        if (GetChildren().Where((c) => c is Army army && army.Faction.IsPlayer).Count() > 1)
+            warnings.Add("Multiple armies are player-controlled. Only the first one will be used for zone display.");
 
         // Make sure there's background music
         if (BackgroundMusic is null)
