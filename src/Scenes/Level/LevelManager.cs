@@ -534,6 +534,9 @@ public partial class LevelManager : Node
     {
         Cursor.Halt();
         Pointer.StartWaiting();
+        
+        if (_target is null)
+            Callable.From<StringName>(StateChart.SendEvent).CallDeferred(DoneEvent);
     }
 
     /// <summary>Update the map to reflect combat results when it's added back to the tree.</summary>
