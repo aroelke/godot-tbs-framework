@@ -4,6 +4,7 @@ using Godot;
 namespace UI;
 
 /// <summary>Global controller for background music.</summary>
+[Tool]
 public partial class MusicController : AudioStreamPlayer
 {
     private static MusicController _singleton = null;
@@ -66,8 +67,19 @@ public partial class MusicController : AudioStreamPlayer
             _positions.Remove(bgm);
     }
 
+    private float _volume = -10;
+
     /// <summary>Volume to play music tracks at.</summary>
-    [Export(PropertyHint.None, "suffix:dB")] public float PlayVolume = -10;
+    [Export(PropertyHint.None, "suffix:dB")] public float PlayVolume
+    {
+        get => _volume;
+        set
+        {
+            _volume = value;
+            if (Engine.IsEditorHint())
+                VolumeDb = _volume;
+        }
+    }
 
     /// <summary>Volume to fade to when fading between music tracks.</summary>
     [Export(PropertyHint.None, "suffix:dB")] public float FadeVolume = -25;
