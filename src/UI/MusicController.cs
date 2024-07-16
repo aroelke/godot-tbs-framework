@@ -25,8 +25,6 @@ public partial class MusicController : AudioStreamPlayer
         {
             if (Singleton.Stream != music)
             {
-                float volume = Singleton.VolumeDb;
-
                 if (Singleton.Stream is not null)
                 {
                     if (outDuration > 0)
@@ -45,10 +43,10 @@ public partial class MusicController : AudioStreamPlayer
                 {
                     Singleton.VolumeDb = Singleton.FadeVolume;
                     Tween fade = Singleton.CreateTween();
-                    fade.TweenProperty(Singleton, new(AudioStreamPlayer.PropertyName.VolumeDb), volume, inDuration);
+                    fade.TweenProperty(Singleton, new(AudioStreamPlayer.PropertyName.VolumeDb), Singleton.PlayVolume, inDuration);
                 }
                 else if (outDuration > 0)
-                    Singleton.VolumeDb = volume;
+                    Singleton.VolumeDb = Singleton.PlayVolume;
             }
         }
         else if (Singleton.Stream is not null && !Singleton.Playing)
@@ -67,6 +65,9 @@ public partial class MusicController : AudioStreamPlayer
         else
             _positions.Remove(bgm);
     }
+
+    /// <summary>Volume to play music tracks at.</summary>
+    [Export(PropertyHint.None, "suffix:dB")] public float PlayVolume = -10;
 
     /// <summary>Volume to fade to when fading between music tracks.</summary>
     [Export(PropertyHint.None, "suffix:dB")] public float FadeVolume = -25;
