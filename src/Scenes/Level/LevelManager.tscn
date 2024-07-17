@@ -1,4 +1,4 @@
-[gd_scene load_steps=56 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=59 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="Resource" uid="uid://hkvw8a5g5l62" path="res://src/UI/Controls/Action/References/Map/MapCancelAction.tres" id="2_2u5dc"]
@@ -36,7 +36,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -495550839
+seed = 1001652598
 
 [sub_resource type="Resource" id="Resource_umt67"]
 script = ExtResource("24_k1nop")
@@ -100,6 +100,15 @@ script = ExtResource("23_6etqp")
 Condition = SubResource("Resource_wojwn")
 
 [sub_resource type="Resource" id="Resource_f7pbh"]
+script = ExtResource("24_k1nop")
+
+[sub_resource type="Resource" id="Resource_t07e7"]
+script = ExtResource("24_k1nop")
+
+[sub_resource type="Resource" id="Resource_6a6ww"]
+script = ExtResource("24_k1nop")
+
+[sub_resource type="Resource" id="Resource_0j1nf"]
 script = ExtResource("24_k1nop")
 
 [sub_resource type="Resource" id="Resource_58eyu"]
@@ -282,7 +291,12 @@ process_mode = 4
 [node name="ToTargeting" parent="State/Root/Active/UnitMoving" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../UnitTargeting")
 Event = &"done"
-Condition = SubResource("Resource_f7pbh")
+Condition = SubResource("Resource_t07e7")
+
+[node name="ToCombat" parent="State/Root/Active/UnitMoving" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../InCombat")
+Event = &"skip"
+Condition = SubResource("Resource_6a6ww")
 
 [node name="UnitTargeting" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
 process_mode = 4
@@ -300,6 +314,11 @@ Condition = SubResource("Resource_f7pbh")
 To = NodePath("../../InCombat")
 Event = &"done"
 Condition = SubResource("Resource_f7pbh")
+
+[node name="ToAdvancing" parent="State/Root/Active/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../TurnAdvancing")
+Event = &"skip"
+Condition = SubResource("Resource_0j1nf")
 
 [node name="InCombat" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
 process_mode = 4
@@ -378,6 +397,7 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateEntered" from="State/Root/Active/UnitMoving" to="." method="OnMovingEntered"]
 [connection signal="StateExited" from="State/Root/Active/UnitMoving" to="." method="OnMovingExited"]
 [connection signal="StateInput" from="State/Root/Active/UnitMoving/OnInput" to="." method="OnMovingInput"]
+[connection signal="StateEntered" from="State/Root/Active/UnitTargeting" to="." method="OnTargetingEntered"]
 [connection signal="StateCellUpdated" from="State/Root/Active/UnitTargeting/OnCellSelected" to="." method="OnTargetingCellSelected"]
 [connection signal="StateInput" from="State/Root/Active/UnitTargeting/OnInput" to="." method="OnTargetingInput"]
 [connection signal="Taken" from="State/Root/Active/UnitTargeting/ToSelected" to="." method="OnTargetingCanceled"]

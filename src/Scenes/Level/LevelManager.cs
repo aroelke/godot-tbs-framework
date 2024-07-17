@@ -33,6 +33,7 @@ public partial class LevelManager : Node
     // State chart events
     private readonly StringName SelectEvent = "select";
     private readonly StringName CancelEvent = "cancel";
+    private readonly StringName SkipEvent = "skip";
     private readonly StringName WaitEvent = "wait";
     private readonly StringName DoneEvent = "done";
     // State chart conditions
@@ -385,7 +386,7 @@ public partial class LevelManager : Node
     public void OnUnitDoneMoving()
     {
         _selected.DoneMoving -= OnUnitDoneMoving;
-        Callable.From(() => StateChart.SendEvent(DoneEvent)).CallDeferred();
+        Callable.From<StringName>(StateChart.SendEvent).CallDeferred(_target is null ? DoneEvent : SkipEvent);
     }
 
     /// <summary>Begin moving the selected <see cref="Unit"/> and then wait for it to finish moving.</summary>
@@ -421,31 +422,28 @@ public partial class LevelManager : Node
         _path = null;
         UpdateDangerZones();
         Cursor.Resume();
-
-        // If a target has already been selected (because it was shortcutted during the select state), skip through targeting
-        if (_target is not null)
-            Callable.From<Unit>(OnTargetSelected).CallDeferred(_target);
-        else
-        {
-            // Show the unit's attack/support ranges
-            ActionRanges actionable = new(
-                _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false),
-                _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false)
-            );
-            ActionOverlay.UsedCells = actionable.ToDictionary();
-
-            // Restrict cursor movement to actionable cells
-            if (_target is null)
-            {
-                Pointer.AnalogTracking = false;
-                Cursor.HardRestriction = actionable.Attackable.Union(actionable.Supportable);
-                Cursor.Wrap = true;
-            }
-        }
     }
 #endregion
 #region Targeting State
     private ImmutableList<CombatAction> _combatResults = null;
+
+    public void OnTargetingEntered()
+    {
+        // Show the unit's attack/support ranges
+        ActionRanges actionable = new(
+            _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false),
+            _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false)
+        );
+        ActionOverlay.UsedCells = actionable.ToDictionary();
+
+        // Restrict cursor movement to actionable cells
+        if (_target is null)
+        {
+            Pointer.AnalogTracking = false;
+            Cursor.HardRestriction = actionable.Attackable.Union(actionable.Supportable);
+            Cursor.Wrap = true;
+        }
+    }
 
     /// <summary>
     /// Cycle the <see cref="Object.Cursor"/> between targets of the same action (attack, support, etc.) using <see cref="PreviousAction"/>
@@ -517,7 +515,6 @@ public partial class LevelManager : Node
     {
         _target = target;
         StateChart.SendEvent(DoneEvent);
-        SceneManager.BeginCombat(_selected, target, _combatResults = CombatCalculations.CombatResults(_selected, target));
     }
 
     /// <summary>Clean up displayed ranges and restore <see cref="Object.Cursor"/> freedom when exiting targeting <see cref="State"/>.</summary>
@@ -537,6 +534,8 @@ public partial class LevelManager : Node
         
         if (_target is null)
             Callable.From<StringName>(StateChart.SendEvent).CallDeferred(DoneEvent);
+        else
+            SceneManager.BeginCombat(_selected, _target, _combatResults = CombatCalculations.CombatResults(_selected, _target));
     }
 
     /// <summary>Update the map to reflect combat results when it's added back to the tree.</summary>
