@@ -485,7 +485,6 @@ public partial class LevelManager : Node
 
         _target = null;
         UpdateDangerZones();
-        OnTargetingExited();
     }
 
     /// <summary>If a target is selected, begin combat fighting that target.  Otherwise, just end the selected <see cref="Unit"/>'s turn.</summary>
@@ -497,24 +496,19 @@ public partial class LevelManager : Node
             if (Grid.CellOf(Pointer.Position) == cell && Grid.Occupants[cell] != _selected)
             {
                 if (Grid.Occupants[cell] is Unit target)
-                    OnTargetSelected(target);
-                else
+                {
+                    _target = target;
                     StateChart.SendEvent(DoneEvent);
+                }
+                else
+                    StateChart.SendEvent(SkipEvent);
             }
         }
         else
         {
             SelectSound.Play();
-            StateChart.SendEvent(DoneEvent);
+            StateChart.SendEvent(SkipEvent);
         }
-    }
-
-    /// <summary>Begin combat when a target is selected.</summary>
-    /// <param name="target">Unit targeted for combat or support.</param>
-    public void OnTargetSelected(Unit target)
-    {
-        _target = target;
-        StateChart.SendEvent(DoneEvent);
     }
 
     /// <summary>Clean up displayed ranges and restore <see cref="Object.Cursor"/> freedom when exiting targeting <see cref="State"/>.</summary>
@@ -531,11 +525,7 @@ public partial class LevelManager : Node
     {
         Cursor.Halt();
         Pointer.StartWaiting();
-        
-        if (_target is null)
-            Callable.From<StringName>(StateChart.SendEvent).CallDeferred(DoneEvent);
-        else
-            SceneManager.BeginCombat(_selected, _target, _combatResults = CombatCalculations.CombatResults(_selected, _target));
+        SceneManager.BeginCombat(_selected, _target, _combatResults = CombatCalculations.CombatResults(_selected, _target));
     }
 
     /// <summary>Update the map to reflect combat results when it's added back to the tree.</summary>
@@ -634,7 +624,7 @@ public partial class LevelManager : Node
         if (Grid.CellOf(Pointer.Position) == cell)
             StateChart.SendEvent(SelectEvent);
         else
-            StateChart.SendEvent(CancelEvent);
+            StateChart.SendEvent(SkipEvent);
     }
 
     /// <summary>When a <see cref="GridNode"/> is added to a group, update its <see cref="GridNode.Grid"/>.</summary>
