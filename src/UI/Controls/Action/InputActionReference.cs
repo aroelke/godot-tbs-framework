@@ -91,8 +91,8 @@ public partial class InputActionReference : Resource
                 }
                 else
                 {
-                    Context = components.First();
-                    Name = components.Last();
+                    Context = components[0];
+                    Name = components[^1];
                 }
             }
             return true;

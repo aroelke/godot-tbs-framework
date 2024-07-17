@@ -26,7 +26,7 @@ public partial class PathOverlay : TileMap
             if (value.Count > 1)
             {
                 SetCellsTerrainPath(0, new(value), 0, 0);
-                SetCell(0, value.Last(), sourceId:PathSourceId, atlasCoords:(value[^1] - value[^2]) switch
+                SetCell(0, value[^1], sourceId:PathSourceId, atlasCoords:(value[^1] - value[^2]) switch
                 {
                     Vector2I(0, >0) => DownArrow,
                     Vector2I(>0, 0) => RightArrow,

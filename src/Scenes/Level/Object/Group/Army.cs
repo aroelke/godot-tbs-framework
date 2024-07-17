@@ -29,7 +29,7 @@ public partial class Army : GridNodeGroup, IEnumerable<Unit>
         if (index < 0)
             return null;
         else if (index == 0)
-            return units.Last();
+            return units[^1];
         else
             return units[index - 1];
     }
