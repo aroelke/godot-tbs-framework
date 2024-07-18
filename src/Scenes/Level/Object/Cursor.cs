@@ -20,6 +20,8 @@ public partial class Cursor : GridNode
     /// <param name="region">Region enclosed by the cursor after movement.</param>
     [Signal] public delegate void CursorMovedEventHandler(Rect2 region);
 
+    [Signal] public delegate void CellEnteredEventHandler(Vector2I cell);
+
     /// <summary>Signals that a cell has been selected.</summary>
     /// <param name="cell">Coordinates of the cell that has been selected.</param>
     [Signal] public delegate void CellSelectedEventHandler(Vector2I cell);
@@ -123,8 +125,17 @@ public partial class Cursor : GridNode
     /// <summary>Re-enable cursor movement.</summary>
     public void Resume() => _halted = false;
 
-    /// <summary>When a direction is pressed, move the cursor to the adjacent cell there.</summary>
+    /// <summary>When a direction is pressed, move the cursor to the adjacent cell there and signal that the cell has been entered.</summary>
+    /// <param name="direction">Direction that was pressed.</param>
     public void OnDirectionPressed(Vector2I direction)
+    {
+        OnDirectionEchoed(direction);
+        OnDirectionReleased(direction);
+    }
+
+    /// <summary>When a direction is pressed, move the curso to the adjacent cell there but don't signal the entry.</summary>
+    /// <param name="direction">Direction that was pressed.</param>
+    public void OnDirectionEchoed(Vector2I direction)
     {
         if (!_halted)
         {
@@ -160,6 +171,11 @@ public partial class Cursor : GridNode
             }
         }
     }
+
+    /// <summary>When a direction is released, signal that the current cell has been entered.</summary>
+    /// <remarks>Mostly only useful for visual updates. Could fire twice when not echoing.</remarks>
+    /// <param name="direction">Direction that was released.</param>
+    public void OnDirectionReleased(Vector2I direction) => EmitSignal(SignalName.CellEntered, Cell);
 
     /// <summary>Update the <see cref="Map.Grid"/> cell when the pointer signals it has moved, unless the cursor is what's controlling movement.</summary>
     /// <param name="position">Position of the pointer.</param>

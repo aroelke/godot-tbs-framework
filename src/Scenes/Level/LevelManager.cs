@@ -210,22 +210,24 @@ public partial class LevelManager : Node
         }
     }
 
+    /// <summary>Clear the displayed action ranges when moving the <see cref="Object.Cursor"/> to a new cell while in idle <see cref="State"/>.</summary>
+    /// <param name="cell">Cell the <see cref="Object.Cursor"/> moved to.</param>
+    public void OnIdleCursorMoved(Vector2I cell) => ActionOverlay.Clear();
+
     /// <summary>
     /// When the <see cref="Object.Cursor"/> moves over a <see cref="Unit"/> while in idle <see cref="State"/>, display that <see cref="Unit"/>'s
-    /// action ranges, but clear them when it moves off.
+    /// action ranges.
     /// </summary>
     /// <param name="cell">Cell the <see cref="Object.Cursor"/> moved into.</param>
-    public void OnIdleCursorMoved(Vector2I cell)
+    public void OnIdleCursorEnteredCell(Vector2I cell)
     {
-        ActionOverlay.Clear();
-
         if (_armies.Current.Faction.IsPlayer && Grid.Occupants.GetValueOrDefault(cell) is Unit hovered)
         {
             ActionRanges actionable = hovered.ActionRanges().WithOccupants(
                 Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => u.Faction.AlliedTo(hovered)),
                 Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => !u.Faction.AlliedTo(hovered))
             );
-            System.Threading.ThreadPool.QueueUserWorkItem((_) => ActionOverlay.UsedCells = actionable.Exclusive().ToDictionary());
+            ActionOverlay.UsedCells = actionable.Exclusive().ToDictionary();
         }
     }
 
