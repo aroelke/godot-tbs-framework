@@ -231,6 +231,10 @@ public partial class LevelManager : Node
         }
     }
 
+    /// <summary>When the pointer stops moving, display the action range of the unit the cursor is over.</summary>
+    /// <param name="position">Position the pointer stopped over.</param>
+    public void OnIdlePointerStopped(Vector2 position) => OnIdleCursorEnteredCell(Grid.CellOf(position));
+
     /// <summary>
     /// Cycle the <see cref="Object.Cursor"/> between units in the same army using <see cref="PreviousAction"/> and <see cref="NextAction"/>
     /// while nothing is selected.

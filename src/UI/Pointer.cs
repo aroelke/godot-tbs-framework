@@ -25,6 +25,10 @@ public partial class Pointer : BoundedNode2D
     /// <param name="position">Position of the virtual pointer.</param>
     [Signal] public delegate void PointerMovedEventHandler(Vector2 position);
 
+    /// <summary>Signals that the pointer has stopped moving on a point.</summary>
+    /// <param name="position">Position of the pointer when it stopped moving.</param>
+    [Signal] public delegate void PointerStoppedEventHandler(Vector2 position);
+
     /// <summary>Signals that the pointer has begun moving to a new position over time. During flight, the cursor doesn't respond to input.</summary>
     /// <param name="target">Position the cursor is moving to.</param>
     [Signal] public delegate void FlightStartedEventHandler(Vector2 target);
@@ -37,6 +41,7 @@ public partial class Pointer : BoundedNode2D
     private static readonly StringName WaitEvent = "wait";
     private static readonly StringName DoneEvent = "done";
 
+    private Vector2[] _positions = Array.Empty<Vector2>();
     private bool _accelerate = false;
     private bool _tracking = true;
     private Tween _flyer = null;
@@ -296,6 +301,8 @@ public partial class Pointer : BoundedNode2D
 
         if (!Engine.IsEditorHint())
         {
+            _positions = new[]{Position, Position};
+
             ControlState.ExpressionProperties = ControlState.ExpressionProperties.SetItem(ModeProperty, Enum.GetName(DeviceManager.Mode));
 
             _flyer = CreateTween();
@@ -336,6 +343,24 @@ public partial class Pointer : BoundedNode2D
         base._Process(delta);
 
         if (!Engine.IsEditorHint())
+        {
             Mouse.Position = WorldToViewport(Position);
+        }
+    }
+
+    public override void _PhysicsProcess(double delta)
+    {
+        base._PhysicsProcess(delta);
+        if (!Engine.IsEditorHint())
+        {
+            Vector2 velocity = Position - _positions[0];
+            Vector2 acceleration = velocity - (_positions[0] - _positions[1]);
+
+            if (velocity.IsZeroApprox() && !acceleration.IsZeroApprox())
+                EmitSignal(SignalName.PointerStopped, Position);
+
+            _positions[1] = _positions[0];
+            _positions[0] = Position;
+        }
     }
 }
