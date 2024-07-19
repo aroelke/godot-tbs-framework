@@ -129,7 +129,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
         else
         {
             // Append the cell and the shortest path between it and the last cell in the path
-            cells = _cells.AddRange(_astar.GetPointPath(_grid.CellId(_cells[^1]), _grid.CellId(value)).OfType<Vector2I>());
+            cells = _cells.AddRange(_astar.GetPointPath(_grid.CellId(_cells[^1]), _grid.CellId(value)).Select(static (c) => (Vector2I)c));
         }
         cells = cells.Disentangle().ToImmutableList();
         return new(_grid, _astar, _traversable, cells);
