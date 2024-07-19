@@ -31,7 +31,10 @@ public partial class InputManager : Node2D
     public static Vector2 GetMousePosition() => _lastKnownPointerPosition ?? Singleton.GetViewport().GetMousePosition();
 
     /// <returns>The list of input actions.</returns>
-    public static StringName[] GetInputActions() => ProjectSettings.Singleton.GetPropertyList().Select((p) => p["name"].As<string>().Split("/")).Where((p) => p[0] == "input").Select((i) => new StringName(i[1])).ToArray();
+    public static StringName[] GetInputActions()
+    {
+        return ProjectSettings.Singleton.GetPropertyList().Select(static (p) => p["name"].As<string>().Split("/")).Where(static (p) => p[0] == "input").Select(static (i) => new StringName(i[1])).ToArray();
+    }
 
     /// <summary>
     /// Get an input event for an action of the desired type, if one is defined.  Assumes there is no more than one of each type of
@@ -48,13 +51,13 @@ public partial class InputManager : Node2D
             if (ProjectSettings.HasSetting(setting))
             {
                 Godot.Collections.Array<InputEvent> events = ProjectSettings.GetSetting(setting).As<Godot.Collections.Dictionary>()["events"].As<Godot.Collections.Array<InputEvent>>();
-                return events.Select((e) => e as T).Where((e) => e is not null).FirstOrDefault();
+                return events.OfType<T>().FirstOrDefault();
             }
             else
                 return default;
         }
         else
-            return InputMap.ActionGetEvents(action).Select((e) => e as T).Where((e) => e is not null).FirstOrDefault();
+            return InputMap.ActionGetEvents(action).OfType<T>().FirstOrDefault();
     }
 
     /// <summary>

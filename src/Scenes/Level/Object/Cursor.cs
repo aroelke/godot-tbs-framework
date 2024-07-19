@@ -31,7 +31,7 @@ public partial class Cursor : GridNode
     /// to it such that vectors that are longer along the parallel axis are lesser. If they're the same distance, then ones that are shorter
     /// along the perpendicular axis are lesser.
     /// </summary>
-    private static readonly IComparer<Vector2> FurtherAlongDirection = Comparer<Vector2>.Create((a, b) => {
+    private static readonly IComparer<Vector2> FurtherAlongDirection = Comparer<Vector2>.Create(static (a, b) => {
         // Prioritize cells further away along direction
         if (a.X > b.X)
             return -1;
@@ -150,7 +150,7 @@ public partial class Cursor : GridNode
             {
                 IEnumerable<Vector2I> ahead = HardRestriction.Where((c) => (c - Cell)*direction > Vector2I.Zero);
                 if (ahead.Any())
-                    Cell = ahead.OrderBy((c) => ((c - Cell).Abs().Sum(), (c - Cell).Normalized().Dot(direction)), (a, b) => {
+                    Cell = ahead.OrderBy((c) => ((c - Cell).Abs().Sum(), (c - Cell).Normalized().Dot(direction)), static (a, b) => {
                         (int dA, float thetaA) = a;
                         (int dB, float thetaB) = b;
 

@@ -129,7 +129,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
         else
         {
             // Append the cell and the shortest path between it and the last cell in the path
-            cells = _cells.AddRange(_astar.GetPointPath(_grid.CellId(_cells[^1]), _grid.CellId(value)).Select((c) => (Vector2I)c));
+            cells = _cells.AddRange(_astar.GetPointPath(_grid.CellId(_cells[^1]), _grid.CellId(value)).OfType<Vector2I>());
         }
         cells = cells.Disentangle().ToImmutableList();
         return new(_grid, _astar, _traversable, cells);
@@ -139,7 +139,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// <param name="items">Cells to add.</param>
     /// <returns>A new path with <paramref name="items"/> appended, as well as segments before and between in case the first cell in <paramref name="items"/>
     /// is not adjacent to the previous path end and in case any sequential cells in <paramref name="items"/> are not adjacent.</returns>
-    public Path AddRange(IEnumerable<Vector2I> items) => items.Aggregate(this, (p, item) => p.Add(item));
+    public Path AddRange(IEnumerable<Vector2I> items) => items.Aggregate(this, static (p, item) => p.Add(item));
 
     /// <summary>
     /// Insert a cell at the specified index. If it's not adjacent to either of its neighbors, add a path segment on each side that connects them.

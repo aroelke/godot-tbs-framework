@@ -112,8 +112,8 @@ public partial class LevelManager : Node
         if (ShowGlobalDangerZone)
             ZoneOverlay[GlobalDanger] = GetChildren().OfType<Army>()
                 .Where((a) => !a.Faction.AlliedTo(player))
-                .SelectMany((a) => (IEnumerable<Unit>)a)
-                .SelectMany((u) => u.AttackableCells(u.TraversableCells())).ToImmutableHashSet();
+                .SelectMany(static (a) => (IEnumerable<Unit>)a)
+                .SelectMany(static (u) => u.AttackableCells(u.TraversableCells())).ToImmutableHashSet();
         else
             ZoneOverlay[GlobalDanger] = ImmutableHashSet<Vector2I>.Empty;
     }
@@ -224,8 +224,8 @@ public partial class LevelManager : Node
         if (_armies.Current.Faction.IsPlayer && Grid.Occupants.GetValueOrDefault(cell) is Unit hovered)
         {
             ActionRanges actionable = hovered.ActionRanges().WithOccupants(
-                Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => u.Faction.AlliedTo(hovered)),
-                Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => !u.Faction.AlliedTo(hovered))
+                Grid.Occupants.Select(static (e) => e.Value).OfType<Unit>().Where((u) => u.Faction.AlliedTo(hovered)),
+                Grid.Occupants.Select(static (e) => e.Value).OfType<Unit>().Where((u) => !u.Faction.AlliedTo(hovered))
             );
             ActionOverlay.UsedCells = actionable.Exclusive().ToDictionary();
         }
@@ -285,8 +285,8 @@ public partial class LevelManager : Node
 
         // Compute move/attack/support ranges for selected unit
         _actionable = _selected.ActionRanges().WithOccupants(
-            Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => u.Faction.AlliedTo(_selected)),
-            Grid.Occupants.Select((e) => e.Value).OfType<Unit>().Where((u) => !u.Faction.AlliedTo(_selected))
+            Grid.Occupants.Select(static (e) => e.Value).OfType<Unit>().Where((u) => u.Faction.AlliedTo(_selected)),
+            Grid.Occupants.Select(static (e) => e.Value).OfType<Unit>().Where((u) => !u.Faction.AlliedTo(_selected))
         );
         _path = Path.Empty(Grid, _actionable.Traversable).Add(_selected.Cell);
         Cursor.SoftRestriction = _actionable.Traversable.ToHashSet();
@@ -330,7 +330,7 @@ public partial class LevelManager : Node
                 if (!sources.Contains(_path[^1]))
                     PathOverlay.Path = (_path = sources.Select((c) => _path.Add(c).Clamp(_selected.Stats.Move)).OrderBy(
                         (p) => new Vector2I(-p[^1].DistanceTo(cell), p[^1].DistanceTo(_path[^1])),
-                        (a, b) => a < b ? -1 : a > b ? 1 : 0
+                        static (a, b) => a < b ? -1 : a > b ? 1 : 0
                     ).First()).ToList();
             }
         }
@@ -582,7 +582,7 @@ public partial class LevelManager : Node
         }
         CancelHint.Visible = false;
 
-        bool advance = !((IEnumerable<Unit>)_armies.Current).Any((u) => u.Active);
+        bool advance = !((IEnumerable<Unit>)_armies.Current).Any(static (u) => u.Active);
         if (advance)
         {
             TurnAdvance.Start();
@@ -653,17 +653,17 @@ public partial class LevelManager : Node
         List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
 
         // Make sure there's a map
-        int maps = GetChildren().Where((c) => c is Grid).Count();
+        int maps = GetChildren().Count(static (c) => c is Grid);
         if (maps < 1)
             warnings.Add("Level does not contain a map.");
         else if (maps > 1)
             warnings.Add($"Level contains too many maps ({maps}).");
 
         // Make sure there are units to control and to fight.
-        if (!GetChildren().Where((c) => c is Army).Any())
+        if (!GetChildren().Any(static (c) => c is Army))
             warnings.Add("There are not any armies to assign units to.");
 
-        if (GetChildren().Where((c) => c is Army army && army.Faction.IsPlayer).Count() > 1)
+        if (GetChildren().Count(static (c) => c is Army army && army.Faction.IsPlayer) > 1)
             warnings.Add("Multiple armies are player-controlled. Only the first one will be used for zone display.");
 
         // Make sure there's background music

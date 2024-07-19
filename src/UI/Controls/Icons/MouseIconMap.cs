@@ -10,8 +10,8 @@ namespace UI.Controls.Icons;
 [GlobalClass, Tool]
 public partial class MouseIconMap : IconMap
 {
-    private readonly Dictionary<MouseButton, Texture2D> _icons = Enum.GetValues<MouseButton>().ToDictionary((k) => k, _ => (Texture2D)null);
-    private readonly Dictionary<StringName, MouseButton> _names = Enum.GetValues<MouseButton>().ToDictionary((k) => new StringName(Enum.GetName(k)), (k) => k);
+    private readonly Dictionary<MouseButton, Texture2D> _icons = Enum.GetValues<MouseButton>().ToDictionary(static (k) => k, static _ => (Texture2D)null);
+    private readonly Dictionary<StringName, MouseButton> _names = Enum.GetValues<MouseButton>().ToDictionary(static (k) => new StringName(Enum.GetName(k)), static (k) => k);
 
     public ICollection<MouseButton> Keys => _icons.Keys;
     public ICollection<Texture2D> Values => _icons.Values;

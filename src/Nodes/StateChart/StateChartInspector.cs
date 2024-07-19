@@ -266,7 +266,7 @@ public partial class StateChartInspector : MarginContainer
 
         if (StateChart.ExpressionProperties.Any())
         {
-            ImmutableList<StringName> properties = StateChart.ExpressionProperties.Keys.ToImmutableList().Sort((a, b) => string.Compare(a, b));
+            ImmutableList<StringName> properties = StateChart.ExpressionProperties.Keys.ToImmutableList().Sort(static (a, b) => string.Compare(a, b));
 
             TreeItem propertiesRoot = root.CreateChild();
             propertiesRoot.SetText(0, "< Expression properties >");

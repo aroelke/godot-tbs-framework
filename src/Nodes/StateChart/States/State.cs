@@ -93,7 +93,7 @@ public abstract partial class State : ChartNode
         if (!Active)
             throw new InvalidOperationException($"Failed to save inactive state {Name}");
         else
-            return new() { Active = GetChildren().OfType<State>().Where((s) => s.Active).ToDictionary((s) => s, (s) => s.SaveHistory()) };
+            return new() { Active = GetChildren().OfType<State>().Where(static (s) => s.Active).ToDictionary(static (s) => s, static (s) => s.SaveHistory()) };
     }
 
     public virtual void RestoreHistory(StateRecord record)

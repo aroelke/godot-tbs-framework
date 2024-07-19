@@ -42,7 +42,7 @@ public partial class GamepadAxisIconMap : IconMap
     {
         get
         {
-            _maps ??= IconMaps?.ToDictionary((e) => e.GamepadName, (e) => e.IconMap) ?? new();
+            _maps ??= IconMaps?.ToDictionary(static (e) => e.GamepadName, static (e) => e.IconMap) ?? new();
             return _maps.ContainsKey(key) ? _maps[key] : DefaultMap;
         }
     }

@@ -78,13 +78,13 @@ public partial class DeviceManager : Node
     public override void _Ready()
     {
         base._Ready();
-        _digitalSwitchers = GamepadDigitalModeActions.Select((a) => {
-            IEnumerable<JoyButton> buttons = InputMap.ActionGetEvents(a).OfType<InputEventJoypadButton>().Select((e) => e.ButtonIndex);
+        _digitalSwitchers = GamepadDigitalModeActions.Select(static (a) => {
+            IEnumerable<JoyButton> buttons = InputMap.ActionGetEvents(a).OfType<InputEventJoypadButton>().Select(static (e) => e.ButtonIndex);
             if (buttons.Any())
                 return buttons.First();
             else
                 return JoyButton.Invalid;
-        }).Where((b) => b != JoyButton.Invalid).ToHashSet();
+        }).Where(static (b) => b != JoyButton.Invalid).ToHashSet();
     }
 
     public override void _Input(InputEvent @event)

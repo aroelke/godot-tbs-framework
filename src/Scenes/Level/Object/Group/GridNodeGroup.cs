@@ -10,7 +10,7 @@ namespace Scenes.Level.Object.Group;
 public partial class GridNodeGroup : Node, IEnumerable<GridNode>, IEnumerable
 {
     /// <summary>Number of <see cref="GridNode"/>s in the group.</summary>
-    public int Count => GetChildren().Where((c) => c is GridNode).Count();
+    public int Count => GetChildren().Count(static (c) => c is GridNode);
 
     /// <param name="item">Item to look for.</param>
     /// <returns><c>true</c> if the grid node group contains <paramref name="item"/>, and <c>false</c> otherwise.</returns>

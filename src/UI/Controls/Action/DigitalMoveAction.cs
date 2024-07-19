@@ -102,7 +102,7 @@ public partial class DigitalMoveAction : Node
     {
         base._EnterTree();
 
-        _direction = ActionVector((n) => Input.IsActionPressed(n));
+        _direction = ActionVector(static (n) => Input.IsActionPressed(n));
         if (_direction != Vector2I.Zero)
         {
             Callable.From<Vector2I>((d) => {

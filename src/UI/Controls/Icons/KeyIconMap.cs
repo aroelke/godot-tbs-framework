@@ -10,8 +10,8 @@ namespace UI.Controls.Icons;
 [GlobalClass, Tool]
 public partial class KeyIconMap : IconMap
 {
-    private readonly Dictionary<Key, Texture2D> _icons = Enum.GetValues<Key>().ToDictionary((k) => k, _ => (Texture2D)null);
-    private readonly Dictionary<StringName, Key> _names = Enum.GetValues<Key>().ToDictionary((k) => new StringName(Enum.GetName(k)), (k) => k);
+    private readonly Dictionary<Key, Texture2D> _icons = Enum.GetValues<Key>().ToDictionary(static (k) => k, static _ => (Texture2D)null);
+    private readonly Dictionary<StringName, Key> _names = Enum.GetValues<Key>().ToDictionary(static (k) => new StringName(Enum.GetName(k)), static (k) => k);
 
     public ICollection<Key> Keys => _icons.Keys;
     public ICollection<Texture2D> Values => _icons.Values;

@@ -10,8 +10,8 @@ namespace UI.Controls.Icons;
 [GlobalClass, Tool]
 public partial class IndividualGamepadAxisIconMap : IconMap
 {
-    private readonly Dictionary<JoyAxis, Texture2D> _icons = Enum.GetValues<JoyAxis>().ToDictionary((k) => k, _ => (Texture2D)null);
-    private readonly Dictionary<StringName, JoyAxis> _names = Enum.GetValues<JoyAxis>().ToDictionary((k) => new StringName(Enum.GetName(k)), (k) => k);
+    private readonly Dictionary<JoyAxis, Texture2D> _icons = Enum.GetValues<JoyAxis>().ToDictionary(static (k) => k, static _ => (Texture2D)null);
+    private readonly Dictionary<StringName, JoyAxis> _names = Enum.GetValues<JoyAxis>().ToDictionary(static (k) => new StringName(Enum.GetName(k)), static (k) => k);
 
     public ICollection<JoyAxis> Keys => _icons.Keys;
     public ICollection<Texture2D> Values => _icons.Values;
