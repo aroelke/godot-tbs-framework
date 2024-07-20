@@ -3,7 +3,6 @@ using Godot;
 using UI.Controls.Icons;
 using UI.Controls.Action;
 using UI.Controls.Device;
-using Nodes;
 
 namespace UI.HUD;
 
@@ -11,21 +10,10 @@ namespace UI.HUD;
 /// Hint icon for showing the controls to move the <see cref="Level.Object.Cursor"/>/<see cref="Level.UI.Pointer"/>
 /// for the current control scheme.
 /// </summary>
-[Icon("res://icons/UIIcon.svg"), Tool]
+[Icon("res://icons/UIIcon.svg"), SceneTree, Tool]
 public partial class CursorHintIcon : HBoxContainer
 {
-    private readonly NodeCache _cache;
-    public CursorHintIcon() : base() => _cache = new(this);
-
     private Dictionary<InputDevice, Control> _icons = new();
-
-    private TextureRect MouseIcon => _cache.GetNode<TextureRect>("Mouse");
-    private GridContainer KeyboardIcon => _cache.GetNode<GridContainer>("Keyboard");
-    private TextureRect UpKeyIcon => _cache.GetNode<TextureRect>("Keyboard/Up");
-    private TextureRect LeftKeyIcon => _cache.GetNode<TextureRect>("Keyboard/Left");
-    private TextureRect DownKeyIcon => _cache.GetNode<TextureRect>("Keyboard/Down");
-    private TextureRect RightKeyIcon => _cache.GetNode<TextureRect>("Keyboard/Right");
-    private GamepadCursorHintIcon GamepadIcon => _cache.GetNode<GamepadCursorHintIcon>("Gamepad");
 
     private Texture2D GetKeyIcon(Key key) => KeyMap.ContainsKey(key) ? KeyMap[key] : null;
 
