@@ -3,17 +3,13 @@ using Godot;
 using UI.Controls.Icons;
 using UI.Controls.Action;
 using UI.Controls.Device;
-using Nodes;
 
 namespace UI.HUD;
 
 /// <summary>Icon and label showing the input for an action that doesn't have an analog or mouse option.</summary>
-[Icon("res://icons/UIIcon.svg"), Tool]
+[Icon("res://icons/UIIcon.svg"), SceneTree, Tool]
 public partial class ControlHint : HBoxContainer
 {
-    private readonly NodeCache _cache;
-    public ControlHint() : base() => _cache = new(this);
-
     private InputActionReference _action = new();
     private InputDevice _selected = default;
     private readonly Dictionary<InputDevice, IconMap> _maps = new()
@@ -22,9 +18,6 @@ public partial class ControlHint : HBoxContainer
         { InputDevice.Keyboard, new KeyIconMap()           },
         { InputDevice.Gamepad,  new GamepadButtonIconMap() }
     };
-
-    private TextureRect Icon => _cache.GetNodeOrNull<TextureRect>("Icon");
-    private Label Label => _cache.GetNodeOrNull<Label>("Label");
 
     private void Update(InputDevice device, InputActionReference action)
     {
