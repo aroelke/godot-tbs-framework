@@ -2,20 +2,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using UI.Controls.Action;
 
 namespace UI.Controls.Icons;
 
 /// <summary>Resource mapping mouse actions onto icons to display for them.</summary>
 [GlobalClass, Tool]
-public partial class MouseIconMap : Resource
+public partial class MouseIconMap : IconMap
 {
-    private readonly Dictionary<MouseButton, Texture2D> _icons = Enum.GetValues<MouseButton>().ToDictionary((k) => k, _ => (Texture2D)null);
-    private readonly Dictionary<StringName, MouseButton> _names = Enum.GetValues<MouseButton>().ToDictionary((k) => new StringName(Enum.GetName(k)), (k) => k);
+    private readonly Dictionary<MouseButton, Texture2D> _icons = Enum.GetValues<MouseButton>().ToDictionary(static (k) => k, static _ => (Texture2D)null);
+    private readonly Dictionary<StringName, MouseButton> _names = Enum.GetValues<MouseButton>().ToDictionary(static (k) => new StringName(Enum.GetName(k)), static (k) => k);
 
     public ICollection<MouseButton> Keys => _icons.Keys;
     public ICollection<Texture2D> Values => _icons.Values;
     public int Count => _icons.Count;
     public Texture2D this[MouseButton key] { get => _icons[key]; set => _icons[key] = value; }
+    public override Texture2D this[InputActionReference action] { get => this[action.MouseButton]; set => this[action.MouseButton] = value; }
 
     /// <summary>Icon to display for mouse motion.</summary>
     [Export] public Texture2D Motion = null;
@@ -35,4 +37,5 @@ public partial class MouseIconMap : Resource
     }
 
     public bool ContainsKey(MouseButton key) => _icons.ContainsKey(key);
+    public override bool ContainsKey(InputActionReference action) => ContainsKey(action.MouseButton);
 }

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Security.Principal;
 using Scenes.Level.Object;
 
 namespace Scenes.Combat.Data;
@@ -51,7 +50,7 @@ public static class CombatCalculations
         _  => null
     };
 
-    /// <summary>Compute the results of a combat between two <see cref="Unit"/>s.</summary>
+    /// <summary>Compute the results of a combat between two <see cref="Unit"/>s, ignoring whether or not either of the units dies.</summary>
     /// <param name="a">One of the participants.</param>
     /// <param name="b">One of the participants.</param>
     /// <returns>A list of data structures specifying the action taken during each round of combat.</returns>
@@ -65,22 +64,7 @@ public static class CombatCalculations
         if (FollowUp(a, b) is (Unit doubler, Unit doublee))
             actions = actions.Add(new() { Actor = doubler, Target = doublee, Damage = Damage(doubler, doublee), Hit = rnd.Next(100) < HitChance(doubler, doublee) });
 
-        // Remove actions that happen after someone dies
-        Dictionary<Unit, int> remaining = new()
-        {
-            { a, a.Health.Value },
-            { b, b.Health.Value }
-        };
-        int amount = 0;
-        foreach (CombatAction action in actions)
-        {
-            remaining[action.Target] -= action.Damage;
-            amount++;
-            if (remaining[action.Target] <= 0)
-                break;
-        }
-
-        return actions.Take(amount).ToImmutableList();
+        return actions;
     }
 
     /// <summary>Compute the total amount of damage dealt to a participant in combat</summary>

@@ -16,7 +16,7 @@ script = ExtResource("1_y8x7b")
 Action = SubResource("Resource_cdt7q")
 MouseMap = ExtResource("3_2hhue")
 KeyMap = ExtResource("4_qc41a")
-GamepadMap = ExtResource("5_olt2t")
+GamepadButtonIconMap = ExtResource("5_olt2t")
 
 [node name="Mouse" type="TextureRect" parent="."]
 layout_mode = 2
@@ -27,6 +27,10 @@ layout_mode = 2
 stretch_mode = 3
 
 [node name="Gamepad" type="TextureRect" parent="."]
+layout_mode = 2
+stretch_mode = 3
+
+[node name="Icon" type="TextureRect" parent="."]
 layout_mode = 2
 stretch_mode = 3
 

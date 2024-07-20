@@ -57,7 +57,7 @@ public partial class InputActionReference : Resource
                 { "name", InputActionProperty },
                 { "type", Variant.From(Variant.Type.StringName) },
                 { "hint", Variant.From(PropertyHint.Enum) },
-                { "hint_string", string.Join(",", InputManager.GetInputActions().Select((i) => i.ToString())) }
+                { "hint_string", string.Join(",", InputManager.GetInputActions().Select(static (i) => i.ToString())) }
             }
         };
     }
@@ -91,8 +91,8 @@ public partial class InputActionReference : Resource
                 }
                 else
                 {
-                    Context = components.First();
-                    Name = components.Last();
+                    Context = components[0];
+                    Name = components[^1];
                 }
             }
             return true;

@@ -14,7 +14,7 @@ public partial class ExpressionCondition : Condition
     public override bool IsSatisfied(ChartNode source)
     {
         Expression expression = new();
-        string[] properties = source.StateChart.ExpressionProperties.Keys.Select((s) => s.ToString()).ToArray();
+        string[] properties = source.StateChart.ExpressionProperties.Keys.Select(static (s) => s.ToString()).ToArray();
         if (expression.Parse(Expression, properties) != Error.Ok)
             throw new Exception($"Expression parse error: {expression.GetErrorText()} for expression \"{Expression}\"");
 

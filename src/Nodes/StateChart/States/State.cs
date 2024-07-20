@@ -88,6 +88,27 @@ public abstract partial class State : ChartNode
         EmitSignal(SignalName.StateExited);
     }
 
+    public virtual StateRecord SaveHistory()
+    {
+        if (!Active)
+            throw new InvalidOperationException($"Failed to save inactive state {Name}");
+        else
+            return new() { Active = GetChildren().OfType<State>().Where(static (s) => s.Active).ToDictionary(static (s) => s, static (s) => s.SaveHistory()) };
+    }
+
+    public virtual void RestoreHistory(StateRecord record)
+    {
+        if (!Active)
+            Enter();
+        foreach (State state in GetChildren().OfType<State>())
+        {
+            if (record.Active.ContainsKey(state))
+                state.RestoreHistory(record.Active[state]);
+            else if (state.Active)
+                state.Exit();
+        }
+    }
+
     public override string[] _GetConfigurationWarnings()
     {
         List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());

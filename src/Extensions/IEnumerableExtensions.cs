@@ -18,12 +18,12 @@ namespace Extensions
 
         /// <inheritdoc cref="OrderBy"/>
         /// <remarks><paramref name="comparison"/> operates directly on elements of <paramref name="collection"/> rather than using computed keys.</remarks>
-        public static IOrderedEnumerable<T> OrderBy<T>(this IEnumerable<T> collection, Comparison<T> comparison) => collection.OrderBy((k) => k, Comparer<T>.Create(comparison));
+        public static IOrderedEnumerable<T> OrderBy<T>(this IEnumerable<T> collection, Comparison<T> comparison) => collection.OrderBy(static (k) => k, Comparer<T>.Create(comparison));
 
         /// <summary>Project the elements of a collection of collections into a single, flat collection containing each one's elements.</summary>
         /// <typeparam name="T">Type of the elements of the collections.</typeparam>
         /// <returns>A collection containing all the constituent elements of the collections in <paramref name="collection"/>.</returns>
-        public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> collection) => collection.SelectMany((t) => t);
+        public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> collection) => collection.SelectMany(static (t) => t);
 
         /// <summary>Create a collection that cycles back to the first element after the last element is reached.</summary>
         /// <typeparam name="T">Type of the elements in <paramref name="collection"/></typeparam>

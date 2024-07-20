@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Godot;
 
 namespace Nodes.StateChart.States;
@@ -40,8 +41,13 @@ public partial class CompoundState : State
 
         if (!transit && !IsInstanceValid(_active) && Active)
         {
-            _active = InitialState;
-            _active.Enter();
+            if (InitialState is HistoryState history)
+                RestoreHistory(history);
+            else
+            {
+                _active = InitialState;
+                _active.Enter();
+            }
         }
     }
 
@@ -71,8 +77,13 @@ public partial class CompoundState : State
         {
             if (IsInstanceValid(_active))
                 _active.Exit();
-            _active = transition.To;
-            _active.Enter(false);
+            if (transition.To is HistoryState history)
+                RestoreHistory(history);
+            else
+            {
+                _active = transition.To;
+                _active.Enter(false);
+            }
         }
         else if (IsAncestorOf(transition.To))
         {
@@ -98,12 +109,42 @@ public partial class CompoundState : State
 
     public override void Exit()
     {
+        foreach (HistoryState history in GetChildren().OfType<HistoryState>())
+            history.History = SaveHistory();
+
         if (_active is not null)
         {
             _active.Exit();
             _active = null;
         }
         base.Exit();
+    }
+
+    public override StateRecord SaveHistory()
+    {
+        StateRecord record = base.SaveHistory();
+        foreach (HistoryState state in GetChildren().OfType<HistoryState>())
+            record.Active[state] = state.SaveHistory();
+        return record;
+    }
+
+    public override void RestoreHistory(StateRecord record)
+    {
+        base.RestoreHistory(record);
+
+        if (Active)
+            _active = GetChildren().OfType<State>().Where((s) => s.Active).First();
+    }
+
+    public void RestoreHistory(HistoryState history)
+    {
+        if (history.History is not null)
+            RestoreHistory(history.History);
+        else
+        {
+            _active = history.DefaultState;
+            _active.Enter();
+        }
     }
 
     public override string[] _GetConfigurationWarnings()

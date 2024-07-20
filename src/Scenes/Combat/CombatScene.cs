@@ -30,6 +30,7 @@ public partial class CombatScene : Node
 
     private FastForwardComponent FastForward => _cache.GetNode<FastForwardComponent>("FastForward");
     private Camera2DBrain Camera => _cache.GetNode<Camera2DBrain>("Camera");
+    private AudioStreamPlayer StepSound => _cache.GetNode<AudioStreamPlayer>("%StepSound");
     private AudioStreamPlayer HitSound => _cache.GetNode<AudioStreamPlayer>("%HitSound");
     private AudioStreamPlayer MissSound => _cache.GetNode<AudioStreamPlayer>("%MissSound");
     private AudioStreamPlayer BlockSound => _cache.GetNode<AudioStreamPlayer>("%BlockSound");
@@ -96,22 +97,24 @@ public partial class CombatScene : Node
         _actions = actions;
 
         _animations[left] = left.Class.CombatAnimations.Instantiate<CombatAnimation>();
-        _animations[left].Modulate = left.Affiliation.Color;
+        _animations[left].Modulate = left.Faction.Color;
         _animations[left].Position = LeftPosition;
         _animations[left].Left = true;
+        _animations[left].StepTaken += () => StepSound.Play();
         _infos[left] = LeftInfo;
         LeftInfo.Health = left.Health;
-        LeftInfo.Damage = _actions.Where((a) => a.Actor == left).Select((a) => a.Damage).ToArray();
+        LeftInfo.Damage = _actions.Where((a) => a.Actor == left).Select(static (a) => a.Damage).ToArray();
         LeftInfo.HitChance = Mathf.Clamp(CombatCalculations.HitChance(left, right), 0, 100);
         LeftInfo.TransitionDuration = HitDelay;
 
         _animations[right] = right.Class.CombatAnimations.Instantiate<CombatAnimation>();
-        _animations[right].Modulate = right.Affiliation.Color;
+        _animations[right].Modulate = right.Faction.Color;
         _animations[right].Position = RightPosition;
         _animations[right].Left = false;
+        _animations[right].StepTaken += () => StepSound.Play();
         _infos[right] = RightInfo;
         RightInfo.Health = right.Health;
-        RightInfo.Damage = _actions.Where((a) => a.Actor == right).Select((a) => a.Damage).ToArray();
+        RightInfo.Damage = _actions.Where((a) => a.Actor == right).Select(static (a) => a.Damage).ToArray();
         RightInfo.HitChance = Mathf.Clamp(CombatCalculations.HitChance(right, left), 0, 100);
         RightInfo.TransitionDuration = HitDelay;
 
@@ -125,7 +128,7 @@ public partial class CombatScene : Node
         // Play the combat sequence
         foreach (CombatAction action in _actions)
         {
-            void OnDodge() =>  _animations[action.Target].PlayAnimation(CombatAnimation.DodgeAnimation);
+            void OnDodge() => _animations[action.Target].PlayAnimation(CombatAnimation.DodgeAnimation);
             void OnHit()
             {
                 if (action.Damage > 0)
@@ -187,7 +190,11 @@ public partial class CombatScene : Node
                 _animations[action.Actor].AttackDodged -= OnDodge;
                 _animations[action.Actor].AttackStrike -= OnMiss;
             }
-            await Delay(TurnDelay);
+
+            if (LeftInfo.Health.Value == 0 || RightInfo.Health.Value == 0)
+                break;
+            else
+                await Delay(TurnDelay);
         }
 
         if (!_canceled)

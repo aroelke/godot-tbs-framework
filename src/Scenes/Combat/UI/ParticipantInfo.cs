@@ -32,7 +32,7 @@ public partial class ParticipantInfo : GridContainer, IHasHealth
         get => _damage;
         set
         {
-            if (value.Any() && ((value[0] < 0 && value.Any((x) => x >= 0)) || (value[0] >= 0 && value.Any((x) => x < 0))))
+            if (value.Any() && ((value[0] < 0 && value.Any(static (x) => x >= 0)) || (value[0] >= 0 && value.Any(static (x) => x < 0))))
             {
                 string error = $"Combat contains damage values with mixed signs: {string.Join(",", value)}";
                 if (Engine.IsEditorHint())

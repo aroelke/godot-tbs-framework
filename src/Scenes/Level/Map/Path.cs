@@ -121,7 +121,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     public Path Add(Vector2I value)
     {
         ImmutableList<Vector2I> cells = ImmutableList<Vector2I>.Empty;
-        if (_cells.Count == 0 || _cells.Last().IsAdjacent(value))
+        if (_cells.Count == 0 || _cells[^1].IsAdjacent(value))
         {
             // Append the cell if it's adjacent to the last cell in the path or the path is empty
             cells = _cells.Add(value);
@@ -129,7 +129,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
         else
         {
             // Append the cell and the shortest path between it and the last cell in the path
-            cells = _cells.AddRange(_astar.GetPointPath(_grid.CellId(_cells.Last()), _grid.CellId(value)).Select((c) => (Vector2I)c));
+            cells = _cells.AddRange(_astar.GetPointPath(_grid.CellId(_cells[^1]), _grid.CellId(value)).Select(static (c) => (Vector2I)c));
         }
         cells = cells.Disentangle().ToImmutableList();
         return new(_grid, _astar, _traversable, cells);
@@ -139,7 +139,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// <param name="items">Cells to add.</param>
     /// <returns>A new path with <paramref name="items"/> appended, as well as segments before and between in case the first cell in <paramref name="items"/>
     /// is not adjacent to the previous path end and in case any sequential cells in <paramref name="items"/> are not adjacent.</returns>
-    public Path AddRange(IEnumerable<Vector2I> items) => items.Aggregate(this, (p, item) => p.Add(item));
+    public Path AddRange(IEnumerable<Vector2I> items) => items.Aggregate(this, static (p, item) => p.Add(item));
 
     /// <summary>
     /// Insert a cell at the specified index. If it's not adjacent to either of its neighbors, add a path segment on each side that connects them.
@@ -220,7 +220,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     public Path Clamp(int cost)
     {
         if (Cost > cost)
-            return Clear().AddRange(_astar.GetPointPath(_grid.CellId(_cells.First()), _grid.CellId(_cells.Last())).Select((c) => (Vector2I)c));
+            return Clear().AddRange(_astar.GetPointPath(_grid.CellId(_cells[0]), _grid.CellId(_cells[^1])).Select((c) => (Vector2I)c));
         else
             return this;
     }

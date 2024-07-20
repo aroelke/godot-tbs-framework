@@ -139,7 +139,7 @@ public partial class Chart : Node
             
             _root = GetChild<State>(0);
             _root.Initialize();
-            Callable.From(() => _root.Enter()).CallDeferred();
+            Callable.From<bool>(_root.Enter).CallDeferred(false);
         }
     }
 }

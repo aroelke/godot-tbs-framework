@@ -21,7 +21,7 @@ public partial class RangeOverlay : TileMap
     /// <summary>The sets of used cells for the overlay.</summary>
     public IDictionary<string, ImmutableHashSet<Vector2I>> UsedCells
     {
-        get => Enumerable.Range(0, GetLayersCount()).ToDictionary((i) => GetLayerName(i), (i) => this[GetLayerName(i)]);
+        get => Enumerable.Range(0, GetLayersCount()).ToDictionary(GetLayerName, (i) => this[GetLayerName(i)]);
         set
         {
             for (int i = 0; i < GetLayersCount(); i++)
