@@ -1,16 +1,13 @@
 using System;
 using Godot;
-using Nodes;
 using UI.Controls.Device;
 
 namespace UI.Controls.Action;
 
 /// <summary>Object component that enables the object to be controlled digitally (e.g. with keyboard keys or gamepad buttons).</summary>
+[SceneTree]
 public partial class DigitalMoveAction : Node
 {
-    private readonly NodeCache _cache;
-    public DigitalMoveAction() : base() => _cache = new(this);
-
     /// <summary>Signals that a new direction has been pressed.</summary>
     /// <param name="direction">Direction that was pressed.</param>
     [Signal] public delegate void DirectionPressedEventHandler(Vector2I direction);
@@ -32,8 +29,6 @@ public partial class DigitalMoveAction : Node
     private bool _echoing = false;
     private bool _reset = false;
     private bool _skip = false;
-
-    private Timer EchoTimer => _cache.GetNode<Timer>("EchoTimer");
 
     private bool IsEchoing() => !_skip && _direction != Vector2I.Zero;
 
