@@ -37,7 +37,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -1790734958
+seed = -1768710856
 
 [sub_resource type="Resource" id="Resource_umt67"]
 script = ExtResource("24_k1nop")
@@ -132,6 +132,7 @@ PreviousAction = ExtResource("3_76mfa")
 NextAction = ExtResource("4_gvudp")
 
 [node name="Camera" parent="." node_paths=PackedStringArray("Target") instance=ExtResource("3_td8u6")]
+unique_name_in_owner = true
 Target = NodePath("../Pointer")
 Zoom = Vector2(2, 2)
 Limits = Rect2i(0, 0, 1000000, 1000000)
@@ -140,7 +141,8 @@ ShakeMaxOffset = Vector2(100, 75)
 ShakeMaxRoll = 0.0
 ShakeNoise = SubResource("FastNoiseLite_spp7l")
 
-[node name="ActionRangeOverlay" parent="." instance=ExtResource("7_benwh")]
+[node name="ActionOverlay" parent="." instance=ExtResource("7_benwh")]
+unique_name_in_owner = true
 layer_0/name = "move"
 layer_0/modulate = Color(0, 0, 1, 0.392157)
 layer_0/navigation_enabled = false
@@ -152,6 +154,7 @@ layer_2/modulate = Color(0, 1, 0, 0.392157)
 layer_2/tile_data = PackedInt32Array()
 
 [node name="ZoneOverlay" parent="." instance=ExtResource("7_benwh")]
+unique_name_in_owner = true
 layer_0/name = "ally traversable"
 layer_0/modulate = Color(0, 0.247059, 0.498039, 0.392157)
 layer_0/navigation_enabled = false
@@ -165,12 +168,15 @@ layer_2/navigation_enabled = false
 layer_2/tile_data = PackedInt32Array()
 
 [node name="PathOverlay" parent="." instance=ExtResource("8_dofkx")]
+unique_name_in_owner = true
 z_index = 1
 
 [node name="Cursor" parent="." instance=ExtResource("6_3v7mf")]
+unique_name_in_owner = true
 DebugColor = Color(0, 0, 0, 0)
 
 [node name="Pointer" parent="." instance=ExtResource("10_h4rp7")]
+unique_name_in_owner = true
 
 [node name="UserInterface" type="CanvasLayer" parent="."]
 
@@ -209,6 +215,7 @@ layout_mode = 2
 Action = ExtResource("11_5p2p1")
 
 [node name="CancelHint" parent="UserInterface/HUD/Hints" instance=ExtResource("10_dfuji")]
+unique_name_in_owner = true
 visible = false
 layout_mode = 2
 Action = ExtResource("2_2u5dc")
@@ -235,6 +242,7 @@ grow_vertical = 1
 StateChart = NodePath("../../Pointer/ControlState")
 
 [node name="State" parent="." instance=ExtResource("17_sd0pe")]
+unique_name_in_owner = true
 
 [node name="Root" parent="State" node_paths=PackedStringArray("InitialState") instance=ExtResource("18_k7m3y")]
 process_mode = 4
@@ -358,21 +366,27 @@ Event = &"done"
 Condition = SubResource("Resource_baabg")
 
 [node name="TurnAdvance" type="Timer" parent="."]
+unique_name_in_owner = true
 one_shot = true
 
 [node name="SelectSound" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
 stream = ExtResource("28_dnjya")
 
 [node name="CancelSound" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
 stream = ExtResource("29_regtl")
 
 [node name="ErrorSound" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
 stream = ExtResource("30_mo20p")
 
 [node name="ZoneOnSound" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
 stream = ExtResource("31_yh2xe")
 
 [node name="ZoneOffSound" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
 stream = ExtResource("32_e2hk2")
 
 [connection signal="CellChanged" from="Cursor" to="State/Root/Active/Idle/OnCursorMoved" method="OnCellUpdated"]
