@@ -655,10 +655,10 @@ public partial class LevelManager : Node
     {
         base._Ready();
 
-        Grid = GetNode<Grid>("Grid");
-
         if (!Engine.IsEditorHint())
         {
+            Grid = GetNode<Grid>("Grid");
+
             Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
             Pointer.World = Cursor.Grid = Grid;
             Pointer.Bounds = Camera.Limits;
