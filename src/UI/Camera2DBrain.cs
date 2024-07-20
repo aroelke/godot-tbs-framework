@@ -11,12 +11,9 @@ namespace UI;
 /// <summary>
 /// "Brain" controlling the <see cref="Camera2D"/>. Given a target, it will follow it and smoothly move the camera to continue tracking it.
 /// </summary>
-[Icon("res://icons/Camera2DBrain.svg"), Tool]
+[Icon("res://icons/Camera2DBrain.svg"), SceneTree, Tool]
 public partial class Camera2DBrain : Node2D
 {
-    private readonly NodeCache _cache;
-    public Camera2DBrain() : base() => _cache = new(this);
-
     /// <summary>Signal that the camera has reached its target and stopped moving.</summary>
     [Signal] public delegate void ReachedTargetEventHandler();
 
@@ -110,8 +107,6 @@ public partial class Camera2DBrain : Node2D
 
     private float _noiseY = 0;
     private double _trauma = 0;
-
-    private Camera2D Camera => _cache.GetNodeOrNull<Camera2D>("Camera2D");
 
     /// <summary>Clamp a zoom vector to ensure the <see cref="Camera2D"/> doesn't zoom out too far to be able to see outside its limits.</summary>
     /// <param name="zoom">Zoom vector to clamp.</param>

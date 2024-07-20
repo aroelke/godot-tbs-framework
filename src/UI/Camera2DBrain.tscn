@@ -8,7 +8,7 @@
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_np3kc"]
 noise_type = 3
-seed = -467180915
+seed = 533893092
 fractal_type = 3
 
 [node name="Camera2DBrain" type="Node2D"]
@@ -21,7 +21,8 @@ ZoomActionAnalogIn = ExtResource("4_3vvtc")
 ZoomActionAnalogOut = ExtResource("5_dhf1d")
 ShakeNoise = SubResource("FastNoiseLite_np3kc")
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera" type="Camera2D" parent="."]
+unique_name_in_owner = true
 limit_left = -1000000
 limit_top = -1000000
 limit_right = 1000000
