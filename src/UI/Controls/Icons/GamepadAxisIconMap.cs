@@ -7,13 +7,16 @@ using UI.Controls.Device;
 
 namespace UI.Controls.Icons;
 
+/// <summary>Resource that maps input actions onto game pad button icons for the current game pad.</summary>
 [GlobalClass, Tool]
 public partial class GamepadAxisIconMap : IconMap
 {
     private Dictionary<string, IndividualGamepadAxisIconMap> _maps = null;
 
+    /// <summary>Mappings of input actions onto game pad icons.</summary>
     [Export] public GamepadAxisIconMapElement[] IconMaps = Array.Empty<GamepadAxisIconMapElement>();
 
+    /// <summary>Default icon map to use when a gamepad doesn't have its own icon map.</summary>
     [Export] public IndividualGamepadAxisIconMap DefaultMap = null;
 
     public Texture2D Left
