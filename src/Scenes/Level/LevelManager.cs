@@ -10,7 +10,7 @@ using UI.HUD;
 using Extensions;
 using Nodes.StateChart;
 using Nodes.StateChart.States;
-using Scenes.Level.UI;
+using Scenes.Level.Overlay;
 using Scenes.Level.Object;
 using Scenes.Level.Object.Group;
 using Scenes.Level.Map;

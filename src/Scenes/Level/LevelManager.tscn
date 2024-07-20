@@ -7,8 +7,8 @@
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/UI/Camera2DBrain.tscn" id="3_td8u6"]
 [ext_resource type="Resource" uid="uid://qk7wwaj7u81g" path="res://src/UI/Controls/Action/References/Map/MapNextAction.tres" id="4_gvudp"]
 [ext_resource type="PackedScene" uid="uid://bgcsg0l8mj2sn" path="res://src/Scenes/Level/Object/Cursor.tscn" id="6_3v7mf"]
-[ext_resource type="PackedScene" uid="uid://d2pwsr12t0uxb" path="res://src/Scenes/Level/UI/RangeOverlay.tscn" id="7_bm2jx"]
-[ext_resource type="PackedScene" uid="uid://bnnydb3ggsdth" path="res://src/Scenes/Level/UI/PathOverlay.tscn" id="8_7cjxr"]
+[ext_resource type="PackedScene" uid="uid://d2pwsr12t0uxb" path="res://src/Scenes/Level/Overlay/RangeOverlay.tscn" id="7_benwh"]
+[ext_resource type="PackedScene" uid="uid://bnnydb3ggsdth" path="res://src/Scenes/Level/Overlay/PathOverlay.tscn" id="8_dofkx"]
 [ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/UI/HUD/CursorHintIcon.tscn" id="9_i7is8"]
 [ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/UI/HUD/ControlHint.tscn" id="10_dfuji"]
 [ext_resource type="PackedScene" uid="uid://bqrqq7jid7qp2" path="res://src/UI/Pointer.tscn" id="10_h4rp7"]
@@ -37,7 +37,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -1521042986
+seed = -1790734958
 
 [sub_resource type="Resource" id="Resource_umt67"]
 script = ExtResource("24_k1nop")
@@ -140,7 +140,7 @@ ShakeMaxOffset = Vector2(100, 75)
 ShakeMaxRoll = 0.0
 ShakeNoise = SubResource("FastNoiseLite_spp7l")
 
-[node name="ActionRangeOverlay" parent="." instance=ExtResource("7_bm2jx")]
+[node name="ActionRangeOverlay" parent="." instance=ExtResource("7_benwh")]
 layer_0/name = "move"
 layer_0/modulate = Color(0, 0, 1, 0.392157)
 layer_0/navigation_enabled = false
@@ -151,7 +151,7 @@ layer_2/name = "support"
 layer_2/modulate = Color(0, 1, 0, 0.392157)
 layer_2/tile_data = PackedInt32Array()
 
-[node name="ZoneOverlay" parent="." instance=ExtResource("7_bm2jx")]
+[node name="ZoneOverlay" parent="." instance=ExtResource("7_benwh")]
 layer_0/name = "ally traversable"
 layer_0/modulate = Color(0, 0.247059, 0.498039, 0.392157)
 layer_0/navigation_enabled = false
@@ -164,7 +164,7 @@ layer_2/modulate = Color(0, 0, 0, 0.392157)
 layer_2/navigation_enabled = false
 layer_2/tile_data = PackedInt32Array()
 
-[node name="PathOverlay" parent="." instance=ExtResource("8_7cjxr")]
+[node name="PathOverlay" parent="." instance=ExtResource("8_dofkx")]
 z_index = 1
 
 [node name="Cursor" parent="." instance=ExtResource("6_3v7mf")]

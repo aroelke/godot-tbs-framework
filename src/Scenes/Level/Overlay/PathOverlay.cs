@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
-namespace Scenes.Level.UI;
+namespace Scenes.Level.Overlay;
 
 /// <summary>A <see cref="Map.Grid"/> overlay used to display paths through its cells.</summary>
 public partial class PathOverlay : TileMap
