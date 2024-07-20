@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using Extensions;
 using Godot;
 using Nodes;
-using Nodes.StateChart;
-using Nodes.StateChart.States;
 using UI.Controls.Action;
 using UI.Controls.Device;
 
@@ -15,12 +13,9 @@ namespace UI;
 /// Is only visible during analog control; during digital control, it and the main mouse become invisible in favor of a
 /// cursor; during mouse control the system mouse is visible.
 /// </summary>
-[Tool]
+[SceneTree, Tool]
 public partial class Pointer : BoundedNode2D
 {
-    private readonly NodeCache _cache;
-    public Pointer() : base() => _cache = new(this);
-
     /// <summary>Signals that the virtual pointer has moved in the canvas.</summary>
     /// <param name="position">Position of the virtual pointer.</param>
     [Signal] public delegate void PointerMovedEventHandler(Vector2 position);
@@ -45,13 +40,6 @@ public partial class Pointer : BoundedNode2D
     private bool _accelerate = false;
     private bool _tracking = true;
     private Tween _flyer = null;
-
-    private Chart ControlState => _cache.GetNode<Chart>("ControlState");
-    private TextureRect Mouse => _cache.GetNode<TextureRect>("Canvas/Mouse");
-    private State DigitalState => _cache.GetNodeOrNull<State>("%Digital");
-    private State AnalogState => _cache.GetNodeOrNull<State>("%Analog");
-    private State MouseState => _cache.GetNodeOrNull<State>("%Mouse");
-    private State FlyingState => _cache.GetNodeOrNull<State>("%Flying");
 
     /// <summary>Convert a position in the <see cref="World"/> to a position in the <see cref="Viewport"/>.</summary>
     /// <param name="world"><see cref="World"/> position.</param>
