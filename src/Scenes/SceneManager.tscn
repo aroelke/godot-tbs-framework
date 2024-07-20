@@ -12,6 +12,7 @@ CombatScene = ExtResource("2_6ljwi")
 layer = 3
 
 [node name="FadeToBlack" parent="Transitions" instance=ExtResource("3_oduw3")]
+unique_name_in_owner = true
 
 [connection signal="TransitionedIn" from="Transitions/FadeToBlack" to="." method="OnTransitionedIn"]
 [connection signal="TransitionedOut" from="Transitions/FadeToBlack" to="." method="OnTransitionedOut"]
