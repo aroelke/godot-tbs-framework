@@ -1,18 +1,13 @@
 using Godot;
-using Nodes;
 
 namespace Scenes.Transitions;
 
 /// <summary>Simple scene transition that fades to a color and then back into the next scene.</summary>
+[SceneTree]
 public partial class FadeToBlackTransition : SceneTransition
 {
-    private readonly NodeCache _cache;
-    public FadeToBlackTransition() : base() => _cache = new(this);
-
     private Color _color = Colors.Black;
     private Tween _tween = null;
-
-    private ColorRect Overlay => _cache.GetNodeOrNull<ColorRect>("Overlay");
 
     /// <summary>Color to fade to. Does not have to be black, despite the class name.</summary>
     /// <remarks>Make sure the color isn't fully transparent, or no fading will happen!</remarks>
