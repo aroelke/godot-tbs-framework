@@ -28,48 +28,54 @@ DownAction = ExtResource("6_ej1yi")
 RightAction = ExtResource("7_un5qk")
 AnalogAction = ExtResource("8_abo2t")
 
-[node name="Individual" type="GridContainer" parent="."]
+[node name="IndividualIcons" type="GridContainer" parent="."]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = -3
 theme_override_constants/v_separation = -3
 columns = 3
 
-[node name="EmptyNW" type="TextureRect" parent="Individual"]
+[node name="EmptyNW" type="TextureRect" parent="IndividualIcons"]
 layout_mode = 2
 
-[node name="Up" type="TextureRect" parent="Individual"]
+[node name="UpIcon" type="TextureRect" parent="IndividualIcons"]
+unique_name_in_owner = true
 layout_mode = 2
 texture = ExtResource("9_t5aqx")
 stretch_mode = 3
 
-[node name="EmptyNE" type="TextureRect" parent="Individual"]
+[node name="EmptyNE" type="TextureRect" parent="IndividualIcons"]
 layout_mode = 2
 
-[node name="Left" type="TextureRect" parent="Individual"]
+[node name="LeftIcon" type="TextureRect" parent="IndividualIcons"]
+unique_name_in_owner = true
 layout_mode = 2
 texture = ExtResource("10_flnu6")
 stretch_mode = 3
 
-[node name="Empty" type="TextureRect" parent="Individual"]
+[node name="Empty" type="TextureRect" parent="IndividualIcons"]
 layout_mode = 2
 
-[node name="Right" type="TextureRect" parent="Individual"]
+[node name="RightIcon" type="TextureRect" parent="IndividualIcons"]
+unique_name_in_owner = true
 layout_mode = 2
 texture = ExtResource("11_rkmss")
 stretch_mode = 3
 
-[node name="EmptySW" type="TextureRect" parent="Individual"]
+[node name="EmptySW" type="TextureRect" parent="IndividualIcons"]
 layout_mode = 2
 
-[node name="Down" type="TextureRect" parent="Individual"]
+[node name="DownIcon" type="TextureRect" parent="IndividualIcons"]
+unique_name_in_owner = true
 layout_mode = 2
 texture = ExtResource("12_wanm3")
 stretch_mode = 3
 
-[node name="EmptySE" type="TextureRect" parent="Individual"]
+[node name="EmptySE" type="TextureRect" parent="IndividualIcons"]
 layout_mode = 2
 
-[node name="Unified" type="TextureRect" parent="."]
+[node name="UnifiedIcon" type="TextureRect" parent="."]
+unique_name_in_owner = true
 layout_mode = 2
 texture = ExtResource("13_6l7cn")
 stretch_mode = 3
@@ -78,7 +84,8 @@ stretch_mode = 3
 layout_mode = 2
 text = "/"
 
-[node name="Analog" type="TextureRect" parent="."]
+[node name="AnalogIcon" type="TextureRect" parent="."]
+unique_name_in_owner = true
 layout_mode = 2
 texture = ExtResource("14_d7nyy")
 stretch_mode = 3

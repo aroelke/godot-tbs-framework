@@ -10,26 +10,15 @@ namespace UI.HUD;
 /// Switches between showing four buttons in a diamond pattern and showing a single directional pad depending on if all the actions
 /// are mapped to the pad in the right way.
 /// </summary>
-[Icon("res://icons/UIIcon.svg"), Tool]
+[Icon("res://icons/UIIcon.svg"), SceneTree, Tool]
 public partial class GamepadCursorHintIcon : HBoxContainer
 {
-    private readonly NodeCache _cache;
-    public GamepadCursorHintIcon() : base() => _cache = new(this);
-
     private Texture2D GetButtonIcon(JoyButton b) => ButtonMap is not null && ButtonMap.ContainsKey(b) ? ButtonMap[b] : null;
 
     private GridContainer _individual = null;
     private TextureRect _upIcon = null, _leftIcon = null, _downIcon = null, _rightIcon = null;
     private TextureRect _unified = null;
     private TextureRect _analog = null;
-
-    private GridContainer IndividualIcons => _cache.GetNode<GridContainer>("Individual");
-    private TextureRect UpIcon => _cache.GetNode<TextureRect>("Individual/Up");
-    private TextureRect LeftIcon => _cache.GetNode<TextureRect>("Individual/Left");
-    private TextureRect DownIcon => _cache.GetNode<TextureRect>("Individual/Down");
-    private TextureRect RightIcon => _cache.GetNode<TextureRect>("Individual/Right");
-    private TextureRect UnifiedIcon => _cache.GetNode<TextureRect>("Unified");
-    private TextureRect AnalogIcon => _cache.GetNode<TextureRect>("Analog");
 
     private void Update()
     {
