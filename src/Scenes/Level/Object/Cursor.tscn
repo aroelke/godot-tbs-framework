@@ -20,23 +20,25 @@ script = ExtResource("2_ysrq3")
 SelectAction = ExtResource("2_cxgqh")
 
 [node name="MoveController" parent="." instance=ExtResource("3_xkmwu")]
+unique_name_in_owner = true
 
-[node name="AnalogDigital" type="Node" parent="."]
+[node name="Converters" type="Node" parent="."]
+unique_name_in_owner = true
 process_mode = 4
 
-[node name="UpConverter" parent="AnalogDigital" instance=ExtResource("4_pjqq2")]
+[node name="UpConverter" parent="Converters" instance=ExtResource("4_pjqq2")]
 AnalogAction = ExtResource("4_0wuma")
 DigitalAction = ExtResource("6_7w2k3")
 
-[node name="LeftConverter" parent="AnalogDigital" instance=ExtResource("4_pjqq2")]
+[node name="LeftConverter" parent="Converters" instance=ExtResource("4_pjqq2")]
 AnalogAction = ExtResource("5_683n7")
 DigitalAction = ExtResource("8_j6qcd")
 
-[node name="DownConverter" parent="AnalogDigital" instance=ExtResource("4_pjqq2")]
+[node name="DownConverter" parent="Converters" instance=ExtResource("4_pjqq2")]
 AnalogAction = ExtResource("6_cegqi")
 DigitalAction = ExtResource("10_qaf1b")
 
-[node name="RightConverter" parent="AnalogDigital" instance=ExtResource("4_pjqq2")]
+[node name="RightConverter" parent="Converters" instance=ExtResource("4_pjqq2")]
 AnalogAction = ExtResource("7_0bt5n")
 DigitalAction = ExtResource("12_qv6o8")
 
@@ -45,17 +47,18 @@ texture = ExtResource("1_erpak")
 offset = Vector2(16, 16)
 
 [node name="MoveSound" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
 stream = ExtResource("14_7nv3s")
 
 [connection signal="DirectionEchoed" from="MoveController" to="." method="OnDirectionEchoed"]
 [connection signal="DirectionPressed" from="MoveController" to="." method="OnDirectionPressed"]
 [connection signal="DirectionReleased" from="MoveController" to="." method="OnDirectionReleased"]
 [connection signal="Skip" from="MoveController" to="." method="OnSkip"]
-[connection signal="ActionPressed" from="AnalogDigital/UpConverter" to="MoveController" method="_UnhandledInput"]
-[connection signal="ActionReleased" from="AnalogDigital/UpConverter" to="MoveController" method="_UnhandledInput"]
-[connection signal="ActionPressed" from="AnalogDigital/LeftConverter" to="MoveController" method="_UnhandledInput"]
-[connection signal="ActionReleased" from="AnalogDigital/LeftConverter" to="MoveController" method="_UnhandledInput"]
-[connection signal="ActionPressed" from="AnalogDigital/DownConverter" to="MoveController" method="_UnhandledInput"]
-[connection signal="ActionReleased" from="AnalogDigital/DownConverter" to="MoveController" method="_UnhandledInput"]
-[connection signal="ActionPressed" from="AnalogDigital/RightConverter" to="MoveController" method="_UnhandledInput"]
-[connection signal="ActionReleased" from="AnalogDigital/RightConverter" to="MoveController" method="_UnhandledInput"]
+[connection signal="ActionPressed" from="Converters/UpConverter" to="MoveController" method="_UnhandledInput"]
+[connection signal="ActionReleased" from="Converters/UpConverter" to="MoveController" method="_UnhandledInput"]
+[connection signal="ActionPressed" from="Converters/LeftConverter" to="MoveController" method="_UnhandledInput"]
+[connection signal="ActionReleased" from="Converters/LeftConverter" to="MoveController" method="_UnhandledInput"]
+[connection signal="ActionPressed" from="Converters/DownConverter" to="MoveController" method="_UnhandledInput"]
+[connection signal="ActionReleased" from="Converters/DownConverter" to="MoveController" method="_UnhandledInput"]
+[connection signal="ActionPressed" from="Converters/RightConverter" to="MoveController" method="_UnhandledInput"]
+[connection signal="ActionReleased" from="Converters/RightConverter" to="MoveController" method="_UnhandledInput"]
