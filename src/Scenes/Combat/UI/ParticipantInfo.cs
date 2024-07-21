@@ -1,29 +1,17 @@
 using System;
-using System.Diagnostics;
 using System.Linq;
 using Godot;
-using Nodes;
 using Nodes.Components;
 
 namespace Scenes.Combat.UI;
 
 /// <summary>Combat UI element that displays constant information about a character participating in combat.</summary>
-[Tool]
+[SceneTree, Tool]
 public partial class ParticipantInfo : GridContainer, IHasHealth
 {
-    private readonly  NodeCache _cache;
-    public ParticipantInfo() : base() => _cache = new(this);
-
     private int _maxHealth = 10, _currentHealth = 10;
     private int[] _damage = new[] { 0 };
     private int _hit = 0;
-
-    private Label HealthLabel => _cache.GetNodeOrNull<Label>("%HealthLabel");
-    private TextureProgressBar HealthBar => _cache.GetNodeOrNull<TextureProgressBar>("%HealthBar");
-    private Label DamageTitle => _cache.GetNodeOrNull<Label>("%DamageTitle");
-    private Label DamageLabel => _cache.GetNodeOrNull<Label>("%DamageLabel");
-    private Label HitChanceTitle => _cache.GetNodeOrNull<Label>("%HitChanceTitle");
-    private Label HitChanceLabel => _cache.GetNodeOrNull<Label>("%HitChanceLabel");
 
     /// <summary>Amount of damage each action will deal. Use a negative number to indicate healing. Use an empty array to hide, e.g. for buffing.</summary>
     /// <exception cref="ArgumentException">If a damage sequence contains both positive (damage) and negative (healing) values.</exception>
@@ -91,22 +79,21 @@ public partial class ParticipantInfo : GridContainer, IHasHealth
 
     public HealthComponent Health
     {
-        get => _cache.GetNode<HealthComponent>("Health");
+        get => HealthComponent;
         set
         {
-            HealthComponent health = _cache.GetNodeOrNull<HealthComponent>("Health");
-            if (value is not null && health is not null)
+            if (value is not null && HealthComponent is not null)
             {
-                health.Maximum = value.Maximum;
-                health.Value = value.Value;
+                HealthComponent.Maximum = value.Maximum;
+                HealthComponent.Value = value.Value;
 
                 if (HealthBar is not null)
                 {
-                    HealthBar.MaxValue = health.Maximum;
-                    HealthBar.Value = health.Value;
+                    HealthBar.MaxValue = HealthComponent.Maximum;
+                    HealthBar.Value = HealthComponent.Value;
                 }
                 if (HealthLabel is not null)
-                    HealthLabel.Text = $"HP: {health.Value}";
+                    HealthLabel.Text = $"HP: {HealthComponent.Value}";
             }
         }
     }

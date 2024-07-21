@@ -9,7 +9,8 @@
 columns = 3
 script = ExtResource("1_ecooa")
 
-[node name="Health" parent="." instance=ExtResource("2_07iwx")]
+[node name="HealthComponent" parent="." instance=ExtResource("2_07iwx")]
+unique_name_in_owner = true
 Maximum = 10
 Value = 10
 
@@ -51,4 +52,4 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "0%"
 
-[connection signal="ValueChanged" from="Health" to="." method="OnHealthChanged"]
+[connection signal="ValueChanged" from="HealthComponent" to="." method="OnHealthChanged"]
