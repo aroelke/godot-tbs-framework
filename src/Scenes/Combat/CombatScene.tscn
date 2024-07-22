@@ -11,12 +11,12 @@
 [ext_resource type="PackedScene" uid="uid://c11sm4jjy0flk" path="res://src/Scenes/PauseManager.tscn" id="4_kbq0h"]
 [ext_resource type="PackedScene" uid="uid://bmt2twqcbchie" path="res://src/Nodes/Components/FastForwardComponent.tscn" id="5_h0qjn"]
 [ext_resource type="AudioStream" uid="uid://8fitqbqe8crf" path="res://assets/raw/RPG_Essentials_Free/10_Battle_SFX/39_Block_03.wav" id="6_27q0q"]
-[ext_resource type="PackedScene" uid="uid://cvch4ay3dx0wv" path="res://src/Scenes/Combat/UI/ParticipantInfo.tscn" id="6_ag6sl"]
 [ext_resource type="Resource" uid="uid://c8jgkj5o6iui0" path="res://src/UI/Controls/Action/References/Map/SelectAction.tres" id="6_h4yfo"]
 [ext_resource type="AudioStream" uid="uid://bna3rsl1okrab" path="res://assets/raw/RPG_Essentials_Free/10_Battle_SFX/69_Enemy_death_01.wav" id="6_owx48"]
-[ext_resource type="Theme" uid="uid://fr2dcmadshbl" path="res://src/Scenes/Combat/UI/ParticipantInfo.tres" id="6_rchi6"]
 [ext_resource type="Texture2D" uid="uid://c1elo1xqw04us" path="res://assets/combat/spark.png" id="7_5me5v"]
 [ext_resource type="AudioStream" uid="uid://dp83ccn7bsqr5" path="res://assets/raw/RPG_Essentials_Free/12_Player_Movement_SFX/08_Step_rock_02.wav" id="9_b60f8"]
+[ext_resource type="Theme" uid="uid://fr2dcmadshbl" path="res://src/UI/Combat/ParticipantInfo.tres" id="16_ct6cq"]
+[ext_resource type="PackedScene" uid="uid://cvch4ay3dx0wv" path="res://src/UI/Combat/ParticipantInfo.tscn" id="17_2s64u"]
 [ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://src/UI/HUD/Hints.tres" id="17_6cq6n"]
 [ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/UI/HUD/ControlHint.tscn" id="17_ru8y2"]
 [ext_resource type="Resource" uid="uid://b2jdposiqnlcn" path="res://src/UI/Controls/Action/References/Global/PauseAction.tres" id="18_loqhr"]
@@ -46,6 +46,7 @@ SkipAction = ExtResource("3_jyggq")
 [node name="PauseManager" parent="." instance=ExtResource("4_kbq0h")]
 
 [node name="FastForward" parent="." instance=ExtResource("5_h0qjn")]
+unique_name_in_owner = true
 Action = ExtResource("6_h4yfo")
 
 [node name="Background" type="Sprite2D" parent="."]
@@ -55,6 +56,7 @@ texture = ExtResource("2_hevui")
 centered = false
 
 [node name="Camera" parent="." instance=ExtResource("2_qyxbl")]
+unique_name_in_owner = true
 Zoom = Vector2(8, 8)
 ZoomMax = Vector2(8, 8)
 Limits = Rect2i(0, 0, 2000000, 2000000)
@@ -125,7 +127,7 @@ anchor_bottom = 1.0
 offset_top = -252.0
 grow_horizontal = 2
 grow_vertical = 0
-theme = ExtResource("6_rchi6")
+theme = ExtResource("16_ct6cq")
 
 [node name="GridContainer" type="HBoxContainer" parent="CanvasLayer/ParticipantInfo"]
 layout_mode = 1
@@ -140,7 +142,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.8
 
-[node name="LeftInfo" parent="CanvasLayer/ParticipantInfo/GridContainer" instance=ExtResource("6_ag6sl")]
+[node name="LeftInfo" parent="CanvasLayer/ParticipantInfo/GridContainer" instance=ExtResource("17_2s64u")]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
@@ -150,7 +152,7 @@ size_flags_vertical = 4
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="RightInfo" parent="CanvasLayer/ParticipantInfo/GridContainer" instance=ExtResource("6_ag6sl")]
+[node name="RightInfo" parent="CanvasLayer/ParticipantInfo/GridContainer" instance=ExtResource("17_2s64u")]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
@@ -185,7 +187,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("6_rchi6")
+theme = ExtResource("16_ct6cq")
 
 [node name="PauseLabel" type="Label" parent="CanvasLayer/PauseOverlay"]
 layout_mode = 1
