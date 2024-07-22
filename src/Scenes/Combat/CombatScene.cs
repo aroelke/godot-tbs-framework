@@ -72,6 +72,7 @@ public partial class CombatScene : Node
     /// <param name="right">Unit on the right side of the screen.</param>
     /// <param name="actions">List of actions that will be performed each turn in combat. The length of the list determines the number of turns.</param>
     /// <exception cref="ArgumentException">If any <see cref="CombatAction"/> contains an _animations[action.Actor] who isn't participating in this combat.</exception>
+    [OnInstantiate]
     public void Initialize(Unit left, Unit right, IImmutableList<CombatAction> actions)
     {
         foreach (CombatAction action in actions)

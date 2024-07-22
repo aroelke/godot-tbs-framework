@@ -114,7 +114,7 @@ position = Vector2(116, 80)
 Left = false
 
 [node name="Sprite" parent="Right" index="1"]
-offset = Vector2(0, 0)
+offset = Vector2(-48, -52)
 flip_h = true
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
