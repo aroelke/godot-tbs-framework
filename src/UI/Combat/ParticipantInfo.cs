@@ -3,7 +3,7 @@ using System.Linq;
 using Godot;
 using Nodes.Components;
 
-namespace Scenes.Combat.UI;
+namespace UI.Combat;
 
 /// <summary>Combat UI element that displays constant information about a character participating in combat.</summary>
 [SceneTree, Tool]

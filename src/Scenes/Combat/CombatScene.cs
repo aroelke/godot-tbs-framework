@@ -7,9 +7,9 @@ using Godot;
 using Nodes;
 using Scenes.Combat.Animations;
 using Scenes.Combat.Data;
-using Scenes.Combat.UI;
 using Scenes.Level.Object;
 using UI;
+using UI.Combat;
 using UI.Controls.Action;
 
 namespace Scenes.Combat;
