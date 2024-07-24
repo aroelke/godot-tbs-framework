@@ -24,6 +24,11 @@ public partial class DigitalMoveAction : Node
     /// <param name="direction">Direction to skip in.</param>
     [Signal] public delegate void SkipEventHandler(Vector2I direction);
 
+    private static Vector2I ActionVector(Predicate<StringName> pressed) => new(
+        Convert.ToInt32(pressed(InputActions.DigitalMoveRight)) - Convert.ToInt32(pressed(InputActions.DigitalMoveLeft)),
+        Convert.ToInt32(pressed(InputActions.DigitalMoveDown)) - Convert.ToInt32(pressed(InputActions.DigitalMoveUp))
+    );
+
     private Vector2I _direction = Vector2I.Zero;
     private bool _process = false;
     private bool _echoing = false;
@@ -31,27 +36,6 @@ public partial class DigitalMoveAction : Node
     private bool _skip = false;
 
     private bool IsEchoing() => !_skip && _direction != Vector2I.Zero;
-
-    private Vector2I ActionVector(Predicate<StringName> pressed) => new(
-        Convert.ToInt32(pressed(RightAction)) - Convert.ToInt32(pressed(LeftAction)),
-        Convert.ToInt32(pressed(DownAction)) - Convert.ToInt32(pressed(UpAction))
-    );
-
-    /// <summary>Move up action.</summary>
-    [ExportGroup("Input Actions")]
-    [Export] public InputActionReference UpAction = new();
-
-    /// <summary>Move left action.</summary>
-    [ExportGroup("Input Actions")]
-    [Export] public InputActionReference LeftAction = new();
-
-    /// <summary>Move down action.</summary>
-    [ExportGroup("Input Actions")]
-    [Export] public InputActionReference DownAction = new();
-
-    /// <summary>Move right action.</summary>
-    [ExportGroup("Input Actions")]
-    [Export] public InputActionReference RightAction = new();
 
     [ExportGroup("Input Actions")]
     [Export] public InputActionReference SkipAction = new();

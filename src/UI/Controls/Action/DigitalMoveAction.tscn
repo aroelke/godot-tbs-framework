@@ -1,18 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://croni4vvkdn0a"]
+[gd_scene load_steps=3 format=3 uid="uid://croni4vvkdn0a"]
 
 [ext_resource type="Script" path="res://src/UI/Controls/Action/DigitalMoveAction.cs" id="1_wlt00"]
-[ext_resource type="Resource" uid="uid://bg5wxy6d07m7x" path="res://src/UI/Controls/Action/References/Global/MoveUpAction.tres" id="2_t7sl0"]
-[ext_resource type="Resource" uid="uid://dtest68b2o5wf" path="res://src/UI/Controls/Action/References/Global/MoveLeftAction.tres" id="3_wfwru"]
-[ext_resource type="Resource" uid="uid://dgfjy48mw11g0" path="res://src/UI/Controls/Action/References/Global/MoveDownAction.tres" id="4_jkmpu"]
-[ext_resource type="Resource" uid="uid://bkj4yccwimuix" path="res://src/UI/Controls/Action/References/Global/MoveRightAction.tres" id="5_p0v0g"]
 [ext_resource type="Resource" uid="uid://dsjbjmgsqqd7w" path="res://src/UI/Controls/Action/References/Map/AccelerateAction.tres" id="6_tpqky"]
 
 [node name="DigitalMoveAction" type="Node"]
 script = ExtResource("1_wlt00")
-UpAction = ExtResource("2_t7sl0")
-LeftAction = ExtResource("3_wfwru")
-DownAction = ExtResource("4_jkmpu")
-RightAction = ExtResource("5_p0v0g")
 SkipAction = ExtResource("6_tpqky")
 
 [node name="EchoTimer" type="Timer" parent="."]
