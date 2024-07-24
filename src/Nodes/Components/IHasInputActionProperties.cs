@@ -33,17 +33,21 @@ public interface IHasInputActionProperties
         }
     }
 
+    /// <summary>Create an input action property with the given name. It will present a dropdown menu with all of the defined input actions (even built-in ones).</summary>
+    /// <param name="name">Name of the property.</param>
+    public static Godot.Collections.Dictionary CreateInputActionProperty(StringName name) => new()
+    {
+        { "name", name },
+        { "type", Variant.From(Variant.Type.StringName) },
+        { "hint", Variant.From(PropertyHint.Enum) },
+        { "hint_string", string.Join(",", InputManager.GetInputActions().Select(static (i) => i.ToString())) }
+    };
+
     /// <summary>List of input action properties to provide to the <see cref="GodotObject"/>.</summary>
     public InputActionProperty[] InputActions { get; }
 
     /// <summary>Create a property list that can be returned from <see cref="GodotObject._GetPropertyList"/> out of <see cref="InputActions"/>.</summary>
-    public Godot.Collections.Array<Godot.Collections.Dictionary> GetInputActionProperties() => new(InputActions.Select((a) => new Godot.Collections.Dictionary()
-    {
-        { "name", a.Name },
-        { "type", Variant.From(Variant.Type.StringName) },
-        { "hint", Variant.From(PropertyHint.Enum) },
-        { "hint_string", string.Join(",", InputManager.GetInputActions().Select(static (i) => i.ToString())) }
-    }));
+    public Godot.Collections.Array<Godot.Collections.Dictionary> GetInputActionProperties() => new(InputActions.Select((a) => CreateInputActionProperty(a.Name)));
 
     /// <summary>Get the value of a specific input action property.</summary>
     /// <param name="property">Name of the property.</param>
