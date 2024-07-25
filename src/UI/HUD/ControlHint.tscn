@@ -1,19 +1,14 @@
-[gd_scene load_steps=7 format=3 uid="uid://btlhiv0dyhf7o"]
+[gd_scene load_steps=5 format=3 uid="uid://btlhiv0dyhf7o"]
 
 [ext_resource type="Script" path="res://src/UI/HUD/ControlHint.cs" id="1_y8x7b"]
-[ext_resource type="Script" path="res://src/UI/Controls/Action/InputActionReference.cs" id="2_cir3c"]
 [ext_resource type="Resource" uid="uid://37pcc5c7cogr" path="res://src/UI/Controls/Icons/MouseIconMap.tres" id="3_2hhue"]
 [ext_resource type="Resource" uid="uid://q61hgr3qsv4g" path="res://src/UI/Controls/Icons/KeyIconMap.tres" id="4_qc41a"]
 [ext_resource type="Resource" uid="uid://c27jd22jjxlu4" path="res://src/UI/Controls/Icons/GamepadButtonIconMap.tres" id="5_olt2t"]
 
-[sub_resource type="Resource" id="Resource_cdt7q"]
-script = ExtResource("2_cir3c")
-"Input Action" = &""
-
 [node name="ControlHint" type="HBoxContainer"]
 theme_override_constants/separation = 4
 script = ExtResource("1_y8x7b")
-Action = SubResource("Resource_cdt7q")
+Action = &""
 MouseMap = ExtResource("3_2hhue")
 KeyMap = ExtResource("4_qc41a")
 GamepadButtonIconMap = ExtResource("5_olt2t")
