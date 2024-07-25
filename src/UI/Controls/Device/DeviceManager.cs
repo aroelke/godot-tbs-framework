@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using Nodes.Components;
 
 namespace UI.Controls.Device;
 
@@ -83,7 +84,7 @@ public partial class DeviceManager : Node
             { "name", GamepadDigitalModeActivatorsProperty },
             { "type", Variant.From(Variant.Type.Array) },
             { "hint", Variant.From(PropertyHint.TypeString) },
-            { "hint_string", $"{(int)Variant.Type.StringName}/{(int)PropertyHint.Enum}:{string.Join(",", InputManager.GetInputActions().Select(static (i) => i.ToString()))}" }
+            { "hint_string", $"{(int)Variant.Type.StringName}/{(int)PropertyHint.Enum}:{IHasInputActionProperties.InputActionList}" }
         });
         return properties;
     }

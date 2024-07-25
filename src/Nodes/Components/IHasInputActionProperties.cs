@@ -33,6 +33,9 @@ public interface IHasInputActionProperties
         }
     }
 
+    /// <summary>Comma-separated list of input actions.</summary>
+    public static string InputActionList => string.Join(",", InputManager.GetInputActions().Select(static (i) => i.ToString()));
+
     /// <summary>Create an input action property with the given name. It will present a dropdown menu with all of the defined input actions (even built-in ones).</summary>
     /// <param name="name">Name of the property.</param>
     public static Godot.Collections.Dictionary CreateInputActionProperty(StringName name) => new()
@@ -40,7 +43,7 @@ public interface IHasInputActionProperties
         { "name", name },
         { "type", Variant.From(Variant.Type.StringName) },
         { "hint", Variant.From(PropertyHint.Enum) },
-        { "hint_string", string.Join(",", InputManager.GetInputActions().Select(static (i) => i.ToString())) }
+        { "hint_string", InputActionList }
     };
 
     /// <summary>List of input action properties to provide to the <see cref="GodotObject"/>.</summary>

@@ -2,6 +2,7 @@ using Godot;
 using UI.Controls.Icons;
 using UI.Controls.Action;
 using Nodes;
+using UI.Controls.Device;
 
 namespace UI.HUD;
 
@@ -22,10 +23,10 @@ public partial class GamepadCursorHintIcon : HBoxContainer
 
     private void Update()
     {
-        UpIcon.Texture    = GetButtonIcon(UpAction.GamepadButton);
-        LeftIcon.Texture  = GetButtonIcon(LeftAction.GamepadButton);
-        DownIcon.Texture  = GetButtonIcon(DownAction.GamepadButton);
-        RightIcon.Texture = GetButtonIcon(RightAction.GamepadButton);
+        UpIcon.Texture    = GetButtonIcon(InputManager.GetInputGamepadButton(InputActions.DigitalMoveUp));
+        LeftIcon.Texture  = GetButtonIcon(InputManager.GetInputGamepadButton(InputActions.DigitalMoveLeft));
+        DownIcon.Texture  = GetButtonIcon(InputManager.GetInputGamepadButton(InputActions.DigitalMoveDown));
+        RightIcon.Texture = GetButtonIcon(InputManager.GetInputGamepadButton(InputActions.DigitalMoveRight));
 
         UnifiedIcon.Texture = ButtonMap.Dpad;
 
@@ -44,22 +45,6 @@ public partial class GamepadCursorHintIcon : HBoxContainer
     /// <summary>Mapping of <see cref="JoyAxis"/> onto icon to display.</summary>
     [ExportGroup("Icon Maps")]
     [Export] public GamepadAxisIconMap AxisMap = new();
-
-    /// <summary>Name of the action to move the cursor up.</summary>
-    [ExportGroup("Actions")]
-    [Export] public InputActionReference UpAction = new();
-
-    /// <summary>Name of the action to move the cursor left.</summary>
-    [ExportGroup("Actions")]
-    [Export] public InputActionReference LeftAction = new();
-
-    /// <summary>Name of the action to move the cursor down.</summary>
-    [ExportGroup("Actions")]
-    [Export] public InputActionReference DownAction = new();
-
-    /// <summary>Name of the action to move the cursor right.</summary>
-    [ExportGroup("Actions")]
-    [Export] public InputActionReference RightAction = new();
 
     /// <summary>Name of an action to move the cursor with the analog stick.</summary>
     [ExportGroup("Actions")]
@@ -93,10 +78,10 @@ public partial class GamepadCursorHintIcon : HBoxContainer
             Update();
         else
         {
-            ShowIndividualIcons = !(UpAction.GamepadButton    == JoyButton.DpadUp   &&
-                                    LeftAction.GamepadButton  == JoyButton.DpadLeft &&
-                                    DownAction.GamepadButton  == JoyButton.DpadDown &&
-                                    RightAction.GamepadButton == JoyButton.DpadRight);
+            ShowIndividualIcons = !(InputManager.GetInputGamepadButton(InputActions.DigitalMoveUp)    == JoyButton.DpadUp   &&
+                                    InputManager.GetInputGamepadButton(InputActions.DigitalMoveLeft)  == JoyButton.DpadLeft &&
+                                    InputManager.GetInputGamepadButton(InputActions.DigitalMoveDown)  == JoyButton.DpadDown &&
+                                    InputManager.GetInputGamepadButton(InputActions.DigitalMoveRight) == JoyButton.DpadRight);
         }
     }
 }

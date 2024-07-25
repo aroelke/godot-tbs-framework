@@ -103,10 +103,6 @@ public partial class CursorHintIcon : HBoxContainer
 
             GamepadIcon.ButtonMap = ButtonMap;
             GamepadIcon.AxisMap = AxisMap;
-            GamepadIcon.UpAction = UpAction;
-            GamepadIcon.LeftAction = LeftAction;
-            GamepadIcon.DownAction = DownAction;
-            GamepadIcon.RightAction = RightAction;
         }
     }
 
