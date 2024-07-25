@@ -22,11 +22,19 @@ public partial class ControlHint : HBoxContainer, IHasInputActionProperties
     {
         if (Icon is not null)
             Icon.Texture = _maps[device][action] ?? _maps[FallBackDevice][action];
-        if (Label is not null)
-            Label.Text = $": {action}";
     }
 
     public IHasInputActionProperties.InputActionProperty[] InputActions { get; set; } = [new("Action", "")];
+
+    [Export] public string Description
+    {
+        get => Label?.Text[2..] ?? "";
+        set
+        {
+            if (Label is not null)
+                Label.Text = $": {value}";
+        }
+    }
 
     /// <summary>Whether or not to fall back to the keyboard icon when a mouse icon for an action doesn't exist.</summary>
     [Export] public InputDevice FallBackDevice = InputDevice.Keyboard;
