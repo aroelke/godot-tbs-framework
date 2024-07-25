@@ -64,9 +64,6 @@ public partial class CombatScene : Node
     /// <summary>Amount of camera shake trauma for a normal hit.</summary>
     [Export] public double CameraShakeHitTrauma = 0.2;
 
-    /// <summary>Action to use for skipping the combat animation.</summary>
-    [Export] public InputActionReference SkipAction = new();
-
     /// <summary>Set up the combat scene.</summary>
     /// <param name="left">Unit on the left side of the screen.</param>
     /// <param name="right">Unit on the right side of the screen.</param>
@@ -211,7 +208,7 @@ public partial class CombatScene : Node
     {
         base._Input(@event);
 
-        if (@event.IsActionPressed(SkipAction) && !_canceled)
+        if (@event.IsActionPressed(InputActions.Cancel) && !_canceled)
         {
             TransitionDelay.Stop();
             _canceled = true;
