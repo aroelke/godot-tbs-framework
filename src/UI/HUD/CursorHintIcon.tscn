@@ -1,11 +1,10 @@
-[gd_scene load_steps=13 format=3 uid="uid://dar0v4k4aqvpv"]
+[gd_scene load_steps=12 format=3 uid="uid://dar0v4k4aqvpv"]
 
 [ext_resource type="Script" path="res://src/UI/HUD/CursorHintIcon.cs" id="1_go8iq"]
 [ext_resource type="Resource" uid="uid://37pcc5c7cogr" path="res://src/UI/Controls/Icons/MouseIconMap.tres" id="2_ah0pi"]
 [ext_resource type="Resource" uid="uid://q61hgr3qsv4g" path="res://src/UI/Controls/Icons/KeyIconMap.tres" id="3_ofd1p"]
 [ext_resource type="Resource" uid="uid://c27jd22jjxlu4" path="res://src/UI/Controls/Icons/GamepadButtonIconMap.tres" id="4_fljuw"]
 [ext_resource type="Resource" uid="uid://rlgg8mn3bshl" path="res://src/UI/Controls/Icons/GamepadAxisIconMap.tres" id="5_5d2yb"]
-[ext_resource type="Resource" uid="uid://b5chrwy1ey3sm" path="res://src/UI/Controls/Action/References/Global/AnalogUpAction.tres" id="10_fuf1i"]
 [ext_resource type="Texture2D" uid="uid://xnouovy7cud3" path="res://assets/ui/icons/controls/mouse/mouse.png" id="11_vfkls"]
 [ext_resource type="Texture2D" uid="uid://bvbkwcurpgl68" path="res://assets/ui/icons/controls/keyboard/up.png" id="12_w0a8n"]
 [ext_resource type="Texture2D" uid="uid://b22lemesaffkm" path="res://assets/ui/icons/controls/keyboard/left.png" id="13_csftp"]
@@ -22,7 +21,6 @@ MouseMap = ExtResource("2_ah0pi")
 KeyMap = ExtResource("3_ofd1p")
 ButtonMap = ExtResource("4_fljuw")
 AxisMap = ExtResource("5_5d2yb")
-AnalogAction = ExtResource("10_fuf1i")
 
 [node name="MouseIcon" type="TextureRect" parent="."]
 unique_name_in_owner = true

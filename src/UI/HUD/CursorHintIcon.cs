@@ -18,24 +18,16 @@ public partial class CursorHintIcon : HBoxContainer
     private Texture2D GetKeyIcon(Key key) => KeyMap.ContainsKey(key) ? KeyMap[key] : null;
 
     /// <summary>Mapping of <see cref="MouseButton"/> onto icon to display.</summary>
-    [ExportGroup("Icon Maps")]
     [Export] public MouseIconMap MouseMap = new();
 
     /// <summary>Mapping of <see cref="Key"/> onto icon to display.</summary>
-    [ExportGroup("Icon Maps")]
     [Export] public KeyIconMap KeyMap = new();
 
     /// <summary>Mapping of <see cref="JoyButton"/> onto icon to display.</summary>
-    [ExportGroup("Icon Maps")]
     [Export] public GamepadButtonIconMap ButtonMap = new();
 
     /// <summary>Mapping of <see cref="JoyAxis"/> onto icon to display.</summary>
-    [ExportGroup("Icon Maps")]
     [Export] public GamepadAxisIconMap AxisMap = new();
-
-    /// <summary>Name of an action to move the cursor with the analog stick.</summary>
-    [ExportGroup("Actions")]
-    [Export] public InputActionReference AnalogAction = new();
 
     /// <summary>Set the selected input device to show the icon for.</summary>
     public InputDevice SelectedDevice

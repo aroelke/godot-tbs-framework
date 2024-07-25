@@ -30,7 +30,7 @@ public partial class GamepadCursorHintIcon : HBoxContainer
 
         UnifiedIcon.Texture = ButtonMap.Dpad;
 
-        AnalogIcon.Texture = AnalogAction.GamepadAxis switch
+        AnalogIcon.Texture = InputManager.GetInputGamepadAxis(InputActions.AnalogMoveUp) switch
         {
             JoyAxis.LeftX  | JoyAxis.LeftY  => AxisMap?.Left,
             JoyAxis.RightX | JoyAxis.RightY => AxisMap?.Right,
@@ -39,16 +39,10 @@ public partial class GamepadCursorHintIcon : HBoxContainer
     }
 
     /// <summary>Mapping of <see cref="JoyButton"/> on to icon to display.</summary>
-    [ExportGroup("Icon Maps")]
     [Export] public GamepadButtonIconMap ButtonMap = new();
 
     /// <summary>Mapping of <see cref="JoyAxis"/> onto icon to display.</summary>
-    [ExportGroup("Icon Maps")]
     [Export] public GamepadAxisIconMap AxisMap = new();
-
-    /// <summary>Name of an action to move the cursor with the analog stick.</summary>
-    [ExportGroup("Actions")]
-    [Export] public InputActionReference AnalogAction = new();
 
     /// <summary>Whether to show the individual control icons or the unified one.</summary>
     public bool ShowIndividualIcons
