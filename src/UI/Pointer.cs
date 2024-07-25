@@ -69,10 +69,6 @@ public partial class Pointer : BoundedNode2D
     [ExportGroup("Movement")]
     [Export(PropertyHint.None, "suffix:s")] public double DefaultFlightTime = 0.25;
 
-    /// <summary>Action to accelerate the speed of the cursor.</summary>
-    [ExportGroup("Input Actions/Movement")]
-    [Export] public InputActionReference AccelerateAction = new();
-
     /// <summary>Position of the pointer relative to the <see cref="Viewport"/>.</summary>
     public Vector2 ViewportPosition
     {
@@ -169,9 +165,9 @@ public partial class Pointer : BoundedNode2D
     /// <param name="event">Input event describing the input.</param>
     public void OnAnalogStateUnhandledInput(InputEvent @event)
     {
-        if (@event.IsActionPressed(AccelerateAction))
+        if (@event.IsActionPressed(InputActions.Accelerate))
             _accelerate = true;
-        if (@event.IsActionReleased(AccelerateAction))
+        if (@event.IsActionReleased(InputActions.Accelerate))
             _accelerate = false;
     }
 

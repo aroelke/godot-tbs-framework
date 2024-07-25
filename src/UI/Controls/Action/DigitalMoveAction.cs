@@ -37,15 +37,10 @@ public partial class DigitalMoveAction : Node
 
     private bool IsEchoing() => !_skip && _direction != Vector2I.Zero;
 
-    [ExportGroup("Input Actions")]
-    [Export] public InputActionReference SkipAction = new();
-
     /// <summary>Initial delay after pressing a button to begin echoing the input.</summary>
-    [ExportGroup("Echo Control")]
     [Export] public double EchoDelay = 0.3;
 
     /// <summary>Delay between moves while holding an input down.</summary>
-    [ExportGroup("Echo Control")]
     [Export] public double EchoInterval = 0.03;
 
     /// <summary>Reset the echo timer so its next timeout is on the delay rather than the interval.</summary>
@@ -108,9 +103,9 @@ public partial class DigitalMoveAction : Node
     {
         base._UnhandledInput(@event);
 
-        if (@event.IsActionPressed(SkipAction) && !IsEchoing())
+        if (@event.IsActionPressed(InputActions.Accelerate) && !IsEchoing())
             _skip = true;
-        else if (@event.IsActionReleased(SkipAction))
+        else if (@event.IsActionReleased(InputActions.Accelerate))
             _skip = false;
 
         Vector2I prev = _direction;

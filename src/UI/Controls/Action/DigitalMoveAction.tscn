@@ -1,11 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://croni4vvkdn0a"]
+[gd_scene load_steps=2 format=3 uid="uid://croni4vvkdn0a"]
 
 [ext_resource type="Script" path="res://src/UI/Controls/Action/DigitalMoveAction.cs" id="1_wlt00"]
-[ext_resource type="Resource" uid="uid://dsjbjmgsqqd7w" path="res://src/UI/Controls/Action/References/Map/AccelerateAction.tres" id="6_tpqky"]
 
 [node name="DigitalMoveAction" type="Node"]
 script = ExtResource("1_wlt00")
-SkipAction = ExtResource("6_tpqky")
 
 [node name="EchoTimer" type="Timer" parent="."]
 unique_name_in_owner = true
