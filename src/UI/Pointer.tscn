@@ -1,10 +1,6 @@
-[gd_scene load_steps=29 format=3 uid="uid://bqrqq7jid7qp2"]
+[gd_scene load_steps=25 format=3 uid="uid://bqrqq7jid7qp2"]
 
 [ext_resource type="Script" path="res://src/UI/Pointer.cs" id="1_bn1q1"]
-[ext_resource type="Resource" uid="uid://b5chrwy1ey3sm" path="res://src/UI/Controls/Action/References/Global/AnalogUpAction.tres" id="2_3aotm"]
-[ext_resource type="Resource" uid="uid://cvtvdabjk3tvi" path="res://src/UI/Controls/Action/References/Global/AnalogLeftAction.tres" id="3_2v0l2"]
-[ext_resource type="Resource" uid="uid://b53yph2kmwkvl" path="res://src/UI/Controls/Action/References/Global/AnalogDownAction.tres" id="4_fh1qe"]
-[ext_resource type="Resource" uid="uid://cnlbmhk1rudn0" path="res://src/UI/Controls/Action/References/Global/AnalogRightAction.tres" id="5_tklov"]
 [ext_resource type="Resource" uid="uid://dsjbjmgsqqd7w" path="res://src/UI/Controls/Action/References/Map/AccelerateAction.tres" id="6_h82l2"]
 [ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/Nodes/StateChart/Chart.tscn" id="7_xfrm4"]
 [ext_resource type="PackedScene" uid="uid://bykdjiak4bxvt" path="res://src/Nodes/StateChart/States/CompoundState.tscn" id="8_pjkcf"]
@@ -65,10 +61,6 @@ script = ExtResource("14_xq8gn")
 
 [node name="Pointer" type="Node2D"]
 script = ExtResource("1_bn1q1")
-UpAction = ExtResource("2_3aotm")
-LeftAction = ExtResource("3_2v0l2")
-DownAction = ExtResource("4_fh1qe")
-RightAction = ExtResource("5_tklov")
 AccelerateAction = ExtResource("6_h82l2")
 
 [node name="ControlState" parent="." instance=ExtResource("7_xfrm4")]

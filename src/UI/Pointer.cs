@@ -69,22 +69,6 @@ public partial class Pointer : BoundedNode2D
     [ExportGroup("Movement")]
     [Export(PropertyHint.None, "suffix:s")] public double DefaultFlightTime = 0.25;
 
-    /// <summary>Action to move the pointer up.</summary>
-    [ExportGroup("Input Actions/Movement")]
-    [Export] public InputActionReference UpAction = new();
-
-    /// <summary>Action to move the pointer left.</summary>
-    [ExportGroup("Input Actions/Movement")]
-    [Export] public InputActionReference LeftAction = new();
-
-    /// <summary>Action to move the pointer down.</summary>
-    [ExportGroup("Input Actions/Movement")]
-    [Export] public InputActionReference DownAction = new();
-
-    /// <summary>Action to move the pointer right.</summary>
-    [ExportGroup("Input Actions/Movement")]
-    [Export] public InputActionReference RightAction = new();
-
     /// <summary>Action to accelerate the speed of the cursor.</summary>
     [ExportGroup("Input Actions/Movement")]
     [Export] public InputActionReference AccelerateAction = new();
@@ -197,7 +181,7 @@ public partial class Pointer : BoundedNode2D
     {
         if (_tracking)
         {
-            Vector2 direction = Input.GetVector(LeftAction, RightAction, UpAction, DownAction);
+            Vector2 direction = Input.GetVector(InputActions.AnalogMoveLeft, InputActions.AnalogMoveRight, InputActions.AnalogMoveUp, InputActions.AnalogMoveDown);
             if (direction != Vector2.Zero)
             {
                 double speed = _accelerate ? (Speed*Acceleration) : Speed;
