@@ -33,22 +33,6 @@ public partial class CursorHintIcon : HBoxContainer
     [ExportGroup("Icon Maps")]
     [Export] public GamepadAxisIconMap AxisMap = new();
 
-    /// <summary>Name of the action for moving the cursor up.</summary>
-    [ExportGroup("Actions")]
-    [Export] public InputActionReference UpAction = new();
-
-    /// <summary>Name of the action for moving the cursor left.</summary>
-    [ExportGroup("Actions")]
-    [Export] public InputActionReference LeftAction = new();
-
-    /// <summary>Name of the action for moving the cursor down.</summary>
-    [ExportGroup("Actions")]
-    [Export] public InputActionReference DownAction = new();
-
-    /// <summary>Name of the action for moving the cursor right.</summary>
-    [ExportGroup("Actions")]
-    [Export] public InputActionReference RightAction = new();
-
     /// <summary>Name of an action to move the cursor with the analog stick.</summary>
     [ExportGroup("Actions")]
     [Export] public InputActionReference AnalogAction = new();
@@ -95,10 +79,10 @@ public partial class CursorHintIcon : HBoxContainer
         base._Process(delta);
         if (Engine.IsEditorHint())
         {
-            UpKeyIcon.Texture = GetKeyIcon(UpAction.Key);
-            LeftKeyIcon.Texture = GetKeyIcon(LeftAction.Key);
-            DownKeyIcon.Texture = GetKeyIcon(DownAction.Key);
-            RightKeyIcon.Texture = GetKeyIcon(RightAction.Key);
+            UpKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputActions.DigitalMoveUp));
+            LeftKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputActions.DigitalMoveLeft));
+            DownKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputActions.DigitalMoveDown));
+            RightKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputActions.DigitalMoveRight));
             MouseIcon.Texture = MouseMap.Motion;
 
             GamepadIcon.ButtonMap = ButtonMap;
