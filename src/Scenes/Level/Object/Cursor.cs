@@ -46,9 +46,6 @@ public partial class Cursor : GridNode
     private ImmutableHashSet<Vector2I> _hard = ImmutableHashSet<Vector2I>.Empty;
     private bool _halted = false;
 
-    /// <summary>Action for selecting a cell.</summary>
-    [Export] public InputActionReference SelectAction = new();
-
     /// <summary>Whether or not the cursor should wrap to the other side if a direction is pressed toward the edge it's on.</summary>
     [Export] public bool Wrap = false;
 
@@ -218,7 +215,7 @@ public partial class Cursor : GridNode
     public override void _UnhandledInput(InputEvent @event)
     {
         base._UnhandledInput(@event);
-        if (!_halted && @event.IsActionPressed(SelectAction))
+        if (!_halted && @event.IsActionPressed(InputActions.Select))
             EmitSignal(SignalName.CellSelected, Grid.CellOf(Position));
     }
 }
