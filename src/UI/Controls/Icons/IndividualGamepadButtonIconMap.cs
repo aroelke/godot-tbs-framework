@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using UI.Controls.Action;
+using UI.Controls.Device;
 
 namespace UI.Controls.Icons;
 
@@ -18,6 +19,7 @@ public partial class IndividualGamepadButtonIconMap : IconMap
     public int Count => _icons.Count;
     public Texture2D this[JoyButton key] { get => _icons[key]; set => _icons[key] = value; }
     public override Texture2D this[InputActionReference action] { get => this[action.GamepadButton]; set => this[action.GamepadButton] = value; }
+    public override Texture2D this[StringName action] { get => this[InputManager.GetInputGamepadButton(action)]; set => this[InputManager.GetInputGamepadButton(action)] = value; }
 
     /// <summary>Generic icon to display for the directional pad, with no directions pressed.</summary>
     [Export] public Texture2D Dpad = null;
@@ -87,4 +89,5 @@ public partial class IndividualGamepadButtonIconMap : IconMap
 
     public bool ContainsKey(JoyButton key) => _icons.ContainsKey(key);
     public override bool ContainsKey(InputActionReference action) => ContainsKey(action.GamepadButton);
+    public override bool ContainsKey(StringName action) => ContainsKey(InputManager.GetInputGamepadButton(action));
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using UI.Controls.Action;
+using UI.Controls.Device;
 
 namespace UI.Controls.Icons;
 
@@ -18,6 +19,7 @@ public partial class IndividualGamepadAxisIconMap : IconMap
     public int Count => _icons.Count;
     public Texture2D this[JoyAxis key] { get => _icons[key]; set => _icons[key] = value; }
     public override Texture2D this[InputActionReference action] { get => this[action.GamepadAxis]; set => this[action.GamepadAxis] = value; }
+    public override Texture2D this[StringName action] { get => this[InputManager.GetInputGamepadAxis(action)]; set => this[InputManager.GetInputGamepadAxis(action)] = value; }
 
     /// <summary>Generic icon to display for the left stick axis, not pressed in any direction.</summary>
     [Export] public Texture2D Left = null;
@@ -27,4 +29,5 @@ public partial class IndividualGamepadAxisIconMap : IconMap
 
     public bool ContainsKey(JoyAxis key) => _icons.ContainsKey(key);
     public override bool ContainsKey(InputActionReference action) => ContainsKey(action.GamepadAxis);
+    public override bool ContainsKey(StringName action) => ContainsKey(InputManager.GetInputGamepadAxis(action));
 }

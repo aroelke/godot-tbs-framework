@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using UI.Controls.Action;
+using UI.Controls.Device;
 
 namespace UI.Controls.Icons;
 
@@ -18,6 +19,7 @@ public partial class KeyIconMap : IconMap
     public int Count => _icons.Count;
     public Texture2D this[Key key] { get => _icons[key]; set => _icons[key] = value; }
     public override Texture2D this[InputActionReference action] { get => this[action.Key]; set => this[action.Key] = value; }
+    public override Texture2D this[StringName action] { get => this[InputManager.GetInputKeycode(action)]; set => this[InputManager.GetInputKeycode(action)] = value; }
 
     /// <summary>Space bar icon.</summary>
     [Export] public Texture2D Space
@@ -98,4 +100,5 @@ public partial class KeyIconMap : IconMap
 
     public bool ContainsKey(Key key) => _icons.ContainsKey(key);
     public override bool ContainsKey(InputActionReference action) => ContainsKey(action.Key);
+    public override bool ContainsKey(StringName action) => ContainsKey(InputManager.GetInputKeycode(action));
 }

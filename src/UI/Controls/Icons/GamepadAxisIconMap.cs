@@ -84,5 +84,12 @@ public partial class GamepadAxisIconMap : IconMap
         set => throw new NotSupportedException();
     }
 
+    public override Texture2D this[StringName action]
+    {
+        get => this[InputManager.GetInputGamepadAxis(action)];
+        set => throw new NotSupportedException();
+    }
+
     public override bool ContainsKey(InputActionReference action) => ContainsKey(action.GamepadAxis);
+    public override bool ContainsKey(StringName action) => ContainsKey(InputManager.GetInputGamepadAxis(action));
 }

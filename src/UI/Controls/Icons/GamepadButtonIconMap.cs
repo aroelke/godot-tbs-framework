@@ -66,14 +66,18 @@ public partial class GamepadButtonIconMap : IconMap
             return this[DeviceManager.DeviceName].ContainsKey(key);
     }
 
-    /// <summary>Get the button icon for the current game pad corresponding to an input action.</summary>
-    /// <param name="action">Input action to get the icon for.</param>
-    /// <exception cref="NotSupportedException">If the icon for the action is set.</exception>
     public override Texture2D this[InputActionReference action]
     {
         get => this[action.GamepadButton];
         set => throw new NotSupportedException();
     }
 
+    public override Texture2D this[StringName action]
+    {
+        get => this[InputManager.GetInputGamepadButton(action)];
+        set => throw new NotSupportedException();
+    }
+
     public override bool ContainsKey(InputActionReference action) => ContainsKey(action.GamepadButton);
+    public override bool ContainsKey(StringName action) => ContainsKey(InputManager.GetInputGamepadButton(action));
 }
