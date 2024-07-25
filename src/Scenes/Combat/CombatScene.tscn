@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://bn2dxlvq8lqj6"]
+[gd_scene load_steps=22 format=3 uid="uid://bn2dxlvq8lqj6"]
 
 [ext_resource type="Script" path="res://src/Scenes/Combat/CombatScene.cs" id="1_h22l5"]
 [ext_resource type="Texture2D" uid="uid://bbrmt3ob1fnsh" path="res://assets/raw/Free-Summer-Pixel-Art-Backgrounds/PNG/summer 2/Summer2.png" id="2_hevui"]
@@ -11,7 +11,6 @@
 [ext_resource type="PackedScene" uid="uid://c11sm4jjy0flk" path="res://src/Scenes/PauseManager.tscn" id="4_kbq0h"]
 [ext_resource type="PackedScene" uid="uid://bmt2twqcbchie" path="res://src/Nodes/Components/FastForwardComponent.tscn" id="5_h0qjn"]
 [ext_resource type="AudioStream" uid="uid://8fitqbqe8crf" path="res://assets/raw/RPG_Essentials_Free/10_Battle_SFX/39_Block_03.wav" id="6_27q0q"]
-[ext_resource type="Resource" uid="uid://c8jgkj5o6iui0" path="res://src/UI/Controls/Action/References/Map/SelectAction.tres" id="6_h4yfo"]
 [ext_resource type="AudioStream" uid="uid://bna3rsl1okrab" path="res://assets/raw/RPG_Essentials_Free/10_Battle_SFX/69_Enemy_death_01.wav" id="6_owx48"]
 [ext_resource type="Texture2D" uid="uid://c1elo1xqw04us" path="res://assets/combat/spark.png" id="7_5me5v"]
 [ext_resource type="AudioStream" uid="uid://dp83ccn7bsqr5" path="res://assets/raw/RPG_Essentials_Free/12_Player_Movement_SFX/08_Step_rock_02.wav" id="9_b60f8"]
@@ -46,7 +45,6 @@ SkipAction = ExtResource("3_jyggq")
 
 [node name="FastForward" parent="." instance=ExtResource("5_h0qjn")]
 unique_name_in_owner = true
-Action = ExtResource("6_h4yfo")
 
 [node name="Background" type="Sprite2D" parent="."]
 position = Vector2(-73, -48)
@@ -173,7 +171,7 @@ theme = ExtResource("17_6cq6n")
 
 [node name="SkipHint" parent="CanvasLayer/Hints" instance=ExtResource("17_ru8y2")]
 layout_mode = 2
-Action = &"cancel"
+Action = &"fast_forward"
 Description = "Skip"
 
 [node name="PauseHint" parent="CanvasLayer/Hints" instance=ExtResource("17_ru8y2")]
