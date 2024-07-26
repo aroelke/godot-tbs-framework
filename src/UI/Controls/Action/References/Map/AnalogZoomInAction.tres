@@ -1,7 +1,0 @@
-[gd_resource type="Resource" script_class="InputActionReference" load_steps=2 format=3 uid="uid://cwfm1wgikkk0r"]
-
-[ext_resource type="Script" path="res://src/UI/Controls/Action/InputActionReference.cs" id="1_o0gec"]
-
-[resource]
-script = ExtResource("1_o0gec")
-"Input Action" = &"Map.Zoom In (Analog)"

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using UI.Controls.Action;
 using UI.Controls.Device;
 
 namespace UI.Controls.Icons;
@@ -78,18 +77,11 @@ public partial class GamepadAxisIconMap : IconMap
             return this[DeviceManager.DeviceName].ContainsKey(key);
     }
 
-    public override Texture2D this[InputActionReference action]
-    {
-        get => this[action.GamepadAxis];
-        set => throw new NotSupportedException();
-    }
-
     public override Texture2D this[StringName action]
     {
         get => this[InputManager.GetInputGamepadAxis(action)];
         set => throw new NotSupportedException();
     }
 
-    public override bool ContainsKey(InputActionReference action) => ContainsKey(action.GamepadAxis);
     public override bool ContainsKey(StringName action) => ContainsKey(InputManager.GetInputGamepadAxis(action));
 }

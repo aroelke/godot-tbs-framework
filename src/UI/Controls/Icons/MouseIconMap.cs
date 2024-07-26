@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using UI.Controls.Action;
 using UI.Controls.Device;
 
 namespace UI.Controls.Icons;
@@ -18,7 +17,6 @@ public partial class MouseIconMap : IconMap
     public ICollection<Texture2D> Values => _icons.Values;
     public int Count => _icons.Count;
     public Texture2D this[MouseButton key] { get => _icons[key]; set => _icons[key] = value; }
-    public override Texture2D this[InputActionReference action] { get => this[action.MouseButton]; set => this[action.MouseButton] = value; }
     public override Texture2D this[StringName action] { get => this[InputManager.GetInputMouseButton(action)]; set => this[InputManager.GetInputMouseButton(action)] = value; }
 
     /// <summary>Icon to display for mouse motion.</summary>
@@ -39,6 +37,5 @@ public partial class MouseIconMap : IconMap
     }
 
     public bool ContainsKey(MouseButton key) => _icons.ContainsKey(key);
-    public override bool ContainsKey(InputActionReference action) => ContainsKey(action.MouseButton);
     public override bool ContainsKey(StringName action) => ContainsKey(InputManager.GetInputMouseButton(action));
 }
