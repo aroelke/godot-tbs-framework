@@ -1,4 +1,4 @@
-[gd_scene load_steps=43 format=3 uid="uid://b0cvutx2lj5uy"]
+[gd_scene load_steps=42 format=3 uid="uid://b0cvutx2lj5uy"]
 
 [ext_resource type="Script" path="res://src/Scenes/Level/Object/Unit.cs" id="1_crlbh"]
 [ext_resource type="Script" path="res://src/Data/Stats.cs" id="2_fgj32"]
@@ -9,7 +9,6 @@
 [ext_resource type="Texture2D" uid="uid://cqrnta1uxyfcy" path="res://assets/raw/Pixel Health Bar/Bar/empty health bar.png" id="7_jx118"]
 [ext_resource type="Texture2D" uid="uid://dvstcx8u7scs4" path="res://assets/raw/Pixel Health Bar/Bar/health bar.png" id="8_m6b0i"]
 [ext_resource type="PackedScene" uid="uid://bmt2twqcbchie" path="res://src/Nodes/Components/FastForwardComponent.tscn" id="9_cy0he"]
-[ext_resource type="Resource" uid="uid://c8jgkj5o6iui0" path="res://src/UI/Controls/Action/References/Map/SelectAction.tres" id="10_tioj8"]
 
 [sub_resource type="Resource" id="Resource_gr881"]
 script = ExtResource("2_fgj32")
@@ -402,7 +401,6 @@ Value = 10
 
 [node name="Accelerate" parent="." instance=ExtResource("9_cy0he")]
 unique_name_in_owner = true
-Action = ExtResource("10_tioj8")
 
 [node name="Path" type="Path2D" parent="."]
 unique_name_in_owner = true
