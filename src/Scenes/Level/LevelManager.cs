@@ -140,25 +140,9 @@ public partial class LevelManager : Node
         }
     }
 
-    /// <summary>Action to toggle the global danger zone.</summary>
-    [ExportGroup("Range Overlay")]
-    [Export] public InputActionReference ToggleGlobalDangerZoneAction = new();
-
     /// <summary>Modulate color for the action range overlay to use during idle state to differentiate from the one displayed while selecting a move path.</summary>
     [ExportGroup("Range Overlay")]
     [Export] public Color ActionRangeIdleModulate = new(1, 1, 1, 0.66f);
-
-    /// <summary>Map cancel selection action reference (distinct from menu back/cancel).</summary>
-    [ExportGroup("Cursor Actions")]
-    [Export] public InputActionReference CancelAction = new();
-
-    /// <summary>Map "previous" action, which cycles the cursor to the previous unit in the same army or action target, depending on state.</summary>
-    [ExportGroup("Cursor Actions")]
-    [Export] public InputActionReference PreviousAction = new();
-
-    /// <summary>Map "next" action, which cycles the cursor to the next unit in the same army or action target, depending on state.</summary>
-    [ExportGroup("Cursor Actions")]
-    [Export] public InputActionReference NextAction = new();
 #endregion
 #region Idle State
     /// <summary>Update the UI when re-entering idle.</summary>
@@ -216,7 +200,7 @@ public partial class LevelManager : Node
     public void OnIdlePointerStopped(Vector2 position) => OnIdleCursorEnteredCell(Grid.CellOf(position));
 
     /// <summary>
-    /// Cycle the <see cref="Object.Cursor"/> between units in the same army using <see cref="PreviousAction"/> and <see cref="NextAction"/>
+    /// Cycle the <see cref="Object.Cursor"/> between units in the same army using <see cref="InputActions.Previous"/> and <see cref="InputActions.Next"/>
     /// while nothing is selected.
     /// </summary>
     public void OnIdleInput(InputEvent @event)
@@ -232,9 +216,9 @@ public partial class LevelManager : Node
             }
 
             Army army = GetChildren().OfType<Army>().Where((a) => a.Contains(unit)).First();
-            if (@event.IsActionPressed(PreviousAction))
+            if (@event.IsActionPressed(InputActions.Previous))
                 SelectUnit(army.Previous);
-            if (@event.IsActionPressed(NextAction))
+            if (@event.IsActionPressed(InputActions.Next))
                 SelectUnit(army.Next);
         }
     }
@@ -396,7 +380,7 @@ public partial class LevelManager : Node
     /// <summary>Press the cancel button during movement to skip to the end.</summary>
     public void OnMovingInput(InputEvent @event)
     {
-        if (@event.IsActionPressed(CancelAction))
+        if (@event.IsActionPressed(InputActions.Cancel))
             _selected.SkipMoving();
     }
 
@@ -432,15 +416,15 @@ public partial class LevelManager : Node
     }
 
     /// <summary>
-    /// Cycle the <see cref="Object.Cursor"/> between targets of the same action (attack, support, etc.) using <see cref="PreviousAction"/>
-    /// and <see cref="NextAction"/> while choosing targets.
+    /// Cycle the <see cref="Object.Cursor"/> between targets of the same action (attack, support, etc.) using <see cref="InputActions.Previous"/>
+    /// and <see cref="InputActions.Next"/> while choosing targets.
     /// </summary>
     public void OnTargetingInput(InputEvent @event)
     {
         int next = 0;
-        if (@event.IsActionPressed(PreviousAction))
+        if (@event.IsActionPressed(InputActions.Previous))
             next = -1;
-        else if (@event.IsActionPressed(NextAction))
+        else if (@event.IsActionPressed(InputActions.Next))
             next = 1;
 
         if (next != 0)
@@ -691,10 +675,10 @@ public partial class LevelManager : Node
     {
         base._Input(@event);
 
-        if (@event.IsActionPressed(CancelAction))
+        if (@event.IsActionPressed(InputActions.Cancel))
             State.SendEvent(CancelEvent);
 
-        if (@event.IsActionPressed(ToggleGlobalDangerZoneAction))
+        if (@event.IsActionPressed(InputActions.ToggleDangerZone))
         {
             if (Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit)
             {

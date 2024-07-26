@@ -1,11 +1,7 @@
-[gd_scene load_steps=59 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=55 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
-[ext_resource type="Resource" uid="uid://hkvw8a5g5l62" path="res://src/UI/Controls/Action/References/Map/MapCancelAction.tres" id="2_2u5dc"]
-[ext_resource type="Resource" uid="uid://dgi6r3g11lb6x" path="res://src/UI/Controls/Action/References/Map/GlobalDangerZone.tres" id="2_d5jrl"]
-[ext_resource type="Resource" uid="uid://c8yddva5eag3s" path="res://src/UI/Controls/Action/References/Map/MapPrevAction.tres" id="3_76mfa"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/UI/Camera2DBrain.tscn" id="3_td8u6"]
-[ext_resource type="Resource" uid="uid://qk7wwaj7u81g" path="res://src/UI/Controls/Action/References/Map/MapNextAction.tres" id="4_gvudp"]
 [ext_resource type="PackedScene" uid="uid://bgcsg0l8mj2sn" path="res://src/Scenes/Level/Object/Cursor.tscn" id="6_3v7mf"]
 [ext_resource type="PackedScene" uid="uid://d2pwsr12t0uxb" path="res://src/Scenes/Level/Overlay/RangeOverlay.tscn" id="7_benwh"]
 [ext_resource type="PackedScene" uid="uid://bnnydb3ggsdth" path="res://src/Scenes/Level/Overlay/PathOverlay.tscn" id="8_dofkx"]
@@ -36,7 +32,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = 568582239
+seed = -942362139
 
 [sub_resource type="Resource" id="Resource_umt67"]
 script = ExtResource("24_k1nop")
@@ -125,16 +121,12 @@ script = ExtResource("24_k1nop")
 
 [node name="LevelManager" type="Node"]
 script = ExtResource("1_r2v0t")
-ToggleGlobalDangerZoneAction = ExtResource("2_d5jrl")
-CancelAction = ExtResource("2_2u5dc")
-PreviousAction = ExtResource("3_76mfa")
-NextAction = ExtResource("4_gvudp")
 
 [node name="Camera" parent="." node_paths=PackedStringArray("Target") instance=ExtResource("3_td8u6")]
 unique_name_in_owner = true
 Target = NodePath("../Pointer")
-Zoom = Vector2(2, 2)
 Limits = Rect2i(0, 0, 1000000, 1000000)
+Zoom = Vector2(2, 2)
 ShakeDecay = 0.8
 ShakeMaxOffset = Vector2(100, 75)
 ShakeMaxRoll = 0.0
