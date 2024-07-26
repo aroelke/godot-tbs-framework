@@ -1,20 +1,15 @@
 using System.Collections.Generic;
 using Godot;
 using UI.Controls.Icons;
-using UI.Controls.Action;
 using UI.Controls.Device;
-using Nodes;
+using Nodes.Components;
 
 namespace UI.HUD;
 
 /// <summary>Icon and label showing the input for an action that doesn't have an analog or mouse option.</summary>
-[Icon("res://icons/UIIcon.svg"), Tool]
-public partial class ControlHint : HBoxContainer
+[Icon("res://icons/UIIcon.svg"), SceneTree, Tool]
+public partial class ControlHint : HBoxContainer, IHasInputActionProperties
 {
-    private readonly NodeCache _cache;
-    public ControlHint() : base() => _cache = new(this);
-
-    private InputActionReference _action = new();
     private InputDevice _selected = default;
     private readonly Dictionary<InputDevice, IconMap> _maps = new()
     {
@@ -23,28 +18,21 @@ public partial class ControlHint : HBoxContainer
         { InputDevice.Gamepad,  new GamepadButtonIconMap() }
     };
 
-    private TextureRect Icon => _cache.GetNodeOrNull<TextureRect>("Icon");
-    private Label Label => _cache.GetNodeOrNull<Label>("Label");
-
-    private void Update(InputDevice device, InputActionReference action)
+    private void Update(InputDevice device, StringName action)
     {
         if (Icon is not null)
             Icon.Texture = _maps[device][action] ?? _maps[FallBackDevice][action];
-        if (Label is not null)
-            Label.Text = $": {action.Name}";
     }
 
-    /// <summary>Action to display the icon of.</summary>
-    [Export] public InputActionReference Action
+    public IHasInputActionProperties.InputActionProperty[] InputActions { get; set; } = [new("Action", "")];
+
+    [Export] public string Description
     {
-        get => _action;
+        get => Label?.Text[2..] ?? "";
         set
         {
-            if (_action != value)
-            {
-                _action = value;
-                Update(SelectedDevice, _action);
-            }
+            if (Label is not null)
+                Label.Text = $": {value}";
         }
     }
 
@@ -60,7 +48,7 @@ public partial class ControlHint : HBoxContainer
             if (_selected != value)
             {
                 _selected = value;
-                Update(_selected, Action);
+                Update(_selected, InputActions[0]);
             }
         }
     }
@@ -73,7 +61,7 @@ public partial class ControlHint : HBoxContainer
         set
         {
             _maps[InputDevice.Mouse] = value;
-            Update(SelectedDevice, Action);
+            Update(SelectedDevice, InputActions[0]);
         }
     }
 
@@ -85,7 +73,7 @@ public partial class ControlHint : HBoxContainer
         set
         {
             _maps[InputDevice.Keyboard] = value;
-            Update(SelectedDevice, Action);
+            Update(SelectedDevice, InputActions[0]);
         }
     }
 
@@ -97,13 +85,51 @@ public partial class ControlHint : HBoxContainer
         set
         {
             _maps[InputDevice.Gamepad] = value;
-            Update(SelectedDevice, Action);
+            Update(SelectedDevice, InputActions[0]);
         }
     }
 
     /// <summary>When the input device changes, also update the icon.</summary>
     /// <param name="device">New device being used for input.</param>
     public void OnInputDeviceChanged(InputDevice device, string name) => SelectedDevice = device;
+
+    public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
+    {
+        Godot.Collections.Array<Godot.Collections.Dictionary> properties = base._GetPropertyList() ?? [];
+        properties.AddRange(((IHasInputActionProperties)this).GetInputActionProperties());
+        return properties;
+    }
+
+    public override Variant _Get(StringName property)
+    {
+        if (((IHasInputActionProperties)this).GetInputActionPropertyValue(property, out StringName value))
+            return value;
+        return base._Get(property);
+    }
+
+    public override bool _Set(StringName property, Variant value)
+    {
+        if (value.VariantType == Variant.Type.StringName && ((IHasInputActionProperties)this).SetInputActionPropertyValue(property, value.AsStringName()))
+        {
+            Update(SelectedDevice, InputActions[0]);
+            return true;
+        }
+        return base._Set(property, value);
+    }
+
+    public override Variant _PropertyGetRevert(StringName property)
+    {
+        if (((IHasInputActionProperties)this).InputActionPropertyGetRevert(property, out StringName revert))
+            return revert;
+        return base._PropertyGetRevert(property);
+    }
+
+    public override bool _PropertyCanRevert(StringName property)
+    {
+        if (((IHasInputActionProperties)this).InputActionPropertyCanRevert(property, out bool revert))
+            return revert;
+        return base._PropertyCanRevert(property);
+    }
 
     public override void _EnterTree()
     {

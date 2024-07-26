@@ -12,9 +12,6 @@ public partial class PauseManager : Node
     /// <summary>Whether or not to use the built-in pause feature.</summary>
     [Export] public bool UseEnginePause = true;
 
-    /// <summary>Action controlling the pause state of the scene.</summary>
-    [Export] public InputActionReference PauseAction = new();
-
     /// <summary>Current pause state of the scene.</summary>
     public bool Paused { get; private set; } = false;
 
@@ -22,7 +19,7 @@ public partial class PauseManager : Node
     {
         base._Input(@event);
 
-        if (@event.IsActionPressed(PauseAction))
+        if (@event.IsActionPressed(InputActions.Pause))
         {
             Paused = !Paused;
             if (UseEnginePause)

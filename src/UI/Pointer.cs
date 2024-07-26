@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using Extensions;
 using Godot;
 using Nodes;
-using Nodes.StateChart;
-using Nodes.StateChart.States;
 using UI.Controls.Action;
 using UI.Controls.Device;
 
@@ -15,12 +13,9 @@ namespace UI;
 /// Is only visible during analog control; during digital control, it and the main mouse become invisible in favor of a
 /// cursor; during mouse control the system mouse is visible.
 /// </summary>
-[Tool]
+[SceneTree, Tool]
 public partial class Pointer : BoundedNode2D
 {
-    private readonly NodeCache _cache;
-    public Pointer() : base() => _cache = new(this);
-
     /// <summary>Signals that the virtual pointer has moved in the canvas.</summary>
     /// <param name="position">Position of the virtual pointer.</param>
     [Signal] public delegate void PointerMovedEventHandler(Vector2 position);
@@ -45,13 +40,6 @@ public partial class Pointer : BoundedNode2D
     private bool _accelerate = false;
     private bool _tracking = true;
     private Tween _flyer = null;
-
-    private Chart ControlState => _cache.GetNode<Chart>("ControlState");
-    private TextureRect Mouse => _cache.GetNode<TextureRect>("Canvas/Mouse");
-    private State DigitalState => _cache.GetNodeOrNull<State>("%Digital");
-    private State AnalogState => _cache.GetNodeOrNull<State>("%Analog");
-    private State MouseState => _cache.GetNodeOrNull<State>("%Mouse");
-    private State FlyingState => _cache.GetNodeOrNull<State>("%Flying");
 
     /// <summary>Convert a position in the <see cref="World"/> to a position in the <see cref="Viewport"/>.</summary>
     /// <param name="world"><see cref="World"/> position.</param>
@@ -80,26 +68,6 @@ public partial class Pointer : BoundedNode2D
     /// <summary>Default time to warp during mouse control.</summary>
     [ExportGroup("Movement")]
     [Export(PropertyHint.None, "suffix:s")] public double DefaultFlightTime = 0.25;
-
-    /// <summary>Action to move the pointer up.</summary>
-    [ExportGroup("Input Actions/Movement")]
-    [Export] public InputActionReference UpAction = new();
-
-    /// <summary>Action to move the pointer left.</summary>
-    [ExportGroup("Input Actions/Movement")]
-    [Export] public InputActionReference LeftAction = new();
-
-    /// <summary>Action to move the pointer down.</summary>
-    [ExportGroup("Input Actions/Movement")]
-    [Export] public InputActionReference DownAction = new();
-
-    /// <summary>Action to move the pointer right.</summary>
-    [ExportGroup("Input Actions/Movement")]
-    [Export] public InputActionReference RightAction = new();
-
-    /// <summary>Action to accelerate the speed of the cursor.</summary>
-    [ExportGroup("Input Actions/Movement")]
-    [Export] public InputActionReference AccelerateAction = new();
 
     /// <summary>Position of the pointer relative to the <see cref="Viewport"/>.</summary>
     public Vector2 ViewportPosition
@@ -197,9 +165,9 @@ public partial class Pointer : BoundedNode2D
     /// <param name="event">Input event describing the input.</param>
     public void OnAnalogStateUnhandledInput(InputEvent @event)
     {
-        if (@event.IsActionPressed(AccelerateAction))
+        if (@event.IsActionPressed(InputActions.Accelerate))
             _accelerate = true;
-        if (@event.IsActionReleased(AccelerateAction))
+        if (@event.IsActionReleased(InputActions.Accelerate))
             _accelerate = false;
     }
 
@@ -209,7 +177,7 @@ public partial class Pointer : BoundedNode2D
     {
         if (_tracking)
         {
-            Vector2 direction = Input.GetVector(LeftAction, RightAction, UpAction, DownAction);
+            Vector2 direction = Input.GetVector(InputActions.AnalogMoveLeft, InputActions.AnalogMoveRight, InputActions.AnalogMoveUp, InputActions.AnalogMoveDown);
             if (direction != Vector2.Zero)
             {
                 double speed = _accelerate ? (Speed*Acceleration) : Speed;

@@ -4,22 +4,18 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
-using Nodes;
 using Scenes.Combat.Animations;
 using Scenes.Combat.Data;
-using Scenes.Combat.UI;
 using Scenes.Level.Object;
-using UI;
+using UI.Combat;
 using UI.Controls.Action;
 
 namespace Scenes.Combat;
 
 /// <summary>Scene used to display the results of combat in a cut scene.</summary>
+[SceneTree]
 public partial class CombatScene : Node
 {
-    private readonly NodeCache _cache;
-    public CombatScene() : base() => _cache = new(this);
-
     [Signal] public delegate void TimeExpiredEventHandler();
 
     private readonly Dictionary<Unit, CombatAnimation> _animations = new();
@@ -27,18 +23,6 @@ public partial class CombatScene : Node
     private IImmutableList<CombatAction> _actions = null;
     private double _remaining = 0;
     private bool _canceled = false;
-
-    private FastForwardComponent FastForward => _cache.GetNode<FastForwardComponent>("FastForward");
-    private Camera2DBrain Camera => _cache.GetNode<Camera2DBrain>("Camera");
-    private AudioStreamPlayer StepSound => _cache.GetNode<AudioStreamPlayer>("%StepSound");
-    private AudioStreamPlayer HitSound => _cache.GetNode<AudioStreamPlayer>("%HitSound");
-    private AudioStreamPlayer MissSound => _cache.GetNode<AudioStreamPlayer>("%MissSound");
-    private AudioStreamPlayer BlockSound => _cache.GetNode<AudioStreamPlayer>("%BlockSound");
-    private AudioStreamPlayer DeathSound => _cache.GetNode<AudioStreamPlayer>("%DeathSound");
-    private GpuParticles2D HitSparks => _cache.GetNode<GpuParticles2D>("%HitSparks");
-    private ParticipantInfo LeftInfo => _cache.GetNode<ParticipantInfo>("%LeftInfo");
-    private ParticipantInfo RightInfo => _cache.GetNode<ParticipantInfo>("%RightInfo");
-    private Timer TransitionDelay => _cache.GetNode<Timer>("%TransitionDelay");
 
     /// <summary>Wait for all actors in an action to complete their current animation, if they are acting.</summary>
     /// <param name="action">Action whose actors could be acting.</param>
@@ -80,14 +64,12 @@ public partial class CombatScene : Node
     /// <summary>Amount of camera shake trauma for a normal hit.</summary>
     [Export] public double CameraShakeHitTrauma = 0.2;
 
-    /// <summary>Action to use for skipping the combat animation.</summary>
-    [Export] public InputActionReference SkipAction = new();
-
     /// <summary>Set up the combat scene.</summary>
     /// <param name="left">Unit on the left side of the screen.</param>
     /// <param name="right">Unit on the right side of the screen.</param>
     /// <param name="actions">List of actions that will be performed each turn in combat. The length of the list determines the number of turns.</param>
     /// <exception cref="ArgumentException">If any <see cref="CombatAction"/> contains an _animations[action.Actor] who isn't participating in this combat.</exception>
+    [OnInstantiate]
     public void Initialize(Unit left, Unit right, IImmutableList<CombatAction> actions)
     {
         foreach (CombatAction action in actions)
@@ -118,7 +100,7 @@ public partial class CombatScene : Node
         RightInfo.HitChance = Mathf.Clamp(CombatCalculations.HitChance(right, left), 0, 100);
         RightInfo.TransitionDuration = HitDelay;
 
-        foreach ((_, CombatAnimation animation) in _animations)
+        foreach ((var _, CombatAnimation animation) in _animations)
             AddChild(animation);
     }
 
@@ -146,7 +128,7 @@ public partial class CombatScene : Node
             void OnMiss() => MissSound.Play();
 
             // Reset all participants
-            foreach ((_, CombatAnimation animation) in _animations)
+            foreach ((var _, CombatAnimation animation) in _animations)
             {
                 animation.ZIndex = 0;
                 animation.PlayAnimation(CombatAnimation.IdleAnimation);
@@ -203,13 +185,13 @@ public partial class CombatScene : Node
 
     public void OnAccelerate()
     {
-        foreach ((_, CombatAnimation animation) in _animations)
+        foreach ((var _, CombatAnimation animation) in _animations)
             animation.AnimationSpeedScale = AccelerationFactor;
     }
 
     public void OnDecelerate()
     {
-        foreach ((_, CombatAnimation animation) in _animations)
+        foreach ((var _, CombatAnimation animation) in _animations)
             animation.AnimationSpeedScale = 1;
     }
 
@@ -226,7 +208,7 @@ public partial class CombatScene : Node
     {
         base._Input(@event);
 
-        if (@event.IsActionPressed(SkipAction) && !_canceled)
+        if (@event.IsActionPressed(InputActions.Cancel) && !_canceled)
         {
             TransitionDelay.Stop();
             _canceled = true;

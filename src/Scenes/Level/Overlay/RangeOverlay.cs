@@ -4,7 +4,7 @@ using System.Linq;
 using Godot;
 using Scenes.Level.Map;
 
-namespace Scenes.Level.UI;
+namespace Scenes.Level.Overlay;
 
 /// <summary>A <see cref="Grid"/> overlay used to display information about the grid cells.</summary>
 public partial class RangeOverlay : TileMap

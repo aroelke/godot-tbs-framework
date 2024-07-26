@@ -1,16 +1,13 @@
 using System;
 using Godot;
-using Nodes;
 using UI.Controls.Device;
 
 namespace UI.Controls.Action;
 
 /// <summary>Object component that enables the object to be controlled digitally (e.g. with keyboard keys or gamepad buttons).</summary>
+[SceneTree]
 public partial class DigitalMoveAction : Node
 {
-    private readonly NodeCache _cache;
-    public DigitalMoveAction() : base() => _cache = new(this);
-
     /// <summary>Signals that a new direction has been pressed.</summary>
     /// <param name="direction">Direction that was pressed.</param>
     [Signal] public delegate void DirectionPressedEventHandler(Vector2I direction);
@@ -27,46 +24,23 @@ public partial class DigitalMoveAction : Node
     /// <param name="direction">Direction to skip in.</param>
     [Signal] public delegate void SkipEventHandler(Vector2I direction);
 
+    private static Vector2I ActionVector(Predicate<StringName> pressed) => new(
+        Convert.ToInt32(pressed(InputActions.DigitalMoveRight)) - Convert.ToInt32(pressed(InputActions.DigitalMoveLeft)),
+        Convert.ToInt32(pressed(InputActions.DigitalMoveDown)) - Convert.ToInt32(pressed(InputActions.DigitalMoveUp))
+    );
+
     private Vector2I _direction = Vector2I.Zero;
     private bool _process = false;
     private bool _echoing = false;
     private bool _reset = false;
     private bool _skip = false;
 
-    private Timer EchoTimer => _cache.GetNode<Timer>("EchoTimer");
-
     private bool IsEchoing() => !_skip && _direction != Vector2I.Zero;
 
-    private Vector2I ActionVector(Predicate<StringName> pressed) => new(
-        Convert.ToInt32(pressed(RightAction)) - Convert.ToInt32(pressed(LeftAction)),
-        Convert.ToInt32(pressed(DownAction)) - Convert.ToInt32(pressed(UpAction))
-    );
-
-    /// <summary>Move up action.</summary>
-    [ExportGroup("Input Actions")]
-    [Export] public InputActionReference UpAction = new();
-
-    /// <summary>Move left action.</summary>
-    [ExportGroup("Input Actions")]
-    [Export] public InputActionReference LeftAction = new();
-
-    /// <summary>Move down action.</summary>
-    [ExportGroup("Input Actions")]
-    [Export] public InputActionReference DownAction = new();
-
-    /// <summary>Move right action.</summary>
-    [ExportGroup("Input Actions")]
-    [Export] public InputActionReference RightAction = new();
-
-    [ExportGroup("Input Actions")]
-    [Export] public InputActionReference SkipAction = new();
-
     /// <summary>Initial delay after pressing a button to begin echoing the input.</summary>
-    [ExportGroup("Echo Control")]
     [Export] public double EchoDelay = 0.3;
 
     /// <summary>Delay between moves while holding an input down.</summary>
-    [ExportGroup("Echo Control")]
     [Export] public double EchoInterval = 0.03;
 
     /// <summary>Reset the echo timer so its next timeout is on the delay rather than the interval.</summary>
@@ -129,9 +103,9 @@ public partial class DigitalMoveAction : Node
     {
         base._UnhandledInput(@event);
 
-        if (@event.IsActionPressed(SkipAction) && !IsEchoing())
+        if (@event.IsActionPressed(InputActions.Accelerate) && !IsEchoing())
             _skip = true;
-        else if (@event.IsActionReleased(SkipAction))
+        else if (@event.IsActionReleased(InputActions.Accelerate))
             _skip = false;
 
         Vector2I prev = _direction;

@@ -4,3 +4,5 @@
 
 [node name="AnalogDigitalConverter" type="Node"]
 script = ExtResource("1_lpcdk")
+AnalogAction = &""
+DigitalAction = &""

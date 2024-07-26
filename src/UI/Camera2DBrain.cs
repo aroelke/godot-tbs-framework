@@ -11,12 +11,9 @@ namespace UI;
 /// <summary>
 /// "Brain" controlling the <see cref="Camera2D"/>. Given a target, it will follow it and smoothly move the camera to continue tracking it.
 /// </summary>
-[Icon("res://icons/Camera2DBrain.svg"), Tool]
+[Icon("res://icons/Camera2DBrain.svg"), SceneTree, Tool]
 public partial class Camera2DBrain : Node2D
 {
-    private readonly NodeCache _cache;
-    public Camera2DBrain() : base() => _cache = new(this);
-
     /// <summary>Signal that the camera has reached its target and stopped moving.</summary>
     [Signal] public delegate void ReachedTargetEventHandler();
 
@@ -111,8 +108,6 @@ public partial class Camera2DBrain : Node2D
     private float _noiseY = 0;
     private double _trauma = 0;
 
-    private Camera2D Camera => _cache.GetNodeOrNull<Camera2D>("Camera2D");
-
     /// <summary>Clamp a zoom vector to ensure the <see cref="Camera2D"/> doesn't zoom out too far to be able to see outside its limits.</summary>
     /// <param name="zoom">Zoom vector to clamp.</param>
     /// <returns>
@@ -187,6 +182,21 @@ public partial class Camera2DBrain : Node2D
     /// <summary>Object the camera is tracking. Can be null to not track anything.</summary>
     [Export] public BoundedNode2D Target = null;
 
+    /// <summary>Box bounding the area in the world that the camera is allowed to see.</summary>
+    [Export(PropertyHint.None, "suffix:px")] public Rect2I Limits
+    {
+        get => _limits;
+        set
+        {
+            _limits = value;
+            if (Camera != null)
+            {
+                (Camera.LimitLeft, Camera.LimitTop) = value.Position;
+                (Camera.LimitRight, Camera.LimitBottom) = value.End;
+            }
+        }
+    }
+
     /// <summary><see cref="Camera2D"/> zoom. Ratio of world pixel size to real pixel size (so a zoom of 2 presents everything in double size).</summary>
     /// <remarks>Setting this will clear the zoom memory (so calling <see cref="PopZoom"/> will fail).</remarks>
     [ExportGroup("Zoom")]
@@ -219,36 +229,6 @@ public partial class Camera2DBrain : Node2D
 
     /// <summary>Amount to zoom the <see cref="Camera2D"/> while it's being zoomed with an analog stick.</summary>
     [Export] public float ZoomFactorAnalog = 2;
-
-    [ExportGroup("Zoom/Actions", "ZoomAction")]
-
-    /// <summary>Digital action to zoom the <see cref="Camera2D"/> in.</summary>
-    [Export] public InputActionReference ZoomActionDigitalIn = new();
-
-    /// <summary>Digital action to zoom the <see cref="Camera2D"/> out.</summary>
-    [Export] public InputActionReference ZoomActionDigitalOut = new();
-
-    /// <summary>Analog action to zoom the <see cref="Camera2D"/> in.</summary>
-    [Export] public InputActionReference ZoomActionAnalogIn = new();
-
-    /// <summary>Analog action to zoom the <see cref="Camera2D"/> out.</summary>
-    [Export] public InputActionReference ZoomActionAnalogOut = new();
-
-    /// <summary>Box bounding the area in the world that the camera is allowed to see.</summary>
-    [ExportGroup("Camera")]
-    [Export(PropertyHint.None, "suffix:px")] public Rect2I Limits
-    {
-        get => _limits;
-        set
-        {
-            _limits = value;
-            if (Camera != null)
-            {
-                (Camera.LimitLeft, Camera.LimitTop) = value.Position;
-                (Camera.LimitRight, Camera.LimitBottom) = value.End;
-            }
-        }
-    }
 
     [ExportGroup("Dead Zone", "DeadZone")]
 
@@ -438,9 +418,9 @@ public partial class Camera2DBrain : Node2D
     {
         base._Input(@event);
 
-        if (@event.IsActionPressed(ZoomActionDigitalIn))
+        if (@event.IsActionPressed(InputActions.DigitalZoomIn))
             ZoomTarget += Vector2.One*ZoomFactorDigital;
-        if (@event.IsActionPressed(ZoomActionDigitalOut))
+        if (@event.IsActionPressed(InputActions.DigitalZoomOut))
             ZoomTarget -= Vector2.One*ZoomFactorDigital;
     }
 
@@ -478,7 +458,7 @@ public partial class Camera2DBrain : Node2D
 
                 _targetPreviousPosition = Target.GlobalPosition;
 
-                float zoom = Input.GetAxis(ZoomActionAnalogIn, ZoomActionAnalogOut);
+                float zoom = Input.GetAxis(InputActions.AnalogZoomIn, InputActions.AnalogZoomOut);
                 if (zoom != 0)
                     Zoom += Vector2.One*(float)(ZoomFactorAnalog*zoom*delta);
             }

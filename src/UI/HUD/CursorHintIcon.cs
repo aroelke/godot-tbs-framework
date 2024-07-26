@@ -3,7 +3,6 @@ using Godot;
 using UI.Controls.Icons;
 using UI.Controls.Action;
 using UI.Controls.Device;
-using Nodes;
 
 namespace UI.HUD;
 
@@ -11,59 +10,24 @@ namespace UI.HUD;
 /// Hint icon for showing the controls to move the <see cref="Level.Object.Cursor"/>/<see cref="Level.UI.Pointer"/>
 /// for the current control scheme.
 /// </summary>
-[Icon("res://icons/UIIcon.svg"), Tool]
+[Icon("res://icons/UIIcon.svg"), SceneTree, Tool]
 public partial class CursorHintIcon : HBoxContainer
 {
-    private readonly NodeCache _cache;
-    public CursorHintIcon() : base() => _cache = new(this);
-
     private Dictionary<InputDevice, Control> _icons = new();
-
-    private TextureRect MouseIcon => _cache.GetNode<TextureRect>("Mouse");
-    private GridContainer KeyboardIcon => _cache.GetNode<GridContainer>("Keyboard");
-    private TextureRect UpKeyIcon => _cache.GetNode<TextureRect>("Keyboard/Up");
-    private TextureRect LeftKeyIcon => _cache.GetNode<TextureRect>("Keyboard/Left");
-    private TextureRect DownKeyIcon => _cache.GetNode<TextureRect>("Keyboard/Down");
-    private TextureRect RightKeyIcon => _cache.GetNode<TextureRect>("Keyboard/Right");
-    private GamepadCursorHintIcon GamepadIcon => _cache.GetNode<GamepadCursorHintIcon>("Gamepad");
 
     private Texture2D GetKeyIcon(Key key) => KeyMap.ContainsKey(key) ? KeyMap[key] : null;
 
     /// <summary>Mapping of <see cref="MouseButton"/> onto icon to display.</summary>
-    [ExportGroup("Icon Maps")]
     [Export] public MouseIconMap MouseMap = new();
 
     /// <summary>Mapping of <see cref="Key"/> onto icon to display.</summary>
-    [ExportGroup("Icon Maps")]
     [Export] public KeyIconMap KeyMap = new();
 
     /// <summary>Mapping of <see cref="JoyButton"/> onto icon to display.</summary>
-    [ExportGroup("Icon Maps")]
     [Export] public GamepadButtonIconMap ButtonMap = new();
 
     /// <summary>Mapping of <see cref="JoyAxis"/> onto icon to display.</summary>
-    [ExportGroup("Icon Maps")]
     [Export] public GamepadAxisIconMap AxisMap = new();
-
-    /// <summary>Name of the action for moving the cursor up.</summary>
-    [ExportGroup("Actions")]
-    [Export] public InputActionReference UpAction = new();
-
-    /// <summary>Name of the action for moving the cursor left.</summary>
-    [ExportGroup("Actions")]
-    [Export] public InputActionReference LeftAction = new();
-
-    /// <summary>Name of the action for moving the cursor down.</summary>
-    [ExportGroup("Actions")]
-    [Export] public InputActionReference DownAction = new();
-
-    /// <summary>Name of the action for moving the cursor right.</summary>
-    [ExportGroup("Actions")]
-    [Export] public InputActionReference RightAction = new();
-
-    /// <summary>Name of an action to move the cursor with the analog stick.</summary>
-    [ExportGroup("Actions")]
-    [Export] public InputActionReference AnalogAction = new();
 
     /// <summary>Set the selected input device to show the icon for.</summary>
     public InputDevice SelectedDevice
@@ -107,18 +71,14 @@ public partial class CursorHintIcon : HBoxContainer
         base._Process(delta);
         if (Engine.IsEditorHint())
         {
-            UpKeyIcon.Texture = GetKeyIcon(UpAction.Key);
-            LeftKeyIcon.Texture = GetKeyIcon(LeftAction.Key);
-            DownKeyIcon.Texture = GetKeyIcon(DownAction.Key);
-            RightKeyIcon.Texture = GetKeyIcon(RightAction.Key);
+            UpKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputActions.DigitalMoveUp));
+            LeftKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputActions.DigitalMoveLeft));
+            DownKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputActions.DigitalMoveDown));
+            RightKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputActions.DigitalMoveRight));
             MouseIcon.Texture = MouseMap.Motion;
 
             GamepadIcon.ButtonMap = ButtonMap;
             GamepadIcon.AxisMap = AxisMap;
-            GamepadIcon.UpAction = UpAction;
-            GamepadIcon.LeftAction = LeftAction;
-            GamepadIcon.DownAction = DownAction;
-            GamepadIcon.RightAction = RightAction;
         }
     }
 

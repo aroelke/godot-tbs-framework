@@ -2,20 +2,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using UI.Controls.Action;
 using UI.Controls.Device;
 
 namespace UI.Controls.Icons;
 
+/// <summary>Mapping of input actions into icons for the current game pad.</summary>
 [GlobalClass, Tool]
 public partial class GamepadButtonIconMap : IconMap
 {
     private Dictionary<string, IndividualGamepadButtonIconMap> _maps = new();
 
+    /// <summary>Mappings of actions onto game pad button icons for various game pads.</summary>
     [Export] public GamepadButtonIconMapElement[] IconMaps = Array.Empty<GamepadButtonIconMapElement>();
 
+    /// <summary>Default game pad button icon mapping to use for unknown game pads.</summary>
     [Export] public IndividualGamepadButtonIconMap DefaultMap = null;
 
+    /// <summary>Icon to display for the directional pad not pressed in any direction.</summary>
     public Texture2D Dpad
     {
         get
@@ -27,6 +30,8 @@ public partial class GamepadButtonIconMap : IconMap
         }
     }
 
+    /// <summary>Get the button icon map for a particular game pad.</summary>
+    /// <param name="key">Name of the game pad.</param>
     public IndividualGamepadButtonIconMap this[string key]
     {
         get
@@ -36,6 +41,8 @@ public partial class GamepadButtonIconMap : IconMap
         }
     }
 
+    /// <summary>Get the the icon for the current game pad of a particular button.</summary>
+    /// <param name="key">Button to get the icon for.</param>
     public Texture2D this[JoyButton key]
     {
         get
@@ -47,12 +54,9 @@ public partial class GamepadButtonIconMap : IconMap
         }
     }
 
-    public override Texture2D this[InputActionReference action]
-    {
-        get => this[action.GamepadButton];
-        set => throw new NotSupportedException();
-    }
-
+    /// <summary>Check if the current game pad has an icon for a button.</summary>
+    /// <param name="key">Button to check.</param>
+    /// <returns><c>true</c> if the current game pad has an icon for the button, and <c>false</c> otherwise, even if other game pads do.</returns>
     public bool ContainsKey(JoyButton key)
     {
         if (Engine.IsEditorHint())
@@ -61,5 +65,11 @@ public partial class GamepadButtonIconMap : IconMap
             return this[DeviceManager.DeviceName].ContainsKey(key);
     }
 
-    public override bool ContainsKey(InputActionReference action) => ContainsKey(action.GamepadButton);
+    public override Texture2D this[StringName action]
+    {
+        get => this[InputManager.GetInputGamepadButton(action)];
+        set => throw new NotSupportedException();
+    }
+
+    public override bool ContainsKey(StringName action) => ContainsKey(InputManager.GetInputGamepadButton(action));
 }

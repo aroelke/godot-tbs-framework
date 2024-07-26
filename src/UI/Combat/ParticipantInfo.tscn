@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://cvch4ay3dx0wv"]
 
-[ext_resource type="Script" path="res://src/Scenes/Combat/UI/ParticipantInfo.cs" id="1_ecooa"]
+[ext_resource type="Script" path="res://src/UI/Combat/ParticipantInfo.cs" id="1_ecooa"]
 [ext_resource type="Texture2D" uid="uid://blfcbg8bx2epd" path="res://assets/raw/Pixel Health Bar/Bar/no health bar (2x).png" id="2_3b0kp"]
 [ext_resource type="PackedScene" uid="uid://duggsftmu8x6l" path="res://src/Nodes/Components/HealthComponent.tscn" id="2_07iwx"]
 [ext_resource type="Texture2D" uid="uid://cuanvqgifu4u3" path="res://assets/raw/Pixel Health Bar/Health/health (2x).png" id="3_qcb3p"]
@@ -9,7 +9,8 @@
 columns = 3
 script = ExtResource("1_ecooa")
 
-[node name="Health" parent="." instance=ExtResource("2_07iwx")]
+[node name="HealthComponent" parent="." instance=ExtResource("2_07iwx")]
+unique_name_in_owner = true
 Maximum = 10
 Value = 10
 
@@ -51,4 +52,4 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "0%"
 
-[connection signal="ValueChanged" from="Health" to="." method="OnHealthChanged"]
+[connection signal="ValueChanged" from="HealthComponent" to="." method="OnHealthChanged"]

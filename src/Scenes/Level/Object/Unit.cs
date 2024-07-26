@@ -1,12 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using Nodes;
 using Extensions;
 using System.Collections.Immutable;
 using System;
 using Scenes.Level.Map;
-using Scenes.Level.Object.Group;
 using Data;
 using Nodes.Components;
 
@@ -16,12 +14,9 @@ namespace Scenes.Level.Object;
 /// A unit that moves around the map.  Mostly is just a visual representation of what's where and an interface for the player to
 /// interact.
 /// </summary>
-[Tool]
+[SceneTree, Tool]
 public partial class Unit : GridNode, IHasHealth
 {
-    private readonly NodeCache _cache;
-    public Unit() : base() => _cache = new(this);
-
     // AnimationTree parameters
     private static readonly StringName Idle = "parameters/conditions/idle";
     private static readonly StringName Selected = "parameters/conditions/selected";
@@ -34,12 +29,6 @@ public partial class Unit : GridNode, IHasHealth
 
     private Faction _faction = null;
     private Stats _stats = new();
-
-    private FastForwardComponent Accelerate => _cache.GetNode<FastForwardComponent>("Accelerate");
-    private Path2D Path => _cache.GetNode<Path2D>("Path");
-    private PathFollow2D PathFollow => _cache.GetNode<PathFollow2D>("Path/PathFollow");
-    private Sprite2D Sprite => _cache.GetNodeOrNull<Sprite2D>("Path/PathFollow/Sprite");
-    private AnimationTree Tree => _cache.GetNode<AnimationTree>("AnimationTree");
 
     /// <summary>Get all cells in a set of ranges from a set of source cells.</summary>
     /// <param name="sources">Cells to compute ranges from.</param>
@@ -99,10 +88,7 @@ public partial class Unit : GridNode, IHasHealth
     [Export] public double MoveAccelerationFactor = 2;
 
     /// <summary>Whether or not the unit has completed its turn.</summary>
-    public bool Active => !Tree.Get(Done).AsBool();
-
-    /// <summary>Component maintaining the unit's health during the level.</summary>
-    public HealthComponent Health => _cache.GetNodeOrNull<HealthComponent>("Health");
+    public bool Active => !AnimationTree.Get(Done).AsBool();
 
     /// <returns>The set of cells that this unit can reach from its position, accounting for <see cref="Terrain.Cost"/>.</returns>
     public IEnumerable<Vector2I> TraversableCells()
@@ -182,33 +168,33 @@ public partial class Unit : GridNode, IHasHealth
     /// <summary>Put the unit in the "selected" state.</summary>
     public void Select()
     {
-        Tree.Set(Idle, false);
-        Tree.Set(Selected, true);
-        Tree.Set(Moving, false);
+        AnimationTree.Set(Idle, false);
+        AnimationTree.Set(Selected, true);
+        AnimationTree.Set(Moving, false);
     }
 
     /// <summary>Put the unit in the "idle" state.</summary>
     public void Deselect()
     {
-        Tree.Set(Idle, true);
-        Tree.Set(Selected, false);
-        Tree.Set(Moving, false);
+        AnimationTree.Set(Idle, true);
+        AnimationTree.Set(Selected, false);
+        AnimationTree.Set(Moving, false);
     }
 
     /// <summary>Put the unit in its "done" state, indicating it isn't available to act anymore.</summary>
     public void Finish()
     {
         Sprite.Modulate = Colors.White;
-        Tree.Set(Selected, false);
-        Tree.Set(Done, true);
+        AnimationTree.Set(Selected, false);
+        AnimationTree.Set(Done, true);
     }
 
     /// <summary>Restore the unit into its "idle" state from being inactive, indicating that it's ready to act again.</summary>
     public void Refresh()
     {
         Sprite.Modulate = Faction.Color;
-        Tree.Set(Done, false);
-        Tree.Set(Idle, true);
+        AnimationTree.Set(Done, false);
+        AnimationTree.Set(Idle, true);
     }
 
     /// <summary>Play the unit's death animation and then remove it from the scene.</summary>
@@ -218,10 +204,6 @@ public partial class Unit : GridNode, IHasHealth
         Grid.Occupants[Cell] = null;
         QueueFree();
     }
-
-    /// <summary>Box that travels with the motion of the sprite to use for tracking the unit as it moves.</summary>
-    /// <remarks>Don't use the unit's actual position, as that doesn't update until motion is over.</remarks>
-    public BoundedNode2D MotionBox => _cache.GetNode<BoundedNode2D>("Path/PathFollow/Bounds");
 
     /// <summary>Move the unit along a path of <see cref="Grid"/> cells.</summary>
     /// <param name="path">Coordinates of the cells to move along.</param>
@@ -237,8 +219,8 @@ public partial class Unit : GridNode, IHasHealth
             foreach (Vector2I cell in path)
                 Path.Curve.AddPoint(Grid.PositionOf(cell) - Position);
             Cell = path[^1];
-            Tree.Set(Selected, false);
-            Tree.Set(Moving, true);
+            AnimationTree.Set(Selected, false);
+            AnimationTree.Set(Moving, true);
             SetProcess(true);
         }
     }
@@ -247,7 +229,7 @@ public partial class Unit : GridNode, IHasHealth
     /// <exception cref="InvalidOperationException">If the unit is not moving.</exception>
     public void SkipMoving()
     {
-        if (!Tree.Get(Moving).AsBool())
+        if (!AnimationTree.Get(Moving).AsBool())
             throw new InvalidOperationException($"Unit {Name} isn't moving");
         PathFollow.ProgressRatio = 1;
     }
@@ -285,12 +267,12 @@ public partial class Unit : GridNode, IHasHealth
             PathFollow.Progress += (float)(MoveSpeed*(Accelerate.Active ? MoveAccelerationFactor : 1)*delta);
             Vector2 change = PathFollow.Position - prev;
             if (change != Vector2.Zero)
-                Tree.Set(MoveDirection, change);
+                AnimationTree.Set(MoveDirection, change);
 
             if (PathFollow.ProgressRatio >= 1)
             {
-                Tree.Set(Selected, true);
-                Tree.Set(Moving, false);
+                AnimationTree.Set(Selected, true);
+                AnimationTree.Set(Moving, false);
                 PathFollow.Progress = 0;
                 Position = Grid.PositionOf(Cell);
                 Path.Curve.ClearPoints();

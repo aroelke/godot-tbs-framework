@@ -5,17 +5,13 @@ using Godot;
 using UI.Controls.Action;
 using UI.Controls.Device;
 using Extensions;
-using Nodes;
 
 namespace Scenes.Level.Object;
 
 /// <summary>Cursor on the <see cref="Map.Grid"/> used for highlighting a cell and selecting things in it.</summary>
-[Tool]
+[SceneTree, Tool]
 public partial class Cursor : GridNode
 {
-    private readonly NodeCache _cache;
-    public Cursor() : base() => _cache = new(this);
-
     /// <summary>Emitted when the cursor moves to a new location.</summary>
     /// <param name="region">Region enclosed by the cursor after movement.</param>
     [Signal] public delegate void CursorMovedEventHandler(Rect2 region);
@@ -49,13 +45,6 @@ public partial class Cursor : GridNode
 
     private ImmutableHashSet<Vector2I> _hard = ImmutableHashSet<Vector2I>.Empty;
     private bool _halted = false;
-
-    private DigitalMoveAction MoveController => _cache.GetNode<DigitalMoveAction>("MoveController");
-    private AudioStreamPlayer MoveSound => _cache.GetNode<AudioStreamPlayer>("MoveSound");
-    private Node Converters => _cache.GetNode<Node>("AnalogDigital");
-
-    /// <summary>Action for selecting a cell.</summary>
-    [Export] public InputActionReference SelectAction = new();
 
     /// <summary>Whether or not the cursor should wrap to the other side if a direction is pressed toward the edge it's on.</summary>
     [Export] public bool Wrap = false;
@@ -226,7 +215,7 @@ public partial class Cursor : GridNode
     public override void _UnhandledInput(InputEvent @event)
     {
         base._UnhandledInput(@event);
-        if (!_halted && @event.IsActionPressed(SelectAction))
+        if (!_halted && @event.IsActionPressed(InputActions.Select))
             EmitSignal(SignalName.CellSelected, Grid.CellOf(Position));
     }
 }

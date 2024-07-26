@@ -8,9 +8,6 @@ namespace Scenes.Combat.Animations;
 [GlobalClass, Tool]
 public partial class CombatAnimation : BoundedNode2D
 {
-    private readonly NodeCache _cache;
-    public CombatAnimation() : base() => _cache = new(this);
-
     public static readonly StringName IdleAnimation = "RESET";
     public static readonly StringName AttackAnimation = "attack";
     public static readonly StringName AttackReturnAnimation = "attack_return";
@@ -35,8 +32,21 @@ public partial class CombatAnimation : BoundedNode2D
 
     private bool _left = true;
     private Vector2 _spriteOffset = Vector2.Zero;
-    private AnimationPlayer Animations => _cache.GetNodeOrNull<AnimationPlayer>("AnimationPlayer");
-    private Sprite2D Sprite => _cache.GetNodeOrNull<Sprite2D>("Sprite");
+    private AnimationPlayer _animations = null;
+    private Sprite2D _sprite = null;
+
+    private void SetSpriteFacing(bool left)
+    {
+        if (left)
+            _sprite.Offset = _spriteOffset;
+        else
+        {
+            _spriteOffset = _sprite.Offset;
+            _sprite.Offset = ReflectionOffset;
+        }
+        _sprite.FlipH = !left;
+        _sprite.Position = _sprite.Position with { X = -_sprite.Position.X };
+    }
 
     /// <summary>Whether or not the animation is on the left or right side of the screen (and facing toward the other side).</summary>
     [Export] public bool Left {
@@ -46,18 +56,8 @@ public partial class CombatAnimation : BoundedNode2D
             if (_left != value)
             {
                 _left = value;
-                if (Sprite is not null)
-                {
-                    if (_left)
-                        Sprite.Offset = _spriteOffset;
-                    else
-                    {
-                        _spriteOffset = Sprite.Offset;
-                        Sprite.Offset = ReflectionOffset;
-                    }
-                    Sprite.FlipH = !_left;
-                    Sprite.Position = Sprite.Position with { X = -Sprite.Position.X };
-                }
+                if (_sprite is not null)
+                    SetSpriteFacing(_left);
             }
         }
     }
@@ -69,22 +69,22 @@ public partial class CombatAnimation : BoundedNode2D
     /// <remarks>Sets <see cref="Sprite2D.Position"/>, not <see cref="Sprite2D.Offset"/>.</remarks>
     [Export] public Vector2 SpriteOffset
     {
-        get => Sprite?.Position ?? Vector2.Zero;
+        get => _sprite?.Position ?? Vector2.Zero;
         set
         {
-            if (Sprite is not null)
-                Sprite.Position = Left ? value : value with { X = -value.X };
+            if (_sprite is not null)
+                _sprite.Position = Left ? value : value with { X = -value.X };
         }
     }
 
     /// <summary>Animation speed scaling ratio. Higher numbers mean faster animation, and negative numbers mean play animations backwards.</summary>
     [Export] public float AnimationSpeedScale
     {
-        get => Animations?.SpeedScale ?? 1;
+        get => _animations?.SpeedScale ?? 1;
         set
         {
-            if (Animations is not null)
-                Animations.SpeedScale = value;
+            if (_animations is not null)
+                _animations.SpeedScale = value;
         }
     }
 
@@ -96,7 +96,7 @@ public partial class CombatAnimation : BoundedNode2D
 
     /// <summary>Play a combat animation.</summary>
     /// <param name="name">Name of the animation to play.</param>
-    public void PlayAnimation(StringName name) => Animations.Play(name);
+    public void PlayAnimation(StringName name) => _animations.Play(name);
 
     /// <summary>
     /// Forward the <see cref="AnimationPlayer"/>'s <see cref="AnimationMixer.SignalName.AnimationFinished"/> signal to any listeners. Also plays the\
@@ -106,21 +106,28 @@ public partial class CombatAnimation : BoundedNode2D
     public void OnAnimationFinished(StringName name)
     {
         if (name == AttackReturnAnimation || name == DodgeReturnAnimation)
-            Animations.Play(IdleAnimation);
+            _animations.Play(IdleAnimation);
         EmitSignal(SignalName.AnimationFinished);
     }
 
     /// <summary>If a non-idle animation is playing, wait for it to end.</summary>
     public async Task ActionFinished()
     {
-        if (Animations.CurrentAnimation != IdleAnimation && Animations.IsPlaying())
-            await ToSignal(Animations, AnimationPlayer.SignalName.AnimationFinished);
+        if (_animations.CurrentAnimation != IdleAnimation && _animations.IsPlaying())
+            await ToSignal(_animations, AnimationPlayer.SignalName.AnimationFinished);
     }
 
     public override void _Ready()
     {
         base._Ready();
+
+        _animations = GetNode<AnimationPlayer>("AnimationPlayer");
+        _sprite = GetNode<Sprite2D>("Sprite");
+        if (Left)
+            _spriteOffset = _sprite.Offset;
+
         if (!Engine.IsEditorHint())
-            Sprite.Material = (Material)Sprite.Material.Duplicate();
+            _sprite.Material = (Material)_sprite.Material.Duplicate();
+        SetSpriteFacing(Left);
     }
 }

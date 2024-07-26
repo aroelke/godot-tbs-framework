@@ -6,11 +6,8 @@ using Godot;
 using Nodes;
 using UI;
 using UI.Controls.Action;
-using UI.HUD;
 using Extensions;
-using Nodes.StateChart;
-using Nodes.StateChart.States;
-using Scenes.Level.UI;
+using Scenes.Level.Overlay;
 using Scenes.Level.Object;
 using Scenes.Level.Object.Group;
 using Scenes.Level.Map;
@@ -23,12 +20,9 @@ namespace Scenes.Level;
 /// Manages the setup of and objects inside a level and provides them information about it.  Is "global" in a way in that
 /// all objects in the level may be able to see it and request information from it, but each level has its own manager.
 /// </summary>
-[Tool]
+[SceneTree, Tool]
 public partial class LevelManager : Node
 {
-    private readonly NodeCache _cache;
-    public LevelManager() : base() => _cache = new(this);
-
 #region Constants
     // State chart events
     private readonly StringName SelectEvent = "select";
@@ -61,24 +55,10 @@ public partial class LevelManager : Node
     private Vector2I? _initialCell = null;
     private BoundedNode2D _prevCameraTarget = null;
 
-    private Chart StateChart => _cache.GetNode<Chart>("State");
-    private Grid Grid => _cache.GetNode<Grid>("Grid");
-    private PathOverlay PathOverlay => _cache.GetNode<PathOverlay>("PathOverlay");
-    private RangeOverlay ActionOverlay => _cache.GetNode<RangeOverlay>("ActionRangeOverlay");
-    private Camera2DBrain Camera => _cache.GetNode<Camera2DBrain>("Camera");
-    private Cursor Cursor => _cache.GetNode<Cursor>("Cursor");
-    private Pointer Pointer => _cache.GetNode<Pointer>("Pointer");
-    private ControlHint CancelHint => _cache.GetNode<ControlHint>("UserInterface/HUD/Hints/CancelHint");
-    private AudioStreamPlayer SelectSound => _cache.GetNode<AudioStreamPlayer>("SelectSound");
-    private AudioStreamPlayer ErrorSound => _cache.GetNode<AudioStreamPlayer>("ErrorSound");
-    private AudioStreamPlayer ZoneOnSound => _cache.GetNode<AudioStreamPlayer>("ZoneOnSound");
-    private AudioStreamPlayer ZoneOffSound => _cache.GetNode<AudioStreamPlayer>("ZoneOffSound");
+    private Grid Grid = null;
 #endregion
 #region Helper Properties and Methods
     private ImmutableHashSet<Unit> _zoneUnits = ImmutableHashSet<Unit>.Empty;
-
-    private RangeOverlay ZoneOverlay => _cache.GetNode<RangeOverlay>("ZoneOverlay");
-    private Label TurnLabel => _cache.GetNode<Label>("%TurnLabel");
 
     /// <summary>Units to include in the local unit zones. Updates the highlighted squares when set.</summary>
     private ImmutableHashSet<Unit> ZoneUnits
@@ -160,32 +140,16 @@ public partial class LevelManager : Node
         }
     }
 
-    /// <summary>Action to toggle the global danger zone.</summary>
-    [ExportGroup("Range Overlay")]
-    [Export] public InputActionReference ToggleGlobalDangerZoneAction = new();
-
     /// <summary>Modulate color for the action range overlay to use during idle state to differentiate from the one displayed while selecting a move path.</summary>
     [ExportGroup("Range Overlay")]
     [Export] public Color ActionRangeIdleModulate = new(1, 1, 1, 0.66f);
-
-    /// <summary>Map cancel selection action reference (distinct from menu back/cancel).</summary>
-    [ExportGroup("Cursor Actions")]
-    [Export] public InputActionReference CancelAction = new();
-
-    /// <summary>Map "previous" action, which cycles the cursor to the previous unit in the same army or action target, depending on state.</summary>
-    [ExportGroup("Cursor Actions")]
-    [Export] public InputActionReference PreviousAction = new();
-
-    /// <summary>Map "next" action, which cycles the cursor to the next unit in the same army or action target, depending on state.</summary>
-    [ExportGroup("Cursor Actions")]
-    [Export] public InputActionReference NextAction = new();
 #endregion
 #region Idle State
     /// <summary>Update the UI when re-entering idle.</summary>
     public void OnIdleEntered() => ActionOverlay.Modulate = ActionRangeIdleModulate;
 
     /// <summary>
-    /// Handle events that might occur during idle <see cref="State"/>.
+    /// Handle events that might occur during idle <see cref="Nodes.StateChart.States.State"/>.
     /// - select: if the cursor is over a <see cref="Unit"/> enemy to the player during the player's turn, toggle its attack range in the local danger zone
     /// - cancel: if the cursor is over a <see cref="Unit"/> enemy to the player during the player's turn, remove its attack range from the local danger zone
     /// </summary>
@@ -210,12 +174,12 @@ public partial class LevelManager : Node
         }
     }
 
-    /// <summary>Clear the displayed action ranges when moving the <see cref="Object.Cursor"/> to a new cell while in idle <see cref="State"/>.</summary>
+    /// <summary>Clear the displayed action ranges when moving the <see cref="Object.Cursor"/> to a new cell while in idle <see cref="Nodes.StateChart.States.State"/>.</summary>
     /// <param name="cell">Cell the <see cref="Object.Cursor"/> moved to.</param>
     public void OnIdleCursorMoved(Vector2I cell) => ActionOverlay.Clear();
 
     /// <summary>
-    /// When the <see cref="Object.Cursor"/> moves over a <see cref="Unit"/> while in idle <see cref="State"/>, display that <see cref="Unit"/>'s
+    /// When the <see cref="Object.Cursor"/> moves over a <see cref="Unit"/> while in idle <see cref="Nodes.StateChart.States.State"/>, display that <see cref="Unit"/>'s
     /// action ranges.
     /// </summary>
     /// <param name="cell">Cell the <see cref="Object.Cursor"/> moved into.</param>
@@ -236,7 +200,7 @@ public partial class LevelManager : Node
     public void OnIdlePointerStopped(Vector2 position) => OnIdleCursorEnteredCell(Grid.CellOf(position));
 
     /// <summary>
-    /// Cycle the <see cref="Object.Cursor"/> between units in the same army using <see cref="PreviousAction"/> and <see cref="NextAction"/>
+    /// Cycle the <see cref="Object.Cursor"/> between units in the same army using <see cref="InputActions.Previous"/> and <see cref="InputActions.Next"/>
     /// while nothing is selected.
     /// </summary>
     public void OnIdleInput(InputEvent @event)
@@ -252,9 +216,9 @@ public partial class LevelManager : Node
             }
 
             Army army = GetChildren().OfType<Army>().Where((a) => a.Contains(unit)).First();
-            if (@event.IsActionPressed(PreviousAction))
+            if (@event.IsActionPressed(InputActions.Previous))
                 SelectUnit(army.Previous);
-            if (@event.IsActionPressed(NextAction))
+            if (@event.IsActionPressed(InputActions.Next))
                 SelectUnit(army.Next);
         }
     }
@@ -388,11 +352,11 @@ public partial class LevelManager : Node
 #region Moving State
     private Vector4 _prevDeadzone = Vector4.Zero;
 
-    /// <summary>When the <see cref="Unit"/> finishes moving, move to the next <see cref="State"/>.</summary>
+    /// <summary>When the <see cref="Unit"/> finishes moving, move to the next <see cref="Nodes.StateChart.States.State"/>.</summary>
     public void OnUnitDoneMoving()
     {
         _selected.DoneMoving -= OnUnitDoneMoving;
-        Callable.From<StringName>(StateChart.SendEvent).CallDeferred(_target is null ? DoneEvent : SkipEvent);
+        Callable.From<StringName>(State.SendEvent).CallDeferred(_target is null ? DoneEvent : SkipEvent);
     }
 
     /// <summary>Begin moving the selected <see cref="Unit"/> and then wait for it to finish moving.</summary>
@@ -416,7 +380,7 @@ public partial class LevelManager : Node
     /// <summary>Press the cancel button during movement to skip to the end.</summary>
     public void OnMovingInput(InputEvent @event)
     {
-        if (@event.IsActionPressed(CancelAction))
+        if (@event.IsActionPressed(InputActions.Cancel))
             _selected.SkipMoving();
     }
 
@@ -452,15 +416,15 @@ public partial class LevelManager : Node
     }
 
     /// <summary>
-    /// Cycle the <see cref="Object.Cursor"/> between targets of the same action (attack, support, etc.) using <see cref="PreviousAction"/>
-    /// and <see cref="NextAction"/> while choosing targets.
+    /// Cycle the <see cref="Object.Cursor"/> between targets of the same action (attack, support, etc.) using <see cref="InputActions.Previous"/>
+    /// and <see cref="InputActions.Next"/> while choosing targets.
     /// </summary>
     public void OnTargetingInput(InputEvent @event)
     {
         int next = 0;
-        if (@event.IsActionPressed(PreviousAction))
+        if (@event.IsActionPressed(InputActions.Previous))
             next = -1;
-        else if (@event.IsActionPressed(NextAction))
+        else if (@event.IsActionPressed(InputActions.Next))
             next = 1;
 
         if (next != 0)
@@ -504,20 +468,20 @@ public partial class LevelManager : Node
                 if (Grid.Occupants[cell] is Unit target)
                 {
                     _target = target;
-                    StateChart.SendEvent(DoneEvent);
+                    State.SendEvent(DoneEvent);
                 }
                 else
-                    StateChart.SendEvent(SkipEvent);
+                    State.SendEvent(SkipEvent);
             }
         }
         else
         {
             SelectSound.Play();
-            StateChart.SendEvent(SkipEvent);
+            State.SendEvent(SkipEvent);
         }
     }
 
-    /// <summary>Clean up displayed ranges and restore <see cref="Object.Cursor"/> freedom when exiting targeting <see cref="State"/>.</summary>
+    /// <summary>Clean up displayed ranges and restore <see cref="Object.Cursor"/> freedom when exiting targeting <see cref="Nodes.StateChart.States.State"/>.</summary>
     public void OnTargetingExited()
     {
         ActionOverlay.Clear();
@@ -548,7 +512,7 @@ public partial class LevelManager : Node
     /// <summary>Finish waiting once the transition back has completed.</summary>
     public void OnTransitionedFromCombat()
     {
-        StateChart.SendEvent(DoneEvent);
+        State.SendEvent(DoneEvent);
         SceneManager.Singleton.TransitionCompleted -= OnTransitionedFromCombat;
     }
 
@@ -559,8 +523,6 @@ public partial class LevelManager : Node
     }
 #endregion
 #region Turn Advancing
-    private Timer TurnAdvance => _cache.GetNode<Timer>("TurnAdvance");
-
     /// <summary>Update the UI turn counter for the current turn and change its color to match the army.</summary>
     private void UpdateTurnCounter()
     {
@@ -600,7 +562,7 @@ public partial class LevelManager : Node
             UpdateTurnCounter();
         }
         Callable.From(() => {
-            StateChart.SendEvent(DoneEvent);
+            State.SendEvent(DoneEvent);
             if (advance)
                 Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(((IEnumerable<Unit>)_armies.Current).First().Cell);
         }).CallDeferred();
@@ -611,7 +573,7 @@ public partial class LevelManager : Node
     /// <param name="target">Position the pointer is going to fly to.</param>
     public void OnPointerFlightStarted(Vector2 target)
     {
-        StateChart.SendEvent(WaitEvent);
+        State.SendEvent(WaitEvent);
         _prevCameraTarget = Camera.Target;
         Camera.Target = Grid.Occupants.ContainsKey(Grid.CellOf(target)) ? Grid.Occupants[Grid.CellOf(target)] : Camera.Target;
     }
@@ -620,7 +582,7 @@ public partial class LevelManager : Node
     public void OnPointerFlightCompleted()
     {
         Camera.Target = _prevCameraTarget;
-        StateChart.SendEvent(DoneEvent);
+        State.SendEvent(DoneEvent);
     }
 
     /// <summary>When a cell is selected, act based on what is or isn't in the cell.</summary>
@@ -628,9 +590,9 @@ public partial class LevelManager : Node
     public void OnCellSelected(Vector2I cell)
     {
         if (Grid.CellOf(Pointer.Position) == cell)
-            StateChart.SendEvent(SelectEvent);
+            State.SendEvent(SelectEvent);
         else
-            StateChart.SendEvent(SkipEvent);
+            State.SendEvent(SkipEvent);
     }
 
     /// <summary>When a <see cref="GridNode"/> is added to a group, update its <see cref="GridNode.Grid"/>.</summary>
@@ -679,6 +641,8 @@ public partial class LevelManager : Node
 
         if (!Engine.IsEditorHint())
         {
+            Grid = GetNode<Grid>("Grid");
+
             Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
             Pointer.World = Cursor.Grid = Grid;
             Pointer.Bounds = Camera.Limits;
@@ -711,10 +675,10 @@ public partial class LevelManager : Node
     {
         base._Input(@event);
 
-        if (@event.IsActionPressed(CancelAction))
-            StateChart.SendEvent(CancelEvent);
+        if (@event.IsActionPressed(InputActions.Cancel))
+            State.SendEvent(CancelEvent);
 
-        if (@event.IsActionPressed(ToggleGlobalDangerZoneAction))
+        if (@event.IsActionPressed(InputActions.ToggleDangerZone))
         {
             if (Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit)
             {
@@ -735,7 +699,7 @@ public partial class LevelManager : Node
 
         if (!Engine.IsEditorHint())
         {
-            StateChart.ExpressionProperties = StateChart.ExpressionProperties
+            State.ExpressionProperties = State.ExpressionProperties
                 .SetItem(OccupiedProperty, Grid.Occupants.GetValueOrDefault(Cursor.Cell) switch
                 {
                     Unit unit when unit == _selected => SelectedOccuiped,
