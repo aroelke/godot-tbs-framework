@@ -28,7 +28,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// <param name="astar">Instance of the A-Star algorithm used to compute segments.</param>
     /// <param name="traversable">Collecton of traversable cells the path can use.</param>
     /// <returns>An empty path.</returns>
-    private static Path Empty(Grid grid, AStar2D astar, IEnumerable<Vector2I> traversable) => new(grid, astar, traversable, ImmutableList<Vector2I>.Empty);
+    private static Path Empty(Grid grid, AStar2D astar, IEnumerable<Vector2I> traversable) => new(grid, astar, traversable, []);
 
     /// <summary>Create a new, empty path.</summary>
     /// <param name="grid">Grid containing the cells the path goes through.</param>
@@ -120,7 +120,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// <returns>A new path with <paramref name="value"/> appended, and potentially a contiguous segment between it and the previous end of the path as well.</returns>
     public Path Add(Vector2I value)
     {
-        ImmutableList<Vector2I> cells = ImmutableList<Vector2I>.Empty;
+        ImmutableList<Vector2I> cells = [];
         if (_cells.Count == 0 || _cells[^1].IsAdjacent(value))
         {
             // Append the cell if it's adjacent to the last cell in the path or the path is empty
@@ -131,7 +131,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
             // Append the cell and the shortest path between it and the last cell in the path
             cells = _cells.AddRange(_astar.GetPointPath(_grid.CellId(_cells[^1]), _grid.CellId(value)).Select(static (c) => (Vector2I)c));
         }
-        cells = cells.Disentangle().ToImmutableList();
+        cells = [.. cells.Disentangle()];
         return new(_grid, _astar, _traversable, cells);
     }
 
