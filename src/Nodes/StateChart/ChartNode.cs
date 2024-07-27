@@ -27,11 +27,11 @@ public partial class ChartNode : Node
 
     public override string[] _GetConfigurationWarnings()
     {
-        List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
+        List<string> warnings = new(base._GetConfigurationWarnings() ?? []);
 
         if (GetChart() is null)
             warnings.Add($"Chart nodes need to be part of a state chart.");
 
-        return warnings.ToArray();
+        return [.. warnings];
     }
 }
