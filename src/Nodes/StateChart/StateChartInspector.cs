@@ -16,7 +16,7 @@ public partial class StateChartInspector : MarginContainer
     /// <summary>Stores the <see cref="Chart"/> history and converts <see cref="State"/> changes, <see cref="Transition"/>s, and events into strings.</summary>
     private class History
     {
-        private ImmutableList<string> _buffer = ImmutableList<string>.Empty;
+        private ImmutableList<string> _buffer = [];
 
         /// <summary>Whether or not the history has changed since the last UI update.</summary>
         public bool Dirty { get; private set; } = false;
@@ -48,8 +48,8 @@ public partial class StateChartInspector : MarginContainer
         }
     }
 
-    private readonly Dictionary<State, (State.StateEnteredEventHandler, State.StateExitedEventHandler)> _connectedStates = new();
-    private readonly Dictionary<Transition, Transition.TakenEventHandler> _connectedTransitions = new();
+    private readonly Dictionary<State, (State.StateEnteredEventHandler, State.StateExitedEventHandler)> _connectedStates = [];
+    private readonly Dictionary<Transition, Transition.TakenEventHandler> _connectedTransitions = [];
     private History _history = null;
 
     /// <summary>
@@ -258,7 +258,7 @@ public partial class StateChartInspector : MarginContainer
 
         CollectActiveStates(StateChart, root);
 
-        if (StateChart.ExpressionProperties.Any())
+        if (!StateChart.ExpressionProperties.IsEmpty)
         {
             ImmutableList<StringName> properties = StateChart.ExpressionProperties.Keys.ToImmutableList().Sort(static (a, b) => string.Compare(a, b));
 
