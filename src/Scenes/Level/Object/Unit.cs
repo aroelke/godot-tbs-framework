@@ -59,10 +59,10 @@ public partial class Unit : GridNode, IHasHealth
     }
 
     /// <summary>Distances from the unit's occupied cell that it can attack.</summary>
-    [Export] public int[] AttackRange = new[] { 1, 2 };
+    [Export] public int[] AttackRange = [1, 2];
 
     /// <summary>Distances from the unit's occupied cell that it can support.</summary>
-    [Export] public int[] SupportRange = new[] { 1, 2, 3 };
+    [Export] public int[] SupportRange = [1, 2, 3];
 
     /// <summary>Faction to which this unit belongs, to determine its allies and enemies.</summary>
     [Export] public Faction Faction
@@ -135,7 +135,7 @@ public partial class Unit : GridNode, IHasHealth
 
     /// <inheritdoc cref="AttackableCells"/>
     /// <remarks>Uses a singleton set of cells constructed from the single <paramref name="source"/> cell.</remarks>
-    public IEnumerable<Vector2I> AttackableCells(Vector2I source) => AttackableCells(new[] { source });
+    public IEnumerable<Vector2I> AttackableCells(Vector2I source) => AttackableCells([source]);
 
     /// <inheritdoc cref="AttackableCells"/>
     /// <remarks>Uses the unit's current <see cref="Cell"/> as the source.</remarks>
@@ -148,7 +148,7 @@ public partial class Unit : GridNode, IHasHealth
 
     /// <inheritdoc cref="SupportableCells"/>
     /// <remarks>Uses a singleton set of cells constructed from the single <paramref name="source"/> cell.</remarks>
-    public IEnumerable<Vector2I> SupportableCells(Vector2I source) => SupportableCells(new[] { source });
+    public IEnumerable<Vector2I> SupportableCells(Vector2I source) => SupportableCells([source]);
 
     /// <inheritdoc cref="SupportableCells"/>
     /// <remarks>Uses the unit's current <see cref="Cell"/> as the source.</remarks>
