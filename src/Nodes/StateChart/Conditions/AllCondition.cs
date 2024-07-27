@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using Godot;
 
@@ -9,7 +8,7 @@ namespace Nodes.StateChart.Conditions;
 public partial class AllCondition : Condition
 {
     /// <summary>Conditions that must be satisfied for this one to be satisfied.</summary>
-    [Export] public Condition[] Conditions = Array.Empty<Condition>();
+    [Export] public Condition[] Conditions = [];
 
-    public override bool IsSatisfied(ChartNode source) => !Conditions.Any() || Conditions.All((c) => c.IsSatisfied(source));
+    public override bool IsSatisfied(ChartNode source) => Conditions.Length == 0 || Conditions.All((c) => c.IsSatisfied(source));
 }
