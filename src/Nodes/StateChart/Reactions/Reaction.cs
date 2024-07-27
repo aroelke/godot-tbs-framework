@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Godot;
 using Nodes.StateChart.Conditions;
@@ -26,11 +25,11 @@ public partial class Reaction : ChartNode
 
     public override string[] _GetConfigurationWarnings()
     {
-        List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
+        List<string> warnings = new(base._GetConfigurationWarnings() ?? []);
 
         if (GetParent() is not State)
             warnings.Add("Reactions should be children of states.");
 
-        return warnings.ToArray();
+        return [.. warnings];
     }
 }
