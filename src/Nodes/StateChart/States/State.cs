@@ -22,7 +22,7 @@ public abstract partial class State : ChartNode
     private static Chart FindChart(Node node) => node == null ? null : node as Chart ?? FindChart(node.GetParent());
 
     private bool _active = false;
-    private readonly List<Transition> _transitions = new();
+    private readonly List<Transition> _transitions = [];
 
     /// <summary>Whether or not the state is active. Setting the state to inactive also disables processing (preventing signal emission).</summary>
     public bool Active
@@ -102,8 +102,8 @@ public abstract partial class State : ChartNode
             Enter();
         foreach (State state in GetChildren().OfType<State>())
         {
-            if (record.Active.ContainsKey(state))
-                state.RestoreHistory(record.Active[state]);
+            if (record.Active.TryGetValue(state, out StateRecord r))
+                state.RestoreHistory(r);
             else if (state.Active)
                 state.Exit();
         }
@@ -111,11 +111,11 @@ public abstract partial class State : ChartNode
 
     public override string[] _GetConfigurationWarnings()
     {
-        List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
+        List<string> warnings = new(base._GetConfigurationWarnings() ?? []);
 
         if (FindChart(GetParent()) is null)
             warnings.Add("A state needs to have a StateChart ancestor.");
 
-        return warnings.ToArray();
+        return [.. warnings];
     }
 }
