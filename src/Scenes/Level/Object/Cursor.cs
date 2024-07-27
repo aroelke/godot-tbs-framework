@@ -43,7 +43,7 @@ public partial class Cursor : GridNode
         return 0;
     });
 
-    private ImmutableHashSet<Vector2I> _hard = ImmutableHashSet<Vector2I>.Empty;
+    private ImmutableHashSet<Vector2I> _hard = [];
     private bool _halted = false;
 
     /// <summary>Whether or not the cursor should wrap to the other side if a direction is pressed toward the edge it's on.</summary>
@@ -85,7 +85,7 @@ public partial class Cursor : GridNode
     }
 
     /// <summary>"Soft zone" that breaks cursor continuous movement and skips to the edge of.</summary>
-    public HashSet<Vector2I> SoftRestriction = new();
+    public HashSet<Vector2I> SoftRestriction = [];
 
     /// <summary>
     /// Set of cells the cursor is restricted to moving in.  If empty, the cursor moves normally on the whole <see cref="Map.Grid"/>. Setting
@@ -97,7 +97,7 @@ public partial class Cursor : GridNode
         set
         {
             _hard = value;
-            if (_hard.Any())
+            if (!_hard.IsEmpty)
             {
                 if (!_hard.Contains(Cell))
                     Cell = _hard.OrderBy((c) => Cell.DistanceTo(c)).First();
@@ -128,7 +128,7 @@ public partial class Cursor : GridNode
     {
         if (!_halted)
         {
-            if (!_hard.Any())
+            if (_hard.IsEmpty)
             {
                 if (Wrap)
                     Cell = (Cell + direction + Grid.Size) % Grid.Size;
@@ -170,7 +170,7 @@ public partial class Cursor : GridNode
     /// <param name="position">Position of the pointer.</param>
     public void OnPointerMoved(Vector2 position)
     {
-        if (DeviceManager.Mode != InputMode.Digital && (!HardRestriction.Any() || HardRestriction.Contains(Grid.CellOf(position))))
+        if (DeviceManager.Mode != InputMode.Digital && (HardRestriction.IsEmpty || HardRestriction.Contains(Grid.CellOf(position))))
             Cell = Grid.CellOf(position);
     }
 
@@ -182,7 +182,7 @@ public partial class Cursor : GridNode
     {
         if (!_halted)
         {
-            if (HardRestriction.Any())
+            if (!HardRestriction.IsEmpty)
             {
                 IEnumerable<Vector2I> ahead = HardRestriction.Where((c) => (c - Cell)*direction > Vector2I.Zero);
                 if (ahead.Any())
@@ -197,7 +197,7 @@ public partial class Cursor : GridNode
 
                 if (direction != Vector2I.Zero)
                 {
-                    if (SoftRestriction.Any())
+                    if (SoftRestriction.Count != 0)
                     {
                         bool traversable = SoftRestriction.Contains(Cell + direction);
                         Vector2I target = Cell; // Don't want to directly update cell to avoid firing events
