@@ -19,7 +19,7 @@ public partial class PathOverlay : TileMap
     /// <remarks>Is not a <see cref="Map.Path"/> to decouple from <see cref="Map.Grid"/>.</remarks>
     public List<Vector2I> Path
     {
-        get => GetUsedCells(0).ToList();
+        get => [.. GetUsedCells(0)];
         set
         {
             ClearLayer(0);
