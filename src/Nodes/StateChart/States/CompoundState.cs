@@ -149,7 +149,7 @@ public partial class CompoundState : State
 
     public override string[] _GetConfigurationWarnings()
     {
-        List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
+        List<string> warnings = new(base._GetConfigurationWarnings() ?? []);
 
         int substates = GetChildren().OfType<State>().Count();
         if (substates < 1)
@@ -162,6 +162,6 @@ public partial class CompoundState : State
         else if (InitialState.GetParent() != this)
             warnings.Add("Initial state must be a direct child of this state.");
 
-        return warnings.ToArray();
+        return [.. warnings];
     }
 }
