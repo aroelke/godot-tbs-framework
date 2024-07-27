@@ -30,6 +30,8 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// <returns>An empty path.</returns>
     private static Path Empty(Grid grid, AStar2D astar, IEnumerable<Vector2I> traversable) => new(grid, astar, traversable, []);
 
+    public static implicit operator List<Vector2I>(Path path) => [.. path];
+
     /// <summary>Create a new, empty path.</summary>
     /// <param name="grid">Grid containing the cells the path goes through.</param>
     /// <param name="traversable">Collecton of traversable cells the path can use.</param>
