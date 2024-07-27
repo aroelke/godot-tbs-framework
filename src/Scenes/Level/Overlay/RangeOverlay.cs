@@ -34,7 +34,7 @@ public partial class RangeOverlay : TileMap
     /// <returns>The set of cells used for the layer.</returns>
     public ImmutableHashSet<Vector2I> this[string layer]
     {
-        get => GetUsedCells(GetLayerIndex(layer)).ToImmutableHashSet();
+        get => [.. GetUsedCells(GetLayerIndex(layer))];
         set
         {
             int index = GetLayerIndex(layer);
