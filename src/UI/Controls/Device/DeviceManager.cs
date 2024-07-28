@@ -70,7 +70,7 @@ public partial class DeviceManager : Node
         }
     }
 
-    private HashSet<JoyButton> _digitalSwitchButtons = new();
+    private HashSet<JoyButton> _digitalSwitchButtons = [];
     private StringName[] _digitalSwitchActions = [];
 
     /// <summary>Dead zone to use for detecting gamepad axes.</summary>
