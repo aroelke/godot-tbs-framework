@@ -58,7 +58,7 @@ public partial class LevelManager : Node
     private Grid Grid = null;
 #endregion
 #region Helper Properties and Methods
-    private ImmutableHashSet<Unit> _zoneUnits = ImmutableHashSet<Unit>.Empty;
+    private ImmutableHashSet<Unit> _zoneUnits = [];
 
     /// <summary>Units to include in the local unit zones. Updates the highlighted squares when set.</summary>
     private ImmutableHashSet<Unit> ZoneUnits
@@ -82,11 +82,11 @@ public partial class LevelManager : Node
         if (enemies.Any())
             ZoneOverlay[LocalDangerZone] = enemies.SelectMany((u) => u.AttackableCells(u.TraversableCells())).ToImmutableHashSet();
         else
-            ZoneOverlay[LocalDangerZone] = ImmutableHashSet<Vector2I>.Empty;
+            ZoneOverlay[LocalDangerZone] = [];
         if (allies.Any())
             ZoneOverlay[AllyTraversable] = allies.SelectMany((u) => u.TraversableCells()).ToImmutableHashSet();
         else
-            ZoneOverlay[AllyTraversable] = ImmutableHashSet<Vector2I>.Empty;
+            ZoneOverlay[AllyTraversable] = [];
         
         // Update global danger zone
         if (ShowGlobalDangerZone)
@@ -95,7 +95,7 @@ public partial class LevelManager : Node
                 .SelectMany(static (a) => (IEnumerable<Unit>)a)
                 .SelectMany(static (u) => u.AttackableCells(u.TraversableCells())).ToImmutableHashSet();
         else
-            ZoneOverlay[GlobalDanger] = ImmutableHashSet<Vector2I>.Empty;
+            ZoneOverlay[GlobalDanger] = [];
     }
 
     /// <returns>The audio player that plays the "zone on" or "zone off" sound depending on <paramref name="on"/>.</returns>
@@ -160,10 +160,10 @@ public partial class LevelManager : Node
         {
             if (@event == SelectEvent)
             {
-                if (ZoneUnits.Contains(unit))
-                    ZoneUnits = ZoneUnits.Remove(unit);
-                else
-                    ZoneUnits = ZoneUnits.Add(unit);
+#pragma warning disable CA1868 // Contains is necessary since the unit has to be added if it isn't in the set and removed if it is
+                ZoneUnits = ZoneUnits.Contains(unit) ? ZoneUnits.Remove(unit) : ZoneUnits.Add(unit);
+#pragma warning restore CA1868 // Unnecessary call to 'Contains(item)'
+
                 ZoneUpdateSound(ZoneUnits.Contains(unit)).Play();
             }
             else if (@event == CancelEvent && ZoneUnits.Contains(unit))
@@ -253,7 +253,7 @@ public partial class LevelManager : Node
             Grid.Occupants.Select(static (e) => e.Value).OfType<Unit>().Where((u) => !u.Faction.AlliedTo(_selected))
         );
         _path = Path.Empty(Grid, _actionable.Traversable).Add(_selected.Cell);
-        Cursor.SoftRestriction = _actionable.Traversable.ToHashSet();
+        Cursor.SoftRestriction = [.. _actionable.Traversable];
 
         ActionOverlay.UsedCells = _actionable.Exclusive().ToDictionary();
         CancelHint.Visible = true;
@@ -279,10 +279,10 @@ public partial class LevelManager : Node
         _target = null;
 
         if (_actionable.Traversable.Contains(cell))
-            PathOverlay.Path = (_path = _path.Add(cell).Clamp(_selected.Stats.Move)).ToList();
+            PathOverlay.Path = _path = _path.Add(cell).Clamp(_selected.Stats.Move);
         else if (Grid.Occupants.GetValueOrDefault(cell) is Unit target)
         {
-            IEnumerable<Vector2I> sources = Array.Empty<Vector2I>();
+            IEnumerable<Vector2I> sources = [];
             if (target != _selected && _armies.Current.Faction.AlliedTo(target) && _actionable.Supportable.Contains(cell))
                 sources = _selected.SupportableCells(cell).Where(_actionable.Traversable.Contains);
             else if (!_armies.Current.Faction.AlliedTo(target) && _actionable.Attackable.Contains(cell))
@@ -292,10 +292,10 @@ public partial class LevelManager : Node
             {
                 _target = target;
                 if (!sources.Contains(_path[^1]))
-                    PathOverlay.Path = (_path = sources.Select((c) => _path.Add(c).Clamp(_selected.Stats.Move)).OrderBy(
+                    PathOverlay.Path = _path = sources.Select((c) => _path.Add(c).Clamp(_selected.Stats.Move)).OrderBy(
                         (p) => new Vector2I(-p[^1].DistanceTo(cell), p[^1].DistanceTo(_path[^1])),
                         static (a, b) => a < b ? -1 : a > b ? 1 : 0
-                    ).First()).ToList();
+                    ).First();
             }
         }
     }
@@ -429,11 +429,11 @@ public partial class LevelManager : Node
 
         if (next != 0)
         {
-            Vector2I[] cells = Array.Empty<Vector2I>();
+            Vector2I[] cells = [];
             if (ActionOverlay[ActionRanges.AttackableRange].Contains(Cursor.Cell))
-                cells = ActionOverlay[ActionRanges.AttackableRange].ToArray();
+                cells = [.. ActionOverlay[ActionRanges.AttackableRange]];
             else if (ActionOverlay[ActionRanges.SupportableRange].Contains(Cursor.Cell))
-                cells = ActionOverlay[ActionRanges.SupportableRange].ToArray();
+                cells = [.. ActionOverlay[ActionRanges.SupportableRange]];
             else
                 GD.PushError("Cursor is not on an actionable cell during targeting");
             
@@ -461,7 +461,7 @@ public partial class LevelManager : Node
     /// <param name="cell">Cell being selected.</param>
     public void OnTargetingCellSelected(Vector2I cell)
     {
-        if (Cursor.HardRestriction.Any())
+        if (!Cursor.HardRestriction.IsEmpty)
         {
             if (Grid.CellOf(Pointer.Position) == cell && Grid.Occupants[cell] != _selected)
             {
@@ -612,7 +612,7 @@ public partial class LevelManager : Node
 
     public override string[] _GetConfigurationWarnings()
     {
-        List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
+        List<string> warnings = new(base._GetConfigurationWarnings() ?? []);
 
         // Make sure there's a map
         int maps = GetChildren().Count(static (c) => c is Grid);
@@ -632,7 +632,7 @@ public partial class LevelManager : Node
         if (BackgroundMusic is null)
             warnings.Add("Background music hasn't been added. Whatever's playing will stop.");
 
-        return warnings.ToArray();
+        return [.. warnings];
     }
 
     public override void _Ready()
@@ -682,7 +682,9 @@ public partial class LevelManager : Node
         {
             if (Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit)
             {
+#pragma warning disable CA1868 // Contains is necessary since the unit has to be added if it isn't in the set and removed if it is
                 ZoneUnits = ZoneUnits.Contains(unit) ? ZoneUnits.Remove(unit) : ZoneUnits.Add(unit);
+#pragma warning restore CA1868 // Unnecessary call to 'Contains(item)'
                 ZoneUpdateSound(ZoneUnits.Contains(unit)).Play();
             }
             else
