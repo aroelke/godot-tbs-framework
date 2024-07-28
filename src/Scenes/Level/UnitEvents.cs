@@ -1,6 +1,5 @@
 using Godot;
 using Scenes.Level.Object;
-using UI.Controls.Action;
 
 namespace Scenes.Level;
 

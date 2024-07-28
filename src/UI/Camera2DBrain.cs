@@ -334,7 +334,7 @@ public partial class Camera2DBrain : Node2D
     }
 
     /// <returns><c>true</c> if there are any saved zoom vectors that can be restored, and <c>false</c> otherwise.</returns>
-    public bool HasZoomMemory() => _savedZooms.Any();
+    public bool HasZoomMemory() => _savedZooms.Count != 0;
 
     /// <summary>Delete all memory of previous zoom vectors.</summary>
     public void ClearZoomMemory() => _savedZooms.Clear();

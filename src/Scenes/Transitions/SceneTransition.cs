@@ -24,6 +24,6 @@ public abstract partial class SceneTransition : Control
     public override void _Ready()
     {
         base._Ready();
-        PropagateCall(MethodName.SetMouseFilter, new() { Variant.From(MouseFilter) });
+        PropagateCall(MethodName.SetMouseFilter, [Variant.From(MouseFilter)]);
     }
 }

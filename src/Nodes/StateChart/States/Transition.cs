@@ -30,7 +30,7 @@ public partial class Transition : ChartNode
 
     public override string[] _GetConfigurationWarnings()
     {
-        List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
+        List<string> warnings = new(base._GetConfigurationWarnings() ?? []);
 
         if (GetChildCount() > 0)
             warnings.Add("Transitions should not have children.");
@@ -38,6 +38,6 @@ public partial class Transition : ChartNode
         if (GetParentOrNull<State>() is null)
             warnings.Add("Transitions must be children of states.");
 
-        return warnings.ToArray();
+        return [.. warnings];
     }
 }

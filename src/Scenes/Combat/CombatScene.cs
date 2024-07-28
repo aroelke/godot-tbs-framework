@@ -18,8 +18,8 @@ public partial class CombatScene : Node
 {
     [Signal] public delegate void TimeExpiredEventHandler();
 
-    private readonly Dictionary<Unit, CombatAnimation> _animations = new();
-    private readonly Dictionary<Unit, ParticipantInfo> _infos = new();
+    private readonly Dictionary<Unit, CombatAnimation> _animations = [];
+    private readonly Dictionary<Unit, ParticipantInfo> _infos = [];
     private IImmutableList<CombatAction> _actions = null;
     private double _remaining = 0;
     private bool _canceled = false;

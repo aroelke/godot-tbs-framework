@@ -27,7 +27,7 @@ public partial class Grid : TileMap
     public Vector2I Size => GetUsedRect().End;
 
     /// <summary>Characters and objects occupying the grid.</summary>
-    public readonly Dictionary<Vector2I, GridNode> Occupants = new();
+    public readonly Dictionary<Vector2I, GridNode> Occupants = [];
 
     /// <summary>Check if a cell offset is in the grid.</summary>
     /// <param name="offset">offset to check.</param>
@@ -80,7 +80,7 @@ public partial class Grid : TileMap
     /// <returns>A collection of cells that are on the grid and exactly the specified <paramref name="distance"/> away from the center <paramref name="cell"/>.</returns>
     public IEnumerable<Vector2I> GetCellsAtRange(Vector2I cell, int distance)
     {
-        HashSet<Vector2I> cells = new();
+        HashSet<Vector2I> cells = [];
         for (int i = 0; i < distance; i++)
         {
             Vector2I target;
@@ -98,7 +98,7 @@ public partial class Grid : TileMap
 
     public override string[] _GetConfigurationWarnings()
     {
-        List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
+        List<string> warnings = new(base._GetConfigurationWarnings() ?? []);
 
         if (DefaultTerrain is null)
             warnings.Add("No default terrain set");
@@ -123,7 +123,7 @@ public partial class Grid : TileMap
             }
         }
 
-        return warnings.ToArray();
+        return [.. warnings];
     }
 
     public override void _Ready()

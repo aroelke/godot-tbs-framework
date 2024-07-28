@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -13,11 +12,11 @@ public partial class AtomicState : State
 
     public override string[] _GetConfigurationWarnings()
     {
-        List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
+        List<string> warnings = new(base._GetConfigurationWarnings() ?? []);
 
         if (GetChildren().OfType<State>().Any())
             warnings.Add("Child states of atomic states can't be transitioned to.");
 
-        return warnings.ToArray();
+        return [.. warnings];
     }
 }

@@ -8,7 +8,7 @@ namespace UI;
 public partial class MusicController : AudioStreamPlayer
 {
     private static MusicController _singleton = null;
-    private static readonly Dictionary<AudioStream, float> _positions = new();
+    private static readonly Dictionary<AudioStream, float> _positions = [];
 
     /// <summary>
     /// Reference to the auto-loaded music controller to help with signal connection. Other functions and properties should be accessed via

@@ -34,10 +34,10 @@ public readonly struct ActionRanges
     /// <summary>Create a new set of action ranges with no traversable cells.</summary>
     /// <param name="attackable">Set of cells that could be attacked.</param>
     /// <param name="supportable">Set of cells that could be supported.</param>
-    public ActionRanges(IEnumerable<Vector2I> attackable, IEnumerable<Vector2I> supportable) : this(ImmutableHashSet<Vector2I>.Empty, attackable, supportable) {}
+    public ActionRanges(IEnumerable<Vector2I> attackable, IEnumerable<Vector2I> supportable) : this([], attackable, supportable) {}
 
     /// <summary>Default constructor. Creates an empty set of actionable cells.</summary>
-    public ActionRanges() : this(ImmutableHashSet<Vector2I>.Empty, ImmutableHashSet<Vector2I>.Empty, ImmutableHashSet<Vector2I>.Empty) {}
+    public ActionRanges() : this([], [], []) {}
 
     /// <summary>
     /// Filters out the action ranges based on grid occupants.  <see cref="Traversable"/> and <see cref="Supportable"/> ranges are filtered to remove cells containing enemies and
@@ -69,7 +69,7 @@ public readonly struct ActionRanges
     }
 
     /// <inheritdoc cref="Exclusive"/>
-    public ActionRanges Exclusive() => Exclusive(new[] { TraversableRange, AttackableRange, SupportableRange });
+    public ActionRanges Exclusive() => Exclusive([TraversableRange, AttackableRange, SupportableRange]);
 
     /// <returns>A copy of this set of action ranges with empty sets of cells.</returns>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static")]

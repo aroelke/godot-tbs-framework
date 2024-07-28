@@ -10,10 +10,10 @@ namespace UI.Controls.Icons;
 [GlobalClass, Tool]
 public partial class GamepadButtonIconMap : IconMap
 {
-    private Dictionary<string, IndividualGamepadButtonIconMap> _maps = new();
+    private Dictionary<string, IndividualGamepadButtonIconMap> _maps = [];
 
     /// <summary>Mappings of actions onto game pad button icons for various game pads.</summary>
-    [Export] public GamepadButtonIconMapElement[] IconMaps = Array.Empty<GamepadButtonIconMapElement>();
+    [Export] public GamepadButtonIconMapElement[] IconMaps = [];
 
     /// <summary>Default game pad button icon mapping to use for unknown game pads.</summary>
     [Export] public IndividualGamepadButtonIconMap DefaultMap = null;
@@ -36,8 +36,8 @@ public partial class GamepadButtonIconMap : IconMap
     {
         get
         {
-            _maps ??= IconMaps?.ToDictionary(static (e) => e.GamepadName, static (e) => e.IconMap) ?? new();
-            return _maps.ContainsKey(key) ? _maps[key] : DefaultMap;
+            _maps ??= IconMaps?.ToDictionary(static (e) => e.GamepadName, static (e) => e.IconMap) ?? [];
+            return _maps.TryGetValue(key, out IndividualGamepadButtonIconMap map) ? map : DefaultMap;
         }
     }
 

@@ -13,7 +13,7 @@ namespace UI.HUD;
 [Icon("res://icons/UIIcon.svg"), SceneTree, Tool]
 public partial class CursorHintIcon : HBoxContainer
 {
-    private Dictionary<InputDevice, Control> _icons = new();
+    private Dictionary<InputDevice, Control> _icons = [];
 
     private Texture2D GetKeyIcon(Key key) => KeyMap.ContainsKey(key) ? KeyMap[key] : null;
 

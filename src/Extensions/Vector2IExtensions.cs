@@ -6,7 +6,7 @@ namespace Extensions;
 public static class Vector2IExtensions
 {
     // List of the four cardinal directions
-    public static readonly Vector2I[] Directions = { Vector2I.Up, Vector2I.Right, Vector2I.Down, Vector2I.Left };
+    public static readonly Vector2I[] Directions = [Vector2I.Up, Vector2I.Right, Vector2I.Down, Vector2I.Left];
 
     /// <summary>Determine if two cell coordinate pairs are adjacent.</summary>
     /// <param name="a">First pair for comparison.</param>

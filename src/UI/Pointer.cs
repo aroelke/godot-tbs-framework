@@ -36,7 +36,7 @@ public partial class Pointer : BoundedNode2D
     private static readonly StringName WaitEvent = "wait";
     private static readonly StringName DoneEvent = "done";
 
-    private Vector2[] _positions = Array.Empty<Vector2>();
+    private Vector2[] _positions = [];
     private bool _accelerate = false;
     private bool _tracking = true;
     private Tween _flyer = null;
@@ -255,12 +255,12 @@ public partial class Pointer : BoundedNode2D
 
     public override string[] _GetConfigurationWarnings()
     {
-        List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
+        List<string> warnings = new(base._GetConfigurationWarnings() ?? []);
 
         if (World is null)
             warnings.Add("The pointer won't be able to convert screen and world coordinates without knowing what the world is.");
 
-        return warnings.ToArray();
+        return [.. warnings];
     }
 
     public override void _Ready()
@@ -269,7 +269,7 @@ public partial class Pointer : BoundedNode2D
 
         if (!Engine.IsEditorHint())
         {
-            _positions = new[]{Position, Position};
+            _positions = [Position, Position];
 
             ControlState.ExpressionProperties = ControlState.ExpressionProperties.SetItem(ModeProperty, Enum.GetName(DeviceManager.Mode));
 

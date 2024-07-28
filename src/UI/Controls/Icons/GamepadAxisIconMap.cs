@@ -13,7 +13,7 @@ public partial class GamepadAxisIconMap : IconMap
     private Dictionary<string, IndividualGamepadAxisIconMap> _maps = null;
 
     /// <summary>Mappings of input actions onto game pad axis icons.</summary>
-    [Export] public GamepadAxisIconMapElement[] IconMaps = Array.Empty<GamepadAxisIconMapElement>();
+    [Export] public GamepadAxisIconMapElement[] IconMaps = [];
 
     /// <summary>Default icon map to use when a gamepad doesn't have its own icon map.</summary>
     [Export] public IndividualGamepadAxisIconMap DefaultMap = null;
@@ -48,8 +48,8 @@ public partial class GamepadAxisIconMap : IconMap
     {
         get
         {
-            _maps ??= IconMaps?.ToDictionary(static (e) => e.GamepadName, static (e) => e.IconMap) ?? new();
-            return _maps.ContainsKey(key) ? _maps[key] : DefaultMap;
+            _maps ??= IconMaps?.ToDictionary(static (e) => e.GamepadName, static (e) => e.IconMap) ?? [];
+            return _maps.TryGetValue(key, out IndividualGamepadAxisIconMap map) ? map : DefaultMap;
         }
     }
 

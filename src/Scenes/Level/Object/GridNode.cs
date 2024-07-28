@@ -51,14 +51,14 @@ public partial class GridNode : BoundedNode2D
 
     public override string[] _GetConfigurationWarnings()
     {
-        List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
+        List<string> warnings = new(base._GetConfigurationWarnings() ?? []);
 
         if (Grid is null)
             warnings.Add("No grid to move on has been defined.");
         else if (Cell.X < 0 || Cell.Y < 0 || Cell.X >= Grid.Size.X || Cell.Y >= Grid.Size.Y)
             warnings.Add("Outside grid bounds.");
 
-        return warnings.ToArray();
+        return [.. warnings];
     }
 
     public override void _Process(double delta)

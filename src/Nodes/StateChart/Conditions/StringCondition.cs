@@ -11,7 +11,7 @@ namespace Nodes.StateChart.Conditions;
 [GlobalClass, Icon("res://icons/statechart/StringCondition.svg"), Tool]
 public partial class StringCondition : Condition
 {
-    private static readonly Variant.Type[] types = new[] { Variant.Type.String, Variant.Type.StringName };
+    private static readonly Variant.Type[] types = [Variant.Type.String, Variant.Type.StringName];
 
     /// <summary>Name of the property to test.</summary>
     [Export] public StringName Property = "";

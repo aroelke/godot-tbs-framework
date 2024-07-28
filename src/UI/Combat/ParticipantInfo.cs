@@ -10,7 +10,7 @@ namespace UI.Combat;
 public partial class ParticipantInfo : GridContainer, IHasHealth
 {
     private int _maxHealth = 10, _currentHealth = 10;
-    private int[] _damage = new[] { 0 };
+    private int[] _damage = [0];
     private int _hit = 0;
 
     /// <summary>Amount of damage each action will deal. Use a negative number to indicate healing. Use an empty array to hide, e.g. for buffing.</summary>
@@ -20,7 +20,7 @@ public partial class ParticipantInfo : GridContainer, IHasHealth
         get => _damage;
         set
         {
-            if (value.Any() && ((value[0] < 0 && value.Any(static (x) => x >= 0)) || (value[0] >= 0 && value.Any(static (x) => x < 0))))
+            if (value.Length != 0 && ((value[0] < 0 && value.Any(static (x) => x >= 0)) || (value[0] >= 0 && value.Any(static (x) => x < 0))))
             {
                 string error = $"Combat contains damage values with mixed signs: {string.Join(",", value)}";
                 if (Engine.IsEditorHint())
@@ -36,7 +36,7 @@ public partial class ParticipantInfo : GridContainer, IHasHealth
                 bool heal = _damage.Length == 1 && _damage[0] < 0;
                 if (DamageTitle is not null)
                 {
-                    DamageTitle.Visible = _damage.Any();
+                    DamageTitle.Visible = _damage.Length != 0;
                     if (heal)
                         DamageTitle.Text = "Healing:";
                     else
@@ -44,7 +44,7 @@ public partial class ParticipantInfo : GridContainer, IHasHealth
                 }
                 if (DamageLabel is not null)
                 {
-                    DamageLabel.Visible = _damage.Any();
+                    DamageLabel.Visible = _damage.Length != 0;
                     if (heal)
                         DamageLabel.Text = Math.Abs(_damage[0]).ToString();
                     else

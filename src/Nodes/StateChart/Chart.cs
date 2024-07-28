@@ -53,7 +53,7 @@ public partial class Chart : Node
         if (!_busy)
         {
             _busy = true;
-            while (_eventQ.Any() || _propertyChangePending)
+            while (!_eventQ.IsEmpty || _propertyChangePending)
             {
                 if (_propertyChangePending)
                 {
@@ -120,12 +120,12 @@ public partial class Chart : Node
 
     public override string[] _GetConfigurationWarnings()
     {
-        List<string> warnings = new(base._GetConfigurationWarnings() ?? Array.Empty<string>());
+        List<string> warnings = new(base._GetConfigurationWarnings() ?? []);
 
         if (GetChildCount() != 1 || GetChild(0) is not State)
             warnings.Add("A state chart must have exactly one child node that's a state.");
 
-        return warnings.ToArray();
+        return [.. warnings];
     }
 
     public override void _Ready()
