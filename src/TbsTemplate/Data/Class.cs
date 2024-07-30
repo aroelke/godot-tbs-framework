@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Data;
+namespace TbsTemplate.Data;
 
 /// <summary>Contains data pertaining to character classes, including stats and resources.</summary>
 [GlobalClass, Tool]

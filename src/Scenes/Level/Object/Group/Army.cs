@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Data;
 using Godot;
+using TbsTemplate.Data;
 
 namespace Scenes.Level.Object.Group;
 

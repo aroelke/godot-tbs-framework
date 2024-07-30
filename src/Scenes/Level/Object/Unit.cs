@@ -5,8 +5,8 @@ using Extensions;
 using System.Collections.Immutable;
 using System;
 using Scenes.Level.Map;
-using Data;
 using Nodes.Components;
+using TbsTemplate.Data;
 
 namespace Scenes.Level.Object;
 

@@ -12,7 +12,7 @@ using Scenes.Level.Object;
 using Scenes.Level.Object.Group;
 using Scenes.Level.Map;
 using Scenes.Combat.Data;
-using Data;
+using TbsTemplate.Data;
 
 namespace Scenes.Level;
 

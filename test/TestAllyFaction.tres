@@ -1,9 +1,9 @@
 [gd_resource type="Resource" script_class="Faction" load_steps=2 format=3 uid="uid://cljpmwsb1nbjt"]
 
-[ext_resource type="Script" path="res://src/Data/Faction.cs" id="1_jw42k"]
+[ext_resource type="Script" path="res://src/TbsTemplate/Data/Faction.cs" id="1_t3jk2"]
 
 [resource]
-script = ExtResource("1_jw42k")
+script = ExtResource("1_t3jk2")
 Name = &"Ally"
 Color = Color(0, 1, 0, 1)
 AllyPaths = PackedStringArray("res://test/TestPlayerFaction.tres")
