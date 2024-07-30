@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Extensions;
+namespace TbsTemplate.Extensions;
 
 /// <summary>Extensions for <see cref="Vector2I"/>.</summary>
 public static class Vector2IExtensions

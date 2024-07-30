@@ -6,13 +6,13 @@ using Godot;
 using Nodes;
 using UI;
 using UI.Controls.Action;
-using Extensions;
 using Scenes.Level.Overlay;
 using Scenes.Level.Object;
 using Scenes.Level.Object.Group;
 using Scenes.Level.Map;
 using Scenes.Combat.Data;
 using TbsTemplate.Data;
+using TbsTemplate.Extensions;
 
 namespace Scenes.Level;
 

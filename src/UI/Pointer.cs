@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Extensions;
 using Godot;
 using Nodes;
+using TbsTemplate.Extensions;
 using UI.Controls.Action;
 using UI.Controls.Device;
 

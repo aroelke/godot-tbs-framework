@@ -4,7 +4,7 @@ using System;
 using System.Linq;
 using Godot;
 
-namespace Extensions;
+namespace TbsTemplate.Extensions;
 
 /// <summary>Extensions for <see cref="StringName"/>.</summary>
 public static class StringNameExtensions

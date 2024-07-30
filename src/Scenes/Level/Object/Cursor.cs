@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
+using TbsTemplate.Extensions;
 using UI.Controls.Action;
 using UI.Controls.Device;
-using Extensions;
 
 namespace Scenes.Level.Object;
 

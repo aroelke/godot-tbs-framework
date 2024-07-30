@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using Extensions;
 using System.Collections.Immutable;
 using System;
 using Scenes.Level.Map;
 using Nodes.Components;
 using TbsTemplate.Data;
+using TbsTemplate.Extensions;
 
 namespace Scenes.Level.Object;
 

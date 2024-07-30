@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using Extensions;
+using TbsTemplate.Extensions;
 
 namespace Scenes.Level.Map;
 

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace Extensions;
+namespace TbsTemplate.Extensions;
 
 /// <summary>Extensions for <see cref="IImmutableList{T}"/>.</summary>
 public static class ImmutableListExtensions

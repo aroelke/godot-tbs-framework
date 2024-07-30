@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Extensions;
+namespace TbsTemplate.Extensions;
 
 /// <summary>Extensions for <see cref="IEnumerable{T}"/>.</summary>
 public static class IEnumerableExtensions

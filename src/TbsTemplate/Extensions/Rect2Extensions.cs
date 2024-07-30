@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Extensions;
+namespace TbsTemplate.Extensions;
 
 /// <summary>Extensions for <see cref="Rect2"/>.</summary>
 public static class Rect2Extensions
