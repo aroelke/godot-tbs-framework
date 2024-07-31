@@ -598,7 +598,7 @@ public partial class LevelManager : Node
     /// <param name="child"></param>
     public void OnChildEnteredGroup(Node child)
     {
-        if (child is GridNode gd)
+        if (!Engine.IsEditorHint() && child is GridNode gd)
             gd.Grid = Grid;
     }
 
