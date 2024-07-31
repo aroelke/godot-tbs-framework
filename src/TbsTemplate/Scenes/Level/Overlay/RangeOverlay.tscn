@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://d2pwsr12t0uxb"]
 
-[ext_resource type="Texture2D" uid="uid://cybgq10hqektj" path="res://assets/level/ui/overlay.png" id="1_iv0si"]
+[ext_resource type="Texture2D" uid="uid://cybgq10hqektj" path="res://test/assets/level/ui/overlay.png" id="1_iv0si"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Overlay/RangeOverlay.cs" id="2_2kqmr"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_vg23h"]

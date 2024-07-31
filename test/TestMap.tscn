@@ -1,7 +1,7 @@
 [gd_scene load_steps=15 format=3 uid="uid://bmfxux38ovtj2"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/LevelManager.tscn" id="1_h3e4w"]
-[ext_resource type="AudioStream" uid="uid://dlm0x8f7oe33c" path="res://assets/raw/Legendary_JRPG_Battle_Music_Pack/Battle-Conflict_loop/Battle-Conflict_loop.ogg" id="2_d2oip"]
+[ext_resource type="AudioStream" uid="uid://dlm0x8f7oe33c" path="res://test/assets/raw/Legendary_JRPG_Battle_Music_Pack/Battle-Conflict_loop/Battle-Conflict_loop.ogg" id="2_d2oip"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsTemplate/Scenes/Level/Map/Grid.tscn" id="2_trttl"]
 [ext_resource type="Resource" uid="uid://bn6uq3ysywt60" path="res://test/terrain/plain.tres" id="3_ft5ge"]
 [ext_resource type="PackedScene" uid="uid://1ev2yxu31ow" path="res://src/TbsTemplate/Scenes/Level/Object/Group/Army.tscn" id="4_xrn4s"]

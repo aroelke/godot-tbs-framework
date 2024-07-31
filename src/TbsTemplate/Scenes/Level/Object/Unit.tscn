@@ -2,12 +2,12 @@
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Object/Unit.cs" id="1_crlbh"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Data/Stats.cs" id="2_fgj32"]
-[ext_resource type="Texture2D" uid="uid://3oc7r54iby4a" path="res://assets/level/unit/soldier.png" id="2_ipnjg"]
+[ext_resource type="Texture2D" uid="uid://3oc7r54iby4a" path="res://test/assets/level/unit/soldier.png" id="2_ipnjg"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/BoundedNode2D.cs" id="3_pmja0"]
-[ext_resource type="AudioStream" uid="uid://c5ud71mb4e0xa" path="res://assets/raw/RPG_Essentials_Free/12_Player_Movement_SFX/03_Step_grass_03.wav" id="4_bt2yt"]
+[ext_resource type="AudioStream" uid="uid://c5ud71mb4e0xa" path="res://test/assets/raw/RPG_Essentials_Free/12_Player_Movement_SFX/03_Step_grass_03.wav" id="4_bt2yt"]
 [ext_resource type="PackedScene" uid="uid://duggsftmu8x6l" path="res://src/TbsTemplate/Nodes/Components/HealthComponent.tscn" id="6_jxbfo"]
-[ext_resource type="Texture2D" uid="uid://cqrnta1uxyfcy" path="res://assets/raw/Pixel Health Bar/Bar/empty health bar.png" id="7_jx118"]
-[ext_resource type="Texture2D" uid="uid://dvstcx8u7scs4" path="res://assets/raw/Pixel Health Bar/Bar/health bar.png" id="8_m6b0i"]
+[ext_resource type="Texture2D" uid="uid://cqrnta1uxyfcy" path="res://test/assets/raw/Pixel Health Bar/Bar/empty health bar.png" id="7_jx118"]
+[ext_resource type="Texture2D" uid="uid://dvstcx8u7scs4" path="res://test/assets/raw/Pixel Health Bar/Bar/health bar.png" id="8_m6b0i"]
 [ext_resource type="PackedScene" uid="uid://bmt2twqcbchie" path="res://src/TbsTemplate/Nodes/Components/FastForwardComponent.tscn" id="9_cy0he"]
 
 [sub_resource type="Resource" id="Resource_gr881"]

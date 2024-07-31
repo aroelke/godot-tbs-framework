@@ -3,12 +3,12 @@
 [ext_resource type="Script" path="res://src/TbsTemplate/UI/HUD/GamepadCursorHintIcon.cs" id="1_247tv"]
 [ext_resource type="Resource" uid="uid://c27jd22jjxlu4" path="res://src/TbsTemplate/UI/Controls/Icons/GamepadButtonIconMap.tres" id="2_lslgt"]
 [ext_resource type="Resource" uid="uid://rlgg8mn3bshl" path="res://src/TbsTemplate/UI/Controls/Icons/GamepadAxisIconMap.tres" id="3_wxn4i"]
-[ext_resource type="Texture2D" uid="uid://b8opi1ojes3lf" path="res://assets/ui/icons/controls/playstation/dpadup.png" id="9_t5aqx"]
-[ext_resource type="Texture2D" uid="uid://ddo2e8y4xxywf" path="res://assets/ui/icons/controls/playstation/dpadleft.png" id="10_flnu6"]
-[ext_resource type="Texture2D" uid="uid://x210tjc0p8u6" path="res://assets/ui/icons/controls/playstation/dpadright.png" id="11_rkmss"]
-[ext_resource type="Texture2D" uid="uid://rvicv7mk4e0b" path="res://assets/ui/icons/controls/playstation/dpaddown.png" id="12_wanm3"]
-[ext_resource type="Texture2D" uid="uid://dwrg3c6m2yegj" path="res://assets/ui/icons/controls/playstation/dpad.png" id="13_6l7cn"]
-[ext_resource type="Texture2D" uid="uid://cgyr5p8sm8ypi" path="res://assets/ui/icons/controls/playstation/left_stick.png" id="14_d7nyy"]
+[ext_resource type="Texture2D" uid="uid://b8opi1ojes3lf" path="res://test/assets/ui/icons/controls/playstation/dpadup.png" id="9_t5aqx"]
+[ext_resource type="Texture2D" uid="uid://ddo2e8y4xxywf" path="res://test/assets/ui/icons/controls/playstation/dpadleft.png" id="10_flnu6"]
+[ext_resource type="Texture2D" uid="uid://x210tjc0p8u6" path="res://test/assets/ui/icons/controls/playstation/dpadright.png" id="11_rkmss"]
+[ext_resource type="Texture2D" uid="uid://rvicv7mk4e0b" path="res://test/assets/ui/icons/controls/playstation/dpaddown.png" id="12_wanm3"]
+[ext_resource type="Texture2D" uid="uid://dwrg3c6m2yegj" path="res://test/assets/ui/icons/controls/playstation/dpad.png" id="13_6l7cn"]
+[ext_resource type="Texture2D" uid="uid://cgyr5p8sm8ypi" path="res://test/assets/ui/icons/controls/playstation/left_stick.png" id="14_d7nyy"]
 
 [node name="GamepadCursorHintIcon" type="HBoxContainer"]
 offset_right = 12.0
