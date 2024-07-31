@@ -1,6 +1,6 @@
 [gd_scene load_steps=42 format=3 uid="uid://b0cvutx2lj5uy"]
 
-[ext_resource type="Script" path="res://src/Scenes/Level/Object/Unit.cs" id="1_crlbh"]
+[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Object/Unit.cs" id="1_crlbh"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Data/Stats.cs" id="2_fgj32"]
 [ext_resource type="Texture2D" uid="uid://3oc7r54iby4a" path="res://assets/level/unit/soldier.png" id="2_ipnjg"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/BoundedNode2D.cs" id="3_pmja0"]

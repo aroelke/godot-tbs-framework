@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://bnnydb3ggsdth"]
 
 [ext_resource type="Texture2D" uid="uid://dfppi0pjsv5ut" path="res://assets/level/ui/arrow.png" id="1_sroqw"]
-[ext_resource type="Script" path="res://src/Scenes/Level/Overlay/PathOverlay.cs" id="2_xyyx6"]
+[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Overlay/PathOverlay.cs" id="2_xyyx6"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_qo1xq"]
 texture = ExtResource("1_sroqw")

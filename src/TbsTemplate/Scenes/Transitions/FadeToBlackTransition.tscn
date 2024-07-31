@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cl6fmcw1757sk"]
 
-[ext_resource type="Script" path="res://src/Scenes/Transitions/FadeToBlackTransition.cs" id="1_nuq2l"]
+[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Transitions/FadeToBlackTransition.cs" id="1_nuq2l"]
 
 [node name="FadeToBlackTransition" type="Control"]
 layout_mode = 3
