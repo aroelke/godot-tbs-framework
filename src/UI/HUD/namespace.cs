@@ -1,8 +1,11 @@
-namespace UI
+namespace TbsTemplate
 {
-    namespace HUD
+    namespace UI
     {
-        /// <summary>Generic UI objects that are used to define an HUD or other helper UI sections.</summary>
-        internal static class NamespaceDoc {}
+        namespace HUD
+        {
+            /// <summary>Generic UI objects that are used to define an HUD or other helper UI sections.</summary>
+            internal static class NamespaceDoc {}
+        }
     }
 }

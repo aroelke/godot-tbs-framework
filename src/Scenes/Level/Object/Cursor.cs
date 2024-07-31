@@ -3,10 +3,10 @@ using System.Collections.Immutable;
 using System.Linq;
 using Godot;
 using TbsTemplate.Extensions;
-using UI.Controls.Action;
-using UI.Controls.Device;
+using TbsTemplate.UI.Controls.Action;
+using TbsTemplate.UI.Controls.Device;
 
-namespace Scenes.Level.Object;
+namespace TbsTemplate.Scenes.Level.Object;
 
 /// <summary>Cursor on the <see cref="Map.Grid"/> used for highlighting a cell and selecting things in it.</summary>
 [SceneTree, Tool]

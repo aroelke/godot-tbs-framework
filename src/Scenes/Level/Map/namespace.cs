@@ -1,11 +1,14 @@
-namespace Scenes
+namespace TbsTemplate
 {
-    namespace Level
+    namespace Scenes
     {
-        namespace Map
+        namespace Level
         {
-            /// <summary>Objects used to define the map of a level.</summary>
-            internal static class NamespaceDoc {}
+            namespace Map
+            {
+                /// <summary>Objects used to define the map of a level.</summary>
+                internal static class NamespaceDoc {}
+            }
         }
     }
 }

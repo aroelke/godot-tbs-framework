@@ -1,8 +1,11 @@
-namespace UI
+namespace TbsTemplate
 {
-    namespace Combat
+    namespace UI
     {
-        /// <summary>UI elements to be displayed during a combat animation.</summary>
-        static internal class NamespaceDoc {}
+        namespace Combat
+        {
+            /// <summary>UI elements to be displayed during a combat animation.</summary>
+            static internal class NamespaceDoc {}
+        }
     }
 }

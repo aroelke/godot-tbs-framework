@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using Godot;
 
-namespace Nodes.StateChart.Conditions;
+namespace TbsTemplate.Nodes.StateChart.Conditions;
 
 /// <summary>
 /// <see cref="Chart"/> action condition that's satisfied based on the value of a string property. If it's exactly equal to the condition's value,

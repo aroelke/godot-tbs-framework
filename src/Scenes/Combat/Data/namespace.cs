@@ -1,11 +1,14 @@
-namespace Scenes
+namespace TbsTemplate
 {
-    namespace Combat
+    namespace Scenes
     {
-        namespace Data
+        namespace Combat
         {
-            /// <summary>Data structures used for displaying combat information and choreographing animations.</summary>
-            internal static class NamespaceDoc {}
+            namespace Data
+            {
+                /// <summary>Data structures used for displaying combat information and choreographing animations.</summary>
+                internal static class NamespaceDoc {}
+            }
         }
     }
 }

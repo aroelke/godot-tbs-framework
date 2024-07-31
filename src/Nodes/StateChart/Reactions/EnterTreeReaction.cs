@@ -1,7 +1,6 @@
 using Godot;
-using Nodes.StateChart.States;
 
-namespace Nodes.StateChart.Reactions;
+namespace TbsTemplate.Nodes.StateChart.Reactions;
 
 /// <summary>Allows a <see cref="State"/> to react to entering the scene tree.</summary>
 public partial class EnterTreeReaction : Reaction

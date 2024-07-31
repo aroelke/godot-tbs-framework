@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
 using Godot;
-using UI.Controls.Device;
+using TbsTemplate.UI.Controls.Device;
 
-namespace Nodes.Components;
+namespace TbsTemplate.Nodes.Components;
 
 /// <summary>Trait to mix into a <see cref="GodotObject"/> that gives it methods to create, get, set, etc. properties that contain input action names.</summary>
 public interface IHasInputActionProperties

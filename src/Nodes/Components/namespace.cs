@@ -1,10 +1,13 @@
 using Godot;
 
-namespace Nodes
+namespace TbsTemplate
 {
-    namespace Components
+    namespace Nodes
     {
-        /// <summary>Components that can be mixed into other <see cref="Node"/>s to add behavior.</summary>
-        static internal class NamespaceDoc {}
+        namespace Components
+        {
+            /// <summary>Components that can be mixed into other <see cref="Node"/>s to add behavior.</summary>
+            static internal class NamespaceDoc {}
+        }
     }
 }

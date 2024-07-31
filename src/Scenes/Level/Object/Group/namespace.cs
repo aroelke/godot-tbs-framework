@@ -1,16 +1,19 @@
-namespace Scenes
+namespace TbsTemplate
 {
-    namespace Level
+    namespace Scenes
     {
-        namespace Object
+        namespace Level
         {
-            namespace Group
+            namespace Object
             {
-                /// <summary>
-                /// Groups of <see cref="GridNode"/>s that might have additional functionality depending on what types of <see cref="GridNode"/>s
-                /// they contain.
-                /// </summary>
-                internal static class NamespaceDoc {}
+                namespace Group
+                {
+                    /// <summary>
+                    /// Groups of <see cref="GridNode"/>s that might have additional functionality depending on what types of <see cref="GridNode"/>s
+                    /// they contain.
+                    /// </summary>
+                    internal static class NamespaceDoc {}
+                }
             }
         }
     }

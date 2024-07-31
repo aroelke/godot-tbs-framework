@@ -1,8 +1,11 @@
-namespace Scenes
+namespace TbsTemplate
 {
-    namespace Combat
+    namespace Scenes
     {
-        /// <summary>Objects used to display and choreograph combat.</summary>
-        internal static class NamespaceDoc {}
+        namespace Combat
+        {
+            /// <summary>Objects used to display and choreograph combat.</summary>
+            internal static class NamespaceDoc {}
+        }
     }
 }

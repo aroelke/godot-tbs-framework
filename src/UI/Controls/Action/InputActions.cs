@@ -1,6 +1,6 @@
 using Godot;
 
-namespace UI.Controls.Action;
+namespace TbsTemplate.UI.Controls.Action;
 
 /// <summary>Defines constants for each input action.</summary>
 [InputMap]

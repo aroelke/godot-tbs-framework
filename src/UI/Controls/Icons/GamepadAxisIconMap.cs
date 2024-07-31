@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using UI.Controls.Device;
+using TbsTemplate.UI.Controls.Device;
 
-namespace UI.Controls.Icons;
+namespace TbsTemplate.UI.Controls.Icons;
 
 /// <summary>Resource that maps input actions onto game pad axis icons for the current game pad.</summary>
 [GlobalClass, Tool]

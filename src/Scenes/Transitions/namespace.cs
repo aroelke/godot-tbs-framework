@@ -1,8 +1,11 @@
-namespace Scenes
+namespace TbsTemplate
 {
-    namespace Transitions
+    namespace Scenes
     {
-        /// <summary>Transitions between scenes.</summary>
-        static internal class NamespaceDoc {}
+        namespace Transitions
+        {
+            /// <summary>Transitions between scenes.</summary>
+            static internal class NamespaceDoc {}
+        }
     }
 }

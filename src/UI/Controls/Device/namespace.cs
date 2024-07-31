@@ -1,11 +1,14 @@
-namespace UI
+namespace TbsTemplate
 {
-    namespace Controls
+    namespace UI
     {
-        namespace Device
+        namespace Controls
         {
-            /// <summary>Objects used for monitoring changes in input device state, excluding actual player inputs.</summary>
-            internal static class NamespaceDoc {}
+            namespace Device
+            {
+                /// <summary>Objects used for monitoring changes in input device state, excluding actual player inputs.</summary>
+                internal static class NamespaceDoc {}
+            }
         }
     }
 }

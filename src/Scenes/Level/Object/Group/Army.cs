@@ -4,7 +4,7 @@ using System.Linq;
 using Godot;
 using TbsTemplate.Data;
 
-namespace Scenes.Level.Object.Group;
+namespace TbsTemplate.Scenes.Level.Object.Group;
 
 /// <summary>A group of <see cref="Unit"/> <see cref="GridNode"/>s that has allies and enemies.</summary>
 [Tool]

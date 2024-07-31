@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
 using Godot;
-using Nodes.Components;
+using TbsTemplate.Nodes.Components;
 
-namespace UI.Combat;
+namespace TbsTemplate.UI.Combat;
 
 /// <summary>Combat UI element that displays constant information about a character participating in combat.</summary>
 [SceneTree, Tool]

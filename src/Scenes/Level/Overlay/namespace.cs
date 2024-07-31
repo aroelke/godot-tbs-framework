@@ -1,11 +1,14 @@
-namespace Scenes
+namespace TbsTemplate
 {
-    namespace Level
+    namespace Scenes
     {
-        namespace Overlay
+        namespace Level
         {
-            /// <summary>Map overlays to display information about units to the player.</summary>
-            internal static class NamespaceDoc {}
+            namespace Overlay
+            {
+                /// <summary>Map overlays to display information about units to the player.</summary>
+                internal static class NamespaceDoc {}
+            }
         }
     }
 }

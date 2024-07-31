@@ -3,18 +3,17 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using Nodes;
-using UI;
-using UI.Controls.Action;
-using Scenes.Level.Overlay;
-using Scenes.Level.Object;
-using Scenes.Level.Object.Group;
-using Scenes.Level.Map;
-using Scenes.Combat.Data;
 using TbsTemplate.Data;
 using TbsTemplate.Extensions;
+using TbsTemplate.Scenes.Level.Map;
+using TbsTemplate.Scenes.Level.Object;
+using TbsTemplate.Scenes.Level.Object.Group;
+using TbsTemplate.Nodes;
+using TbsTemplate.Scenes.Combat.Data;
+using TbsTemplate.UI.Controls.Action;
+using TbsTemplate.UI;
 
-namespace Scenes.Level;
+namespace TbsTemplate.Scenes.Level;
 
 /// <summary>
 /// Manages the setup of and objects inside a level and provides them information about it.  Is "global" in a way in that

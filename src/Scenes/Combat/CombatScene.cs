@@ -4,13 +4,13 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
-using Scenes.Combat.Animations;
-using Scenes.Combat.Data;
-using Scenes.Level.Object;
-using UI.Combat;
-using UI.Controls.Action;
+using TbsTemplate.Scenes.Combat.Animations;
+using TbsTemplate.Scenes.Combat.Data;
+using TbsTemplate.Scenes.Level.Object;
+using TbsTemplate.UI.Combat;
+using TbsTemplate.UI.Controls.Action;
 
-namespace Scenes.Combat;
+namespace TbsTemplate.Scenes.Combat;
 
 /// <summary>Scene used to display the results of combat in a cut scene.</summary>
 [SceneTree]

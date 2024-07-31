@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using Godot;
-using UI.Controls.Icons;
-using UI.Controls.Device;
-using Nodes.Components;
+using TbsTemplate.Nodes.Components;
+using TbsTemplate.UI.Controls.Device;
+using TbsTemplate.UI.Controls.Icons;
 
-namespace UI.HUD;
+namespace TbsTemplate.UI.HUD;
 
 /// <summary>Icon and label showing the input for an action that doesn't have an analog or mouse option.</summary>
 [Icon("res://icons/UIIcon.svg"), SceneTree, Tool]

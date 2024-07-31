@@ -1,6 +1,6 @@
 using Godot;
 
-namespace UI.Controls.Icons;
+namespace TbsTemplate.UI.Controls.Icons;
 
 /// <summary>Individual mapping of a game pad (by name) onto its axis icon map.</summary>
 [GlobalClass, Tool]

@@ -1,8 +1,8 @@
 using System;
 using Godot;
-using UI.Controls.Device;
+using TbsTemplate.UI.Controls.Device;
 
-namespace UI.Controls.Action;
+namespace TbsTemplate.UI.Controls.Action;
 
 /// <summary>Object component that enables the object to be controlled digitally (e.g. with keyboard keys or gamepad buttons).</summary>
 [SceneTree]

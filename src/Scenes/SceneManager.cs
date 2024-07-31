@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Immutable;
 using Godot;
-using Scenes.Combat;
-using Scenes.Combat.Data;
-using Scenes.Level;
-using Scenes.Level.Object;
-using UI;
+using TbsTemplate.Scenes.Combat;
+using TbsTemplate.Scenes.Combat.Data;
+using TbsTemplate.Scenes.Level;
+using TbsTemplate.Scenes.Level.Object;
+using TbsTemplate.UI;
 
-namespace Scenes;
+namespace TbsTemplate.Scenes;
 
 /// <summary>Global autoloaded scene manager used to change scenes and enter or exit combat.</summary>
 [SceneTree]

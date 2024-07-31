@@ -3,12 +3,12 @@ using System.Linq;
 using Godot;
 using System.Collections.Immutable;
 using System;
-using Scenes.Level.Map;
-using Nodes.Components;
 using TbsTemplate.Data;
 using TbsTemplate.Extensions;
+using TbsTemplate.Nodes.Components;
+using TbsTemplate.Scenes.Level.Map;
 
-namespace Scenes.Level.Object;
+namespace TbsTemplate.Scenes.Level.Object;
 
 /// <summary>
 /// A unit that moves around the map.  Mostly is just a visual representation of what's where and an interface for the player to

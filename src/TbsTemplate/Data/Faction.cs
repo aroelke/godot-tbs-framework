@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 using Godot;
-using Scenes.Level.Object;
+using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Data;
 

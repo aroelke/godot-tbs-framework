@@ -1,6 +1,6 @@
-using Scenes.Level.Object;
+using TbsTemplate.Scenes.Level.Object;
 
-namespace Scenes.Combat.Data;
+namespace TbsTemplate.Scenes.Combat.Data;
 
 /// <summary>Data structure holding the information needed to choreograph one turn of combat.</summary>
 public struct CombatAction

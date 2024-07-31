@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using Scenes.Level.Object;
+using TbsTemplate.Scenes.Level.Object;
 
-namespace Scenes.Level.Map;
+namespace TbsTemplate.Scenes.Level.Map;
 
 /// <summary>Contains several sets of <see cref="Grid"/> cells that represent where a <see cref="Unit"/> could move to, attack, and support.</summary>
 public readonly struct ActionRanges

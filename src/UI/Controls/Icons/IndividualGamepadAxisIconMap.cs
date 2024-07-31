@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using UI.Controls.Device;
+using TbsTemplate.UI.Controls.Device;
 
-namespace UI.Controls.Icons;
+namespace TbsTemplate.UI.Controls.Icons;
 
 /// <summary>Resource mapping a specific gamepad's axes to icons to display for them.</summary>
 [GlobalClass, Tool]

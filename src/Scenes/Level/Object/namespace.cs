@@ -1,11 +1,14 @@
-namespace Scenes
+namespace TbsTemplate
 {
-    namespace Level
+    namespace Scenes
     {
-        namespace Object
+        namespace Level
         {
-            /// <summary>Objects that exist within a level, on the map.</summary>
-            internal static class NamespaceDoc {}
+            namespace Object
+            {
+                /// <summary>Objects that exist within a level, on the map.</summary>
+                internal static class NamespaceDoc {}
+            }
         }
     }
 }

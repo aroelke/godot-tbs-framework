@@ -1,7 +1,7 @@
 using Godot;
-using UI.Controls.Action;
+using TbsTemplate.UI.Controls.Action;
 
-namespace Scenes;
+namespace TbsTemplate.Scenes;
 
 /// <summary>Scene component that controls pausing.</summary>
 public partial class PauseManager : Node

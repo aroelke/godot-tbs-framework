@@ -1,7 +1,6 @@
 using Godot;
-using Nodes.StateChart.States;
 
-namespace Nodes.StateChart.Reactions;
+namespace TbsTemplate.Nodes.StateChart.Reactions;
 
 /// <summary>Allows a <see cref="State"/> to perform a task every process cycle.</summary>
 public partial class ProcessReaction : Reaction

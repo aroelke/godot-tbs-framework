@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Nodes;
+namespace TbsTemplate.Nodes;
 
 /// <summary>
 /// A <see cref="Node2D"/> with additional size information that forms a <see cref="BoundingBox"/> along with its

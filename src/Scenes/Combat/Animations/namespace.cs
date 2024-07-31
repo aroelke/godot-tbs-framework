@@ -1,11 +1,14 @@
-namespace Scenes
+namespace TbsTemplate
 {
-    namespace Combat
+    namespace Scenes
     {
-        namespace Animations
+        namespace Combat
         {
-            /// <summary>Animations to display during combat, usually tied to character, class, or magic.</summary>
-            internal static class NamespaceDoc {}
+            namespace Animations
+            {
+                /// <summary>Animations to display during combat, usually tied to character, class, or magic.</summary>
+                internal static class NamespaceDoc {}
+            }
         }
     }
 }

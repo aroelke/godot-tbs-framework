@@ -1,6 +1,6 @@
 using Godot;
 
-namespace UI.Controls.Icons;
+namespace TbsTemplate.UI.Controls.Icons;
 
 /// <summary>Generic class declaring mappings of actions onto control icons.</summary>
 [GlobalClass, Tool]

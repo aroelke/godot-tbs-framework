@@ -1,11 +1,14 @@
-namespace Nodes
+namespace TbsTemplate
 {
-    namespace StateChart
+    namespace Nodes
     {
-        namespace Conditions
+        namespace StateChart
         {
-            /// <summary>Resources used to define transition conditions for state charts.</summary>
-            public static class NamespaceDoc {}
+            namespace Conditions
+            {
+                /// <summary>Resources used to define transition conditions for state charts.</summary>
+                public static class NamespaceDoc {}
+            }
         }
     }
 }

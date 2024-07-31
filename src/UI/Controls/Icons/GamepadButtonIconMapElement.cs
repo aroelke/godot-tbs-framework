@@ -1,6 +1,6 @@
 using Godot;
 
-namespace UI.Controls.Icons;
+namespace TbsTemplate.UI.Controls.Icons;
 
 /// <summary>Mapping of a particular game pad's name onto its button map.</summary>
 [GlobalClass, Tool]

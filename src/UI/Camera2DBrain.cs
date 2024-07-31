@@ -1,12 +1,12 @@
 using Godot;
-using Nodes;
 using System.Collections.Generic;
 using System.Linq;
-using UI.Controls.Action;
 using System;
 using TbsTemplate.Extensions;
+using TbsTemplate.Nodes;
+using TbsTemplate.UI.Controls.Action;
 
-namespace UI;
+namespace TbsTemplate.UI;
 
 /// <summary>
 /// "Brain" controlling the <see cref="Camera2D"/>. Given a target, it will follow it and smoothly move the camera to continue tracking it.

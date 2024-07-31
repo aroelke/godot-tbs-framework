@@ -1,11 +1,14 @@
-namespace Nodes
+namespace TbsTemplate
 {
-    namespace StateChart
+    namespace Nodes
     {
-        namespace States
+        namespace StateChart
         {
-            /// <summary>Different types of states used in a state chart.</summary>
-            public static class NamespaceDoc {}
+            namespace States
+            {
+                /// <summary>Different types of states used in a state chart.</summary>
+                public static class NamespaceDoc {}
+            }
         }
     }
 }

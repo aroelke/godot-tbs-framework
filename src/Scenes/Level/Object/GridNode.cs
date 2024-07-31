@@ -1,10 +1,9 @@
-using System;
 using System.Collections.Generic;
 using Godot;
-using Nodes;
-using Scenes.Level.Map;
+using TbsTemplate.Nodes;
+using TbsTemplate.Scenes.Level.Map;
 
-namespace Scenes.Level.Object;
+namespace TbsTemplate.Scenes.Level.Object;
 
 /// <summary>A node representing an object that moves on a <see cref="Map.Grid"/>.</summary>
 [Icon("res://icons/GridNode.svg"), GlobalClass, Tool]

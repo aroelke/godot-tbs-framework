@@ -1,7 +1,6 @@
 using Godot;
-using Nodes.StateChart.States;
 
-namespace Nodes.StateChart.Conditions;
+namespace TbsTemplate.Nodes.StateChart.Conditions;
 
 /// <summary>Condition guarding a state <see cref="Transition"/> or <see cref="Reactions.Reaction"/>.</summary>
 [GlobalClass, Tool]

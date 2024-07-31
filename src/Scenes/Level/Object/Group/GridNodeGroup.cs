@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
-namespace Scenes.Level.Object.Group;
+namespace TbsTemplate.Scenes.Level.Object.Group;
 
 /// <summary>A  group of <see cref="GridNode"/>s to facilitate managing and iterating over them.</summary>
 [Icon("res://icons/GridNodeGroup.svg")]

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using Godot;
-using Nodes.StateChart.Conditions;
-using Nodes.StateChart.States;
+using TbsTemplate.Nodes.StateChart.Conditions;
+using TbsTemplate.Nodes.StateChart.States;
 
-namespace Nodes.StateChart.Reactions;
+namespace TbsTemplate.Nodes.StateChart.Reactions;
 
 /// <summary><see cref="State"/>-specific reaction to a trigger that should cause an action without a transition.</summary>
 [GlobalClass, Icon("res://icons/statechart/Reaction.svg"), Tool]

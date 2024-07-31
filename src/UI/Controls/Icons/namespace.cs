@@ -1,11 +1,14 @@
-namespace UI
+namespace TbsTemplate
 {
-    namespace Controls
+    namespace UI
     {
-        namespace Icons
+        namespace Controls
         {
-            /// <summary>Resources mapping player inputs onto icons to display for them.</summary>
-            internal static class NamespaceDoc {}
+            namespace Icons
+            {
+                /// <summary>Resources mapping player inputs onto icons to display for them.</summary>
+                internal static class NamespaceDoc {}
+            }
         }
     }
 }

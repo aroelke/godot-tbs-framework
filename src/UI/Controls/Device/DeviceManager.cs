@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using Nodes.Components;
+using TbsTemplate.Nodes.Components;
 
-namespace UI.Controls.Device;
+namespace TbsTemplate.UI.Controls.Device;
 
 /// <summary>Manages information about and changes in input device.</summary>
 [Tool]

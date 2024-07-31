@@ -1,9 +1,9 @@
 using Godot;
-using UI.Controls.Icons;
-using UI.Controls.Action;
-using UI.Controls.Device;
+using TbsTemplate.UI.Controls.Action;
+using TbsTemplate.UI.Controls.Device;
+using TbsTemplate.UI.Controls.Icons;
 
-namespace UI.HUD;
+namespace TbsTemplate.UI.HUD;
 
 /// <summary>
 /// Hint icon for showing the controls to move the <see cref="Level.Object.Cursor"/>/<see cref="Level.UI.Pointer"/> for a game pad.

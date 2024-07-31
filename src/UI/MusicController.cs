@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Godot;
 
-namespace UI;
+namespace TbsTemplate.UI;
 
 /// <summary>Global controller for background music.</summary>
 [Tool]

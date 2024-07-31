@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using Scenes.Level.Map;
+using TbsTemplate.Scenes.Level.Map;
 
-namespace Scenes.Level.Overlay;
+namespace TbsTemplate.Scenes.Level.Overlay;
 
 /// <summary>A <see cref="Grid"/> overlay used to display information about the grid cells.</summary>
 public partial class RangeOverlay : TileMap

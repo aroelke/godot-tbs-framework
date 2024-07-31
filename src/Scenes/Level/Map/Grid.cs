@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using Scenes.Level.Object;
+using TbsTemplate.Scenes.Level.Object;
 
-namespace Scenes.Level.Map;
+namespace TbsTemplate.Scenes.Level.Map;
 
 /// <summary>Defines the grid dimensions and attributes and contains the locations of the objects and terrain within it.</summary>
 [Tool]

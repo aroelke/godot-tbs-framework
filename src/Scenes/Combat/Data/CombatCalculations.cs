@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Scenes.Level.Object;
+using TbsTemplate.Scenes.Level.Object;
 
-namespace Scenes.Combat.Data;
+namespace TbsTemplate.Scenes.Combat.Data;
 
 /// <summary>Utility for computing combat stats and results.</summary>
 public static class CombatCalculations

@@ -1,7 +1,7 @@
 using Godot;
-using Scenes.Level.Object;
+using TbsTemplate.Scenes.Level.Object;
 
-namespace Scenes.Level;
+namespace TbsTemplate.Scenes.Level;
 
 /// <summary>
 /// Singleton that handles events related to <see cref="Unit"/>s that can't be easily done with references or could move across scenes (such as

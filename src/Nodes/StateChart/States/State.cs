@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
-namespace Nodes.StateChart.States;
+namespace TbsTemplate.Nodes.StateChart.States;
 
 /// <summary>Base class implementing common behavior of all <see cref="StateChart"/> states.</summary>
 [GlobalClass, Tool]

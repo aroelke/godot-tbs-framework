@@ -2,11 +2,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using Godot;
-using Nodes.StateChart.States;
+using TbsTemplate.Nodes.StateChart.States;
 
-namespace Nodes.StateChart;
+namespace TbsTemplate.Nodes.StateChart;
 
 /// <summary>
 /// A state chart modeled after <see href="https://github.com/derkork/godot-statecharts"/>. Contains a hierarchy of <see cref="State"/>s that have

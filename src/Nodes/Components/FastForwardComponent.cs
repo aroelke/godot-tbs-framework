@@ -1,7 +1,7 @@
 using Godot;
-using UI.Controls.Action;
+using TbsTemplate.UI.Controls.Action;
 
-namespace Nodes.Components;
+namespace TbsTemplate.Nodes.Components;
 
 /// <summary>Node component implementing a "fast-forward" function for the node.</summary>
 public partial class FastForwardComponent : Node

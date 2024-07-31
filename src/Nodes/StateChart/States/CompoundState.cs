@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Godot;
 
-namespace Nodes.StateChart.States;
+namespace TbsTemplate.Nodes.StateChart.States;
 
 /// <summary>A <see cref="State"/> that can have one or more sub-<see cref="State"/>s.</summary>
 [Icon("res://icons/statechart/CompoundState.svg"), Tool]
