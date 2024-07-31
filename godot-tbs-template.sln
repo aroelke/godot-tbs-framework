@@ -1,0 +1,19 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "godot-tbs-template", "godot-tbs-template.csproj", "{07873F8E-8B07-436A-8466-41D82DF170BE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+	Debug|Any CPU = Debug|Any CPU
+	ExportDebug|Any CPU = ExportDebug|Any CPU
+	ExportRelease|Any CPU = ExportRelease|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{07873F8E-8B07-436A-8466-41D82DF170BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07873F8E-8B07-436A-8466-41D82DF170BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07873F8E-8B07-436A-8466-41D82DF170BE}.ExportDebug|Any CPU.ActiveCfg = ExportDebug|Any CPU
+		{07873F8E-8B07-436A-8466-41D82DF170BE}.ExportDebug|Any CPU.Build.0 = ExportDebug|Any CPU
+		{07873F8E-8B07-436A-8466-41D82DF170BE}.ExportRelease|Any CPU.ActiveCfg = ExportRelease|Any CPU
+		{07873F8E-8B07-436A-8466-41D82DF170BE}.ExportRelease|Any CPU.Build.0 = ExportRelease|Any CPU
+	EndGlobalSection
+EndGlobal
