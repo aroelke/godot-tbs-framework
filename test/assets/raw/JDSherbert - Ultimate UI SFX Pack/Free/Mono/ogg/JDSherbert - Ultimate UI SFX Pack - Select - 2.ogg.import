@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://do776bcq8x2b2"
+path="res://.godot/imported/JDSherbert - Ultimate UI SFX Pack - Select - 2.ogg-1de01cf6379765aa1e5733a7ac9b198a.oggvorbisstr"
+
+[deps]
+
+source_file="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/ogg/JDSherbert - Ultimate UI SFX Pack - Select - 2.ogg"
+dest_files=["res://.godot/imported/JDSherbert - Ultimate UI SFX Pack - Select - 2.ogg-1de01cf6379765aa1e5733a7ac9b198a.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

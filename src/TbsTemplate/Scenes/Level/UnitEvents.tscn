@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b6l6yygxg4kn8"]
+
+[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/UnitEvents.cs" id="1_bc0d1"]
+
+[node name="UnitEvents" type="Node"]
+script = ExtResource("1_bc0d1")

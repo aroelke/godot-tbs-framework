@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://vea14yvjwgf3"]
+
+[ext_resource type="Script" path="res://src/TbsTemplate/UI/Controls/Action/AnalogDigitalConverter.cs" id="1_lpcdk"]
+
+[node name="AnalogDigitalConverter" type="Node"]
+script = ExtResource("1_lpcdk")
+AnalogAction = &""
+DigitalAction = &""

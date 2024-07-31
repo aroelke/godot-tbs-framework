@@ -1,0 +1,76 @@
+[gd_scene load_steps=12 format=3 uid="uid://dar0v4k4aqvpv"]
+
+[ext_resource type="Script" path="res://src/TbsTemplate/UI/HUD/CursorHintIcon.cs" id="1_go8iq"]
+[ext_resource type="Resource" uid="uid://37pcc5c7cogr" path="res://src/TbsTemplate/UI/Controls/Icons/MouseIconMap.tres" id="2_ah0pi"]
+[ext_resource type="Resource" uid="uid://q61hgr3qsv4g" path="res://src/TbsTemplate/UI/Controls/Icons/KeyIconMap.tres" id="3_ofd1p"]
+[ext_resource type="Resource" uid="uid://c27jd22jjxlu4" path="res://src/TbsTemplate/UI/Controls/Icons/GamepadButtonIconMap.tres" id="4_fljuw"]
+[ext_resource type="Resource" uid="uid://rlgg8mn3bshl" path="res://src/TbsTemplate/UI/Controls/Icons/GamepadAxisIconMap.tres" id="5_5d2yb"]
+[ext_resource type="Texture2D" uid="uid://xnouovy7cud3" path="res://test/assets/ui/icons/controls/mouse/mouse.png" id="11_vfkls"]
+[ext_resource type="Texture2D" uid="uid://bvbkwcurpgl68" path="res://test/assets/ui/icons/controls/keyboard/up.png" id="12_w0a8n"]
+[ext_resource type="Texture2D" uid="uid://b22lemesaffkm" path="res://test/assets/ui/icons/controls/keyboard/left.png" id="13_csftp"]
+[ext_resource type="Texture2D" uid="uid://dnxdklj5eo2mi" path="res://test/assets/ui/icons/controls/keyboard/down.png" id="14_464xp"]
+[ext_resource type="Texture2D" uid="uid://dedquyam7p1qb" path="res://test/assets/ui/icons/controls/keyboard/right.png" id="15_o0uou"]
+[ext_resource type="PackedScene" uid="uid://cpswnx0irecoi" path="res://src/TbsTemplate/UI/HUD/GamepadCursorHintIcon.tscn" id="16_aragt"]
+
+[node name="CursorHintIcon" type="HBoxContainer"]
+offset_right = 15.0
+offset_bottom = 28.0
+theme_override_constants/separation = 4
+script = ExtResource("1_go8iq")
+MouseMap = ExtResource("2_ah0pi")
+KeyMap = ExtResource("3_ofd1p")
+ButtonMap = ExtResource("4_fljuw")
+AxisMap = ExtResource("5_5d2yb")
+
+[node name="MouseIcon" type="TextureRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("11_vfkls")
+stretch_mode = 3
+
+[node name="KeyboardIcon" type="GridContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/h_separation = 0
+theme_override_constants/v_separation = 0
+columns = 3
+
+[node name="Empty0" type="TextureRect" parent="KeyboardIcon"]
+layout_mode = 2
+
+[node name="UpKeyIcon" type="TextureRect" parent="KeyboardIcon"]
+unique_name_in_owner = true
+layout_mode = 2
+texture = ExtResource("12_w0a8n")
+stretch_mode = 3
+
+[node name="Empty1" type="TextureRect" parent="KeyboardIcon"]
+layout_mode = 2
+
+[node name="LeftKeyIcon" type="TextureRect" parent="KeyboardIcon"]
+unique_name_in_owner = true
+layout_mode = 2
+texture = ExtResource("13_csftp")
+stretch_mode = 3
+
+[node name="DownKeyIcon" type="TextureRect" parent="KeyboardIcon"]
+unique_name_in_owner = true
+layout_mode = 2
+texture = ExtResource("14_464xp")
+stretch_mode = 3
+
+[node name="RightKeyIcon" type="TextureRect" parent="KeyboardIcon"]
+unique_name_in_owner = true
+layout_mode = 2
+texture = ExtResource("15_o0uou")
+stretch_mode = 3
+
+[node name="GamepadIcon" parent="." instance=ExtResource("16_aragt")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Action" type="Label" parent="."]
+layout_mode = 2
+text = ": Move Cursor"

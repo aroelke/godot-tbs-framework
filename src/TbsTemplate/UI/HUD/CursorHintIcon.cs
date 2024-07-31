@@ -1,0 +1,91 @@
+using System.Collections.Generic;
+using Godot;
+using TbsTemplate.UI.Controls.Action;
+using TbsTemplate.UI.Controls.Device;
+using TbsTemplate.UI.Controls.Icons;
+
+namespace TbsTemplate.UI.HUD;
+
+/// <summary>
+/// Hint icon for showing the controls to move the <see cref="Level.Object.Cursor"/>/<see cref="Level.UI.Pointer"/>
+/// for the current control scheme.
+/// </summary>
+[Icon("res://icons/UIIcon.svg"), SceneTree, Tool]
+public partial class CursorHintIcon : HBoxContainer
+{
+    private Dictionary<InputDevice, Control> _icons = [];
+
+    private Texture2D GetKeyIcon(Key key) => KeyMap.ContainsKey(key) ? KeyMap[key] : null;
+
+    /// <summary>Mapping of <see cref="MouseButton"/> onto icon to display.</summary>
+    [Export] public MouseIconMap MouseMap = new();
+
+    /// <summary>Mapping of <see cref="Key"/> onto icon to display.</summary>
+    [Export] public KeyIconMap KeyMap = new();
+
+    /// <summary>Mapping of <see cref="JoyButton"/> onto icon to display.</summary>
+    [Export] public GamepadButtonIconMap ButtonMap = new();
+
+    /// <summary>Mapping of <see cref="JoyAxis"/> onto icon to display.</summary>
+    [Export] public GamepadAxisIconMap AxisMap = new();
+
+    /// <summary>Set the selected input device to show the icon for.</summary>
+    public InputDevice SelectedDevice
+    {
+        set
+        {
+            foreach ((InputDevice device, Control icon) in _icons)
+                icon.Visible = device == value;
+        }
+    }
+
+    /// <summary>When the input changes, switch the icon to the correct device.</summary>
+    /// <param name="device">New input device.</param>
+    public void OnInputDeviceChanged(InputDevice device, string name) => SelectedDevice = device;
+
+    public override void _EnterTree()
+    {
+        base._EnterTree();
+        if (!Engine.IsEditorHint())
+            DeviceManager.Singleton.InputDeviceChanged += OnInputDeviceChanged;
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+
+        if (!Engine.IsEditorHint())
+        {
+            _icons = new()
+            {
+                { InputDevice.Mouse, MouseIcon },
+                { InputDevice.Keyboard, KeyboardIcon },
+                { InputDevice.Gamepad, GamepadIcon }
+            };
+            SelectedDevice = DeviceManager.Device;
+        }
+    }
+
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+        if (Engine.IsEditorHint())
+        {
+            UpKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputActions.DigitalMoveUp));
+            LeftKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputActions.DigitalMoveLeft));
+            DownKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputActions.DigitalMoveDown));
+            RightKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputActions.DigitalMoveRight));
+            MouseIcon.Texture = MouseMap.Motion;
+
+            GamepadIcon.ButtonMap = ButtonMap;
+            GamepadIcon.AxisMap = AxisMap;
+        }
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+        if (!Engine.IsEditorHint())
+            DeviceManager.Singleton.InputDeviceChanged -= OnInputDeviceChanged;
+    }
+}

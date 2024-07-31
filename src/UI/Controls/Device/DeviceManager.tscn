@@ -1,7 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://dkposyo3j3jvf"]
-
-[ext_resource type="Script" path="res://src/UI/Controls/Device/DeviceManager.cs" id="1_hknwi"]
-
-[node name="DeviceManager" type="Node"]
-script = ExtResource("1_hknwi")
-GamepadDigitalModeActivators = [&"digital_move_up", &"digital_move_left", &"digital_move_down", &"digital_move_right"]

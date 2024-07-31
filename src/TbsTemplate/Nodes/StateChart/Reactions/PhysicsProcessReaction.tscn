@@ -1,0 +1,11 @@
+[gd_scene load_steps=4 format=3 uid="uid://o14hjfw71flw"]
+
+[ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/PhysicsProcessReaction.cs" id="1_wlgel"]
+[ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/UnCondition.cs" id="2_6euda"]
+
+[sub_resource type="Resource" id="Resource_jtt5u"]
+script = ExtResource("2_6euda")
+
+[node name="PhysicsProcessReaction" type="Node"]
+script = ExtResource("1_wlgel")
+Condition = SubResource("Resource_jtt5u")

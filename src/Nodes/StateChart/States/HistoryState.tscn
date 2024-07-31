@@ -1,7 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://dnfp4qfxs85wh"]
-
-[ext_resource type="Script" path="res://src/Nodes/StateChart/States/HistoryState.cs" id="1_qtn2d"]
-
-[node name="HistoryState" type="Node"]
-process_mode = 4
-script = ExtResource("1_qtn2d")
