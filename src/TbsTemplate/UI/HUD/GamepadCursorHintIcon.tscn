@@ -1,8 +1,8 @@
 [gd_scene load_steps=10 format=3 uid="uid://cpswnx0irecoi"]
 
-[ext_resource type="Script" path="res://src/UI/HUD/GamepadCursorHintIcon.cs" id="1_247tv"]
-[ext_resource type="Resource" uid="uid://c27jd22jjxlu4" path="res://src/UI/Controls/Icons/GamepadButtonIconMap.tres" id="2_lslgt"]
-[ext_resource type="Resource" uid="uid://rlgg8mn3bshl" path="res://src/UI/Controls/Icons/GamepadAxisIconMap.tres" id="3_wxn4i"]
+[ext_resource type="Script" path="res://src/TbsTemplate/UI/HUD/GamepadCursorHintIcon.cs" id="1_247tv"]
+[ext_resource type="Resource" uid="uid://c27jd22jjxlu4" path="res://src/TbsTemplate/UI/Controls/Icons/GamepadButtonIconMap.tres" id="2_lslgt"]
+[ext_resource type="Resource" uid="uid://rlgg8mn3bshl" path="res://src/TbsTemplate/UI/Controls/Icons/GamepadAxisIconMap.tres" id="3_wxn4i"]
 [ext_resource type="Texture2D" uid="uid://b8opi1ojes3lf" path="res://assets/ui/icons/controls/playstation/dpadup.png" id="9_t5aqx"]
 [ext_resource type="Texture2D" uid="uid://ddo2e8y4xxywf" path="res://assets/ui/icons/controls/playstation/dpadleft.png" id="10_flnu6"]
 [ext_resource type="Texture2D" uid="uid://x210tjc0p8u6" path="res://assets/ui/icons/controls/playstation/dpadright.png" id="11_rkmss"]

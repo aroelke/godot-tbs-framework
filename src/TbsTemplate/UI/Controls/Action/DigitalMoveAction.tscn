@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://croni4vvkdn0a"]
 
-[ext_resource type="Script" path="res://src/UI/Controls/Action/DigitalMoveAction.cs" id="1_wlt00"]
+[ext_resource type="Script" path="res://src/TbsTemplate/UI/Controls/Action/DigitalMoveAction.cs" id="1_wlt00"]
 
 [node name="DigitalMoveAction" type="Node"]
 script = ExtResource("1_wlt00")

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dc1xms8hwk6bg"]
 
-[ext_resource type="Script" path="res://src/UI/MusicController.cs" id="1_47wwv"]
+[ext_resource type="Script" path="res://src/TbsTemplate/UI/MusicController.cs" id="1_47wwv"]
 
 [node name="MusicController" type="AudioStreamPlayer"]
 volume_db = -10.0

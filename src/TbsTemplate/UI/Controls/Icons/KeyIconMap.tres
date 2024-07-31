@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="KeyIconMap" load_steps=13 format=3 uid="uid://q61hgr3qsv4g"]
 
 [ext_resource type="Texture2D" uid="uid://dnxdklj5eo2mi" path="res://assets/ui/icons/controls/keyboard/down.png" id="1_8fecj"]
-[ext_resource type="Script" path="res://src/UI/Controls/Icons/KeyIconMap.cs" id="1_b4ydg"]
+[ext_resource type="Script" path="res://src/TbsTemplate/UI/Controls/Icons/KeyIconMap.cs" id="1_b4ydg"]
 [ext_resource type="Texture2D" uid="uid://c1qle07itrh3t" path="res://assets/ui/icons/controls/keyboard/a.png" id="1_eajsw"]
 [ext_resource type="Texture2D" uid="uid://b22lemesaffkm" path="res://assets/ui/icons/controls/keyboard/left.png" id="2_dmmv3"]
 [ext_resource type="Texture2D" uid="uid://5ofxn6dohh6v" path="res://assets/ui/icons/controls/keyboard/d.png" id="2_ego81"]

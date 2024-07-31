@@ -17,9 +17,9 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-InputManager="*res://src/UI/Controls/Device/InputManager.cs"
-DeviceManager="*res://src/UI/Controls/Device/DeviceManager.tscn"
-MusicController="*res://src/UI/MusicController.tscn"
+InputManager="*res://src/TbsTemplate/UI/Controls/Device/InputManager.cs"
+DeviceManager="*res://src/TbsTemplate/UI/Controls/Device/DeviceManager.tscn"
+MusicController="*res://src/TbsTemplate/UI/MusicController.tscn"
 SceneManager="*res://src/Scenes/SceneManager.tscn"
 UnitEvents="*res://src/Scenes/Level/UnitEvents.tscn"
 
