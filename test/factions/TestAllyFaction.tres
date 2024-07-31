@@ -6,5 +6,5 @@
 script = ExtResource("1_t3jk2")
 Name = &"Ally"
 Color = Color(0, 1, 0, 1)
-AllyPaths = PackedStringArray("res://test/TestPlayerFaction.tres")
+AllyPaths = PackedStringArray("res://test/factions/TestPlayerFaction.tres")
 IsPlayer = false
