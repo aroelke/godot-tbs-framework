@@ -13,9 +13,9 @@
 [ext_resource type="AudioStream" uid="uid://bna3rsl1okrab" path="res://test/assets/raw/RPG_Essentials_Free/10_Battle_SFX/69_Enemy_death_01.wav" id="6_owx48"]
 [ext_resource type="Texture2D" uid="uid://c1elo1xqw04us" path="res://test/assets/combat/spark.png" id="7_5me5v"]
 [ext_resource type="AudioStream" uid="uid://dp83ccn7bsqr5" path="res://test/assets/raw/RPG_Essentials_Free/12_Player_Movement_SFX/08_Step_rock_02.wav" id="9_b60f8"]
-[ext_resource type="Theme" uid="uid://fr2dcmadshbl" path="res://src/TbsTemplate/UI/Combat/ParticipantInfo.tres" id="16_ct6cq"]
+[ext_resource type="Theme" uid="uid://fr2dcmadshbl" path="res://test/assets/ui/ParticipantInfo.tres" id="16_ct6cq"]
 [ext_resource type="PackedScene" uid="uid://cvch4ay3dx0wv" path="res://src/TbsTemplate/UI/Combat/ParticipantInfo.tscn" id="17_2s64u"]
-[ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://src/TbsTemplate/UI/HUD/Hints.tres" id="17_6cq6n"]
+[ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://test/assets/ui/Hints.tres" id="17_6cq6n"]
 [ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/TbsTemplate/UI/HUD/ControlHint.tscn" id="17_ru8y2"]
 
 [sub_resource type="Curve" id="Curve_7nqbs"]
