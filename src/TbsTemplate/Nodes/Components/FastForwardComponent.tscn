@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bmt2twqcbchie"]
 
-[ext_resource type="Script" path="res://src/Nodes/Components/FastForwardComponent.cs" id="1_4i7j7"]
+[ext_resource type="Script" path="res://src/TbsTemplate/Nodes/Components/FastForwardComponent.cs" id="1_4i7j7"]
 
 [node name="FastForwardComponent" type="Node"]
 script = ExtResource("1_4i7j7")

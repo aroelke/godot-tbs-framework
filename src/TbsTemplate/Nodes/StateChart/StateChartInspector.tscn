@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://h3yhm0thhl8m"]
 
-[ext_resource type="Script" path="res://src/Nodes/StateChart/StateChartInspector.cs" id="1_aemr7"]
+[ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/StateChartInspector.cs" id="1_aemr7"]
 
 [node name="StateChartInspector" type="MarginContainer"]
 anchors_preset = 15
