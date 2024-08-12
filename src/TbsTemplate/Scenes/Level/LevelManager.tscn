@@ -32,7 +32,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -942362139
+seed = 1729619922
 
 [sub_resource type="Resource" id="Resource_umt67"]
 script = ExtResource("24_k1nop")
@@ -362,23 +362,25 @@ Condition = SubResource("Resource_baabg")
 unique_name_in_owner = true
 one_shot = true
 
-[node name="SelectSound" type="AudioStreamPlayer" parent="."]
+[node name="SoundLibrary" type="Node" parent="."]
+
+[node name="SelectSound" type="AudioStreamPlayer" parent="SoundLibrary"]
 unique_name_in_owner = true
 stream = ExtResource("28_dnjya")
 
-[node name="CancelSound" type="AudioStreamPlayer" parent="."]
+[node name="CancelSound" type="AudioStreamPlayer" parent="SoundLibrary"]
 unique_name_in_owner = true
 stream = ExtResource("29_regtl")
 
-[node name="ErrorSound" type="AudioStreamPlayer" parent="."]
+[node name="ErrorSound" type="AudioStreamPlayer" parent="SoundLibrary"]
 unique_name_in_owner = true
 stream = ExtResource("30_mo20p")
 
-[node name="ZoneOnSound" type="AudioStreamPlayer" parent="."]
+[node name="ZoneOnSound" type="AudioStreamPlayer" parent="SoundLibrary"]
 unique_name_in_owner = true
 stream = ExtResource("31_yh2xe")
 
-[node name="ZoneOffSound" type="AudioStreamPlayer" parent="."]
+[node name="ZoneOffSound" type="AudioStreamPlayer" parent="SoundLibrary"]
 unique_name_in_owner = true
 stream = ExtResource("32_e2hk2")
 
@@ -400,17 +402,17 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateCellUpdated" from="State/Root/Active/Idle/OnCursorEnteredCell" to="." method="OnIdleCursorEnteredCell"]
 [connection signal="Updated" from="State/Root/Active/Idle/OnPointerStopped" to="." method="OnIdlePointerStopped"]
 [connection signal="Taken" from="State/Root/Active/Idle/ToSelected" to="." method="OnIdleToSelectedTaken"]
-[connection signal="Taken" from="State/Root/Active/Idle/ToSelected" to="SelectSound" method="play" binds= [0.0]]
+[connection signal="Taken" from="State/Root/Active/Idle/ToSelected" to="SoundLibrary/SelectSound" method="play" binds= [0.0]]
 [connection signal="StateEntered" from="State/Root/Active/UnitSelected" to="." method="OnSelectedEntered"]
 [connection signal="StateExited" from="State/Root/Active/UnitSelected" to="." method="OnSelectedExited"]
 [connection signal="StateCellUpdated" from="State/Root/Active/UnitSelected/OnCursorMoved" to="." method="OnSelectedCursorMoved"]
 [connection signal="StateCellUpdated" from="State/Root/Active/UnitSelected/OnCellSelected" to="." method="OnSelectedCellSelected"]
 [connection signal="Taken" from="State/Root/Active/UnitSelected/ToMoving" to="." method="OnDestinationChosen"]
-[connection signal="Taken" from="State/Root/Active/UnitSelected/ToMoving" to="SelectSound" method="play" binds= [0.0]]
+[connection signal="Taken" from="State/Root/Active/UnitSelected/ToMoving" to="SoundLibrary/SelectSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/Active/UnitSelected/ToIdle" to="." method="OnSelectedToIdleTaken"]
-[connection signal="Taken" from="State/Root/Active/UnitSelected/ToIdle" to="CancelSound" method="play" binds= [0.0]]
+[connection signal="Taken" from="State/Root/Active/UnitSelected/ToIdle" to="SoundLibrary/CancelSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/Active/UnitSelected/ToIdleOnCancel" to="." method="OnSelectedCanceled"]
-[connection signal="Taken" from="State/Root/Active/UnitSelected/ToIdleOnCancel" to="CancelSound" method="play" binds= [0.0]]
+[connection signal="Taken" from="State/Root/Active/UnitSelected/ToIdleOnCancel" to="SoundLibrary/CancelSound" method="play" binds= [0.0]]
 [connection signal="StateEntered" from="State/Root/Active/UnitMoving" to="." method="OnMovingEntered"]
 [connection signal="StateExited" from="State/Root/Active/UnitMoving" to="." method="OnMovingExited"]
 [connection signal="StateInput" from="State/Root/Active/UnitMoving/OnInput" to="." method="OnMovingInput"]
@@ -419,7 +421,7 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateCellUpdated" from="State/Root/Active/UnitTargeting/OnCellSelected" to="." method="OnTargetingCellSelected"]
 [connection signal="StateInput" from="State/Root/Active/UnitTargeting/OnInput" to="." method="OnTargetingInput"]
 [connection signal="Taken" from="State/Root/Active/UnitTargeting/ToSelected" to="." method="OnTargetingCanceled"]
-[connection signal="Taken" from="State/Root/Active/UnitTargeting/ToSelected" to="CancelSound" method="play" binds= [0.0]]
+[connection signal="Taken" from="State/Root/Active/UnitTargeting/ToSelected" to="SoundLibrary/CancelSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/Active/UnitTargeting/ToCombat" to="." method="OnTargetingExited"]
 [connection signal="StateEntered" from="State/Root/Active/InCombat" to="." method="OnCombatEntered"]
 [connection signal="StateExited" from="State/Root/Active/InCombat" to="." method="OnCombatExited"]
