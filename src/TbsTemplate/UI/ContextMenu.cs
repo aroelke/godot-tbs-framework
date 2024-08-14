@@ -42,12 +42,26 @@ public partial class ContextMenu : NinePatchRect
 
     [Export] public bool Wrap = true;
 
+    [Export] public int DefaultFocus = 0;
+
     [OnInstantiate]
     public void Initialize(IEnumerable<StringName> options, bool wrap)
     {
         Options = [.. options];
         Wrap = wrap;
     }
+
+    /// <inheritdoc cref="Control.GrabFocus"/>
+    /// <param name="option">Option corresponding to the button to focus on.</param>
+    public void GrabFocus(StringName option) => _items[option].GrabFocus();
+
+    /// <inheritdoc cref="Control.GrabFocus"/>
+    /// <param name="index">Index of the button to focus on.</param>
+    public void GrabFocus(int index) => _items[_options[index]].GrabFocus();
+
+    /// <inheritdoc cref="Control.GrabFocus"/>
+    /// <remarks>Grabs focus of the button at index <see cref="DefaultFocus"/></remarks>
+    public new void GrabFocus() => GrabFocus(DefaultFocus);
 
     public override void _Ready()
     {
