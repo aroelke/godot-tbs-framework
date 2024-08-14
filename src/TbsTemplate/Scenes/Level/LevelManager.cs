@@ -393,6 +393,71 @@ public partial class LevelManager : Node
         Cursor.Resume();
     }
 #endregion
+#region Unit Commanding State
+    private ContextMenu _commandMenu = null;
+
+    public void OnCommandingEntered()
+    {
+        // Show the unit's attack/support ranges
+        ActionRanges actionable = new(
+            _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false),
+            _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false)
+        );
+        ActionOverlay.UsedCells = actionable.ToDictionary();
+
+        List<StringName> options = [];
+        if (!actionable.Attackable.IsEmpty || !actionable.Supportable.IsEmpty)
+            options.Add("Attack");
+        options.Add("End");
+        options.Add("Cancel");
+        _commandMenu = ContextMenu.Instantiate(options, true);
+        UserInterface.AddChild(_commandMenu);
+        _commandMenu.Position = GetViewport().GetVisibleRect().Size/2;
+        if (!actionable.Attackable.IsEmpty || !actionable.Supportable.IsEmpty)
+            _commandMenu["Attack"].Pressed += () => State.SendEvent(SelectEvent);
+        _commandMenu["End"].Pressed += () => State.SendEvent(SkipEvent);
+        _commandMenu["Cancel"].Pressed += () => State.SendEvent(CancelEvent);
+        Callable.From(_commandMenu.GrabFocus).CallDeferred();
+
+        Cursor.Halt(hide:true);
+        Pointer.StartWaiting(hide:false);
+        _prevCameraTarget = Camera.Target;
+        Camera.Target = null;
+    }
+
+    /// <summary>Move the selected <see cref="Unit"/> and <see cref="Object.Cursor"/> back to the cell the unit was at before it moved.</summary>
+    public void OnCommandingCanceled()
+    {
+        ActionOverlay.Clear();
+
+        // Move the selected unit back to its original cell
+        Grid.Occupants.Remove(_selected.Cell);
+        _selected.Cell = _initialCell.Value;
+        _selected.Position = Grid.PositionOf(_selected.Cell);
+        Grid.Occupants[_selected.Cell] = _selected;
+        _initialCell = null;
+        Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(_selected.Cell);
+
+        _target = null;
+        UpdateDangerZones();
+    }
+
+    public void OnTurnEndCommand()
+    {
+        _target = null;
+        ActionOverlay.Clear();
+    }
+
+    public void OnCommandingExited()
+    {
+        _commandMenu.QueueFree();
+        _commandMenu = null;
+        Cursor.Resume();
+        Pointer.StopWaiting();
+        Camera.Target = _prevCameraTarget;
+        _prevCameraTarget = null;
+    }
+#endregion
 #region Targeting State
     private ImmutableList<CombatAction> _combatResults = null;
 
@@ -403,7 +468,6 @@ public partial class LevelManager : Node
             _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false),
             _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false)
         );
-        ActionOverlay.UsedCells = actionable.ToDictionary();
 
         // Restrict cursor movement to actionable cells
         if (_target is null)
@@ -439,21 +503,6 @@ public partial class LevelManager : Node
             if (cells.Length > 1)
                 Cursor.Cell = cells[(Array.IndexOf(cells, Cursor.Cell) + next + cells.Length) % cells.Length];
         }
-    }
-
-    /// <summary>Move the selected <see cref="Unit"/> and <see cref="Object.Cursor"/> back to the cell the unit was at before it moved.</summary>
-    public void OnTargetingCanceled()
-    {
-        // Move the selected unit back to its original cell
-        Grid.Occupants.Remove(_selected.Cell);
-        _selected.Cell = _initialCell.Value;
-        _selected.Position = Grid.PositionOf(_selected.Cell);
-        Grid.Occupants[_selected.Cell] = _selected;
-        _initialCell = null;
-        Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(_selected.Cell);
-
-        _target = null;
-        UpdateDangerZones();
     }
 
     /// <summary>If a target is selected, begin combat fighting that target.  Otherwise, just end the selected <see cref="Unit"/>'s turn.</summary>

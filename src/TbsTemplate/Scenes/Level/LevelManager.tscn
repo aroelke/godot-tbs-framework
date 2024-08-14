@@ -1,4 +1,4 @@
-[gd_scene load_steps=55 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=58 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DBrain.tscn" id="3_td8u6"]
@@ -32,7 +32,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = 1729619922
+seed = 1913687681
 
 [sub_resource type="Resource" id="Resource_umt67"]
 script = ExtResource("24_k1nop")
@@ -104,6 +104,15 @@ script = ExtResource("24_k1nop")
 [sub_resource type="Resource" id="Resource_6a6ww"]
 script = ExtResource("24_k1nop")
 
+[sub_resource type="Resource" id="Resource_elnl0"]
+script = ExtResource("24_k1nop")
+
+[sub_resource type="Resource" id="Resource_pkle5"]
+script = ExtResource("24_k1nop")
+
+[sub_resource type="Resource" id="Resource_f4uyk"]
+script = ExtResource("24_k1nop")
+
 [sub_resource type="Resource" id="Resource_0j1nf"]
 script = ExtResource("24_k1nop")
 
@@ -170,6 +179,7 @@ DebugColor = Color(0, 0, 0, 0)
 unique_name_in_owner = true
 
 [node name="UserInterface" type="CanvasLayer" parent="."]
+unique_name_in_owner = true
 
 [node name="HUD" type="Control" parent="UserInterface"]
 layout_mode = 3
@@ -203,14 +213,12 @@ layout_mode = 2
 
 [node name="SelectHint" parent="UserInterface/HUD/Hints" instance=ExtResource("10_dfuji")]
 layout_mode = 2
-Action = &"select"
 Description = "Select"
 
 [node name="CancelHint" parent="UserInterface/HUD/Hints" instance=ExtResource("10_dfuji")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-Action = &"cancel"
 Description = "Cancel"
 
 [node name="StateInspector" parent="UserInterface" node_paths=PackedStringArray("StateChart") instance=ExtResource("17_gyc8t")]
@@ -295,8 +303,8 @@ process_mode = 4
 
 [node name="OnInput" parent="State/Root/Active/UnitMoving" instance=ExtResource("23_nnivc")]
 
-[node name="ToTargeting" parent="State/Root/Active/UnitMoving" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../UnitTargeting")
+[node name="ToCommanding" parent="State/Root/Active/UnitMoving" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../UnitCommanding")
 Event = &"done"
 Condition = SubResource("Resource_t07e7")
 
@@ -305,6 +313,24 @@ To = NodePath("../../InCombat")
 Event = &"skip"
 Condition = SubResource("Resource_6a6ww")
 
+[node name="UnitCommanding" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
+process_mode = 4
+
+[node name="ToTargeting" parent="State/Root/Active/UnitCommanding" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../UnitTargeting")
+Event = &"select"
+Condition = SubResource("Resource_elnl0")
+
+[node name="ToSelected" parent="State/Root/Active/UnitCommanding" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../UnitSelected")
+Event = &"cancel"
+Condition = SubResource("Resource_pkle5")
+
+[node name="ToAdvancing" parent="State/Root/Active/UnitCommanding" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../TurnAdvancing")
+Event = &"skip"
+Condition = SubResource("Resource_f4uyk")
+
 [node name="UnitTargeting" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
@@ -312,8 +338,8 @@ process_mode = 4
 
 [node name="OnInput" parent="State/Root/Active/UnitTargeting" instance=ExtResource("23_nnivc")]
 
-[node name="ToSelected" parent="State/Root/Active/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../UnitSelected")
+[node name="ToCommanding" parent="State/Root/Active/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../UnitCommanding")
 Event = &"cancel"
 Condition = SubResource("Resource_f7pbh")
 
@@ -416,12 +442,15 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateEntered" from="State/Root/Active/UnitMoving" to="." method="OnMovingEntered"]
 [connection signal="StateExited" from="State/Root/Active/UnitMoving" to="." method="OnMovingExited"]
 [connection signal="StateInput" from="State/Root/Active/UnitMoving/OnInput" to="." method="OnMovingInput"]
+[connection signal="StateEntered" from="State/Root/Active/UnitCommanding" to="." method="OnCommandingEntered"]
+[connection signal="StateExited" from="State/Root/Active/UnitCommanding" to="." method="OnCommandingExited"]
+[connection signal="Taken" from="State/Root/Active/UnitCommanding/ToSelected" to="." method="OnCommandingCanceled"]
+[connection signal="Taken" from="State/Root/Active/UnitCommanding/ToAdvancing" to="." method="OnTurnEndCommand"]
 [connection signal="StateEntered" from="State/Root/Active/UnitTargeting" to="." method="OnTargetingEntered"]
 [connection signal="StateExited" from="State/Root/Active/UnitTargeting" to="." method="OnTargetingExited"]
 [connection signal="StateCellUpdated" from="State/Root/Active/UnitTargeting/OnCellSelected" to="." method="OnTargetingCellSelected"]
 [connection signal="StateInput" from="State/Root/Active/UnitTargeting/OnInput" to="." method="OnTargetingInput"]
-[connection signal="Taken" from="State/Root/Active/UnitTargeting/ToSelected" to="." method="OnTargetingCanceled"]
-[connection signal="Taken" from="State/Root/Active/UnitTargeting/ToSelected" to="SoundLibrary/CancelSound" method="play" binds= [0.0]]
+[connection signal="Taken" from="State/Root/Active/UnitTargeting/ToCommanding" to="SoundLibrary/CancelSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/Active/UnitTargeting/ToCombat" to="." method="OnTargetingExited"]
 [connection signal="StateEntered" from="State/Root/Active/InCombat" to="." method="OnCombatEntered"]
 [connection signal="StateExited" from="State/Root/Active/InCombat" to="." method="OnCombatExited"]
