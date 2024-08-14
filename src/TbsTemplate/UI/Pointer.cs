@@ -133,8 +133,14 @@ public partial class Pointer : BoundedNode2D
         };
     }
 
-    /// <summary>Disable input and wait for an event to complete, hiding the mouse while doing so.</summary>
-    public void StartWaiting() => ControlState.SendEvent(WaitEvent);
+    /// <summary>Disable input and wait for an event to complete.</summary>
+    /// <param name="hide">Whether or not to hide the mouse while waiting.</param>
+    public void StartWaiting(bool hide=true)
+    {
+        if (hide)
+            Input.MouseMode = Input.MouseModeEnum.Hidden;
+        ControlState.SendEvent(WaitEvent);
+    }
 
     /// <summary>Re-enable input.</summary>
     public void StopWaiting() => ControlState.SendEvent(DoneEvent);
@@ -228,11 +234,7 @@ public partial class Pointer : BoundedNode2D
     /// When entering the waiting state, hide the mouse for the duration of the wait. Its visibility will be restored automatically by the state it
     /// returns to.
     /// </summary>
-    public void OnWaitingEntered()
-    {
-        Mouse.Visible = false;
-        Input.MouseMode = Input.MouseModeEnum.Hidden;
-    }
+    public void OnWaitingEntered() => Mouse.Visible = false;
 
     /// <summary>When the mouse enters the <see cref="Viewport"/>, warp to its entry position.</summary>
     /// <param name="position">Position the mouse entered the <see cref="Viewport"/> on.</param>

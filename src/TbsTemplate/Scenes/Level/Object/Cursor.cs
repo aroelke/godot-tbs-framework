@@ -108,11 +108,20 @@ public partial class Cursor : GridNode
         }
     }
 
-    /// <summary>Disable cursor movement, but keep it visible.</summary>
-    public void Halt() => _halted = true;
+    /// <summary>Disable cursor movement.</summary>
+    /// <param name="visible">Whether or not to hide the cursor while it's halted.</param>
+    public void Halt(bool hide=false)
+    {
+        _halted = true;
+        Visible = !hide;
+    }
 
     /// <summary>Re-enable cursor movement.</summary>
-    public void Resume() => _halted = false;
+    public void Resume()
+    {
+        _halted = false;
+        Visible = true;
+    }
 
     /// <summary>When a direction is pressed, move the cursor to the adjacent cell there and signal that the cell has been entered.</summary>
     /// <param name="direction">Direction that was pressed.</param>
