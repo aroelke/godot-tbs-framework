@@ -101,7 +101,6 @@ public partial class Pointer : BoundedNode2D
     {
         if (Position != position)
         {
-            ControlState.SendEvent(DoneEvent);
             Position = position;
             EmitSignal(SignalName.PointerMoved, Position);
         }
@@ -202,7 +201,10 @@ public partial class Pointer : BoundedNode2D
     public void OnMouseStateProcess(double delta)
     {
         if (Position != ViewportToWorld(InputManager.GetMousePosition()))
+        {
+            ControlState.SendEvent(DoneEvent);
             Warp(ViewportToWorld(InputManager.GetMousePosition()));
+        }
     }
 
     /// <summary>
