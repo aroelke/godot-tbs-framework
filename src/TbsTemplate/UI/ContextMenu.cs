@@ -12,6 +12,17 @@ public partial class ContextMenu : NinePatchRect
     private StringName[] _options = [];
     private readonly Dictionary<StringName, Button> _items = [];
 
+    private void UpdateItems()
+    {
+        if (Items is not null)
+        {
+            foreach (Button child in Items.GetChildren().OfType<Button>())
+                child.QueueFree();
+            foreach (StringName option in _options)
+                Items.AddChild(_items[option] = new() { Text = option });
+        }
+    }
+
     public Button this[StringName option] => _items[option];
 
     [Export] public StringName[] Options
@@ -19,15 +30,12 @@ public partial class ContextMenu : NinePatchRect
         get => _options;
         private set
         {
-            if (Engine.IsEditorHint() && _options != value)
+            if (_options != value)
             {
                 _options = value;
                 _items.Clear();
-
-                foreach (Button child in Items.GetChildren().OfType<Button>())
-                    child.QueueFree();
-                foreach (StringName option in _options)
-                    Items.AddChild(_items[option] = new() { Text = option });
+                if (Engine.IsEditorHint())
+                    UpdateItems();
             }
         }
     }
@@ -35,9 +43,10 @@ public partial class ContextMenu : NinePatchRect
     [Export] public bool Wrap = true;
 
     [OnInstantiate]
-    public void Initialize(IOrderedEnumerable<StringName> options)
+    public void Initialize(IEnumerable<StringName> options, bool wrap)
     {
         Options = [.. options];
+        Wrap = wrap;
     }
 
     public override void _Ready()
@@ -46,23 +55,27 @@ public partial class ContextMenu : NinePatchRect
 
         if (!Engine.IsEditorHint())
         {
+            UpdateItems();
+
             for (int i = 0; i < _options.Length; i++)
             {
-                _items[_options[i]].Pressed += () => EmitSignal(SignalName.ItemSelected, _options[i]);
+                StringName option = _options[i];
 
-                _items[_options[i]].FocusPrevious = GetPathTo(_items[_options[(i - 1 + _options.Length) % _options.Length]], useUniquePath:true);
-                _items[_options[i]].FocusNext = GetPathTo(_items[_options[(i + 1) % _options.Length]], useUniquePath:true);
+                _items[option].Pressed += () => EmitSignal(SignalName.ItemSelected, option);
+
+                _items[option].FocusPrevious = GetPathTo(_items[_options[(i - 1 + _options.Length) % _options.Length]], useUniquePath:true);
+                _items[option].FocusNext = GetPathTo(_items[_options[(i + 1) % _options.Length]], useUniquePath:true);
                 if (Wrap)
                 {
-                    _items[_options[i]].FocusNeighborTop = _items[_options[i]].FocusPrevious;
-                    _items[_options[i]].FocusNeighborBottom = _items[_options[i]].FocusNext;
+                    _items[option].FocusNeighborTop = _items[option].FocusPrevious;
+                    _items[option].FocusNeighborBottom = _items[option].FocusNext;
                 }
                 else
                 {
                     if (i > 0)
-                        _items[_options[i]].FocusNeighborTop = GetPathTo(_items[_options[i - 1]], useUniquePath:true);
+                        _items[option].FocusNeighborTop = GetPathTo(_items[_options[i - 1]], useUniquePath:true);
                     if (i < _options.Length - 1)
-                        _items[_options[i]].FocusNeighborBottom = GetPathTo(_items[_options[i + 1]], useUniquePath:true);
+                        _items[option].FocusNeighborBottom = GetPathTo(_items[_options[i + 1]], useUniquePath:true);
                 }
             }
         }
