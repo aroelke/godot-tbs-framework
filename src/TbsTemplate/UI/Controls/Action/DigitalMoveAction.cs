@@ -99,9 +99,9 @@ public partial class DigitalMoveAction : Node
         _process = EchoInterval < 1.0/Engine.PhysicsTicksPerSecond;
     }
 
-    public override void _UnhandledInput(InputEvent @event)
+    public override void _Input(InputEvent @event)
     {
-        base._UnhandledInput(@event);
+        base._Input(@event);
 
         if (@event.IsActionPressed(InputActions.Accelerate) && !IsEchoing())
             _skip = true;
