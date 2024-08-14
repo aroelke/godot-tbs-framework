@@ -5,7 +5,7 @@ using Godot;
 namespace TbsTemplate.UI;
 
 [SceneTree, Tool]
-public partial class ContextMenu : NinePatchRect
+public partial class ContextMenu : PanelContainer
 {
     [Signal] public delegate void ItemSelectedEventHandler(StringName item);
 
