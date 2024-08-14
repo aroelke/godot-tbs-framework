@@ -396,6 +396,16 @@ public partial class LevelManager : Node
 #region Unit Commanding State
     private ContextMenu _commandMenu = null;
 
+    private Vector2 MenuPosition(Vector2I cell)
+    {
+        Rect2 viewportRect = Grid.GetGlobalTransformWithCanvas()*Grid.CellRect(cell);
+        float viewportCenter = GetViewport().GetVisibleRect().Position.X + GetViewport().GetVisibleRect().Size.X/2;
+        return new(
+            viewportCenter - viewportRect.Position.X < viewportRect.Size.X/2 ? viewportRect.Position.X - _commandMenu.Size.X : viewportRect.End.X,
+            Mathf.Clamp(viewportRect.Position.Y - (_commandMenu.Size.Y - viewportRect.Size.Y)/2, 0, GetViewport().GetVisibleRect().Size.Y - _commandMenu.Size.Y)
+        );
+    }
+
     public void OnCommandingEntered()
     {
         // Show the unit's attack/support ranges
@@ -412,7 +422,7 @@ public partial class LevelManager : Node
         options.Add("Cancel");
         _commandMenu = ContextMenu.Instantiate(options, true);
         UserInterface.AddChild(_commandMenu);
-        _commandMenu.Position = GetViewport().GetVisibleRect().Size/2;
+        _commandMenu.Visible = false;
         if (!actionable.Attackable.IsEmpty || !actionable.Supportable.IsEmpty)
             _commandMenu["Attack"].Pressed += () => State.SendEvent(SelectEvent);
         _commandMenu["End"].Pressed += () => State.SendEvent(SkipEvent);
@@ -423,6 +433,13 @@ public partial class LevelManager : Node
         Pointer.StartWaiting(hide:false);
         _prevCameraTarget = Camera.Target;
         Camera.Target = null;
+    }
+
+    public void OnCommandingProcess(float delta)
+    {
+        if (!_commandMenu.Visible && _commandMenu.Size != Vector2.Zero)
+            _commandMenu.Visible = true;
+        _commandMenu.Position = MenuPosition(_selected.Cell);
     }
 
     /// <summary>Move the selected <see cref="Unit"/> and <see cref="Object.Cursor"/> back to the cell the unit was at before it moved.</summary>
