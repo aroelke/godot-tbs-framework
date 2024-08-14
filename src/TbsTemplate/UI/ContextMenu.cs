@@ -63,8 +63,8 @@ public partial class ContextMenu : NinePatchRect
 
                 _items[option].Pressed += () => EmitSignal(SignalName.ItemSelected, option);
 
-                _items[option].FocusPrevious = GetPathTo(_items[_options[(i - 1 + _options.Length) % _options.Length]], useUniquePath:true);
-                _items[option].FocusNext = GetPathTo(_items[_options[(i + 1) % _options.Length]], useUniquePath:true);
+                _items[option].FocusPrevious = _items[_options[(i - 1 + _options.Length) % _options.Length]].GetPath();
+                _items[option].FocusNext = _items[_options[(i + 1) % _options.Length]].GetPath();
                 if (Wrap)
                 {
                     _items[option].FocusNeighborTop = _items[option].FocusPrevious;
@@ -73,9 +73,9 @@ public partial class ContextMenu : NinePatchRect
                 else
                 {
                     if (i > 0)
-                        _items[option].FocusNeighborTop = GetPathTo(_items[_options[i - 1]], useUniquePath:true);
+                        _items[option].FocusNeighborTop = _items[_options[i - 1]].GetPath();
                     if (i < _options.Length - 1)
-                        _items[option].FocusNeighborBottom = GetPathTo(_items[_options[i + 1]], useUniquePath:true);
+                        _items[option].FocusNeighborBottom = _items[_options[i + 1]].GetPath();
                 }
             }
         }
