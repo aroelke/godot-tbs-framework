@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using TbsTemplate.UI.Controls.Device;
 
@@ -29,6 +31,17 @@ public partial class DigitalMoveAction : Node
         Convert.ToInt32(pressed(InputActions.DigitalMoveDown)) - Convert.ToInt32(pressed(InputActions.DigitalMoveUp))
     );
 
+    private static Vector2I ActionVector(Dictionary<StringName, bool> actions) => new(
+        Convert.ToInt32(actions[InputActions.DigitalMoveRight]) - Convert.ToInt32(actions[InputActions.DigitalMoveLeft]),
+        Convert.ToInt32(actions[InputActions.DigitalMoveDown]) - Convert.ToInt32(actions[InputActions.DigitalMoveUp])
+    );
+
+    private Dictionary<StringName, bool> _held = new() {
+        { InputActions.DigitalMoveUp,    false },
+        { InputActions.DigitalMoveLeft,  false },
+        { InputActions.DigitalMoveDown,  false },
+        { InputActions.DigitalMoveRight, false }
+    };
     private Vector2I _direction = Vector2I.Zero;
     private bool _process = false;
     private bool _echoing = false;
@@ -99,38 +112,48 @@ public partial class DigitalMoveAction : Node
         _process = EchoInterval < 1.0/Engine.PhysicsTicksPerSecond;
     }
 
-    public override void _Input(InputEvent @event)
+    public override void _UnhandledInput(InputEvent @event)
     {
-        base._Input(@event);
+        base._UnhandledInput(@event);
 
         if (@event.IsActionPressed(InputActions.Accelerate) && !IsEchoing())
             _skip = true;
         else if (@event.IsActionReleased(InputActions.Accelerate))
             _skip = false;
 
-        Vector2I prev = _direction;
+        Dictionary<StringName, bool> pressed = new() {
+            { InputActions.DigitalMoveUp,    @event.IsActionPressed(InputActions.DigitalMoveUp) },
+            { InputActions.DigitalMoveLeft,  @event.IsActionPressed(InputActions.DigitalMoveLeft) },
+            { InputActions.DigitalMoveDown,  @event.IsActionPressed(InputActions.DigitalMoveDown) },
+            { InputActions.DigitalMoveRight, @event.IsActionPressed(InputActions.DigitalMoveRight) }
+        };
+        Dictionary<StringName, bool> released = new() {
+            { InputActions.DigitalMoveUp,    @event.IsActionReleased(InputActions.DigitalMoveUp) },
+            { InputActions.DigitalMoveLeft,  @event.IsActionReleased(InputActions.DigitalMoveLeft) },
+            { InputActions.DigitalMoveDown,  @event.IsActionReleased(InputActions.DigitalMoveDown) },
+            { InputActions.DigitalMoveRight, @event.IsActionReleased(InputActions.DigitalMoveRight) }
+        };
 
-        Vector2I pressed = ActionVector((n) => @event.IsActionPressed(n));
-        Vector2I released = ActionVector((n) => @event.IsActionReleased(n));
-        _direction += pressed - released;
-
-        if (_skip)
+        if (pressed.Values.Any((v) => v) || released.Values.Any((v) => v))
         {
-            if (pressed != Vector2I.Zero && _direction != Vector2I.Zero && !@event.IsEcho())
-                EmitSignal(SignalName.Skip, _direction);
-        }
-        else
-        {
-            if (pressed != Vector2I.Zero)
-                EmitSignal(SignalName.DirectionPressed, pressed);
-            if (released != Vector2I.Zero)
-                EmitSignal(SignalName.DirectionReleased, released);
+            foreach (StringName action in _held.Keys)
+                _held[action] = (_held[action] || pressed[action]) && !released[action];
+            _direction = ActionVector(_held);
 
-            if (prev != _direction)
+            if (_skip)
             {
+                if (_direction != Vector2I.Zero && !@event.IsEcho())
+                    EmitSignal(SignalName.Skip, _direction);
+            }
+            else
+            {
+                if (pressed.Values.Any((v) => v))
+                    EmitSignal(SignalName.DirectionPressed, ActionVector(pressed));
+                if (released.Values.Any((v) => v))
+                    EmitSignal(SignalName.DirectionReleased, ActionVector(released));
+
                 EchoTimer.Stop();
                 _echoing = false;
-
                 if (_direction != Vector2I.Zero)
                     EchoTimer.Start(EchoDelay);
             }
