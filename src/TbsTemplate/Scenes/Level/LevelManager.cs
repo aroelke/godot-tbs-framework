@@ -427,7 +427,6 @@ public partial class LevelManager : Node
             _commandMenu["Attack"].Pressed += () => State.SendEvent(SelectEvent);
         _commandMenu["End"].Pressed += () => State.SendEvent(SkipEvent);
         _commandMenu["Cancel"].Pressed += () => State.SendEvent(CancelEvent);
-        Callable.From(_commandMenu.GrabFocus).CallDeferred();
 
         Cursor.Halt(hide:true);
         Pointer.StartWaiting(hide:false);
@@ -438,7 +437,10 @@ public partial class LevelManager : Node
     public void OnCommandingProcess(float delta)
     {
         if (!_commandMenu.Visible && _commandMenu.Size != Vector2.Zero)
+        {
             _commandMenu.Visible = true;
+            _commandMenu.GrabFocus();
+        }
         _commandMenu.Position = MenuPosition(_selected.Cell);
     }
 
