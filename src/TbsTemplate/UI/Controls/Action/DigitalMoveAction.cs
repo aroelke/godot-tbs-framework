@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Godot;
 using TbsTemplate.UI.Controls.Device;
 
@@ -10,6 +8,31 @@ namespace TbsTemplate.UI.Controls.Action;
 [SceneTree]
 public partial class DigitalMoveAction : Node
 {
+    private readonly record struct DirectionBits(bool Up=false, bool Left=false, bool Down=false, bool Right=false)
+    {
+        public static DirectionBits operator~(DirectionBits a) => new(!a.Up, !a.Left, !a.Down, !a.Right);
+        public static DirectionBits operator|(DirectionBits a, DirectionBits b) => new(a.Up || b.Up, a.Left || b.Left, a.Down || b.Down, a.Right || b.Right);
+        public static DirectionBits operator&(DirectionBits a, DirectionBits b) => new(a.Up && b.Up, a.Left && b.Left, a.Down && b.Down, a.Right && b.Right);
+
+        public static DirectionBits FromInputEvent(InputEvent @event, bool pressed=true) => new(
+            pressed ? @event.IsActionPressed(InputActions.DigitalMoveUp)    : @event.IsActionReleased(InputActions.DigitalMoveUp),
+            pressed ? @event.IsActionPressed(InputActions.DigitalMoveLeft)  : @event.IsActionReleased(InputActions.DigitalMoveLeft),
+            pressed ? @event.IsActionPressed(InputActions.DigitalMoveDown)  : @event.IsActionReleased(InputActions.DigitalMoveDown),
+            pressed ? @event.IsActionPressed(InputActions.DigitalMoveRight) : @event.IsActionReleased(InputActions.DigitalMoveRight)
+        );
+
+        public static DirectionBits FromInput(Func<StringName, bool, bool> @event, bool exactMatch=false) => new(
+            @event(InputActions.DigitalMoveUp, exactMatch),
+            @event(InputActions.DigitalMoveLeft, exactMatch),
+            @event(InputActions.DigitalMoveDown, exactMatch),
+            @event(InputActions.DigitalMoveRight, exactMatch)
+        );
+
+        public bool Any() => Up || Left || Down || Right;
+
+        public Vector2I GetVector() => new(Convert.ToInt32(Right) - Convert.ToInt32(Left), Convert.ToInt32(Down) - Convert.ToInt32(Up));
+    }
+
     /// <summary>Signals that a new direction has been pressed.</summary>
     /// <param name="direction">Direction that was pressed.</param>
     [Signal] public delegate void DirectionPressedEventHandler(Vector2I direction);
@@ -26,29 +49,13 @@ public partial class DigitalMoveAction : Node
     /// <param name="direction">Direction to skip in.</param>
     [Signal] public delegate void SkipEventHandler(Vector2I direction);
 
-    private static Vector2I ActionVector(Predicate<StringName> pressed) => new(
-        Convert.ToInt32(pressed(InputActions.DigitalMoveRight)) - Convert.ToInt32(pressed(InputActions.DigitalMoveLeft)),
-        Convert.ToInt32(pressed(InputActions.DigitalMoveDown)) - Convert.ToInt32(pressed(InputActions.DigitalMoveUp))
-    );
-
-    private static Vector2I ActionVector(Dictionary<StringName, bool> actions) => new(
-        Convert.ToInt32(actions[InputActions.DigitalMoveRight]) - Convert.ToInt32(actions[InputActions.DigitalMoveLeft]),
-        Convert.ToInt32(actions[InputActions.DigitalMoveDown]) - Convert.ToInt32(actions[InputActions.DigitalMoveUp])
-    );
-
-    private Dictionary<StringName, bool> _held = new() {
-        { InputActions.DigitalMoveUp,    false },
-        { InputActions.DigitalMoveLeft,  false },
-        { InputActions.DigitalMoveDown,  false },
-        { InputActions.DigitalMoveRight, false }
-    };
-    private Vector2I _direction = Vector2I.Zero;
+    private DirectionBits _held = new();
     private bool _process = false;
     private bool _echoing = false;
     private bool _reset = false;
     private bool _skip = false;
 
-    private bool IsEchoing() => !_skip && _direction != Vector2I.Zero;
+    private bool IsEchoing() => !_skip && _held.Any();
 
     /// <summary>Initial delay after pressing a button to begin echoing the input.</summary>
     [Export] public double EchoDelay = 0.3;
@@ -77,7 +84,7 @@ public partial class DigitalMoveAction : Node
         }
         else
         {
-            EmitSignal(SignalName.DirectionEchoed, _direction);
+            EmitSignal(SignalName.DirectionEchoed, _held.GetVector());
             if (_process)
                 _echoing = true;
             else
@@ -89,13 +96,13 @@ public partial class DigitalMoveAction : Node
     {
         base._EnterTree();
 
-        _direction = ActionVector(static (n) => Input.IsActionPressed(n));
-        if (_direction != Vector2I.Zero)
+        _held = DirectionBits.FromInput(Input.IsActionPressed);
+        if (_held.Any())
         {
             Callable.From<Vector2I>((d) => {
                 EmitSignal(SignalName.DirectionPressed, d);
                 EchoTimer.Start(EchoInterval);
-            }).CallDeferred(_direction);
+            }).CallDeferred(_held.GetVector());
         }
     }
 
@@ -103,7 +110,7 @@ public partial class DigitalMoveAction : Node
     {
         base._ExitTree();
         EchoTimer.Stop();
-        _direction = Vector2I.Zero;
+        _held = new();
     }
 
     public override void _Ready()
@@ -121,40 +128,28 @@ public partial class DigitalMoveAction : Node
         else if (@event.IsActionReleased(InputActions.Accelerate))
             _skip = false;
 
-        Dictionary<StringName, bool> pressed = new() {
-            { InputActions.DigitalMoveUp,    @event.IsActionPressed(InputActions.DigitalMoveUp) },
-            { InputActions.DigitalMoveLeft,  @event.IsActionPressed(InputActions.DigitalMoveLeft) },
-            { InputActions.DigitalMoveDown,  @event.IsActionPressed(InputActions.DigitalMoveDown) },
-            { InputActions.DigitalMoveRight, @event.IsActionPressed(InputActions.DigitalMoveRight) }
-        };
-        Dictionary<StringName, bool> released = new() {
-            { InputActions.DigitalMoveUp,    @event.IsActionReleased(InputActions.DigitalMoveUp) },
-            { InputActions.DigitalMoveLeft,  @event.IsActionReleased(InputActions.DigitalMoveLeft) },
-            { InputActions.DigitalMoveDown,  @event.IsActionReleased(InputActions.DigitalMoveDown) },
-            { InputActions.DigitalMoveRight, @event.IsActionReleased(InputActions.DigitalMoveRight) }
-        };
+        DirectionBits pressed = DirectionBits.FromInputEvent(@event, true);
+        DirectionBits released = DirectionBits.FromInputEvent(@event, false);
 
-        if (pressed.Values.Any((v) => v) || released.Values.Any((v) => v))
+        if (pressed.Any() || released.Any())
         {
-            foreach (StringName action in _held.Keys)
-                _held[action] = (_held[action] || pressed[action]) && !released[action];
-            _direction = ActionVector(_held);
+            _held = (_held | pressed) & ~released;
 
             if (_skip)
             {
-                if (_direction != Vector2I.Zero && !@event.IsEcho())
-                    EmitSignal(SignalName.Skip, _direction);
+                if (_held.Any() && !@event.IsEcho())
+                    EmitSignal(SignalName.Skip, _held.GetVector());
             }
             else
             {
-                if (pressed.Values.Any((v) => v))
-                    EmitSignal(SignalName.DirectionPressed, ActionVector(pressed));
-                if (released.Values.Any((v) => v))
-                    EmitSignal(SignalName.DirectionReleased, ActionVector(released));
+                if (pressed.Any())
+                    EmitSignal(SignalName.DirectionPressed, pressed.GetVector());
+                if (released.Any())
+                    EmitSignal(SignalName.DirectionReleased, released.GetVector());
 
                 EchoTimer.Stop();
                 _echoing = false;
-                if (_direction != Vector2I.Zero)
+                if (_held.Any())
                     EchoTimer.Start(EchoDelay);
             }
         }
@@ -164,6 +159,6 @@ public partial class DigitalMoveAction : Node
     {
         base._PhysicsProcess(delta);
         if (DeviceManager.Mode == InputMode.Digital && _echoing)
-            EmitSignal(SignalName.DirectionEchoed, _direction);
+            EmitSignal(SignalName.DirectionEchoed, _held.GetVector());
     }
 }
