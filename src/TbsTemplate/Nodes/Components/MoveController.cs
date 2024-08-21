@@ -5,7 +5,7 @@ using TbsTemplate.UI.Controls.Action;
 namespace TbsTemplate.Nodes.Components;
 
 /// <summary>Object component that enables the object to be controlled digitally (e.g. with keyboard keys or gamepad buttons).</summary>
-public partial class DigitalMoveAction : Node
+public partial class MoveController : Node
 {
     /// <summary>Signals that a new direction has been pressed.</summary>
     /// <param name="direction">Direction that was pressed.</param>

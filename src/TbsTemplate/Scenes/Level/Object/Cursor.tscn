@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://dhxxyboxchr67" path="res://test/assets/level/ui/cursor.png" id="1_erpak"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Object/Cursor.cs" id="2_ysrq3"]
-[ext_resource type="PackedScene" uid="uid://croni4vvkdn0a" path="res://src/TbsTemplate/Nodes/Components/DigitalMoveAction.tscn" id="3_xkmwu"]
+[ext_resource type="PackedScene" uid="uid://croni4vvkdn0a" path="res://src/TbsTemplate/Nodes/Components/MoveController.tscn" id="3_xkmwu"]
 [ext_resource type="AudioStream" uid="uid://dupekispcuwj8" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Cursor - 5.wav" id="14_7nv3s"]
 
 [node name="Cursor" type="Node2D"]
