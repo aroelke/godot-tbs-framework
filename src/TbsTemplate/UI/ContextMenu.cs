@@ -17,6 +17,7 @@ public partial class ContextMenu : PanelContainer
 
     private StringName[] _options = [];
     private readonly Dictionary<StringName, Button> _items = [];
+    private int _selected = -1;
 
     private void UpdateItems()
     {
@@ -79,6 +80,14 @@ public partial class ContextMenu : PanelContainer
     /// <remarks>Grabs focus of the button at index <see cref="DefaultFocus"/></remarks>
     public new void GrabFocus() => GrabFocus(DefaultFocus);
 
+    public void OnDirectionPressed(Vector2I direction)
+    {
+        int next = 0;
+        if (_selected != -1)
+            next = Wrap ? (_selected + direction.Y + _options.Length) % _options.Length : Mathf.Clamp(_selected + direction.Y, 0, _options.Length - 1);
+        GrabFocus(next);
+    }
+
     public override void _Ready()
     {
         base._Ready();
@@ -86,28 +95,13 @@ public partial class ContextMenu : PanelContainer
         if (!Engine.IsEditorHint())
         {
             UpdateItems();
-
             for (int i = 0; i < _options.Length; i++)
             {
-                StringName option = _options[i];
-
-                _items[option].Pressed += () => EmitSignal(SignalName.ItemSelected, option);
-
-                _items[option].FocusPrevious = _items[_options[(i - 1 + _options.Length) % _options.Length]].GetPath();
-                _items[option].FocusNext = _items[_options[(i + 1) % _options.Length]].GetPath();
-                if (Wrap)
-                {
-                    _items[option].FocusNeighborTop = _items[option].FocusPrevious;
-                    _items[option].FocusNeighborBottom = _items[option].FocusNext;
-                }
-                else
-                {
-                    if (i > 0)
-                        _items[option].FocusNeighborTop = _items[_options[i - 1]].GetPath();
-                    if (i < _options.Length - 1)
-                        _items[option].FocusNeighborBottom = _items[_options[i + 1]].GetPath();
-                }
-            }
+                int index = i;
+                _items[_options[index]].FocusEntered += () => _selected = index;
+                _items[_options[index]].FocusExited += () => _selected = -1;
+                _items[_options[index]].Pressed += () => EmitSignal(SignalName.ItemSelected, _options[index]);
+            }            
         }
     }
 }
