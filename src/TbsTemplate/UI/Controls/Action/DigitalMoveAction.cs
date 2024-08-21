@@ -26,7 +26,6 @@ public partial class DigitalMoveAction : Node
 
     private double _remaining = 0;
     private Vector2I _previous = Vector2I.Zero;
-    private bool _skip = false;
 
     /// <summary>Initial delay after pressing a button to begin echoing the input.</summary>
     [Export] public double EchoDelay = 0.3;
@@ -48,61 +47,39 @@ public partial class DigitalMoveAction : Node
         _previous = Vector2I.Zero;
     }
 
-    public override void _UnhandledInput(InputEvent @event)
-    {
-        base._UnhandledInput(@event);
-
-        if (@event.IsActionPressed(InputActions.Accelerate))
-            _skip = true;
-        else if (@event.IsActionReleased(InputActions.Accelerate))
-        {
-            _skip = false;
-            _previous = Vector2I.Zero;
-            _remaining = EchoDelay;
-        }
-        if (_skip)
-            EmitSignal(SignalName.Skip, new Vector2I(
-                Convert.ToInt32(@event.IsActionPressed(InputActions.DigitalMoveRight)) - Convert.ToInt32(@event.IsActionPressed(InputActions.DigitalMoveLeft)),
-                Convert.ToInt32(@event.IsActionPressed(InputActions.DigitalMoveDown)) - Convert.ToInt32(@event.IsActionPressed(InputActions.DigitalMoveUp))
-            ));
-    }
-
     public override void _Process(double delta)
     {
         base._Process(delta);
 
-        if (!_skip)
-        {
-            Vector2I digital = new(
-                Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveRight)) - Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveLeft)),
-                Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveDown)) - Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveUp))
-            );
-            Vector2I analog = new(
-                Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveRight)) - Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveLeft)),
-                Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveDown)) - Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveUp))
-            );
-            Vector2I current = EnableAnalog ? (digital + analog).Clamp(-Vector2I.One, Vector2I.One) : digital;
+        Vector2I digital = new(
+            Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveRight)) - Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveLeft)),
+            Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveDown)) - Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveUp))
+        );
+        Vector2I analog = new(
+            Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveRight)) - Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveLeft)),
+            Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveDown)) - Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveUp))
+        );
+        Vector2I current = EnableAnalog ? (digital + analog).Clamp(-Vector2I.One, Vector2I.One) : digital;
 
-            if (_previous != Vector2I.Zero && _previous == current)
+        if (_previous != Vector2I.Zero && _previous == current)
+        {
+            _remaining -= delta;
+            if (_remaining <= 0)
             {
-                _remaining -= delta;
-                if (_remaining <= 0)
-                {
-                    _remaining = EchoInterval;
-                    EmitSignal(SignalName.DirectionEchoed, _previous);
-                }
+                _remaining = EchoInterval;
+                EmitSignal(SignalName.DirectionEchoed, _previous);
             }
-            else
-            {
-                _remaining = EchoDelay;
-                Vector2I pressed = new(current.X != 0 && _previous.X == 0 ? current.X : 0, current.Y != 0 && _previous.Y == 0 ? current.Y : 0);
-                if (pressed != Vector2I.Zero)
-                    EmitSignal(SignalName.DirectionPressed, pressed);
-                Vector2I released = new(current.X != _previous.X && _previous.X != 0 ? _previous.X : 0, current.Y != _previous.Y && _previous.Y != 0 ? _previous.Y : 0);
-                if (released != Vector2I.Zero)
-                    EmitSignal(SignalName.DirectionReleased, released);
-            }
-            _previous = current;
         }
+        else
+        {
+            _remaining = EchoDelay;
+            Vector2I pressed = new(current.X != 0 && _previous.X == 0 ? current.X : 0, current.Y != 0 && _previous.Y == 0 ? current.Y : 0);
+            if (pressed != Vector2I.Zero)
+                EmitSignal(SignalName.DirectionPressed, pressed);
+            Vector2I released = new(current.X != _previous.X && _previous.X != 0 ? _previous.X : 0, current.Y != _previous.Y && _previous.Y != 0 ? _previous.Y : 0);
+            if (released != Vector2I.Zero)
+                EmitSignal(SignalName.DirectionReleased, released);
+        }
+        _previous = current;
     }
 }

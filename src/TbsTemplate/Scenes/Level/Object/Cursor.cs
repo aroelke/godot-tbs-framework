@@ -45,6 +45,7 @@ public partial class Cursor : GridNode
 
     private ImmutableHashSet<Vector2I> _hard = [];
     private bool _halted = false;
+    private bool _skip = false;
 
     /// <summary>Whether or not the cursor should wrap to the other side if a direction is pressed toward the edge it's on.</summary>
     [Export] public bool Wrap = false;
@@ -127,8 +128,44 @@ public partial class Cursor : GridNode
     /// <param name="direction">Direction that was pressed.</param>
     public void OnDirectionPressed(Vector2I direction)
     {
-        OnDirectionEchoed(direction);
-        OnDirectionReleased(direction);
+        if (!_halted)
+        {
+            if (_skip)
+            {
+                if (!HardRestriction.IsEmpty)
+                {
+                    IEnumerable<Vector2I> ahead = HardRestriction.Where((c) => (c - Cell)*direction > Vector2I.Zero);
+                    if (ahead.Any())
+                        Cell = ahead.OrderBy((c) => (c - Cell).ProjectionsTo(direction).Abs(), FurtherAlongDirection).First();
+                }
+                else
+                {
+                    if ((Cell.Y == 0 && direction.Y < 0) || (Cell.Y == Grid.Size.Y - 1 && direction.Y > 0))
+                        direction = direction with { Y = 0 };
+                    if ((Cell.X == 0 && direction.X < 0) || (Cell.X == Grid.Size.X - 1 && direction.X > 0))
+                        direction = direction with { X = 0 };
+
+                    if (direction != Vector2I.Zero)
+                    {
+                        if (SoftRestriction.Count != 0)
+                        {
+                            bool traversable = SoftRestriction.Contains(Cell + direction);
+                            Vector2I target = Cell; // Don't want to directly update cell to avoid firing events
+                            while (Grid.Contains(target + direction) && SoftRestriction.Contains(target + direction) == traversable)
+                                target += direction;
+                            Cell = target;
+                        }
+                        else
+                            Cell = Grid.Clamp(Cell + direction*Grid.Size);
+                    }
+                }
+            }
+            else
+            {
+                OnDirectionEchoed(direction);
+                OnDirectionReleased(direction);
+            }
+        }
     }
 
     /// <summary>When a direction is pressed, move the curso to the adjacent cell there but don't signal the entry.</summary>
@@ -173,7 +210,11 @@ public partial class Cursor : GridNode
     /// <summary>When a direction is released, signal that the current cell has been entered.</summary>
     /// <remarks>Mostly only useful for visual updates. Could fire twice when not echoing.</remarks>
     /// <param name="direction">Direction that was released.</param>
-    public void OnDirectionReleased(Vector2I direction) => EmitSignal(SignalName.CellEntered, Cell);
+    public void OnDirectionReleased(Vector2I direction)
+    {
+        if (!_halted)
+            EmitSignal(SignalName.CellEntered, Cell);
+    }
 
     /// <summary>Update the <see cref="Map.Grid"/> cell when the pointer signals it has moved, unless the cursor is what's controlling movement.</summary>
     /// <param name="position">Position of the pointer.</param>
@@ -224,7 +265,16 @@ public partial class Cursor : GridNode
     public override void _UnhandledInput(InputEvent @event)
     {
         base._UnhandledInput(@event);
-        if (!_halted && @event.IsActionPressed(InputActions.Select))
-            EmitSignal(SignalName.CellSelected, Grid.CellOf(Position));
+
+        if (!_halted)
+        {
+            if (@event.IsActionPressed(InputActions.Select))
+                EmitSignal(SignalName.CellSelected, Grid.CellOf(Position));
+            
+            if (@event.IsActionPressed(InputActions.Accelerate))
+                _skip = true;
+            else if (@event.IsActionReleased(InputActions.Accelerate))
+                _skip = false;
+        }
     }
 }

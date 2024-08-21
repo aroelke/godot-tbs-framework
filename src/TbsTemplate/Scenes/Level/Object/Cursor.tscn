@@ -22,4 +22,3 @@ stream = ExtResource("14_7nv3s")
 [connection signal="DirectionEchoed" from="MoveController" to="." method="OnDirectionEchoed"]
 [connection signal="DirectionPressed" from="MoveController" to="." method="OnDirectionPressed"]
 [connection signal="DirectionReleased" from="MoveController" to="." method="OnDirectionReleased"]
-[connection signal="Skip" from="MoveController" to="." method="OnSkip"]
