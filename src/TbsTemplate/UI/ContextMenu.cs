@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using TbsTemplate.UI.Controls.Action;
 
 namespace TbsTemplate.UI;
 
@@ -103,5 +104,15 @@ public partial class ContextMenu : PanelContainer
                 _items[_options[index]].Pressed += () => EmitSignal(SignalName.ItemSelected, _options[index]);
             }            
         }
+    }
+
+    public override void _Input(InputEvent @event)
+    {
+        base._Input(@event);
+
+        if (@event.IsActionPressed(InputActions.UiHome))
+            GrabFocus(0);
+        if (@event.IsActionPressed(InputActions.UiEnd))
+            GrabFocus(_options.Length - 1);
     }
 }
