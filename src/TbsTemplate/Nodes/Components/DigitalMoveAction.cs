@@ -1,7 +1,8 @@
 using System;
 using Godot;
+using TbsTemplate.UI.Controls.Action;
 
-namespace TbsTemplate.UI.Controls.Action;
+namespace TbsTemplate.Nodes.Components;
 
 /// <summary>Object component that enables the object to be controlled digitally (e.g. with keyboard keys or gamepad buttons).</summary>
 public partial class DigitalMoveAction : Node
