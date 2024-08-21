@@ -4,9 +4,15 @@ using Godot;
 
 namespace TbsTemplate.UI;
 
+/// <summary>
+/// A context menu consisting of a vertical list of <see cref="Button"/>s.  Sends a signal when one of them is clicked, but also exposes them
+/// individually if needed.  Not meant to be reused and options list is not meant to be modified (even though the individual options can be).
+/// </summary>
 [SceneTree, Tool]
 public partial class ContextMenu : PanelContainer
 {
+    /// <summary>Signals that one of the items has been selected.</summary>
+    /// <param name="item">Name of the item that was selected.</param>
     [Signal] public delegate void ItemSelectedEventHandler(StringName item);
 
     private StringName[] _options = [];
@@ -23,6 +29,8 @@ public partial class ContextMenu : PanelContainer
         }
     }
 
+    /// <summary>Get the button representing the item with the given name.</summary>
+    /// <param name="option">Name of the item to get.</param>
     public Button this[StringName option] => _items[option];
 
     [Export] public StringName[] Options
@@ -40,10 +48,18 @@ public partial class ContextMenu : PanelContainer
         }
     }
 
+    /// <summary>
+    /// Whether or not pressing up or down at the top or bottom of the list of buttons, respectively, should select the last or first item,
+    /// also respectively.
+    /// </summary>
     [Export] public bool Wrap = true;
 
+    /// <summary>sWhich item to default focusing on when grabbing focus with nothing specified.</summary>
     [Export] public int DefaultFocus = 0;
 
+    /// <summary>Set up the options menu.</summary>
+    /// <param name="options">List of items to present in the menu.</param>
+    /// <param name="wrap">Whether button navigation should wrap.</param>
     [OnInstantiate]
     public void Initialize(IEnumerable<StringName> options, bool wrap)
     {
