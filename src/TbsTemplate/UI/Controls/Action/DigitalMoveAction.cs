@@ -22,6 +22,8 @@ public partial class DigitalMoveAction : Node
     /// <param name="direction">Direction to skip in.</param>
     [Signal] public delegate void SkipEventHandler(Vector2I direction);
 
+    private static bool IsActionPressed(StringName action) => Input.GetActionRawStrength(action) >= InputMap.ActionGetDeadzone(action);
+
     private double _remaining = 0;
     private Vector2I _previous = Vector2I.Zero;
     private bool _skip = false;
@@ -32,11 +34,11 @@ public partial class DigitalMoveAction : Node
     /// <summary>Delay between moves while holding an input down.</summary>
     [Export] public double EchoInterval = 0.03;
 
+    /// <summary>Whether or not to use analog inputs for control (treated digitally) as well as digital ones.</summary>
+    public bool EnableAnalog = false;
+
     /// <summary>Reset the echo timer so its next timeout is on the delay rather than the interval.</summary>
-    public void ResetEcho()
-    {
-        _remaining = EchoDelay;
-    }
+    public void ResetEcho() => _remaining = EchoDelay;
 
     public override void _EnterTree()
     {
@@ -71,10 +73,16 @@ public partial class DigitalMoveAction : Node
 
         if (!_skip)
         {
-            Vector2I current = new(
+            Vector2I digital = new(
                 Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveRight)) - Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveLeft)),
                 Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveDown)) - Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveUp))
             );
+            Vector2I analog = new(
+                Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveRight)) - Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveLeft)),
+                Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveDown)) - Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveUp))
+            );
+            Vector2I current = EnableAnalog ? (digital + analog).Clamp(-Vector2I.One, Vector2I.One) : digital;
+
             if (_previous != Vector2I.Zero && _previous == current)
             {
                 _remaining -= delta;

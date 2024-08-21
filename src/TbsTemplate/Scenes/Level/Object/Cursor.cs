@@ -101,10 +101,10 @@ public partial class Cursor : GridNode
             {
                 if (!_hard.Contains(Cell))
                     Cell = _hard.OrderBy((c) => Cell.DistanceTo(c)).First();
-                Converters.ProcessMode = ProcessModeEnum.Inherit;
+                MoveController.EnableAnalog = true;
             }
             else
-                Converters.ProcessMode = ProcessModeEnum.Disabled;
+                MoveController.EnableAnalog = false;
         }
     }
 
