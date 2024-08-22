@@ -191,13 +191,17 @@ public partial class Pointer : BoundedNode2D
         }
     }
 
+    /// <summary>When transitioning to the mouse state from other control states (not waiting ones), warp the mouse to the pointer's position.</summary>
+    public void OnToMouseStateTaken() => GetViewport().WarpMouse(WorldToViewport(Position));
+
     /// <summary>
     /// When changing to mouse input, move the mouse to the pointer's location to ensure overall motion is contiguous and make the virtual pointer
     /// invisible and system pointer visible.
     /// </summary>
     public void OnMouseStateEntered()
     {
-        GetViewport().WarpMouse(WorldToViewport(Position));
+        if (ViewportPosition != GetViewport().GetMousePosition())
+            ViewportPosition = GetViewport().GetMousePosition();
         Mouse.Visible = false;
         Input.MouseMode = Input.MouseModeEnum.Visible;
     }

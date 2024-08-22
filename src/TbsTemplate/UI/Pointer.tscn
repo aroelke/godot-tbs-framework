@@ -156,7 +156,9 @@ mouse_filter = 2
 texture = ExtResource("16_sbop6")
 
 [connection signal="StateEntered" from="ControlState/Root/Active/DigitalState" to="." method="OnDigitalStateEntered"]
+[connection signal="Taken" from="ControlState/Root/Active/DigitalState/ToMouse" to="." method="OnToMouseStateTaken"]
 [connection signal="StateEntered" from="ControlState/Root/Active/AnalogState" to="." method="OnAnalogStateEntered"]
+[connection signal="Taken" from="ControlState/Root/Active/AnalogState/ToMouse" to="." method="OnToMouseStateTaken"]
 [connection signal="StateUnhandledInput" from="ControlState/Root/Active/AnalogState/OnUnhandledInput" to="." method="OnAnalogStateUnhandledInput"]
 [connection signal="StatePhysicsProcess" from="ControlState/Root/Active/AnalogState/OnPhysicsProcess" to="." method="OnAnalogStatePhysicsProcess"]
 [connection signal="StateEntered" from="ControlState/Root/Active/MouseState" to="." method="OnMouseStateEntered"]
