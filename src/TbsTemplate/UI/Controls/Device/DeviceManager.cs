@@ -23,6 +23,7 @@ public partial class DeviceManager : Node
     private static InputDevice _device = InputDevice.Keyboard;
     private static string _name = "";
     private static InputMode _mode = InputMode.Digital;
+    private static bool _enableSystemMouse = true;
     private static DeviceManager _singleton = null;
 
     /// <summary>Ensures that <see cref="InputDeviceChanged"/> is only fired once when either the device and/or device name change.</summary>
@@ -57,7 +58,7 @@ public partial class DeviceManager : Node
         set => UpdateDevice(_device, _name);
     }
 
-    /// <summary>The current input mode.</summary>
+    /// <summary>The current input mode. Setting will update the system mouse's visibility accordingly.</summary>
     public static InputMode Mode
     {
         get => _mode;
@@ -67,6 +68,28 @@ public partial class DeviceManager : Node
             _mode = value;
             if (_mode != old)
                 Singleton.EmitSignal(SignalName.InputModeChanged, Variant.From(_mode));
+            if (!Engine.IsEditorHint())
+                Input.MouseMode = _mode == InputMode.Mouse && _enableSystemMouse ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Hidden;
+        }
+    }
+
+    /// <summary>Whether or not the system mouse should be visible regardless of input mode. Setting to false will hide the system mouse.</summary>
+    public static bool EnableSystemMouse
+    {
+        get => _enableSystemMouse;
+        set
+        {
+            if (_enableSystemMouse != value)
+            {
+                _enableSystemMouse = value;
+                if (!Engine.IsEditorHint())
+                {
+                    if (!_enableSystemMouse)
+                        Input.MouseMode = Input.MouseModeEnum.Hidden;
+                    else if (Mode == InputMode.Mouse)
+                        Input.MouseMode = Input.MouseModeEnum.Visible;
+                }
+            }
         }
     }
 

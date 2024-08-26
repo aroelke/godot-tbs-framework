@@ -167,3 +167,4 @@ texture = ExtResource("16_sbop6")
 [connection signal="StateEntered" from="ControlState/Root/Flying" to="." method="OnFlyingEntered"]
 [connection signal="StateExited" from="ControlState/Root/Flying" to="." method="OnFlyingExited"]
 [connection signal="StateEntered" from="ControlState/Root/Waiting" to="." method="OnWaitingEntered"]
+[connection signal="StateExited" from="ControlState/Root/Waiting" to="." method="OnWaitingExited"]

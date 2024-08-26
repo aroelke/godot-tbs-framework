@@ -137,8 +137,7 @@ public partial class Pointer : BoundedNode2D
     /// <param name="hide">Whether or not to hide the mouse while waiting.</param>
     public void StartWaiting(bool hide=true)
     {
-        if (hide)
-            Input.MouseMode = Input.MouseModeEnum.Hidden;
+        DeviceManager.EnableSystemMouse = !hide;
         ControlState.SendEvent(WaitEvent);
     }
 
@@ -149,22 +148,14 @@ public partial class Pointer : BoundedNode2D
     /// <param name="mode">New input mode.</param>
     public void OnInputModeChanged(InputMode mode) => ControlState.ExpressionProperties = ControlState.ExpressionProperties.SetItem(ModeProperty, Enum.GetName(mode));
 
-    /// <summary>When entering digital state, hide both the virtual and system pointers, as the pointer is not used for control in that state.</summary>
-    public void OnDigitalStateEntered()
-    {
-        Mouse.Visible = false;
-        Input.MouseMode = Input.MouseModeEnum.Hidden;
-    }
+    /// <summary>When entering digital state, hide the virtual pointer, as the pointer is not used for control in that state.</summary>
+    public void OnDigitalStateEntered() => Mouse.Visible = false;
 
     /// <summary>When changing input mode from mouse to analog, warp the pointer to where the mouse is.</summary>
     public void OnMouseToAnalogTaken() => Warp(ViewportToWorld(InputManager.GetMousePosition()));
 
-    /// <summary>When entering analog state, make sure the virtual pointer is visible (unless analog input should be treated as digital) and the system pointer is invisible.</summary>
-    public void OnAnalogStateEntered()
-    {
-        Mouse.Visible = _tracking;
-        Input.MouseMode = Input.MouseModeEnum.Hidden;
-    }
+    /// <summary>When entering analog state, make sure the virtual pointer is visible (unless analog input should be treated as digital).</summary>
+    public void OnAnalogStateEntered() => Mouse.Visible = _tracking;
 
     /// <summary>While the accelerate button is held down, move the pointer faster.</summary>
     /// <param name="event">Input event describing the input.</param>
@@ -203,7 +194,6 @@ public partial class Pointer : BoundedNode2D
         if (ViewportPosition != GetViewport().GetMousePosition())
             ViewportPosition = GetViewport().GetMousePosition();
         Mouse.Visible = false;
-        Input.MouseMode = Input.MouseModeEnum.Visible;
     }
 
     /// <summary>During mouse control, move to the mouse position every step.</summary>
@@ -224,21 +214,29 @@ public partial class Pointer : BoundedNode2D
     public void OnFlyingEntered()
     {
         Mouse.Visible = true;
-        Input.MouseMode = Input.MouseModeEnum.Hidden;
+        DeviceManager.EnableSystemMouse = false;
     }
 
-    /// <summary>When done flying, kill the tween controlling it in case flight is ended before it has completed movement.</summary>
+    /// <summary>When done flying, kill the tween controlling it in case flight is ended before it has completed movement and re-enable the system mouse.</summary>
     public void OnFlyingExited()
     {
         if (_flyer.IsValid())
             _flyer.Kill();
+        DeviceManager.EnableSystemMouse = true;
     }
 
     /// <summary>
     /// When entering the waiting state, hide the mouse for the duration of the wait. Its visibility will be restored automatically by the state it
     /// returns to.
     /// </summary>
-    public void OnWaitingEntered() => Mouse.Visible = false;
+    public void OnWaitingEntered()
+    {
+        Mouse.Visible = false;
+        DeviceManager.EnableSystemMouse = false;
+    }
+
+    /// <summary>When done waiting, re-enable the system mouse.</summary>
+    public void OnWaitingExited() => DeviceManager.EnableSystemMouse = true;
 
     /// <summary>When the mouse enters the <see cref="Viewport"/>, warp to its entry position.</summary>
     /// <param name="position">Position the mouse entered the <see cref="Viewport"/> on.</param>
