@@ -31,7 +31,7 @@ public partial class MoveController : Node
     [Export] public double EchoInterval = 0.03;
 
     /// <summary>Whether or not to use analog inputs for control (treated digitally) as well as digital ones.</summary>
-    public bool EnableAnalog = false;
+    [Export] public bool EnableAnalog = false;
 
     /// <summary>Reset the echo timer so its next timeout is on the delay rather than the interval.</summary>
     public void ResetEcho() => _remaining = EchoDelay;

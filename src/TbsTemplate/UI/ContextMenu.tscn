@@ -9,6 +9,7 @@ size_flags_vertical = 3
 script = ExtResource("1_uyy67")
 
 [node name="MoveController" parent="." instance=ExtResource("2_iqvij")]
+EnableAnalog = true
 
 [node name="Items" type="GridContainer" parent="."]
 unique_name_in_owner = true
