@@ -137,7 +137,8 @@ public partial class Pointer : BoundedNode2D
     /// <param name="hide">Whether or not to hide the mouse while waiting.</param>
     public void StartWaiting(bool hide=true)
     {
-        DeviceManager.EnableSystemMouse = !hide;
+        if (hide)
+            DeviceManager.EnableSystemMouse = false;
         ControlState.SendEvent(WaitEvent);
     }
 
@@ -147,6 +148,9 @@ public partial class Pointer : BoundedNode2D
     /// <summary>Update the state whenever input mode changes.</summary>
     /// <param name="mode">New input mode.</param>
     public void OnInputModeChanged(InputMode mode) => ControlState.ExpressionProperties = ControlState.ExpressionProperties.SetItem(ModeProperty, Enum.GetName(mode));
+
+    /// <summary>When entering an active state, enable the system mouse during mouse control.</summary>
+    public void OnActiveEntered() => DeviceManager.EnableSystemMouse = true;
 
     /// <summary>When entering digital state, hide the virtual pointer, as the pointer is not used for control in that state.</summary>
     public void OnDigitalStateEntered() => Mouse.Visible = false;
@@ -222,21 +226,13 @@ public partial class Pointer : BoundedNode2D
     {
         if (_flyer.IsValid())
             _flyer.Kill();
-        DeviceManager.EnableSystemMouse = true;
     }
 
     /// <summary>
     /// When entering the waiting state, hide the mouse for the duration of the wait. Its visibility will be restored automatically by the state it
     /// returns to.
     /// </summary>
-    public void OnWaitingEntered()
-    {
-        Mouse.Visible = false;
-        DeviceManager.EnableSystemMouse = false;
-    }
-
-    /// <summary>When done waiting, re-enable the system mouse.</summary>
-    public void OnWaitingExited() => DeviceManager.EnableSystemMouse = true;
+    public void OnWaitingEntered() => Mouse.Visible = false;
 
     /// <summary>When the mouse enters the <see cref="Viewport"/>, warp to its entry position.</summary>
     /// <param name="position">Position the mouse entered the <see cref="Viewport"/> on.</param>

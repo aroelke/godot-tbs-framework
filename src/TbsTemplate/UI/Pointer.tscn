@@ -155,6 +155,7 @@ offset_bottom = 48.0
 mouse_filter = 2
 texture = ExtResource("16_sbop6")
 
+[connection signal="StateEntered" from="ControlState/Root/Active" to="." method="OnActiveEntered"]
 [connection signal="StateEntered" from="ControlState/Root/Active/DigitalState" to="." method="OnDigitalStateEntered"]
 [connection signal="Taken" from="ControlState/Root/Active/DigitalState/ToMouse" to="." method="OnToMouseStateTaken"]
 [connection signal="StateEntered" from="ControlState/Root/Active/AnalogState" to="." method="OnAnalogStateEntered"]
@@ -167,4 +168,3 @@ texture = ExtResource("16_sbop6")
 [connection signal="StateEntered" from="ControlState/Root/Flying" to="." method="OnFlyingEntered"]
 [connection signal="StateExited" from="ControlState/Root/Flying" to="." method="OnFlyingExited"]
 [connection signal="StateEntered" from="ControlState/Root/Waiting" to="." method="OnWaitingEntered"]
-[connection signal="StateExited" from="ControlState/Root/Waiting" to="." method="OnWaitingExited"]
