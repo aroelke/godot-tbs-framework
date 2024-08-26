@@ -70,6 +70,50 @@ public partial class LevelManager : Node
         }
     }
 
+    private Vector2 MenuPosition(Rect2 rect, Vector2 size)
+    {
+        Rect2 viewportRect = Grid.GetGlobalTransformWithCanvas()*rect;
+        float viewportCenter = GetViewport().GetVisibleRect().Position.X + GetViewport().GetVisibleRect().Size.X/2;
+        return new(
+            viewportCenter - viewportRect.Position.X < viewportRect.Size.X/2 ? viewportRect.Position.X - size.X : viewportRect.End.X,
+            Mathf.Clamp(viewportRect.Position.Y - (size.Y - viewportRect.Size.Y)/2, 0, GetViewport().GetVisibleRect().Size.Y - size.Y)
+        );
+    }
+
+    private ContextMenu ShowMenu(Rect2 rect, IEnumerable<(StringName name, Action action)> options)
+    {
+        void RestoreControl()
+        {
+            Cursor.Resume();
+            Pointer.StopWaiting();
+            Camera.Target = _prevCameraTarget;
+            _prevCameraTarget = null;
+        }
+
+        ContextMenu menu = ContextMenu.Instantiate(options.Select((o) => o.name), true);
+        UserInterface.AddChild(menu);
+        menu.Visible = false;
+        foreach ((StringName name, Action action) in options)
+            menu[name].Pressed += action;
+        menu.ItemSelected += _ => RestoreControl();
+        menu.MenuCanceled += RestoreControl;
+
+        Cursor.Halt(hide:true);
+        Pointer.StartWaiting(hide:false);
+        _prevCameraTarget = Camera.Target;
+        Camera.Target = null;
+
+        Callable.From<ContextMenu, Rect2>((m, r) => {
+            m.Visible = true;
+            m.GrabFocus();
+            m.Position = MenuPosition(r, m.Size);
+        }).CallDeferred(menu, rect);
+
+        return menu;
+    }
+
+    private void ShowMenu(Rect2 rect, params (StringName, Action)[] options) => ShowMenu(rect, (IEnumerable<(StringName, Action)>)options);
+
     /// <summary>Update the displayed danger zones to reflect the current positions of the enemy <see cref="Unit"/>s.</summary>
     private void UpdateDangerZones()
     {
@@ -396,16 +440,6 @@ public partial class LevelManager : Node
 #region Unit Commanding State
     private ContextMenu _commandMenu = null;
 
-    private Vector2 MenuPosition(Vector2I cell)
-    {
-        Rect2 viewportRect = Grid.GetGlobalTransformWithCanvas()*Grid.CellRect(cell);
-        float viewportCenter = GetViewport().GetVisibleRect().Position.X + GetViewport().GetVisibleRect().Size.X/2;
-        return new(
-            viewportCenter - viewportRect.Position.X < viewportRect.Size.X/2 ? viewportRect.Position.X - _commandMenu.Size.X : viewportRect.End.X,
-            Mathf.Clamp(viewportRect.Position.Y - (_commandMenu.Size.Y - viewportRect.Size.Y)/2, 0, GetViewport().GetVisibleRect().Size.Y - _commandMenu.Size.Y)
-        );
-    }
-
     public void OnCommandingEntered()
     {
         // Show the unit's attack/support ranges
@@ -415,33 +449,19 @@ public partial class LevelManager : Node
         );
         ActionOverlay.UsedCells = actionable.ToDictionary();
 
-        List<StringName> options = [];
+        List<(StringName, Action)> options = [];
         if (!actionable.Attackable.IsEmpty || !actionable.Supportable.IsEmpty)
-            options.Add("Attack");
-        options.Add("End");
-        options.Add("Cancel");
-        _commandMenu = ContextMenu.Instantiate(options, true);
-        UserInterface.AddChild(_commandMenu);
-        _commandMenu.Visible = false;
-        if (!actionable.Attackable.IsEmpty || !actionable.Supportable.IsEmpty)
-            _commandMenu["Attack"].Pressed += () => State.SendEvent(SelectEvent);
-        _commandMenu["End"].Pressed += () => State.SendEvent(SkipEvent);
-        _commandMenu["Cancel"].Pressed += () => State.SendEvent(CancelEvent);
-
-        Cursor.Halt(hide:true);
-        Pointer.StartWaiting(hide:false);
-        _prevCameraTarget = Camera.Target;
-        Camera.Target = null;
+            options.Add(("Attack", () => State.SendEvent(SelectEvent)));
+        options.Add(("End", () => State.SendEvent(SkipEvent)));
+        options.Add(("Cancel", () => State.SendEvent(CancelEvent)));
+        _commandMenu = ShowMenu(Grid.CellRect(_selected.Cell), options);
+        _commandMenu.ItemSelected += _ => _commandMenu = null;
+        _commandMenu.MenuCanceled += () => State.SendEvent(CancelEvent);
     }
 
     public void OnCommandingProcess(float delta)
     {
-        if (!_commandMenu.Visible && _commandMenu.Size != Vector2.Zero)
-        {
-            _commandMenu.Visible = true;
-            _commandMenu.GrabFocus();
-        }
-        _commandMenu.Position = MenuPosition(_selected.Cell);
+        _commandMenu.Position = MenuPosition(Grid.CellRect(_selected.Cell), _commandMenu.Size);
     }
 
     /// <summary>Move the selected <see cref="Unit"/> and <see cref="Object.Cursor"/> back to the cell the unit was at before it moved.</summary>
@@ -465,16 +485,6 @@ public partial class LevelManager : Node
     {
         _target = null;
         ActionOverlay.Clear();
-    }
-
-    public void OnCommandingExited()
-    {
-        _commandMenu.QueueFree();
-        _commandMenu = null;
-        Cursor.Resume();
-        Pointer.StopWaiting();
-        Camera.Target = _prevCameraTarget;
-        _prevCameraTarget = null;
     }
 #endregion
 #region Targeting State

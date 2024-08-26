@@ -7,7 +7,8 @@ namespace TbsTemplate.UI;
 
 /// <summary>
 /// A context menu consisting of a vertical list of <see cref="Button"/>s.  Sends a signal when one of them is clicked, but also exposes them
-/// individually if needed.  Not meant to be reused and options list is not meant to be modified (even though the individual options can be).
+/// individually if needed.  Either way, automatically frees itself once a button is clicked.  Menu can also be canceled without selecting an
+/// item.  Not meant to be reused and options list is not meant to be modified (even though the individual options can be).
 /// </summary>
 [SceneTree, Tool]
 public partial class ContextMenu : PanelContainer
@@ -15,6 +16,9 @@ public partial class ContextMenu : PanelContainer
     /// <summary>Signals that one of the items has been selected.</summary>
     /// <param name="item">Name of the item that was selected.</param>
     [Signal] public delegate void ItemSelectedEventHandler(StringName item);
+
+    /// <summary>Signals that the menu has been canceled without selecting an item.</summary>
+    [Signal] public delegate void MenuCanceledEventHandler();
 
     private StringName[] _options = [];
     private readonly Dictionary<StringName, Button> _items = [];
@@ -101,7 +105,10 @@ public partial class ContextMenu : PanelContainer
                 int index = i;
                 _items[_options[index]].FocusEntered += () => _selected = index;
                 _items[_options[index]].FocusExited += () => _selected = -1;
-                _items[_options[index]].Pressed += () => EmitSignal(SignalName.ItemSelected, _options[index]);
+                _items[_options[index]].Pressed += () => {
+                    EmitSignal(SignalName.ItemSelected, _options[index]);
+                    QueueFree();
+                };
             }            
         }
     }
@@ -111,8 +118,21 @@ public partial class ContextMenu : PanelContainer
         base._Input(@event);
 
         if (@event.IsActionPressed(InputActions.UiHome))
+        {
             GrabFocus(0);
+            GetViewport().SetInputAsHandled();
+        }
         if (@event.IsActionPressed(InputActions.UiEnd))
+        {
             GrabFocus(_options.Length - 1);
+            GetViewport().SetInputAsHandled();
+        }
+
+        if (@event.IsActionPressed(InputActions.Cancel))
+        {
+            EmitSignal(SignalName.MenuCanceled);
+            GetViewport().SetInputAsHandled();
+            QueueFree();
+        }
     }
 }
