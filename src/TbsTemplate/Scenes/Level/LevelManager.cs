@@ -561,7 +561,6 @@ public partial class LevelManager : Node
     /// <summary>Clean up displayed ranges and restore <see cref="Object.Cursor"/> freedom when exiting targeting <see cref="Nodes.StateChart.States.State"/>.</summary>
     public void OnTargetingExited()
     {
-        ActionOverlay.Clear();
         Pointer.AnalogTracking = true;
         Cursor.HardRestriction = Cursor.HardRestriction.Clear();
         Cursor.Wrap = false;
@@ -570,6 +569,7 @@ public partial class LevelManager : Node
 #region In Combat
     public void OnCombatEntered()
     {
+        ActionOverlay.Clear();
         Cursor.Halt();
         Pointer.StartWaiting();
         SceneManager.BeginCombat(_selected, _target, _combatResults = CombatCalculations.CombatResults(_selected, _target));
