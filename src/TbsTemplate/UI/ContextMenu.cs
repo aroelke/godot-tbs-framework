@@ -94,6 +94,8 @@ public partial class ContextMenu : PanelContainer
         switch (mode)
         {
         case InputMode.Mouse:
+            foreach ((var _, Button item) in _items)
+                item.MouseFilter = MouseFilterEnum.Stop;
             if (_selected != NothingSelected)
             {
                 Input.WarpMouse(_items[_options[_selected]].GlobalPosition + _items[_options[_selected]].Size/2);
@@ -101,6 +103,8 @@ public partial class ContextMenu : PanelContainer
             }
             break;
         default:
+            foreach ((var _, Button item) in _items)
+                item.MouseFilter = MouseFilterEnum.Ignore;
             if (Input.IsActionPressed(InputActions.UiAccept))
             {
                 GrabFocus(_selected == NothingSelected ? 0 : _selected);
@@ -135,6 +139,7 @@ public partial class ContextMenu : PanelContainer
             for (int i = 0; i < _options.Length; i++)
             {
                 int index = i;
+                _items[_options[index]].MouseFilter = DeviceManager.Mode == InputMode.Mouse ? MouseFilterEnum.Stop : MouseFilterEnum.Ignore;
                 _items[_options[index]].FocusEntered += () => _selected = index;
                 _items[_options[index]].Pressed += () => {
                     EmitSignal(SignalName.ItemSelected, _options[index]);
