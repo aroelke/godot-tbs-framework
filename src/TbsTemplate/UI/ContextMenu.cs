@@ -26,6 +26,8 @@ public partial class ContextMenu : PanelContainer
     private StringName[] _options = [];
     private readonly Dictionary<StringName, Button> _items = [];
     private int _selected = NothingSelected;
+    private int _hovered = NothingSelected;
+    private int _focus = NothingSelected;
     private bool _suppress = false;
 
     private void UpdateItems()
@@ -103,11 +105,13 @@ public partial class ContextMenu : PanelContainer
             }
             break;
         default:
+            _focus = _hovered == NothingSelected ? (_selected == NothingSelected ? 0 : _selected) : _hovered;
             foreach ((var _, Button item) in _items)
                 item.MouseFilter = MouseFilterEnum.Ignore;
             if (Input.IsActionPressed(InputActions.UiAccept))
             {
-                GrabFocus(_selected == NothingSelected ? 0 : _selected);
+                GrabFocus(_focus);
+                _focus = NothingSelected;
                 // Prevent the focused button from being pressed at the same time as being focused on
                 GetViewport().SetInputAsHandled();
             }
@@ -115,12 +119,25 @@ public partial class ContextMenu : PanelContainer
         }
     }
 
+    /// <summary>
+    /// If a focus target was assigned due to switching input mode, focus on that. Otherwise, if nothing is focused, focus on the last-focused item.
+    /// Otherwise, move focus up or down one item depending on the direction pressed.
+    /// </summary>
+    /// <param name="direction">Direction to move focus.</param>
     public void OnDirectionPressed(Vector2I direction)
     {
-        int next = _selected == NothingSelected ? 0 : _selected;
-        if (_selected != NothingSelected && _items[_options[_selected]].HasFocus())
-            next = Wrap ? (_selected + direction.Y + _options.Length) % _options.Length : Mathf.Clamp(_selected + direction.Y, 0, _options.Length - 1);
-        GrabFocus(next);
+        if (_focus != NothingSelected)
+        {
+            GrabFocus(_focus);
+            _focus = NothingSelected;
+        }
+        else
+        {
+            int next = _selected == NothingSelected ? 0 : _selected;
+            if (_selected != NothingSelected && _items[_options[_selected]].HasFocus())
+                next = Wrap ? (_selected + direction.Y + _options.Length) % _options.Length : Mathf.Clamp(_selected + direction.Y, 0, _options.Length - 1);
+            GrabFocus(next);
+        }
     }
 
     public override void _EnterTree()
@@ -145,6 +162,9 @@ public partial class ContextMenu : PanelContainer
                     EmitSignal(SignalName.ItemSelected, _options[index]);
                     QueueFree();
                 };
+
+                _items[_options[index]].MouseEntered += () => _hovered = index;
+                _items[_options[index]].MouseExited += () => _hovered = -1;
             }            
         }
     }
