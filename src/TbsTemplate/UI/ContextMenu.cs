@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsTemplate.UI.Controls.Action;
+using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.UI;
 
@@ -20,9 +21,12 @@ public partial class ContextMenu : PanelContainer
     /// <summary>Signals that the menu has been canceled without selecting an item.</summary>
     [Signal] public delegate void MenuCanceledEventHandler();
 
+    private const int NothingSelected = -1;
+
     private StringName[] _options = [];
     private readonly Dictionary<StringName, Button> _items = [];
-    private int _selected = -1;
+    private int _selected = NothingSelected;
+    private bool _suppress = false;
 
     private void UpdateItems()
     {
@@ -85,12 +89,36 @@ public partial class ContextMenu : PanelContainer
     /// <remarks>Grabs focus of the button at index <see cref="DefaultFocus"/></remarks>
     public new void GrabFocus() => GrabFocus(DefaultFocus);
 
+    public void OnInputModeChanged(InputMode mode)
+    {
+        switch (mode)
+        {
+        case InputMode.Mouse:
+            if (_selected != NothingSelected)
+                _items[_options[_selected]].ReleaseFocus();
+            break;
+        default:
+            if (Input.IsActionPressed(InputActions.UiAccept))
+            {
+                GrabFocus(_selected == NothingSelected ? 0 : _selected);
+                GetViewport().SetInputAsHandled();
+            }
+            break;
+        }
+    }
+
     public void OnDirectionPressed(Vector2I direction)
     {
-        int next = 0;
-        if (_selected != -1)
+        int next = _selected == NothingSelected ? 0 : _selected;
+        if (_selected != NothingSelected && _items[_options[_selected]].HasFocus())
             next = Wrap ? (_selected + direction.Y + _options.Length) % _options.Length : Mathf.Clamp(_selected + direction.Y, 0, _options.Length - 1);
         GrabFocus(next);
+    }
+
+    public override void _EnterTree()
+    {
+        base._EnterTree();
+        DeviceManager.Singleton.InputModeChanged += OnInputModeChanged;
     }
 
     public override void _Ready()
@@ -104,7 +132,6 @@ public partial class ContextMenu : PanelContainer
             {
                 int index = i;
                 _items[_options[index]].FocusEntered += () => _selected = index;
-                _items[_options[index]].FocusExited += () => _selected = -1;
                 _items[_options[index]].Pressed += () => {
                     EmitSignal(SignalName.ItemSelected, _options[index]);
                     QueueFree();
@@ -134,5 +161,11 @@ public partial class ContextMenu : PanelContainer
             GetViewport().SetInputAsHandled();
             QueueFree();
         }
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+        DeviceManager.Singleton.InputModeChanged -= OnInputModeChanged;
     }
 }

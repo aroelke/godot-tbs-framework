@@ -12,6 +12,7 @@ using TbsTemplate.Nodes;
 using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI;
+using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.Scenes.Level;
 
@@ -105,7 +106,8 @@ public partial class LevelManager : Node
 
         Callable.From<ContextMenu, Rect2>((m, r) => {
             m.Visible = true;
-            m.GrabFocus();
+            if (DeviceManager.Mode != InputMode.Mouse)
+                m.GrabFocus();
             m.Position = MenuPosition(r, m.Size);
         }).CallDeferred(menu, rect);
 
