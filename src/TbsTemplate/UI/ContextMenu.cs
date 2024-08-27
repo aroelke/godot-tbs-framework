@@ -104,6 +104,7 @@ public partial class ContextMenu : PanelContainer
             if (Input.IsActionPressed(InputActions.UiAccept))
             {
                 GrabFocus(_selected == NothingSelected ? 0 : _selected);
+                // Prevent the focused button from being pressed at the same time as being focused on
                 GetViewport().SetInputAsHandled();
             }
             break;
