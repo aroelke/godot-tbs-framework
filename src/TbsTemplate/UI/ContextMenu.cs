@@ -95,7 +95,10 @@ public partial class ContextMenu : PanelContainer
         {
         case InputMode.Mouse:
             if (_selected != NothingSelected)
+            {
+                Input.WarpMouse(_items[_options[_selected]].GlobalPosition + _items[_options[_selected]].Size/2);
                 _items[_options[_selected]].ReleaseFocus();
+            }
             break;
         default:
             if (Input.IsActionPressed(InputActions.UiAccept))
