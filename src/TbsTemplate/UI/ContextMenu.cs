@@ -163,14 +163,21 @@ public partial class ContextMenu : PanelContainer
             {
                 int index = i;
                 _items[_options[index]].MouseFilter = DeviceManager.Mode == InputMode.Mouse ? MouseFilterEnum.Stop : MouseFilterEnum.Ignore;
-                _items[_options[index]].FocusEntered += () => _selected = index;
+                _items[_options[index]].FocusEntered += () => {
+                    _selected = index;
+                    if (DeviceManager.Mode != InputMode.Mouse)
+                        HighlightSound.Play();
+                };
                 _items[_options[index]].Pressed += () => {
                     EmitSignal(SignalName.ItemSelected, _options[index]);
                     QueueFree();
                     EmitSignal(SignalName.MenuClosed);
                 };
 
-                _items[_options[index]].MouseEntered += () => _hovered = index;
+                _items[_options[index]].MouseEntered += () => {
+                    _hovered = index;
+                    HighlightSound.Play();
+                };
                 _items[_options[index]].MouseExited += () => _hovered = -1;
             }            
         }

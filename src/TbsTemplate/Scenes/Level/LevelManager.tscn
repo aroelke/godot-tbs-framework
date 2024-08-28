@@ -33,7 +33,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -669633278
+seed = -1384996080
 
 [sub_resource type="Resource" id="Resource_umt67"]
 script = ExtResource("24_k1nop")
@@ -476,8 +476,11 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateInput" from="State/Root/Active/UnitMoving/OnInput" to="." method="OnMovingInput"]
 [connection signal="StateEntered" from="State/Root/Active/UnitCommanding" to="." method="OnCommandingEntered"]
 [connection signal="StateProcess" from="State/Root/Active/UnitCommanding/OnProcess" to="." method="OnCommandingProcess"]
+[connection signal="Taken" from="State/Root/Active/UnitCommanding/ToTargeting" to="SoundLibrary/SelectSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/Active/UnitCommanding/ToSelected" to="." method="OnCommandingCanceled"]
+[connection signal="Taken" from="State/Root/Active/UnitCommanding/ToSelected" to="SoundLibrary/CancelSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/Active/UnitCommanding/ToAdvancing" to="." method="OnTurnEndCommand"]
+[connection signal="Taken" from="State/Root/Active/UnitCommanding/ToAdvancing" to="SoundLibrary/SelectSound" method="play" binds= [0.0]]
 [connection signal="StateEntered" from="State/Root/Active/UnitTargeting" to="." method="OnTargetingEntered"]
 [connection signal="StateExited" from="State/Root/Active/UnitTargeting" to="." method="OnTargetingExited"]
 [connection signal="StateCellUpdated" from="State/Root/Active/UnitTargeting/OnCellSelected" to="." method="OnTargetingCellSelected"]

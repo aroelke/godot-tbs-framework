@@ -268,6 +268,13 @@ public partial class LevelManager : Node
     /// <summary>Open the map menu and wait for an item to be selected.</summary>
     public void OnIdleEmptyCellSelected(Vector2I cell)
     {
+        void Cancel()
+        {
+            State.SendEvent(DoneEvent);
+            CancelSound.Play();
+        }
+
+        SelectSound.Play();
         State.SendEvent(WaitEvent);
         ShowMenu(new() { Position = Pointer.Position, Size = Vector2.Zero },
             ("End Turn", () => {
@@ -275,10 +282,11 @@ public partial class LevelManager : Node
                 foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
                     unit.Finish();
                 State.SendEvent(SkipEvent);
+                SelectSound.Play();
             }),
             ("Quit Game", () => GetTree().Quit()),
-            ("Cancel", () => State.SendEvent(DoneEvent))
-        ).MenuCanceled += () => State.SendEvent(DoneEvent);
+            ("Cancel", Cancel)
+        ).MenuCanceled += Cancel;
     }
 
     /// <summary>Choose a selected <see cref="Unit"/>.</summary>
