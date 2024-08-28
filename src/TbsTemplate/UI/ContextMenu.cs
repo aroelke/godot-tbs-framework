@@ -21,6 +21,12 @@ public partial class ContextMenu : PanelContainer
     /// <summary>Signals that the menu has been canceled without selecting an item.</summary>
     [Signal] public delegate void MenuCanceledEventHandler();
 
+    /// <summary>
+    /// Signals that the menu is being closed, whether an option is selected or it was canceled. Emitted after the respective action signal is
+    /// emitted.
+    /// </summary>
+    [Signal] public delegate void MenuClosedEventHandler();
+
     private const int NothingSelected = -1;
 
     private StringName[] _options = [];
@@ -161,6 +167,7 @@ public partial class ContextMenu : PanelContainer
                 _items[_options[index]].Pressed += () => {
                     EmitSignal(SignalName.ItemSelected, _options[index]);
                     QueueFree();
+                    EmitSignal(SignalName.MenuClosed);
                 };
 
                 _items[_options[index]].MouseEntered += () => _hovered = index;
@@ -189,6 +196,7 @@ public partial class ContextMenu : PanelContainer
             EmitSignal(SignalName.MenuCanceled);
             GetViewport().SetInputAsHandled();
             QueueFree();
+            EmitSignal(SignalName.MenuClosed);
         }
     }
 

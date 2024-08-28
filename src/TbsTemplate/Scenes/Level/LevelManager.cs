@@ -83,21 +83,18 @@ public partial class LevelManager : Node
 
     private ContextMenu ShowMenu(Rect2 rect, IEnumerable<(StringName name, Action action)> options)
     {
-        void RestoreControl()
-        {
-            Cursor.Resume();
-            Pointer.StopWaiting();
-            Camera.Target = _prevCameraTarget;
-            _prevCameraTarget = null;
-        }
 
         ContextMenu menu = ContextMenu.Instantiate(options.Select((o) => o.name), true);
         UserInterface.AddChild(menu);
         menu.Visible = false;
         foreach ((StringName name, Action action) in options)
             menu[name].Pressed += action;
-        menu.ItemSelected += _ => RestoreControl();
-        menu.MenuCanceled += RestoreControl;
+        menu.MenuClosed += () => {
+            Cursor.Resume();
+            Pointer.StopWaiting();
+            Camera.Target = _prevCameraTarget;
+            _prevCameraTarget = null;
+        };
 
         Cursor.Halt(hide:true);
         Pointer.StartWaiting(hide:false);
@@ -269,7 +266,6 @@ public partial class LevelManager : Node
     }
 
     /// <summary>Open the map menu and wait for an item to be selected.</summary>
-    /// <param name="cell"></param>
     public void OnIdleEmptyCellSelected(Vector2I cell)
     {
         State.SendEvent(WaitEvent);
@@ -474,8 +470,8 @@ public partial class LevelManager : Node
         options.Add(("End", () => State.SendEvent(SkipEvent)));
         options.Add(("Cancel", () => State.SendEvent(CancelEvent)));
         _commandMenu = ShowMenu(Grid.CellRect(_selected.Cell), options);
-        _commandMenu.ItemSelected += _ => _commandMenu = null;
         _commandMenu.MenuCanceled += () => State.SendEvent(CancelEvent);
+        _commandMenu.MenuClosed += () => _commandMenu = null;
     }
 
     public void OnCommandingProcess(float delta) => _commandMenu.Position = MenuPosition(Grid.CellRect(_selected.Cell), _commandMenu.Size);
