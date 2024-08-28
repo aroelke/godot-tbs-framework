@@ -1,4 +1,4 @@
-[gd_scene load_steps=59 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=63 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DBrain.tscn" id="3_td8u6"]
@@ -33,7 +33,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = 630750968
+seed = -669633278
 
 [sub_resource type="Resource" id="Resource_umt67"]
 script = ExtResource("24_k1nop")
@@ -41,10 +41,27 @@ script = ExtResource("24_k1nop")
 [sub_resource type="Resource" id="Resource_0wllk"]
 script = ExtResource("24_k1nop")
 
+[sub_resource type="Resource" id="Resource_wh0tw"]
+script = ExtResource("22_tix5y")
+Property = &"occupied"
+Value = ""
+
+[sub_resource type="Resource" id="Resource_b5s7m"]
+script = ExtResource("22_tix5y")
+Property = &"occupied"
+Value = "inactive"
+
+[sub_resource type="Resource" id="Resource_e1t2x"]
+script = ExtResource("29_kfqmx")
+Conditions = [SubResource("Resource_wh0tw"), SubResource("Resource_b5s7m")]
+
 [sub_resource type="Resource" id="Resource_mydqi"]
 script = ExtResource("22_tix5y")
 Property = &"occupied"
 Value = "active"
+
+[sub_resource type="Resource" id="Resource_mpgfp"]
+script = ExtResource("24_k1nop")
 
 [sub_resource type="Resource" id="Resource_4c3ly"]
 script = ExtResource("21_7vj21")
@@ -273,10 +290,18 @@ Condition = SubResource("Resource_0wllk")
 
 [node name="OnPointerStopped" parent="State/Root/Active/Idle" instance=ExtResource("23_u3pac")]
 
+[node name="OnEmptyCellSelected" parent="State/Root/Active/Idle" instance=ExtResource("25_goaap")]
+Condition = SubResource("Resource_e1t2x")
+
 [node name="ToSelected" parent="State/Root/Active/Idle" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../UnitSelected")
 Event = &"select"
 Condition = SubResource("Resource_mydqi")
+
+[node name="ToAdvancing" parent="State/Root/Active/Idle" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../TurnAdvancing")
+Event = &"skip"
+Condition = SubResource("Resource_mpgfp")
 
 [node name="UnitSelected" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
 process_mode = 4
@@ -419,6 +444,7 @@ stream = ExtResource("32_e2hk2")
 [connection signal="CellChanged" from="Cursor" to="State/Root/Active/UnitSelected/OnCursorMoved" method="OnCellUpdated"]
 [connection signal="CellEntered" from="Cursor" to="State/Root/Active/Idle/OnCursorEnteredCell" method="OnCellUpdated"]
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]
+[connection signal="CellSelected" from="Cursor" to="State/Root/Active/Idle/OnEmptyCellSelected" method="OnCellUpdated"]
 [connection signal="CellSelected" from="Cursor" to="State/Root/Active/UnitSelected/OnCellSelected" method="OnCellUpdated"]
 [connection signal="CellSelected" from="Cursor" to="State/Root/Active/UnitTargeting/OnCellSelected" method="OnCellUpdated"]
 [connection signal="CursorMoved" from="Cursor" to="Pointer" method="OnCursorMoved"]
@@ -432,6 +458,7 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateCellUpdated" from="State/Root/Active/Idle/OnCursorMoved" to="." method="OnIdleCursorMoved"]
 [connection signal="StateCellUpdated" from="State/Root/Active/Idle/OnCursorEnteredCell" to="." method="OnIdleCursorEnteredCell"]
 [connection signal="Updated" from="State/Root/Active/Idle/OnPointerStopped" to="." method="OnIdlePointerStopped"]
+[connection signal="StateCellUpdated" from="State/Root/Active/Idle/OnEmptyCellSelected" to="." method="OnIdleEmptyCellSelected"]
 [connection signal="Taken" from="State/Root/Active/Idle/ToSelected" to="." method="OnIdleToSelectedTaken"]
 [connection signal="Taken" from="State/Root/Active/Idle/ToSelected" to="SoundLibrary/SelectSound" method="play" binds= [0.0]]
 [connection signal="StateEntered" from="State/Root/Active/UnitSelected" to="." method="OnSelectedEntered"]

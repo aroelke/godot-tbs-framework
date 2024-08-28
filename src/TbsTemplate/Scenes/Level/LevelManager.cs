@@ -114,7 +114,7 @@ public partial class LevelManager : Node
         return menu;
     }
 
-    private void ShowMenu(Rect2 rect, params (StringName, Action)[] options) => ShowMenu(rect, (IEnumerable<(StringName, Action)>)options);
+    private ContextMenu ShowMenu(Rect2 rect, params (StringName, Action)[] options) => ShowMenu(rect, (IEnumerable<(StringName, Action)>)options);
 
     /// <summary>Update the displayed danger zones to reflect the current positions of the enemy <see cref="Unit"/>s.</summary>
     private void UpdateDangerZones()
@@ -266,6 +266,23 @@ public partial class LevelManager : Node
             if (@event.IsActionPressed(InputActions.Next))
                 SelectUnit(army.Next);
         }
+    }
+
+    /// <summary>Open the map menu and wait for an item to be selected.</summary>
+    /// <param name="cell"></param>
+    public void OnIdleEmptyCellSelected(Vector2I cell)
+    {
+        State.SendEvent(WaitEvent);
+        ShowMenu(new() { Position = Pointer.Position, Size = Vector2.Zero },
+            ("End Turn", () => {
+                State.SendEvent(DoneEvent);
+                foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
+                    unit.Finish();
+                State.SendEvent(SkipEvent);
+            }),
+            ("Quit Game", () => GetTree().Quit()),
+            ("Cancel", () => State.SendEvent(DoneEvent))
+        ).MenuCanceled += () => State.SendEvent(DoneEvent);
     }
 
     /// <summary>Choose a selected <see cref="Unit"/>.</summary>
@@ -461,10 +478,7 @@ public partial class LevelManager : Node
         _commandMenu.MenuCanceled += () => State.SendEvent(CancelEvent);
     }
 
-    public void OnCommandingProcess(float delta)
-    {
-        _commandMenu.Position = MenuPosition(Grid.CellRect(_selected.Cell), _commandMenu.Size);
-    }
+    public void OnCommandingProcess(float delta) => _commandMenu.Position = MenuPosition(Grid.CellRect(_selected.Cell), _commandMenu.Size);
 
     /// <summary>Move the selected <see cref="Unit"/> and <see cref="Object.Cursor"/> back to the cell the unit was at before it moved.</summary>
     public void OnCommandingCanceled()
