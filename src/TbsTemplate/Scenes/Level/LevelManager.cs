@@ -12,6 +12,7 @@ using TbsTemplate.Nodes;
 using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI;
+using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.Scenes.Level;
 
@@ -69,6 +70,46 @@ public partial class LevelManager : Node
             UpdateDangerZones();
         }
     }
+
+    private Vector2 MenuPosition(Rect2 rect, Vector2 size)
+    {
+        Rect2 viewportRect = Grid.GetGlobalTransformWithCanvas()*rect;
+        float viewportCenter = GetViewport().GetVisibleRect().Position.X + GetViewport().GetVisibleRect().Size.X/2;
+        return new(
+            viewportCenter - viewportRect.Position.X < viewportRect.Size.X/2 ? viewportRect.Position.X - size.X : viewportRect.End.X,
+            Mathf.Clamp(viewportRect.Position.Y - (size.Y - viewportRect.Size.Y)/2, 0, GetViewport().GetVisibleRect().Size.Y - size.Y)
+        );
+    }
+
+    private ContextMenu ShowMenu(Rect2 rect, IEnumerable<(StringName name, Action action)> options)
+    {
+
+        ContextMenu menu = ContextMenu.Instantiate(options.Select((o) => o.name), true);
+        UserInterface.AddChild(menu);
+        menu.Visible = false;
+        foreach ((StringName name, Action action) in options)
+            menu[name].Pressed += action;
+        menu.MenuClosed += () => {
+            Cursor.Resume();
+            Camera.Target = _prevCameraTarget;
+            _prevCameraTarget = null;
+        };
+
+        Cursor.Halt(hide:true);
+        _prevCameraTarget = Camera.Target;
+        Camera.Target = null;
+
+        Callable.From<ContextMenu, Rect2>((m, r) => {
+            m.Visible = true;
+            if (DeviceManager.Mode != InputMode.Mouse)
+                m.GrabFocus();
+            m.Position = MenuPosition(r, m.Size);
+        }).CallDeferred(menu, rect);
+
+        return menu;
+    }
+
+    private ContextMenu ShowMenu(Rect2 rect, params (StringName, Action)[] options) => ShowMenu(rect, (IEnumerable<(StringName, Action)>)options);
 
     /// <summary>Update the displayed danger zones to reflect the current positions of the enemy <see cref="Unit"/>s.</summary>
     private void UpdateDangerZones()
@@ -220,6 +261,30 @@ public partial class LevelManager : Node
             if (@event.IsActionPressed(InputActions.Next))
                 SelectUnit(army.Next);
         }
+    }
+
+    /// <summary>Open the map menu and wait for an item to be selected.</summary>
+    public void OnIdleEmptyCellSelected(Vector2I cell)
+    {
+        void Cancel()
+        {
+            State.SendEvent(DoneEvent);
+            CancelSound.Play();
+        }
+
+        SelectSound.Play();
+        State.SendEvent(WaitEvent);
+        ShowMenu(new() { Position = Pointer.Position, Size = Vector2.Zero },
+            ("End Turn", () => {
+                State.SendEvent(DoneEvent);
+                foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
+                    unit.Finish();
+                State.SendEvent(SkipEvent);
+                SelectSound.Play();
+            }),
+            ("Quit Game", () => GetTree().Quit()),
+            ("Cancel", Cancel)
+        ).MenuCanceled += Cancel;
     }
 
     /// <summary>Choose a selected <see cref="Unit"/>.</summary>
@@ -393,6 +458,53 @@ public partial class LevelManager : Node
         Cursor.Resume();
     }
 #endregion
+#region Unit Commanding State
+    private ContextMenu _commandMenu = null;
+
+    public void OnCommandingEntered()
+    {
+        // Show the unit's attack/support ranges
+        ActionRanges actionable = new(
+            _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false),
+            _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false)
+        );
+        ActionOverlay.UsedCells = actionable.ToDictionary();
+
+        List<(StringName, Action)> options = [];
+        if (!actionable.Attackable.IsEmpty || !actionable.Supportable.IsEmpty)
+            options.Add(("Attack", () => State.SendEvent(SelectEvent)));
+        options.Add(("End", () => State.SendEvent(SkipEvent)));
+        options.Add(("Cancel", () => State.SendEvent(CancelEvent)));
+        _commandMenu = ShowMenu(Grid.CellRect(_selected.Cell), options);
+        _commandMenu.MenuCanceled += () => State.SendEvent(CancelEvent);
+        _commandMenu.MenuClosed += () => _commandMenu = null;
+    }
+
+    public void OnCommandingProcess(float delta) => _commandMenu.Position = MenuPosition(Grid.CellRect(_selected.Cell), _commandMenu.Size);
+
+    /// <summary>Move the selected <see cref="Unit"/> and <see cref="Object.Cursor"/> back to the cell the unit was at before it moved.</summary>
+    public void OnCommandingCanceled()
+    {
+        ActionOverlay.Clear();
+
+        // Move the selected unit back to its original cell
+        Grid.Occupants.Remove(_selected.Cell);
+        _selected.Cell = _initialCell.Value;
+        _selected.Position = Grid.PositionOf(_selected.Cell);
+        Grid.Occupants[_selected.Cell] = _selected;
+        _initialCell = null;
+        Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(_selected.Cell);
+
+        _target = null;
+        UpdateDangerZones();
+    }
+
+    public void OnTurnEndCommand()
+    {
+        _target = null;
+        ActionOverlay.Clear();
+    }
+#endregion
 #region Targeting State
     private ImmutableList<CombatAction> _combatResults = null;
 
@@ -403,7 +515,6 @@ public partial class LevelManager : Node
             _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false),
             _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false)
         );
-        ActionOverlay.UsedCells = actionable.ToDictionary();
 
         // Restrict cursor movement to actionable cells
         if (_target is null)
@@ -441,21 +552,6 @@ public partial class LevelManager : Node
         }
     }
 
-    /// <summary>Move the selected <see cref="Unit"/> and <see cref="Object.Cursor"/> back to the cell the unit was at before it moved.</summary>
-    public void OnTargetingCanceled()
-    {
-        // Move the selected unit back to its original cell
-        Grid.Occupants.Remove(_selected.Cell);
-        _selected.Cell = _initialCell.Value;
-        _selected.Position = Grid.PositionOf(_selected.Cell);
-        Grid.Occupants[_selected.Cell] = _selected;
-        _initialCell = null;
-        Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(_selected.Cell);
-
-        _target = null;
-        UpdateDangerZones();
-    }
-
     /// <summary>If a target is selected, begin combat fighting that target.  Otherwise, just end the selected <see cref="Unit"/>'s turn.</summary>
     /// <param name="cell">Cell being selected.</param>
     public void OnTargetingCellSelected(Vector2I cell)
@@ -483,7 +579,6 @@ public partial class LevelManager : Node
     /// <summary>Clean up displayed ranges and restore <see cref="Object.Cursor"/> freedom when exiting targeting <see cref="Nodes.StateChart.States.State"/>.</summary>
     public void OnTargetingExited()
     {
-        ActionOverlay.Clear();
         Pointer.AnalogTracking = true;
         Cursor.HardRestriction = Cursor.HardRestriction.Clear();
         Cursor.Wrap = false;
@@ -492,8 +587,9 @@ public partial class LevelManager : Node
 #region In Combat
     public void OnCombatEntered()
     {
+        ActionOverlay.Clear();
         Cursor.Halt();
-        Pointer.StartWaiting();
+        Pointer.StartWaiting(hide:true);
         SceneManager.BeginCombat(_selected, _target, _combatResults = CombatCalculations.CombatResults(_selected, _target));
     }
 
