@@ -91,13 +91,11 @@ public partial class LevelManager : Node
             menu[name].Pressed += action;
         menu.MenuClosed += () => {
             Cursor.Resume();
-            Pointer.StopWaiting();
             Camera.Target = _prevCameraTarget;
             _prevCameraTarget = null;
         };
 
         Cursor.Halt(hide:true);
-        Pointer.StartWaiting(hide:false);
         _prevCameraTarget = Camera.Target;
         Camera.Target = null;
 
@@ -591,7 +589,7 @@ public partial class LevelManager : Node
     {
         ActionOverlay.Clear();
         Cursor.Halt();
-        Pointer.StartWaiting();
+        Pointer.StartWaiting(hide:true);
         SceneManager.BeginCombat(_selected, _target, _combatResults = CombatCalculations.CombatResults(_selected, _target));
     }
 
