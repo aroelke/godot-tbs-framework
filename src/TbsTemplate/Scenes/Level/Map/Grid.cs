@@ -8,22 +8,22 @@ namespace TbsTemplate.Scenes.Level.Map;
 
 /// <summary>Defines the grid dimensions and attributes and contains the locations of the objects and terrain within it.</summary>
 [Tool]
-public partial class Grid : TileMap
+public partial class Grid : Node2D
 {
-    /// <summary><see cref="TileSet"/> layer containing ground tiles.</summary>
-    public int GroundLayer { get; private set; } = -1;
+    /// <summary><see cref="TileMapLayer"/> containing ground tiles.</summary>
+    [Export] public TileMapLayer GroundLayer = null;
 
-    /// <summary><see cref="TileSet"/> layer containing terrain tiles. This is the layer that will be used to define terrain effects.</summary>
-    public int TerrainLayer { get; private set; } = -1;
+    /// <summary><see cref="TileMapLayer"/> layer containing terrain tiles. This is the layer that will be used to define terrain effects.</summary>
+    [Export] public TileMapLayer TerrainLayer = null;
 
     /// <summary>Default terrain to use when it isn't placed explicitly on the map.</summary>
     [Export] public Terrain DefaultTerrain = null;
 
     /// <summary>Grid cell dimensions derived from the <see cref="TileSet"/>.  If there is no <see cref="TileSet"/>, the size is zero.</summary>
-    public Vector2 CellSize => TileSet?.TileSize ?? Vector2.Zero;
+    public Vector2 CellSize => GroundLayer?.TileSet?.TileSize ?? Vector2.Zero;
 
     /// <summary>Grid dimensions. Both elements should be positive.</summary>
-    public Vector2I Size => GetUsedRect().End;
+    public Vector2I Size => GroundLayer?.GetUsedRect().End ?? Vector2I.Zero;
 
     /// <summary>Characters and objects occupying the grid.</summary>
     public readonly Dictionary<Vector2I, GridNode> Occupants = [];
@@ -55,7 +55,7 @@ public partial class Grid : TileMap
 
     /// <returns>The terrain information for a cell, or <see cref="DefaultTerrain"/> if the terrain hasn't been set.</returns>
     /// <exception cref="IndexOutOfRangeException">If the <paramref name="cell"/> is outside the grid.</exception>
-    public Terrain GetTerrain(Vector2I cell) => GetCellTileData(TerrainLayer, cell)?.GetCustomData("terrain").As<Terrain>() ?? DefaultTerrain;
+    public Terrain GetTerrain(Vector2I cell) => TerrainLayer?.GetCellTileData(cell)?.GetCustomData("terrain").As<Terrain>() ?? DefaultTerrain;
 
     /// <param name="cell">Coordinates of the cell.</param>
     /// <returns>A unique ID within this map of the given <paramref name="cell"/>.</returns>
@@ -102,41 +102,13 @@ public partial class Grid : TileMap
         if (DefaultTerrain is null)
             warnings.Add("No default terrain set");
 
-        // Don't use Rect property here because it needs to update with the tilemap as it's edited
-        int ground = -1;
-        for (int i = 0; i < GetLayersCount(); i++)
-            if (GetLayerName(i) == "ground")
-                ground = i;
-        if (ground == -1)
-            warnings.Add("No ground layer");
+        if (GroundLayer is null)
+            warnings.Add("No ground layer has been defined.");
         else
-        {
-            for (int i = 0; i < GetUsedRect().End.X; i++)
-            {
-                for (int j = 0; j < GetUsedRect().End.Y; j++)
-                {
-                    Vector2I cell = new(i, j);
-                    if (!GetUsedCells(ground).Contains(cell))
-                        warnings.Add($"Missing ground tile at {cell}");
-                }
-            }
-        }
+            foreach (TileMapLayer layer in GetChildren().OfType<TileMapLayer>())
+                if ((layer.TileSet?.TileSize ?? Vector2.Zero) != CellSize)
+                    warnings.Add($"Tile size of layer {layer.Name} does not match cell size {CellSize}");
 
         return [.. warnings];
-    }
-
-    public override void _Ready()
-    {
-        base._Ready();
-        if (!Engine.IsEditorHint())
-        {
-            for (int i = 0; i < GetLayersCount(); i++)
-            {
-                if (GetLayerName(i) == "ground")
-                    GroundLayer = i;
-                if (GetLayerName(i) == "terrain")
-                    TerrainLayer = i;
-            }
-        }
     }
 }
