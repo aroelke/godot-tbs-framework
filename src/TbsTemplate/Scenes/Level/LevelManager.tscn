@@ -3,8 +3,8 @@
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DBrain.tscn" id="3_td8u6"]
 [ext_resource type="PackedScene" uid="uid://bgcsg0l8mj2sn" path="res://src/TbsTemplate/Scenes/Level/Object/Cursor.tscn" id="6_3v7mf"]
+[ext_resource type="PackedScene" uid="uid://t41dn0l7cicc" path="res://src/TbsTemplate/Scenes/Level/Layers/PathLayer.tscn" id="6_w4hfb"]
 [ext_resource type="PackedScene" uid="uid://d2pwsr12t0uxb" path="res://src/TbsTemplate/Scenes/Level/Overlay/RangeOverlay.tscn" id="7_benwh"]
-[ext_resource type="PackedScene" uid="uid://bnnydb3ggsdth" path="res://src/TbsTemplate/Scenes/Level/Overlay/PathOverlay.tscn" id="8_dofkx"]
 [ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/TbsTemplate/UI/HUD/CursorHintIcon.tscn" id="9_i7is8"]
 [ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/TbsTemplate/UI/HUD/ControlHint.tscn" id="10_dfuji"]
 [ext_resource type="PackedScene" uid="uid://bqrqq7jid7qp2" path="res://src/TbsTemplate/UI/Pointer.tscn" id="10_h4rp7"]
@@ -33,7 +33,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -1384996080
+seed = 1542055323
 
 [sub_resource type="Resource" id="Resource_umt67"]
 script = ExtResource("24_k1nop")
@@ -166,10 +166,8 @@ layer_0/modulate = Color(0, 0, 1, 0.392157)
 layer_0/navigation_enabled = false
 layer_1/name = "attack"
 layer_1/modulate = Color(1, 0, 0, 0.392157)
-layer_1/tile_data = PackedInt32Array()
 layer_2/name = "support"
 layer_2/modulate = Color(0, 1, 0, 0.392157)
-layer_2/tile_data = PackedInt32Array()
 
 [node name="ZoneOverlay" parent="." instance=ExtResource("7_benwh")]
 unique_name_in_owner = true
@@ -179,19 +177,16 @@ layer_0/navigation_enabled = false
 layer_1/name = "local danger"
 layer_1/modulate = Color(0.498039, 0, 0.247059, 0.392157)
 layer_1/navigation_enabled = false
-layer_1/tile_data = PackedInt32Array()
 layer_2/name = "global danger"
 layer_2/modulate = Color(0, 0, 0, 0.392157)
 layer_2/navigation_enabled = false
-layer_2/tile_data = PackedInt32Array()
-
-[node name="PathOverlay" parent="." instance=ExtResource("8_dofkx")]
-unique_name_in_owner = true
-z_index = 1
 
 [node name="Cursor" parent="." instance=ExtResource("6_3v7mf")]
 unique_name_in_owner = true
 DebugColor = Color(0, 0, 0, 0)
+
+[node name="PathLayer" parent="." instance=ExtResource("6_w4hfb")]
+unique_name_in_owner = true
 
 [node name="Pointer" parent="." instance=ExtResource("10_h4rp7")]
 unique_name_in_owner = true
@@ -231,14 +226,12 @@ layout_mode = 2
 
 [node name="SelectHint" parent="UserInterface/HUD/Hints" instance=ExtResource("10_dfuji")]
 layout_mode = 2
-Action = &"select"
 Description = "Select"
 
 [node name="CancelHint" parent="UserInterface/HUD/Hints" instance=ExtResource("10_dfuji")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-Action = &"cancel"
 Description = "Cancel"
 
 [node name="StateInspector" parent="UserInterface" node_paths=PackedStringArray("StateChart") instance=ExtResource("17_gyc8t")]

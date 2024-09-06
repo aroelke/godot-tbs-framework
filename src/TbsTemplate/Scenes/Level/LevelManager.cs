@@ -343,7 +343,7 @@ public partial class LevelManager : Node
         _target = null;
 
         if (_actionable.Traversable.Contains(cell))
-            PathOverlay.Path = _path = _path.Add(cell).Clamp(_selected.Stats.Move);
+            PathLayer.Path = _path = _path.Add(cell).Clamp(_selected.Stats.Move);
         else if (Grid.Occupants.GetValueOrDefault(cell) is Unit target)
         {
             IEnumerable<Vector2I> sources = [];
@@ -356,7 +356,7 @@ public partial class LevelManager : Node
             {
                 _target = target;
                 if (!sources.Contains(_path[^1]))
-                    PathOverlay.Path = _path = sources.Select((c) => _path.Add(c).Clamp(_selected.Stats.Move)).OrderBy(
+                    PathLayer.Path = _path = sources.Select((c) => _path.Add(c).Clamp(_selected.Stats.Move)).OrderBy(
                         (p) => new Vector2I(-(int)p[^1].DistanceTo(cell), (int)p[^1].DistanceTo(_path[^1])),
                         static (a, b) => a < b ? -1 : a > b ? 1 : 0
                     ).First();
@@ -383,14 +383,14 @@ public partial class LevelManager : Node
     public void OnSelectedToIdleTaken()
     {
         DeselectUnit();
-        PathOverlay.Clear();
+        PathLayer.Clear();
     }
 
     /// <summary>Move the <see cref="Object.Cursor"/> back to the selected <see cref="Unit"/> and then deselect it.</summary>
     public void OnSelectedCanceled()
     {
         _initialCell = null;
-        PathOverlay.Clear();
+        PathLayer.Clear();
         Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(_selected.Cell);
         DeselectUnit();
     }
@@ -400,7 +400,7 @@ public partial class LevelManager : Node
     {
         // Clear out movement/action ranges
         _actionable = _actionable.Clear();
-        PathOverlay.Clear();
+        PathLayer.Clear();
         ActionOverlay.Clear();
     }
 

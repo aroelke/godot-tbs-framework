@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using Godot;
 
-namespace TbsTemplate.Scenes.Level.Overlay;
+namespace TbsTemplate.Scenes.Level.Layers;
 
-/// <summary>A <see cref="Map.Grid"/> overlay used to display paths through its cells.</summary>
-public partial class PathOverlay : TileMap
+public partial class PathLayer : TileMapLayer
 {
     // TileSet source ID for the path arrows and indices containing arrowheads.
     // XXX: DEPENDS STRONGLY ON TILESET ORGANIZATION
@@ -18,14 +17,14 @@ public partial class PathOverlay : TileMap
     /// <remarks>Is not a <see cref="Map.Path"/> to decouple from <see cref="Map.Grid"/>.</remarks>
     public List<Vector2I> Path
     {
-        get => [.. GetUsedCells(0)];
+        get => [.. GetUsedCells()];
         set
         {
-            ClearLayer(0);
+            Clear();
             if (value.Count > 1)
             {
-                SetCellsTerrainPath(0, new(value), 0, 0);
-                SetCell(0, value[^1], sourceId:PathSourceId, atlasCoords:(value[^1] - value[^2]) switch
+                SetCellsTerrainPath(new(value), 0, 0);
+                SetCell(value[^1], sourceId:PathSourceId, atlasCoords:(value[^1] - value[^2]) switch
                 {
                     Vector2I(0, >0) => DownArrow,
                     Vector2I(>0, 0) => RightArrow,
