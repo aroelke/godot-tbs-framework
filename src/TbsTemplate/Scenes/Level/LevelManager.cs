@@ -44,9 +44,9 @@ public partial class LevelManager : Node
     private const string OtherOccupied = "other";           // Cell occupied by something else
 
     // Zone layer names
-    private const string LocalDangerZone = "local danger";
-    private const string AllyTraversable = "ally traversable";
-    private const string GlobalDanger = "global danger";
+    private const string LocalDangerZone = "LocalDangerZone";
+    private const string AllyTraversable = "TraversableZone";
+    private const string GlobalDanger = "GlobalDangerZone";
 #endregion
 #region Declarations
     private Path _path = null;

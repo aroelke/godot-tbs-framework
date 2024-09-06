@@ -7,29 +7,25 @@ using TbsTemplate.Scenes.Level.Object;
 namespace TbsTemplate.Scenes.Level.Map;
 
 /// <summary>Contains several sets of <see cref="Grid"/> cells that represent where a <see cref="Unit"/> could move to, attack, and support.</summary>
-public readonly struct ActionRanges
+/// <remarks>Create a new set of action ranges out of the given sets of cells.</remarks>
+/// <param name="traversable"></param>
+/// <param name="attackable"></param>
+/// <param name="supportable"></param>
+public readonly struct ActionRanges(IEnumerable<Vector2I> traversable, IEnumerable<Vector2I> attackable, IEnumerable<Vector2I> supportable)
 {
     /// <summary>Name of the traversable range, for indexing.</summary>
-    public const string TraversableRange = "move";
+    public const string TraversableRange = "MoveLayer";
     /// <summary>Name of the attackable range, for indexing.</summary>
-    public const string AttackableRange  = "attack";
+    public const string AttackableRange  = "AttackLayer";
     /// <summary>Name of the supportable range, for indexing.</summary>
-    public const string SupportableRange = "support";
+    public const string SupportableRange = "SupportLayer";
 
     /// <summary>Set of cells that can be moved to.</summary>
-    public readonly ImmutableHashSet<Vector2I> Traversable;
+    public readonly ImmutableHashSet<Vector2I> Traversable = traversable.ToImmutableHashSet();
     /// <summary>Set of cells that could be targeted for attack.</summary>
-    public readonly ImmutableHashSet<Vector2I> Attackable;
+    public readonly ImmutableHashSet<Vector2I> Attackable = attackable.ToImmutableHashSet();
     /// <summary>Set of cells that could be targeted for support.</summary>
-    public readonly ImmutableHashSet<Vector2I> Supportable;
-
-    /// <summary>Create a new set of action ranges out of the given sets of cells.</summary>
-    public ActionRanges(IEnumerable<Vector2I> traversable, IEnumerable<Vector2I> attackable, IEnumerable<Vector2I> supportable)
-    {
-        Traversable = traversable.ToImmutableHashSet();
-        Attackable  = attackable.ToImmutableHashSet();
-        Supportable = supportable.ToImmutableHashSet();
-    }
+    public readonly ImmutableHashSet<Vector2I> Supportable = supportable.ToImmutableHashSet();
 
     /// <summary>Create a new set of action ranges with no traversable cells.</summary>
     /// <param name="attackable">Set of cells that could be attacked.</param>

@@ -7,25 +7,16 @@ using TbsTemplate.Scenes.Level.Map;
 namespace TbsTemplate.Scenes.Level.Overlay;
 
 /// <summary>A <see cref="Grid"/> overlay used to display information about the grid cells.</summary>
-public partial class RangeOverlay : TileMap
+public partial class RangeOverlay : Node2D
 {
-    /// <summary>Get the index of the layer of the given name.</summary>
-    private int GetLayerIndex(string name)
-    {
-        for (int i = 0; i < GetLayersCount(); i++)
-            if (GetLayerName(i) == name)
-                return i;
-        return -1;
-    }
-
     /// <summary>The sets of used cells for the overlay.</summary>
     public IDictionary<string, ImmutableHashSet<Vector2I>> UsedCells
     {
-        get => Enumerable.Range(0, GetLayersCount()).ToDictionary(GetLayerName, (i) => this[GetLayerName(i)]);
+        get => GetChildren().OfType<TileMapLayer>().ToDictionary((l) => l.Name.ToString(), (l) => this[l.Name]); //Enumerable.Range(0, GetLayersCount()).ToDictionary(GetLayerName, (i) => this[GetLayerName(i)]);
         set
         {
-            for (int i = 0; i < GetLayersCount(); i++)
-                this[GetLayerName(i)] = value[GetLayerName(i)];
+            foreach ((string name, ImmutableHashSet<Vector2I> cells) in value)
+                this[name] = cells;
         }
     }
 
@@ -34,13 +25,18 @@ public partial class RangeOverlay : TileMap
     /// <returns>The set of cells used for the layer.</returns>
     public ImmutableHashSet<Vector2I> this[string layer]
     {
-        get => [.. GetUsedCells(GetLayerIndex(layer))];
+        get => [.. GetNode<TileMapLayer>(layer).GetUsedCells()];
         set
         {
-            int index = GetLayerIndex(layer);
-            ClearLayer(index);
-            SetCellsTerrainConnect(index, new(value), 0, 0);
+            GetNode<TileMapLayer>(layer).Clear();
+            GetNode<TileMapLayer>(layer).SetCellsTerrainConnect(new(value), 0, 0);
         }
+    }
+
+    public void Clear()
+    {
+        foreach (TileMapLayer layer in GetChildren().OfType<TileMapLayer>())
+            layer.Clear();
     }
 
     /// <summary>Compute a <see cref="Rect2"/> that encloses all the cells that contain tiles in the given layer.</summary>
@@ -50,7 +46,7 @@ public partial class RangeOverlay : TileMap
     public Rect2? GetEnclosingRect(Grid grid, string layer)
     {
         Rect2? enclosure = null;
-        foreach (Vector2I c in GetUsedCells(GetLayerIndex(layer)))
+        foreach (Vector2I c in GetNode<TileMapLayer>(layer).GetUsedCells())
         {
             Rect2 cellRect = grid.CellRect(c);
             enclosure = enclosure?.Expand(cellRect.Position).Expand(cellRect.End) ?? cellRect;
@@ -64,9 +60,9 @@ public partial class RangeOverlay : TileMap
     public Rect2? GetEnclosingRect(Grid grid)
     {
         Rect2? enclosure = null;
-        for (int i = 0; i < GetLayersCount(); i++)
+        foreach (TileMapLayer layer in GetChildren().OfType<TileMapLayer>())
         {
-            Rect2? layerRect = GetEnclosingRect(grid, GetLayerName(i));
+            Rect2? layerRect = GetEnclosingRect(grid, layer.Name);
             if (layerRect is not null)
                 enclosure = enclosure?.Expand(layerRect.Value.Position).Expand(layerRect.Value.End) ?? layerRect;
         }
