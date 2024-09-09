@@ -2,9 +2,14 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
+using TbsTemplate.Scenes.Level.Map;
 
 namespace TbsTemplate.Scenes.Level.Layers;
 
+/// <summary>
+/// A <see cref="Grid"/> overlay comprised of a list of <see cref="TileMapLayer"/>s useful for displaying information about cells. Layers lower in the scene tree
+/// (and therefore drawn later) can optionally be made to only show cells not also included in higher layers.
+/// </summary>
 [Tool]
 public partial class ActionLayers : Node2D
 {
@@ -33,6 +38,7 @@ public partial class ActionLayers : Node2D
         }
     }
 
+    /// <summary>Whether or not to display layers on top of each other or for earlier-drawn layers to overwrite later-drawn ones.</summary>
     [Export] public bool ShowUnion
     {
         get => _union;
@@ -47,18 +53,8 @@ public partial class ActionLayers : Node2D
         }
     }
 
-    public StringName this[int i]
-    {
-        get => GetChild(i).Name;
-        set
-        {
-            foreach (Node child in GetChildren())
-                if (child.Name == value)
-                    MoveChild(child, i);
-            UpdateLayers();
-        }
-    }
-
+    /// <summary>Get or set the set of cells highlighted in a particular layer.</summary>
+    /// <param name="name">Name of the layer to modify.</param>
     public ImmutableHashSet<Vector2I> this[StringName name]
     {
         get => _cells[name];
@@ -72,8 +68,10 @@ public partial class ActionLayers : Node2D
         }
     }
 
+    /// <returns>The unique set of cells occupied by all layers.</returns>
     public ImmutableHashSet<Vector2I> Union() => _cells.Select((p) => p.Value).Aggregate((a, b) => a.Union(b));
 
+    /// <summary>Clear all layers.</summary>
     public void Clear()
     {
         foreach (TileMapLayer layer in GetChildren().OfType<TileMapLayer>())

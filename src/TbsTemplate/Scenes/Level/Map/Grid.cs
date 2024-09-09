@@ -65,6 +65,9 @@ public partial class Grid : Node2D
     /// <returns>The bounding box of the cell.</returns>
     public Rect2 CellRect(Vector2I cell) => new(cell*CellSize, CellSize);
 
+    /// <summary>Compute the smallest rectangle the encloses a set of cells.</summary>
+    /// <param name="cells">Cells to enclose.</param>
+    /// <returns>A rectangle enclosing all of the <paramref name="cells"/>, or <c>null</c> if the set is empty.</returns>
     public Rect2? EnclosingRect(IEnumerable<Vector2I> cells)
     {
         Rect2? enclosure = null;
