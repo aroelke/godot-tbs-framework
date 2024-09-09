@@ -65,6 +65,17 @@ public partial class Grid : Node2D
     /// <returns>The bounding box of the cell.</returns>
     public Rect2 CellRect(Vector2I cell) => new(cell*CellSize, CellSize);
 
+    public Rect2? EnclosingRect(IEnumerable<Vector2I> cells)
+    {
+        Rect2? enclosure = null;
+        foreach (Vector2I cell in cells)
+        {
+            Rect2 cellRect = CellRect(cell);
+            enclosure = enclosure?.Expand(cellRect.Position).Expand(cellRect.End) ?? cellRect;
+        }
+        return enclosure;
+    }
+
     /// <summary>
     /// Compute the total cost of a collection of cells. If the cells are a contiguous path, represents the total cost of moving along that
     /// path.

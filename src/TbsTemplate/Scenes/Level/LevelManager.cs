@@ -13,6 +13,7 @@ using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI;
 using TbsTemplate.UI.Controls.Device;
+using System.Runtime.InteropServices;
 
 namespace TbsTemplate.Scenes.Level;
 
@@ -43,7 +44,10 @@ public partial class LevelManager : Node
     private const string EnemyOccupied = "enemy";           // Cell occupied by unit in enemy army to this turn's army
     private const string OtherOccupied = "other";           // Cell occupied by something else
 
-    // Zone layer names
+    // Overlay Layer names
+    private readonly StringName MoveLayer = "MoveLayer";
+    private readonly StringName AttackLayer = "AttackLayer";
+    private readonly StringName SupportLayer = "SupportLayer";
     private const string LocalDangerZone = "LocalDangerZone";
     private const string AllyTraversable = "TraversableZone";
     private const string GlobalDanger = "GlobalDangerZone";
@@ -186,7 +190,7 @@ public partial class LevelManager : Node
 #endregion
 #region Idle State
     /// <summary>Update the UI when re-entering idle.</summary>
-    public void OnIdleEntered() => ActionOverlay.Modulate = ActionRangeIdleModulate;
+    public void OnIdleEntered() => ActionLayers.Modulate = ActionRangeIdleModulate;
 
     /// <summary>
     /// Handle events that might occur during idle <see cref="Nodes.StateChart.States.State"/>.
@@ -216,7 +220,7 @@ public partial class LevelManager : Node
 
     /// <summary>Clear the displayed action ranges when moving the <see cref="Object.Cursor"/> to a new cell while in idle <see cref="Nodes.StateChart.States.State"/>.</summary>
     /// <param name="cell">Cell the <see cref="Object.Cursor"/> moved to.</param>
-    public void OnIdleCursorMoved(Vector2I cell) => ActionOverlay.Clear();
+    public void OnIdleCursorMoved(Vector2I cell) => ActionLayers.Clear();
 
     /// <summary>
     /// When the <see cref="Object.Cursor"/> moves over a <see cref="Unit"/> while in idle <see cref="Nodes.StateChart.States.State"/>, display that <see cref="Unit"/>'s
@@ -231,7 +235,9 @@ public partial class LevelManager : Node
                 Grid.Occupants.Select(static (e) => e.Value).OfType<Unit>().Where((u) => u.Faction.AlliedTo(hovered)),
                 Grid.Occupants.Select(static (e) => e.Value).OfType<Unit>().Where((u) => !u.Faction.AlliedTo(hovered))
             );
-            ActionOverlay.UsedCells = actionable.Exclusive().ToDictionary();
+            ActionLayers[MoveLayer] = actionable.Traversable;
+            ActionLayers[AttackLayer] = actionable.Attackable;
+            ActionLayers[SupportLayer] = actionable.Supportable;
         }
     }
 
@@ -249,7 +255,7 @@ public partial class LevelManager : Node
         {
             void SelectUnit(Func<Unit, Unit> selector)
             {
-                ActionOverlay.Clear();
+                ActionLayers.Clear();
                 Unit selected = selector(unit);
                 if (selected is not null)
                     Cursor.Cell = selected.Cell;
@@ -290,7 +296,7 @@ public partial class LevelManager : Node
     /// <summary>Choose a selected <see cref="Unit"/>.</summary>
     public void OnIdleToSelectedTaken()
     {
-        ActionOverlay.Modulate = Colors.White;
+        ActionLayers.Modulate = Colors.White;
         _selected = Grid.Occupants[Cursor.Cell] as Unit;
     }
 #endregion
@@ -319,11 +325,13 @@ public partial class LevelManager : Node
         _path = Path.Empty(Grid, _actionable.Traversable).Add(_selected.Cell);
         Cursor.SoftRestriction = [.. _actionable.Traversable];
 
-        ActionOverlay.UsedCells = _actionable.Exclusive().ToDictionary();
+        ActionLayers[MoveLayer] = _actionable.Traversable;
+        ActionLayers[AttackLayer] = _actionable.Attackable;
+        ActionLayers[SupportLayer] = _actionable.Supportable;
         CancelHint.Visible = true;
 
         // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
-        Rect2? zoomRect = ActionOverlay.GetEnclosingRect(Grid);
+        Rect2? zoomRect = Grid.EnclosingRect(ActionLayers.Union());
         if (zoomRect is not null)
         {
             Vector2 zoomTarget = Grid.GetViewportRect().Size/zoomRect.Value.Size;
@@ -401,7 +409,7 @@ public partial class LevelManager : Node
         // Clear out movement/action ranges
         _actionable = _actionable.Clear();
         PathLayer.Clear();
-        ActionOverlay.Clear();
+        ActionLayers.Clear();
     }
 
     public void OnSelectedExited()
@@ -468,7 +476,9 @@ public partial class LevelManager : Node
             _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false),
             _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false)
         );
-        ActionOverlay.UsedCells = actionable.ToDictionary();
+        ActionLayers[MoveLayer] = actionable.Traversable;
+        ActionLayers[AttackLayer] = actionable.Attackable;
+        ActionLayers[SupportLayer] = actionable.Supportable;
 
         List<(StringName, Action)> options = [];
         if (!actionable.Attackable.IsEmpty || !actionable.Supportable.IsEmpty)
@@ -485,7 +495,7 @@ public partial class LevelManager : Node
     /// <summary>Move the selected <see cref="Unit"/> and <see cref="Object.Cursor"/> back to the cell the unit was at before it moved.</summary>
     public void OnCommandingCanceled()
     {
-        ActionOverlay.Clear();
+        ActionLayers.Clear();
 
         // Move the selected unit back to its original cell
         Grid.Occupants.Remove(_selected.Cell);
@@ -502,7 +512,7 @@ public partial class LevelManager : Node
     public void OnTurnEndCommand()
     {
         _target = null;
-        ActionOverlay.Clear();
+        ActionLayers.Clear();
     }
 #endregion
 #region Targeting State
@@ -540,10 +550,10 @@ public partial class LevelManager : Node
         if (next != 0)
         {
             Vector2I[] cells = [];
-            if (ActionOverlay[ActionRanges.AttackableRange].Contains(Cursor.Cell))
-                cells = [.. ActionOverlay[ActionRanges.AttackableRange]];
-            else if (ActionOverlay[ActionRanges.SupportableRange].Contains(Cursor.Cell))
-                cells = [.. ActionOverlay[ActionRanges.SupportableRange]];
+            if (ActionLayers[AttackLayer].Contains(Cursor.Cell))
+                cells = [.. ActionLayers[AttackLayer]];
+            else if (ActionLayers[SupportLayer].Contains(Cursor.Cell))
+                cells = [.. ActionLayers[SupportLayer]];
             else
                 GD.PushError("Cursor is not on an actionable cell during targeting");
             
@@ -587,7 +597,7 @@ public partial class LevelManager : Node
 #region In Combat
     public void OnCombatEntered()
     {
-        ActionOverlay.Clear();
+        ActionLayers.Clear();
         Cursor.Halt();
         Pointer.StartWaiting(hide:true);
         SceneManager.BeginCombat(_selected, _target, _combatResults = CombatCalculations.CombatResults(_selected, _target));
@@ -600,7 +610,7 @@ public partial class LevelManager : Node
         _target.Health.Value -= CombatCalculations.TotalDamage(_target, _combatResults);
         _target = null;
         _combatResults = null;
-        ActionOverlay.Clear();
+        ActionLayers.Clear();
         SceneManager.Singleton.TransitionCompleted += OnTransitionedFromCombat;
     }
 
