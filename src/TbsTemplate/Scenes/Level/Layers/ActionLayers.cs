@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Numerics;
 using Godot;
 using TbsTemplate.Scenes.Level.Map;
 
@@ -71,11 +72,18 @@ public partial class ActionLayers : Node2D
     /// <returns>The unique set of cells occupied by all layers.</returns>
     public ImmutableHashSet<Vector2I> Union() => _cells.Select((p) => p.Value).Aggregate((a, b) => a.Union(b));
 
+    /// <summary>Clear a specific layer.</summary>
+    public void Clear(StringName layer)
+    {
+        _layers[layer].Clear();
+        _cells[layer] = [];
+    }
+
     /// <summary>Clear all layers.</summary>
     public void Clear()
     {
-        foreach (TileMapLayer layer in GetChildren().OfType<TileMapLayer>())
-            layer.Clear();
+        foreach ((StringName name, _) in _layers)
+            Clear(name);
     }
 
     public override string[] _GetConfigurationWarnings()
