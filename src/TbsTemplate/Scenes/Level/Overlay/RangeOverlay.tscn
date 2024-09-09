@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://d2pwsr12t0uxb"]
-
-[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Overlay/RangeOverlay.cs" id="2_2kqmr"]
-
-[node name="RangeOverlay" type="Node2D"]
-script = ExtResource("2_2kqmr")
