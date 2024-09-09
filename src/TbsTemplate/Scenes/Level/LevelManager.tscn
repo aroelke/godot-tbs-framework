@@ -35,7 +35,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -510952899
+seed = 647944664
 
 [sub_resource type="Resource" id="Resource_umt67"]
 script = ExtResource("24_k1nop")
@@ -181,25 +181,6 @@ modulate = Color(0, 1, 0, 0.392157)
 use_parent_material = true
 tile_set = ExtResource("4_12w8e")
 navigation_enabled = false
-
-[node name="ActionOverlay" parent="." instance=ExtResource("7_benwh")]
-unique_name_in_owner = true
-
-[node name="MoveLayer" type="TileMapLayer" parent="ActionOverlay"]
-modulate = Color(0, 0, 1, 0.392157)
-use_parent_material = true
-tile_set = ExtResource("4_12w8e")
-navigation_enabled = false
-
-[node name="AttackLayer" type="TileMapLayer" parent="ActionOverlay"]
-modulate = Color(1, 0, 0, 0.392157)
-use_parent_material = true
-tile_set = ExtResource("4_12w8e")
-
-[node name="SupportLayer" type="TileMapLayer" parent="ActionOverlay"]
-modulate = Color(0, 1, 0, 0.392157)
-use_parent_material = true
-tile_set = ExtResource("4_12w8e")
 
 [node name="ZoneOverlay" parent="." instance=ExtResource("7_benwh")]
 unique_name_in_owner = true
