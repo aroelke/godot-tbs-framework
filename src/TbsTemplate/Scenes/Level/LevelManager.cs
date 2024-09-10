@@ -13,7 +13,6 @@ using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI;
 using TbsTemplate.UI.Controls.Device;
-using System.Runtime.InteropServices;
 
 namespace TbsTemplate.Scenes.Level;
 
@@ -230,15 +229,7 @@ public partial class LevelManager : Node
     public void OnIdleCursorEnteredCell(Vector2I cell)
     {
         if (_armies.Current.Faction.IsPlayer && Grid.Occupants.GetValueOrDefault(cell) is Unit hovered)
-        {
-            ActionRanges actionable = hovered.ActionRanges().WithOccupants(
-                Grid.Occupants.Select(static (e) => e.Value).OfType<Unit>().Where((u) => u.Faction.AlliedTo(hovered)),
-                Grid.Occupants.Select(static (e) => e.Value).OfType<Unit>().Where((u) => !u.Faction.AlliedTo(hovered))
-            );
-            ActionLayers[MoveLayer] = actionable.Traversable;
-            ActionLayers[AttackLayer] = actionable.Attackable;
-            ActionLayers[SupportLayer] = actionable.Supportable;
-        }
+            (ActionLayers[MoveLayer], ActionLayers[AttackLayer], ActionLayers[SupportLayer]) = hovered.ActionRanges();
     }
 
     /// <summary>When the pointer stops moving, display the action range of the unit the cursor is over.</summary>
@@ -301,8 +292,6 @@ public partial class LevelManager : Node
     }
 #endregion
 #region Unit Selected State
-    private ActionRanges _actionable = new();
-
     /// <summary>Set the selected <see cref="Unit"/> to its idle state and the deselect it.</summary>
     private void DeselectUnit()
     {
@@ -318,16 +307,9 @@ public partial class LevelManager : Node
         _initialCell = _selected.Cell;
 
         // Compute move/attack/support ranges for selected unit
-        _actionable = _selected.ActionRanges().WithOccupants(
-            Grid.Occupants.Select(static (e) => e.Value).OfType<Unit>().Where((u) => u.Faction.AlliedTo(_selected)),
-            Grid.Occupants.Select(static (e) => e.Value).OfType<Unit>().Where((u) => !u.Faction.AlliedTo(_selected))
-        );
-        _path = Path.Empty(Grid, _actionable.Traversable).Add(_selected.Cell);
-        Cursor.SoftRestriction = [.. _actionable.Traversable];
-
-        ActionLayers[MoveLayer] = _actionable.Traversable;
-        ActionLayers[AttackLayer] = _actionable.Attackable;
-        ActionLayers[SupportLayer] = _actionable.Supportable;
+        (ActionLayers[MoveLayer], ActionLayers[AttackLayer], ActionLayers[SupportLayer]) = _selected.ActionRanges();
+        _path = Path.Empty(Grid, ActionLayers[MoveLayer]).Add(_selected.Cell);
+        Cursor.SoftRestriction = [.. ActionLayers[MoveLayer]];
         CancelHint.Visible = true;
 
         // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
@@ -350,15 +332,15 @@ public partial class LevelManager : Node
     {
         _target = null;
 
-        if (_actionable.Traversable.Contains(cell))
+        if (ActionLayers[MoveLayer].Contains(cell))
             PathLayer.Path = _path = _path.Add(cell).Clamp(_selected.Stats.Move);
         else if (Grid.Occupants.GetValueOrDefault(cell) is Unit target)
         {
             IEnumerable<Vector2I> sources = [];
-            if (target != _selected && _armies.Current.Faction.AlliedTo(target) && _actionable.Supportable.Contains(cell))
-                sources = _selected.SupportableCells(cell).Where(_actionable.Traversable.Contains);
-            else if (!_armies.Current.Faction.AlliedTo(target) && _actionable.Attackable.Contains(cell))
-                sources = _selected.AttackableCells(cell).Where(_actionable.Traversable.Contains);
+            if (target != _selected && _armies.Current.Faction.AlliedTo(target) && ActionLayers[SupportLayer].Contains(cell))
+                sources = _selected.SupportableCells(cell).Where(ActionLayers[MoveLayer].Contains);
+            else if (!_armies.Current.Faction.AlliedTo(target) && ActionLayers[AttackLayer].Contains(cell))
+                sources = _selected.AttackableCells(cell).Where(ActionLayers[MoveLayer].Contains);
             sources = sources.Where((c) => !Grid.Occupants.ContainsKey(c) || Grid.Occupants[c] == _selected);
             if (sources.Any())
             {
@@ -379,7 +361,7 @@ public partial class LevelManager : Node
     /// <param name="cell">Cell being selected.</param>
     public void OnSelectedCellSelected(Vector2I cell)
     {
-        if (_actionable.Traversable.Contains(cell))
+        if (ActionLayers[MoveLayer].Contains(cell))
         {
             Unit highlighted = Grid.Occupants.GetValueOrDefault(cell) as Unit;
             if (highlighted != _selected && _armies.Current.Faction.AlliedTo(highlighted))
@@ -407,7 +389,6 @@ public partial class LevelManager : Node
     public void OnDestinationChosen()
     {
         // Clear out movement/action ranges
-        _actionable = _actionable.Clear();
         PathLayer.Clear();
         ActionLayers.Clear();
     }
@@ -817,9 +798,9 @@ public partial class LevelManager : Node
                     _ => OtherOccupied
                 })
                 .SetItem(TargetProperty, Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit target &&
-                                          ((target != _selected && _armies.Current.Faction.AlliedTo(target) && _actionable.Supportable.Contains(Cursor.Cell)) ||
-                                           (!_armies.Current.Faction.AlliedTo(target) && _actionable.Attackable.Contains(Cursor.Cell))))
-                .SetItem(TraversableProperty, _actionable.Traversable.Contains(Cursor.Cell));
+                                          ((target != _selected && _armies.Current.Faction.AlliedTo(target) && ActionLayers[SupportLayer].Contains(Cursor.Cell)) ||
+                                           (!_armies.Current.Faction.AlliedTo(target) && ActionLayers[AttackLayer].Contains(Cursor.Cell))))
+                .SetItem(TraversableProperty, ActionLayers[MoveLayer].Contains(Cursor.Cell));
         }
     }
 #endregion

@@ -56,14 +56,14 @@ public partial class ActionLayers : Node2D
 
     /// <summary>Get or set the set of cells highlighted in a particular layer.</summary>
     /// <param name="name">Name of the layer to modify.</param>
-    public ImmutableHashSet<Vector2I> this[StringName name]
+    public IEnumerable<Vector2I> this[StringName name]
     {
         get => _cells[name];
         set
         {
             if (_cells[name] != value)
             {
-                _cells[name] = value;
+                _cells[name] = value.ToImmutableHashSet();
                 UpdateLayers();
             }
         }

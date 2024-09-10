@@ -37,8 +37,18 @@ public partial class Unit : GridNode, IHasHealth
     /// The set of all cells that are exactly within <paramref name="ranges"/> distance from at least one element of
     /// <paramref name="sources"/>.
     /// </returns>
-    private IEnumerable<Vector2I> GetCellsInRange(IEnumerable<Vector2I> sources, IEnumerable<int> ranges) =>
-        sources.SelectMany((c) => ranges.SelectMany((r) => Grid.GetCellsAtRange(c, r))).ToImmutableHashSet();
+    private ImmutableHashSet<Vector2I> GetCellsInRange(IEnumerable<Vector2I> sources, IEnumerable<int> ranges) => sources.SelectMany((c) => ranges.SelectMany((r) => Grid.GetCellsAtRange(c, r))).ToImmutableHashSet();
+
+    private (IEnumerable<Vector2I>, IEnumerable<Vector2I>, IEnumerable<Vector2I>) ExcludeOccupants(IEnumerable<Vector2I> move, IEnumerable<Vector2I> attack, IEnumerable<Vector2I> support)
+    {
+        IEnumerable<Unit> allies = Grid.Occupants.Select(static (e) => e.Value).OfType<Unit>().Where((u) => Faction.AlliedTo(u));
+        IEnumerable<Unit> enemies = Grid.Occupants.Select(static (e) => e.Value).OfType<Unit>().Where((u) => !Faction.AlliedTo(u));
+        return (
+            move.Where((c) => !enemies.Any((u) => u.Cell == c)),
+            attack.Where((c) => !allies.Any((u) => u.Cell == c)),
+            support.Where((c) => !enemies.Any((u) => u.Cell == c))
+        );
+    }
 
     /// <summary>Class this unit belongs to, defining some of its stats and animations.</summary>
     [Export] public Class Class = null;
@@ -155,10 +165,10 @@ public partial class Unit : GridNode, IHasHealth
     public IEnumerable<Vector2I> SupportableCells() => SupportableCells(Cell);
 
     /// <returns>The complete sets of cells this unit can act on.</returns>
-    public ActionRanges ActionRanges()
+    public (IEnumerable<Vector2I> traversable, IEnumerable<Vector2I> attackable, IEnumerable<Vector2I> supportable) ActionRanges()
     {
         IEnumerable<Vector2I> traversable = TraversableCells();
-        return new(
+        return ExcludeOccupants(
             traversable,
             AttackableCells(traversable.Where((c) => !Grid.Occupants.ContainsKey(c) || Grid.Occupants[c] == this)),
             SupportableCells(traversable.Where((c) => !Grid.Occupants.ContainsKey(c) || Grid.Occupants[c] == this))
