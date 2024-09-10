@@ -34,7 +34,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = 1424055192
+seed = -988620694
 
 [sub_resource type="Resource" id="Resource_umt67"]
 script = ExtResource("24_k1nop")
@@ -248,12 +248,14 @@ layout_mode = 2
 
 [node name="SelectHint" parent="UserInterface/HUD/Hints" instance=ExtResource("10_dfuji")]
 layout_mode = 2
+Action = &"select"
 Description = "Select"
 
 [node name="CancelHint" parent="UserInterface/HUD/Hints" instance=ExtResource("10_dfuji")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
+Action = &"cancel"
 Description = "Cancel"
 
 [node name="StateInspector" parent="UserInterface" node_paths=PackedStringArray("StateChart") instance=ExtResource("17_gyc8t")]
