@@ -453,16 +453,14 @@ public partial class LevelManager : Node
     public void OnCommandingEntered()
     {
         // Show the unit's attack/support ranges
-        ActionRanges actionable = new(
-            _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false),
-            _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false)
-        );
-        ActionLayers[MoveLayer] = actionable.Traversable;
-        ActionLayers[AttackLayer] = actionable.Attackable;
-        ActionLayers[SupportLayer] = actionable.Supportable;
+        IEnumerable<Vector2I> attackable = _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
+        IEnumerable<Vector2I> supportable = _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
+        ActionLayers.Clear(MoveLayer);
+        ActionLayers[AttackLayer] = attackable;
+        ActionLayers[SupportLayer] = supportable;
 
         List<(StringName, Action)> options = [];
-        if (!actionable.Attackable.IsEmpty || !actionable.Supportable.IsEmpty)
+        if (attackable.Any() || supportable.Any())
             options.Add(("Attack", () => State.SendEvent(SelectEvent)));
         options.Add(("End", () => State.SendEvent(SkipEvent)));
         options.Add(("Cancel", () => State.SendEvent(CancelEvent)));
@@ -502,16 +500,14 @@ public partial class LevelManager : Node
     public void OnTargetingEntered()
     {
         // Show the unit's attack/support ranges
-        ActionRanges actionable = new(
-            _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false),
-            _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false)
-        );
+        ImmutableHashSet<Vector2I> attackable = _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false).ToImmutableHashSet();
+        ImmutableHashSet<Vector2I> supportable = _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false).ToImmutableHashSet();
 
         // Restrict cursor movement to actionable cells
         if (_target is null)
         {
             Pointer.AnalogTracking = false;
-            Cursor.HardRestriction = actionable.Attackable.Union(actionable.Supportable);
+            Cursor.HardRestriction = attackable.Union(supportable);
             Cursor.Wrap = true;
         }
     }
