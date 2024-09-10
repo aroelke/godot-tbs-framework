@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsTemplate.UI.Controls.Device;
+using TbsTemplate.UI.Controls.Icons.Generic;
 
 namespace TbsTemplate.UI.Controls.Icons;
 
 /// <summary>Resource mapping mouse actions onto icons to display for them.</summary>
 [GlobalClass, Tool]
-public partial class MouseIconMap : IconMap
+public partial class MouseIconMap : IconMap, IIconMap<MouseButton>
 {
     private readonly Dictionary<MouseButton, Texture2D> _icons = Enum.GetValues<MouseButton>().ToDictionary(static (k) => k, static _ => (Texture2D)null);
     private readonly Dictionary<StringName, MouseButton> _names = Enum.GetValues<MouseButton>().ToDictionary(static (k) => new StringName(Enum.GetName(k)), static (k) => k);

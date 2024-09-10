@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsTemplate.UI.Controls.Device;
+using TbsTemplate.UI.Controls.Icons.Generic;
 
 namespace TbsTemplate.UI.Controls.Icons;
 
 /// <summary>Resource mapping a specific gamepad's axes to icons to display for them.</summary>
 [GlobalClass, Tool]
-public partial class IndividualGamepadAxisIconMap : IconMap
+public partial class IndividualGamepadAxisIconMap : IconMap, IIconMap<JoyAxis>
 {
     private readonly Dictionary<JoyAxis, Texture2D> _icons = Enum.GetValues<JoyAxis>().ToDictionary(static (k) => k, static _ => (Texture2D)null);
     private readonly Dictionary<StringName, JoyAxis> _names = Enum.GetValues<JoyAxis>().ToDictionary(static (k) => new StringName(Enum.GetName(k)), static (k) => k);

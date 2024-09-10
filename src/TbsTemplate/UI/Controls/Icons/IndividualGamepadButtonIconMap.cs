@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsTemplate.UI.Controls.Device;
+using TbsTemplate.UI.Controls.Icons.Generic;
 
 namespace TbsTemplate.UI.Controls.Icons;
 
 /// <summary>Resource mapping a specific gamepad's buttons to icons to display for them.</summary>
 [GlobalClass, Tool]
-public partial class IndividualGamepadButtonIconMap : IconMap
+public partial class IndividualGamepadButtonIconMap : IconMap, IIconMap<JoyButton>
 {
     private readonly Dictionary<JoyButton, Texture2D> _icons = Enum.GetValues<JoyButton>().ToDictionary(static (k) => k, static _ => (Texture2D)null);
     private readonly Dictionary<StringName, JoyButton> _names = Enum.GetValues<JoyButton>().ToDictionary(static (k) => new StringName(Enum.GetName(k)), static (k) => k);

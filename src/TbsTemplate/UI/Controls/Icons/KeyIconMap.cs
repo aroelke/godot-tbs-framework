@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsTemplate.UI.Controls.Device;
+using TbsTemplate.UI.Controls.Icons.Generic;
 
 namespace TbsTemplate.UI.Controls.Icons;
 
 /// <summary>Resource mapping keyboard keys onto icons to display for them.</summary>
 [GlobalClass, Tool]
-public partial class KeyIconMap : IconMap
+public partial class KeyIconMap : IconMap, IIconMap<Key>
 {
     private readonly Dictionary<Key, Texture2D> _icons = Enum.GetValues<Key>().ToDictionary(static (k) => k, static _ => (Texture2D)null);
     private readonly Dictionary<StringName, Key> _names = Enum.GetValues<Key>().ToDictionary(static (k) => new StringName(Enum.GetName(k)), static (k) => k);
