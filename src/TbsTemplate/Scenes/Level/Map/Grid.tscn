@@ -2,10 +2,6 @@
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Map/Grid.cs" id="5_6ttph"]
 
-[node name="Grid" type="TileMap"]
+[node name="Grid" type="Node2D"]
 z_index = -1
-format = 2
-layer_0/name = "ground"
-layer_1/name = "terrain"
-layer_1/tile_data = PackedInt32Array()
 script = ExtResource("5_6ttph")

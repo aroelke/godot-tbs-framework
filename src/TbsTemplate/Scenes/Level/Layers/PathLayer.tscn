@@ -1,10 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://bnnydb3ggsdth"]
+[gd_scene load_steps=5 format=3 uid="uid://t41dn0l7cicc"]
 
-[ext_resource type="Texture2D" uid="uid://dfppi0pjsv5ut" path="res://test/assets/level/ui/arrow.png" id="1_sroqw"]
-[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Overlay/PathOverlay.cs" id="2_xyyx6"]
+[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Layers/PathLayer.cs" id="1_6yyx0"]
+[ext_resource type="Texture2D" uid="uid://dfppi0pjsv5ut" path="res://test/assets/level/ui/arrow.png" id="1_c1lke"]
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_qo1xq"]
-texture = ExtResource("1_sroqw")
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_e6off"]
+texture = ExtResource("1_c1lke")
 margins = Vector2i(2, 2)
 separation = Vector2i(4, 4)
 texture_region_size = Vector2i(32, 32)
@@ -61,14 +61,13 @@ texture_region_size = Vector2i(32, 32)
 6:1/0 = 0
 7:1/0 = 0
 
-[sub_resource type="TileSet" id="TileSet_4cqof"]
+[sub_resource type="TileSet" id="TileSet_uaivj"]
 tile_size = Vector2i(32, 32)
 terrain_set_0/mode = 2
 terrain_set_0/terrain_0/name = "path"
 terrain_set_0/terrain_0/color = Color(0.5, 0.34375, 0.25, 1)
-sources/3 = SubResource("TileSetAtlasSource_qo1xq")
+sources/3 = SubResource("TileSetAtlasSource_e6off")
 
-[node name="PathOverlay" type="TileMap"]
-tile_set = SubResource("TileSet_4cqof")
-format = 2
-script = ExtResource("2_xyyx6")
+[node name="PathLayer" type="TileMapLayer"]
+tile_set = SubResource("TileSet_uaivj")
+script = ExtResource("1_6yyx0")

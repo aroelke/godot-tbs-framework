@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsTemplate.UI.Controls.Device;
+using TbsTemplate.UI.Controls.Icons.Generic;
 
 namespace TbsTemplate.UI.Controls.Icons;
 
 /// <summary>Mapping of input actions into icons for the current game pad.</summary>
 [GlobalClass, Tool]
-public partial class GamepadButtonIconMap : IconMap
+public partial class GamepadButtonIconMap : IconMap, IIconMap<JoyButton>
 {
     private Dictionary<string, IndividualGamepadButtonIconMap> _maps = [];
 
@@ -52,6 +53,7 @@ public partial class GamepadButtonIconMap : IconMap
             else
                 return this[DeviceManager.DeviceName][key];
         }
+        set => throw new NotSupportedException();
     }
 
     /// <summary>Check if the current game pad has an icon for a button.</summary>

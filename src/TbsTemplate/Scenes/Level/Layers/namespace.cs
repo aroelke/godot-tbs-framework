@@ -4,9 +4,9 @@ namespace TbsTemplate
     {
         namespace Level
         {
-            namespace Overlay
+            namespace Layers
             {
-                /// <summary>Map overlays to display information about units to the player.</summary>
+                /// <summary>Map layers used to display information about units to the player.</summary>
                 internal static class NamespaceDoc {}
             }
         }

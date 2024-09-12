@@ -391,6 +391,7 @@ transitions = ["Idle", "Selected", SubResource("AnimationNodeStateMachineTransit
 graph_offset = Vector2(-209.55, -66.9727)
 
 [node name="Unit" type="Node2D"]
+z_index = 1
 script = ExtResource("1_crlbh")
 Stats = SubResource("Resource_gr881")
 
