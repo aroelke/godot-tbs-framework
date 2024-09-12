@@ -40,78 +40,96 @@ tile_set = ExtResource("4_n7v2y")
 [node name="Player" parent="LevelManager" instance=ExtResource("4_xrn4s")]
 Faction = ExtResource("6_qur3m")
 
-[node name="PlayerA" parent="LevelManager/Player" instance=ExtResource("5_ju5kl")]
+[node name="PlayerA" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(192, 128)
 Class = ExtResource("7_crsy2")
 Stats = ExtResource("8_1sr4q")
 Faction = ExtResource("6_qur3m")
+Grid = NodePath("../../Grid")
 Cell = Vector2i(6, 4)
+Size = Vector2(32, 32)
 
-[node name="PlayerB" parent="LevelManager/Player" instance=ExtResource("5_ju5kl")]
+[node name="PlayerB" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(256, 256)
 Class = ExtResource("7_crsy2")
 Stats = ExtResource("8_1sr4q")
 Faction = ExtResource("6_qur3m")
+Grid = NodePath("../../Grid")
 Cell = Vector2i(8, 8)
+Size = Vector2(32, 32)
 
-[node name="PlayerC" parent="LevelManager/Player" instance=ExtResource("5_ju5kl")]
+[node name="PlayerC" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(128, 256)
 Class = ExtResource("7_crsy2")
 Stats = ExtResource("8_1sr4q")
 AttackRange = PackedInt32Array(2)
 Faction = ExtResource("6_qur3m")
+Grid = NodePath("../../Grid")
 Cell = Vector2i(4, 8)
+Size = Vector2(32, 32)
 
 [node name="Enemy" parent="LevelManager" instance=ExtResource("4_xrn4s")]
 Faction = ExtResource("10_k4gkn")
 
-[node name="EnemyA" parent="LevelManager/Enemy" instance=ExtResource("5_ju5kl")]
+[node name="EnemyA" parent="LevelManager/Enemy" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(128, 224)
 Class = ExtResource("7_crsy2")
 Stats = ExtResource("9_g2gda")
 Faction = ExtResource("10_k4gkn")
+Grid = NodePath("../../Grid")
 Cell = Vector2i(4, 7)
+Size = Vector2(32, 32)
 
-[node name="EnemyB" parent="LevelManager/Enemy" instance=ExtResource("5_ju5kl")]
+[node name="EnemyB" parent="LevelManager/Enemy" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(352, 224)
 Class = ExtResource("7_crsy2")
 Stats = ExtResource("9_g2gda")
 Faction = ExtResource("10_k4gkn")
+Grid = NodePath("../../Grid")
 Cell = Vector2i(11, 7)
+Size = Vector2(32, 32)
 
-[node name="EnemyC" parent="LevelManager/Enemy" instance=ExtResource("5_ju5kl")]
+[node name="EnemyC" parent="LevelManager/Enemy" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(256, 96)
 Class = ExtResource("7_crsy2")
 Stats = ExtResource("9_g2gda")
 Faction = ExtResource("10_k4gkn")
+Grid = NodePath("../../Grid")
 Cell = Vector2i(8, 3)
+Size = Vector2(32, 32)
 
-[node name="EnemyD" parent="LevelManager/Enemy" instance=ExtResource("5_ju5kl")]
+[node name="EnemyD" parent="LevelManager/Enemy" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(288, 256)
 Class = ExtResource("7_crsy2")
 Stats = ExtResource("9_g2gda")
 Faction = ExtResource("10_k4gkn")
+Grid = NodePath("../../Grid")
 Cell = Vector2i(9, 8)
+Size = Vector2(32, 32)
 
 [node name="OtherEnemy" parent="LevelManager" instance=ExtResource("4_xrn4s")]
 Faction = ExtResource("12_8r5wl")
 
-[node name="OtherEnemyA" parent="LevelManager/OtherEnemy" instance=ExtResource("5_ju5kl")]
+[node name="OtherEnemyA" parent="LevelManager/OtherEnemy" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(256, 192)
 Class = ExtResource("7_crsy2")
 Stats = ExtResource("9_awc5y")
 SupportRange = PackedInt32Array()
 Faction = ExtResource("12_8r5wl")
+Grid = NodePath("../../Grid")
 Cell = Vector2i(8, 6)
+Size = Vector2(32, 32)
 
 [node name="Ally" parent="LevelManager" instance=ExtResource("4_xrn4s")]
 Faction = ExtResource("14_hmodb")
 
-[node name="Unit" parent="LevelManager/Ally" instance=ExtResource("5_ju5kl")]
+[node name="Unit" parent="LevelManager/Ally" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(192, 192)
 Class = ExtResource("7_crsy2")
 Faction = ExtResource("14_hmodb")
+Grid = NodePath("../../Grid")
 Cell = Vector2i(6, 6)
+Size = Vector2(32, 32)
 
 [connection signal="child_entered_tree" from="LevelManager/Player" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Enemy" to="LevelManager" method="OnChildEnteredGroup"]
