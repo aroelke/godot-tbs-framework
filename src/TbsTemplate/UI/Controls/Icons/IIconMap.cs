@@ -2,6 +2,7 @@ using Godot;
 
 namespace TbsTemplate.UI.Controls.Icons;
 
+/// <summary>Interfacing defining a mapping of input action names onto icons for them.</summary>
 public interface IIconMap
 {
     /// <param name="action">Action to get the icon for.</param>
