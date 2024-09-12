@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsTemplate.UI.Controls.Device;
+using TbsTemplate.UI.Controls.Icons.Generic;
 
 namespace TbsTemplate.UI.Controls.Icons;
 
 /// <summary>Resource that maps input actions onto game pad axis icons for the current game pad.</summary>
 [GlobalClass, Tool]
-public partial class GamepadAxisIconMap : IconMap
+public partial class GamepadAxisIconMap : IconMap, IIconMap<JoyAxis>
 {
     private Dictionary<string, IndividualGamepadAxisIconMap> _maps = null;
 
@@ -64,6 +65,7 @@ public partial class GamepadAxisIconMap : IconMap
             else
                 return this[DeviceManager.DeviceName][key];
         }
+        set => throw new NotSupportedException();
     }
 
     /// <summary>Check if an axis has an icon mapped to it for the current game pad.</summary>
