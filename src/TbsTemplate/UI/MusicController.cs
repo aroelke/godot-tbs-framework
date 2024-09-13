@@ -7,6 +7,8 @@ namespace TbsTemplate.UI;
 [Tool]
 public partial class MusicController : AudioStreamPlayer
 {
+    [Signal] public delegate void FadeCompletedEventHandler();
+
     private static MusicController _singleton = null;
     private static readonly Dictionary<AudioStream, float> _positions = [];
 
@@ -26,16 +28,8 @@ public partial class MusicController : AudioStreamPlayer
         {
             if (Singleton.Stream != music)
             {
-                if (Singleton.Stream is not null)
-                {
-                    if (outDuration > 0)
-                    {
-                        Tween fade = Singleton.CreateTween();
-                        fade.TweenProperty(Singleton, new(AudioStreamPlayer.PropertyName.VolumeDb), Singleton.FadeVolume, outDuration);
-                        await Singleton.ToSignal(fade, Tween.SignalName.Finished);
-                    }
-                    _positions[Singleton.Stream] = Singleton.GetPlaybackPosition();
-                }
+                FadeOut(outDuration);
+                await Singleton.ToSignal(Singleton, SignalName.FadeCompleted);
             
                 Singleton.Stream = music;
                 Singleton.Play(_positions.GetValueOrDefault(Singleton.Stream));
@@ -53,6 +47,37 @@ public partial class MusicController : AudioStreamPlayer
         else if (Singleton.Stream is not null && !Singleton.Playing)
             Singleton.Play();
     }
+
+    /// <summary>Change the volume of the currently-playing track over time.</summary>
+    /// <param name="targetVolume">Volume, in dB, to change to.</param>
+    /// <param name="duration">Time, in seconds, to fade the volume to <paramref name="targetVolume"/>.</param>
+    public static void Fade(double targetVolume, double duration=0)
+    {
+        if (Singleton.Stream is null)
+            Callable.From(() => Singleton.EmitSignal(SignalName.FadeCompleted)).CallDeferred();
+        else
+        {
+            static void CompleteFade()
+            {
+                _positions[Singleton.Stream] = Singleton.GetPlaybackPosition();
+                Callable.From(() => Singleton.EmitSignal(SignalName.FadeCompleted)).CallDeferred();
+            }
+
+            if (duration > 0)
+            {
+                Tween fade = Singleton.CreateTween();
+                fade.TweenProperty(Singleton, new(AudioStreamPlayer.PropertyName.VolumeDb), targetVolume, duration);
+                fade.Finished += CompleteFade;
+            }
+            else
+                CompleteFade();
+        }
+    }
+
+    /// <summary>Fade the volume out to <see cref="FadeVolume"/> over time.</summary>
+    /// <param name="duration">Time, in seconds, to fade the volume out.</param>
+    /// <remarks>Note that the music does not stop when the fade out is completed.</remarks>
+    public static void FadeOut(double duration=0) => Fade(Singleton.FadeVolume, duration);
 
     /// <summary>Stop playing the current song.</summary>
     public static new void Stop() => ((AudioStreamPlayer)Singleton).Stop();
