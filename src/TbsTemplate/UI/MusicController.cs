@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Godot;
 
@@ -30,9 +31,7 @@ public partial class MusicController : AudioStreamPlayer
             {
                 FadeOut(outDuration);
                 await Singleton.ToSignal(Singleton, SignalName.FadeCompleted);
-            
-                Singleton.Stream = music;
-                Singleton.Play(_positions.GetValueOrDefault(Singleton.Stream));
+                Resume(music);
                 FadeIn(inDuration);
             }
         }
@@ -80,6 +79,27 @@ public partial class MusicController : AudioStreamPlayer
 
     /// <summary>Stop playing the current song.</summary>
     public static new void Stop() => ((AudioStreamPlayer)Singleton).Stop();
+
+    /// <summary>Play a music track from its last played position, or from the start if it hasn't been played yet.</summary>
+    /// <param name="music">Music to play.</param>
+    public static void Resume(AudioStream music=null)
+    {
+        if (Singleton.Stream == music && Singleton.IsPlaying())
+            return;
+
+        if (Singleton.Stream is not null)
+            _positions[Singleton.Stream] = Singleton.GetPlaybackPosition();
+        if (music is null)
+        {
+            if (Singleton.Stream is not null)
+                Singleton.Play(_positions.TryGetValue(Singleton.Stream, out float pos) ? pos : 0);
+        }
+        else
+        {
+            Singleton.Stream = music;
+            Singleton.Play(_positions.TryGetValue(music, out float pos) ? pos : 0);
+        }
+    }
 
     /// <summary>Reset music playback position memory.</summary>
     /// <param name="bgm">Track whose playback position is to be forgotten. Omit or set to <c>null</c> to forget all playback positions.</param>
