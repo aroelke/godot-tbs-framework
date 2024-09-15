@@ -33,15 +33,7 @@ public partial class MusicController : AudioStreamPlayer
             
                 Singleton.Stream = music;
                 Singleton.Play(_positions.GetValueOrDefault(Singleton.Stream));
-
-                if (inDuration > 0)
-                {
-                    Singleton.VolumeDb = Singleton.FadeVolume;
-                    Tween fade = Singleton.CreateTween();
-                    fade.TweenProperty(Singleton, new(AudioStreamPlayer.PropertyName.VolumeDb), Singleton.PlayVolume, inDuration);
-                }
-                else if (outDuration > 0)
-                    Singleton.VolumeDb = Singleton.PlayVolume;
+                FadeIn(inDuration);
             }
         }
         else if (Singleton.Stream is not null && !Singleton.Playing)
@@ -51,7 +43,7 @@ public partial class MusicController : AudioStreamPlayer
     /// <summary>Change the volume of the currently-playing track over time.</summary>
     /// <param name="targetVolume">Volume, in dB, to change to.</param>
     /// <param name="duration">Time, in seconds, to fade the volume to <paramref name="targetVolume"/>.</param>
-    public static void Fade(double targetVolume, double duration=0)
+    public static void Fade(float targetVolume, double duration=0)
     {
         if (Singleton.Stream is null)
             Callable.From(() => Singleton.EmitSignal(SignalName.FadeCompleted)).CallDeferred();
@@ -70,7 +62,10 @@ public partial class MusicController : AudioStreamPlayer
                 fade.Finished += CompleteFade;
             }
             else
+            {
+                Singleton.VolumeDb = targetVolume;
                 CompleteFade();
+            }
         }
     }
 
@@ -78,6 +73,10 @@ public partial class MusicController : AudioStreamPlayer
     /// <param name="duration">Time, in seconds, to fade the volume out.</param>
     /// <remarks>Note that the music does not stop when the fade out is completed.</remarks>
     public static void FadeOut(double duration=0) => Fade(Singleton.FadeVolume, duration);
+
+    /// <summary>Fade the volume in to <see cref="PlayVolume"/> over time.</summary>
+    /// <param name="duration">Time, in seconds, to fade the volume in.</param>
+    public static void FadeIn(double duration=0) => Fade(Singleton.PlayVolume, duration);
 
     /// <summary>Stop playing the current song.</summary>
     public static new void Stop() => ((AudioStreamPlayer)Singleton).Stop();
