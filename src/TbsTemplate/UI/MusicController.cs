@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Godot;
 
@@ -7,6 +8,8 @@ namespace TbsTemplate.UI;
 [Tool]
 public partial class MusicController : AudioStreamPlayer
 {
+    [Signal] public delegate void FadeCompletedEventHandler();
+
     private static MusicController _singleton = null;
     private static readonly Dictionary<AudioStream, float> _positions = [];
 
@@ -26,36 +29,77 @@ public partial class MusicController : AudioStreamPlayer
         {
             if (Singleton.Stream != music)
             {
-                if (Singleton.Stream is not null)
-                {
-                    if (outDuration > 0)
-                    {
-                        Tween fade = Singleton.CreateTween();
-                        fade.TweenProperty(Singleton, new(AudioStreamPlayer.PropertyName.VolumeDb), Singleton.FadeVolume, outDuration);
-                        await Singleton.ToSignal(fade, Tween.SignalName.Finished);
-                    }
-                    _positions[Singleton.Stream] = Singleton.GetPlaybackPosition();
-                }
-            
-                Singleton.Stream = music;
-                Singleton.Play(_positions.GetValueOrDefault(Singleton.Stream));
-
-                if (inDuration > 0)
-                {
-                    Singleton.VolumeDb = Singleton.FadeVolume;
-                    Tween fade = Singleton.CreateTween();
-                    fade.TweenProperty(Singleton, new(AudioStreamPlayer.PropertyName.VolumeDb), Singleton.PlayVolume, inDuration);
-                }
-                else if (outDuration > 0)
-                    Singleton.VolumeDb = Singleton.PlayVolume;
+                FadeOut(outDuration);
+                await Singleton.ToSignal(Singleton, SignalName.FadeCompleted);
+                Resume(music);
+                FadeIn(inDuration);
             }
         }
         else if (Singleton.Stream is not null && !Singleton.Playing)
             Singleton.Play();
     }
 
+    /// <summary>Change the volume of the currently-playing track over time.</summary>
+    /// <param name="targetVolume">Volume, in dB, to change to.</param>
+    /// <param name="duration">Time, in seconds, to fade the volume to <paramref name="targetVolume"/>.</param>
+    public static void Fade(float targetVolume, double duration=0)
+    {
+        if (Singleton.Stream is null)
+            Callable.From(() => Singleton.EmitSignal(SignalName.FadeCompleted)).CallDeferred();
+        else
+        {
+            static void CompleteFade()
+            {
+                _positions[Singleton.Stream] = Singleton.GetPlaybackPosition();
+                Callable.From(() => Singleton.EmitSignal(SignalName.FadeCompleted)).CallDeferred();
+            }
+
+            if (duration > 0)
+            {
+                Tween fade = Singleton.CreateTween();
+                fade.TweenProperty(Singleton, new(AudioStreamPlayer.PropertyName.VolumeDb), targetVolume, duration);
+                fade.Finished += CompleteFade;
+            }
+            else
+            {
+                Singleton.VolumeDb = targetVolume;
+                CompleteFade();
+            }
+        }
+    }
+
+    /// <summary>Fade the volume out to <see cref="FadeVolume"/> over time.</summary>
+    /// <param name="duration">Time, in seconds, to fade the volume out.</param>
+    /// <remarks>Note that the music does not stop when the fade out is completed.</remarks>
+    public static void FadeOut(double duration=0) => Fade(Singleton.FadeVolume, duration);
+
+    /// <summary>Fade the volume in to <see cref="PlayVolume"/> over time.</summary>
+    /// <param name="duration">Time, in seconds, to fade the volume in.</param>
+    public static void FadeIn(double duration=0) => Fade(Singleton.PlayVolume, duration);
+
     /// <summary>Stop playing the current song.</summary>
     public static new void Stop() => ((AudioStreamPlayer)Singleton).Stop();
+
+    /// <summary>Play a music track from its last played position, or from the start if it hasn't been played yet.</summary>
+    /// <param name="music">Music to play.</param>
+    public static void Resume(AudioStream music=null)
+    {
+        if (Singleton.Stream == music && Singleton.IsPlaying())
+            return;
+
+        if (Singleton.Stream is not null)
+            _positions[Singleton.Stream] = Singleton.GetPlaybackPosition();
+        if (music is null)
+        {
+            if (Singleton.Stream is not null)
+                Singleton.Play(_positions.TryGetValue(Singleton.Stream, out float pos) ? pos : 0);
+        }
+        else
+        {
+            Singleton.Stream = music;
+            Singleton.Play(_positions.TryGetValue(music, out float pos) ? pos : 0);
+        }
+    }
 
     /// <summary>Reset music playback position memory.</summary>
     /// <param name="bgm">Track whose playback position is to be forgotten. Omit or set to <c>null</c> to forget all playback positions.</param>

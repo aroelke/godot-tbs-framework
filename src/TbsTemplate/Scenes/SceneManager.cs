@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 using Godot;
 using TbsTemplate.Scenes.Combat;
 using TbsTemplate.Scenes.Combat.Data;
@@ -47,11 +48,21 @@ public partial class SceneManager : Node
         if (_currentLevel is not null)
             throw new InvalidOperationException("Combat has already begun.");
 
-        _combat = CombatScene.Instantiate(left, right, actions);
+        var task = Task.Run(() => CombatScene.Instantiate(left, right, actions));
         _currentLevel = Singleton.GetTree().CurrentScene;
 
-        FadeToBlack.TransitionedIn += _combat.Start;
-        DoSceneTransition(_combat, _combat.BackgroundMusic);
+        async void CompleteFade()
+        {
+            _target = _combat = await task;
+            FadeToBlack.TransitionedIn += _combat.Start;
+            MusicController.Resume(_combat.BackgroundMusic);
+            MusicController.FadeIn(FadeToBlack.TransitionTime/2);
+            FadeToBlack.TransitionedOut -= CompleteFade;
+        }
+        FadeToBlack.TransitionedOut += CompleteFade;
+        EmitSignal(SignalName.TransitionStarted);
+        MusicController.FadeOut(FadeToBlack.TransitionTime/2);
+        FadeToBlack.TransitionOut();
     }
 
     private void DoEndCombat()
