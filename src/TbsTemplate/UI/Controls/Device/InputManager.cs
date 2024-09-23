@@ -118,7 +118,11 @@ public partial class InputManager : Node2D
         {
         case NotificationWMMouseEnter or NotificationVpMouseEnter:
             _lastKnownPointerPosition = null;
-            EmitSignal(SignalName.MouseEntered, GetViewport().GetMousePosition());
+            void SignalEntered() => EmitSignal(SignalName.MouseEntered, GetViewport().GetMousePosition());
+            if (GetViewport() is null)
+                Callable.From(SignalEntered).CallDeferred();
+            else
+                SignalEntered();
             break;
         case NotificationWMMouseExit or NotificationVpMouseExit:
             _lastKnownPointerPosition = GetViewport().GetMousePosition().Clamp(Vector2.Zero, GetViewportRect().Size);
