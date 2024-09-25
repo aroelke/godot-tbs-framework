@@ -261,6 +261,7 @@ public partial class Unit : GridNode, IHasHealth
         {
             Path.Curve = new();
             MotionBox.Size = Size;
+            AnimationTree.Active = true;
             SetProcess(false);
         }
 

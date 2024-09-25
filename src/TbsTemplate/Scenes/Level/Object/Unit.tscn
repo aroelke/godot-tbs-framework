@@ -238,6 +238,7 @@ tracks/1/keys = {
 resource_name = "step"
 length = 0.1
 loop_mode = 1
+step = 0.33
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -388,7 +389,7 @@ states/Start/position = Vector2(249, 213)
 states/done/node = SubResource("AnimationNodeAnimation_m462t")
 states/done/position = Vector2(466, 364.117)
 transitions = ["Idle", "Selected", SubResource("AnimationNodeStateMachineTransition_av2ix"), "Selected", "Idle", SubResource("AnimationNodeStateMachineTransition_m6c88"), "Start", "Idle", SubResource("AnimationNodeStateMachineTransition_43qbb"), "Selected", "done", SubResource("AnimationNodeStateMachineTransition_gsdf1"), "done", "Idle", SubResource("AnimationNodeStateMachineTransition_csre7"), "Moving", "Idle", SubResource("AnimationNodeStateMachineTransition_nrnfq"), "Moving", "done", SubResource("AnimationNodeStateMachineTransition_1tawo"), "Selected", "Moving", SubResource("AnimationNodeStateMachineTransition_gjd0r"), "Moving", "Selected", SubResource("AnimationNodeStateMachineTransition_otyyn")]
-graph_offset = Vector2(-209.55, -66.9727)
+graph_offset = Vector2(-235.55, -4.9727)
 
 [node name="Unit" type="Node2D"]
 z_index = 1
@@ -457,6 +458,7 @@ autoplay = "RESET"
 
 [node name="AnimationTree" type="AnimationTree" parent="."]
 unique_name_in_owner = true
+active = false
 root_node = NodePath("%AnimationTree/..")
 tree_root = SubResource("AnimationNodeStateMachine_2xttf")
 anim_player = NodePath("../AnimationPlayer")
