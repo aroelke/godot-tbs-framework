@@ -677,12 +677,20 @@ public partial class LevelManager : Node
             State.SendEvent(SkipEvent);
     }
 
+    /// <summary>Automatically connect to a child <see cref="Army"/>'s <see cref="Node.SignalName.ChildEnteredTree"/> signal so new units in it can be automatically added to the grid.</summary>
+    /// <param name="child">Child being added to the tree.</param>
+    public void OnChildEnteredTree(Node child)
+    {
+        if (Engine.IsEditorHint() && child is Army army && !army.IsConnected(Node.SignalName.ChildEnteredTree, new Callable(this, MethodName.OnChildEnteredGroup)))
+            army.Connect(Node.SignalName.ChildEnteredTree, new Callable(this, MethodName.OnChildEnteredGroup), (uint)ConnectFlags.Persist);
+    }
+
     /// <summary>When a <see cref="GridNode"/> is added to a group, update its <see cref="GridNode.Grid"/>.</summary>
     /// <param name="child"></param>
     public void OnChildEnteredGroup(Node child)
     {
-        if (!Engine.IsEditorHint() && child is GridNode gd)
-            gd.Grid = Grid;
+        if (child is GridNode gd)
+            gd.Grid = Engine.IsEditorHint() ? GetNode<Grid>("Grid") : Grid;
     }
 
     public void OnUnitDefeated(Unit defeated)
@@ -707,7 +715,7 @@ public partial class LevelManager : Node
         if (!GetChildren().Any(static (c) => c is Army))
             warnings.Add("There are not any armies to assign units to.");
 
-        if (GetChildren().Count(static (c) => c is Army army && army.Faction.IsPlayer) > 1)
+        if (GetChildren().Count(static (c) => c is Army army && (army.Faction?.IsPlayer ?? false)) > 1)
             warnings.Add("Multiple armies are player-controlled. Only the first one will be used for zone display.");
 
         // Make sure there's background music
