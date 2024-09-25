@@ -201,13 +201,28 @@ public partial class Pointer : BoundedNode2D
     }
 
     /// <summary>During mouse control, move to the mouse position every step.</summary>
-    /// <param name="delta">Time since last process step.</param>
     public void OnMouseStateProcess(double delta)
     {
         if (Position != ViewportToWorld(InputManager.GetMousePosition()))
         {
             ControlState.SendEvent(DoneEvent);
             Warp(ViewportToWorld(InputManager.GetMousePosition()));
+        }
+    }
+
+    /// <summary>During mouse or analog control, signal that the cursor has stopped when it stops.</summary>
+    public void OnNotDigitalStatePhysicsProcess(double delta)
+    {
+        if (!Engine.IsEditorHint())
+        {
+            Vector2 velocity = Position - _positions[0];
+            Vector2 acceleration = velocity - (_positions[0] - _positions[1]);
+
+            if (velocity.IsZeroApprox() && !acceleration.IsZeroApprox())
+                Callable.From<Vector2>((p) => EmitSignal(SignalName.PointerStopped, p)).CallDeferred(Position);
+
+            _positions[1] = _positions[0];
+            _positions[0] = Position;
         }
     }
 
@@ -315,22 +330,6 @@ public partial class Pointer : BoundedNode2D
         if (!Engine.IsEditorHint())
         {
             Mouse.Position = WorldToViewport(Position);
-        }
-    }
-
-    public override void _PhysicsProcess(double delta)
-    {
-        base._PhysicsProcess(delta);
-        if (!Engine.IsEditorHint())
-        {
-            Vector2 velocity = Position - _positions[0];
-            Vector2 acceleration = velocity - (_positions[0] - _positions[1]);
-
-            if (velocity.IsZeroApprox() && !acceleration.IsZeroApprox())
-                EmitSignal(SignalName.PointerStopped, Position);
-
-            _positions[1] = _positions[0];
-            _positions[0] = Position;
         }
     }
 }
