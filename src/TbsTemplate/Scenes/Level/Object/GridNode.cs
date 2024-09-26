@@ -65,6 +65,6 @@ public partial class GridNode : BoundedNode2D
         base._Process(delta);
 
         if (Engine.IsEditorHint() && Grid is not null)
-            Cell = Grid.CellOf(Position);
+            Cell = Grid.CellOf(Position - Grid.Position);
     }
 }
