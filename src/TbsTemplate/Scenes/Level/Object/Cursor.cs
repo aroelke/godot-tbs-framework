@@ -78,7 +78,6 @@ public partial class Cursor : GridNode
                         }
                     }
 
-                    GlobalPosition = Grid.PositionOf(next) + Grid.GlobalPosition;
                     base.Cell = next;
                     EmitSignal(SignalName.CursorMoved, Grid.CellRect(next));
                 }

@@ -29,6 +29,8 @@ public partial class GridNode : BoundedNode2D
                 if (_cell != value)
                 {
                     _cell = value;
+                    if (Grid is not null)
+                        GlobalPosition = Grid.PositionOf(_cell) + Grid.GlobalPosition;
                     UpdateConfigurationWarnings();
                 }
             }
@@ -38,6 +40,8 @@ public partial class GridNode : BoundedNode2D
                 if (next != _cell)
                 {
                     _cell = next;
+                    if (Grid is not null)
+                        GlobalPosition = Grid.PositionOf(_cell) + Grid.GlobalPosition;
                     EmitSignal(SignalName.CellChanged, _cell);
                 }
             }
@@ -64,11 +68,10 @@ public partial class GridNode : BoundedNode2D
     {
         base._Process(delta);
 
-        if (Engine.IsEditorHint() && Grid is not null)
+        if (Engine.IsEditorHint() && Grid is not null && !Input.IsMouseButtonPressed(MouseButton.Left))
         {
             Cell = Grid.CellOf(GlobalPosition - Grid.GlobalPosition + Size/2);
-            if (!Input.IsMouseButtonPressed(MouseButton.Left))
-                GlobalPosition = Grid.PositionOf(Cell) + Grid.GlobalPosition;
+            GlobalPosition = Grid.PositionOf(_cell) + Grid.GlobalPosition;
         }
     }
 }

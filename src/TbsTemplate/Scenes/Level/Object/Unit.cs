@@ -287,7 +287,6 @@ public partial class Unit : GridNode, IHasHealth
                 AnimationTree.Set(Moving, false);
                 PathFollow.Progress = 0;
                 Cell = _target;
-                GlobalPosition = Grid.PositionOf(Cell) + Grid.GlobalPosition;
                 Path.Curve.ClearPoints();
                 SetProcess(false);
                 EmitSignal(SignalName.DoneMoving);
