@@ -66,9 +66,9 @@ public partial class GridNode : BoundedNode2D
 
         if (Engine.IsEditorHint() && Grid is not null)
         {
-            Cell = Grid.CellOf(Position - Grid.Position + Size/2);
+            Cell = Grid.CellOf(GlobalPosition - Grid.GlobalPosition + Size/2);
             if (!Input.IsMouseButtonPressed(MouseButton.Left))
-                Position = Grid.PositionOf(Cell) + Grid.Position;
+                GlobalPosition = Grid.PositionOf(Cell) + Grid.GlobalPosition;
         }
     }
 }
