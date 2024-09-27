@@ -1,4 +1,4 @@
-[gd_scene load_steps=49 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=47 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DBrain.tscn" id="3_td8u6"]
@@ -17,6 +17,7 @@
 [ext_resource type="PackedScene" uid="uid://lrf5ywt1n230" path="res://src/TbsTemplate/Nodes/StateChart/States/AtomicState.tscn" id="19_o30vs"]
 [ext_resource type="PackedScene" uid="uid://0b22cirxc7k2" path="res://src/TbsTemplate/Nodes/StateChart/States/Transition.tscn" id="20_p4yt1"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/FlagCondition.cs" id="21_7vj21"]
+[ext_resource type="Resource" uid="uid://bskotywb1gwgv" path="res://src/TbsTemplate/Scenes/Level/TraversableCondition.tres" id="22_sve70"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/StringCondition.cs" id="22_tix5y"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/InvertCondition.cs" id="23_6etqp"]
 [ext_resource type="PackedScene" uid="uid://dhytcbhqvrpx0" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/InputReaction.tscn" id="23_nnivc"]
@@ -33,7 +34,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = 1241922877
+seed = 731426722
 
 [sub_resource type="Resource" id="Resource_wh0tw"]
 script = ExtResource("22_tix5y")
@@ -54,10 +55,6 @@ script = ExtResource("22_tix5y")
 Property = &"occupied"
 Value = "active"
 
-[sub_resource type="Resource" id="Resource_4c3ly"]
-script = ExtResource("21_7vj21")
-Flag = &"traversable"
-
 [sub_resource type="Resource" id="Resource_mqluk"]
 script = ExtResource("22_tix5y")
 Property = &"occupied"
@@ -74,15 +71,11 @@ Conditions = [SubResource("Resource_mqluk"), SubResource("Resource_lmaao")]
 
 [sub_resource type="Resource" id="Resource_w328r"]
 script = ExtResource("25_6qv6s")
-Conditions = [SubResource("Resource_4c3ly"), SubResource("Resource_rpjvf")]
-
-[sub_resource type="Resource" id="Resource_npdxk"]
-script = ExtResource("21_7vj21")
-Flag = &"traversable"
+Conditions = [ExtResource("22_sve70"), SubResource("Resource_rpjvf")]
 
 [sub_resource type="Resource" id="Resource_7j6x2"]
 script = ExtResource("23_6etqp")
-Condition = SubResource("Resource_npdxk")
+Condition = ExtResource("22_sve70")
 
 [sub_resource type="Resource" id="Resource_eytjs"]
 script = ExtResource("21_7vj21")
@@ -96,13 +89,9 @@ Conditions = [SubResource("Resource_7j6x2"), SubResource("Resource_eytjs")]
 script = ExtResource("29_kfqmx")
 Conditions = [SubResource("Resource_w328r"), SubResource("Resource_x33ju")]
 
-[sub_resource type="Resource" id="Resource_wojwn"]
-script = ExtResource("21_7vj21")
-Flag = &"traversable"
-
 [sub_resource type="Resource" id="Resource_j0hg7"]
 script = ExtResource("23_6etqp")
-Condition = SubResource("Resource_wojwn")
+Condition = ExtResource("22_sve70")
 
 [node name="LevelManager" type="Node"]
 script = ExtResource("1_r2v0t")
