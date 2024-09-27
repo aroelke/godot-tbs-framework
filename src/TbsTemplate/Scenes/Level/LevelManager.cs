@@ -295,9 +295,11 @@ public partial class LevelManager : Node
     /// <summary>Set the selected <see cref="Unit"/> to its idle state and the deselect it.</summary>
     private void DeselectUnit()
     {
+        _initialCell = null;
         _selected.Deselect();
         _selected = null;
         CancelHint.Visible = false;
+        PathLayer.Clear();
     }
 
     /// <summary>Display the total movement, attack, and support ranges of the selected <see cref="Unit"/> and begin drawing the path arrow for it to move on.</summary>
@@ -369,22 +371,24 @@ public partial class LevelManager : Node
         }
     }
 
-    /// <summary>Deselect the selected <see cref="Unit"/> and clean up after canceling actions.</summary>
-    public void OnSelectedToIdleTaken()
+    /// <summary>
+    /// Put the selected <see cref="Unit"/> back into its idle state, then clear stored data related to it, except its action layers, which might
+    /// still need to be displayed.
+    /// </summary>
+    public void OnUnitDeselected()
     {
         _initialCell = null;
-        DeselectUnit();
-        ActionLayers.Clear();
+        _selected.Deselect();
+        _selected = null;
+        CancelHint.Visible = false;
         PathLayer.Clear();
     }
 
     /// <summary>Move the <see cref="Object.Cursor"/> back to the selected <see cref="Unit"/> and then deselect it.</summary>
     public void OnSelectedCanceled()
     {
-        _initialCell = null;
-        PathLayer.Clear();
         Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(_selected.Cell);
-        DeselectUnit();
+        OnUnitDeselected();
     }
 
     /// <summary>Clean up overlays when movement destination is chosen.</summary>
