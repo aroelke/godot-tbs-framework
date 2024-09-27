@@ -372,7 +372,9 @@ public partial class LevelManager : Node
     /// <summary>Deselect the selected <see cref="Unit"/> and clean up after canceling actions.</summary>
     public void OnSelectedToIdleTaken()
     {
+        _initialCell = null;
         DeselectUnit();
+        ActionLayers.Clear();
         PathLayer.Clear();
     }
 
