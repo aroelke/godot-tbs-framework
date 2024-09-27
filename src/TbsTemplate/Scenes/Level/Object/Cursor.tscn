@@ -19,6 +19,7 @@ offset = Vector2(16, 16)
 unique_name_in_owner = true
 stream = ExtResource("14_7nv3s")
 
+[connection signal="CellChanged" from="." to="." method="OnCellChanged"]
 [connection signal="DirectionEchoed" from="MoveController" to="." method="OnDirectionEchoed"]
 [connection signal="DirectionPressed" from="MoveController" to="." method="OnDirectionPressed"]
 [connection signal="DirectionReleased" from="MoveController" to="." method="OnDirectionReleased"]
