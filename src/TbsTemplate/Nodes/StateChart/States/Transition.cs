@@ -19,7 +19,7 @@ public partial class Transition : ChartNode
     [Export] public StringName Event = "";
 
     /// <summary>Condition guarding the transition. The transition will only be taken if the condition is satisfied.</summary>
-    [Export] public Condition Condition = new UnCondition();
+    [Export] public Condition Condition = null;
 
     /// <summary>Whether or not the transition should wait for an event before triggering.</summary>
     public bool Automatic => Event.IsEmpty;

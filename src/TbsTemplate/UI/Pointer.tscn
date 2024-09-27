@@ -1,56 +1,19 @@
-[gd_scene load_steps=24 format=3 uid="uid://bqrqq7jid7qp2"]
+[gd_scene load_steps=17 format=3 uid="uid://bqrqq7jid7qp2"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/UI/Pointer.cs" id="1_bn1q1"]
+[ext_resource type="Resource" uid="uid://xkum81jqd8ju" path="res://src/TbsTemplate/UI/AnalogCondition.tres" id="7_r0orh"]
 [ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/TbsTemplate/Nodes/StateChart/Chart.tscn" id="7_xfrm4"]
 [ext_resource type="PackedScene" uid="uid://bykdjiak4bxvt" path="res://src/TbsTemplate/Nodes/StateChart/States/CompoundState.tscn" id="8_pjkcf"]
+[ext_resource type="Resource" uid="uid://koe8v335eibs" path="res://src/TbsTemplate/UI/MouseCondition.tres" id="8_roach"]
 [ext_resource type="PackedScene" uid="uid://dnfp4qfxs85wh" path="res://src/TbsTemplate/Nodes/StateChart/States/HistoryState.tscn" id="9_c3q4a"]
 [ext_resource type="PackedScene" uid="uid://lrf5ywt1n230" path="res://src/TbsTemplate/Nodes/StateChart/States/AtomicState.tscn" id="10_fcy41"]
 [ext_resource type="PackedScene" uid="uid://0b22cirxc7k2" path="res://src/TbsTemplate/Nodes/StateChart/States/Transition.tscn" id="11_uxn4c"]
-[ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/StringCondition.cs" id="12_sa1jn"]
+[ext_resource type="Resource" uid="uid://du2acyfbvywug" path="res://src/TbsTemplate/UI/DigitalCondition.tres" id="12_wvd4h"]
 [ext_resource type="PackedScene" uid="uid://djew2nxucmtwl" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/UnhandledInputReaction.tscn" id="13_57sak"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/UnCondition.cs" id="14_xq8gn"]
 [ext_resource type="PackedScene" uid="uid://bajcy40oic1wf" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/ProcessReaction.tscn" id="15_n3x6e"]
 [ext_resource type="PackedScene" uid="uid://o14hjfw71flw" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/PhysicsProcessReaction.tscn" id="16_qorhx"]
 [ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://test/assets/ui/mouse.png" id="16_sbop6"]
-
-[sub_resource type="Resource" id="Resource_eewfv"]
-script = ExtResource("12_sa1jn")
-Property = &"mode"
-Value = "Analog"
-
-[sub_resource type="Resource" id="Resource_7fgyd"]
-script = ExtResource("12_sa1jn")
-Property = &"mode"
-Value = "Mouse"
-
-[sub_resource type="Resource" id="Resource_rigok"]
-script = ExtResource("12_sa1jn")
-Property = &"mode"
-Value = "Digital"
-
-[sub_resource type="Resource" id="Resource_ys2j2"]
-script = ExtResource("12_sa1jn")
-Property = &"mode"
-Value = "Mouse"
-
-[sub_resource type="Resource" id="Resource_1upme"]
-script = ExtResource("14_xq8gn")
-
-[sub_resource type="Resource" id="Resource_mlqyi"]
-script = ExtResource("12_sa1jn")
-Property = &"mode"
-Value = "Digital"
-
-[sub_resource type="Resource" id="Resource_jd7u7"]
-script = ExtResource("12_sa1jn")
-Property = &"mode"
-Value = "Analog"
-
-[sub_resource type="Resource" id="Resource_3ccod"]
-script = ExtResource("14_xq8gn")
-
-[sub_resource type="Resource" id="Resource_vuta3"]
-script = ExtResource("14_xq8gn")
 
 [sub_resource type="Resource" id="Resource_kxrw0"]
 script = ExtResource("14_xq8gn")
@@ -80,11 +43,11 @@ process_mode = 4
 
 [node name="ToAnalog" parent="ControlState/Root/Active/DigitalState" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
 To = NodePath("../../AnalogState")
-Condition = SubResource("Resource_eewfv")
+Condition = ExtResource("7_r0orh")
 
 [node name="ToMouse" parent="ControlState/Root/Active/DigitalState" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
 To = NodePath("../../MouseState")
-Condition = SubResource("Resource_7fgyd")
+Condition = ExtResource("8_roach")
 
 [node name="AnalogState" parent="ControlState/Root/Active" instance=ExtResource("10_fcy41")]
 unique_name_in_owner = true
@@ -92,14 +55,13 @@ process_mode = 4
 
 [node name="ToDigital" parent="ControlState/Root/Active/AnalogState" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
 To = NodePath("../../DigitalState")
-Condition = SubResource("Resource_rigok")
+Condition = ExtResource("12_wvd4h")
 
 [node name="ToMouse" parent="ControlState/Root/Active/AnalogState" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
 To = NodePath("../../MouseState")
-Condition = SubResource("Resource_ys2j2")
+Condition = ExtResource("8_roach")
 
 [node name="OnUnhandledInput" parent="ControlState/Root/Active/AnalogState" instance=ExtResource("13_57sak")]
-Condition = SubResource("Resource_1upme")
 
 [node name="OnPhysicsProcess" parent="ControlState/Root/Active/AnalogState" instance=ExtResource("16_qorhx")]
 
@@ -109,11 +71,11 @@ process_mode = 4
 
 [node name="ToDigital" parent="ControlState/Root/Active/MouseState" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
 To = NodePath("../../DigitalState")
-Condition = SubResource("Resource_mlqyi")
+Condition = ExtResource("12_wvd4h")
 
 [node name="ToAnalog" parent="ControlState/Root/Active/MouseState" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
 To = NodePath("../../AnalogState")
-Condition = SubResource("Resource_jd7u7")
+Condition = ExtResource("7_r0orh")
 
 [node name="OnProcess" parent="ControlState/Root/Active/MouseState" instance=ExtResource("15_n3x6e")]
 
@@ -122,12 +84,10 @@ Condition = SubResource("Resource_jd7u7")
 [node name="ToFlying" parent="ControlState/Root/Active" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
 To = NodePath("../../Flying")
 Event = &"fly"
-Condition = SubResource("Resource_3ccod")
 
 [node name="ToWaiting" parent="ControlState/Root/Active" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
 To = NodePath("../../Waiting")
 Event = &"wait"
-Condition = SubResource("Resource_vuta3")
 
 [node name="Flying" parent="ControlState/Root" instance=ExtResource("10_fcy41")]
 unique_name_in_owner = true
@@ -163,8 +123,8 @@ texture = ExtResource("16_sbop6")
 [connection signal="StateEntered" from="ControlState/Root/Active/AnalogState" to="." method="OnAnalogStateEntered"]
 [connection signal="Taken" from="ControlState/Root/Active/AnalogState/ToMouse" to="." method="OnToMouseStateTaken"]
 [connection signal="StateUnhandledInput" from="ControlState/Root/Active/AnalogState/OnUnhandledInput" to="." method="OnAnalogStateUnhandledInput"]
-[connection signal="StatePhysicsProcess" from="ControlState/Root/Active/AnalogState/OnPhysicsProcess" to="." method="OnNotDigitalStatePhysicsProcess"]
 [connection signal="StatePhysicsProcess" from="ControlState/Root/Active/AnalogState/OnPhysicsProcess" to="." method="OnAnalogStatePhysicsProcess"]
+[connection signal="StatePhysicsProcess" from="ControlState/Root/Active/AnalogState/OnPhysicsProcess" to="." method="OnNotDigitalStatePhysicsProcess"]
 [connection signal="StateEntered" from="ControlState/Root/Active/MouseState" to="." method="OnMouseStateEntered"]
 [connection signal="Taken" from="ControlState/Root/Active/MouseState/ToAnalog" to="." method="OnMouseToAnalogTaken"]
 [connection signal="StateProcess" from="ControlState/Root/Active/MouseState/OnProcess" to="." method="OnMouseStateProcess"]
