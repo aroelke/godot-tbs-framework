@@ -668,13 +668,12 @@ public partial class LevelManager : Node
 
     /// <summary>When a cell is selected, act based on what is or isn't in the cell.</summary>
     /// <param name="cell">Coordinates of the cell selection.</param>
-    public void OnCellSelected(Vector2I cell)
-    {
-        if (Grid.CellOf(Pointer.Position) == cell)
+    public void OnCellSelected(Vector2I cell) => Callable.From<Vector2I>((pos) => {
+        if (Grid.CellOf(pos) == cell)
             State.SendEvent(SelectEvent);
         else
             State.SendEvent(SkipEvent);
-    }
+    }).CallDeferred(Pointer.Position);
 
     /// <summary>Automatically connect to a child <see cref="Army"/>'s <see cref="Node.SignalName.ChildEnteredTree"/> signal so new units in it can be automatically added to the grid.</summary>
     /// <param name="child">Child being added to the tree.</param>
