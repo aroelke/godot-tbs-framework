@@ -479,7 +479,6 @@ public partial class LevelManager : Node
         // Move the selected unit back to its original cell
         Grid.Occupants.Remove(_selected.Cell);
         _selected.Cell = _initialCell.Value;
-        _selected.Position = Grid.PositionOf(_selected.Cell);
         Grid.Occupants[_selected.Cell] = _selected;
         _initialCell = null;
         Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(_selected.Cell);
@@ -741,8 +740,7 @@ public partial class LevelManager : Node
             foreach (Unit unit in GetChildren().OfType<IEnumerable<Unit>>().Flatten())
             {
                 unit.Grid = Grid;
-                unit.Cell = Grid.CellOf(unit.Position);
-                unit.Position = Grid.PositionOf(unit.Cell);
+                unit.Cell = Grid.CellOf(unit.GlobalPosition - Grid.GlobalPosition);
                 Grid.Occupants[unit.Cell] = unit;
             }
             UnitEvents.Singleton.UnitDefeated += OnUnitDefeated;

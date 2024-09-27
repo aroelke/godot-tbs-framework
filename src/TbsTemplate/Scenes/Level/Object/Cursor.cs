@@ -43,48 +43,13 @@ public partial class Cursor : GridNode
         return 0;
     });
 
+    private Vector2I _previous = Vector2I.Zero;
     private ImmutableHashSet<Vector2I> _hard = [];
     private bool _halted = false;
     private bool _skip = false;
 
     /// <summary>Whether or not the cursor should wrap to the other side if a direction is pressed toward the edge it's on.</summary>
     [Export] public bool Wrap = false;
-
-    /// <summary>Cell the cursor occupies. Overrides <see cref="GridNode.Cell"/> to ensure that the position is updated before any signals fire.</summary>
-    public override Vector2I Cell
-    {
-        get => base.Cell;
-        set
-        {
-            if (Engine.IsEditorHint() && Grid is null)
-                base.Cell = value;
-            else
-            {
-                Vector2I next = Grid.Clamp(value);
-                if (next != Cell)
-                {
-                    if (!_halted)
-                        MoveSound.Play();
-
-                    // Briefly break continuous digital movement to allow reaction from the player when the cursor has reached the edge of the soft restriction
-                    if (SoftRestriction.Contains(next))
-                    {
-                        if (DeviceManager.Mode == InputMode.Digital)
-                        {
-                            Vector2I direction = next - base.Cell;
-                            Vector2I further = value + direction;
-                            if (Grid.Contains(further) && !SoftRestriction.Contains(further))
-                                MoveController.ResetEcho();
-                        }
-                    }
-
-                    Position = Grid.PositionOf(next);
-                    base.Cell = next;
-                    EmitSignal(SignalName.CursorMoved, Grid.CellRect(next));
-                }
-            }
-        }
-    }
 
     /// <summary>"Soft zone" that breaks cursor continuous movement and skips to the edge of.</summary>
     public HashSet<Vector2I> SoftRestriction = [];
@@ -217,6 +182,32 @@ public partial class Cursor : GridNode
             EmitSignal(SignalName.CellEntered, Cell);
     }
 
+    /// <summary>
+    /// When the cursor's cell changes, play the cursor-moved sound, stop echoing digital movement at the edge of a movement region, and emit the
+    /// <see cref="SignalName.CursorMoved"/> signal to indicate the new rectangle enclosed by the cursor.
+    /// </summary>
+    /// <param name="cell">Cell that was moved to.</param>
+    public void OnCellChanged(Vector2I cell)
+    {
+        if (!_halted)
+            MoveSound.Play();
+
+        // Briefly break continuous digital movement to allow reaction from the player when the cursor has reached the edge of the soft restriction
+        if (SoftRestriction.Contains(cell))
+        {
+            if (DeviceManager.Mode == InputMode.Digital)
+            {
+                Vector2I direction = cell - _previous;
+                Vector2I further = cell + direction;
+                if (Grid.Contains(further) && !SoftRestriction.Contains(further))
+                    MoveController.ResetEcho();
+            }
+        }
+
+        EmitSignal(SignalName.CursorMoved, Grid.CellRect(cell));
+        _previous = cell;
+    }
+
     /// <summary>Update the <see cref="Map.Grid"/> cell when the pointer signals it has moved, unless the cursor is what's controlling movement.</summary>
     /// <param name="position">Position of the pointer.</param>
     public void OnPointerMoved(Vector2 position)
@@ -261,6 +252,12 @@ public partial class Cursor : GridNode
                 }
             }
         }
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+        _previous = Cell;
     }
 
     public override void _UnhandledInput(InputEvent @event)

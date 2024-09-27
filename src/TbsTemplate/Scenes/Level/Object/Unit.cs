@@ -29,6 +29,7 @@ public partial class Unit : GridNode, IHasHealth
 
     private Faction _faction = null;
     private Stats _stats = new();
+    private Vector2I _target = Vector2I.Zero;
 
     /// <summary>Get all cells in a set of ranges from a set of source cells.</summary>
     /// <param name="sources">Cells to compute ranges from.</param>
@@ -228,9 +229,9 @@ public partial class Unit : GridNode, IHasHealth
         {
             foreach (Vector2I cell in path)
                 Path.Curve.AddPoint(Grid.PositionOf(cell) - Position);
-            Cell = path[^1];
             AnimationTree.Set(Selected, false);
             AnimationTree.Set(Moving, true);
+            _target = path[^1];
             SetProcess(true);
         }
     }
@@ -285,7 +286,7 @@ public partial class Unit : GridNode, IHasHealth
                 AnimationTree.Set(Selected, true);
                 AnimationTree.Set(Moving, false);
                 PathFollow.Progress = 0;
-                Position = Grid.PositionOf(Cell);
+                Cell = _target;
                 Path.Curve.ClearPoints();
                 SetProcess(false);
                 EmitSignal(SignalName.DoneMoving);
