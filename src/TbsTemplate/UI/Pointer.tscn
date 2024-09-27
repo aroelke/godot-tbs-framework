@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://bqrqq7jid7qp2"]
+[gd_scene load_steps=21 format=3 uid="uid://bqrqq7jid7qp2"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/UI/Pointer.cs" id="1_bn1q1"]
 [ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/TbsTemplate/Nodes/StateChart/Chart.tscn" id="7_xfrm4"]
@@ -33,9 +33,6 @@ script = ExtResource("12_sa1jn")
 Property = &"mode"
 Value = "Mouse"
 
-[sub_resource type="Resource" id="Resource_1upme"]
-script = ExtResource("14_xq8gn")
-
 [sub_resource type="Resource" id="Resource_mlqyi"]
 script = ExtResource("12_sa1jn")
 Property = &"mode"
@@ -45,12 +42,6 @@ Value = "Digital"
 script = ExtResource("12_sa1jn")
 Property = &"mode"
 Value = "Analog"
-
-[sub_resource type="Resource" id="Resource_3ccod"]
-script = ExtResource("14_xq8gn")
-
-[sub_resource type="Resource" id="Resource_vuta3"]
-script = ExtResource("14_xq8gn")
 
 [sub_resource type="Resource" id="Resource_kxrw0"]
 script = ExtResource("14_xq8gn")
@@ -99,7 +90,6 @@ To = NodePath("../../MouseState")
 Condition = SubResource("Resource_ys2j2")
 
 [node name="OnUnhandledInput" parent="ControlState/Root/Active/AnalogState" instance=ExtResource("13_57sak")]
-Condition = SubResource("Resource_1upme")
 
 [node name="OnPhysicsProcess" parent="ControlState/Root/Active/AnalogState" instance=ExtResource("16_qorhx")]
 
@@ -122,12 +112,10 @@ Condition = SubResource("Resource_jd7u7")
 [node name="ToFlying" parent="ControlState/Root/Active" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
 To = NodePath("../../Flying")
 Event = &"fly"
-Condition = SubResource("Resource_3ccod")
 
 [node name="ToWaiting" parent="ControlState/Root/Active" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
 To = NodePath("../../Waiting")
 Event = &"wait"
-Condition = SubResource("Resource_vuta3")
 
 [node name="Flying" parent="ControlState/Root" instance=ExtResource("10_fcy41")]
 unique_name_in_owner = true
@@ -163,8 +151,8 @@ texture = ExtResource("16_sbop6")
 [connection signal="StateEntered" from="ControlState/Root/Active/AnalogState" to="." method="OnAnalogStateEntered"]
 [connection signal="Taken" from="ControlState/Root/Active/AnalogState/ToMouse" to="." method="OnToMouseStateTaken"]
 [connection signal="StateUnhandledInput" from="ControlState/Root/Active/AnalogState/OnUnhandledInput" to="." method="OnAnalogStateUnhandledInput"]
-[connection signal="StatePhysicsProcess" from="ControlState/Root/Active/AnalogState/OnPhysicsProcess" to="." method="OnNotDigitalStatePhysicsProcess"]
 [connection signal="StatePhysicsProcess" from="ControlState/Root/Active/AnalogState/OnPhysicsProcess" to="." method="OnAnalogStatePhysicsProcess"]
+[connection signal="StatePhysicsProcess" from="ControlState/Root/Active/AnalogState/OnPhysicsProcess" to="." method="OnNotDigitalStatePhysicsProcess"]
 [connection signal="StateEntered" from="ControlState/Root/Active/MouseState" to="." method="OnMouseStateEntered"]
 [connection signal="Taken" from="ControlState/Root/Active/MouseState/ToAnalog" to="." method="OnMouseToAnalogTaken"]
 [connection signal="StateProcess" from="ControlState/Root/Active/MouseState/OnProcess" to="." method="OnMouseStateProcess"]

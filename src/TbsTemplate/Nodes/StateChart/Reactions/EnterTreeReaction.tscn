@@ -1,11 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://b7i65c130fgfs"]
+[gd_scene load_steps=3 format=3 uid="uid://b7i65c130fgfs"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/EnterTreeReaction.cs" id="1_5prph"]
-[ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/UnCondition.cs" id="2_i2qy1"]
-
-[sub_resource type="Resource" id="Resource_7g18b"]
-script = ExtResource("2_i2qy1")
+[ext_resource type="Resource" uid="uid://bw65e8e6vr1fl" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/UnCondition.tres" id="2_74di7"]
 
 [node name="EnterTreeReaction" type="Node"]
 script = ExtResource("1_5prph")
-Condition = SubResource("Resource_7g18b")
+Condition = ExtResource("2_74di7")
