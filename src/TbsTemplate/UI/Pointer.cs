@@ -32,7 +32,6 @@ public partial class Pointer : BoundedNode2D
     [Signal] public delegate void FlightCompletedEventHandler();
 
     private static readonly StringName ModeProperty = "mode";
-    private static readonly StringName FlyEvent = "fly";
     private static readonly StringName WaitEvent = "wait";
     private static readonly StringName DoneEvent = "done";
 
@@ -111,7 +110,6 @@ public partial class Pointer : BoundedNode2D
     /// <param name="duration"></param>
     public void Fly(Vector2 target, double duration)
     {
-        ControlState.SendEvent(FlyEvent);
         Mouse.Visible = true;
         DeviceManager.EnableSystemMouse = false;
         EmitSignal(SignalName.FlightStarted, target);
@@ -133,6 +131,8 @@ public partial class Pointer : BoundedNode2D
             EmitSignal(SignalName.PointerMoved, Position);
             EmitSignal(SignalName.FlightCompleted);
         };
+
+        ControlState.SendEvent(WaitEvent);
     }
 
     /// <summary>Disable input and wait for an event to complete.</summary>
@@ -229,8 +229,8 @@ public partial class Pointer : BoundedNode2D
         }
     }
 
-    /// <summary>When done flying, kill the tween controlling it in case flight is ended before it has completed movement and re-enable the system mouse.</summary>
-    public void OnFlyingExited()
+    /// <summary>When done waiting, kill the tween controlling it in case the pointer is flying and flight is ended before it has completed movement.</summary>
+    public void OnWaitingExited()
     {
         if (_flyer.IsValid())
             _flyer.Kill();
