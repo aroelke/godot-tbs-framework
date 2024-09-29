@@ -112,6 +112,8 @@ public partial class Pointer : BoundedNode2D
     public void Fly(Vector2 target, double duration)
     {
         ControlState.SendEvent(FlyEvent);
+        Mouse.Visible = true;
+        DeviceManager.EnableSystemMouse = false;
         EmitSignal(SignalName.FlightStarted, target);
 
         if (_flyer.IsValid())
@@ -140,6 +142,7 @@ public partial class Pointer : BoundedNode2D
         if (hide)
             DeviceManager.EnableSystemMouse = false;
         ControlState.SendEvent(WaitEvent);
+        Mouse.Visible = false;
     }
 
     /// <summary>Re-enable input.</summary>
@@ -226,28 +229,12 @@ public partial class Pointer : BoundedNode2D
         }
     }
 
-    /// <summary>
-    /// When starting to fly to a location, make the virtual pointer visible and system mouse invisible so it doesn't jitter if moved while flying. Re-entering
-    /// the appropriate state after flying is complete will automatically update the pointers to the correct visibilities.
-    /// </summary>
-    public void OnFlyingEntered()
-    {
-        Mouse.Visible = true;
-        DeviceManager.EnableSystemMouse = false;
-    }
-
     /// <summary>When done flying, kill the tween controlling it in case flight is ended before it has completed movement and re-enable the system mouse.</summary>
     public void OnFlyingExited()
     {
         if (_flyer.IsValid())
             _flyer.Kill();
     }
-
-    /// <summary>
-    /// When entering the waiting state, hide the mouse for the duration of the wait. Its visibility will be restored automatically by the state it
-    /// returns to.
-    /// </summary>
-    public void OnWaitingEntered() => Mouse.Visible = false;
 
     /// <summary>When the mouse enters the <see cref="Viewport"/>, warp to its entry position.</summary>
     /// <param name="position">Position the mouse entered the <see cref="Viewport"/> on.</param>
