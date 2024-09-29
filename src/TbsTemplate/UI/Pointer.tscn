@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://bqrqq7jid7qp2"]
+[gd_scene load_steps=16 format=3 uid="uid://bqrqq7jid7qp2"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/UI/Pointer.cs" id="1_bn1q1"]
 [ext_resource type="Resource" uid="uid://xkum81jqd8ju" path="res://src/TbsTemplate/UI/AnalogCondition.tres" id="7_r0orh"]
@@ -14,9 +14,6 @@
 [ext_resource type="PackedScene" uid="uid://bajcy40oic1wf" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/ProcessReaction.tscn" id="15_n3x6e"]
 [ext_resource type="PackedScene" uid="uid://o14hjfw71flw" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/PhysicsProcessReaction.tscn" id="16_qorhx"]
 [ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://test/assets/ui/mouse.png" id="16_sbop6"]
-
-[sub_resource type="Resource" id="Resource_kxrw0"]
-script = ExtResource("14_xq8gn")
 
 [sub_resource type="Resource" id="Resource_0s27s"]
 script = ExtResource("14_xq8gn")
@@ -82,21 +79,12 @@ Condition = ExtResource("7_r0orh")
 [node name="OnPhysicsProcessReaction" parent="ControlState/Root/Active/MouseState" instance=ExtResource("16_qorhx")]
 
 [node name="ToFlying" parent="ControlState/Root/Active" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
-To = NodePath("../../Flying")
+To = NodePath("")
 Event = &"fly"
 
 [node name="ToWaiting" parent="ControlState/Root/Active" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
 To = NodePath("../../Waiting")
 Event = &"wait"
-
-[node name="Flying" parent="ControlState/Root" instance=ExtResource("10_fcy41")]
-unique_name_in_owner = true
-process_mode = 4
-
-[node name="ToActive" parent="ControlState/Root/Flying" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
-To = NodePath("../../Active/History")
-Event = &"done"
-Condition = SubResource("Resource_kxrw0")
 
 [node name="Waiting" parent="ControlState/Root" instance=ExtResource("10_fcy41")]
 process_mode = 4
@@ -129,6 +117,4 @@ texture = ExtResource("16_sbop6")
 [connection signal="Taken" from="ControlState/Root/Active/MouseState/ToAnalog" to="." method="OnMouseToAnalogTaken"]
 [connection signal="StateProcess" from="ControlState/Root/Active/MouseState/OnProcess" to="." method="OnMouseStateProcess"]
 [connection signal="StatePhysicsProcess" from="ControlState/Root/Active/MouseState/OnPhysicsProcessReaction" to="." method="OnNotDigitalStatePhysicsProcess"]
-[connection signal="StateEntered" from="ControlState/Root/Flying" to="." method="OnFlyingEntered"]
-[connection signal="StateExited" from="ControlState/Root/Flying" to="." method="OnFlyingExited"]
-[connection signal="StateEntered" from="ControlState/Root/Waiting" to="." method="OnWaitingEntered"]
+[connection signal="StateExited" from="ControlState/Root/Waiting" to="." method="OnWaitingExited"]
