@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=4 uid="uid://bmfxux38ovtj2"]
+[gd_scene load_steps=17 format=4 uid="uid://bmfxux38ovtj2"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/LevelManager.tscn" id="1_h3e4w"]
 [ext_resource type="AudioStream" uid="uid://dlm0x8f7oe33c" path="res://test/assets/raw/Legendary_JRPG_Battle_Music_Pack/Battle-Conflict_loop/Battle-Conflict_loop.ogg" id="2_d2oip"]
@@ -15,12 +15,19 @@
 [ext_resource type="Resource" uid="uid://dp74yifhop864" path="res://test/factions/TestEnemyFaction1.tres" id="10_k4gkn"]
 [ext_resource type="Resource" uid="uid://cbi1a2igyxbt4" path="res://test/factions/TestEnemyFaction2.tres" id="12_8r5wl"]
 [ext_resource type="Resource" uid="uid://cljpmwsb1nbjt" path="res://test/factions/TestAllyFaction.tres" id="14_hmodb"]
+[ext_resource type="PackedScene" uid="uid://h3yhm0thhl8m" path="res://src/TbsTemplate/Nodes/StateChart/StateChartInspector.tscn" id="16_i76wh"]
 
 [node name="TestMap" type="Node2D"]
 
 [node name="LevelManager" parent="." node_paths=PackedStringArray("StartingArmy") instance=ExtResource("1_h3e4w")]
 BackgroundMusic = ExtResource("2_d2oip")
 StartingArmy = NodePath("Player")
+
+[node name="SelectHint" parent="LevelManager/UserInterface/HUD/Hints" index="1"]
+Action = &""
+
+[node name="CancelHint" parent="LevelManager/UserInterface/HUD/Hints" index="2"]
+Action = &""
 
 [node name="Grid" parent="LevelManager" node_paths=PackedStringArray("GroundLayer", "TerrainLayer") instance=ExtResource("2_trttl")]
 GroundLayer = NodePath("Ground")
@@ -131,7 +138,34 @@ Grid = NodePath("../../Grid")
 Cell = Vector2i(6, 6)
 Size = Vector2(32, 32)
 
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="LevelManagerInspector" parent="CanvasLayer" node_paths=PackedStringArray("StateChart") instance=ExtResource("16_i76wh")]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_bottom = 0.0
+offset_left = -479.0
+offset_bottom = 367.0
+grow_horizontal = 0
+grow_vertical = 1
+StateChart = NodePath("../../LevelManager/State")
+
+[node name="PointerInspector" parent="CanvasLayer" node_paths=PackedStringArray("StateChart") instance=ExtResource("16_i76wh")]
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 801.0
+offset_top = 372.0
+offset_right = 1280.0
+offset_bottom = 739.0
+grow_horizontal = 1
+grow_vertical = 1
+StateChart = NodePath("../../LevelManager/Pointer/ControlState")
+
 [connection signal="child_entered_tree" from="LevelManager/Player" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Enemy" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/OtherEnemy" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Ally" to="LevelManager" method="OnChildEnteredGroup"]
+
+[editable path="LevelManager"]
+[editable path="LevelManager/Pointer"]
