@@ -59,6 +59,7 @@ public partial class SceneManager : Node
             MusicController.Resume(_combat.BackgroundMusic);
             MusicController.FadeIn(FadeToBlack.TransitionTime/2);
             FadeToBlack.TransitionedOut -= CompleteFade;
+            OnTransitionedOut();
         }
         FadeToBlack.TransitionedOut += CompleteFade;
         EmitSignal(SignalName.TransitionStarted);
@@ -74,6 +75,7 @@ public partial class SceneManager : Node
         FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => {
             _combat.QueueFree();
             _combat = null;
+            OnTransitionedOut();
         }), (uint)ConnectFlags.OneShot);
         FadeToBlack.TransitionedIn -= _combat.Start;
         DoSceneTransition(_currentLevel, _currentLevel.GetNode<LevelManager>("LevelManager").BackgroundMusic);
