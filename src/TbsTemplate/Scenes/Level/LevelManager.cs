@@ -590,14 +590,7 @@ public partial class LevelManager : Node
         _target = null;
         _combatResults = null;
         ActionLayers.Clear();
-        SceneManager.Singleton.TransitionCompleted += OnTransitionedFromCombat;
-    }
-
-    /// <summary>Finish waiting once the transition back has completed.</summary>
-    public void OnTransitionedFromCombat()
-    {
-        State.SendEvent(DoneEvent);
-        SceneManager.Singleton.TransitionCompleted -= OnTransitionedFromCombat;
+        SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, Callable.From(() => State.SendEvent(DoneEvent)), (uint)ConnectFlags.OneShot);
     }
 
     public void OnCombatExited()
