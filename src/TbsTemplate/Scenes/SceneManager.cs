@@ -58,10 +58,9 @@ public partial class SceneManager : Node
             FadeToBlack.TransitionedIn += _combat.Start;
             MusicController.Resume(_combat.BackgroundMusic);
             MusicController.FadeIn(FadeToBlack.TransitionTime/2);
-            FadeToBlack.TransitionedOut -= CompleteFade;
             OnTransitionedOut();
         }
-        FadeToBlack.TransitionedOut += CompleteFade;
+        FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(CompleteFade), (uint)ConnectFlags.OneShot);
         EmitSignal(SignalName.TransitionStarted);
         MusicController.FadeOut(FadeToBlack.TransitionTime/2);
         FadeToBlack.TransitionOut();
