@@ -23,12 +23,6 @@
 BackgroundMusic = ExtResource("2_d2oip")
 StartingArmy = NodePath("Player")
 
-[node name="SelectHint" parent="LevelManager/UserInterface/HUD/Hints" index="1"]
-Action = &""
-
-[node name="CancelHint" parent="LevelManager/UserInterface/HUD/Hints" index="2"]
-Action = &""
-
 [node name="Grid" parent="LevelManager" node_paths=PackedStringArray("GroundLayer", "TerrainLayer") instance=ExtResource("2_trttl")]
 GroundLayer = NodePath("Ground")
 TerrainLayer = NodePath("Terrain")

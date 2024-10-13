@@ -19,35 +19,22 @@ public partial class MoveController : Node
     /// <param name="direction">Direction that was echoed.</param>
     [Signal] public delegate void DirectionEchoedEventHandler(Vector2I direction);
 
+    /// <summary>Specifies which type of process frame the move controller updates.</summary>
+    public enum MoveControllerProcessCallback
+    {
+        /// <summary>Process movement during physics frames.</summary>
+        Physics,
+        /// <summary>Process movement during process frames.</summary>
+        Idle
+    }
+
     private static bool IsActionPressed(StringName action) => Input.GetActionRawStrength(action) >= InputMap.ActionGetDeadzone(action);
 
     private double _remaining = 0;
     private Vector2I _previous = Vector2I.Zero;
 
-    /// <summary>Initial delay after pressing a button to begin echoing the input.</summary>
-    [Export] public double EchoDelay = 0.3;
-
-    /// <summary>Delay between moves while holding an input down.</summary>
-    [Export] public double EchoInterval = 0.03;
-
-    /// <summary>Whether or not to use analog inputs for control (treated digitally) as well as digital ones.</summary>
-    [Export] public bool EnableAnalog = false;
-
-    /// <summary>Reset the echo timer so its next timeout is on the delay rather than the interval.</summary>
-    public void ResetEcho() => _remaining = EchoDelay;
-
-    public override void _EnterTree()
+    private void Process(double delta)
     {
-        base._EnterTree();
-
-        _remaining = 0;
-        _previous = Vector2I.Zero;
-    }
-
-    public override void _Process(double delta)
-    {
-        base._Process(delta);
-
         Vector2I digital = new(
             Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveRight)) - Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveLeft)),
             Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveDown)) - Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveUp))
@@ -78,5 +65,42 @@ public partial class MoveController : Node
                 EmitSignal(SignalName.DirectionReleased, released);
         }
         _previous = current;
+    }
+
+    /// <summary>Initial delay after pressing a button to begin echoing the input.</summary>
+    [Export] public double EchoDelay = 0.3;
+
+    /// <summary>Delay between moves while holding an input down.</summary>
+    [Export] public double EchoInterval = 0.03;
+
+    /// <summary>Whether or not to use analog inputs for control (treated digitally) as well as digital ones.</summary>
+    [Export] public bool EnableAnalog = false;
+
+    /// <summary>Type of process frame movement should be processed in.</summary>
+    [Export] public MoveControllerProcessCallback ProcessCallback = MoveControllerProcessCallback.Idle;
+
+    /// <summary>Reset the echo timer so its next timeout is on the delay rather than the interval.</summary>
+    public void ResetEcho() => _remaining = EchoDelay;
+
+    public override void _EnterTree()
+    {
+        base._EnterTree();
+
+        _remaining = 0;
+        _previous = Vector2I.Zero;
+    }
+
+    public override void _PhysicsProcess(double delta)
+    {
+        base._PhysicsProcess(delta);
+        if (ProcessCallback == MoveControllerProcessCallback.Physics)
+            Process(delta);
+    }
+
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+        if (ProcessCallback == MoveControllerProcessCallback.Idle)
+            Process(delta);
     }
 }
