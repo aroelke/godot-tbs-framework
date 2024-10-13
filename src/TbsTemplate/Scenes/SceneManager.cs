@@ -6,6 +6,7 @@ using TbsTemplate.Scenes.Combat;
 using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.Scenes.Level;
 using TbsTemplate.Scenes.Level.Object;
+using TbsTemplate.Scenes.Transitions;
 using TbsTemplate.UI;
 
 namespace TbsTemplate.Scenes;
@@ -70,14 +71,10 @@ public partial class SceneManager : Node
         if (_currentLevel is null)
             throw new InvalidOperationException("There is no level to return to");
 
-        void CleanUp()
-        {
+        FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => {
             _combat.QueueFree();
             _combat = null;
-            FadeToBlack.TransitionedOut -= CleanUp;
-        }
-
-        FadeToBlack.TransitionedOut += CleanUp;
+        }), (uint)ConnectFlags.OneShot);
         FadeToBlack.TransitionedIn -= _combat.Start;
         DoSceneTransition(_currentLevel, _currentLevel.GetNode<LevelManager>("LevelManager").BackgroundMusic);
         _currentLevel = null;
