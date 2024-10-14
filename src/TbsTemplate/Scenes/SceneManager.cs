@@ -36,6 +36,14 @@ public partial class SceneManager : Node
 
     private Node _target = null;
 
+    private void ChangeScene(Node target)
+    {
+        GetTree().Root.RemoveChild(GetTree().CurrentScene);
+        GetTree().Root.AddChild(target);
+        GetTree().CurrentScene = target;
+        FadeToBlack.TransitionIn();
+    }
+
     private void DoSceneTransition(Node target, AudioStream bgm)
     {
         _target = target;
@@ -54,11 +62,11 @@ public partial class SceneManager : Node
 
         async void CompleteFade()
         {
-            _target = _combat = await task;
+            _combat = await task;
             FadeToBlack.Connect(SceneTransition.SignalName.TransitionedIn, Callable.From(_combat.Start), (uint)ConnectFlags.OneShot);
             MusicController.Resume(_combat.BackgroundMusic);
             MusicController.FadeIn(FadeToBlack.TransitionTime/2);
-            OnTransitionedOut();
+            ChangeScene(_combat);
         }
         FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(CompleteFade), (uint)ConnectFlags.OneShot);
         EmitSignal(SignalName.TransitionStarted);
@@ -74,18 +82,10 @@ public partial class SceneManager : Node
         FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => {
             _combat.QueueFree();
             _combat = null;
-            OnTransitionedOut();
+            ChangeScene(_target);
         }), (uint)ConnectFlags.OneShot);
         DoSceneTransition(_currentLevel, _currentLevel.GetNode<LevelManager>("LevelManager").BackgroundMusic);
         _currentLevel = null;
-    }
-
-    public void OnTransitionedOut()
-    {
-        GetTree().Root.RemoveChild(GetTree().CurrentScene);
-        GetTree().Root.AddChild(_target);
-        GetTree().CurrentScene = _target;
-        FadeToBlack.TransitionIn();
     }
 
     public void OnTransitionedIn()
