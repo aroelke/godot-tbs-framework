@@ -34,8 +34,6 @@ public partial class SceneManager : Node
     /// <summary>End combat and return to the previous scene.</summary>
     public static void EndCombat() => Singleton.DoEndCombat();
 
-    private Node _target = null;
-
     private void ChangeScene(Node target)
     {
         GetTree().Root.RemoveChild(GetTree().CurrentScene);
@@ -46,9 +44,9 @@ public partial class SceneManager : Node
 
     private void DoSceneTransition(Node target, AudioStream bgm)
     {
-        _target = target;
         EmitSignal(SignalName.TransitionStarted);
         MusicController.PlayTrack(bgm, outDuration:FadeToBlack.TransitionTime/2, inDuration:FadeToBlack.TransitionTime/2);
+        FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => ChangeScene(target)), (uint)ConnectFlags.OneShot);
         FadeToBlack.TransitionOut();
     }
 
@@ -82,15 +80,10 @@ public partial class SceneManager : Node
         FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => {
             _combat.QueueFree();
             _combat = null;
-            ChangeScene(_target);
         }), (uint)ConnectFlags.OneShot);
         DoSceneTransition(_currentLevel, _currentLevel.GetNode<LevelManager>("LevelManager").BackgroundMusic);
         _currentLevel = null;
     }
 
-    public void OnTransitionedIn()
-    {
-        _target = null;
-        EmitSignal(SignalName.TransitionCompleted);
-    }
+    public void OnTransitionedIn() => EmitSignal(SignalName.TransitionCompleted);
 }
