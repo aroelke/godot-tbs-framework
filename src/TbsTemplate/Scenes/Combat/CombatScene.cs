@@ -110,8 +110,6 @@ public partial class CombatScene : Node
         // Play the combat sequence
         foreach (CombatAction action in _actions)
         {
-            void OnMiss() => MissSound.Play();
-
             // Reset all participants
             foreach ((var _, CombatAnimation animation) in _animations)
             {
@@ -141,7 +139,7 @@ public partial class CombatScene : Node
             {
                 _animations[action.Target].ZIndex = 1;
                 _animations[action.Actor].Connect(CombatAnimation.SignalName.AttackDodged, Callable.From(() => _animations[action.Target].PlayAnimation(CombatAnimation.DodgeAnimation)), (uint)ConnectFlags.OneShot);
-                _animations[action.Actor].AttackStrike += OnMiss;
+                _animations[action.Actor].Connect(CombatAnimation.SignalName.AttackStrike, Callable.From(() => MissSound.Play()), (uint)ConnectFlags.OneShot);
             }
 
             // Play the animation sequence for the turn
@@ -154,18 +152,11 @@ public partial class CombatScene : Node
             await ActionCompleted(action);
 
             // Clean up any triggers
-            if (action.Hit)
+            if (action.Hit && _infos[action.Target].Health.Value == 0)
             {
-                if (_infos[action.Target].Health.Value == 0)
-                {
-                    _animations[action.Target].PlayAnimation(CombatAnimation.DieAnimation);
-                    DeathSound.Play();
-                    await ToSignal(_animations[action.Target], CombatAnimation.SignalName.AnimationFinished);
-                }
-            }
-            else
-            {
-                _animations[action.Actor].AttackStrike -= OnMiss;
+                _animations[action.Target].PlayAnimation(CombatAnimation.DieAnimation);
+                DeathSound.Play();
+                await ToSignal(_animations[action.Target], CombatAnimation.SignalName.AnimationFinished);
             }
 
             if (LeftInfo.Health.Value == 0 || RightInfo.Health.Value == 0)
