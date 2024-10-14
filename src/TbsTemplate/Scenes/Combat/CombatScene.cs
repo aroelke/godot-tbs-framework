@@ -111,20 +111,6 @@ public partial class CombatScene : Node
         foreach (CombatAction action in _actions)
         {
             void OnDodge() => _animations[action.Target].PlayAnimation(CombatAnimation.DodgeAnimation);
-            void OnHit()
-            {
-                if (action.Damage > 0)
-                {
-                    HitSound.Play();
-                    HitSparks.Position = _animations[action.Actor].Position + _animations[action.Actor].ContactPoint;
-                    HitSparks.ZIndex = _animations[action.Actor].ZIndex + 1;
-                    HitSparks.Emitting = true;
-                    Camera.Trauma += CameraShakeHitTrauma;
-                    _infos[action.Target].Health.Value = _infos[action.Target].Health.Value - action.Damage;
-                }
-                else
-                    BlockSound.Play();
-            }
             void OnMiss() => MissSound.Play();
 
             // Reset all participants
@@ -138,7 +124,19 @@ public partial class CombatScene : Node
             if (action.Hit)
             {
                 _animations[action.Actor].ZIndex = 1;
-                _animations[action.Actor].AttackStrike += OnHit;
+                _animations[action.Actor].Connect(CombatAnimation.SignalName.AttackStrike, Callable.From(() => {
+                    if (action.Damage > 0)
+                    {
+                        HitSound.Play();
+                        HitSparks.Position = _animations[action.Actor].Position + _animations[action.Actor].ContactPoint;
+                        HitSparks.ZIndex = _animations[action.Actor].ZIndex + 1;
+                        HitSparks.Emitting = true;
+                        Camera.Trauma += CameraShakeHitTrauma;
+                        _infos[action.Target].Health.Value = _infos[action.Target].Health.Value - action.Damage;
+                    }
+                    else
+                        BlockSound.Play();
+                }), (uint)ConnectFlags.OneShot);
             }
             else
             {
@@ -159,7 +157,6 @@ public partial class CombatScene : Node
             // Clean up any triggers
             if (action.Hit)
             {
-                _animations[action.Actor].AttackStrike -= OnHit;
                 if (_infos[action.Target].Health.Value == 0)
                 {
                     _animations[action.Target].PlayAnimation(CombatAnimation.DieAnimation);
