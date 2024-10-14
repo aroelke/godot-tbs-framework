@@ -110,7 +110,6 @@ public partial class CombatScene : Node
         // Play the combat sequence
         foreach (CombatAction action in _actions)
         {
-            void OnDodge() => _animations[action.Target].PlayAnimation(CombatAnimation.DodgeAnimation);
             void OnMiss() => MissSound.Play();
 
             // Reset all participants
@@ -141,7 +140,7 @@ public partial class CombatScene : Node
             else
             {
                 _animations[action.Target].ZIndex = 1;
-                _animations[action.Actor].AttackDodged += OnDodge;
+                _animations[action.Actor].Connect(CombatAnimation.SignalName.AttackDodged, Callable.From(() => _animations[action.Target].PlayAnimation(CombatAnimation.DodgeAnimation)), (uint)ConnectFlags.OneShot);
                 _animations[action.Actor].AttackStrike += OnMiss;
             }
 
@@ -166,7 +165,6 @@ public partial class CombatScene : Node
             }
             else
             {
-                _animations[action.Actor].AttackDodged -= OnDodge;
                 _animations[action.Actor].AttackStrike -= OnMiss;
             }
 
