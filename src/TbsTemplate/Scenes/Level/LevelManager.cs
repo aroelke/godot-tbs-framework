@@ -411,13 +411,6 @@ public partial class LevelManager : Node
 #region Moving State
     private Vector4 _prevDeadzone = Vector4.Zero;
 
-    /// <summary>When the <see cref="Unit"/> finishes moving, move to the next <see cref="Nodes.StateChart.States.State"/>.</summary>
-    public void OnUnitDoneMoving()
-    {
-        _selected.DoneMoving -= OnUnitDoneMoving;
-        Callable.From<StringName>(State.SendEvent).CallDeferred(_target is null ? DoneEvent : SkipEvent);
-    }
-
     /// <summary>Begin moving the selected <see cref="Unit"/> and then wait for it to finish moving.</summary>
     public void OnMovingEntered()
     {
@@ -431,7 +424,11 @@ public partial class LevelManager : Node
 
         // Move the unit and delete the pathfinder as we don't need it anymore
         Grid.Occupants.Remove(_selected.Cell);
-        _selected.DoneMoving += OnUnitDoneMoving;
+        _selected.Connect(
+            Unit.SignalName.DoneMoving,
+            Callable.From(_target is null ? () => State.SendEvent(DoneEvent) : () => State.SendEvent(SkipEvent)),
+            (uint)ConnectFlags.OneShot
+        );
         Grid.Occupants[_path[^1]] = _selected;
         _selected.MoveAlong(_path); // must be last in case it fires right away
     }
@@ -593,14 +590,7 @@ public partial class LevelManager : Node
         _target = null;
         _combatResults = null;
         ActionLayers.Clear();
-        SceneManager.Singleton.TransitionCompleted += OnTransitionedFromCombat;
-    }
-
-    /// <summary>Finish waiting once the transition back has completed.</summary>
-    public void OnTransitionedFromCombat()
-    {
-        State.SendEvent(DoneEvent);
-        SceneManager.Singleton.TransitionCompleted -= OnTransitionedFromCombat;
+        SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, Callable.From(() => State.SendEvent(DoneEvent)), (uint)ConnectFlags.OneShot);
     }
 
     public void OnCombatExited()
