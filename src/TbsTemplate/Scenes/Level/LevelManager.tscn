@@ -1,4 +1,4 @@
-[gd_scene load_steps=47 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=46 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DBrain.tscn" id="3_td8u6"]
@@ -23,7 +23,6 @@
 [ext_resource type="PackedScene" uid="uid://dhytcbhqvrpx0" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/InputReaction.tscn" id="23_nnivc"]
 [ext_resource type="PackedScene" uid="uid://dtrul7dw5r6ly" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/Vector2Reaction.tscn" id="23_u3pac"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/AllCondition.cs" id="25_6qv6s"]
-[ext_resource type="PackedScene" uid="uid://dw8x5x0nvkg5k" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/CellUpdateReaction.tscn" id="25_goaap"]
 [ext_resource type="PackedScene" uid="uid://bajcy40oic1wf" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/ProcessReaction.tscn" id="25_lv3jy"]
 [ext_resource type="AudioStream" uid="uid://bg4mbs7d25qaj" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Select - 1.wav" id="28_dnjya"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/AnyCondition.cs" id="29_kfqmx"]
@@ -34,7 +33,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -1144886564
+seed = -413367562
 
 [sub_resource type="Resource" id="Resource_lt2uh"]
 script = ExtResource("22_tix5y")
@@ -293,7 +292,7 @@ Event = &"skip"
 [node name="UnitTargeting" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
-[node name="OnCellSelected" parent="State/Root/Active/UnitTargeting" instance=ExtResource("25_goaap")]
+[node name="OnCellSelected" parent="State/Root/Active/UnitTargeting" instance=ExtResource("16_kxyas")]
 
 [node name="OnInput" parent="State/Root/Active/UnitTargeting" instance=ExtResource("23_nnivc")]
 
@@ -368,8 +367,8 @@ stream = ExtResource("32_e2hk2")
 [connection signal="CellEntered" from="Cursor" to="State/Root/Active/Idle/OnCursorEnteredCell" method="OnUpdated"]
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]
 [connection signal="CellSelected" from="Cursor" to="State/Root/Active/Idle/OnEmptyCellSelected" method="OnUpdated"]
-[connection signal="CellSelected" from="Cursor" to="State/Root/Active/UnitTargeting/OnCellSelected" method="OnCellUpdated"]
 [connection signal="CellSelected" from="Cursor" to="State/Root/Active/UnitSelected/OnCellSelected" method="OnUpdated"]
+[connection signal="CellSelected" from="Cursor" to="State/Root/Active/UnitTargeting/OnCellSelected" method="OnUpdated"]
 [connection signal="CursorMoved" from="Cursor" to="Pointer" method="OnCursorMoved"]
 [connection signal="FlightCompleted" from="Pointer" to="." method="OnPointerFlightCompleted"]
 [connection signal="FlightStarted" from="Pointer" to="." method="OnPointerFlightStarted"]
@@ -407,7 +406,7 @@ stream = ExtResource("32_e2hk2")
 [connection signal="Taken" from="State/Root/Active/UnitCommanding/ToAdvancing" to="SoundLibrary/SelectSound" method="play" binds= [0.0]]
 [connection signal="StateEntered" from="State/Root/Active/UnitTargeting" to="." method="OnTargetingEntered"]
 [connection signal="StateExited" from="State/Root/Active/UnitTargeting" to="." method="OnTargetingExited"]
-[connection signal="StateCellUpdated" from="State/Root/Active/UnitTargeting/OnCellSelected" to="." method="OnTargetingCellSelected"]
+[connection signal="StateUpdated" from="State/Root/Active/UnitTargeting/OnCellSelected" to="." method="OnTargetingCellSelected"]
 [connection signal="StateInput" from="State/Root/Active/UnitTargeting/OnInput" to="." method="OnTargetingInput"]
 [connection signal="Taken" from="State/Root/Active/UnitTargeting/ToCommanding" to="SoundLibrary/CancelSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/Active/UnitTargeting/ToCombat" to="." method="OnTargetingExited"]
