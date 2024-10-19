@@ -410,6 +410,7 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateInput" from="State/Root/Active/UnitTargeting/OnInput" to="." method="OnTargetingInput"]
 [connection signal="Taken" from="State/Root/Active/UnitTargeting/ToCommanding" to="SoundLibrary/CancelSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/Active/UnitTargeting/ToCombat" to="." method="OnTargetingExited"]
+[connection signal="Taken" from="State/Root/Active/UnitTargeting/ToAdvancing" to="SoundLibrary/CancelSound" method="play" binds= [0.0]]
 [connection signal="StateEntered" from="State/Root/Active/InCombat" to="." method="OnCombatEntered"]
 [connection signal="StateExited" from="State/Root/Active/InCombat" to="." method="OnCombatExited"]
 [connection signal="StateEnteredTree" from="State/Root/Active/InCombat/OnEnteredTree" to="." method="OnCombatEnteredTree"]
