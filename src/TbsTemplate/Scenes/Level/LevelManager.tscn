@@ -244,7 +244,7 @@ process_mode = 4
 
 [node name="OnCursorMoved" parent="State/Root/Active/UnitSelected" instance=ExtResource("16_kxyas")]
 
-[node name="OnCellSelected" parent="State/Root/Active/UnitSelected" instance=ExtResource("25_goaap")]
+[node name="OnCellSelected" parent="State/Root/Active/UnitSelected" instance=ExtResource("16_kxyas")]
 
 [node name="ToMoving" parent="State/Root/Active/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../UnitMoving")
@@ -368,8 +368,8 @@ stream = ExtResource("32_e2hk2")
 [connection signal="CellEntered" from="Cursor" to="State/Root/Active/Idle/OnCursorEnteredCell" method="OnUpdated"]
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]
 [connection signal="CellSelected" from="Cursor" to="State/Root/Active/Idle/OnEmptyCellSelected" method="OnUpdated"]
-[connection signal="CellSelected" from="Cursor" to="State/Root/Active/UnitSelected/OnCellSelected" method="OnCellUpdated"]
 [connection signal="CellSelected" from="Cursor" to="State/Root/Active/UnitTargeting/OnCellSelected" method="OnCellUpdated"]
+[connection signal="CellSelected" from="Cursor" to="State/Root/Active/UnitSelected/OnCellSelected" method="OnUpdated"]
 [connection signal="CursorMoved" from="Cursor" to="Pointer" method="OnCursorMoved"]
 [connection signal="FlightCompleted" from="Pointer" to="." method="OnPointerFlightCompleted"]
 [connection signal="FlightStarted" from="Pointer" to="." method="OnPointerFlightStarted"]
@@ -387,7 +387,7 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateEntered" from="State/Root/Active/UnitSelected" to="." method="OnSelectedEntered"]
 [connection signal="StateExited" from="State/Root/Active/UnitSelected" to="." method="OnSelectedExited"]
 [connection signal="StateUpdated" from="State/Root/Active/UnitSelected/OnCursorMoved" to="." method="OnSelectedCursorMoved"]
-[connection signal="StateCellUpdated" from="State/Root/Active/UnitSelected/OnCellSelected" to="." method="OnSelectedCellSelected"]
+[connection signal="StateUpdated" from="State/Root/Active/UnitSelected/OnCellSelected" to="." method="OnSelectedCellSelected"]
 [connection signal="Taken" from="State/Root/Active/UnitSelected/ToMoving" to="." method="OnDestinationChosen"]
 [connection signal="Taken" from="State/Root/Active/UnitSelected/ToMoving" to="SoundLibrary/SelectSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/Active/UnitSelected/ToIdle" to="." method="OnUnitDeselected"]
