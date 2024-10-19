@@ -242,7 +242,7 @@ Event = &"skip"
 [node name="UnitSelected" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
-[node name="OnCursorMoved" parent="State/Root/Active/UnitSelected" instance=ExtResource("25_goaap")]
+[node name="OnCursorMoved" parent="State/Root/Active/UnitSelected" instance=ExtResource("16_kxyas")]
 
 [node name="OnCellSelected" parent="State/Root/Active/UnitSelected" instance=ExtResource("25_goaap")]
 
@@ -364,7 +364,7 @@ stream = ExtResource("32_e2hk2")
 
 [connection signal="child_entered_tree" from="." to="." method="OnChildEnteredTree"]
 [connection signal="CellChanged" from="Cursor" to="State/Root/Active/Idle/OnCursorMoved" method="OnUpdated"]
-[connection signal="CellChanged" from="Cursor" to="State/Root/Active/UnitSelected/OnCursorMoved" method="OnCellUpdated"]
+[connection signal="CellChanged" from="Cursor" to="State/Root/Active/UnitSelected/OnCursorMoved" method="OnUpdated"]
 [connection signal="CellEntered" from="Cursor" to="State/Root/Active/Idle/OnCursorEnteredCell" method="OnUpdated"]
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]
 [connection signal="CellSelected" from="Cursor" to="State/Root/Active/Idle/OnEmptyCellSelected" method="OnUpdated"]
@@ -386,7 +386,7 @@ stream = ExtResource("32_e2hk2")
 [connection signal="Taken" from="State/Root/Active/Idle/ToSelected" to="SoundLibrary/SelectSound" method="play" binds= [0.0]]
 [connection signal="StateEntered" from="State/Root/Active/UnitSelected" to="." method="OnSelectedEntered"]
 [connection signal="StateExited" from="State/Root/Active/UnitSelected" to="." method="OnSelectedExited"]
-[connection signal="StateCellUpdated" from="State/Root/Active/UnitSelected/OnCursorMoved" to="." method="OnSelectedCursorMoved"]
+[connection signal="StateUpdated" from="State/Root/Active/UnitSelected/OnCursorMoved" to="." method="OnSelectedCursorMoved"]
 [connection signal="StateCellUpdated" from="State/Root/Active/UnitSelected/OnCellSelected" to="." method="OnSelectedCellSelected"]
 [connection signal="Taken" from="State/Root/Active/UnitSelected/ToMoving" to="." method="OnDestinationChosen"]
 [connection signal="Taken" from="State/Root/Active/UnitSelected/ToMoving" to="SoundLibrary/SelectSound" method="play" binds= [0.0]]
