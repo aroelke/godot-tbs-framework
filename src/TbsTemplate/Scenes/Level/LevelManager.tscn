@@ -193,12 +193,14 @@ layout_mode = 2
 
 [node name="SelectHint" parent="UserInterface/HUD/Hints" instance=ExtResource("10_dfuji")]
 layout_mode = 2
+Action = &"select"
 Description = "Select"
 
 [node name="CancelHint" parent="UserInterface/HUD/Hints" instance=ExtResource("10_dfuji")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
+Action = &"cancel"
 Description = "Cancel"
 
 [node name="State" parent="." instance=ExtResource("17_sd0pe")]
