@@ -189,7 +189,11 @@ public partial class LevelManager : Node
 #endregion
 #region Idle State
     /// <summary>Update the UI when re-entering idle.</summary>
-    public void OnIdleEntered() => ActionLayers.Modulate = ActionRangeIdleModulate;
+    public void OnIdleEntered()
+    {
+        ActionLayers.Modulate = ActionRangeIdleModulate;
+        Cursor.Cell = Grid.CellOf(Pointer.Position);
+    }
 
     /// <summary>
     /// Handle events that might occur during idle <see cref="Nodes.StateChart.States.State"/>.
@@ -552,6 +556,7 @@ public partial class LevelManager : Node
                 if (Grid.Occupants[cell] is Unit target)
                 {
                     _target = target;
+                    SelectSound.Play();
                     State.SendEvent(DoneEvent);
                 }
                 else
