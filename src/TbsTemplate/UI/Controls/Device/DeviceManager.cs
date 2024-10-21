@@ -103,7 +103,7 @@ public partial class DeviceManager : Node
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
     {
         Godot.Collections.Array<Godot.Collections.Dictionary> properties = base._GetPropertyList() ?? [];
-        properties.Add(new NodeProperty(
+        properties.Add(new ObjectProperty(
             GamepadDigitalModeActivatorsProperty,
             Variant.Type.Array,
             PropertyHint.TypeString,
