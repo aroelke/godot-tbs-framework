@@ -112,13 +112,6 @@ public partial class DeviceManager : Node
         return properties;
     }
 
-    public override Variant _Get(StringName property)
-    {
-        if (property == GamepadDigitalModeActivatorsProperty)
-            return _digitalSwitchActions;
-        return base._Get(property);
-    }
-
     public override bool _Set(StringName property, Variant value)
     {
         if (property == GamepadDigitalModeActivatorsProperty)
@@ -129,19 +122,9 @@ public partial class DeviceManager : Node
         return base._Set(property, value);
     }
 
-    public override Variant _PropertyGetRevert(StringName property)
-    {
-        if (property == GamepadDigitalModeActivatorsProperty)
-            return Array.Empty<StringName>();
-        return base._PropertyGetRevert(property);
-    }
-
-    public override bool _PropertyCanRevert(StringName property)
-    {
-        if (property == GamepadDigitalModeActivatorsProperty)
-            return _digitalSwitchActions.Length > 0;
-        return base._PropertyCanRevert(property);
-    }
+    public override Variant _Get(StringName property) => property == GamepadDigitalModeActivatorsProperty ? _digitalSwitchActions : base._Get(property);
+    public override Variant _PropertyGetRevert(StringName property) => property == GamepadDigitalModeActivatorsProperty ? Array.Empty<StringName>() : base._PropertyGetRevert(property);
+    public override bool _PropertyCanRevert(StringName property) => property == GamepadDigitalModeActivatorsProperty || base._PropertyCanRevert(property);
 
     public override void _Ready()
     {
