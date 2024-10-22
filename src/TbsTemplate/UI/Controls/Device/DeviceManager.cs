@@ -113,6 +113,7 @@ public partial class DeviceManager : Node
     }
 
     public override bool _PropertyCanRevert(StringName property) => property == GamepadDigitalModeActivatorsProperty || base._PropertyCanRevert(property);
+    public override Variant _PropertyGetRevert(StringName property) => property == GamepadDigitalModeActivatorsProperty ? Array.Empty<StringName>() : base._PropertyGetRevert(property);
 
     public override void _Ready()
     {
