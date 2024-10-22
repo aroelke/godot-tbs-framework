@@ -111,15 +111,10 @@ public interface IHasInputActionProperties
     /// <returns><c>true</c> if a property of that name exists, even if it can't be reverted, and <c>false</c> otherwise.</returns>
     public bool InputActionPropertyCanRevert(StringName property, out bool revert)
     {
-        foreach (InputActionProperty data in InputActions)
-        {
-            if (data.Name == property)
-            {
-                revert = data.Value != data.Default;
-                return true;
-            }
-        }
         revert = false;
-        return false;
+        foreach (InputActionProperty data in InputActions)
+            if (data.Name == property)
+                revert = true;
+        return revert;
     }
 }
