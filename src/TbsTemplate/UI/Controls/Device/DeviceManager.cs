@@ -95,7 +95,7 @@ public partial class DeviceManager : Node
     }
 
     private HashSet<JoyButton> _digitalSwitchButtons = [];
-    private StringName[] _digitalSwitchActions = [];
+    private StringName[] GamepadDigitalModeActivators = [];
 
     /// <summary>Dead zone to use for detecting gamepad axes.</summary>
     [Export] public float MotionDeadzone = 0.5f;
@@ -112,18 +112,6 @@ public partial class DeviceManager : Node
         return properties;
     }
 
-    public override bool _Set(StringName property, Variant value)
-    {
-        if (property == GamepadDigitalModeActivatorsProperty)
-        {
-            _digitalSwitchActions = value.As<StringName[]>();
-            return true;
-        }
-        return base._Set(property, value);
-    }
-
-    public override Variant _Get(StringName property) => property == GamepadDigitalModeActivatorsProperty ? _digitalSwitchActions : base._Get(property);
-    public override Variant _PropertyGetRevert(StringName property) => property == GamepadDigitalModeActivatorsProperty ? Array.Empty<StringName>() : base._PropertyGetRevert(property);
     public override bool _PropertyCanRevert(StringName property) => property == GamepadDigitalModeActivatorsProperty || base._PropertyCanRevert(property);
 
     public override void _Ready()
@@ -131,7 +119,7 @@ public partial class DeviceManager : Node
         base._Ready();
         if (!Engine.IsEditorHint())
         {
-            _digitalSwitchButtons = _digitalSwitchActions.Select(static (a) => {
+            _digitalSwitchButtons = GamepadDigitalModeActivators.Select(static (a) => {
                 IEnumerable<JoyButton> buttons = InputMap.ActionGetEvents(a).OfType<InputEventJoypadButton>().Select(static (e) => e.ButtonIndex);
                 if (buttons.Any())
                     return buttons.First();
