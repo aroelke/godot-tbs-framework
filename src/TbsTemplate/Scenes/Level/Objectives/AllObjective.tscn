@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b8r0n41lx1qpl"]
+
+[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Objectives/AllObjective.cs" id="1_7gvh5"]
+
+[node name="AllObjective" type="Node"]
+script = ExtResource("1_7gvh5")
