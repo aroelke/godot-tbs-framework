@@ -9,6 +9,12 @@ public abstract partial class Objective : Node
     /// <summary>Signals that the objective has been accomplished.  Could fire multiple times if the objective becomes uncompleted and then accomplished again later.</summary>
     [Signal] public delegate void AccomplishedEventHandler();
 
+    /// <summary>
+    /// Signals that the objective has been uncompleted (i.e. it was completed and then became uncomplete again). Could fire multiple times if the objective becomes completed
+    /// and then uncompleted later.
+    /// </summary>
+    [Signal] public delegate void RelinquishedEventHandler();
+
     private bool _completed = false;
 
     /// <summary>
@@ -20,10 +26,10 @@ public abstract partial class Objective : Node
         get => _completed;
         protected set
         {
-            bool signal = value && !_completed;
+            bool signal = (value && !_completed) || (!value && _completed);
             _completed = value;
             if (signal)
-                EmitSignal(SignalName.Accomplished);
+                EmitSignal(_completed? SignalName.Accomplished : SignalName.Relinquished);
         }
     }
 
