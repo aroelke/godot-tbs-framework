@@ -22,9 +22,13 @@
 [node name="TestMap" type="Node2D"]
 script = ExtResource("1_stn1b")
 
-[node name="LevelManager" parent="." node_paths=PackedStringArray("StartingArmy") instance=ExtResource("1_h3e4w")]
+[node name="LevelManager" parent="." node_paths=PackedStringArray("Success", "StartingArmy") instance=ExtResource("1_h3e4w")]
 BackgroundMusic = ExtResource("2_d2oip")
+Success = NodePath("../DefeatUnitObjective")
 StartingArmy = NodePath("Player")
+
+[node name="SuccessLabel" parent="LevelManager/UserInterface/HUD" index="1"]
+text = "Objective: Defeat OtherEnemyA"
 
 [node name="Grid" parent="LevelManager" node_paths=PackedStringArray("GroundLayer", "TerrainLayer") instance=ExtResource("2_trttl")]
 GroundLayer = NodePath("Ground")
@@ -160,7 +164,7 @@ grow_vertical = 1
 StateChart = NodePath("../../LevelManager/Pointer/ControlState")
 
 [node name="DefeatUnitObjective" parent="." node_paths=PackedStringArray("Target") instance=ExtResource("17_ve2px")]
-Target = NodePath("../LevelManager/Enemy/EnemyA")
+Target = NodePath("../LevelManager/OtherEnemy/OtherEnemyA")
 
 [connection signal="child_entered_tree" from="LevelManager/Player" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Enemy" to="LevelManager" method="OnChildEnteredGroup"]

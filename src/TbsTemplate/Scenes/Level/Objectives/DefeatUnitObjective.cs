@@ -10,6 +10,8 @@ public partial class DefeatUnitObjective : Objective
 {
     private Unit _target = null;
 
+    public override string Description => _target is null ? "" : $"Defeat {_target.Name}";
+
     /// <summary>Unit to defeat to accomplish the objective.</summary>
     [Export] public Unit Target
     {

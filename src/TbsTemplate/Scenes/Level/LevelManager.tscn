@@ -33,7 +33,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -259151777
+seed = 458631409
 
 [sub_resource type="Resource" id="Resource_lt2uh"]
 script = ExtResource("22_tix5y")
@@ -178,6 +178,24 @@ offset_right = 40.0
 offset_bottom = 23.0
 theme_override_font_sizes/font_size = 32
 text = "Turn 1: Player"
+
+[node name="SuccessLabel" type="Label" parent="UserInterface/HUD"]
+unique_name_in_owner = true
+layout_mode = 1
+offset_top = 44.0
+offset_right = 246.0
+offset_bottom = 89.0
+theme_override_font_sizes/font_size = 32
+text = "Objective: None"
+
+[node name="FailureLabel" type="Label" parent="UserInterface/HUD"]
+unique_name_in_owner = true
+layout_mode = 1
+offset_top = 86.0
+offset_right = 246.0
+offset_bottom = 131.0
+theme_override_font_sizes/font_size = 32
+text = "Failure: Never"
 
 [node name="Hints" type="HBoxContainer" parent="UserInterface/HUD"]
 layout_mode = 1

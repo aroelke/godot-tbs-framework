@@ -26,4 +26,7 @@ public abstract partial class Objective : Node
                 EmitSignal(SignalName.Accomplished);
         }
     }
+
+    /// <summary>Phrase describing the objective.</summary>
+    public abstract string Description { get; }
 }

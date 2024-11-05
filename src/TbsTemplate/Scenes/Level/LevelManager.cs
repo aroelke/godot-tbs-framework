@@ -13,6 +13,7 @@ using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI;
 using TbsTemplate.UI.Controls.Device;
+using TbsTemplate.Scenes.Level.Objectives;
 
 namespace TbsTemplate.Scenes.Level;
 
@@ -146,9 +147,37 @@ public partial class LevelManager : Node
 #endregion
 #region Exports
     private int _turn = 1;
+    private Objective _success = null, _failure = null;
     private bool _showGlobalZone = false;
 
     [Export] public AudioStream BackgroundMusic = null;
+
+    [Export] public Objective Success
+    {
+        get => _success;
+        set
+        {
+            if (_success != value)
+            {
+                _success = value;
+                GD.Print(_success.Description);
+                SuccessLabel.Text = $"Objective: {_success?.Description ?? "None"}";
+            }
+        }
+    }
+
+    [Export] public Objective Failure
+    {
+        get => _failure;
+        set
+        {
+            if (_failure != value)
+            {
+                _failure = value;
+                FailureLabel.Text = $"Failure: {_failure?.Description ?? "Never"}";
+            }
+        }
+    }
 
     /// <summary>
     /// <see cref="Army"/> that gets the first turn and is controlled by the player. If null, use the first <see cref="Army"/>
@@ -757,6 +786,9 @@ public partial class LevelManager : Node
             MusicController.ResetPlayback();
             MusicController.PlayTrack(BackgroundMusic);
         }
+
+        SuccessLabel.Text = $"Objective: {Success?.Description ?? "None"}";
+        FailureLabel.Text = $"Failure: {Failure?.Description ?? "Never"}";
     }
 
     public override void _Input(InputEvent @event)
