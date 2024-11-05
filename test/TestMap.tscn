@@ -1,6 +1,7 @@
-[gd_scene load_steps=17 format=4 uid="uid://bmfxux38ovtj2"]
+[gd_scene load_steps=19 format=4 uid="uid://bmfxux38ovtj2"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/LevelManager.tscn" id="1_h3e4w"]
+[ext_resource type="Script" path="res://test/TestMap.cs" id="1_stn1b"]
 [ext_resource type="AudioStream" uid="uid://dlm0x8f7oe33c" path="res://test/assets/raw/Legendary_JRPG_Battle_Music_Pack/Battle-Conflict_loop/Battle-Conflict_loop.ogg" id="2_d2oip"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsTemplate/Scenes/Level/Map/Grid.tscn" id="2_trttl"]
 [ext_resource type="Resource" uid="uid://bn6uq3ysywt60" path="res://test/terrain/plain.tres" id="3_ft5ge"]
@@ -16,8 +17,10 @@
 [ext_resource type="Resource" uid="uid://cbi1a2igyxbt4" path="res://test/factions/TestEnemyFaction2.tres" id="12_8r5wl"]
 [ext_resource type="Resource" uid="uid://cljpmwsb1nbjt" path="res://test/factions/TestAllyFaction.tres" id="14_hmodb"]
 [ext_resource type="PackedScene" uid="uid://h3yhm0thhl8m" path="res://src/TbsTemplate/Nodes/StateChart/StateChartInspector.tscn" id="16_i76wh"]
+[ext_resource type="PackedScene" uid="uid://7wc21qvj7n3n" path="res://src/TbsTemplate/Scenes/Level/Objectives/DefeatUnitObjective.tscn" id="17_ve2px"]
 
 [node name="TestMap" type="Node2D"]
+script = ExtResource("1_stn1b")
 
 [node name="LevelManager" parent="." node_paths=PackedStringArray("StartingArmy") instance=ExtResource("1_h3e4w")]
 BackgroundMusic = ExtResource("2_d2oip")
@@ -156,10 +159,14 @@ grow_horizontal = 1
 grow_vertical = 1
 StateChart = NodePath("../../LevelManager/Pointer/ControlState")
 
+[node name="DefeatUnitObjective" parent="." node_paths=PackedStringArray("Target") instance=ExtResource("17_ve2px")]
+Target = NodePath("../LevelManager/Enemy/EnemyA")
+
 [connection signal="child_entered_tree" from="LevelManager/Player" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Enemy" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/OtherEnemy" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Ally" to="LevelManager" method="OnChildEnteredGroup"]
+[connection signal="Accomplished" from="DefeatUnitObjective" to="." method="OnObjectiveCompleted"]
 
 [editable path="LevelManager"]
 [editable path="LevelManager/Pointer"]
