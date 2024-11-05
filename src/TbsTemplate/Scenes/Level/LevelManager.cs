@@ -160,7 +160,6 @@ public partial class LevelManager : Node
             if (_success != value)
             {
                 _success = value;
-                GD.Print(_success.Description);
                 SuccessLabel.Text = $"Objective: {_success?.Description ?? "None"}";
             }
         }
