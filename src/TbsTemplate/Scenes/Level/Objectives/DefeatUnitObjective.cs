@@ -4,11 +4,13 @@ using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Scenes.Level.Objectives;
 
+/// <summary>Objective that's accomplished when a specific unit is defeated. Reassigning the target unit will uncomplete the objective.</summary>
 [Tool]
 public partial class DefeatUnitObjective : Objective
 {
     private Unit _target = null;
 
+    /// <summary>Unit to defeat to accomplish the objective.</summary>
     [Export] public Unit Target
     {
         get => _target;
