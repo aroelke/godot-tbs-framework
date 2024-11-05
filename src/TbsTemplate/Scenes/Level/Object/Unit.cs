@@ -24,12 +24,32 @@ public partial class Unit : GridNode, IHasHealth
     private static readonly StringName MoveDirection = "parameters/Moving/Walking/blend_position";
     private static readonly StringName Done = "parameters/conditions/done";
 
+    // AnimationTree states
+    private static readonly StringName IdleState = "Idle";
+    private static readonly StringName SelectedState = "Selected";
+    private static readonly StringName MovingState = "Moving";
+    private static readonly StringName DoneState = "Done";
+
     /// <summary>Signal that the unit is done moving along its path.</summary>
     [Signal] public delegate void DoneMovingEventHandler();
 
     private Faction _faction = null;
     private Stats _stats = new();
     private Vector2I _target = Vector2I.Zero;
+
+    private StringName AnimationState => AnimationTree.Get("parameters/playback").As<AnimationNodeStateMachinePlayback>().GetCurrentNode();
+
+    private void CheckInvalidState(string operation, params StringName[] illegal)
+    {
+        if (illegal.Contains(AnimationState))
+            throw new InvalidOperationException($"Cannot {operation} unit {Name} while in animation state {AnimationState}");
+    }
+
+    private void CheckValidState(string operation, params StringName[] legal)
+    {
+        if (!legal.Contains(AnimationState))
+            throw new InvalidOperationException($"Cannot {operation} unit {Name} while in animation state {AnimationState}");
+    }
 
     /// <summary>Get all cells in a set of ranges from a set of source cells.</summary>
     /// <param name="sources">Cells to compute ranges from.</param>
@@ -179,6 +199,7 @@ public partial class Unit : GridNode, IHasHealth
     /// <summary>Put the unit in the "selected" state.</summary>
     public void Select()
     {
+        CheckInvalidState("select", DoneState);
         AnimationTree.Set(Idle, false);
         AnimationTree.Set(Selected, true);
         AnimationTree.Set(Moving, false);
@@ -187,6 +208,7 @@ public partial class Unit : GridNode, IHasHealth
     /// <summary>Put the unit in the "idle" state.</summary>
     public void Deselect()
     {
+        CheckInvalidState("deselect", IdleState);
         AnimationTree.Set(Idle, true);
         AnimationTree.Set(Selected, false);
         AnimationTree.Set(Moving, false);
@@ -195,6 +217,7 @@ public partial class Unit : GridNode, IHasHealth
     /// <summary>Put the unit in its "done" state, indicating it isn't available to act anymore.</summary>
     public void Finish()
     {
+        CheckInvalidState("deactivate", IdleState);
         Sprite.Modulate = Colors.White;
         AnimationTree.Set(Selected, false);
         AnimationTree.Set(Done, true);
@@ -203,6 +226,7 @@ public partial class Unit : GridNode, IHasHealth
     /// <summary>Restore the unit into its "idle" state from being inactive, indicating that it's ready to act again.</summary>
     public void Refresh()
     {
+        CheckValidState("refresh", DoneState);
         Sprite.Modulate = Faction.Color;
         AnimationTree.Set(Done, false);
         AnimationTree.Set(Idle, true);

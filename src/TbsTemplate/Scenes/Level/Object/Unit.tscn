@@ -284,6 +284,9 @@ _data = {
 "up": SubResource("Animation_kk35a")
 }
 
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_m462t"]
+animation = &"done"
+
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_tm5xh"]
 animation = &"idle"
 
@@ -329,9 +332,6 @@ node_connections = [&"Blend", 0, &"Walking", &"Blend", 1, &"Steps", &"output", 0
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_xy2fh"]
 animation = &"selected"
 
-[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_m462t"]
-animation = &"done"
-
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_av2ix"]
 advance_mode = 2
 advance_condition = &"selected"
@@ -368,6 +368,8 @@ advance_mode = 2
 advance_condition = &"selected"
 
 [sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_2xttf"]
+states/Done/node = SubResource("AnimationNodeAnimation_m462t")
+states/Done/position = Vector2(466, 364.117)
 states/End/position = Vector2(771, 213)
 states/Idle/node = SubResource("AnimationNodeAnimation_tm5xh")
 states/Idle/position = Vector2(399, 213)
@@ -376,10 +378,8 @@ states/Moving/position = Vector2(466, 39.0273)
 states/Selected/node = SubResource("AnimationNodeAnimation_xy2fh")
 states/Selected/position = Vector2(643, 213)
 states/Start/position = Vector2(249, 213)
-states/done/node = SubResource("AnimationNodeAnimation_m462t")
-states/done/position = Vector2(466, 364.117)
-transitions = ["Idle", "Selected", SubResource("AnimationNodeStateMachineTransition_av2ix"), "Selected", "Idle", SubResource("AnimationNodeStateMachineTransition_m6c88"), "Start", "Idle", SubResource("AnimationNodeStateMachineTransition_43qbb"), "Selected", "done", SubResource("AnimationNodeStateMachineTransition_gsdf1"), "done", "Idle", SubResource("AnimationNodeStateMachineTransition_csre7"), "Moving", "Idle", SubResource("AnimationNodeStateMachineTransition_nrnfq"), "Moving", "done", SubResource("AnimationNodeStateMachineTransition_1tawo"), "Selected", "Moving", SubResource("AnimationNodeStateMachineTransition_gjd0r"), "Moving", "Selected", SubResource("AnimationNodeStateMachineTransition_otyyn")]
-graph_offset = Vector2(-235.55, -4.9727)
+transitions = ["Idle", "Selected", SubResource("AnimationNodeStateMachineTransition_av2ix"), "Selected", "Idle", SubResource("AnimationNodeStateMachineTransition_m6c88"), "Start", "Idle", SubResource("AnimationNodeStateMachineTransition_43qbb"), "Selected", "Done", SubResource("AnimationNodeStateMachineTransition_gsdf1"), "Done", "Idle", SubResource("AnimationNodeStateMachineTransition_csre7"), "Moving", "Idle", SubResource("AnimationNodeStateMachineTransition_nrnfq"), "Moving", "Done", SubResource("AnimationNodeStateMachineTransition_1tawo"), "Selected", "Moving", SubResource("AnimationNodeStateMachineTransition_gjd0r"), "Moving", "Selected", SubResource("AnimationNodeStateMachineTransition_otyyn")]
+graph_offset = Vector2(-390.55, 75.0273)
 
 [node name="Unit" type="Node2D"]
 z_index = 1
