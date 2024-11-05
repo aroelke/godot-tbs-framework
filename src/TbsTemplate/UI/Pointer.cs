@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using Godot.Collections;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes;
 using TbsTemplate.UI.Controls.Action;
@@ -255,6 +256,13 @@ public partial class Pointer : BoundedNode2D
             else
                 Warp(region.GetCenter());
         }
+    }
+
+    public override void _ValidateProperty(Dictionary property)
+    {
+        if (property["name"].As<StringName>() == PropertyName.Size)
+            property["usage"] = property["usage"].As<uint>() | (uint)PropertyUsageFlags.ReadOnly;
+        base._ValidateProperty(property);
     }
 
     public override string[] _GetConfigurationWarnings()

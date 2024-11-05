@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Godot;
+using Godot.Collections;
 using TbsTemplate.Nodes;
 using TbsTemplate.Scenes.Level.Map;
 
@@ -51,6 +52,13 @@ public partial class GridNode : BoundedNode2D
     /// <inheritdoc cref="BoundedNode2D.Size"/>
     /// <remarks>Grid nodes have a constant size that is based on the size of the <see cref="Map.Grid"/> cells.</remarks>
     public override Vector2 Size { get => Grid?.CellSize ?? Vector2.Zero; set {}}
+
+    public override void _ValidateProperty(Dictionary property)
+    {
+        if (property["name"].As<StringName>() == PropertyName.Size)
+            property["usage"] = property["usage"].As<uint>() | (uint)PropertyUsageFlags.ReadOnly;
+        base._ValidateProperty(property);
+    }
 
     public override string[] _GetConfigurationWarnings()
     {

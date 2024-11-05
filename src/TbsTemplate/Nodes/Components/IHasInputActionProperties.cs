@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Godot;
+using TbsTemplate.Extensions;
 using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.Nodes.Components;
@@ -38,13 +39,12 @@ public interface IHasInputActionProperties
 
     /// <summary>Create an input action property with the given name. It will present a dropdown menu with all of the defined input actions (even built-in ones).</summary>
     /// <param name="name">Name of the property.</param>
-    public static Godot.Collections.Dictionary CreateInputActionProperty(StringName name) => new()
-    {
-        { "name", name },
-        { "type", Variant.From(Variant.Type.StringName) },
-        { "hint", Variant.From(PropertyHint.Enum) },
-        { "hint_string", InputActionList }
-    };
+    public static Godot.Collections.Dictionary CreateInputActionProperty(StringName name) =>  new ObjectProperty(
+        name,
+        Variant.Type.StringName,
+        PropertyHint.Enum,
+        InputActionList
+    );
 
     /// <summary>List of input action properties to provide to the <see cref="GodotObject"/>.</summary>
     public InputActionProperty[] InputActions { get; }
@@ -111,15 +111,10 @@ public interface IHasInputActionProperties
     /// <returns><c>true</c> if a property of that name exists, even if it can't be reverted, and <c>false</c> otherwise.</returns>
     public bool InputActionPropertyCanRevert(StringName property, out bool revert)
     {
-        foreach (InputActionProperty data in InputActions)
-        {
-            if (data.Name == property)
-            {
-                revert = data.Value != data.Default;
-                return true;
-            }
-        }
         revert = false;
-        return false;
+        foreach (InputActionProperty data in InputActions)
+            if (data.Name == property)
+                revert = true;
+        return revert;
     }
 }

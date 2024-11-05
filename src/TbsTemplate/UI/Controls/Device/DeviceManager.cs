@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using TbsTemplate.Extensions;
 using TbsTemplate.Nodes.Components;
 
 namespace TbsTemplate.UI.Controls.Device;
@@ -94,7 +95,7 @@ public partial class DeviceManager : Node
     }
 
     private HashSet<JoyButton> _digitalSwitchButtons = [];
-    private StringName[] _digitalSwitchActions = [];
+    private StringName[] GamepadDigitalModeActivators = [];
 
     /// <summary>Dead zone to use for detecting gamepad axes.</summary>
     [Export] public float MotionDeadzone = 0.5f;
@@ -102,53 +103,24 @@ public partial class DeviceManager : Node
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
     {
         Godot.Collections.Array<Godot.Collections.Dictionary> properties = base._GetPropertyList() ?? [];
-        properties.Add(new()
-        {
-            { "name", GamepadDigitalModeActivatorsProperty },
-            { "type", Variant.From(Variant.Type.Array) },
-            { "hint", Variant.From(PropertyHint.TypeString) },
-            { "hint_string", $"{(int)Variant.Type.StringName}/{(int)PropertyHint.Enum}:{IHasInputActionProperties.InputActionList}" }
-        });
+        properties.Add(new ObjectProperty(
+            GamepadDigitalModeActivatorsProperty,
+            Variant.Type.Array,
+            PropertyHint.TypeString,
+            $"{(int)Variant.Type.StringName}/{(int)PropertyHint.Enum}:{IHasInputActionProperties.InputActionList}"
+        ));
         return properties;
     }
 
-    public override Variant _Get(StringName property)
-    {
-        if (property == GamepadDigitalModeActivatorsProperty)
-            return _digitalSwitchActions;
-        return base._Get(property);
-    }
-
-    public override bool _Set(StringName property, Variant value)
-    {
-        if (property == GamepadDigitalModeActivatorsProperty)
-        {
-            _digitalSwitchActions = value.As<StringName[]>();
-            return true;
-        }
-        return base._Set(property, value);
-    }
-
-    public override Variant _PropertyGetRevert(StringName property)
-    {
-        if (property == GamepadDigitalModeActivatorsProperty)
-            return Array.Empty<StringName>();
-        return base._PropertyGetRevert(property);
-    }
-
-    public override bool _PropertyCanRevert(StringName property)
-    {
-        if (property == GamepadDigitalModeActivatorsProperty)
-            return _digitalSwitchActions.Length > 0;
-        return base._PropertyCanRevert(property);
-    }
+    public override bool _PropertyCanRevert(StringName property) => property == GamepadDigitalModeActivatorsProperty || base._PropertyCanRevert(property);
+    public override Variant _PropertyGetRevert(StringName property) => property == GamepadDigitalModeActivatorsProperty ? Array.Empty<StringName>() : base._PropertyGetRevert(property);
 
     public override void _Ready()
     {
         base._Ready();
         if (!Engine.IsEditorHint())
         {
-            _digitalSwitchButtons = _digitalSwitchActions.Select(static (a) => {
+            _digitalSwitchButtons = GamepadDigitalModeActivators.Select(static (a) => {
                 IEnumerable<JoyButton> buttons = InputMap.ActionGetEvents(a).OfType<InputEventJoypadButton>().Select(static (e) => e.ButtonIndex);
                 if (buttons.Any())
                     return buttons.First();
