@@ -145,6 +145,9 @@ public partial class LevelManager : Node
     /// <returns>The audio player that plays the "zone on" or "zone off" sound depending on <paramref name="on"/>.</returns>
     private AudioStreamPlayer ZoneUpdateSound(bool on) => on ? ZoneOnSound : ZoneOffSound;
 #endregion
+#region Signals
+    [Signal] public delegate void TurnBeganEventHandler(int turn);
+#endregion
 #region Exports
     private int _turn = 1;
     private Objective _success = null, _failure = null;
@@ -674,7 +677,11 @@ public partial class LevelManager : Node
         Callable.From(() => {
             State.SendEvent(DoneEvent);
             if (advance)
+            {
+                if (_armies.Current == StartingArmy)
+                    EmitSignal(SignalName.TurnBegan, Turn);
                 Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(((IEnumerable<Unit>)_armies.Current).First().Cell);
+            }
         }).CallDeferred();
     }
 #endregion
