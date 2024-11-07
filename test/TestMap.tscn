@@ -17,8 +17,8 @@
 [ext_resource type="Resource" uid="uid://cbi1a2igyxbt4" path="res://test/factions/TestEnemyFaction2.tres" id="12_8r5wl"]
 [ext_resource type="Resource" uid="uid://cljpmwsb1nbjt" path="res://test/factions/TestAllyFaction.tres" id="14_hmodb"]
 [ext_resource type="PackedScene" uid="uid://h3yhm0thhl8m" path="res://src/TbsTemplate/Nodes/StateChart/StateChartInspector.tscn" id="16_i76wh"]
-[ext_resource type="PackedScene" uid="uid://7wc21qvj7n3n" path="res://src/TbsTemplate/Scenes/Level/Objectives/DefeatUnitObjective.tscn" id="17_ve2px"]
-[ext_resource type="PackedScene" uid="uid://b8r0n41lx1qpl" path="res://src/TbsTemplate/Scenes/Level/Objectives/AllObjective.tscn" id="18_qhhld"]
+[ext_resource type="PackedScene" uid="uid://bottrwv1ptmbg" path="res://src/TbsTemplate/Scenes/Level/Objectives/AnyObjective.tscn" id="17_atmq1"]
+[ext_resource type="PackedScene" uid="uid://bdxrle0amq3ew" path="res://src/TbsTemplate/Scenes/Level/Objectives/TimeObjective.tscn" id="19_rxp4c"]
 [ext_resource type="PackedScene" uid="uid://bi38gny50edyk" path="res://src/TbsTemplate/Scenes/Level/Objectives/RouteObjective.tscn" id="20_1l8iw"]
 
 [node name="TestMap" type="Node2D"]
@@ -26,11 +26,11 @@ script = ExtResource("1_stn1b")
 
 [node name="LevelManager" parent="." node_paths=PackedStringArray("Success", "StartingArmy") instance=ExtResource("1_h3e4w")]
 BackgroundMusic = ExtResource("2_d2oip")
-Success = NodePath("../AllObjective")
+Success = NodePath("AnyObjective")
 StartingArmy = NodePath("Player")
 
 [node name="SuccessLabel" parent="LevelManager/UserInterface/HUD" index="1"]
-text = "Objective: Defeat OtherEnemyA AND Route Enemy"
+text = "Objective: Route Enemy OR Survive 3 Turns"
 
 [node name="Grid" parent="LevelManager" node_paths=PackedStringArray("GroundLayer", "TerrainLayer") instance=ExtResource("2_trttl")]
 GroundLayer = NodePath("Ground")
@@ -141,6 +141,14 @@ Grid = NodePath("../../Grid")
 Cell = Vector2i(6, 6)
 Size = Vector2(32, 32)
 
+[node name="AnyObjective" parent="LevelManager" instance=ExtResource("17_atmq1")]
+
+[node name="RouteObjective" parent="LevelManager/AnyObjective" node_paths=PackedStringArray("Target") instance=ExtResource("20_1l8iw")]
+Target = NodePath("../../Enemy")
+
+[node name="TimeObjective" parent="LevelManager/AnyObjective" instance=ExtResource("19_rxp4c")]
+Turns = 3
+
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="LevelManagerInspector" parent="CanvasLayer" node_paths=PackedStringArray("StateChart") instance=ExtResource("16_i76wh")]
@@ -165,19 +173,12 @@ grow_horizontal = 1
 grow_vertical = 1
 StateChart = NodePath("../../LevelManager/Pointer/ControlState")
 
-[node name="AllObjective" parent="." instance=ExtResource("18_qhhld")]
-
-[node name="DefeatUnitObjective" parent="AllObjective" node_paths=PackedStringArray("Target") instance=ExtResource("17_ve2px")]
-Target = NodePath("../../LevelManager/OtherEnemy/OtherEnemyA")
-
-[node name="RouteObjective" parent="AllObjective" node_paths=PackedStringArray("Target") instance=ExtResource("20_1l8iw")]
-Target = NodePath("../../LevelManager/Enemy")
-
+[connection signal="TurnBegan" from="LevelManager" to="LevelManager/AnyObjective/TimeObjective" method="OnTurnBegan"]
 [connection signal="child_entered_tree" from="LevelManager/Player" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Enemy" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/OtherEnemy" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Ally" to="LevelManager" method="OnChildEnteredGroup"]
-[connection signal="Accomplished" from="AllObjective" to="." method="OnObjectiveCompleted"]
+[connection signal="Accomplished" from="LevelManager/AnyObjective" to="." method="OnObjectiveCompleted"]
 
 [editable path="LevelManager"]
 [editable path="LevelManager/Pointer"]
