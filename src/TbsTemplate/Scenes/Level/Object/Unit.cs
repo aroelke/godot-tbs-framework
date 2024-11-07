@@ -217,9 +217,10 @@ public partial class Unit : GridNode, IHasHealth
     /// <summary>Put the unit in its "done" state, indicating it isn't available to act anymore.</summary>
     public void Finish()
     {
-        CheckInvalidState("deactivate", IdleState);
         Sprite.Modulate = Colors.White;
+        AnimationTree.Set(Idle, false);
         AnimationTree.Set(Selected, false);
+        AnimationTree.Set(Moving, false);
         AnimationTree.Set(Done, true);
     }
 
