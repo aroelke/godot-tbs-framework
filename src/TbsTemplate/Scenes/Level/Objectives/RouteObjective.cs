@@ -11,6 +11,7 @@ public partial class RouteObjective : Objective
     /// <summary>Army that needs to be routed.</summary>
     [Export] public Army Target = null;
 
+    public override bool Complete => Target is not null && Target.GetChildCount() == 0;
     public override string Description => Target is null ? "" : $"Route {Target.Name}";
 
     public override string[] _GetConfigurationWarnings()
@@ -21,18 +22,5 @@ public partial class RouteObjective : Objective
             warnings.Add("There is no army to track. This objective can't be completed.");
 
         return [.. warnings];
-    }
-
-    public override void _Ready()
-    {
-        base._Ready();
-
-        if (!Engine.IsEditorHint() && Target is not null)
-        {
-            UnitEvents.Singleton.UnitDefeated += (u) => {
-                if (Target.Contains(u) && Target.Count == 1 /* The dying unit has not yet left the army */)
-                    Completed = true;
-            };
-        }
     }
 }

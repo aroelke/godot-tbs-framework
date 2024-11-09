@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=4 uid="uid://bmfxux38ovtj2"]
+[gd_scene load_steps=22 format=4 uid="uid://bmfxux38ovtj2"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/LevelManager.tscn" id="1_h3e4w"]
 [ext_resource type="Script" path="res://test/TestMap.cs" id="1_stn1b"]
@@ -20,6 +20,7 @@
 [ext_resource type="PackedScene" uid="uid://bottrwv1ptmbg" path="res://src/TbsTemplate/Scenes/Level/Objectives/AnyObjective.tscn" id="17_atmq1"]
 [ext_resource type="PackedScene" uid="uid://bdxrle0amq3ew" path="res://src/TbsTemplate/Scenes/Level/Objectives/TimeObjective.tscn" id="19_rxp4c"]
 [ext_resource type="PackedScene" uid="uid://bi38gny50edyk" path="res://src/TbsTemplate/Scenes/Level/Objectives/RouteObjective.tscn" id="20_1l8iw"]
+[ext_resource type="PackedScene" uid="uid://7wc21qvj7n3n" path="res://src/TbsTemplate/Scenes/Level/Objectives/DefeatUnitObjective.tscn" id="20_6u8j8"]
 
 [node name="TestMap" type="Node2D"]
 script = ExtResource("1_stn1b")
@@ -30,7 +31,7 @@ Success = NodePath("AnyObjective")
 StartingArmy = NodePath("Player")
 
 [node name="SuccessLabel" parent="LevelManager/UserInterface/HUD" index="1"]
-text = "Objective: Route Enemy OR Survive 3 Turns"
+text = "Objective: Route Enemy OR Survive 3 Turns OR Defeat OtherEnemyA"
 
 [node name="Grid" parent="LevelManager" node_paths=PackedStringArray("GroundLayer", "TerrainLayer") instance=ExtResource("2_trttl")]
 GroundLayer = NodePath("Ground")
@@ -149,6 +150,9 @@ Target = NodePath("../../Enemy")
 [node name="TimeObjective" parent="LevelManager/AnyObjective" instance=ExtResource("19_rxp4c")]
 Turns = 3
 
+[node name="DefeatUnitObjective" parent="LevelManager/AnyObjective" node_paths=PackedStringArray("Target") instance=ExtResource("20_6u8j8")]
+Target = NodePath("../../OtherEnemy/OtherEnemyA")
+
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="LevelManagerInspector" parent="CanvasLayer" node_paths=PackedStringArray("StateChart") instance=ExtResource("16_i76wh")]
@@ -178,7 +182,7 @@ StateChart = NodePath("../../LevelManager/Pointer/ControlState")
 [connection signal="child_entered_tree" from="LevelManager/Enemy" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/OtherEnemy" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Ally" to="LevelManager" method="OnChildEnteredGroup"]
-[connection signal="Accomplished" from="LevelManager/AnyObjective" to="." method="OnObjectiveCompleted"]
+[connection signal="StatusChanged" from="LevelManager/AnyObjective" to="." method="OnObjectiveUpdated"]
 
 [editable path="LevelManager"]
 [editable path="LevelManager/Pointer"]

@@ -7,12 +7,15 @@ namespace TbsTemplate.Scenes.Level.Objectives;
 [Tool]
 public partial class TimeObjective : Objective
 {
+    private int _turn = 0;
+
     /// <summary>Number of turns to elapse before completion.</summary>
     [Export] public int Turns = 0;
 
+    public override bool Complete => _turn > Turns;
     public override string Description => $"Survive {Turns} Turns";
 
-    public void OnTurnBegan(int turn) => Completed = turn > Turns;
+    public void OnTurnBegan(int turn) => _turn = turn;
 
     public override string[] _GetConfigurationWarnings()
     {
@@ -24,11 +27,5 @@ public partial class TimeObjective : Objective
             warnings.Add("Time objective will always be completed.");
 
         return [.. warnings];
-    }
-
-    public override void _Ready()
-    {
-        base._Ready();
-        Completed = Turns <= 0;
     }
 }

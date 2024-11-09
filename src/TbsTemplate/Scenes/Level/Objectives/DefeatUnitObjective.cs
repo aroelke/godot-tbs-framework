@@ -8,33 +8,11 @@ namespace TbsTemplate.Scenes.Level.Objectives;
 [Tool]
 public partial class DefeatUnitObjective : Objective
 {
-    private Unit _target = null;
-
-    public override string Description => _target is null ? "" : $"Defeat {_target.Name}";
-
     /// <summary>Unit to defeat to accomplish the objective.</summary>
-    [Export] public Unit Target
-    {
-        get => _target;
-        set
-        {
-            if (Engine.IsEditorHint())
-                _target = value;
-            else
-            {
-                if (!IsInstanceValid(value))
-                {
-                    GD.PrintErr($"Cannot assign an invalid unit as a target for {Name}.");
-                    value = null;
-                }
-                if (_target != value)
-                {
-                    _target = value;
-                    Completed = false;
-                }
-            }
-        }
-    }
+    [Export] public Unit Target = null;
+
+    public override bool Complete => Target is not null && !IsInstanceValid(Target);
+    public override string Description => Target is null ? "" : $"Defeat {Target.Name}";
 
     public override string[] _GetConfigurationWarnings()
     {
@@ -44,21 +22,5 @@ public partial class DefeatUnitObjective : Objective
             warnings.Add("A target needs to be set for this objective to be completable.");
         
         return [.. warnings];
-    }
-
-    public override void _Ready()
-    {
-        base._Ready();
-
-        if (!Engine.IsEditorHint())
-        {
-            UnitEvents.Singleton.UnitDefeated += (u) => {
-                if (u == Target)
-                {
-                    Completed = true;
-                    _target = null;
-                }
-            };
-        }
     }
 }
