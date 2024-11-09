@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b8dnpt7lcd2it"]
+
+[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Objectives/OccupyObjective.cs" id="1_k030p"]
+
+[node name="OccupyObjective" type="Node"]
+script = ExtResource("1_k030p")
