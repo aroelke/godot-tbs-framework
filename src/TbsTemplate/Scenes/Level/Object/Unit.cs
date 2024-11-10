@@ -14,7 +14,7 @@ namespace TbsTemplate.Scenes.Level.Object;
 /// A unit that moves around the map.  Mostly is just a visual representation of what's where and an interface for the player to
 /// interact.
 /// </summary>
-[SceneTree, Tool]
+[GlobalClass, SceneTree, Tool]
 public partial class Unit : GridNode, IHasHealth
 {
     // AnimationTree parameters

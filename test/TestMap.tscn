@@ -33,7 +33,7 @@ Success = NodePath("AnyObjective")
 StartingArmy = NodePath("Player")
 
 [node name="SuccessLabel" parent="LevelManager/UserInterface/HUD" index="1"]
-text = "Objective: Route Enemy OR Survive 3 Turns OR Defeat OtherEnemyA"
+text = "Objective: Route Enemy OR Survive 3 Turns OR Defeat OtherEnemyA OR Player occupies Occupy"
 
 [node name="Grid" parent="LevelManager" node_paths=PackedStringArray("GroundLayer", "TerrainLayer") instance=ExtResource("2_trttl")]
 GroundLayer = NodePath("Ground")
@@ -160,9 +160,11 @@ Turns = 3
 [node name="DefeatUnitObjective" parent="LevelManager/AnyObjective" node_paths=PackedStringArray("Target") instance=ExtResource("20_6u8j8")]
 Target = NodePath("../../OtherEnemy/OtherEnemyA")
 
-[node name="OccupyObjective" parent="LevelManager/AnyObjective" node_paths=PackedStringArray("Region", "Army") instance=ExtResource("22_axkl2")]
+[node name="OccupyObjective" parent="LevelManager/AnyObjective" node_paths=PackedStringArray("Region", "Army", "Units") instance=ExtResource("22_axkl2")]
 Region = NodePath("../../Grid/Occupy")
 Army = NodePath("../../Player")
+Units = [NodePath("../../Ally/AllyA")]
+Count = 2
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
