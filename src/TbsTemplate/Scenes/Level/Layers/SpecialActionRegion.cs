@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Godot;
 using TbsTemplate.Scenes.Level.Object;
@@ -25,6 +26,9 @@ public partial class SpecialActionRegion : TileMapLayer
     /// <summary>List of individual units who are allowed to perform the action.</summary>
     [Export] public Unit[] AllowedUnits = [];
 
+    /// <summary>Whether or not an action should remove the cell it's performed in from the region.</summary>
+    [Export] public bool OneShot = false;
+
     /// <summary>Check if a unit can perform the special action in a cell.</summary>
     /// <returns><c>true</c> if <paramref name="unit"/> is allowed to perform the action and <paramref name="cell"/> is in the region, and <c>false</c> otherwise.</returns>
     public virtual bool HasSpecialAction(Unit unit, Vector2I cell) => (AllowedUnits.Contains(unit) || AllowedArmies.Any((a) => a.Faction.AlliedTo(unit))) && GetUsedCells().Contains(cell);
@@ -32,5 +36,20 @@ public partial class SpecialActionRegion : TileMapLayer
     /// <summary>Perform the special action. By default, this just emits a signal indicating the action is performed by a unit at a cell.</summary>
     /// <param name="performer">Unit performing the action.</param>
     /// <param name="cell">Cell the action is being performed in.</param>
-    public virtual void PerformSpecialAction(Unit performer, Vector2I cell) => EmitSignal(SignalName.SpecialActionPerformed, Action, performer, cell);
+    public virtual void PerformSpecialAction(Unit performer, Vector2I cell)
+    {
+        if (HasSpecialAction(performer, cell))
+        {
+            EmitSignal(SignalName.SpecialActionPerformed, Action, performer, cell);
+            if (OneShot)
+            {
+                Godot.Collections.Array<Vector2I> used = GetUsedCells();
+                Clear();
+                used.Remove(cell);
+                SetCellsTerrainConnect(used, 0, 0);
+            }
+        }
+        else
+            throw new ArgumentException($"{performer.Name} cannot perform action {Action} in cell {cell}");
+    }
 }

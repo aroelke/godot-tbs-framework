@@ -64,6 +64,7 @@ tile_set = ExtResource("7_d17w6")
 script = ExtResource("8_kin6v")
 Action = &"Capture"
 AllowedArmies = [NodePath("../../Player")]
+OneShot = true
 
 [node name="Player" parent="LevelManager" instance=ExtResource("4_xrn4s")]
 Faction = ExtResource("6_qur3m")
