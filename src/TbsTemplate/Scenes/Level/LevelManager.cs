@@ -153,8 +153,10 @@ public partial class LevelManager : Node
     private Objective _success = null, _failure = null;
     private bool _showGlobalZone = false;
 
+    /// <summary>Background music to play during the level.</summary>
     [Export] public AudioStream BackgroundMusic = null;
 
+    /// <summary>Objective corresponding to successful completion of the level.</summary>
     [Export] public Objective Success
     {
         get => _success;
@@ -168,6 +170,7 @@ public partial class LevelManager : Node
         }
     }
 
+    /// <summary>Objective corresponding to failure of the level.</summary>
     [Export] public Objective Failure
     {
         get => _failure;
