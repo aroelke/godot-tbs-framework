@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsTemplate.Scenes.Level.Object;
@@ -51,5 +52,17 @@ public partial class SpecialActionRegion : TileMapLayer
         }
         else
             throw new ArgumentException($"{performer.Name} cannot perform action {Action} in cell {cell}");
+    }
+
+    public override string[] _GetConfigurationWarnings()
+    {
+        List<string> warnings = new(base._GetConfigurationWarnings() ?? []);
+
+        if (AllowedArmies.Length == 0 && AllowedUnits.Length == 0)
+            warnings.Add("No units are allowed to perform the action. Action cannot be performed.");
+        if (GetUsedCells().Count == 0)
+            warnings.Add("No cells in region. Action cannot be performed.");
+
+        return [.. warnings];
     }
 }
