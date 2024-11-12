@@ -147,6 +147,8 @@ public partial class LevelManager : Node
     private AudioStreamPlayer ZoneUpdateSound(bool on) => on ? ZoneOnSound : ZoneOffSound;
 #endregion
 #region Signals
+    /// <summary>Signals that a new turn has begun.</summary>
+    /// <param name="turn">Turn number.</param>
     [Signal] public delegate void TurnBeganEventHandler(int turn);
 #endregion
 #region Exports
