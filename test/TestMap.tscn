@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=4 uid="uid://bmfxux38ovtj2"]
+[gd_scene load_steps=25 format=4 uid="uid://bmfxux38ovtj2"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/LevelManager.tscn" id="1_h3e4w"]
 [ext_resource type="Script" path="res://test/TestMap.cs" id="1_stn1b"]
@@ -12,6 +12,7 @@
 [ext_resource type="Resource" uid="uid://bqexj8hqh32xd" path="res://test/TestSoldier.tres" id="7_crsy2"]
 [ext_resource type="TileSet" uid="uid://cwhi2yq5gtey5" path="res://test/assets/level/ui/Overlay.tres" id="7_d17w6"]
 [ext_resource type="Resource" uid="uid://rw7lv271d7de" path="res://test/stats/TestPlayerStats.tres" id="8_1sr4q"]
+[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Layers/SpecialActionRegion.cs" id="8_kin6v"]
 [ext_resource type="Resource" uid="uid://blftirgdcpabh" path="res://test/stats/TestEnemyStats2.tres" id="9_awc5y"]
 [ext_resource type="Resource" uid="uid://xatocb6uwrwx" path="res://test/stats/TestEnemyStats1.tres" id="9_g2gda"]
 [ext_resource type="Resource" uid="uid://dp74yifhop864" path="res://test/factions/TestEnemyFaction1.tres" id="10_k4gkn"]
@@ -27,13 +28,14 @@
 [node name="TestMap" type="Node2D"]
 script = ExtResource("1_stn1b")
 
-[node name="LevelManager" parent="." node_paths=PackedStringArray("Success", "StartingArmy") instance=ExtResource("1_h3e4w")]
+[node name="LevelManager" parent="." node_paths=PackedStringArray("Success", "SpecialActionRegions", "StartingArmy") instance=ExtResource("1_h3e4w")]
 BackgroundMusic = ExtResource("2_d2oip")
 Success = NodePath("AnyObjective")
+SpecialActionRegions = [NodePath("Grid/Capture")]
 StartingArmy = NodePath("Player")
 
 [node name="SuccessLabel" parent="LevelManager/UserInterface/HUD" index="1"]
-text = "Objective: Route Enemy OR Survive 3 Turns OR Defeat OtherEnemyA OR Player occupies Occupy"
+text = "Objective: Route Enemy OR Survive 3 Turns OR Defeat OtherEnemyA OR 2 of Player or AllyA occupies Occupy"
 
 [node name="Grid" parent="LevelManager" node_paths=PackedStringArray("GroundLayer", "TerrainLayer") instance=ExtResource("2_trttl")]
 GroundLayer = NodePath("Ground")
@@ -54,6 +56,14 @@ tile_set = ExtResource("4_n7v2y")
 modulate = Color(0, 1, 0, 0.392157)
 tile_map_data = PackedByteArray("AAADAAQAAgADAAAAAAADAAUAAgADAAMAAAAEAAUAAgAGAAMAAAAEAAQAAgAGAAAAAAA=")
 tile_set = ExtResource("7_d17w6")
+
+[node name="Capture" type="TileMapLayer" parent="LevelManager/Grid" node_paths=PackedStringArray("AllowedArmies")]
+modulate = Color(1, 1, 1, 0.392157)
+tile_map_data = PackedByteArray("AAAKAAYAAgAAAAMAAAALAAYAAgACAAMAAAAKAAMAAgAAAAMAAAALAAMAAgACAAMAAAA=")
+tile_set = ExtResource("7_d17w6")
+script = ExtResource("8_kin6v")
+Action = &"Capture"
+AllowedArmies = [NodePath("../../Player")]
 
 [node name="Player" parent="LevelManager" instance=ExtResource("4_xrn4s")]
 Faction = ExtResource("6_qur3m")

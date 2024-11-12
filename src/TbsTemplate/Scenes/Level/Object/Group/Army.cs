@@ -7,7 +7,7 @@ using TbsTemplate.Data;
 namespace TbsTemplate.Scenes.Level.Object.Group;
 
 /// <summary>A group of <see cref="Unit"/> <see cref="GridNode"/>s that has allies and enemies.</summary>
-[Tool]
+[GlobalClass, Tool]
 public partial class Army : GridNodeGroup, IEnumerable<Unit>
 {
     [Export] public Faction Faction = null;

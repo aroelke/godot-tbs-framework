@@ -14,6 +14,7 @@ using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI;
 using TbsTemplate.UI.Controls.Device;
 using TbsTemplate.Scenes.Level.Objectives;
+using TbsTemplate.Scenes.Level.Layers;
 
 namespace TbsTemplate.Scenes.Level;
 
@@ -157,6 +158,7 @@ public partial class LevelManager : Node
     [Export] public AudioStream BackgroundMusic = null;
 
     /// <summary>Objective corresponding to successful completion of the level.</summary>
+    [ExportGroup("Objectives")]
     [Export] public Objective Success
     {
         get => _success;
@@ -171,6 +173,7 @@ public partial class LevelManager : Node
     }
 
     /// <summary>Objective corresponding to failure of the level.</summary>
+    [ExportGroup("Objectives")]
     [Export] public Objective Failure
     {
         get => _failure;
@@ -183,6 +186,9 @@ public partial class LevelManager : Node
             }
         }
     }
+
+    [ExportGroup("Objectives")]
+    [Export] public SpecialActionRegion[] SpecialActionRegions = [];
 
     /// <summary>
     /// <see cref="Army"/> that gets the first turn and is controlled by the player. If null, use the first <see cref="Army"/>
@@ -503,6 +509,16 @@ public partial class LevelManager : Node
         List<(StringName, Action)> options = [];
         if (attackable.Any() || supportable.Any())
             options.Add(("Attack", () => State.SendEvent(SelectEvent)));
+        foreach (SpecialActionRegion region in SpecialActionRegions)
+        {
+            if (region.HasSpecialAction(_selected, _selected.Cell))
+            {
+                options.Add((region.Name, () => {
+                    region.PerformSpecialAction(_selected, _selected.Cell);
+                    State.SendEvent(SkipEvent);
+                }));
+            }
+        }
         options.Add(("End", () => State.SendEvent(SkipEvent)));
         options.Add(("Cancel", () => State.SendEvent(CancelEvent)));
         _commandMenu = ShowMenu(Grid.CellRect(_selected.Cell), options);
