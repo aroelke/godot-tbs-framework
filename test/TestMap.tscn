@@ -34,14 +34,14 @@ script = ExtResource("1_stn1b")
 BackgroundMusic = ExtResource("2_d2oip")
 Success = NodePath("AnyObjective")
 Failure = NodePath("../AnyObjective")
-SpecialActionRegions = [NodePath("Grid/Capture"), NodePath("Grid/Dig")]
+SpecialActionRegions = [NodePath("Grid/Capture"), NodePath("Grid/Dig"), NodePath("Grid/Dance")]
 StartingArmy = NodePath("Player")
 
 [node name="SuccessLabel" parent="LevelManager/UserInterface/HUD" index="1"]
 text = "Objective: Route Enemy OR Survive 3 Turns OR Defeat OtherEnemyA OR 2 of Player or AllyA occupies Occupy"
 
 [node name="FailureLabel" parent="LevelManager/UserInterface/HUD" index="2"]
-text = "Failure: Capture in 1 spaces of Capture OR Dig with 2 allowed units"
+text = "Failure: Capture in 1 space(s) of Capture OR Dig with 2 allowed unit(s) OR Dance 2 time(s)"
 
 [node name="Grid" parent="LevelManager" node_paths=PackedStringArray("GroundLayer", "TerrainLayer") instance=ExtResource("2_trttl")]
 GroundLayer = NodePath("Ground")
@@ -74,14 +74,24 @@ Action = &"Capture"
 AllowedArmies = [NodePath("../../Enemy")]
 OneShot = true
 
-[node name="Dig" parent="LevelManager/Grid" node_paths=PackedStringArray("AllowedUnits") instance=ExtResource("9_7we45")]
+[node name="Dig" parent="LevelManager/Grid" node_paths=PackedStringArray("AllowedArmies") instance=ExtResource("9_7we45")]
 modulate = Color(0.501961, 0.25098, 0, 0.392157)
 tile_map_data = PackedByteArray("AAAJAAQAAgAGAAQAAAAJAAUAAgAGAAYAAAAMAAQAAgAGAAQAAAAMAAUAAgAGAAYAAAA=")
 tile_set = ExtResource("7_d17w6")
 "Terrain Set" = 0
 Terrain = "selection"
 Action = &"Dig"
-AllowedUnits = [NodePath("../../OtherEnemy/OtherEnemyA")]
+AllowedArmies = [NodePath("../../Enemy")]
+SingleUse = true
+
+[node name="Dance" parent="LevelManager/Grid" node_paths=PackedStringArray("AllowedUnits") instance=ExtResource("9_7we45")]
+modulate = Color(1, 0.501961, 1, 0.392157)
+tile_map_data = PackedByteArray("AAAJAAYAAgABAAUAAAAMAAYAAgABAAUAAAAMAAMAAgABAAUAAAAJAAMAAgABAAUAAAA=")
+tile_set = ExtResource("7_d17w6")
+"Terrain Set" = 0
+Terrain = "selection"
+Action = &"Dance"
+AllowedUnits = [NodePath("../../OtherEnemy/OtherEnemyA"), NodePath("../../Ally/AllyA")]
 
 [node name="Player" parent="LevelManager" instance=ExtResource("4_xrn4s")]
 Faction = ExtResource("6_qur3m")
@@ -201,6 +211,10 @@ ActionRegion = NodePath("../../LevelManager/Grid/Capture")
 
 [node name="DigObjective" parent="AnyObjective" node_paths=PackedStringArray("ActionRegion") instance=ExtResource("24_h6vny")]
 ActionRegion = NodePath("../../LevelManager/Grid/Dig")
+Target = 2
+
+[node name="DanceObjective" parent="AnyObjective" node_paths=PackedStringArray("ActionRegion") instance=ExtResource("24_h6vny")]
+ActionRegion = NodePath("../../LevelManager/Grid/Dance")
 Target = 2
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]

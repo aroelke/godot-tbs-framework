@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Godot;
 using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Object;
@@ -8,14 +9,17 @@ namespace TbsTemplate.Scenes.Level.Objectives;
 [Tool]
 public partial class ActionObjective : Objective
 {
-    private int _completed = 0;
+    private readonly List<Unit> _units = [];
+    private readonly List<Vector2I> _spaces = [];
 
     /// <summary>Region to perform the action in.  Also defines which units can perform the action. Side effects are not implemented here.</summary>
     [Export] public SpecialActionRegion ActionRegion = null;
 
     /// <summary>
-    /// If the region is a one-shot region, represents the number of spaces in it that need to be acted upon, with 0 representing "all of them." If it
-    /// isn't, then represents the number of units that need to perform the action, with 0 representing "all of them."
+    /// If the region is:
+    /// - A one-shot region, represents the number of spaces the action must be performed in, with 0 representing "all of them"
+    /// - A single-use region, represents the number of different units that must perform the action, with 0 representing "all of them"
+    /// - Neither, represents the number of times the action must be performed, with 0 being invalid
     /// </summary>
     [Export(PropertyHint.Range, "0,10,or_greater")] public int Target = 1;
 
@@ -29,13 +33,18 @@ public partial class ActionObjective : Objective
             {
                 if (Target == 0)
                     return ActionRegion.GetUsedCells().Count == 0;
+                else
+                    return _spaces.Count >= Target;
             }
-            else
+            else if (ActionRegion.SingleUse)
             {
                 if (Target == 0)
-                    return _completed >= ActionRegion.AllAllowedUnits().Count;
+                    return ActionRegion.Performed == ActionRegion.AllAllowedUnits();
+                else
+                    return ActionRegion.Performed.Count >= Target;
             }
-            return _completed >= Target;
+            else
+                return Target > 0 && _units.Count >= Target;
         }
     }
 
@@ -46,13 +55,22 @@ public partial class ActionObjective : Objective
             if (ActionRegion is null)
                 return "";
             else if (ActionRegion.OneShot)
-                return $"{ActionRegion.Action} in {(Target == 0 ? "all" : Target)} spaces of {ActionRegion.Name}";
+                return $"{ActionRegion.Action} in {(Target == 0 ? "all" : Target)} space(s) of {ActionRegion.Name}";
+            else if (ActionRegion.SingleUse)
+                return $"{ActionRegion.Action} with {(Target == 0 ? "all" : Target)} allowed unit(s)";
             else
-                return $"{ActionRegion.Action} with {(Target == 0 ? "all" : Target)} allowed units";
+                return $"{ActionRegion.Action} {Target} time(s)";
         }
     }
 
-    public void ActionPerformed(StringName action, Unit actor, Vector2I cell) => _completed++;
+    public void ActionPerformed(StringName action, Unit actor, Vector2I cell)
+    {
+        if (action == ActionRegion.Action)
+        {
+            _units.Add(actor);
+            _spaces.Add(cell);
+        }
+    }
 
     public override void _Ready()
     {

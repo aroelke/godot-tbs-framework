@@ -37,12 +37,21 @@ public partial class SpecialActionRegion : TileMapLayer
     /// <summary>Whether or not an action should remove the cell it's performed in from the region.</summary>
     [Export] public bool OneShot = false;
 
+    /// <summary>Whether or not an action should only be performed once per unit.</summary>
+    [Export] public bool SingleUse = false;
+
+    /// <summary>Set of units that have already performed the action. Updates before the performed signal is emitted.</summary>
+    public ImmutableHashSet<Unit> Performed { get; private set; } = [];
+
     /// <returns>A set containing all units that are allowed to perform the action in the region.</returns>
     public ImmutableHashSet<Unit> AllAllowedUnits() => AllowedUnits.ToImmutableHashSet().Union(AllowedArmies.SelectMany((a) => a.GetChildren().OfType<Unit>()));
 
     /// <summary>Check if a unit can perform the special action in a cell.</summary>
     /// <returns><c>true</c> if <paramref name="unit"/> is allowed to perform the action and <paramref name="cell"/> is in the region, and <c>false</c> otherwise.</returns>
-    public virtual bool HasSpecialAction(Unit unit, Vector2I cell) => (AllowedUnits.Contains(unit) || AllowedArmies.Any((a) => a.Faction.AlliedTo(unit))) && GetUsedCells().Contains(cell);
+    public virtual bool HasSpecialAction(Unit unit, Vector2I cell) =>
+        (!SingleUse || !Performed.Contains(unit)) &&
+        (AllowedUnits.Contains(unit) || AllowedArmies.Any((a) => a.Faction.AlliedTo(unit))) &&
+        GetUsedCells().Contains(cell);
 
     /// <summary>Perform the special action. By default, this just emits a signal indicating the action is performed by a unit at a cell.</summary>
     /// <param name="performer">Unit performing the action.</param>
@@ -51,6 +60,7 @@ public partial class SpecialActionRegion : TileMapLayer
     {
         if (HasSpecialAction(performer, cell))
         {
+            Performed = Performed.Add(performer);
             EmitSignal(SignalName.SpecialActionPerformed, Action, performer, cell);
             if (OneShot)
             {
