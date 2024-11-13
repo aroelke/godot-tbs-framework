@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Godot;
 using TbsTemplate.Extensions;
@@ -35,6 +36,9 @@ public partial class SpecialActionRegion : TileMapLayer
 
     /// <summary>Whether or not an action should remove the cell it's performed in from the region.</summary>
     [Export] public bool OneShot = false;
+
+    /// <returns>A set containing all units that are allowed to perform the action in the region.</returns>
+    public ImmutableHashSet<Unit> AllAllowedUnits() => AllowedUnits.ToImmutableHashSet().Union(AllowedArmies.SelectMany((a) => a.GetChildren().OfType<Unit>()));
 
     /// <summary>Check if a unit can perform the special action in a cell.</summary>
     /// <returns><c>true</c> if <paramref name="unit"/> is allowed to perform the action and <paramref name="cell"/> is in the region, and <c>false</c> otherwise.</returns>

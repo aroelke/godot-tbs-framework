@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=4 uid="uid://bmfxux38ovtj2"]
+[gd_scene load_steps=27 format=4 uid="uid://bmfxux38ovtj2"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/LevelManager.tscn" id="1_h3e4w"]
 [ext_resource type="Script" path="res://test/TestMap.cs" id="1_stn1b"]
@@ -13,6 +13,7 @@
 [ext_resource type="TileSet" uid="uid://cwhi2yq5gtey5" path="res://test/assets/level/ui/Overlay.tres" id="7_d17w6"]
 [ext_resource type="Resource" uid="uid://rw7lv271d7de" path="res://test/stats/TestPlayerStats.tres" id="8_1sr4q"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Layers/SpecialActionRegion.cs" id="8_kin6v"]
+[ext_resource type="PackedScene" uid="uid://bntay230afwxo" path="res://src/TbsTemplate/Scenes/Level/Layers/SpecialActionRegion.tscn" id="9_7we45"]
 [ext_resource type="Resource" uid="uid://blftirgdcpabh" path="res://test/stats/TestEnemyStats2.tres" id="9_awc5y"]
 [ext_resource type="Resource" uid="uid://xatocb6uwrwx" path="res://test/stats/TestEnemyStats1.tres" id="9_g2gda"]
 [ext_resource type="Resource" uid="uid://dp74yifhop864" path="res://test/factions/TestEnemyFaction1.tres" id="10_k4gkn"]
@@ -33,14 +34,14 @@ script = ExtResource("1_stn1b")
 BackgroundMusic = ExtResource("2_d2oip")
 Success = NodePath("AnyObjective")
 Failure = NodePath("../AnyObjective")
-SpecialActionRegions = [NodePath("Grid/Capture")]
+SpecialActionRegions = [NodePath("Grid/Capture"), NodePath("Grid/Dig")]
 StartingArmy = NodePath("Player")
 
 [node name="SuccessLabel" parent="LevelManager/UserInterface/HUD" index="1"]
 text = "Objective: Route Enemy OR Survive 3 Turns OR Defeat OtherEnemyA OR 2 of Player or AllyA occupies Occupy"
 
 [node name="FailureLabel" parent="LevelManager/UserInterface/HUD" index="2"]
-text = "Failure: Capture in Capture with 1 allowed units"
+text = "Failure: Capture in 1 spaces of Capture OR Dig with 2 allowed units"
 
 [node name="Grid" parent="LevelManager" node_paths=PackedStringArray("GroundLayer", "TerrainLayer") instance=ExtResource("2_trttl")]
 GroundLayer = NodePath("Ground")
@@ -71,6 +72,16 @@ script = ExtResource("8_kin6v")
 Terrain = "selection"
 Action = &"Capture"
 AllowedArmies = [NodePath("../../Enemy")]
+OneShot = true
+
+[node name="Dig" parent="LevelManager/Grid" node_paths=PackedStringArray("AllowedUnits") instance=ExtResource("9_7we45")]
+modulate = Color(0.501961, 0.25098, 0, 0.392157)
+tile_map_data = PackedByteArray("AAAJAAQAAgAGAAQAAAAJAAUAAgAGAAYAAAAMAAQAAgAGAAQAAAAMAAUAAgAGAAYAAAA=")
+tile_set = ExtResource("7_d17w6")
+"Terrain Set" = 0
+Terrain = "selection"
+Action = &"Dig"
+AllowedUnits = [NodePath("../../OtherEnemy/OtherEnemyA")]
 
 [node name="Player" parent="LevelManager" instance=ExtResource("4_xrn4s")]
 Faction = ExtResource("6_qur3m")
@@ -187,6 +198,10 @@ Count = 2
 
 [node name="CaptureObjective" parent="AnyObjective" node_paths=PackedStringArray("ActionRegion") instance=ExtResource("24_h6vny")]
 ActionRegion = NodePath("../../LevelManager/Grid/Capture")
+
+[node name="DigObjective" parent="AnyObjective" node_paths=PackedStringArray("ActionRegion") instance=ExtResource("24_h6vny")]
+ActionRegion = NodePath("../../LevelManager/Grid/Dig")
+Target = 2
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
