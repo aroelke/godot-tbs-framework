@@ -150,6 +150,10 @@ public partial class LevelManager : Node
     /// <summary>Signals that a new turn has begun.</summary>
     /// <param name="turn">Turn number.</param>
     [Signal] public delegate void TurnBeganEventHandler(int turn);
+
+    /// <summary>Signals that the level's success or failure objective has been completed.</summary>
+    /// <param name="success"><c>true</c> if <see cref="Success"/> was completed, and <c>false</c> if <see cref="Failure"/> was completed.</param>
+    [Signal] public delegate void ObjectiveCompletedEventHandler(bool success);
 #endregion
 #region Exports
     private int _turn = 1;
@@ -694,17 +698,24 @@ public partial class LevelManager : Node
                     Turn++;
             } while (!((IEnumerable<Unit>)_armies.Current).Any());
             UpdateTurnCounter();
+            if (_armies.Current == StartingArmy)
+                EmitSignal(SignalName.TurnBegan, Turn);
         }
-        Callable.From(() => {
-            State.SendEvent(DoneEvent);
-            if (advance)
-            {
-                if (_armies.Current == StartingArmy)
-                    EmitSignal(SignalName.TurnBegan, Turn);
-                Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(((IEnumerable<Unit>)_armies.Current).First().Cell);
-            }
-        }).CallDeferred();
+        Callable.From<StringName>(State.SendEvent).CallDeferred(advance ? DoneEvent : SkipEvent);
     }
+#endregion
+#region Evaluating Objective
+    public void OnEvaluatingEntered()
+    {
+        if (Success?.Complete ?? false)
+            EmitSignal(SignalName.ObjectiveCompleted, true);
+        else if (Failure?.Complete ?? false)
+            EmitSignal(SignalName.ObjectiveCompleted, false);
+        else
+            Callable.From<StringName>(State.SendEvent).CallDeferred(DoneEvent);
+    }
+
+    public void OnTurnEvaluationFinished() => Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(((IEnumerable<Unit>)_armies.Current).First().Cell);
 #endregion
 #region State Independent
     /// <summary>When the pointer starts flying, we need to wait for it to finish. Also focus the camera on its target if there's something there.</summary>
