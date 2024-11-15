@@ -220,7 +220,11 @@ public partial class LevelManager : Node
     public void OnBeginTurnEntered() => Callable.From<int, Army>((t, a) => EmitSignal(SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
 
     /// <summary>Perform any updates that the turn has begun that need to happen after upkeep.</summary>
-    public void OnBeginTurnExited() => UpdateTurnCounter();
+    public void OnBeginTurnExited()
+    {
+        UpdateTurnCounter();
+        Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(((IEnumerable<Unit>)_armies.Current).First().Cell);
+    }
 #endregion
 #region Idle State
     /// <summary>Update the UI when re-entering idle.</summary>
