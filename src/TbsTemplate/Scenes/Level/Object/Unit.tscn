@@ -383,7 +383,7 @@ states/Selected/node = SubResource("AnimationNodeAnimation_xy2fh")
 states/Selected/position = Vector2(643, 213)
 states/Start/position = Vector2(249, 213)
 transitions = ["Idle", "Selected", SubResource("AnimationNodeStateMachineTransition_av2ix"), "Selected", "Idle", SubResource("AnimationNodeStateMachineTransition_m6c88"), "Start", "Idle", SubResource("AnimationNodeStateMachineTransition_43qbb"), "Selected", "Done", SubResource("AnimationNodeStateMachineTransition_gsdf1"), "Done", "Idle", SubResource("AnimationNodeStateMachineTransition_csre7"), "Moving", "Idle", SubResource("AnimationNodeStateMachineTransition_nrnfq"), "Moving", "Done", SubResource("AnimationNodeStateMachineTransition_1tawo"), "Selected", "Moving", SubResource("AnimationNodeStateMachineTransition_gjd0r"), "Moving", "Selected", SubResource("AnimationNodeStateMachineTransition_otyyn"), "Idle", "Done", SubResource("AnimationNodeStateMachineTransition_xdt2f")]
-graph_offset = Vector2(-412.55, 168.027)
+graph_offset = Vector2(-397.55, 137.027)
 
 [node name="Unit" type="Node2D"]
 z_index = 1

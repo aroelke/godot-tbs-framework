@@ -116,6 +116,13 @@ public partial class LevelManager : Node
 
     private ContextMenu ShowMenu(Rect2 rect, params (StringName, Action)[] options) => ShowMenu(rect, (IEnumerable<(StringName, Action)>)options);
 
+    /// <summary>Update the UI turn counter for the current turn and change its color to match the army.</summary>
+    private void UpdateTurnCounter()
+    {
+        TurnLabel.AddThemeColorOverride("font_color", _armies.Current.Faction.Color);
+        TurnLabel.Text = $"Turn {Turn}: {_armies.Current.Faction.Name}";
+    }
+
     /// <summary>Update the displayed danger zones to reflect the current positions of the enemy <see cref="Unit"/>s.</summary>
     private void UpdateDangerZones()
     {
@@ -149,7 +156,8 @@ public partial class LevelManager : Node
 #region Signals
     /// <summary>Signals that a new turn has begun.</summary>
     /// <param name="turn">Turn number.</param>
-    [Signal] public delegate void TurnBeganEventHandler(int turn);
+    /// <param name="army">Army whose turn it is.</param>
+    [Signal] public delegate void TurnBeganEventHandler(int turn, Army army);
 
     /// <summary>Signals that the level's success or failure objective has been completed.</summary>
     /// <param name="success"><c>true</c> if <see cref="Success"/> was completed, and <c>false</c> if <see cref="Failure"/> was completed.</param>
@@ -212,7 +220,7 @@ public partial class LevelManager : Node
         {
             _turn = value;
             if (!Engine.IsEditorHint())
-                TurnLabel.Text = $"Turn {_turn}: {_armies.Current.Name}";
+                TurnLabel.Text = $"Turn {_turn}: {_armies.Current.Faction.Name}";
         }
     }
 
@@ -232,6 +240,14 @@ public partial class LevelManager : Node
     /// <summary>Modulate color for the action range overlay to use during idle state to differentiate from the one displayed while selecting a move path.</summary>
     [ExportGroup("Range Overlay")]
     [Export] public Color ActionRangeIdleModulate = new(1, 1, 1, 0.66f);
+#endregion
+#region Begin Turn State
+    public void OnBeginTurnEntered()
+    {
+        UpdateTurnCounter();
+        EmitSignal(SignalName.TurnBegan, Turn, _armies.Current);
+        Callable.From<StringName>(State.SendEvent).CallDeferred(DoneEvent);
+    }
 #endregion
 #region Idle State
     /// <summary>Update the UI when re-entering idle.</summary>
@@ -323,10 +339,10 @@ public partial class LevelManager : Node
         State.SendEvent(WaitEvent);
         ShowMenu(new() { Position = Pointer.Position, Size = Vector2.Zero },
             ("End Turn", () => {
-                State.SendEvent(DoneEvent);
+                State.SendEvent(DoneEvent); // Done waiting
                 foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
                     unit.Finish();
-                State.SendEvent(SkipEvent);
+                State.SendEvent(SkipEvent); // Skip to end of turn
                 SelectSound.Play();
             }),
             ("Quit Game", () => GetTree().Quit()),
@@ -660,19 +676,8 @@ public partial class LevelManager : Node
         Cursor.Resume();
     }
 #endregion
-#region Turn Advancing
-    /// <summary>Update the UI turn counter for the current turn and change its color to match the army.</summary>
-    private void UpdateTurnCounter()
-    {
-        TurnLabel.AddThemeColorOverride("font_color", _armies.Current.Faction.Color);
-        TurnLabel.Text = $"Turn {Turn}: {_armies.Current.Faction.Name}";
-    }
-
-    /// <summary>
-    /// Clean up after finishing a unit's action, then go to the next army if it was the last available unit in the current army, incrementing the turn
-    /// counter when going back to <see cref="StartingArmy"/>.
-    /// </summary>
-    public async void OnTurnAdvancingEntered()
+#region End Action State
+    public void OnEndActionEntered()
     {
         // If the selected unit died, there might not be one anymore
         if (_selected is not null)
@@ -682,13 +687,23 @@ public partial class LevelManager : Node
         }
         CancelHint.Visible = false;
 
+        Callable.From<StringName>(State.SendEvent).CallDeferred(DoneEvent);
+    }
+#endregion
+#region Turn Advancing State
+    /// <summary>
+    /// Clean up after finishing a unit's action, then go to the next army if it was the last available unit in the current army, incrementing the turn
+    /// counter when going back to <see cref="StartingArmy"/>.
+    /// </summary>
+    public async void OnTurnAdvancingEntered()
+    {
         bool advance = !((IEnumerable<Unit>)_armies.Current).Any(static (u) => u.Active);
         if (advance)
         {
             TurnAdvance.Start();
             await ToSignal(TurnAdvance, Timer.SignalName.Timeout);
 
-            // Refresh all the units in the current army so they aren't gray anymore and are animated
+            // Refresh all the units in the army whose turn just ended so they aren't gray anymore and are animated
             foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
                 unit.Refresh();
 
@@ -697,25 +712,12 @@ public partial class LevelManager : Node
                 if (_armies.MoveNext() && _armies.Current == StartingArmy)
                     Turn++;
             } while (!((IEnumerable<Unit>)_armies.Current).Any());
-            UpdateTurnCounter();
-            if (_armies.Current == StartingArmy)
-                EmitSignal(SignalName.TurnBegan, Turn);
-        }
-        Callable.From<StringName>(State.SendEvent).CallDeferred(advance ? DoneEvent : SkipEvent);
-    }
-#endregion
-#region Evaluating Objective
-    public void OnEvaluatingEntered()
-    {
-        if (Success?.Complete ?? false)
-            EmitSignal(SignalName.ObjectiveCompleted, true);
-        else if (Failure?.Complete ?? false)
-            EmitSignal(SignalName.ObjectiveCompleted, false);
-        else
-            Callable.From<StringName>(State.SendEvent).CallDeferred(DoneEvent);
-    }
 
-    public void OnTurnEvaluationFinished() => Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(((IEnumerable<Unit>)_armies.Current).First().Cell);
+            Callable.From<StringName>(State.SendEvent).CallDeferred(DoneEvent);
+        }
+        else
+            Callable.From<StringName>(State.SendEvent).CallDeferred(SkipEvent);
+    }
 #endregion
 #region State Independent
     /// <summary>When the pointer starts flying, we need to wait for it to finish. Also focus the camera on its target if there's something there.</summary>

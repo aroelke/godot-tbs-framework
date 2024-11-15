@@ -227,7 +227,7 @@ public partial class Unit : GridNode, IHasHealth
     /// <summary>Restore the unit into its "idle" state from being inactive, indicating that it's ready to act again.</summary>
     public void Refresh()
     {
-        CheckValidState("refresh", DoneState);
+        CheckValidState("refresh", "", DoneState);
         Sprite.Modulate = Faction.Color;
         AnimationTree.Set(Done, false);
         AnimationTree.Set(Idle, true);

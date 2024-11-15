@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Godot;
+using TbsTemplate.Scenes.Level.Object.Group;
 
 namespace TbsTemplate.Scenes.Level.Objectives;
 
@@ -15,7 +16,7 @@ public partial class TimeObjective : Objective
     public override bool Complete => _turn > Turns;
     public override string Description => $"Survive {Turns} Turns";
 
-    public void OnTurnBegan(int turn) => _turn = turn;
+    public void OnTurnBegan(int turn, Army army) => _turn = turn;
 
     public override string[] _GetConfigurationWarnings()
     {
