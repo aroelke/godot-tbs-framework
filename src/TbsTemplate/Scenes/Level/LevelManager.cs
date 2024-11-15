@@ -175,37 +175,7 @@ public partial class LevelManager : Node
     /// <summary>Background music to play during the level.</summary>
     [Export] public AudioStream BackgroundMusic = null;
 
-    /// <summary>Objective corresponding to successful completion of the level.</summary>
-    [ExportGroup("Objectives")]
-    [Export] public Objective Success
-    {
-        get => _success;
-        set
-        {
-            if (_success != value)
-            {
-                _success = value;
-                SuccessLabel.Text = $"Objective: {_success?.Description ?? "None"}";
-            }
-        }
-    }
-
-    /// <summary>Objective corresponding to failure of the level.</summary>
-    [ExportGroup("Objectives")]
-    [Export] public Objective Failure
-    {
-        get => _failure;
-        set
-        {
-            if (_failure != value)
-            {
-                _failure = value;
-                FailureLabel.Text = $"Failure: {_failure?.Description ?? "Never"}";
-            }
-        }
-    }
-
-    [ExportGroup("Objectives")]
+    /// <summary>Regions in which units can perform special actions defined by the region.</summary>
     [Export] public SpecialActionRegion[] SpecialActionRegions = [];
 
     /// <summary>
@@ -845,9 +815,6 @@ public partial class LevelManager : Node
             MusicController.ResetPlayback();
             MusicController.PlayTrack(BackgroundMusic);
         }
-
-        SuccessLabel.Text = $"Objective: {Success?.Description ?? "None"}";
-        FailureLabel.Text = $"Failure: {Failure?.Description ?? "Never"}";
     }
 
     public override void _Input(InputEvent @event)

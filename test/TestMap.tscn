@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=4 uid="uid://bmfxux38ovtj2"]
+[gd_scene load_steps=29 format=4 uid="uid://bmfxux38ovtj2"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/LevelManager.tscn" id="1_h3e4w"]
 [ext_resource type="Script" path="res://test/TestMap.cs" id="1_stn1b"]
@@ -27,22 +27,15 @@
 [ext_resource type="PackedScene" uid="uid://b8dnpt7lcd2it" path="res://src/TbsTemplate/Scenes/Level/Objectives/OccupyObjective.tscn" id="22_axkl2"]
 [ext_resource type="PackedScene" uid="uid://blf1owsru7rvw" path="res://src/TbsTemplate/Scenes/Level/Objectives/ActionObjective.tscn" id="24_h6vny"]
 [ext_resource type="PackedScene" uid="uid://bi8p6x3pf3217" path="res://src/TbsTemplate/Scenes/Level/EventController.tscn" id="25_i6qxt"]
+[ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://test/assets/ui/Hints.tres" id="28_y0mi7"]
 
 [node name="TestMap" type="Node2D"]
 script = ExtResource("1_stn1b")
 
-[node name="LevelManager" parent="." node_paths=PackedStringArray("Success", "Failure", "SpecialActionRegions", "StartingArmy") instance=ExtResource("1_h3e4w")]
+[node name="LevelManager" parent="." node_paths=PackedStringArray("SpecialActionRegions", "StartingArmy") instance=ExtResource("1_h3e4w")]
 BackgroundMusic = ExtResource("2_d2oip")
-Success = NodePath("AnyObjective")
-Failure = NodePath("../AnyObjective")
 SpecialActionRegions = [NodePath("Grid/Capture"), NodePath("Grid/Dig"), NodePath("Grid/Dance")]
 StartingArmy = NodePath("Player")
-
-[node name="SuccessLabel" parent="LevelManager/UserInterface/HUD" index="1"]
-text = "Objective: Route Enemy OR Survive 3 Turns OR Defeat OtherEnemyA OR 2 of Player or AllyA occupies Occupy"
-
-[node name="FailureLabel" parent="LevelManager/UserInterface/HUD" index="2"]
-text = "Failure: Capture in 1 space(s) of Capture OR Dig with 2 allowed unit(s) OR Dance 2 time(s)"
 
 [node name="Grid" parent="LevelManager" node_paths=PackedStringArray("GroundLayer", "TerrainLayer") instance=ExtResource("2_trttl")]
 GroundLayer = NodePath("Ground")
@@ -188,35 +181,37 @@ Grid = NodePath("../../Grid")
 Cell = Vector2i(6, 6)
 Size = Vector2(32, 32)
 
-[node name="AnyObjective" parent="LevelManager" instance=ExtResource("17_atmq1")]
+[node name="EventController" parent="." node_paths=PackedStringArray("Success", "Failure") instance=ExtResource("25_i6qxt")]
+Success = NodePath("../SuccessObjective")
+Failure = NodePath("../FailureObjective")
 
-[node name="RouteObjective" parent="LevelManager/AnyObjective" node_paths=PackedStringArray("Target") instance=ExtResource("20_1l8iw")]
-Target = NodePath("../../Enemy")
+[node name="SuccessObjective" parent="." instance=ExtResource("17_atmq1")]
 
-[node name="TimeObjective" parent="LevelManager/AnyObjective" instance=ExtResource("19_rxp4c")]
+[node name="RouteObjective" parent="SuccessObjective" node_paths=PackedStringArray("Target") instance=ExtResource("20_1l8iw")]
+Target = NodePath("../../LevelManager/Enemy")
+
+[node name="TimeObjective" parent="SuccessObjective" instance=ExtResource("19_rxp4c")]
 Turns = 3
 
-[node name="DefeatUnitObjective" parent="LevelManager/AnyObjective" node_paths=PackedStringArray("Target") instance=ExtResource("20_6u8j8")]
-Target = NodePath("../../OtherEnemy/OtherEnemyA")
+[node name="DefeatUnitObjective" parent="SuccessObjective" node_paths=PackedStringArray("Target") instance=ExtResource("20_6u8j8")]
+Target = NodePath("../../LevelManager/OtherEnemy/OtherEnemyA")
 
-[node name="OccupyObjective" parent="LevelManager/AnyObjective" node_paths=PackedStringArray("Region", "Army", "Units") instance=ExtResource("22_axkl2")]
-Region = NodePath("../../Grid/Occupy")
-Army = NodePath("../../Player")
-Units = [NodePath("../../Ally/AllyA")]
+[node name="OccupyObjective" parent="SuccessObjective" node_paths=PackedStringArray("Region", "Army", "Units") instance=ExtResource("22_axkl2")]
+Region = NodePath("../../LevelManager/Grid/Occupy")
+Army = NodePath("../../LevelManager/Player")
+Units = [NodePath("../../LevelManager/Ally/AllyA")]
 Count = 2
 
-[node name="EventController" parent="." instance=ExtResource("25_i6qxt")]
+[node name="FailureObjective" parent="." instance=ExtResource("17_atmq1")]
 
-[node name="AnyObjective" parent="." instance=ExtResource("17_atmq1")]
-
-[node name="CaptureObjective" parent="AnyObjective" node_paths=PackedStringArray("ActionRegion") instance=ExtResource("24_h6vny")]
+[node name="CaptureObjective" parent="FailureObjective" node_paths=PackedStringArray("ActionRegion") instance=ExtResource("24_h6vny")]
 ActionRegion = NodePath("../../LevelManager/Grid/Capture")
 
-[node name="DigObjective" parent="AnyObjective" node_paths=PackedStringArray("ActionRegion") instance=ExtResource("24_h6vny")]
+[node name="DigObjective" parent="FailureObjective" node_paths=PackedStringArray("ActionRegion") instance=ExtResource("24_h6vny")]
 ActionRegion = NodePath("../../LevelManager/Grid/Dig")
 Target = 2
 
-[node name="DanceObjective" parent="AnyObjective" node_paths=PackedStringArray("ActionRegion") instance=ExtResource("24_h6vny")]
+[node name="DanceObjective" parent="FailureObjective" node_paths=PackedStringArray("ActionRegion") instance=ExtResource("24_h6vny")]
 ActionRegion = NodePath("../../LevelManager/Grid/Dance")
 Target = 2
 
@@ -244,15 +239,24 @@ grow_horizontal = 1
 grow_vertical = 1
 StateChart = NodePath("../../LevelManager/Pointer/ControlState")
 
+[node name="ObjectiveLabel" type="Label" parent="CanvasLayer"]
+offset_top = 39.0
+offset_right = 110.0
+offset_bottom = 88.0
+theme = ExtResource("28_y0mi7")
+text = "Success: None
+Failure: Never"
+
 [connection signal="ActionEnded" from="LevelManager" to="EventController" method="OnActionEnded"]
 [connection signal="ObjectiveCompleted" from="LevelManager" to="." method="OnObjectiveCompleted"]
-[connection signal="TurnBegan" from="LevelManager" to="LevelManager/AnyObjective/TimeObjective" method="OnTurnBegan"]
+[connection signal="TurnBegan" from="LevelManager" to="SuccessObjective/TimeObjective" method="OnTurnBegan"]
 [connection signal="TurnBegan" from="LevelManager" to="EventController" method="OnTurnBegan"]
 [connection signal="child_entered_tree" from="LevelManager/Player" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Enemy" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/OtherEnemy" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Ally" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="EventComplete" from="EventController" to="LevelManager" method="OnEventComplete"]
+[connection signal="ObjectiveCompleted" from="EventController" to="." method="OnObjectiveCompleted"]
 
 [editable path="LevelManager"]
 [editable path="LevelManager/Pointer"]
