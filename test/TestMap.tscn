@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=4 uid="uid://bmfxux38ovtj2"]
+[gd_scene load_steps=28 format=4 uid="uid://bmfxux38ovtj2"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/LevelManager.tscn" id="1_h3e4w"]
 [ext_resource type="Script" path="res://test/TestMap.cs" id="1_stn1b"]
@@ -26,6 +26,7 @@
 [ext_resource type="PackedScene" uid="uid://7wc21qvj7n3n" path="res://src/TbsTemplate/Scenes/Level/Objectives/DefeatUnitObjective.tscn" id="20_6u8j8"]
 [ext_resource type="PackedScene" uid="uid://b8dnpt7lcd2it" path="res://src/TbsTemplate/Scenes/Level/Objectives/OccupyObjective.tscn" id="22_axkl2"]
 [ext_resource type="PackedScene" uid="uid://blf1owsru7rvw" path="res://src/TbsTemplate/Scenes/Level/Objectives/ActionObjective.tscn" id="24_h6vny"]
+[ext_resource type="PackedScene" uid="uid://bi8p6x3pf3217" path="res://src/TbsTemplate/Scenes/Level/EventController.tscn" id="25_i6qxt"]
 
 [node name="TestMap" type="Node2D"]
 script = ExtResource("1_stn1b")
@@ -204,6 +205,8 @@ Army = NodePath("../../Player")
 Units = [NodePath("../../Ally/AllyA")]
 Count = 2
 
+[node name="EventController" parent="." instance=ExtResource("25_i6qxt")]
+
 [node name="AnyObjective" parent="." instance=ExtResource("17_atmq1")]
 
 [node name="CaptureObjective" parent="AnyObjective" node_paths=PackedStringArray("ActionRegion") instance=ExtResource("24_h6vny")]
@@ -241,12 +244,15 @@ grow_horizontal = 1
 grow_vertical = 1
 StateChart = NodePath("../../LevelManager/Pointer/ControlState")
 
+[connection signal="ActionEnded" from="LevelManager" to="EventController" method="OnActionEnded"]
 [connection signal="ObjectiveCompleted" from="LevelManager" to="." method="OnObjectiveCompleted"]
 [connection signal="TurnBegan" from="LevelManager" to="LevelManager/AnyObjective/TimeObjective" method="OnTurnBegan"]
+[connection signal="TurnBegan" from="LevelManager" to="EventController" method="OnTurnBegan"]
 [connection signal="child_entered_tree" from="LevelManager/Player" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Enemy" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/OtherEnemy" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Ally" to="LevelManager" method="OnChildEnteredGroup"]
+[connection signal="EventComplete" from="EventController" to="LevelManager" method="OnEventComplete"]
 
 [editable path="LevelManager"]
 [editable path="LevelManager/Pointer"]

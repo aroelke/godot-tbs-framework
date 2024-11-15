@@ -246,12 +246,11 @@ public partial class LevelManager : Node
     [Export] public Color ActionRangeIdleModulate = new(1, 1, 1, 0.66f);
 #endregion
 #region Begin Turn State
-    public void OnBeginTurnEntered()
-    {
-        UpdateTurnCounter();
-        EmitSignal(SignalName.TurnBegan, Turn, _armies.Current);
-        Callable.From<StringName>(State.SendEvent).CallDeferred(DoneEvent);
-    }
+    /// <summary>Signal that a turn is about to begin.</summary>
+    public void OnBeginTurnEntered() => Callable.From<int, Army>((t, a) => EmitSignal(SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
+
+    /// <summary>Perform any updates that the turn has begun that need to happen after upkeep.</summary>
+    public void OnBeginTurnExited() => UpdateTurnCounter();
 #endregion
 #region Idle State
     /// <summary>Update the UI when re-entering idle.</summary>
@@ -681,17 +680,20 @@ public partial class LevelManager : Node
     }
 #endregion
 #region End Action State
+    /// <summary>If a unit was selected, signal that its action has ended. Otherwise, just continue.</summary>
     public void OnEndActionEntered()
     {
         CancelHint.Visible = false;
         if (IsInstanceValid(_selected))
-            EmitSignal(SignalName.ActionEnded, _selected);
-        Callable.From<StringName>(State.SendEvent).CallDeferred(DoneEvent);
+            Callable.From<Unit>((u) => EmitSignal(SignalName.ActionEnded, u)).CallDeferred(_selected);
+        else
+            Callable.From<StringName>(State.SendEvent).CallDeferred(DoneEvent);
     }
 
+    /// <summary>Clean up at the end of the unit's turn.</summary>
     public void OnEndActionExited()
     {
-        // If the selected unit died, there might not be one anymore
+        // If the turn was skipped, there might not be a selected unit
         if (_selected is not null)
         {
             if (_selected.Health.Value > 0)
@@ -732,6 +734,9 @@ public partial class LevelManager : Node
     }
 #endregion
 #region State Independent
+    /// <summary>When an event is completed, go to the next state.</summary>
+    public void OnEventComplete() => State.SendEvent(DoneEvent);
+
     /// <summary>When the pointer starts flying, we need to wait for it to finish. Also focus the camera on its target if there's something there.</summary>
     /// <param name="target">Position the pointer is going to fly to.</param>
     public void OnPointerFlightStarted(Vector2 target)
