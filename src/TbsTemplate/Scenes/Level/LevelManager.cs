@@ -159,6 +159,10 @@ public partial class LevelManager : Node
     /// <param name="army">Army whose turn it is.</param>
     [Signal] public delegate void TurnBeganEventHandler(int turn, Army army);
 
+    /// <summary>Signals that a unit has completed its action.</summary>
+    /// <param name="unit">Unit that completed its action.</param>
+    [Signal] public delegate void ActionEndedEventHandler(Unit unit);
+
     /// <summary>Signals that the level's success or failure objective has been completed.</summary>
     /// <param name="success"><c>true</c> if <see cref="Success"/> was completed, and <c>false</c> if <see cref="Failure"/> was completed.</param>
     [Signal] public delegate void ObjectiveCompletedEventHandler(bool success);
@@ -679,15 +683,23 @@ public partial class LevelManager : Node
 #region End Action State
     public void OnEndActionEntered()
     {
+        CancelHint.Visible = false;
+        if (IsInstanceValid(_selected))
+            EmitSignal(SignalName.ActionEnded, _selected);
+        Callable.From<StringName>(State.SendEvent).CallDeferred(DoneEvent);
+    }
+
+    public void OnEndActionExited()
+    {
         // If the selected unit died, there might not be one anymore
         if (_selected is not null)
         {
-            _selected.Finish();
+            if (_selected.Health.Value > 0)
+                _selected.Finish();
+            else
+                _selected.Die();
             _selected = null;
         }
-        CancelHint.Visible = false;
-
-        Callable.From<StringName>(State.SendEvent).CallDeferred(DoneEvent);
     }
 #endregion
 #region Turn Advancing State
@@ -763,9 +775,11 @@ public partial class LevelManager : Node
 
     public void OnUnitDefeated(Unit defeated)
     {
-        if (_selected == defeated)
-            _selected = null;
-        defeated.Die();
+        // If the dead unit is the currently-selected one, it will be cleared away at the end of its action.
+        if (_selected != defeated)
+            defeated.Die();
+        else // Otherwise, pretend it's dead by making it invisible until the action is over
+            defeated.Visible = false;
     }
 
     public override string[] _GetConfigurationWarnings()
