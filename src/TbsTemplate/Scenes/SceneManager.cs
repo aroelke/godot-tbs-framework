@@ -21,6 +21,8 @@ public partial class SceneManager : Node
     /// <summary>Signals that a transition to a new scene has completed.</summary>
     [Signal] public delegate void TransitionCompletedEventHandler();
 
+    [Signal] public delegate void SceneLoadedEventHandler(Node scene);
+
     private static SceneManager _singleton = null;
     private static Node _currentLevel = null;
     private static CombatScene _combat = null;
@@ -28,13 +30,31 @@ public partial class SceneManager : Node
     /// <summary>Reference to the autoloaded scene manager.</summary>
     public static SceneManager Singleton => _singleton ??= ((SceneTree)Engine.GetMainLoop()).Root.GetNode<SceneManager>("SceneManager");
 
-    /// <summary>Begin the combat animation by switching to the <see cref="Combat.CombatScene"/>, remembering where to return when the animation completes.</summary>
+    public static void ChangeScene(string path)
+    {
+        Task<Node> task = Task.Run(() => GD.Load<PackedScene>(path).Instantiate<Node>());
+
+        async void CompleteFade()
+        {
+            MusicController.Stop();
+            Node target = await task;
+            Singleton.EmitSignal(SignalName.SceneLoaded, target);
+            Singleton.GoToScene(target);
+        }
+
+        Singleton.EmitSignal(SignalName.TransitionStarted);
+        MusicController.FadeOut(Singleton.FadeToBlack.TransitionTime/2);
+        Singleton.FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(CompleteFade), (uint)ConnectFlags.OneShot);
+        Singleton.FadeToBlack.TransitionOut();
+    }
+
+    /// <summary>Begin the combat animation by switching to the <see cref="CombatScene"/>, remembering where to return when the animation completes.</summary>
     public static void BeginCombat(Unit left, Unit right, IImmutableList<CombatAction> actions) => Singleton.DoBeginCombat(left, right, actions);
 
     /// <summary>End combat and return to the previous scene.</summary>
     public static void EndCombat() => Singleton.DoEndCombat();
 
-    private void ChangeScene(Node target)
+    private void GoToScene(Node target)
     {
         GetTree().Root.RemoveChild(GetTree().CurrentScene);
         GetTree().Root.AddChild(target);
@@ -46,7 +66,7 @@ public partial class SceneManager : Node
     {
         EmitSignal(SignalName.TransitionStarted);
         MusicController.PlayTrack(bgm, outDuration:FadeToBlack.TransitionTime/2, inDuration:FadeToBlack.TransitionTime/2);
-        FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => ChangeScene(target)), (uint)ConnectFlags.OneShot);
+        FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => GoToScene(target)), (uint)ConnectFlags.OneShot);
         FadeToBlack.TransitionOut();
     }
 
@@ -55,7 +75,7 @@ public partial class SceneManager : Node
         if (_currentLevel is not null)
             throw new InvalidOperationException("Combat has already begun.");
 
-        var task = Task.Run(() => CombatScene.Instantiate(left, right, actions));
+        Task<CombatScene> task = Task.Run(() => CombatScene.Instantiate(left, right, actions));
         _currentLevel = Singleton.GetTree().CurrentScene;
 
         async void CompleteFade()
@@ -64,7 +84,7 @@ public partial class SceneManager : Node
             FadeToBlack.Connect(SceneTransition.SignalName.TransitionedIn, Callable.From(_combat.Start), (uint)ConnectFlags.OneShot);
             MusicController.Resume(_combat.BackgroundMusic);
             MusicController.FadeIn(FadeToBlack.TransitionTime/2);
-            ChangeScene(_combat);
+            GoToScene(_combat);
         }
         FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(CompleteFade), (uint)ConnectFlags.OneShot);
         EmitSignal(SignalName.TransitionStarted);

@@ -1,13 +1,17 @@
 using Godot;
+using TbsTemplate.Scenes;
 
 [SceneTree]
 public partial class TestMap : Node2D
 {
+    [Export(PropertyHint.File, "*.tscn")] public string GameOverScreen = null;
+
     public async void OnObjectiveCompleted(bool success)
     {
         await ToSignal(GetTree().CreateTimer(1), Timer.SignalName.Timeout);
-        GD.Print(success ? "Success!" : "Failure...");
-        GetTree().Quit();
+
+        SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node>((n) => (n as TestGameOver).win = success), (uint)ConnectFlags.OneShot);
+        SceneManager.ChangeScene(GameOverScreen);
     }
 
     public override void _Ready()
