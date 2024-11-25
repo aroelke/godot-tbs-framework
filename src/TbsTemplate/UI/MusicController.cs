@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Godot;
 
@@ -8,6 +7,7 @@ namespace TbsTemplate.UI;
 [Tool]
 public partial class MusicController : AudioStreamPlayer
 {
+    /// <summary>Signals that a fade in or out has completed.</summary>
     [Signal] public delegate void FadeCompletedEventHandler();
 
     private static MusicController _singleton = null;

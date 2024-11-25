@@ -21,6 +21,8 @@ public partial class SceneManager : Node
     /// <summary>Signals that a transition to a new scene has completed.</summary>
     [Signal] public delegate void TransitionCompletedEventHandler();
 
+    /// <summary>Signals that a scene has finished loading.</summary>
+    /// <param name="scene">Scene that finished loading.</param>
     [Signal] public delegate void SceneLoadedEventHandler(Node scene);
 
     private static SceneManager _singleton = null;
@@ -30,6 +32,8 @@ public partial class SceneManager : Node
     /// <summary>Reference to the autoloaded scene manager.</summary>
     public static SceneManager Singleton => _singleton ??= ((SceneTree)Engine.GetMainLoop()).Root.GetNode<SceneManager>("SceneManager");
 
+    /// <summary>Load a new scene and change to it with transition.</summary>
+    /// <param name="path">Path pointing to the scene file to load.</param>
     public static void ChangeScene(string path)
     {
         Task<Node> task = Task.Run(() => GD.Load<PackedScene>(path).Instantiate<Node>());
