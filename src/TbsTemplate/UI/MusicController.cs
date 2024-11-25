@@ -27,7 +27,7 @@ public partial class MusicController : AudioStreamPlayer
     {
         if (music is not null)
         {
-            if (Singleton.Stream != music)
+            if (Singleton.Stream != music || !Singleton.IsPlaying())
             {
                 FadeOut(outDuration);
                 await Singleton.ToSignal(Singleton, SignalName.FadeCompleted);
