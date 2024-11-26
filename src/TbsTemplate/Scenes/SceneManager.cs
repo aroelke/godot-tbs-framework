@@ -43,13 +43,6 @@ public partial class SceneManager : Node
         Singleton.DoBeginTransition(() => GD.Load<PackedScene>(path).Instantiate<Node>());
     }
 
-    /// <summary>Begin the combat animation by switching to the <see cref="CombatScene"/>, remembering where to return when the animation completes.</summary>
-    public static void BeginCombat(Unit left, Unit right, IImmutableList<CombatAction> actions)
-    {
-        _history.Push(Singleton.GetTree().CurrentScene);
-        Singleton.DoBeginTransition(() => CombatScene.Instantiate(left, right, actions));
-    }
-
     /// <summary>End combat and return to the previous scene.</summary>
     public static void EndCombat() => Singleton.DoEndCombat();
 

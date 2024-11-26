@@ -33,7 +33,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = 393287735
+seed = -1235838109
 
 [sub_resource type="Resource" id="Resource_lt2uh"]
 script = ExtResource("22_tix5y")
@@ -94,6 +94,7 @@ Condition = ExtResource("22_sve70")
 
 [node name="LevelManager" type="Node"]
 script = ExtResource("1_r2v0t")
+CombatScenePath = "res://src/TbsTemplate/Scenes/Combat/CombatScene.tscn"
 
 [node name="Camera" parent="." node_paths=PackedStringArray("Target") instance=ExtResource("3_td8u6")]
 unique_name_in_owner = true

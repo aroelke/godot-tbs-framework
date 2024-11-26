@@ -15,6 +15,7 @@ using TbsTemplate.UI;
 using TbsTemplate.UI.Controls.Device;
 using TbsTemplate.Scenes.Level.Objectives;
 using TbsTemplate.Scenes.Level.Layers;
+using TbsTemplate.Scenes.Combat;
 
 namespace TbsTemplate.Scenes.Level;
 
@@ -171,6 +172,8 @@ public partial class LevelManager : Node
     private int _turn = 1;
     private Objective _success = null, _failure = null;
     private bool _showGlobalZone = false;
+
+    [Export(PropertyHint.File, "*.tscn")] public string CombatScenePath = null;
 
     /// <summary>Background music to play during the level.</summary>
     [Export] public AudioStream BackgroundMusic = null;
@@ -633,7 +636,10 @@ public partial class LevelManager : Node
         ActionLayers.Clear();
         Cursor.Halt();
         Pointer.StartWaiting(hide:true);
-        SceneManager.BeginCombat(_selected, _target, _combatResults = CombatCalculations.CombatResults(_selected, _target));
+
+        _combatResults = CombatCalculations.CombatResults(_selected, _target);
+        SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node>((n) => (n as CombatScene).Initialize(_selected, _target, _combatResults)), (uint)ConnectFlags.OneShot);
+        SceneManager.ChangeScene(CombatScenePath);
     }
 
     /// <summary>Update the map to reflect combat results when it's added back to the tree.</summary>
