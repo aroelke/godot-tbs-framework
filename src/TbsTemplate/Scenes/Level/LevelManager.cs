@@ -638,8 +638,8 @@ public partial class LevelManager : Node
         Pointer.StartWaiting(hide:true);
 
         _combatResults = CombatCalculations.CombatResults(_selected, _target);
-        SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node>((n) => (n as CombatScene).Initialize(_selected, _target, _combatResults)), (uint)ConnectFlags.OneShot);
-        SceneManager.ChangeScene(CombatScenePath);
+        SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<CombatScene>((s) => s.Initialize(_selected, _target, _combatResults)), (uint)ConnectFlags.OneShot);
+        SceneManager.CallScene(CombatScenePath);
     }
 
     /// <summary>Update the map to reflect combat results when it's added back to the tree.</summary>

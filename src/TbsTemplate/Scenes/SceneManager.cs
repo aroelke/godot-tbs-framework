@@ -30,12 +30,16 @@ public partial class SceneManager : Node
     /// <summary>Currently-running scene transition, or the one that will run next scene change if the scene isn't changing.</summary>
     public static SceneTransition CurrentTransition => Singleton.FadeToBlack;
 
-    /// <summary>Load a new scene and change to it with transition.</summary>
+    /// <summary>Load a new scene and change to it with transition without saving history.</summary>
     /// <param name="path">Path pointing to the scene file to load.</param>
-    public static void ChangeScene(string path)
+    public static void JumpToScene(string path) => Singleton.DoBeginTransition(() => GD.Load<PackedScene>(path).Instantiate<Node>());
+
+    /// <summary>Load a new scene and change to it with transition, saving the previous scene to return to later.</summary>
+    /// <param name="path">Path pointing to the scene file to load.</param>
+    public static void CallScene(string path)
     {
         _history.Push(Singleton.GetTree().CurrentScene);
-        Singleton.DoBeginTransition(() => GD.Load<PackedScene>(path).Instantiate<Node>());
+        JumpToScene(path);
     }
 
     /// <summary>Change to the previous scene in the history with transition.</summary>

@@ -7,7 +7,7 @@ public partial class TestGameOver : Node
 
     [Export(PropertyHint.File, "*.tscn")] public string RestartTarget = null;
 
-    public void RestartGame() => SceneManager.ChangeScene(RestartTarget);
+    public void RestartGame() => SceneManager.CallScene(RestartTarget);
 
     public void EndGame() => GetTree().Quit();
 
