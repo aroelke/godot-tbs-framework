@@ -170,6 +170,17 @@ public partial class CombatScene : Node
             TransitionDelay.Start();
     }
 
+    public void End()
+    {
+        if (!_canceled)
+        {
+            TransitionDelay.Stop();
+            _canceled = true;
+            SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node>(_ => QueueFree()), (uint)ConnectFlags.OneShot);
+            SceneManager.EndCombat();
+        }
+    }
+
     public void OnAccelerate()
     {
         foreach ((var _, CombatAnimation animation) in _animations)
@@ -180,16 +191,6 @@ public partial class CombatScene : Node
     {
         foreach ((var _, CombatAnimation animation) in _animations)
             animation.AnimationSpeedScale = 1;
-    }
-
-    public void OnTimerTimeout()
-    {
-        if (!_canceled)
-        {
-            _canceled = true;
-            SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node>(_ => QueueFree()), (uint)ConnectFlags.OneShot);
-            SceneManager.EndCombat();
-        }
     }
 
     public override void _Ready()
@@ -206,14 +207,8 @@ public partial class CombatScene : Node
     public override void _Input(InputEvent @event)
     {
         base._Input(@event);
-
-        if (@event.IsActionPressed(InputActions.Cancel) && !_canceled)
-        {
-            TransitionDelay.Stop();
-            _canceled = true;
-            SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node>(_ => QueueFree()), (uint)ConnectFlags.OneShot);
-            SceneManager.EndCombat();
-        }
+        if (@event.IsActionPressed(InputActions.Cancel))
+            End();
     }
 
     public override void _Process(double delta)

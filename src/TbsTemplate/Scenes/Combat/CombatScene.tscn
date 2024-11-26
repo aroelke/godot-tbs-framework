@@ -204,7 +204,7 @@ text = "Paused"
 [connection signal="PauseStateChanged" from="PauseManager" to="CanvasLayer/PauseOverlay" method="set_visible"]
 [connection signal="Accelerate" from="FastForward" to="." method="OnAccelerate"]
 [connection signal="Decelerate" from="FastForward" to="." method="OnDecelerate"]
-[connection signal="timeout" from="TransitionDelay" to="." method="OnTimerTimeout"]
+[connection signal="timeout" from="TransitionDelay" to="." method="End"]
 
 [editable path="Left"]
 [editable path="Right"]
