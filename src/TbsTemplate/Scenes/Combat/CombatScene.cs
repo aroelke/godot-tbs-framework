@@ -103,12 +103,6 @@ public partial class CombatScene : Node
 
         foreach ((var _, CombatAnimation animation) in _animations)
             AddChild(animation);
-
-        SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node, int>((n, t) => {
-            MusicController.Resume(BackgroundMusic);
-            MusicController.FadeIn(t);
-        }), (uint)ConnectFlags.OneShot);
-        SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, Callable.From(Start), (uint)ConnectFlags.OneShot);
     }
 
     /// <summary>Run the full combat animation.</summary>
@@ -194,6 +188,19 @@ public partial class CombatScene : Node
         {
             _canceled = true;
             SceneManager.EndCombat();
+        }
+    }
+
+    public override void _EnterTree()
+    {
+        base._EnterTree();
+        if (!Engine.IsEditorHint())
+        {
+            SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node, int>((n, t) => {
+                MusicController.Resume(BackgroundMusic);
+                MusicController.FadeIn(t);
+            }), (uint)ConnectFlags.OneShot);
+            SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, Callable.From(Start), (uint)ConnectFlags.OneShot);
         }
     }
 

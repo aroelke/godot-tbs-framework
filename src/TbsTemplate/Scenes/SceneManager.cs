@@ -44,19 +44,20 @@ public partial class SceneManager : Node
     /// <summary>End combat and return to the previous scene.</summary>
     public static void EndCombat() => Singleton.DoEndCombat();
 
-    private void GoToScene(Node target)
+    private async void CompleteFade<T>(Task<T> task) where T : Node
     {
+        // Wait for completion of the task loading the next scene
+        T target = await task;
+
+        // Switch to the next scene
         GetTree().Root.RemoveChild(GetTree().CurrentScene);
         GetTree().Root.AddChild(target);
         GetTree().CurrentScene = target;
         FadeToBlack.TransitionIn();
-    }
 
-    private async void CompleteFade<T>(Task<T> task) where T : Node
-    {
-        T target = await task;
+        // Next frame, signal that the scene has loaded. _EnterTree in that scene will have already run,
+        // but not _Ready
         EmitSignal(SignalName.SceneLoaded, target, FadeToBlack.TransitionTime/2);
-        GoToScene(target);
     }
 
     private void BeginFade<T>(Func<T> gen) where T : Node
@@ -84,13 +85,13 @@ public partial class SceneManager : Node
         Node target = _currentLevel;
         _currentLevel = null;
 
-        EmitSignal(SignalName.TransitionStarted);
-        MusicController.PlayTrack(target.GetNode<LevelManager>("LevelManager").BackgroundMusic, outDuration:FadeToBlack.TransitionTime/2, inDuration:FadeToBlack.TransitionTime/2);
+        BeginFade(() => target);
         FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => {
+            MusicController.Resume(target.GetNode<LevelManager>("LevelManager").BackgroundMusic);
+            MusicController.FadeIn(FadeToBlack.TransitionTime/2);
             _combat.QueueFree();
             _combat = null;
         }), (uint)ConnectFlags.OneShot);
-        FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => GoToScene(target)), (uint)ConnectFlags.OneShot);
         FadeToBlack.TransitionOut();
     }
 
