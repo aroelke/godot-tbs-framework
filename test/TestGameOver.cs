@@ -1,6 +1,5 @@
 using Godot;
 using TbsTemplate.Scenes;
-using TbsTemplate.UI;
 
 public partial class TestGameOver : Node
 {
@@ -8,11 +7,7 @@ public partial class TestGameOver : Node
 
     [Export(PropertyHint.File, "*.tscn")] public string RestartTarget = null;
 
-    public void RestartGame()
-    {
-//        SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node>(_ => MusicController.FadeIn()), (uint)ConnectFlags.OneShot);
-        SceneManager.ChangeScene(RestartTarget);
-    }
+    public void RestartGame() => SceneManager.ChangeScene(RestartTarget);
 
     public void EndGame() => GetTree().Quit();
 
