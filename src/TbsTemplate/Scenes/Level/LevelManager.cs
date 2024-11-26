@@ -691,7 +691,7 @@ public partial class LevelManager : Node
     /// </summary>
     public async void OnTurnAdvancingEntered()
     {
-        bool advance = !((IEnumerable<Unit>)_armies.Current).Any(static (u) => u.Active);
+        bool advance = !((IEnumerable<Unit>)_armies.Current).Any(static (u) => u.Active && !u.IsQueuedForDeletion());
         if (advance)
         {
             TurnAdvance.Start();
