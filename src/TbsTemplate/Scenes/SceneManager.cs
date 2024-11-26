@@ -24,14 +24,16 @@ public partial class SceneManager : Node
 
     /// <summary>Signals that a scene has finished loading.</summary>
     /// <param name="scene">Scene that finished loading.</param>
-    /// <param name="time">Time, in seconds, to transition into the new scene.</param>
-    [Signal] public delegate void SceneLoadedEventHandler(Node scene, int time);
+    [Signal] public delegate void SceneLoadedEventHandler(Node scene);
 
     private static SceneManager _singleton = null;
     private static Node _currentLevel = null;
 
     /// <summary>Reference to the autoloaded scene manager.</summary>
     public static SceneManager Singleton => _singleton ??= ((SceneTree)Engine.GetMainLoop()).Root.GetNode<SceneManager>("SceneManager");
+
+    /// <summary>Currently-running scene transition, or the one that will run next scene change if the scene isn't changing.</summary>
+    public static SceneTransition CurrentTransition => Singleton.FadeToBlack;
 
     /// <summary>Load a new scene and change to it with transition.</summary>
     /// <param name="path">Path pointing to the scene file to load.</param>
@@ -54,24 +56,22 @@ public partial class SceneManager : Node
     {
         // Wait for completion of the task loading the next scene
         T target = await task;
+        EmitSignal(SignalName.SceneLoaded, target);
 
         // Switch to the next scene
         GetTree().Root.RemoveChild(GetTree().CurrentScene);
         GetTree().Root.AddChild(target);
         GetTree().CurrentScene = target;
-        FadeToBlack.TransitionIn();
-
-        // Signal that the scene has loaded. _EnterTree and _Ready in that scene will have already run
-        EmitSignal(SignalName.SceneLoaded, target, FadeToBlack.TransitionTime/2);
+        CurrentTransition.TransitionIn();
     }
 
     private void DoBeginTransition<T>(Func<T> gen) where T : Node
     {
         Task<T> task = Task.Run(gen);
         EmitSignal(SignalName.TransitionStarted);
-        MusicController.FadeOut(FadeToBlack.TransitionTime/2);
-        FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => DoSceneChange(task)), (uint)ConnectFlags.OneShot);
-        FadeToBlack.TransitionOut();
+        MusicController.FadeOut(CurrentTransition.TransitionTime/2);
+        CurrentTransition.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => DoSceneChange(task)), (uint)ConnectFlags.OneShot);
+        CurrentTransition.TransitionOut();
     }
 
     private void DoEndCombat()
@@ -82,11 +82,11 @@ public partial class SceneManager : Node
         _currentLevel = null;
 
         DoBeginTransition(() => target);
-        FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => {
+        CurrentTransition.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => {
             MusicController.Resume(target.GetNode<LevelManager>("LevelManager").BackgroundMusic);
-            MusicController.FadeIn(FadeToBlack.TransitionTime/2);
+            MusicController.FadeIn(CurrentTransition.TransitionTime/2);
         }), (uint)ConnectFlags.OneShot);
-        FadeToBlack.TransitionOut();
+        CurrentTransition.TransitionOut();
     }
 
     public void OnTransitionedIn() => EmitSignal(SignalName.TransitionCompleted);

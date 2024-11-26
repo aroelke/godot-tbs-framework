@@ -187,7 +187,7 @@ public partial class CombatScene : Node
         if (!_canceled)
         {
             _canceled = true;
-            SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node, int>((_, _) => QueueFree()), (uint)ConnectFlags.OneShot);
+            SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node>(_ => QueueFree()), (uint)ConnectFlags.OneShot);
             SceneManager.EndCombat();
         }
     }
@@ -197,10 +197,8 @@ public partial class CombatScene : Node
         base._Ready();
         if (!Engine.IsEditorHint())
         {
-            SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node, int>((n, t) => {
-                MusicController.Resume(BackgroundMusic);
-                MusicController.FadeIn(t);
-            }), (uint)ConnectFlags.OneShot);
+            MusicController.Resume(BackgroundMusic);
+            MusicController.FadeIn(SceneManager.CurrentTransition.TransitionTime/2);
             SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, Callable.From(Start), (uint)ConnectFlags.OneShot);
         }
     }
@@ -213,7 +211,7 @@ public partial class CombatScene : Node
         {
             TransitionDelay.Stop();
             _canceled = true;
-            SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node, int>((_, _) => QueueFree()), (uint)ConnectFlags.OneShot);
+            SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node>(_ => QueueFree()), (uint)ConnectFlags.OneShot);
             SceneManager.EndCombat();
         }
     }

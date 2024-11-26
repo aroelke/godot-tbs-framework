@@ -11,7 +11,7 @@ public partial class TestMap : Node2D
     {
         await ToSignal(GetTree().CreateTimer(1), Timer.SignalName.Timeout);
 
-        SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node, int>((n, _) => {
+        SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node>((n) => {
             MusicController.Stop();
             (n as TestGameOver).win = success;
             QueueFree();
