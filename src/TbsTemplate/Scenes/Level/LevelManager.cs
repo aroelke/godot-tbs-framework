@@ -691,7 +691,7 @@ public partial class LevelManager : Node
     /// </summary>
     public async void OnTurnAdvancingEntered()
     {
-        bool advance = !((IEnumerable<Unit>)_armies.Current).Any(static (u) => u.Active && !u.IsQueuedForDeletion());
+        bool advance = !((IEnumerable<Unit>)_armies.Current).Any(static (u) => u.Active);
         if (advance)
         {
             TurnAdvance.Start();
@@ -763,8 +763,11 @@ public partial class LevelManager : Node
         // If the dead unit is the currently-selected one, it will be cleared away at the end of its action.
         if (_selected != defeated)
             defeated.Die();
-        else // Otherwise, pretend it's dead by making it invisible until the action is over
+        else // Otherwise, pretend it's dead by removing it from the scene tree and making it invisible until the action is over
+        {
+            _armies.Current.RemoveChild(_selected);
             defeated.Visible = false;
+        }
     }
 
     public override string[] _GetConfigurationWarnings()
