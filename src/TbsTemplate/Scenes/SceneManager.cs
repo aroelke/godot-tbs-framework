@@ -39,11 +39,13 @@ public partial class SceneManager : Node
     }
 
     /// <summary>Change to the previous scene in the history with transition.</summary>
-    /// <exception cref="InvalidOperationException">If there is no scene to return to.</exception>
+    /// <exception cref="InvalidOperationException">If there is no scene to return to or the previous scene is invalid.</exception>
     public static void ReturnToPreviousScene()
     {
         if (!_history.TryPop(out Node prev))
             throw new InvalidOperationException("No previous scene to return to");
+        if (!IsInstanceValid(prev))
+            throw new InvalidOperationException("Previous scene is null or freed");
         Singleton.DoBeginTransition(() => prev);
     }
 
