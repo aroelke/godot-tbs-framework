@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Godot;
 using TbsTemplate.Scenes.Combat;
@@ -23,7 +24,8 @@ public partial class SceneManager : Node
 
     /// <summary>Signals that a scene has finished loading.</summary>
     /// <param name="scene">Scene that finished loading.</param>
-    [Signal] public delegate void SceneLoadedEventHandler(Node scene);
+    /// <param name="time">Time, in seconds, to transition into the new scene.</param>
+    [Signal] public delegate void SceneLoadedEventHandler(Node scene, int time);
 
     private static SceneManager _singleton = null;
     private static Node _currentLevel = null;
@@ -34,23 +36,7 @@ public partial class SceneManager : Node
 
     /// <summary>Load a new scene and change to it with transition.</summary>
     /// <param name="path">Path pointing to the scene file to load.</param>
-    public static void ChangeScene(string path)
-    {
-        Task<Node> task = Task.Run(() => GD.Load<PackedScene>(path).Instantiate<Node>());
-
-        async void CompleteFade()
-        {
-            MusicController.Stop();
-            Node target = await task;
-            Singleton.EmitSignal(SignalName.SceneLoaded, target);
-            Singleton.GoToScene(target);
-        }
-
-        Singleton.EmitSignal(SignalName.TransitionStarted);
-        MusicController.FadeOut(Singleton.FadeToBlack.TransitionTime/2);
-        Singleton.FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(CompleteFade), (uint)ConnectFlags.OneShot);
-        Singleton.FadeToBlack.TransitionOut();
-    }
+    public static void ChangeScene(string path) => Singleton.BeginFade(() => GD.Load<PackedScene>(path).Instantiate<Node>());
 
     /// <summary>Begin the combat animation by switching to the <see cref="CombatScene"/>, remembering where to return when the animation completes.</summary>
     public static void BeginCombat(Unit left, Unit right, IImmutableList<CombatAction> actions) => Singleton.DoBeginCombat(left, right, actions);
@@ -66,6 +52,22 @@ public partial class SceneManager : Node
         FadeToBlack.TransitionIn();
     }
 
+    private async void CompleteFade<T>(Task<T> task) where T : Node
+    {
+        T target = await task;
+        EmitSignal(SignalName.SceneLoaded, target, FadeToBlack.TransitionTime/2);
+        GoToScene(target);
+    }
+
+    private void BeginFade<T>(Func<T> gen) where T : Node
+    {
+        Task<T> task = Task.Run(gen);
+        EmitSignal(SignalName.TransitionStarted);
+        MusicController.FadeOut(FadeToBlack.TransitionTime/2);
+        FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => CompleteFade(task)), (uint)ConnectFlags.OneShot);
+        FadeToBlack.TransitionOut();
+    }
+
     private void DoSceneTransition(Node target, AudioStream bgm)
     {
         EmitSignal(SignalName.TransitionStarted);
@@ -79,21 +81,8 @@ public partial class SceneManager : Node
         if (_currentLevel is not null)
             throw new InvalidOperationException("Combat has already begun.");
 
-        Task<CombatScene> task = Task.Run(() => CombatScene.Instantiate(left, right, actions));
         _currentLevel = Singleton.GetTree().CurrentScene;
-
-        async void CompleteFade()
-        {
-            _combat = await task;
-            FadeToBlack.Connect(SceneTransition.SignalName.TransitionedIn, Callable.From(_combat.Start), (uint)ConnectFlags.OneShot);
-            MusicController.Resume(_combat.BackgroundMusic);
-            MusicController.FadeIn(FadeToBlack.TransitionTime/2);
-            GoToScene(_combat);
-        }
-        FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(CompleteFade), (uint)ConnectFlags.OneShot);
-        EmitSignal(SignalName.TransitionStarted);
-        MusicController.FadeOut(FadeToBlack.TransitionTime/2);
-        FadeToBlack.TransitionOut();
+        BeginFade(() => _combat = CombatScene.Instantiate(left, right, actions));
     }
 
     private void DoEndCombat()

@@ -7,6 +7,7 @@ using Godot;
 using TbsTemplate.Scenes.Combat.Animations;
 using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.Scenes.Level.Object;
+using TbsTemplate.UI;
 using TbsTemplate.UI.Combat;
 using TbsTemplate.UI.Controls.Action;
 
@@ -102,6 +103,12 @@ public partial class CombatScene : Node
 
         foreach ((var _, CombatAnimation animation) in _animations)
             AddChild(animation);
+
+        SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node, int>((n, t) => {
+            MusicController.Resume(BackgroundMusic);
+            MusicController.FadeIn(t);
+        }), (uint)ConnectFlags.OneShot);
+        SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, Callable.From(Start), (uint)ConnectFlags.OneShot);
     }
 
     /// <summary>Run the full combat animation.</summary>
