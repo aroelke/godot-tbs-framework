@@ -1,11 +1,11 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Godot;
 using TbsTemplate.Scenes.Combat;
 using TbsTemplate.Scenes.Combat.Data;
-using TbsTemplate.Scenes.Level;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Transitions;
 using TbsTemplate.UI;
@@ -27,7 +27,7 @@ public partial class SceneManager : Node
     [Signal] public delegate void SceneLoadedEventHandler(Node scene);
 
     private static SceneManager _singleton = null;
-    private static Node _currentLevel = null;
+    private static readonly Stack<Node> _history = new();
 
     /// <summary>Reference to the autoloaded scene manager.</summary>
     public static SceneManager Singleton => _singleton ??= ((SceneTree)Engine.GetMainLoop()).Root.GetNode<SceneManager>("SceneManager");
@@ -37,15 +37,16 @@ public partial class SceneManager : Node
 
     /// <summary>Load a new scene and change to it with transition.</summary>
     /// <param name="path">Path pointing to the scene file to load.</param>
-    public static void ChangeScene(string path) => Singleton.DoBeginTransition(() => GD.Load<PackedScene>(path).Instantiate<Node>());
+    public static void ChangeScene(string path)
+    {
+        _history.Push(Singleton.GetTree().CurrentScene);
+        Singleton.DoBeginTransition(() => GD.Load<PackedScene>(path).Instantiate<Node>());
+    }
 
     /// <summary>Begin the combat animation by switching to the <see cref="CombatScene"/>, remembering where to return when the animation completes.</summary>
     public static void BeginCombat(Unit left, Unit right, IImmutableList<CombatAction> actions)
     {
-        if (_currentLevel is not null)
-            throw new InvalidOperationException("Combat has already begun.");
-
-        _currentLevel = Singleton.GetTree().CurrentScene;
+        _history.Push(Singleton.GetTree().CurrentScene);
         Singleton.DoBeginTransition(() => CombatScene.Instantiate(left, right, actions));
     }
 
@@ -76,11 +77,8 @@ public partial class SceneManager : Node
 
     private void DoEndCombat()
     {
-        if (_currentLevel is null)
+        if (!_history.TryPop(out Node target))
             throw new InvalidOperationException("There is no level to return to");
-        Node target = _currentLevel;
-        _currentLevel = null;
-
         DoBeginTransition(() => target);
         CurrentTransition.TransitionOut();
     }
