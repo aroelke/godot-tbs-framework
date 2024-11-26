@@ -29,7 +29,6 @@ public partial class SceneManager : Node
 
     private static SceneManager _singleton = null;
     private static Node _currentLevel = null;
-    private static CombatScene _combat = null;
 
     /// <summary>Reference to the autoloaded scene manager.</summary>
     public static SceneManager Singleton => _singleton ??= ((SceneTree)Engine.GetMainLoop()).Root.GetNode<SceneManager>("SceneManager");
@@ -45,7 +44,7 @@ public partial class SceneManager : Node
             throw new InvalidOperationException("Combat has already begun.");
 
         _currentLevel = Singleton.GetTree().CurrentScene;
-        Singleton.DoBeginTransition(() => _combat = CombatScene.Instantiate(left, right, actions));
+        Singleton.DoBeginTransition(() => CombatScene.Instantiate(left, right, actions));
     }
 
     /// <summary>End combat and return to the previous scene.</summary>
@@ -87,8 +86,6 @@ public partial class SceneManager : Node
         FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => {
             MusicController.Resume(target.GetNode<LevelManager>("LevelManager").BackgroundMusic);
             MusicController.FadeIn(FadeToBlack.TransitionTime/2);
-            _combat.QueueFree();
-            _combat = null;
         }), (uint)ConnectFlags.OneShot);
         FadeToBlack.TransitionOut();
     }

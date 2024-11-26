@@ -187,6 +187,7 @@ public partial class CombatScene : Node
         if (!_canceled)
         {
             _canceled = true;
+            SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node, int>((_, _) => QueueFree()), (uint)ConnectFlags.OneShot);
             SceneManager.EndCombat();
         }
     }
@@ -212,6 +213,7 @@ public partial class CombatScene : Node
         {
             TransitionDelay.Stop();
             _canceled = true;
+            SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node, int>((_, _) => QueueFree()), (uint)ConnectFlags.OneShot);
             SceneManager.EndCombat();
         }
     }
