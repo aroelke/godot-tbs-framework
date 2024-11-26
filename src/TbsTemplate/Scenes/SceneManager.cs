@@ -1,12 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Godot;
-using TbsTemplate.Scenes.Combat;
-using TbsTemplate.Scenes.Combat.Data;
-using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Transitions;
 using TbsTemplate.UI;
 
@@ -43,8 +38,14 @@ public partial class SceneManager : Node
         Singleton.DoBeginTransition(() => GD.Load<PackedScene>(path).Instantiate<Node>());
     }
 
-    /// <summary>End combat and return to the previous scene.</summary>
-    public static void EndCombat() => Singleton.DoEndCombat();
+    /// <summary>Change to the previous scene in the history with transition.</summary>
+    /// <exception cref="InvalidOperationException">If there is no scene to return to.</exception>
+    public static void ReturnToPreviousScene()
+    {
+        if (!_history.TryPop(out Node prev))
+            throw new InvalidOperationException("No previous scene to return to");
+        Singleton.DoBeginTransition(() => prev);
+    }
 
     private async void DoSceneChange<T>(Task<T> task) where T : Node
     {
@@ -65,14 +66,6 @@ public partial class SceneManager : Node
         EmitSignal(SignalName.TransitionStarted);
         MusicController.FadeOut(CurrentTransition.TransitionTime/2);
         CurrentTransition.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => DoSceneChange(task)), (uint)ConnectFlags.OneShot);
-        CurrentTransition.TransitionOut();
-    }
-
-    private void DoEndCombat()
-    {
-        if (!_history.TryPop(out Node target))
-            throw new InvalidOperationException("There is no level to return to");
-        DoBeginTransition(() => target);
         CurrentTransition.TransitionOut();
     }
 

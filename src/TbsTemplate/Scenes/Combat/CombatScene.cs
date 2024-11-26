@@ -177,7 +177,7 @@ public partial class CombatScene : Node
             TransitionDelay.Stop();
             _canceled = true;
             SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node>(_ => QueueFree()), (uint)ConnectFlags.OneShot);
-            SceneManager.EndCombat();
+            SceneManager.ReturnToPreviousScene();
         }
     }
 
