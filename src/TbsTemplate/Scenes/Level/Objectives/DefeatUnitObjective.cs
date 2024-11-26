@@ -11,7 +11,7 @@ public partial class DefeatUnitObjective : Objective
     /// <summary>Unit to defeat to accomplish the objective.</summary>
     [Export] public Unit Target = null;
 
-    public override bool Complete => Target is not null && !IsInstanceValid(Target);
+    public override bool Complete => Target is not null && (!IsInstanceValid(Target) || !Target.IsInsideTree());
     public override string Description => Target is null ? "" : $"Defeat {Target.Name}";
 
     public override string[] _GetConfigurationWarnings()
