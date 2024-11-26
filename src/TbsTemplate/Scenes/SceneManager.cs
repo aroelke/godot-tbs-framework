@@ -61,8 +61,7 @@ public partial class SceneManager : Node
         GetTree().CurrentScene = target;
         FadeToBlack.TransitionIn();
 
-        // Next frame, signal that the scene has loaded. _EnterTree in that scene will have already run,
-        // but not _Ready
+        // Signal that the scene has loaded. _EnterTree and _Ready in that scene will have already run
         EmitSignal(SignalName.SceneLoaded, target, FadeToBlack.TransitionTime/2);
     }
 

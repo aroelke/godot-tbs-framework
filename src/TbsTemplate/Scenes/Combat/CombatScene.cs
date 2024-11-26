@@ -192,9 +192,9 @@ public partial class CombatScene : Node
         }
     }
 
-    public override void _EnterTree()
+    public override void _Ready()
     {
-        base._EnterTree();
+        base._Ready();
         if (!Engine.IsEditorHint())
         {
             SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node, int>((n, t) => {
