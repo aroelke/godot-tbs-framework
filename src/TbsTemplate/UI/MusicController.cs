@@ -101,7 +101,7 @@ public partial class MusicController : AudioStreamPlayer
         }
     }
 
-    /// <summary>Reset music playback position memory.</summary>
+    /// <summary>Reset music playback position memory. If a reset track is playing, restart it.</summary>
     /// <param name="bgm">Track whose playback position is to be forgotten. Omit or set to <c>null</c> to forget all playback positions.</param>
     public static void ResetPlayback(AudioStream bgm=null)
     {
@@ -109,6 +109,12 @@ public partial class MusicController : AudioStreamPlayer
             _positions.Clear();
         else
             _positions.Remove(bgm);
+        
+        if (Singleton.Playing && (bgm is null || Singleton.Stream == bgm))
+        {
+            Stop();
+            Singleton.Play(0);
+        }
     }
 
     private float _volume = -10;

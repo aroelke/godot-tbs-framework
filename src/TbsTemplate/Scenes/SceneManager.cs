@@ -82,10 +82,6 @@ public partial class SceneManager : Node
         _currentLevel = null;
 
         DoBeginTransition(() => target);
-        CurrentTransition.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => {
-            MusicController.Resume(target.GetNode<LevelManager>("LevelManager").BackgroundMusic);
-            MusicController.FadeIn(CurrentTransition.TransitionTime/2);
-        }), (uint)ConnectFlags.OneShot);
         CurrentTransition.TransitionOut();
     }
 

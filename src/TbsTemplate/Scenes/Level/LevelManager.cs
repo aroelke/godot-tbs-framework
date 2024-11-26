@@ -786,6 +786,16 @@ public partial class LevelManager : Node
         return [.. warnings];
     }
 
+    public override void _EnterTree()
+    {
+        base._EnterTree();
+        if (!Engine.IsEditorHint())
+        {
+            MusicController.Resume(BackgroundMusic);
+            MusicController.FadeIn(SceneManager.CurrentTransition.TransitionTime/2);
+        }
+    }
+
     public override void _Ready()
     {
         base._Ready();
@@ -817,7 +827,6 @@ public partial class LevelManager : Node
             UpdateTurnCounter();
 
             MusicController.ResetPlayback();
-            MusicController.PlayTrack(BackgroundMusic);
         }
     }
 
