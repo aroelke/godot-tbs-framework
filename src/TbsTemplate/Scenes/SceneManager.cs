@@ -36,7 +36,7 @@ public partial class SceneManager : Node
 
     /// <summary>Load a new scene and change to it with transition.</summary>
     /// <param name="path">Path pointing to the scene file to load.</param>
-    public static void ChangeScene(string path) => Singleton.BeginFade(() => GD.Load<PackedScene>(path).Instantiate<Node>());
+    public static void ChangeScene(string path) => Singleton.DoBeginTransition(() => GD.Load<PackedScene>(path).Instantiate<Node>());
 
     /// <summary>Begin the combat animation by switching to the <see cref="CombatScene"/>, remembering where to return when the animation completes.</summary>
     public static void BeginCombat(Unit left, Unit right, IImmutableList<CombatAction> actions) => Singleton.DoBeginCombat(left, right, actions);
@@ -44,7 +44,7 @@ public partial class SceneManager : Node
     /// <summary>End combat and return to the previous scene.</summary>
     public static void EndCombat() => Singleton.DoEndCombat();
 
-    private async void CompleteFade<T>(Task<T> task) where T : Node
+    private async void DoSceneChange<T>(Task<T> task) where T : Node
     {
         // Wait for completion of the task loading the next scene
         T target = await task;
@@ -60,12 +60,12 @@ public partial class SceneManager : Node
         EmitSignal(SignalName.SceneLoaded, target, FadeToBlack.TransitionTime/2);
     }
 
-    private void BeginFade<T>(Func<T> gen) where T : Node
+    private void DoBeginTransition<T>(Func<T> gen) where T : Node
     {
         Task<T> task = Task.Run(gen);
         EmitSignal(SignalName.TransitionStarted);
         MusicController.FadeOut(FadeToBlack.TransitionTime/2);
-        FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => CompleteFade(task)), (uint)ConnectFlags.OneShot);
+        FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => DoSceneChange(task)), (uint)ConnectFlags.OneShot);
         FadeToBlack.TransitionOut();
     }
 
@@ -75,7 +75,7 @@ public partial class SceneManager : Node
             throw new InvalidOperationException("Combat has already begun.");
 
         _currentLevel = Singleton.GetTree().CurrentScene;
-        BeginFade(() => _combat = CombatScene.Instantiate(left, right, actions));
+        DoBeginTransition(() => _combat = CombatScene.Instantiate(left, right, actions));
     }
 
     private void DoEndCombat()
@@ -85,7 +85,7 @@ public partial class SceneManager : Node
         Node target = _currentLevel;
         _currentLevel = null;
 
-        BeginFade(() => target);
+        DoBeginTransition(() => target);
         FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => {
             MusicController.Resume(target.GetNode<LevelManager>("LevelManager").BackgroundMusic);
             MusicController.FadeIn(FadeToBlack.TransitionTime/2);
