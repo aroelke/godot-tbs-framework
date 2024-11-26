@@ -39,7 +39,14 @@ public partial class SceneManager : Node
     public static void ChangeScene(string path) => Singleton.DoBeginTransition(() => GD.Load<PackedScene>(path).Instantiate<Node>());
 
     /// <summary>Begin the combat animation by switching to the <see cref="CombatScene"/>, remembering where to return when the animation completes.</summary>
-    public static void BeginCombat(Unit left, Unit right, IImmutableList<CombatAction> actions) => Singleton.DoBeginCombat(left, right, actions);
+    public static void BeginCombat(Unit left, Unit right, IImmutableList<CombatAction> actions)
+    {
+        if (_currentLevel is not null)
+            throw new InvalidOperationException("Combat has already begun.");
+
+        _currentLevel = Singleton.GetTree().CurrentScene;
+        Singleton.DoBeginTransition(() => _combat = CombatScene.Instantiate(left, right, actions));
+    }
 
     /// <summary>End combat and return to the previous scene.</summary>
     public static void EndCombat() => Singleton.DoEndCombat();
@@ -67,15 +74,6 @@ public partial class SceneManager : Node
         MusicController.FadeOut(FadeToBlack.TransitionTime/2);
         FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => DoSceneChange(task)), (uint)ConnectFlags.OneShot);
         FadeToBlack.TransitionOut();
-    }
-
-    private void DoBeginCombat(Unit left, Unit right, IImmutableList<CombatAction> actions)
-    {
-        if (_currentLevel is not null)
-            throw new InvalidOperationException("Combat has already begun.");
-
-        _currentLevel = Singleton.GetTree().CurrentScene;
-        DoBeginTransition(() => _combat = CombatScene.Instantiate(left, right, actions));
     }
 
     private void DoEndCombat()
