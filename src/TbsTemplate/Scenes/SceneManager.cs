@@ -68,14 +68,6 @@ public partial class SceneManager : Node
         FadeToBlack.TransitionOut();
     }
 
-    private void DoSceneTransition(Node target, AudioStream bgm)
-    {
-        EmitSignal(SignalName.TransitionStarted);
-        MusicController.PlayTrack(bgm, outDuration:FadeToBlack.TransitionTime/2, inDuration:FadeToBlack.TransitionTime/2);
-        FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => GoToScene(target)), (uint)ConnectFlags.OneShot);
-        FadeToBlack.TransitionOut();
-    }
-
     private void DoBeginCombat(Unit left, Unit right, IImmutableList<CombatAction> actions)
     {
         if (_currentLevel is not null)
@@ -89,13 +81,17 @@ public partial class SceneManager : Node
     {
         if (_currentLevel is null)
             throw new InvalidOperationException("There is no level to return to");
+        Node target = _currentLevel;
+        _currentLevel = null;
 
+        EmitSignal(SignalName.TransitionStarted);
+        MusicController.PlayTrack(target.GetNode<LevelManager>("LevelManager").BackgroundMusic, outDuration:FadeToBlack.TransitionTime/2, inDuration:FadeToBlack.TransitionTime/2);
         FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => {
             _combat.QueueFree();
             _combat = null;
         }), (uint)ConnectFlags.OneShot);
-        DoSceneTransition(_currentLevel, _currentLevel.GetNode<LevelManager>("LevelManager").BackgroundMusic);
-        _currentLevel = null;
+        FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => GoToScene(target)), (uint)ConnectFlags.OneShot);
+        FadeToBlack.TransitionOut();
     }
 
     public void OnTransitionedIn() => EmitSignal(SignalName.TransitionCompleted);
