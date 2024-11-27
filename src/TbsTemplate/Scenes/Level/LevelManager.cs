@@ -760,6 +760,8 @@ public partial class LevelManager : Node
 
     public void OnUnitDefeated(Unit defeated)
     {
+        ZoneUnits = ZoneUnits.Remove(defeated);
+
         // If the dead unit is the currently-selected one, it will be cleared away at the end of its action.
         if (_selected != defeated)
             defeated.Die();
