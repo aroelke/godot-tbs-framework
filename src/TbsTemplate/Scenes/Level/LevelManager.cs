@@ -13,6 +13,9 @@ using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI;
 using TbsTemplate.UI.Controls.Device;
+using TbsTemplate.Scenes.Level.Objectives;
+using TbsTemplate.Scenes.Level.Layers;
+using TbsTemplate.Scenes.Combat;
 
 namespace TbsTemplate.Scenes.Level;
 
@@ -114,6 +117,13 @@ public partial class LevelManager : Node
 
     private ContextMenu ShowMenu(Rect2 rect, params (StringName, Action)[] options) => ShowMenu(rect, (IEnumerable<(StringName, Action)>)options);
 
+    /// <summary>Update the UI turn counter for the current turn and change its color to match the army.</summary>
+    private void UpdateTurnCounter()
+    {
+        TurnLabel.AddThemeColorOverride("font_color", _armies.Current.Faction.Color);
+        TurnLabel.Text = $"Turn {Turn}: {_armies.Current.Faction.Name}";
+    }
+
     /// <summary>Update the displayed danger zones to reflect the current positions of the enemy <see cref="Unit"/>s.</summary>
     private void UpdateDangerZones()
     {
@@ -144,11 +154,32 @@ public partial class LevelManager : Node
     /// <returns>The audio player that plays the "zone on" or "zone off" sound depending on <paramref name="on"/>.</returns>
     private AudioStreamPlayer ZoneUpdateSound(bool on) => on ? ZoneOnSound : ZoneOffSound;
 #endregion
+#region Signals
+    /// <summary>Signals that a new turn has begun.</summary>
+    /// <param name="turn">Turn number.</param>
+    /// <param name="army">Army whose turn it is.</param>
+    [Signal] public delegate void TurnBeganEventHandler(int turn, Army army);
+
+    /// <summary>Signals that a unit has completed its action.</summary>
+    /// <param name="unit">Unit that completed its action.</param>
+    [Signal] public delegate void ActionEndedEventHandler(Unit unit);
+
+    /// <summary>Signals that the level's success or failure objective has been completed.</summary>
+    /// <param name="success"><c>true</c> if <see cref="Success"/> was completed, and <c>false</c> if <see cref="Failure"/> was completed.</param>
+    [Signal] public delegate void ObjectiveCompletedEventHandler(bool success);
+#endregion
 #region Exports
     private int _turn = 1;
+    private Objective _success = null, _failure = null;
     private bool _showGlobalZone = false;
 
+    [Export(PropertyHint.File, "*.tscn")] public string CombatScenePath = null;
+
+    /// <summary>Background music to play during the level.</summary>
     [Export] public AudioStream BackgroundMusic = null;
+
+    /// <summary>Regions in which units can perform special actions defined by the region.</summary>
+    [Export] public SpecialActionRegion[] SpecialActionRegions = [];
 
     /// <summary>
     /// <see cref="Army"/> that gets the first turn and is controlled by the player. If null, use the first <see cref="Army"/>
@@ -166,7 +197,7 @@ public partial class LevelManager : Node
         {
             _turn = value;
             if (!Engine.IsEditorHint())
-                TurnLabel.Text = $"Turn {_turn}: {_armies.Current.Name}";
+                TurnLabel.Text = $"Turn {_turn}: {_armies.Current.Faction.Name}";
         }
     }
 
@@ -186,6 +217,17 @@ public partial class LevelManager : Node
     /// <summary>Modulate color for the action range overlay to use during idle state to differentiate from the one displayed while selecting a move path.</summary>
     [ExportGroup("Range Overlay")]
     [Export] public Color ActionRangeIdleModulate = new(1, 1, 1, 0.66f);
+#endregion
+#region Begin Turn State
+    /// <summary>Signal that a turn is about to begin.</summary>
+    public void OnBeginTurnEntered() => Callable.From<int, Army>((t, a) => EmitSignal(SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
+
+    /// <summary>Perform any updates that the turn has begun that need to happen after upkeep.</summary>
+    public void OnBeginTurnExited()
+    {
+        UpdateTurnCounter();
+        Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(((IEnumerable<Unit>)_armies.Current).First().Cell);
+    }
 #endregion
 #region Idle State
     /// <summary>Update the UI when re-entering idle.</summary>
@@ -277,10 +319,10 @@ public partial class LevelManager : Node
         State.SendEvent(WaitEvent);
         ShowMenu(new() { Position = Pointer.Position, Size = Vector2.Zero },
             ("End Turn", () => {
-                State.SendEvent(DoneEvent);
+                State.SendEvent(DoneEvent); // Done waiting
                 foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
                     unit.Finish();
-                State.SendEvent(SkipEvent);
+                State.SendEvent(SkipEvent); // Skip to end of turn
                 SelectSound.Play();
             }),
             ("Quit Game", () => GetTree().Quit()),
@@ -469,6 +511,16 @@ public partial class LevelManager : Node
         List<(StringName, Action)> options = [];
         if (attackable.Any() || supportable.Any())
             options.Add(("Attack", () => State.SendEvent(SelectEvent)));
+        foreach (SpecialActionRegion region in SpecialActionRegions)
+        {
+            if (region.HasSpecialAction(_selected, _selected.Cell))
+            {
+                options.Add((region.Name, () => {
+                    region.PerformSpecialAction(_selected, _selected.Cell);
+                    State.SendEvent(SkipEvent);
+                }));
+            }
+        }
         options.Add(("End", () => State.SendEvent(SkipEvent)));
         options.Add(("Cancel", () => State.SendEvent(CancelEvent)));
         _commandMenu = ShowMenu(Grid.CellRect(_selected.Cell), options);
@@ -584,7 +636,10 @@ public partial class LevelManager : Node
         ActionLayers.Clear();
         Cursor.Halt();
         Pointer.StartWaiting(hide:true);
-        SceneManager.BeginCombat(_selected, _target, _combatResults = CombatCalculations.CombatResults(_selected, _target));
+
+        _combatResults = CombatCalculations.CombatResults(_selected, _target);
+        SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<CombatScene>((s) => s.Initialize(_selected, _target, _combatResults)), (uint)ConnectFlags.OneShot);
+        SceneManager.CallScene(CombatScenePath);
     }
 
     /// <summary>Update the map to reflect combat results when it's added back to the tree.</summary>
@@ -604,35 +659,45 @@ public partial class LevelManager : Node
         Cursor.Resume();
     }
 #endregion
-#region Turn Advancing
-    /// <summary>Update the UI turn counter for the current turn and change its color to match the army.</summary>
-    private void UpdateTurnCounter()
+#region End Action State
+    /// <summary>If a unit was selected, signal that its action has ended. Otherwise, just continue.</summary>
+    public void OnEndActionEntered()
     {
-        TurnLabel.AddThemeColorOverride("font_color", _armies.Current.Faction.Color);
-        TurnLabel.Text = $"Turn {Turn}: {_armies.Current.Faction.Name}";
+        CancelHint.Visible = false;
+        if (IsInstanceValid(_selected))
+            Callable.From<Unit>((u) => EmitSignal(SignalName.ActionEnded, u)).CallDeferred(_selected);
+        else
+            Callable.From<StringName>(State.SendEvent).CallDeferred(DoneEvent);
     }
 
+    /// <summary>Clean up at the end of the unit's turn.</summary>
+    public void OnEndActionExited()
+    {
+        // If the turn was skipped, there might not be a selected unit
+        if (_selected is not null)
+        {
+            if (_selected.Health.Value > 0)
+                _selected.Finish();
+            else
+                _selected.Die();
+            _selected = null;
+        }
+    }
+#endregion
+#region Turn Advancing State
     /// <summary>
     /// Clean up after finishing a unit's action, then go to the next army if it was the last available unit in the current army, incrementing the turn
     /// counter when going back to <see cref="StartingArmy"/>.
     /// </summary>
     public async void OnTurnAdvancingEntered()
     {
-        // If the selected unit died, there might not be one anymore
-        if (_selected is not null)
-        {
-            _selected.Finish();
-            _selected = null;
-        }
-        CancelHint.Visible = false;
-
         bool advance = !((IEnumerable<Unit>)_armies.Current).Any(static (u) => u.Active);
         if (advance)
         {
             TurnAdvance.Start();
             await ToSignal(TurnAdvance, Timer.SignalName.Timeout);
 
-            // Refresh all the units in the current army so they aren't gray anymore and are animated
+            // Refresh all the units in the army whose turn just ended so they aren't gray anymore and are animated
             foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
                 unit.Refresh();
 
@@ -641,16 +706,17 @@ public partial class LevelManager : Node
                 if (_armies.MoveNext() && _armies.Current == StartingArmy)
                     Turn++;
             } while (!((IEnumerable<Unit>)_armies.Current).Any());
-            UpdateTurnCounter();
+
+            Callable.From<StringName>(State.SendEvent).CallDeferred(DoneEvent);
         }
-        Callable.From(() => {
-            State.SendEvent(DoneEvent);
-            if (advance)
-                Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(((IEnumerable<Unit>)_armies.Current).First().Cell);
-        }).CallDeferred();
+        else
+            Callable.From<StringName>(State.SendEvent).CallDeferred(SkipEvent);
     }
 #endregion
 #region State Independent
+    /// <summary>When an event is completed, go to the next state.</summary>
+    public void OnEventComplete() => State.SendEvent(DoneEvent);
+
     /// <summary>When the pointer starts flying, we need to wait for it to finish. Also focus the camera on its target if there's something there.</summary>
     /// <param name="target">Position the pointer is going to fly to.</param>
     public void OnPointerFlightStarted(Vector2 target)
@@ -694,9 +760,14 @@ public partial class LevelManager : Node
 
     public void OnUnitDefeated(Unit defeated)
     {
-        if (_selected == defeated)
-            _selected = null;
-        defeated.Die();
+        // If the dead unit is the currently-selected one, it will be cleared away at the end of its action.
+        if (_selected != defeated)
+            defeated.Die();
+        else // Otherwise, pretend it's dead by removing it from the scene tree and making it invisible until the action is over
+        {
+            _armies.Current.RemoveChild(_selected);
+            defeated.Visible = false;
+        }
     }
 
     public override string[] _GetConfigurationWarnings()
@@ -722,6 +793,16 @@ public partial class LevelManager : Node
             warnings.Add("Background music hasn't been added. Whatever's playing will stop.");
 
         return [.. warnings];
+    }
+
+    public override void _EnterTree()
+    {
+        base._EnterTree();
+        if (!Engine.IsEditorHint())
+        {
+            MusicController.Resume(BackgroundMusic);
+            MusicController.FadeIn(SceneManager.CurrentTransition.TransitionTime/2);
+        }
     }
 
     public override void _Ready()
@@ -755,7 +836,6 @@ public partial class LevelManager : Node
             UpdateTurnCounter();
 
             MusicController.ResetPlayback();
-            MusicController.PlayTrack(BackgroundMusic);
         }
     }
 

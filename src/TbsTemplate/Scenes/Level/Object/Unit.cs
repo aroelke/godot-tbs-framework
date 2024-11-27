@@ -14,7 +14,7 @@ namespace TbsTemplate.Scenes.Level.Object;
 /// A unit that moves around the map.  Mostly is just a visual representation of what's where and an interface for the player to
 /// interact.
 /// </summary>
-[SceneTree, Tool]
+[GlobalClass, SceneTree, Tool]
 public partial class Unit : GridNode, IHasHealth
 {
     // AnimationTree parameters
@@ -217,16 +217,17 @@ public partial class Unit : GridNode, IHasHealth
     /// <summary>Put the unit in its "done" state, indicating it isn't available to act anymore.</summary>
     public void Finish()
     {
-        CheckInvalidState("deactivate", IdleState);
         Sprite.Modulate = Colors.White;
+        AnimationTree.Set(Idle, false);
         AnimationTree.Set(Selected, false);
+        AnimationTree.Set(Moving, false);
         AnimationTree.Set(Done, true);
     }
 
     /// <summary>Restore the unit into its "idle" state from being inactive, indicating that it's ready to act again.</summary>
     public void Refresh()
     {
-        CheckValidState("refresh", DoneState);
+        CheckValidState("refresh", "", DoneState);
         Sprite.Modulate = Faction.Color;
         AnimationTree.Set(Done, false);
         AnimationTree.Set(Idle, true);

@@ -1,11 +1,7 @@
 using System;
-using System.Collections.Immutable;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Godot;
-using TbsTemplate.Scenes.Combat;
-using TbsTemplate.Scenes.Combat.Data;
-using TbsTemplate.Scenes.Level;
-using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Transitions;
 using TbsTemplate.UI;
 
@@ -21,68 +17,62 @@ public partial class SceneManager : Node
     /// <summary>Signals that a transition to a new scene has completed.</summary>
     [Signal] public delegate void TransitionCompletedEventHandler();
 
+    /// <summary>Signals that a scene has finished loading.</summary>
+    /// <param name="scene">Scene that finished loading.</param>
+    [Signal] public delegate void SceneLoadedEventHandler(Node scene);
+
     private static SceneManager _singleton = null;
-    private static Node _currentLevel = null;
-    private static CombatScene _combat = null;
+    private static readonly Stack<Node> _history = new();
 
     /// <summary>Reference to the autoloaded scene manager.</summary>
     public static SceneManager Singleton => _singleton ??= ((SceneTree)Engine.GetMainLoop()).Root.GetNode<SceneManager>("SceneManager");
 
-    /// <summary>Begin the combat animation by switching to the <see cref="Combat.CombatScene"/>, remembering where to return when the animation completes.</summary>
-    public static void BeginCombat(Unit left, Unit right, IImmutableList<CombatAction> actions) => Singleton.DoBeginCombat(left, right, actions);
+    /// <summary>Currently-running scene transition, or the one that will run next scene change if the scene isn't changing.</summary>
+    public static SceneTransition CurrentTransition => Singleton.FadeToBlack;
 
-    /// <summary>End combat and return to the previous scene.</summary>
-    public static void EndCombat() => Singleton.DoEndCombat();
+    /// <summary>Load a new scene and change to it with transition without saving history.</summary>
+    /// <param name="path">Path pointing to the scene file to load.</param>
+    public static void JumpToScene(string path) => Singleton.DoBeginTransition(() => GD.Load<PackedScene>(path).Instantiate<Node>());
 
-    private void ChangeScene(Node target)
+    /// <summary>Load a new scene and change to it with transition, saving the previous scene to return to later.</summary>
+    /// <param name="path">Path pointing to the scene file to load.</param>
+    public static void CallScene(string path)
     {
+        _history.Push(Singleton.GetTree().CurrentScene);
+        JumpToScene(path);
+    }
+
+    /// <summary>Change to the previous scene in the history with transition.</summary>
+    /// <exception cref="InvalidOperationException">If there is no scene to return to or the previous scene is invalid.</exception>
+    public static void ReturnToPreviousScene()
+    {
+        if (!_history.TryPop(out Node prev))
+            throw new InvalidOperationException("No previous scene to return to");
+        if (!IsInstanceValid(prev))
+            throw new InvalidOperationException("Previous scene is null or freed");
+        Singleton.DoBeginTransition(() => prev);
+    }
+
+    private async void DoSceneChange<T>(Task<T> task) where T : Node
+    {
+        // Wait for completion of the task loading the next scene
+        T target = await task;
+        EmitSignal(SignalName.SceneLoaded, target);
+
+        // Switch to the next scene
         GetTree().Root.RemoveChild(GetTree().CurrentScene);
         GetTree().Root.AddChild(target);
         GetTree().CurrentScene = target;
-        FadeToBlack.TransitionIn();
+        CurrentTransition.TransitionIn();
     }
 
-    private void DoSceneTransition(Node target, AudioStream bgm)
+    private void DoBeginTransition<T>(Func<T> gen) where T : Node
     {
+        Task<T> task = Task.Run(gen);
         EmitSignal(SignalName.TransitionStarted);
-        MusicController.PlayTrack(bgm, outDuration:FadeToBlack.TransitionTime/2, inDuration:FadeToBlack.TransitionTime/2);
-        FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => ChangeScene(target)), (uint)ConnectFlags.OneShot);
-        FadeToBlack.TransitionOut();
-    }
-
-    private void DoBeginCombat(Unit left, Unit right, IImmutableList<CombatAction> actions)
-    {
-        if (_currentLevel is not null)
-            throw new InvalidOperationException("Combat has already begun.");
-
-        var task = Task.Run(() => CombatScene.Instantiate(left, right, actions));
-        _currentLevel = Singleton.GetTree().CurrentScene;
-
-        async void CompleteFade()
-        {
-            _combat = await task;
-            FadeToBlack.Connect(SceneTransition.SignalName.TransitionedIn, Callable.From(_combat.Start), (uint)ConnectFlags.OneShot);
-            MusicController.Resume(_combat.BackgroundMusic);
-            MusicController.FadeIn(FadeToBlack.TransitionTime/2);
-            ChangeScene(_combat);
-        }
-        FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(CompleteFade), (uint)ConnectFlags.OneShot);
-        EmitSignal(SignalName.TransitionStarted);
-        MusicController.FadeOut(FadeToBlack.TransitionTime/2);
-        FadeToBlack.TransitionOut();
-    }
-
-    private void DoEndCombat()
-    {
-        if (_currentLevel is null)
-            throw new InvalidOperationException("There is no level to return to");
-
-        FadeToBlack.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => {
-            _combat.QueueFree();
-            _combat = null;
-        }), (uint)ConnectFlags.OneShot);
-        DoSceneTransition(_currentLevel, _currentLevel.GetNode<LevelManager>("LevelManager").BackgroundMusic);
-        _currentLevel = null;
+        MusicController.FadeOut(CurrentTransition.TransitionTime/2);
+        CurrentTransition.Connect(SceneTransition.SignalName.TransitionedOut, Callable.From(() => DoSceneChange(task)), (uint)ConnectFlags.OneShot);
+        CurrentTransition.TransitionOut();
     }
 
     public void OnTransitionedIn() => EmitSignal(SignalName.TransitionCompleted);

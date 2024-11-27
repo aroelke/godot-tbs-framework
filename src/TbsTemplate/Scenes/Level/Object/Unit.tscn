@@ -1,4 +1,4 @@
-[gd_scene load_steps=42 format=3 uid="uid://b0cvutx2lj5uy"]
+[gd_scene load_steps=43 format=3 uid="uid://b0cvutx2lj5uy"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Object/Unit.cs" id="1_crlbh"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Data/Stats.cs" id="2_fgj32"]
@@ -367,6 +367,10 @@ advance_condition = &"moving"
 advance_mode = 2
 advance_condition = &"selected"
 
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_xdt2f"]
+advance_mode = 2
+advance_condition = &"done"
+
 [sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_2xttf"]
 states/Done/node = SubResource("AnimationNodeAnimation_m462t")
 states/Done/position = Vector2(466, 364.117)
@@ -378,8 +382,8 @@ states/Moving/position = Vector2(466, 39.0273)
 states/Selected/node = SubResource("AnimationNodeAnimation_xy2fh")
 states/Selected/position = Vector2(643, 213)
 states/Start/position = Vector2(249, 213)
-transitions = ["Idle", "Selected", SubResource("AnimationNodeStateMachineTransition_av2ix"), "Selected", "Idle", SubResource("AnimationNodeStateMachineTransition_m6c88"), "Start", "Idle", SubResource("AnimationNodeStateMachineTransition_43qbb"), "Selected", "Done", SubResource("AnimationNodeStateMachineTransition_gsdf1"), "Done", "Idle", SubResource("AnimationNodeStateMachineTransition_csre7"), "Moving", "Idle", SubResource("AnimationNodeStateMachineTransition_nrnfq"), "Moving", "Done", SubResource("AnimationNodeStateMachineTransition_1tawo"), "Selected", "Moving", SubResource("AnimationNodeStateMachineTransition_gjd0r"), "Moving", "Selected", SubResource("AnimationNodeStateMachineTransition_otyyn")]
-graph_offset = Vector2(-390.55, 75.0273)
+transitions = ["Idle", "Selected", SubResource("AnimationNodeStateMachineTransition_av2ix"), "Selected", "Idle", SubResource("AnimationNodeStateMachineTransition_m6c88"), "Start", "Idle", SubResource("AnimationNodeStateMachineTransition_43qbb"), "Selected", "Done", SubResource("AnimationNodeStateMachineTransition_gsdf1"), "Done", "Idle", SubResource("AnimationNodeStateMachineTransition_csre7"), "Moving", "Idle", SubResource("AnimationNodeStateMachineTransition_nrnfq"), "Moving", "Done", SubResource("AnimationNodeStateMachineTransition_1tawo"), "Selected", "Moving", SubResource("AnimationNodeStateMachineTransition_gjd0r"), "Moving", "Selected", SubResource("AnimationNodeStateMachineTransition_otyyn"), "Idle", "Done", SubResource("AnimationNodeStateMachineTransition_xdt2f")]
+graph_offset = Vector2(-397.55, 137.027)
 
 [node name="Unit" type="Node2D"]
 z_index = 1

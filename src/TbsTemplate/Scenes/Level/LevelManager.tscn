@@ -33,7 +33,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -259151777
+seed = -1235838109
 
 [sub_resource type="Resource" id="Resource_lt2uh"]
 script = ExtResource("22_tix5y")
@@ -94,6 +94,7 @@ Condition = ExtResource("22_sve70")
 
 [node name="LevelManager" type="Node"]
 script = ExtResource("1_r2v0t")
+CombatScenePath = "res://src/TbsTemplate/Scenes/Combat/CombatScene.tscn"
 
 [node name="Camera" parent="." node_paths=PackedStringArray("Target") instance=ExtResource("3_td8u6")]
 unique_name_in_owner = true
@@ -212,10 +213,17 @@ InitialState = NodePath("Active")
 
 [node name="Active" parent="State/Root" node_paths=PackedStringArray("InitialState") instance=ExtResource("18_k7m3y")]
 process_mode = 4
-InitialState = NodePath("Idle")
+InitialState = NodePath("BeginTurn")
 
 [node name="History" parent="State/Root/Active" node_paths=PackedStringArray("DefaultState") instance=ExtResource("18_n547p")]
 DefaultState = NodePath("../Idle")
+
+[node name="BeginTurn" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
+process_mode = 4
+
+[node name="ToIdle" parent="State/Root/Active/BeginTurn" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../Idle")
+Event = &"done"
 
 [node name="Idle" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
 process_mode = 4
@@ -236,8 +244,8 @@ To = NodePath("../../UnitSelected")
 Event = &"select"
 Condition = SubResource("Resource_mydqi")
 
-[node name="ToAdvancing" parent="State/Root/Active/Idle" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../TurnAdvancing")
+[node name="ToEndAction" parent="State/Root/Active/Idle" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../EndAction")
 Event = &"skip"
 
 [node name="UnitSelected" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
@@ -287,8 +295,8 @@ Event = &"select"
 To = NodePath("../../UnitSelected")
 Event = &"cancel"
 
-[node name="ToAdvancing" parent="State/Root/Active/UnitCommanding" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../TurnAdvancing")
+[node name="ToEndAction" parent="State/Root/Active/UnitCommanding" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../EndAction")
 Event = &"skip"
 
 [node name="UnitTargeting" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
@@ -306,8 +314,8 @@ Event = &"cancel"
 To = NodePath("../../InCombat")
 Event = &"done"
 
-[node name="ToAdvancing" parent="State/Root/Active/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../TurnAdvancing")
+[node name="ToEndAction" parent="State/Root/Active/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../EndAction")
 Event = &"skip"
 
 [node name="InCombat" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
@@ -315,7 +323,14 @@ process_mode = 4
 
 [node name="OnEnteredTree" parent="State/Root/Active/InCombat" instance=ExtResource("29_o6hju")]
 
-[node name="ToAdvancing" parent="State/Root/Active/InCombat" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+[node name="ToEndAction" parent="State/Root/Active/InCombat" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../EndAction")
+Event = &"done"
+
+[node name="EndAction" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
+process_mode = 4
+
+[node name="ToAdvancing" parent="State/Root/Active/EndAction" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../TurnAdvancing")
 Event = &"done"
 
@@ -324,6 +339,10 @@ process_mode = 4
 
 [node name="ToIdle" parent="State/Root/Active/TurnAdvancing" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../Idle")
+Event = &"skip"
+
+[node name="ToBeginTurn" parent="State/Root/Active/TurnAdvancing" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../BeginTurn")
 Event = &"done"
 
 [node name="ToWaiting" parent="State/Root/Active" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
@@ -333,7 +352,7 @@ Event = &"wait"
 [node name="Waiting" parent="State/Root" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
-[node name="Transition" parent="State/Root/Waiting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+[node name="ToActive" parent="State/Root/Waiting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../Active/History")
 Event = &"done"
 
@@ -376,6 +395,8 @@ stream = ExtResource("32_e2hk2")
 [connection signal="FlightStarted" from="Pointer" to="." method="OnPointerFlightStarted"]
 [connection signal="PointerMoved" from="Pointer" to="Cursor" method="OnPointerMoved"]
 [connection signal="PointerStopped" from="Pointer" to="State/Root/Active/Idle/OnPointerStopped" method="OnUpdated"]
+[connection signal="StateEntered" from="State/Root/Active/BeginTurn" to="." method="OnBeginTurnEntered"]
+[connection signal="StateExited" from="State/Root/Active/BeginTurn" to="." method="OnBeginTurnExited"]
 [connection signal="EventReceived" from="State/Root/Active/Idle" to="." method="OnIdleEventReceived"]
 [connection signal="StateEntered" from="State/Root/Active/Idle" to="." method="OnIdleEntered"]
 [connection signal="StateInput" from="State/Root/Active/Idle/OnInput" to="." method="OnIdleInput"]
@@ -404,16 +425,18 @@ stream = ExtResource("32_e2hk2")
 [connection signal="Taken" from="State/Root/Active/UnitCommanding/ToTargeting" to="SoundLibrary/SelectSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/Active/UnitCommanding/ToSelected" to="." method="OnCommandingCanceled"]
 [connection signal="Taken" from="State/Root/Active/UnitCommanding/ToSelected" to="SoundLibrary/CancelSound" method="play" binds= [0.0]]
-[connection signal="Taken" from="State/Root/Active/UnitCommanding/ToAdvancing" to="." method="OnTurnEndCommand"]
-[connection signal="Taken" from="State/Root/Active/UnitCommanding/ToAdvancing" to="SoundLibrary/SelectSound" method="play" binds= [0.0]]
+[connection signal="Taken" from="State/Root/Active/UnitCommanding/ToEndAction" to="." method="OnTurnEndCommand"]
+[connection signal="Taken" from="State/Root/Active/UnitCommanding/ToEndAction" to="SoundLibrary/SelectSound" method="play" binds= [0.0]]
 [connection signal="StateEntered" from="State/Root/Active/UnitTargeting" to="." method="OnTargetingEntered"]
 [connection signal="StateExited" from="State/Root/Active/UnitTargeting" to="." method="OnTargetingExited"]
 [connection signal="StateUpdated" from="State/Root/Active/UnitTargeting/OnCellSelected" to="." method="OnTargetingCellSelected"]
 [connection signal="StateInput" from="State/Root/Active/UnitTargeting/OnInput" to="." method="OnTargetingInput"]
 [connection signal="Taken" from="State/Root/Active/UnitTargeting/ToCommanding" to="SoundLibrary/CancelSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/Active/UnitTargeting/ToCombat" to="." method="OnTargetingExited"]
-[connection signal="Taken" from="State/Root/Active/UnitTargeting/ToAdvancing" to="SoundLibrary/CancelSound" method="play" binds= [0.0]]
+[connection signal="Taken" from="State/Root/Active/UnitTargeting/ToEndAction" to="SoundLibrary/CancelSound" method="play" binds= [0.0]]
 [connection signal="StateEntered" from="State/Root/Active/InCombat" to="." method="OnCombatEntered"]
 [connection signal="StateExited" from="State/Root/Active/InCombat" to="." method="OnCombatExited"]
 [connection signal="StateEnteredTree" from="State/Root/Active/InCombat/OnEnteredTree" to="." method="OnCombatEnteredTree"]
+[connection signal="StateEntered" from="State/Root/Active/EndAction" to="." method="OnEndActionEntered"]
+[connection signal="StateExited" from="State/Root/Active/EndAction" to="." method="OnEndActionExited"]
 [connection signal="StateEntered" from="State/Root/Active/TurnAdvancing" to="." method="OnTurnAdvancingEntered"]

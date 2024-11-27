@@ -7,6 +7,7 @@ using Godot;
 using TbsTemplate.Scenes.Combat.Animations;
 using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.Scenes.Level.Object;
+using TbsTemplate.UI;
 using TbsTemplate.UI.Combat;
 using TbsTemplate.UI.Controls.Action;
 
@@ -169,6 +170,17 @@ public partial class CombatScene : Node
             TransitionDelay.Start();
     }
 
+    public void End()
+    {
+        if (!_canceled)
+        {
+            TransitionDelay.Stop();
+            _canceled = true;
+            SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<Node>(_ => QueueFree()), (uint)ConnectFlags.OneShot);
+            SceneManager.ReturnToPreviousScene();
+        }
+    }
+
     public void OnAccelerate()
     {
         foreach ((var _, CombatAnimation animation) in _animations)
@@ -181,25 +193,22 @@ public partial class CombatScene : Node
             animation.AnimationSpeedScale = 1;
     }
 
-    public void OnTimerTimeout()
+    public override void _Ready()
     {
-        if (!_canceled)
+        base._Ready();
+        if (!Engine.IsEditorHint())
         {
-            _canceled = true;
-            SceneManager.EndCombat();
+            MusicController.Resume(BackgroundMusic);
+            MusicController.FadeIn(SceneManager.CurrentTransition.TransitionTime/2);
+            SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, Callable.From(Start), (uint)ConnectFlags.OneShot);
         }
     }
 
     public override void _Input(InputEvent @event)
     {
         base._Input(@event);
-
-        if (@event.IsActionPressed(InputActions.Cancel) && !_canceled)
-        {
-            TransitionDelay.Stop();
-            _canceled = true;
-            SceneManager.EndCombat();
-        }
+        if (@event.IsActionPressed(InputActions.Cancel))
+            End();
     }
 
     public override void _Process(double delta)
