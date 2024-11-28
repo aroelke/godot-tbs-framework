@@ -78,10 +78,6 @@ Condition = ExtResource("7_r0orh")
 
 [node name="OnPhysicsProcessReaction" parent="ControlState/Root/Active/MouseState" instance=ExtResource("16_qorhx")]
 
-[node name="ToFlying" parent="ControlState/Root/Active" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
-To = NodePath("")
-Event = &"fly"
-
 [node name="ToWaiting" parent="ControlState/Root/Active" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
 To = NodePath("../../Waiting")
 Event = &"wait"
