@@ -292,19 +292,25 @@ public partial class LevelManager : Node
     /// </summary>
     public void OnIdleInput(InputEvent @event)
     {
-        if (Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit)
+        if (@event.IsActionPressed(InputActions.Previous) || @event.IsActionPressed(InputActions.Next))
         {
-            void SelectUnit(Func<Unit, Unit> selector)
+            if (Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit)
             {
-                Cursor.Cell = selector(unit)?.Cell ?? Cursor.Cell;
-                OnIdleCursorEnteredCell(Cursor.Cell);
+                Army army = GetChildren().OfType<Army>().Where((a) => a.Contains(unit)).First();
+                if (@event.IsActionPressed(InputActions.Previous) && army.Previous(unit) is Unit prev)
+                    Cursor.Cell = prev.Cell;
+                if (@event.IsActionPressed(InputActions.Next) && army.Next(unit) is Unit next)
+                    Cursor.Cell = next.Cell;
             }
-
-            Army army = GetChildren().OfType<Army>().Where((a) => a.Contains(unit)).First();
-            if (@event.IsActionPressed(InputActions.Previous))
-                SelectUnit(army.Previous);
-            if (@event.IsActionPressed(InputActions.Next))
-                SelectUnit(army.Next);
+            else
+            {
+                IEnumerable<Unit> units = _armies.Current.GetChildren().OfType<Unit>().Where((u) => u.Active);
+                if (!units.Any())
+                    units = _armies.Current.GetChildren().OfType<Unit>();
+                if (units.Any())
+                    Cursor.Cell = units.OrderBy((u) => u.Cell.DistanceTo(Cursor.Cell)).First().Cell;
+            }
+            OnIdleCursorEnteredCell(Cursor.Cell);
         }
     }
 
