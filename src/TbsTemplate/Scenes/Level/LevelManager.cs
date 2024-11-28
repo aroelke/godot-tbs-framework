@@ -226,7 +226,10 @@ public partial class LevelManager : Node
     public void OnBeginTurnExited()
     {
         UpdateTurnCounter();
-        Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(((IEnumerable<Unit>)_armies.Current).First().Cell);
+        Callable.From<Vector2I>((c) => {
+            Cursor.Cell = c;
+            OnIdleCursorEnteredCell(Cursor.Cell);
+        }).CallDeferred(((IEnumerable<Unit>)_armies.Current).First().Cell);
     }
 #endregion
 #region Idle State
@@ -235,6 +238,7 @@ public partial class LevelManager : Node
     {
         ActionLayers.Modulate = ActionRangeIdleModulate;
         Cursor.Cell = Grid.CellOf(Pointer.Position);
+        OnIdleCursorEnteredCell(Cursor.Cell);
     }
 
     /// <summary>
@@ -288,21 +292,25 @@ public partial class LevelManager : Node
     /// </summary>
     public void OnIdleInput(InputEvent @event)
     {
-        if (Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit)
+        if (@event.IsActionPressed(InputActions.Previous) || @event.IsActionPressed(InputActions.Next))
         {
-            void SelectUnit(Func<Unit, Unit> selector)
+            if (Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit)
             {
-                ActionLayers.Clear();
-                Unit selected = selector(unit);
-                if (selected is not null)
-                    Cursor.Cell = selected.Cell;
+                Army army = GetChildren().OfType<Army>().Where((a) => a.Contains(unit)).First();
+                if (@event.IsActionPressed(InputActions.Previous) && army.Previous(unit) is Unit prev)
+                    Cursor.Cell = prev.Cell;
+                if (@event.IsActionPressed(InputActions.Next) && army.Next(unit) is Unit next)
+                    Cursor.Cell = next.Cell;
             }
-
-            Army army = GetChildren().OfType<Army>().Where((a) => a.Contains(unit)).First();
-            if (@event.IsActionPressed(InputActions.Previous))
-                SelectUnit(army.Previous);
-            if (@event.IsActionPressed(InputActions.Next))
-                SelectUnit(army.Next);
+            else
+            {
+                IEnumerable<Unit> units = _armies.Current.GetChildren().OfType<Unit>().Where((u) => u.Active);
+                if (!units.Any())
+                    units = _armies.Current.GetChildren().OfType<Unit>();
+                if (units.Any())
+                    Cursor.Cell = units.OrderBy((u) => u.Cell.DistanceTo(Cursor.Cell)).First().Cell;
+            }
+            OnIdleCursorEnteredCell(Cursor.Cell);
         }
     }
 
