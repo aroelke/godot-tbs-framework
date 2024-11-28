@@ -226,7 +226,10 @@ public partial class LevelManager : Node
     public void OnBeginTurnExited()
     {
         UpdateTurnCounter();
-        Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(((IEnumerable<Unit>)_armies.Current).First().Cell);
+        Callable.From<Vector2I>((c) => {
+            Cursor.Cell = c;
+            OnIdleCursorEnteredCell(Cursor.Cell);
+        }).CallDeferred(((IEnumerable<Unit>)_armies.Current).First().Cell);
     }
 #endregion
 #region Idle State
@@ -235,6 +238,7 @@ public partial class LevelManager : Node
     {
         ActionLayers.Modulate = ActionRangeIdleModulate;
         Cursor.Cell = Grid.CellOf(Pointer.Position);
+        OnIdleCursorEnteredCell(Cursor.Cell);
     }
 
     /// <summary>
@@ -292,10 +296,8 @@ public partial class LevelManager : Node
         {
             void SelectUnit(Func<Unit, Unit> selector)
             {
-                ActionLayers.Clear();
-                Unit selected = selector(unit);
-                if (selected is not null)
-                    Cursor.Cell = selected.Cell;
+                Cursor.Cell = selector(unit)?.Cell ?? Cursor.Cell;
+                OnIdleCursorEnteredCell(Cursor.Cell);
             }
 
             Army army = GetChildren().OfType<Army>().Where((a) => a.Contains(unit)).First();
