@@ -33,7 +33,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -1235838109
+seed = 1705514665
 
 [sub_resource type="Resource" id="Resource_lt2uh"]
 script = ExtResource("22_tix5y")
@@ -206,6 +206,7 @@ Description = "Cancel"
 
 [node name="State" parent="." instance=ExtResource("17_sd0pe")]
 unique_name_in_owner = true
+Events = [&"select", &"cancel", &"skip", &"wait", &"done"]
 
 [node name="Root" parent="State" node_paths=PackedStringArray("InitialState") instance=ExtResource("18_k7m3y")]
 process_mode = 4

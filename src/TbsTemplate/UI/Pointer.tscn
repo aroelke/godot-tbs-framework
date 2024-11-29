@@ -23,6 +23,7 @@ script = ExtResource("1_bn1q1")
 
 [node name="ControlState" parent="." instance=ExtResource("7_xfrm4")]
 unique_name_in_owner = true
+Events = [&"wait", &"done"]
 
 [node name="Root" parent="ControlState" node_paths=PackedStringArray("InitialState") instance=ExtResource("8_pjkcf")]
 process_mode = 4
