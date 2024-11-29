@@ -46,11 +46,8 @@ public partial class Transition : ChartNode
     {
         Godot.Collections.Array<Godot.Collections.Dictionary> properties = new(base._GetPropertyList() ?? []);
 
-        Node parent = GetParent();
-        while (parent is not null && parent is not Chart)
-            parent = parent.GetParent();
-        if (parent is Chart chart)
-            properties.Add(chart.CreateEventProperty(PropertyName.Event));
+        if (StateChart is not null)
+            properties.Add(StateChart.CreateEventProperty(PropertyName.Event));
         else
         {
             properties.Add(new ObjectProperty(
