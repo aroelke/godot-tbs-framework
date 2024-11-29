@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes.StateChart.Conditions;
@@ -38,6 +39,9 @@ public partial class Transition : ChartNode
 
         if (GetParentOrNull<State>() is null)
             warnings.Add("Transitions must be children of states.");
+
+        if (!Event.IsEmpty && (!StateChart?.Events.Contains(Event) ?? false))
+            warnings.Add($"State chart does not have event {Event}");
 
         return [.. warnings];
     }
