@@ -7,7 +7,8 @@ namespace TbsTemplate.Extensions;
 /// <param name="Type"><see cref="Variant"/> type of the property.</param>
 /// <param name="Hint">String providing more information about the property's type.</param>
 /// <param name="HintString">String providing specific information pertaining to the <paramref name="Hint"/>.</param>
-public readonly record struct ObjectProperty(StringName Name, Variant.Type Type, PropertyHint Hint=PropertyHint.None, string HintString=null)
+/// <param name="Usage">Flags indicating usage of the property.</param>
+public readonly record struct ObjectProperty(StringName Name, Variant.Type Type, PropertyHint Hint=PropertyHint.None, string HintString=null, PropertyUsageFlags Usage=PropertyUsageFlags.Default)
 {
     public static implicit operator Godot.Collections.Dictionary(ObjectProperty property) => property.ToDictionary();
 
@@ -16,6 +17,7 @@ public readonly record struct ObjectProperty(StringName Name, Variant.Type Type,
         { "name", Name },
         { "type" , Variant.From(Type) },
         { "hint", Variant.From(Hint) },
-        { "hint_string", HintString }
+        { "hint_string", HintString },
+        { "usage", Variant.From(Usage) }
     };
 }

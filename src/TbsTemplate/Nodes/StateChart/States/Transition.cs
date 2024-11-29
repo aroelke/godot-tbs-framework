@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using TbsTemplate.Extensions;
 using TbsTemplate.Nodes.StateChart.Conditions;
 
 namespace TbsTemplate.Nodes.StateChart.States;
@@ -15,11 +16,11 @@ public partial class Transition : ChartNode
     /// <summary><see cref="State"/> to activate if the transition is taken.</summary>
     [Export] public State To = null;
 
-    /// <summary>Event triggering the transition. Leave blank to cause the transition to immediately trigger upon entering the <see cref="State"/>.</summary>
-    [Export] public StringName Event = "";
-
     /// <summary>Condition guarding the transition. The transition will only be taken if the condition is satisfied.</summary>
     [Export] public Condition Condition = null;
+
+    /// <summary>Event triggering the transition. Leave blank to cause the transition to immediately trigger upon entering the <see cref="State"/>.</summary>
+    public StringName Event { get; private set; } = "";
 
     /// <summary>Whether or not the transition should wait for an event before triggering.</summary>
     public bool Automatic => Event.IsEmpty;
@@ -40,4 +41,42 @@ public partial class Transition : ChartNode
 
         return [.. warnings];
     }
+
+    public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
+    {
+        Godot.Collections.Array<Godot.Collections.Dictionary> properties = new(base._GetPropertyList() ?? []);
+
+        Node parent = GetParent();
+        while (parent is not null && parent is not Chart)
+            parent = parent.GetParent();
+        if (parent is Chart chart)
+            properties.Add(chart.CreateEventProperty(PropertyName.Event));
+        else
+        {
+            properties.Add(new ObjectProperty(
+                PropertyName.Event,
+                Variant.Type.StringName,
+                Usage:PropertyUsageFlags.ReadOnly
+            ));
+        }
+
+        return properties;
+    }
+
+    public override Variant _Get(StringName property) => property == PropertyName.Event ? Event : base._Get(property);
+
+    public override bool _Set(StringName property, Variant value)
+    {
+        if (property == PropertyName.Event)
+        {
+            Event = value.AsStringName();
+            return true;
+        }
+        else
+            return base._Set(property, value);
+    }
+
+    public override bool _PropertyCanRevert(StringName property) => property == PropertyName.Event || base._PropertyCanRevert(property);
+
+    public override Variant _PropertyGetRevert(StringName property) => property == PropertyName.Event ? new StringName("") : base._PropertyGetRevert(property);
 }
