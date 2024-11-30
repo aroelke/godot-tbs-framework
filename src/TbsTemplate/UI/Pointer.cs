@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Godot;
-using Godot.Collections;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes;
 using TbsTemplate.UI.Controls.Action;
@@ -33,9 +32,9 @@ public partial class Pointer : BoundedNode2D
     [Signal] public delegate void FlightCompletedEventHandler();
 
     private static readonly StringName ModeProperty = "mode";
-    private static readonly StringName WaitEvent = "wait";
-    private static readonly StringName DoneEvent = "done";
 
+    private StringName _wait = "";
+    private StringName _done = "";
     private Vector2[] _positions = [];
     private bool _accelerate = false;
     private bool _tracking = true;
@@ -128,12 +127,12 @@ public partial class Pointer : BoundedNode2D
             target,
             duration
         ).Finished += () => {
-            ControlState.SendEvent(DoneEvent);
+            ControlState.SendEvent(PropertyName._done);
             EmitSignal(SignalName.PointerMoved, Position);
             EmitSignal(SignalName.FlightCompleted);
         };
 
-        ControlState.SendEvent(WaitEvent);
+        ControlState.SendEvent(PropertyName._wait);
     }
 
     /// <summary>Disable input and wait for an event to complete.</summary>
@@ -142,12 +141,12 @@ public partial class Pointer : BoundedNode2D
     {
         if (hide)
             DeviceManager.EnableSystemMouse = false;
-        ControlState.SendEvent(WaitEvent);
+        ControlState.SendEvent(PropertyName._wait);
         Mouse.Visible = false;
     }
 
     /// <summary>Re-enable input.</summary>
-    public void StopWaiting() => ControlState.SendEvent(DoneEvent);
+    public void StopWaiting() => ControlState.SendEvent(PropertyName._done);
 
     /// <summary>Update the state whenever input mode changes.</summary>
     /// <param name="mode">New input mode.</param>
@@ -209,7 +208,7 @@ public partial class Pointer : BoundedNode2D
     {
         if (Position != ViewportToWorld(InputManager.GetMousePosition()))
         {
-            ControlState.SendEvent(DoneEvent);
+            ControlState.SendEvent(PropertyName._done);
             Warp(ViewportToWorld(InputManager.GetMousePosition()));
         }
     }
@@ -258,7 +257,60 @@ public partial class Pointer : BoundedNode2D
         }
     }
 
-    public override void _ValidateProperty(Dictionary property)
+    public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
+    {
+        Godot.Collections.Array<Godot.Collections.Dictionary> properties = base._GetPropertyList() ?? [];
+
+        properties.Add(new ObjectProperty(
+            "State Chart Events",
+            Variant.Type.Nil,
+            Usage:PropertyUsageFlags.Group
+        ));
+        properties.Add(ControlState.CreateEventProperty(PropertyName._wait));
+        properties.Add(ControlState.CreateEventProperty(PropertyName._done));
+
+        return properties;
+    }
+
+    public override Variant _Get(StringName property)
+    {
+        if (property == PropertyName._wait)
+            return _wait;
+        else if (property == PropertyName._done)
+            return _done;
+        else
+            return base._Get(property);
+    }
+
+    public override bool _Set(StringName property, Variant value)
+    {
+        if (property == PropertyName._wait)
+        {
+            _wait = value.AsStringName();
+            return true;
+        }
+        else if (property == PropertyName._done)
+        {
+            _done = value.AsStringName();
+            return true;
+        }
+        else
+            return base._Set(property, value);
+    }
+
+    public override bool _PropertyCanRevert(StringName property) => property == PropertyName._wait || property == PropertyName._done || base._PropertyCanRevert(property);
+
+    public override Variant _PropertyGetRevert(StringName property)
+    {
+        if (property == PropertyName._wait)
+            return new StringName("");
+        else if (property == PropertyName._done)
+            return new StringName("");
+        else
+            return base._PropertyGetRevert(property);
+    }
+
+    public override void _ValidateProperty(Godot.Collections.Dictionary property)
     {
         if (property["name"].As<StringName>() == PropertyName.Size)
             property["usage"] = property["usage"].As<uint>() | (uint)PropertyUsageFlags.ReadOnly;
@@ -271,6 +323,11 @@ public partial class Pointer : BoundedNode2D
 
         if (World is null)
             warnings.Add("The pointer won't be able to convert screen and world coordinates without knowing what the world is.");
+
+        if (_wait.IsEmpty)
+            warnings.Add("The \"wait\" state chart event is not set. The pointer will not respond to input.");
+        if (_done.IsEmpty)
+            warnings.Add("The \"done\" state chart event is not set. The pointer cannot be paused.");
 
         return [.. warnings];
     }
