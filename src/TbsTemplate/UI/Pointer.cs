@@ -131,12 +131,12 @@ public partial class Pointer : BoundedNode2D, IHasChartEventProperties
             target,
             duration
         ).Finished += () => {
-            ControlState.SendEvent(PropertyName._done);
+            ControlState.SendEvent(_done);
             EmitSignal(SignalName.PointerMoved, Position);
             EmitSignal(SignalName.FlightCompleted);
         };
 
-        ControlState.SendEvent(PropertyName._wait);
+        ControlState.SendEvent(_wait);
     }
 
     /// <summary>Disable input and wait for an event to complete.</summary>
@@ -145,12 +145,12 @@ public partial class Pointer : BoundedNode2D, IHasChartEventProperties
     {
         if (hide)
             DeviceManager.EnableSystemMouse = false;
-        ControlState.SendEvent(PropertyName._wait);
+        ControlState.SendEvent(_wait);
         Mouse.Visible = false;
     }
 
     /// <summary>Re-enable input.</summary>
-    public void StopWaiting() => ControlState.SendEvent(PropertyName._done);
+    public void StopWaiting() => ControlState.SendEvent(_done);
 
     /// <summary>Update the state whenever input mode changes.</summary>
     /// <param name="mode">New input mode.</param>
@@ -212,7 +212,7 @@ public partial class Pointer : BoundedNode2D, IHasChartEventProperties
     {
         if (Position != ViewportToWorld(InputManager.GetMousePosition()))
         {
-            ControlState.SendEvent(PropertyName._done);
+            ControlState.SendEvent(_done);
             Warp(ViewportToWorld(InputManager.GetMousePosition()));
         }
     }
