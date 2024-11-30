@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Godot;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes;
+using TbsTemplate.Nodes.StateChart;
 using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI.Controls.Device;
 
@@ -14,7 +15,7 @@ namespace TbsTemplate.UI;
 /// cursor; during mouse control the system mouse is visible.
 /// </summary>
 [SceneTree, Tool]
-public partial class Pointer : BoundedNode2D
+public partial class Pointer : BoundedNode2D, IHasChartEventProperties
 {
     /// <summary>Signals that the virtual pointer has moved in the canvas.</summary>
     /// <param name="position">Position of the virtual pointer.</param>
@@ -49,6 +50,9 @@ public partial class Pointer : BoundedNode2D
     /// <param name="viewport"><see cref="Viewport"/> position.</param>
     /// <returns>Position in the <see cref="World"/> that's at the same place as the one in the <see cref="Viewport"/>.</returns>
     private Vector2 ViewportToWorld(Vector2 viewport) => World.GetGlobalTransformWithCanvas().AffineInverse()*viewport;
+
+    public IHasChartEventProperties.ChartEventProperty[] EventProperties => [new(this, PropertyName._wait), new(this, PropertyName._done)];
+    public Chart StateChart => ControlState;
 
     /// <summary>Bounding rectangle where the pointer is allowed to move.</summary>
     [Export] public Rect2I Bounds = new(0, 0, 0, 0);
@@ -260,52 +264,38 @@ public partial class Pointer : BoundedNode2D
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
     {
         Godot.Collections.Array<Godot.Collections.Dictionary> properties = base._GetPropertyList() ?? [];
-
-        properties.Add(new ObjectProperty(
-            "State Chart Events",
-            Variant.Type.Nil,
-            Usage:PropertyUsageFlags.Group
-        ));
-        properties.Add(ControlState.CreateEventProperty(PropertyName._wait));
-        properties.Add(ControlState.CreateEventProperty(PropertyName._done));
-
+        properties.AddRange(((IHasChartEventProperties)this).GetChartEventProperties());
         return properties;
     }
 
     public override Variant _Get(StringName property)
     {
-        if (property == PropertyName._wait)
-            return _wait;
-        else if (property == PropertyName._done)
-            return _done;
+        if (((IHasChartEventProperties)this).GetChartEventPropertyValue(property, out StringName value))
+            return value;
         else
             return base._Get(property);
     }
 
     public override bool _Set(StringName property, Variant value)
     {
-        if (property == PropertyName._wait)
-        {
-            _wait = value.AsStringName();
+        if (value.VariantType == Variant.Type.StringName && ((IHasChartEventProperties)this).SetChartEventPropertyValue(property, value.AsStringName()))
             return true;
-        }
-        else if (property == PropertyName._done)
-        {
-            _done = value.AsStringName();
-            return true;
-        }
         else
             return base._Set(property, value);
     }
 
-    public override bool _PropertyCanRevert(StringName property) => property == PropertyName._wait || property == PropertyName._done || base._PropertyCanRevert(property);
+    public override bool _PropertyCanRevert(StringName property)
+    {
+        if (((IHasChartEventProperties)this).ChartEventPropertyCanRevert(property, out bool revert))
+            return revert;
+        else
+            return base._PropertyCanRevert(property);
+    }
 
     public override Variant _PropertyGetRevert(StringName property)
     {
-        if (property == PropertyName._wait)
-            return new StringName("");
-        else if (property == PropertyName._done)
-            return new StringName("");
+        if (((IHasChartEventProperties)this).ChartEventPropertyGetRevert(property, out StringName revert))
+            return revert;
         else
             return base._PropertyGetRevert(property);
     }
