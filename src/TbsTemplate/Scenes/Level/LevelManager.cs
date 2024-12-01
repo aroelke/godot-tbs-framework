@@ -25,7 +25,7 @@ namespace TbsTemplate.Scenes.Level;
 /// all objects in the level may be able to see it and request information from it, but each level has its own manager.
 /// </summary>
 [SceneTree, Tool]
-public partial class LevelManager : Node, IHasChartEventProperties
+public partial class LevelManager : Node
 {
 #region Constants
     // State chart conditions
@@ -50,6 +50,7 @@ public partial class LevelManager : Node, IHasChartEventProperties
     private readonly StringName GlobalDanger = "GlobalDangerZone";
 #endregion
 #region Declarations
+    private readonly ChartEventPropertyGenerator _eventPropertyGen;
     private StringName _select = "";
     private StringName _cancel = "";
     private StringName _skip = "";
@@ -64,14 +65,13 @@ public partial class LevelManager : Node, IHasChartEventProperties
 
     private Grid Grid = null;
 
-    public IHasChartEventProperties.ChartEventProperty[] EventProperties => [
-        new(this, PropertyName._select),
-        new(this, PropertyName._cancel),
-        new(this, PropertyName._skip),
-        new(this, PropertyName._wait),
-        new(this, PropertyName._done)
-    ];
-    public Chart StateChart => State;
+    public LevelManager() : base() { _eventPropertyGen = new(this,
+        PropertyName._select,
+        PropertyName._cancel,
+        PropertyName._skip,
+        PropertyName._wait,
+        PropertyName._done
+    ); }
 #endregion
 #region Helper Properties and Methods
     private ImmutableHashSet<Unit> _zoneUnits = [];
@@ -885,13 +885,13 @@ public partial class LevelManager : Node, IHasChartEventProperties
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
     {
         Godot.Collections.Array<Godot.Collections.Dictionary> properties = base._GetPropertyList() ?? [];
-        properties.AddRange(((IHasChartEventProperties)this).GetChartEventProperties());
+        properties.AddRange(_eventPropertyGen.GetChartEventProperties(State));
         return properties;
     }
 
     public override Variant _Get(StringName property)
     {
-        if (((IHasChartEventProperties)this).GetChartEventPropertyValue(property, out StringName value))
+        if (_eventPropertyGen.GetChartEventPropertyValue(property, out StringName value))
             return value;
         else
             return base._Get(property);
@@ -899,7 +899,7 @@ public partial class LevelManager : Node, IHasChartEventProperties
 
     public override bool _Set(StringName property, Variant value)
     {
-        if (value.VariantType == Variant.Type.StringName && ((IHasChartEventProperties)this).SetChartEventPropertyValue(property, value.AsStringName()))
+        if (value.VariantType == Variant.Type.StringName && _eventPropertyGen.SetChartEventPropertyValue(property, value.AsStringName()))
             return true;
         else
             return base._Set(property, value);
@@ -907,7 +907,7 @@ public partial class LevelManager : Node, IHasChartEventProperties
 
     public override bool _PropertyCanRevert(StringName property)
     {
-        if (((IHasChartEventProperties)this).ChartEventPropertyCanRevert(property, out bool revert))
+        if (_eventPropertyGen.ChartEventPropertyCanRevert(property, out bool revert))
             return revert;
         else
             return base._PropertyCanRevert(property);
@@ -915,7 +915,7 @@ public partial class LevelManager : Node, IHasChartEventProperties
 
     public override Variant _PropertyGetRevert(StringName property)
     {
-        if (((IHasChartEventProperties)this).ChartEventPropertyGetRevert(property, out StringName revert))
+        if (_eventPropertyGen.ChartEventPropertyGetRevert(property, out StringName revert))
             return revert;
         else
             return base._PropertyGetRevert(property);
