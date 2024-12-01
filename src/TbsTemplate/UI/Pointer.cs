@@ -15,7 +15,7 @@ namespace TbsTemplate.UI;
 /// cursor; during mouse control the system mouse is visible.
 /// </summary>
 [SceneTree, Tool]
-public partial class Pointer : BoundedNode2D, IHasChartEventProperties
+public partial class Pointer : BoundedNode2D
 {
     /// <summary>Signals that the virtual pointer has moved in the canvas.</summary>
     /// <param name="position">Position of the virtual pointer.</param>
@@ -34,12 +34,15 @@ public partial class Pointer : BoundedNode2D, IHasChartEventProperties
 
     private static readonly StringName ModeProperty = "mode";
 
+    private readonly ChartEventPropertyGenerator _eventPropertyGen;
     private StringName _wait = "";
     private StringName _done = "";
     private Vector2[] _positions = [];
     private bool _accelerate = false;
     private bool _tracking = true;
     private Tween _flyer = null;
+
+    public Pointer() : base() { _eventPropertyGen = new(this, PropertyName._wait, PropertyName._done); }
 
     /// <summary>Convert a position in the <see cref="World"/> to a position in the <see cref="Viewport"/>.</summary>
     /// <param name="world"><see cref="World"/> position.</param>
@@ -50,9 +53,6 @@ public partial class Pointer : BoundedNode2D, IHasChartEventProperties
     /// <param name="viewport"><see cref="Viewport"/> position.</param>
     /// <returns>Position in the <see cref="World"/> that's at the same place as the one in the <see cref="Viewport"/>.</returns>
     private Vector2 ViewportToWorld(Vector2 viewport) => World.GetGlobalTransformWithCanvas().AffineInverse()*viewport;
-
-    public IHasChartEventProperties.ChartEventProperty[] EventProperties => [new(this, PropertyName._wait), new(this, PropertyName._done)];
-    public Chart StateChart => ControlState;
 
     /// <summary>Bounding rectangle where the pointer is allowed to move.</summary>
     [Export] public Rect2I Bounds = new(0, 0, 0, 0);
@@ -264,13 +264,13 @@ public partial class Pointer : BoundedNode2D, IHasChartEventProperties
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
     {
         Godot.Collections.Array<Godot.Collections.Dictionary> properties = base._GetPropertyList() ?? [];
-        properties.AddRange(((IHasChartEventProperties)this).GetChartEventProperties());
+        properties.AddRange(_eventPropertyGen.GetChartEventProperties(ControlState));
         return properties;
     }
 
     public override Variant _Get(StringName property)
     {
-        if (((IHasChartEventProperties)this).GetChartEventPropertyValue(property, out StringName value))
+        if (_eventPropertyGen.GetChartEventPropertyValue(property, out StringName value))
             return value;
         else
             return base._Get(property);
@@ -278,7 +278,7 @@ public partial class Pointer : BoundedNode2D, IHasChartEventProperties
 
     public override bool _Set(StringName property, Variant value)
     {
-        if (value.VariantType == Variant.Type.StringName && ((IHasChartEventProperties)this).SetChartEventPropertyValue(property, value.AsStringName()))
+        if (value.VariantType == Variant.Type.StringName && _eventPropertyGen.SetChartEventPropertyValue(property, value.AsStringName()))
             return true;
         else
             return base._Set(property, value);
@@ -286,7 +286,7 @@ public partial class Pointer : BoundedNode2D, IHasChartEventProperties
 
     public override bool _PropertyCanRevert(StringName property)
     {
-        if (((IHasChartEventProperties)this).ChartEventPropertyCanRevert(property, out bool revert))
+        if (_eventPropertyGen.ChartEventPropertyCanRevert(property, out bool revert))
             return revert;
         else
             return base._PropertyCanRevert(property);
@@ -294,7 +294,7 @@ public partial class Pointer : BoundedNode2D, IHasChartEventProperties
 
     public override Variant _PropertyGetRevert(StringName property)
     {
-        if (((IHasChartEventProperties)this).ChartEventPropertyGetRevert(property, out StringName revert))
+        if (_eventPropertyGen.ChartEventPropertyGetRevert(property, out StringName revert))
             return revert;
         else
             return base._PropertyGetRevert(property);
