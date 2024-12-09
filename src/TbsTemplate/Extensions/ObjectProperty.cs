@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Godot;
 
 namespace TbsTemplate.Extensions;
@@ -11,6 +13,17 @@ namespace TbsTemplate.Extensions;
 public readonly record struct ObjectProperty(StringName Name, Variant.Type Type, PropertyHint Hint=PropertyHint.None, string HintString=null, PropertyUsageFlags Usage=PropertyUsageFlags.Default)
 {
     public static implicit operator Godot.Collections.Dictionary(ObjectProperty property) => property.ToDictionary();
+
+    /// <summary>Create a property that is restricted to a set of values.</summary>
+    /// <typeparam name="T">Data type of the property values.</typeparam>
+    /// <param name="name">Name of the property.</param>
+    /// <param name="options">Values the property is restricted to.</param>
+    public static ObjectProperty CreateEnumProperty<[MustBeVariant] T>(StringName name, IEnumerable<T> options) => new(
+        name,
+        Variant.From(options.First()).VariantType,
+        PropertyHint.Enum,
+        string.Join(",", options.Select((o) => o.ToString()))
+    );
 
     public Godot.Collections.Dictionary ToDictionary() => new()
     {
