@@ -814,7 +814,7 @@ public partial class LevelManager : Node
                 unit.Cell = Grid.CellOf(unit.GlobalPosition - Grid.GlobalPosition);
                 Grid.Occupants[unit.Cell] = unit;
             }
-            UnitEvents.Singleton.UnitDefeated += OnUnitDefeated;
+            Unit.UnitDefeated += OnUnitDefeated;
 
             _armies = GetChildren().OfType<Army>().GetCyclicalEnumerator();
             if (StartingArmy is null)
