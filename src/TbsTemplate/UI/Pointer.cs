@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Godot;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes;
+using TbsTemplate.Nodes.Components;
 using TbsTemplate.Nodes.StateChart;
 using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI.Controls.Device;
@@ -32,17 +33,15 @@ public partial class Pointer : BoundedNode2D
     /// <summary>Signals that the pointer has finished moving to its target position.</summary>
     [Signal] public delegate void FlightCompletedEventHandler();
 
+    private static readonly StringName WaitEvent = "Wait";
+    private static readonly StringName DoneEvent = "Done";
     private static readonly StringName ModeProperty = "mode";
 
-    private readonly ChartEventPropertyGenerator _eventPropertyGen;
-    private StringName _wait = "";
-    private StringName _done = "";
+    private readonly DynamicEnumProperties<StringName> _events = new([WaitEvent, DoneEvent], @default:"");
     private Vector2[] _positions = [];
     private bool _accelerate = false;
     private bool _tracking = true;
     private Tween _flyer = null;
-
-    public Pointer() : base() { _eventPropertyGen = new(this, PropertyName._wait, PropertyName._done); }
 
     /// <summary>Convert a position in the <see cref="World"/> to a position in the <see cref="Viewport"/>.</summary>
     /// <param name="world"><see cref="World"/> position.</param>
@@ -131,12 +130,12 @@ public partial class Pointer : BoundedNode2D
             target,
             duration
         ).Finished += () => {
-            ControlState.SendEvent(_done);
+            ControlState.SendEvent(_events[DoneEvent]);
             EmitSignal(SignalName.PointerMoved, Position);
             EmitSignal(SignalName.FlightCompleted);
         };
 
-        ControlState.SendEvent(_wait);
+        ControlState.SendEvent(_events[WaitEvent]);
     }
 
     /// <summary>Disable input and wait for an event to complete.</summary>
@@ -145,12 +144,12 @@ public partial class Pointer : BoundedNode2D
     {
         if (hide)
             DeviceManager.EnableSystemMouse = false;
-        ControlState.SendEvent(_wait);
+        ControlState.SendEvent(_events[WaitEvent]);
         Mouse.Visible = false;
     }
 
     /// <summary>Re-enable input.</summary>
-    public void StopWaiting() => ControlState.SendEvent(_done);
+    public void StopWaiting() => ControlState.SendEvent(_events[DoneEvent]);
 
     /// <summary>Update the state whenever input mode changes.</summary>
     /// <param name="mode">New input mode.</param>
@@ -212,7 +211,7 @@ public partial class Pointer : BoundedNode2D
     {
         if (Position != ViewportToWorld(InputManager.GetMousePosition()))
         {
-            ControlState.SendEvent(_done);
+            ControlState.SendEvent(_events[DoneEvent]);
             Warp(ViewportToWorld(InputManager.GetMousePosition()));
         }
     }
@@ -264,13 +263,13 @@ public partial class Pointer : BoundedNode2D
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
     {
         Godot.Collections.Array<Godot.Collections.Dictionary> properties = base._GetPropertyList() ?? [];
-        properties.AddRange(_eventPropertyGen.GetChartEventProperties(ControlState));
+        properties.AddRange(_events.GetPropertyList(ControlState.Events));
         return properties;
     }
 
     public override Variant _Get(StringName property)
     {
-        if (_eventPropertyGen.GetChartEventPropertyValue(property, out StringName value))
+        if (_events.TryGetPropertyValue(property, out StringName value))
             return value;
         else
             return base._Get(property);
@@ -278,7 +277,7 @@ public partial class Pointer : BoundedNode2D
 
     public override bool _Set(StringName property, Variant value)
     {
-        if (value.VariantType == Variant.Type.StringName && _eventPropertyGen.SetChartEventPropertyValue(property, value.AsStringName()))
+        if (value.VariantType == Variant.Type.StringName && _events.SetPropertyValue(property, value.AsStringName()))
             return true;
         else
             return base._Set(property, value);
@@ -286,7 +285,7 @@ public partial class Pointer : BoundedNode2D
 
     public override bool _PropertyCanRevert(StringName property)
     {
-        if (_eventPropertyGen.ChartEventPropertyCanRevert(property, out bool revert))
+        if (_events.PropertyCanRevert(property, out bool revert))
             return revert;
         else
             return base._PropertyCanRevert(property);
@@ -294,7 +293,7 @@ public partial class Pointer : BoundedNode2D
 
     public override Variant _PropertyGetRevert(StringName property)
     {
-        if (_eventPropertyGen.ChartEventPropertyGetRevert(property, out StringName revert))
+        if (_events.TryPropertyGetRevert(property, out StringName revert))
             return revert;
         else
             return base._PropertyGetRevert(property);
@@ -314,9 +313,9 @@ public partial class Pointer : BoundedNode2D
         if (World is null)
             warnings.Add("The pointer won't be able to convert screen and world coordinates without knowing what the world is.");
 
-        if (_wait.IsEmpty)
+        if (_events[WaitEvent].IsEmpty)
             warnings.Add("The \"wait\" state chart event is not set. The pointer will not respond to input.");
-        if (_done.IsEmpty)
+        if (_events[DoneEvent].IsEmpty)
             warnings.Add("The \"done\" state chart event is not set. The pointer cannot be paused.");
 
         return [.. warnings];

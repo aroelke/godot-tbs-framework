@@ -20,8 +20,8 @@ script = ExtResource("14_xq8gn")
 
 [node name="Pointer" type="Node2D"]
 script = ExtResource("1_bn1q1")
-_wait = &"wait"
-_done = &"done"
+Wait = &"wait"
+Done = &"done"
 
 [node name="ControlState" parent="." instance=ExtResource("7_xfrm4")]
 unique_name_in_owner = true
