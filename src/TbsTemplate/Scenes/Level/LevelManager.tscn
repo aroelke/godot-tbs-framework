@@ -33,7 +33,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -1235838109
+seed = -1410167566
 
 [sub_resource type="Resource" id="Resource_lt2uh"]
 script = ExtResource("22_tix5y")
@@ -94,6 +94,11 @@ Condition = ExtResource("22_sve70")
 
 [node name="LevelManager" type="Node"]
 script = ExtResource("1_r2v0t")
+Select = &"select"
+Cancel = &"cancel"
+Skip = &"skip"
+Wait = &"wait"
+Done = &"done"
 CombatScenePath = "res://src/TbsTemplate/Scenes/Combat/CombatScene.tscn"
 
 [node name="Camera" parent="." node_paths=PackedStringArray("Target") instance=ExtResource("3_td8u6")]
@@ -206,6 +211,7 @@ Description = "Cancel"
 
 [node name="State" parent="." instance=ExtResource("17_sd0pe")]
 unique_name_in_owner = true
+Events = [&"select", &"cancel", &"skip", &"wait", &"done"]
 
 [node name="Root" parent="State" node_paths=PackedStringArray("InitialState") instance=ExtResource("18_k7m3y")]
 process_mode = 4
@@ -222,8 +228,8 @@ DefaultState = NodePath("../Idle")
 process_mode = 4
 
 [node name="ToIdle" parent="State/Root/Active/BeginTurn" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../Idle")
 Event = &"done"
+To = NodePath("../../Idle")
 
 [node name="Idle" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
 process_mode = 4
@@ -240,13 +246,13 @@ process_mode = 4
 Condition = SubResource("Resource_i525d")
 
 [node name="ToSelected" parent="State/Root/Active/Idle" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../UnitSelected")
 Event = &"select"
+To = NodePath("../../UnitSelected")
 Condition = SubResource("Resource_mydqi")
 
 [node name="ToEndAction" parent="State/Root/Active/Idle" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../EndAction")
 Event = &"skip"
+To = NodePath("../../EndAction")
 
 [node name="UnitSelected" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
 process_mode = 4
@@ -256,18 +262,18 @@ process_mode = 4
 [node name="OnCellSelected" parent="State/Root/Active/UnitSelected" instance=ExtResource("16_kxyas")]
 
 [node name="ToMoving" parent="State/Root/Active/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../UnitMoving")
 Event = &"select"
+To = NodePath("../../UnitMoving")
 Condition = SubResource("Resource_70pa8")
 
 [node name="ToIdle" parent="State/Root/Active/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../Idle")
 Event = &"select"
+To = NodePath("../../Idle")
 Condition = SubResource("Resource_j0hg7")
 
 [node name="ToIdleOnCancel" parent="State/Root/Active/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../Idle")
 Event = &"cancel"
+To = NodePath("../../Idle")
 
 [node name="UnitMoving" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
 process_mode = 4
@@ -275,12 +281,12 @@ process_mode = 4
 [node name="OnInput" parent="State/Root/Active/UnitMoving" instance=ExtResource("23_nnivc")]
 
 [node name="ToCommanding" parent="State/Root/Active/UnitMoving" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../UnitCommanding")
 Event = &"done"
+To = NodePath("../../UnitCommanding")
 
 [node name="ToCombat" parent="State/Root/Active/UnitMoving" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../InCombat")
 Event = &"skip"
+To = NodePath("../../InCombat")
 
 [node name="UnitCommanding" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
 process_mode = 4
@@ -288,16 +294,16 @@ process_mode = 4
 [node name="OnProcess" parent="State/Root/Active/UnitCommanding" instance=ExtResource("25_lv3jy")]
 
 [node name="ToTargeting" parent="State/Root/Active/UnitCommanding" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../UnitTargeting")
 Event = &"select"
+To = NodePath("../../UnitTargeting")
 
 [node name="ToSelected" parent="State/Root/Active/UnitCommanding" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../UnitSelected")
 Event = &"cancel"
+To = NodePath("../../UnitSelected")
 
 [node name="ToEndAction" parent="State/Root/Active/UnitCommanding" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../EndAction")
 Event = &"skip"
+To = NodePath("../../EndAction")
 
 [node name="UnitTargeting" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
 process_mode = 4
@@ -307,16 +313,16 @@ process_mode = 4
 [node name="OnInput" parent="State/Root/Active/UnitTargeting" instance=ExtResource("23_nnivc")]
 
 [node name="ToCommanding" parent="State/Root/Active/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../UnitCommanding")
 Event = &"cancel"
+To = NodePath("../../UnitCommanding")
 
 [node name="ToCombat" parent="State/Root/Active/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../InCombat")
 Event = &"done"
+To = NodePath("../../InCombat")
 
 [node name="ToEndAction" parent="State/Root/Active/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../EndAction")
 Event = &"skip"
+To = NodePath("../../EndAction")
 
 [node name="InCombat" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
 process_mode = 4
@@ -324,37 +330,37 @@ process_mode = 4
 [node name="OnEnteredTree" parent="State/Root/Active/InCombat" instance=ExtResource("29_o6hju")]
 
 [node name="ToEndAction" parent="State/Root/Active/InCombat" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../EndAction")
 Event = &"done"
+To = NodePath("../../EndAction")
 
 [node name="EndAction" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
 [node name="ToAdvancing" parent="State/Root/Active/EndAction" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../TurnAdvancing")
 Event = &"done"
+To = NodePath("../../TurnAdvancing")
 
 [node name="TurnAdvancing" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
 [node name="ToIdle" parent="State/Root/Active/TurnAdvancing" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../Idle")
 Event = &"skip"
+To = NodePath("../../Idle")
 
 [node name="ToBeginTurn" parent="State/Root/Active/TurnAdvancing" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../BeginTurn")
 Event = &"done"
+To = NodePath("../../BeginTurn")
 
 [node name="ToWaiting" parent="State/Root/Active" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../Waiting")
 Event = &"wait"
+To = NodePath("../../Waiting")
 
 [node name="Waiting" parent="State/Root" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
 [node name="ToActive" parent="State/Root/Waiting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-To = NodePath("../../Active/History")
 Event = &"done"
+To = NodePath("../../Active/History")
 
 [node name="TurnAdvance" type="Timer" parent="."]
 unique_name_in_owner = true

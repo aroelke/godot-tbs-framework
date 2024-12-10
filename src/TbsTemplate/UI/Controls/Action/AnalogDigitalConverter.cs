@@ -1,5 +1,6 @@
 using Godot;
 using TbsTemplate.Nodes.Components;
+using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.UI.Controls.Action;
 
@@ -8,7 +9,7 @@ namespace TbsTemplate.UI.Controls.Action;
 /// action is considered to be pressed when the analog action exits its dead zone, and released when it re-enters it.
 /// </summary>
 [Tool]
-public partial class AnalogDigitalConverter : Node, IHasInputActionProperties
+public partial class AnalogDigitalConverter : Node
 {
     /// <summary>Signals that the digital action has been pressed when the analog one exits its dead zone.</summary>
     /// <param name="event"><see cref="InputEvent"/> representing the digital action press.</param>
@@ -18,45 +19,49 @@ public partial class AnalogDigitalConverter : Node, IHasInputActionProperties
     /// <param name="event"><see cref="InputEvent"/> representing the digital action release.</param>
     [Signal] public delegate void ActionReleasedEventHandler(InputEvent @event);
 
-    private IHasInputActionProperties.InputActionProperty AnalogAction = new("AnalogAction", "");
-    private IHasInputActionProperties.InputActionProperty DigitalAction = new("DigitalAction", "");
-    private bool active = false;
+    private static readonly StringName AnalogAction = "Analog Action";
+    private static readonly StringName DigitalAction = "Digital Action";
 
-    public IHasInputActionProperties.InputActionProperty[] InputActions => [AnalogAction, DigitalAction];
+    private readonly DynamicEnumProperties<StringName> _actions = new([AnalogAction, DigitalAction], @default:"");
+    private bool active = false;
 
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
     {
         Godot.Collections.Array<Godot.Collections.Dictionary> properties = base._GetPropertyList() ?? [];
-        properties.AddRange(((IHasInputActionProperties)this).GetInputActionProperties());
+        properties.AddRange(_actions.GetPropertyList(InputManager.GetInputActions()));
         return properties;
     }
 
     public override Variant _Get(StringName property)
     {
-        if (((IHasInputActionProperties)this).GetInputActionPropertyValue(property, out StringName value))
+        if (_actions.TryGetPropertyValue(property, out StringName value))
             return value;
-        return base._Get(property);
+        else
+            return base._Get(property);
     }
 
     public override bool _Set(StringName property, Variant value)
     {
-        if (value.VariantType == Variant.Type.StringName && ((IHasInputActionProperties)this).SetInputActionPropertyValue(property, value.AsStringName()))
+        if (value.VariantType == Variant.Type.StringName && _actions.SetPropertyValue(property, value.AsStringName()))
             return true;
-        return base._Set(property, value);
+        else
+            return base._Set(property, value);
     }
 
     public override Variant _PropertyGetRevert(StringName property)
     {
-        if (((IHasInputActionProperties)this).InputActionPropertyGetRevert(property, out StringName revert))
+        if (_actions.TryPropertyGetRevert(property, out StringName revert))
             return revert;
-        return base._PropertyGetRevert(property);
+        else
+            return base._PropertyGetRevert(property);
     }
 
     public override bool _PropertyCanRevert(StringName property)
     {
-        if (((IHasInputActionProperties)this).InputActionPropertyCanRevert(property, out bool revert))
+        if (_actions.PropertyCanRevert(property, out bool revert))
             return revert;
-        return base._PropertyCanRevert(property);
+        else
+            return base._PropertyCanRevert(property);
     }
 
     public override void _Process(double delta)
@@ -65,17 +70,17 @@ public partial class AnalogDigitalConverter : Node, IHasInputActionProperties
 
         if (!Engine.IsEditorHint())
         {
-            float str = Input.GetActionRawStrength(AnalogAction);
+            float str = Input.GetActionRawStrength(_actions[AnalogAction]);
 
-            if (str >= InputMap.ActionGetDeadzone(AnalogAction) && !active)
+            if (str >= InputMap.ActionGetDeadzone(_actions[AnalogAction]) && !active)
             {
                 active = true;
-                EmitSignal(SignalName.ActionPressed, new InputEventAction() { Action = DigitalAction, Pressed = true, Strength = 1 });
+                EmitSignal(SignalName.ActionPressed, new InputEventAction() { Action = _actions[DigitalAction], Pressed = true, Strength = 1 });
             }
-            else if (str < InputMap.ActionGetDeadzone(AnalogAction.Value) && active)
+            else if (str < InputMap.ActionGetDeadzone(_actions[AnalogAction]) && active)
             {
                 active = false;
-                EmitSignal(SignalName.ActionReleased, new InputEventAction() { Action = DigitalAction, Pressed = false });
+                EmitSignal(SignalName.ActionReleased, new InputEventAction() { Action = _actions[DigitalAction], Pressed = false });
             }
         }
     }
