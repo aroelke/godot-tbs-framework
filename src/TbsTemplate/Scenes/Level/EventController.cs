@@ -67,4 +67,11 @@ public partial class EventController : Node
         if (!EvaluateObjective())
             EmitSignal(SignalName.EventComplete);
     }
+
+    public override void _Ready()
+    {
+        base._Ready();
+        if (!Engine.IsEditorHint())
+            LevelManager.TurnBegan += OnTurnBegan;
+    }
 }

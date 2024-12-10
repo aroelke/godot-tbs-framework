@@ -16,9 +16,7 @@ using TbsTemplate.UI.Controls.Device;
 using TbsTemplate.Scenes.Level.Objectives;
 using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Combat;
-using TbsTemplate.Nodes.StateChart;
 using TbsTemplate.Nodes.Components;
-using System.Diagnostics.Tracing;
 
 namespace TbsTemplate.Scenes.Level;
 
@@ -160,10 +158,8 @@ public partial class LevelManager : Node
     private AudioStreamPlayer ZoneUpdateSound(bool on) => on ? ZoneOnSound : ZoneOffSound;
 #endregion
 #region Signals
-    /// <summary>Signals that a new turn has begun.</summary>
-    /// <param name="turn">Turn number.</param>
-    /// <param name="army">Army whose turn it is.</param>
-    [Signal] public delegate void TurnBeganEventHandler(int turn, Army army);
+    /// <summary>Signals that a new turn has begun, indicating its turn number and army.</summary>
+    public static event Action<int, Army> TurnBegan;
 
     /// <summary>Signals that a unit has completed its action.</summary>
     /// <param name="unit">Unit that completed its action.</param>
@@ -225,7 +221,7 @@ public partial class LevelManager : Node
 #endregion
 #region Begin Turn State
     /// <summary>Signal that a turn is about to begin.</summary>
-    public void OnBeginTurnEntered() => Callable.From<int, Army>((t, a) => EmitSignal(SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
+    public void OnBeginTurnEntered() => Callable.From(TurnBegan).CallDeferred(Turn, _armies.Current);
 
     /// <summary>Perform any updates that the turn has begun that need to happen after upkeep.</summary>
     public void OnBeginTurnExited()
