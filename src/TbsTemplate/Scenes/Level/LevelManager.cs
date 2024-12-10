@@ -17,6 +17,8 @@ using TbsTemplate.Scenes.Level.Objectives;
 using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Combat;
 using TbsTemplate.Nodes.StateChart;
+using TbsTemplate.Nodes.Components;
+using System.Diagnostics.Tracing;
 
 namespace TbsTemplate.Scenes.Level;
 
@@ -28,34 +30,35 @@ namespace TbsTemplate.Scenes.Level;
 public partial class LevelManager : Node
 {
 #region Constants
+    // State chart events
+    private static readonly StringName SelectEvent = "Select";
+    private static readonly StringName CancelEvent = "Cancel";
+    private static readonly StringName SkipEvent   = "Skip";
+    private static readonly StringName WaitEvent   = "Wait";
+    private static readonly StringName DoneEvent   = "Done";
     // State chart conditions
-    private readonly StringName OccupiedProperty = "occupied";       // Current cell occupant (see below for options)
-    private readonly StringName TargetProperty = "target";           // Current cell contains a potential target (for attack or support)
+    private readonly StringName OccupiedProperty    = "occupied";    // Current cell occupant (see below for options)
+    private readonly StringName TargetProperty      = "target";      // Current cell contains a potential target (for attack or support)
     private readonly StringName TraversableProperty = "traversable"; // Current cell is traversable
     // State chart occupied values
-    private const string NotOccupied = "";                  // Nothing in the cell
-    private const string SelectedOccuiped = "selected";     // Cell occupied by the selected unit (if there is one)
-    private const string ActiveAllyOccupied = "active";     // Cell occupied by an active unit in this turn's army
+    private const string NotOccupied          = "";         // Nothing in the cell
+    private const string SelectedOccuiped     = "selected"; // Cell occupied by the selected unit (if there is one)
+    private const string ActiveAllyOccupied   = "active";   // Cell occupied by an active unit in this turn's army
     private const string InActiveAllyOccupied = "inactive"; // Cell occupied by an inactive unit in this turn's army
-    private const string FriendlyOccuipied = "friendly";    // Cell occupied by unit in army allied to this turn's army
-    private const string EnemyOccupied = "enemy";           // Cell occupied by unit in enemy army to this turn's army
-    private const string OtherOccupied = "other";           // Cell occupied by something else
+    private const string FriendlyOccuipied    = "friendly"; // Cell occupied by unit in army allied to this turn's army
+    private const string EnemyOccupied        = "enemy";    // Cell occupied by unit in enemy army to this turn's army
+    private const string OtherOccupied        = "other";    // Cell occupied by something else
 
     // Overlay Layer names
-    private readonly StringName MoveLayer = "MoveLayer";
-    private readonly StringName AttackLayer = "AttackLayer";
-    private readonly StringName SupportLayer = "SupportLayer";
+    private readonly StringName MoveLayer       = "MoveLayer";
+    private readonly StringName AttackLayer     = "AttackLayer";
+    private readonly StringName SupportLayer    = "SupportLayer";
     private readonly StringName AllyTraversable = "TraversableZone";
     private readonly StringName LocalDangerZone = "LocalDangerZone";
-    private readonly StringName GlobalDanger = "GlobalDangerZone";
+    private readonly StringName GlobalDanger    = "GlobalDangerZone";
 #endregion
 #region Declarations
-    private readonly ChartEventPropertyGenerator _eventPropertyGen;
-    private StringName _select = "";
-    private StringName _cancel = "";
-    private StringName _skip = "";
-    private StringName _wait = "";
-    private StringName _done = "";
+    private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, CancelEvent, SkipEvent, WaitEvent, DoneEvent], @default:"");
 
     private Path _path = null;
     private Unit _selected = null, _target = null;
@@ -64,14 +67,6 @@ public partial class LevelManager : Node
     private BoundedNode2D _prevCameraTarget = null;
 
     private Grid Grid = null;
-
-    public LevelManager() : base() { _eventPropertyGen = new(this,
-        PropertyName._select,
-        PropertyName._cancel,
-        PropertyName._skip,
-        PropertyName._wait,
-        PropertyName._done
-    ); }
 #endregion
 #region Helper Properties and Methods
     private ImmutableHashSet<Unit> _zoneUnits = [];
@@ -261,7 +256,7 @@ public partial class LevelManager : Node
     {
         if (_armies.Current.Faction.IsPlayer && Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit && !_armies.Current.Contains(unit))
         {
-            if (@event == _select)
+            if (@event == _events[SelectEvent])
             {
 #pragma warning disable CA1868 // Contains is necessary since the unit has to be added if it isn't in the set and removed if it is
                 ZoneUnits = ZoneUnits.Contains(unit) ? ZoneUnits.Remove(unit) : ZoneUnits.Add(unit);
@@ -269,7 +264,7 @@ public partial class LevelManager : Node
 
                 ZoneUpdateSound(ZoneUnits.Contains(unit)).Play();
             }
-            else if (@event == _cancel && ZoneUnits.Contains(unit))
+            else if (@event == _events[CancelEvent] && ZoneUnits.Contains(unit))
             {
                 ZoneUnits = ZoneUnits.Remove(unit);
                 ZoneUpdateSound(ZoneUnits.Contains(unit)).Play();
@@ -329,18 +324,18 @@ public partial class LevelManager : Node
     {
         void Cancel()
         {
-            State.SendEvent(_done);
+            State.SendEvent(_events[DoneEvent]);
             CancelSound.Play();
         }
 
         SelectSound.Play();
-        State.SendEvent(_wait);
+        State.SendEvent(_events[WaitEvent]);
         ShowMenu(new() { Position = Pointer.Position, Size = Vector2.Zero },
             ("End Turn", () => {
-                State.SendEvent(_done); // Done waiting
+                State.SendEvent(_events[DoneEvent]); // Done waiting
                 foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
                     unit.Finish();
-                State.SendEvent(_skip); // Skip to end of turn
+                State.SendEvent(_events[SkipEvent]); // Skip to end of turn
                 SelectSound.Play();
             }),
             ("Quit Game", () => GetTree().Quit()),
@@ -490,7 +485,7 @@ public partial class LevelManager : Node
         Grid.Occupants.Remove(_selected.Cell);
         _selected.Connect(
             Unit.SignalName.DoneMoving,
-            Callable.From(_target is null ? () => State.SendEvent(_done) : () => State.SendEvent(_skip)),
+            Callable.From(_target is null ? () => State.SendEvent(_events[DoneEvent]) : () => State.SendEvent(_events[SkipEvent])),
             (uint)ConnectFlags.OneShot
         );
         Grid.Occupants[_path[^1]] = _selected;
@@ -528,21 +523,21 @@ public partial class LevelManager : Node
 
         List<(StringName, Action)> options = [];
         if (attackable.Any() || supportable.Any())
-            options.Add(("Attack", () => State.SendEvent(_select)));
+            options.Add(("Attack", () => State.SendEvent(_events[SelectEvent])));
         foreach (SpecialActionRegion region in SpecialActionRegions)
         {
             if (region.HasSpecialAction(_selected, _selected.Cell))
             {
                 options.Add((region.Name, () => {
                     region.PerformSpecialAction(_selected, _selected.Cell);
-                    State.SendEvent(_skip);
+                    State.SendEvent(_events[SkipEvent]);
                 }));
             }
         }
-        options.Add(("End", () => State.SendEvent(_skip)));
-        options.Add(("Cancel", () => State.SendEvent(_cancel)));
+        options.Add(("End", () => State.SendEvent(_events[SkipEvent])));
+        options.Add(("Cancel", () => State.SendEvent(_events[CancelEvent])));
         _commandMenu = ShowMenu(Grid.CellRect(_selected.Cell), options);
-        _commandMenu.MenuCanceled += () => State.SendEvent(_cancel);
+        _commandMenu.MenuCanceled += () => State.SendEvent(_events[CancelEvent]);
         _commandMenu.MenuClosed += () => _commandMenu = null;
     }
 
@@ -627,16 +622,16 @@ public partial class LevelManager : Node
                 {
                     _target = target;
                     SelectSound.Play();
-                    State.SendEvent(_done);
+                    State.SendEvent(_events[DoneEvent]);
                 }
                 else
-                    State.SendEvent(_skip);
+                    State.SendEvent(_events[SkipEvent]);
             }
         }
         else
         {
             SelectSound.Play();
-            State.SendEvent(_skip);
+            State.SendEvent(_events[SkipEvent]);
         }
     }
 
@@ -668,7 +663,7 @@ public partial class LevelManager : Node
         _target = null;
         _combatResults = null;
         ActionLayers.Clear();
-        SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, Callable.From(() => State.SendEvent(_done)), (uint)ConnectFlags.OneShot);
+        SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, Callable.From(() => State.SendEvent(_events[DoneEvent])), (uint)ConnectFlags.OneShot);
     }
 
     public void OnCombatExited()
@@ -685,7 +680,7 @@ public partial class LevelManager : Node
         if (IsInstanceValid(_selected))
             Callable.From<Unit>((u) => EmitSignal(SignalName.ActionEnded, u)).CallDeferred(_selected);
         else
-            Callable.From<StringName>(State.SendEvent).CallDeferred(_done);
+            Callable.From<StringName>(State.SendEvent).CallDeferred(_events[DoneEvent]);
     }
 
     /// <summary>Clean up at the end of the unit's turn.</summary>
@@ -725,21 +720,21 @@ public partial class LevelManager : Node
                     Turn++;
             } while (!((IEnumerable<Unit>)_armies.Current).Any());
 
-            Callable.From<StringName>(State.SendEvent).CallDeferred(_done);
+            Callable.From<StringName>(State.SendEvent).CallDeferred(_events[DoneEvent]);
         }
         else
-            Callable.From<StringName>(State.SendEvent).CallDeferred(_skip);
+            Callable.From<StringName>(State.SendEvent).CallDeferred(_events[SkipEvent]);
     }
 #endregion
 #region State Independent
     /// <summary>When an event is completed, go to the next state.</summary>
-    public void OnEventComplete() => State.SendEvent(_done);
+    public void OnEventComplete() => State.SendEvent(_events[DoneEvent]);
 
     /// <summary>When the pointer starts flying, we need to wait for it to finish. Also focus the camera on its target if there's something there.</summary>
     /// <param name="target">Position the pointer is going to fly to.</param>
     public void OnPointerFlightStarted(Vector2 target)
     {
-        State.SendEvent(_wait);
+        State.SendEvent(_events[WaitEvent]);
         _prevCameraTarget = Camera.Target;
         Camera.Target = Grid.Occupants.ContainsKey(Grid.CellOf(target)) ? Grid.Occupants[Grid.CellOf(target)] : Camera.Target;
     }
@@ -748,16 +743,16 @@ public partial class LevelManager : Node
     public void OnPointerFlightCompleted()
     {
         Camera.Target = _prevCameraTarget;
-        State.SendEvent(_done);
+        State.SendEvent(_events[DoneEvent]);
     }
 
     /// <summary>When a cell is selected, act based on what is or isn't in the cell.</summary>
     /// <param name="cell">Coordinates of the cell selection.</param>
     public void OnCellSelected(Vector2I cell) => Callable.From<Vector2I>((pos) => {
         if (Grid.CellOf(pos) == cell)
-            State.SendEvent(_select);
+            State.SendEvent(_events[SelectEvent]);
         else
-            State.SendEvent(_skip);
+            State.SendEvent(_events[SkipEvent]);
     }).CallDeferred(Pointer.Position);
 
     /// <summary>Automatically connect to a child <see cref="Army"/>'s <see cref="Node.SignalName.ChildEnteredTree"/> signal so new units in it can be automatically added to the grid.</summary>
@@ -839,7 +834,7 @@ public partial class LevelManager : Node
         base._Input(@event);
 
         if (@event.IsActionPressed(InputActions.Cancel))
-            State.SendEvent(_cancel);
+            State.SendEvent(_events[CancelEvent]);
 
         if (@event.IsActionPressed(InputActions.ToggleDangerZone))
         {
@@ -885,13 +880,13 @@ public partial class LevelManager : Node
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
     {
         Godot.Collections.Array<Godot.Collections.Dictionary> properties = base._GetPropertyList() ?? [];
-        properties.AddRange(_eventPropertyGen.GetChartEventProperties(State));
+        properties.AddRange(_events.GetPropertyList(State.Events));
         return properties;
     }
 
     public override Variant _Get(StringName property)
     {
-        if (_eventPropertyGen.GetChartEventPropertyValue(property, out StringName value))
+        if (_events.TryGetPropertyValue(property, out StringName value))
             return value;
         else
             return base._Get(property);
@@ -899,7 +894,7 @@ public partial class LevelManager : Node
 
     public override bool _Set(StringName property, Variant value)
     {
-        if (value.VariantType == Variant.Type.StringName && _eventPropertyGen.SetChartEventPropertyValue(property, value.AsStringName()))
+        if (value.VariantType == Variant.Type.StringName && _events.SetPropertyValue(property, value.AsStringName()))
             return true;
         else
             return base._Set(property, value);
@@ -907,7 +902,7 @@ public partial class LevelManager : Node
 
     public override bool _PropertyCanRevert(StringName property)
     {
-        if (_eventPropertyGen.ChartEventPropertyCanRevert(property, out bool revert))
+        if (_events.PropertyCanRevert(property, out bool revert))
             return revert;
         else
             return base._PropertyCanRevert(property);
@@ -915,7 +910,7 @@ public partial class LevelManager : Node
 
     public override Variant _PropertyGetRevert(StringName property)
     {
-        if (_eventPropertyGen.ChartEventPropertyGetRevert(property, out StringName revert))
+        if (_events.TryPropertyGetRevert(property, out StringName revert))
             return revert;
         else
             return base._PropertyGetRevert(property);
@@ -943,15 +938,15 @@ public partial class LevelManager : Node
         if (BackgroundMusic is null)
             warnings.Add("Background music hasn't been added. Whatever's playing will stop.");
 
-        if (_select.IsEmpty)
+        if (_events[SelectEvent].IsEmpty)
             warnings.Add("The \"select\" state chart event is not set. Units can't be selected.");
-        if (_cancel.IsEmpty)
+        if (_events[CancelEvent].IsEmpty)
             warnings.Add("The \"cancel\" state chart event is not set. Selections can't be canceled.");
-        if (_skip.IsEmpty)
+        if (_events[SkipEvent].IsEmpty)
             warnings.Add("The \"skip\" state chart event is not set. Certain command shortcuts can't be made.");
-        if (_wait.IsEmpty)
+        if (_events[WaitEvent].IsEmpty)
             warnings.Add("The \"wait\" state chart event is not set. The level won't block for processes.");
-        if (_done.IsEmpty)
+        if (_events[DoneEvent].IsEmpty)
             warnings.Add("The \"done\" state chart event is not set. The level won't block for processes.");
 
         return [.. warnings];
