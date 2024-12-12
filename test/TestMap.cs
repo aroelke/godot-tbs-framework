@@ -15,6 +15,8 @@ public partial class TestMap : Node2D
     {
         await ToSignal(GetTree().CreateTimer(1), Timer.SignalName.Timeout);
 
+        EventController.SuccessObjectiveComplete -= OnSuccess;
+        EventController.FailureObjectiveComplete -= OnFailure;
         SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<TestGameOver>((s) => {
             MusicController.Stop();
             s.win = success;

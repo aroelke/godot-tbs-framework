@@ -720,6 +720,14 @@ public partial class LevelManager : Node
     /// <summary>When an event is completed, go to the next state.</summary>
     public void OnEventComplete() => State.SendEvent(_events[DoneEvent]);
 
+    public void OnLevelComplete()
+    {
+        Unit.UnitDefeated -= OnUnitDefeated;
+        EventController.EventComplete -= OnEventComplete;
+        EventController.SuccessObjectiveComplete -= OnLevelComplete;
+        EventController.FailureObjectiveComplete -= OnLevelComplete;
+    }
+
     /// <summary>When the pointer starts flying, we need to wait for it to finish. Also focus the camera on its target if there's something there.</summary>
     /// <param name="target">Position the pointer is going to fly to.</param>
     public void OnPointerFlightStarted(Vector2 target)
@@ -816,6 +824,8 @@ public partial class LevelManager : Node
             UpdateTurnCounter();
 
             EventController.EventComplete += OnEventComplete;
+            EventController.SuccessObjectiveComplete += OnLevelComplete;
+            EventController.FailureObjectiveComplete += OnLevelComplete;
 
             MusicController.ResetPlayback();
         }

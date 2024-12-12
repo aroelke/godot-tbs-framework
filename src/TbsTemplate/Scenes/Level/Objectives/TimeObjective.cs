@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Godot;
+using TbsTemplate.Scenes.Level.Object.Group;
 
 namespace TbsTemplate.Scenes.Level.Objectives;
 
@@ -14,6 +15,13 @@ public partial class TimeObjective : Objective
 
     public override bool Complete => _turn > Turns;
     public override string Description => $"Survive {Turns} Turns";
+
+    public void OnTurnBegan(int turn, Army army)
+    {
+        _turn = turn;
+        if (Complete)
+            LevelManager.TurnBegan -= OnTurnBegan;
+    }
 
     public override string[] _GetConfigurationWarnings()
     {
@@ -31,6 +39,6 @@ public partial class TimeObjective : Objective
     {
         base._Ready();
         if (!Engine.IsEditorHint())
-            LevelManager.TurnBegan += (t, _) => _turn = t;
+            LevelManager.TurnBegan += OnTurnBegan;
     }
 }
