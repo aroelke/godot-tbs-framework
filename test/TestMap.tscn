@@ -249,7 +249,6 @@ text = "Success: None
 Failure: Never"
 
 [connection signal="ActionEnded" from="LevelManager" to="EventController" method="OnActionEnded"]
-[connection signal="ObjectiveCompleted" from="LevelManager" to="." method="OnObjectiveCompleted"]
 [connection signal="child_entered_tree" from="LevelManager/Player" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Enemy" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/OtherEnemy" to="LevelManager" method="OnChildEnteredGroup"]

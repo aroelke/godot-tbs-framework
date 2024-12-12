@@ -164,14 +164,9 @@ public partial class LevelManager : Node
     /// <summary>Signals that a unit has completed its action.</summary>
     /// <param name="unit">Unit that completed its action.</param>
     [Signal] public delegate void ActionEndedEventHandler(Unit unit);
-
-    /// <summary>Signals that the level's success or failure objective has been completed.</summary>
-    /// <param name="success"><c>true</c> if <see cref="Success"/> was completed, and <c>false</c> if <see cref="Failure"/> was completed.</param>
-    [Signal] public delegate void ObjectiveCompletedEventHandler(bool success);
 #endregion
 #region Exports
     private int _turn = 1;
-    private Objective _success = null, _failure = null;
     private bool _showGlobalZone = false;
 
     [Export(PropertyHint.File, "*.tscn")] public string CombatScenePath = null;
