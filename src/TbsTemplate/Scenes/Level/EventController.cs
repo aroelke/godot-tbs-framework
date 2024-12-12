@@ -15,9 +15,11 @@ public partial class EventController : Node
     /// <summary>Signal that an event is complete.</summary>
     public static event Action EventComplete;
 
-    /// <summary>Signal that the level objective has been completed, whether succeeded or failed.</summary>
-    /// <param name="success"><c>true</c> if the success objective was completed, and <c>false</c> if the failure one was.</param>
-    [Signal] public delegate void ObjectiveCompletedEventHandler(bool success);
+    /// <summary>Signal that the success condition was met.</summary>
+    public static event Action SuccessObjectiveComplete;
+
+    /// <summary>Signal that the failure condition was met.</summary>
+    public static event Action FailureObjectiveComplete;
 
     /// <summary>Objective to complete for success of the level.</summary>
     [Export] public Objective Success = null;
@@ -33,13 +35,13 @@ public partial class EventController : Node
         if (Success?.Complete ?? false)
         {
             if (signal)
-                EmitSignal(SignalName.ObjectiveCompleted, true);
+                SuccessObjectiveComplete();
             return true;
         }
         else if (Failure?.Complete ?? false)
         {
             if (signal)
-                EmitSignal(SignalName.ObjectiveCompleted, false);
+                FailureObjectiveComplete();
             return true;
         }
         else

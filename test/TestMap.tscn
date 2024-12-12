@@ -252,7 +252,6 @@ Failure: Never"
 [connection signal="child_entered_tree" from="LevelManager/Enemy" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/OtherEnemy" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Ally" to="LevelManager" method="OnChildEnteredGroup"]
-[connection signal="ObjectiveCompleted" from="EventController" to="." method="OnObjectiveCompleted"]
 
 [editable path="LevelManager"]
 [editable path="LevelManager/Pointer"]
