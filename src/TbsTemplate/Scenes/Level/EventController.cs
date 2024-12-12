@@ -72,6 +72,9 @@ public partial class EventController : Node
     {
         base._Ready();
         if (!Engine.IsEditorHint())
+        {
             LevelManager.TurnBegan += OnTurnBegan;
+            LevelManager.ActionEnded += OnActionEnded;
+        }
     }
 }

@@ -161,9 +161,8 @@ public partial class LevelManager : Node
     /// <summary>Signals that a new turn has begun, indicating its turn number and army.</summary>
     public static event Action<int, Army> TurnBegan;
 
-    /// <summary>Signals that a unit has completed its action.</summary>
-    /// <param name="unit">Unit that completed its action.</param>
-    [Signal] public delegate void ActionEndedEventHandler(Unit unit);
+    /// <summary>Signals that a unit's action has ended.</summary>
+    public static event Action<Unit> ActionEnded;
 #endregion
 #region Exports
     private int _turn = 1;
@@ -669,7 +668,7 @@ public partial class LevelManager : Node
     {
         CancelHint.Visible = false;
         if (IsInstanceValid(_selected))
-            Callable.From<Unit>((u) => EmitSignal(SignalName.ActionEnded, u)).CallDeferred(_selected);
+            Callable.From(ActionEnded).CallDeferred(_selected);
         else
             Callable.From<StringName>(State.SendEvent).CallDeferred(_events[DoneEvent]);
     }

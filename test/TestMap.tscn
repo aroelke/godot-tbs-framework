@@ -248,7 +248,6 @@ theme = ExtResource("28_y0mi7")
 text = "Success: None
 Failure: Never"
 
-[connection signal="ActionEnded" from="LevelManager" to="EventController" method="OnActionEnded"]
 [connection signal="child_entered_tree" from="LevelManager/Player" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Enemy" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/OtherEnemy" to="LevelManager" method="OnChildEnteredGroup"]
