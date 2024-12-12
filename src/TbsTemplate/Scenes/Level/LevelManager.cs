@@ -815,6 +815,8 @@ public partial class LevelManager : Node
                         break;
             UpdateTurnCounter();
 
+            EventController.EventComplete += OnEventComplete;
+
             MusicController.ResetPlayback();
         }
     }
