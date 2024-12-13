@@ -12,9 +12,6 @@ namespace TbsTemplate.Scenes.Level;
 /// </summary>
 public partial class EventController : Node
 {
-    /// <summary>Signal that an event is complete.</summary>
-    public static event Action EventComplete;
-
     /// <summary>Signal that the success condition was met.</summary>
     public static event Action SuccessObjectiveComplete;
 
@@ -57,7 +54,7 @@ public partial class EventController : Node
     public virtual void OnTurnBegan(int turn, Army army)
     {
         if (!EvaluateObjective())
-            EventComplete();
+            LevelEvents.EmitSignal(LevelEvents.SignalName.EventComplete);
     }
 
     /// <summary>
@@ -68,7 +65,7 @@ public partial class EventController : Node
     public virtual void OnActionEnded(Unit unit)
     {
         if (!EvaluateObjective())
-            EventComplete();
+            LevelEvents.EmitSignal(LevelEvents.SignalName.EventComplete);
     }
 
     public override void _Ready()

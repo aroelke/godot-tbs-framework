@@ -716,7 +716,6 @@ public partial class LevelManager : Node
     public void OnLevelComplete()
     {
         Unit.UnitDefeated -= OnUnitDefeated;
-        EventController.EventComplete -= OnEventComplete;
         EventController.SuccessObjectiveComplete -= OnLevelComplete;
         EventController.FailureObjectiveComplete -= OnLevelComplete;
     }
@@ -816,7 +815,7 @@ public partial class LevelManager : Node
                         break;
             UpdateTurnCounter();
 
-            EventController.EventComplete += OnEventComplete;
+            LevelEvents.Connect(LevelEvents.SignalName.EventComplete, Callable.From(OnEventComplete));
             EventController.SuccessObjectiveComplete += OnLevelComplete;
             EventController.FailureObjectiveComplete += OnLevelComplete;
 
