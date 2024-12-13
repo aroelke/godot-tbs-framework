@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsTemplate.Extensions;
-using TbsTemplate.Nodes.Components;
 
 namespace TbsTemplate.UI.Controls.Device;
 

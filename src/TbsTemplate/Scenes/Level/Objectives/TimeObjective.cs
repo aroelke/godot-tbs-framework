@@ -16,13 +16,6 @@ public partial class TimeObjective : Objective
     public override bool Complete => _turn > Turns;
     public override string Description => $"Survive {Turns} Turns";
 
-    public void OnTurnBegan(int turn, Army army)
-    {
-        _turn = turn;
-        if (Complete)
-            LevelManager.TurnBegan -= OnTurnBegan;
-    }
-
     public override string[] _GetConfigurationWarnings()
     {
         List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
@@ -39,6 +32,6 @@ public partial class TimeObjective : Objective
     {
         base._Ready();
         if (!Engine.IsEditorHint())
-            LevelManager.TurnBegan += OnTurnBegan;
+            LevelEvents.Connect(LevelEvents.SignalName.TurnBegan, Callable.From<int, Army>((t, _) => _turn = t));
     }
 }

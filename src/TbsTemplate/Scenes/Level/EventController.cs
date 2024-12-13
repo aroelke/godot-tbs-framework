@@ -21,12 +21,6 @@ public partial class EventController : Node
     /// <summary>Signal that the failure condition was met.</summary>
     public static event Action FailureObjectiveComplete;
 
-    private void DisconnectSignals()
-    {
-        LevelManager.TurnBegan -= OnTurnBegan;
-        LevelManager.ActionEnded -= OnActionEnded;
-    }
-
     /// <summary>Objective to complete for success of the level.</summary>
     [Export] public Objective Success = null;
 
@@ -41,19 +35,13 @@ public partial class EventController : Node
         if (Success?.Complete ?? false)
         {
             if (signal)
-            {
-                DisconnectSignals();
                 SuccessObjectiveComplete();
-            }
             return true;
         }
         else if (Failure?.Complete ?? false)
         {
             if (signal)
-            {
-                DisconnectSignals();
                 FailureObjectiveComplete();
-            }
             return true;
         }
         else
@@ -88,7 +76,7 @@ public partial class EventController : Node
         base._Ready();
         if (!Engine.IsEditorHint())
         {
-            LevelManager.TurnBegan += OnTurnBegan;
+            LevelEvents.Connect(LevelEvents.SignalName.TurnBegan, Callable.From<int, Army>(OnTurnBegan));
             LevelManager.ActionEnded += OnActionEnded;
         }
     }

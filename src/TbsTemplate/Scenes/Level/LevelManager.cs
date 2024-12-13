@@ -158,9 +158,6 @@ public partial class LevelManager : Node
     private AudioStreamPlayer ZoneUpdateSound(bool on) => on ? ZoneOnSound : ZoneOffSound;
 #endregion
 #region Signals
-    /// <summary>Signals that a new turn has begun, indicating its turn number and army.</summary>
-    public static event Action<int, Army> TurnBegan;
-
     /// <summary>Signals that a unit's action has ended.</summary>
     public static event Action<Unit> ActionEnded;
 #endregion
@@ -215,7 +212,7 @@ public partial class LevelManager : Node
 #endregion
 #region Begin Turn State
     /// <summary>Signal that a turn is about to begin.</summary>
-    public void OnBeginTurnEntered() => Callable.From(TurnBegan).CallDeferred(Turn, _armies.Current);
+    public void OnBeginTurnEntered() => Callable.From<int, Army>((t, a) => LevelEvents.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
 
     /// <summary>Perform any updates that the turn has begun that need to happen after upkeep.</summary>
     public void OnBeginTurnExited()
