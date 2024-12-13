@@ -17,9 +17,6 @@ namespace TbsTemplate.Scenes.Level.Object;
 [GlobalClass, SceneTree, Tool]
 public partial class Unit : GridNode, IHasHealth
 {
-    /// <summary>Signals that a unit health has been reduced to 0.</summary>
-    public static event Action<Unit> UnitDefeated;
-
     // AnimationTree parameters
     private static readonly StringName Idle = "parameters/conditions/idle";
     private static readonly StringName Selected = "parameters/conditions/selected";
@@ -276,7 +273,7 @@ public partial class Unit : GridNode, IHasHealth
     public void OnHealthChanged(int value)
     {
         if (value == 0)
-            UnitDefeated(this);
+            LevelEvents.EmitSignal(LevelEvents.SignalName.UnitDefeated, this);
     }
 
     public override void _Ready()

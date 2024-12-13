@@ -42,4 +42,8 @@ public partial class LevelEvents : Node
     /// <summary>Signal that the failure objective has been completed.</summary>
     [Signal] public delegate void FailureObjectiveCompleteEventHandler();
 #endregion
+#region Units
+    /// <summary>Signals that a unit has been defeated.</summary>
+    [Signal] public delegate void UnitDefeatedEventHandler(Unit defeated);
+#endregion
 }
