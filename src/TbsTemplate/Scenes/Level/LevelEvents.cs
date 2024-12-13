@@ -1,4 +1,5 @@
 using Godot;
+using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 
 namespace TbsTemplate.Scenes.Level;
@@ -27,5 +28,8 @@ public partial class LevelEvents : Node
     /// <param name="turn">Number of the turn that began.</param>
     /// <param name="army">Army whose turn began.</param>
     [Signal] public delegate void TurnBeganEventHandler(int turn, Army army);
+
+    /// <summary>Signals that a unit's action has ended.</summary>
+    [Signal] public delegate void ActionEndedEventHandler(Unit unit);
 #endregion
 }

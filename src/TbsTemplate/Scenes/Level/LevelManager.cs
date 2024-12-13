@@ -157,10 +157,6 @@ public partial class LevelManager : Node
     /// <returns>The audio player that plays the "zone on" or "zone off" sound depending on <paramref name="on"/>.</returns>
     private AudioStreamPlayer ZoneUpdateSound(bool on) => on ? ZoneOnSound : ZoneOffSound;
 #endregion
-#region Signals
-    /// <summary>Signals that a unit's action has ended.</summary>
-    public static event Action<Unit> ActionEnded;
-#endregion
 #region Exports
     private int _turn = 1;
     private bool _showGlobalZone = false;
@@ -665,7 +661,7 @@ public partial class LevelManager : Node
     {
         CancelHint.Visible = false;
         if (IsInstanceValid(_selected))
-            Callable.From(ActionEnded).CallDeferred(_selected);
+            Callable.From<Unit>((u) => LevelEvents.EmitSignal(LevelEvents.SignalName.ActionEnded, u)).CallDeferred(_selected);
         else
             Callable.From<StringName>(State.SendEvent).CallDeferred(_events[DoneEvent]);
     }

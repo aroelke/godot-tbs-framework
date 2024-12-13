@@ -77,7 +77,7 @@ public partial class EventController : Node
         if (!Engine.IsEditorHint())
         {
             LevelEvents.Connect(LevelEvents.SignalName.TurnBegan, Callable.From<int, Army>(OnTurnBegan));
-            LevelManager.ActionEnded += OnActionEnded;
+            LevelEvents.Connect(LevelEvents.SignalName.ActionEnded, Callable.From<Unit>(OnActionEnded));
         }
     }
 }
