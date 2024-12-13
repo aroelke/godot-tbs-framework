@@ -21,6 +21,7 @@ InputManager="*res://src/TbsTemplate/UI/Controls/Device/InputManager.tscn"
 DeviceManager="*res://src/TbsTemplate/UI/Controls/Device/DeviceManager.tscn"
 MusicController="*res://src/TbsTemplate/UI/MusicController.tscn"
 SceneManager="*res://src/TbsTemplate/Scenes/SceneManager.tscn"
+LevelEvents="*res://src/TbsTemplate/Scenes/Level/LevelEvents.tscn"
 
 [display]
 
