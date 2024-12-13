@@ -8,15 +8,10 @@ public partial class TestMap : Node2D
 {
     [Export(PropertyHint.File, "*.tscn")] public string GameOverScreen = null;
 
-    public void OnSuccess() => OnObjectiveCompleted(true);
-    public void OnFailure() => OnObjectiveCompleted(false);
-
     public async void OnObjectiveCompleted(bool success)
     {
         await ToSignal(GetTree().CreateTimer(1), Timer.SignalName.Timeout);
 
-        EventController.SuccessObjectiveComplete -= OnSuccess;
-        EventController.FailureObjectiveComplete -= OnFailure;
         SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<TestGameOver>((s) => {
             MusicController.Stop();
             s.win = success;
@@ -32,8 +27,8 @@ public partial class TestMap : Node2D
 
         if (!Engine.IsEditorHint())
         {
-            EventController.SuccessObjectiveComplete += OnSuccess;
-            EventController.FailureObjectiveComplete += OnFailure;
+            LevelEvents.Connect(LevelEvents.SignalName.SuccessObjectiveComplete, Callable.From(() => OnObjectiveCompleted(true)));
+            LevelEvents.Connect(LevelEvents.SignalName.FailureObjectiveComplete, Callable.From(() => OnObjectiveCompleted(false)));
         }
     }
 }

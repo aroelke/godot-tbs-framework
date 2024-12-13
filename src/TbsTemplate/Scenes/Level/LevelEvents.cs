@@ -35,5 +35,11 @@ public partial class LevelEvents : Node
 #region Event Controller
     /// <summary>Signal that an event is complete, so the level can stop waiting for it.</summary>
     [Signal] public delegate void EventCompleteEventHandler();
+
+    /// <summary>Signal that the success objective has been completed.</summary>
+    [Signal] public delegate void SuccessObjectiveCompleteEventHandler();
+
+    /// <summary>Signal that the failure objective has been completed.</summary>
+    [Signal] public delegate void FailureObjectiveCompleteEventHandler();
 #endregion
 }
