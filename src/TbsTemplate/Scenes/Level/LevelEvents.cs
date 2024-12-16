@@ -8,10 +8,7 @@ namespace TbsTemplate.Scenes.Level;
 /// <summary>"Event bus" for a level that allows objects to subscribe to various events that occur during play.</summary>
 public partial class LevelEvents : Node
 {
-    /// <summary>
-    /// Auto-loaded instance of <see cref="LevelEvents"/> in case instances methods are required. Signal connection methods are statically
-    /// overriden.
-    /// </summary>
+    /// <summary>Auto-loaded instance of <see cref="LevelEvents"/> in case instances methods are required.</summary>
     public static LevelEvents Singleton => AutoloadNodes.GetNode<LevelEvents>("LevelEvents");
 #region Level Manager
     /// <summary>Signals that an army's turn has begun.</summary>
