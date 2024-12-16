@@ -1,5 +1,6 @@
 using Godot;
 using TbsTemplate.Scenes;
+using TbsTemplate.Scenes.Level;
 using TbsTemplate.UI;
 
 [SceneTree]
@@ -23,5 +24,11 @@ public partial class TestMap : Node2D
     {
         base._Ready();
         _.CanvasLayer.ObjectiveLabel.Text = $"Success: {_.EventController.Success?.Description ?? "None"}\nFailure: {_.EventController.Failure?.Description ?? "Never"}";
+
+        if (!Engine.IsEditorHint())
+        {
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.SuccessObjectiveComplete, Callable.From(() => OnObjectiveCompleted(true)));
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.FailureObjectiveComplete, Callable.From(() => OnObjectiveCompleted(false)));
+        }
     }
 }

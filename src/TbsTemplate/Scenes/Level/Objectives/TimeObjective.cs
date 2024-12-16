@@ -16,11 +16,9 @@ public partial class TimeObjective : Objective
     public override bool Complete => _turn > Turns;
     public override string Description => $"Survive {Turns} Turns";
 
-    public void OnTurnBegan(int turn, Army army) => _turn = turn;
-
     public override string[] _GetConfigurationWarnings()
     {
-        List<string> warnings = new(base._GetConfigurationWarnings() ?? []);
+        List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
 
         if (Turns < 0)
             warnings.Add("Turn count should not be negative.");
@@ -28,5 +26,12 @@ public partial class TimeObjective : Objective
             warnings.Add("Time objective will always be completed.");
 
         return [.. warnings];
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+        if (!Engine.IsEditorHint())
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.TurnBegan, Callable.From<int, Army>((t, _) => _turn = t));
     }
 }

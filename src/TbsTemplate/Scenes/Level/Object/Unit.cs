@@ -273,7 +273,7 @@ public partial class Unit : GridNode, IHasHealth
     public void OnHealthChanged(int value)
     {
         if (value == 0)
-            UnitEvents.Singleton.EmitSignal(UnitEvents.SignalName.UnitDefeated, this);
+            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.UnitDefeated, this);
     }
 
     public override void _Ready()

@@ -16,9 +16,7 @@ using TbsTemplate.UI.Controls.Device;
 using TbsTemplate.Scenes.Level.Objectives;
 using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Combat;
-using TbsTemplate.Nodes.StateChart;
 using TbsTemplate.Nodes.Components;
-using System.Diagnostics.Tracing;
 
 namespace TbsTemplate.Scenes.Level;
 
@@ -159,23 +157,8 @@ public partial class LevelManager : Node
     /// <returns>The audio player that plays the "zone on" or "zone off" sound depending on <paramref name="on"/>.</returns>
     private AudioStreamPlayer ZoneUpdateSound(bool on) => on ? ZoneOnSound : ZoneOffSound;
 #endregion
-#region Signals
-    /// <summary>Signals that a new turn has begun.</summary>
-    /// <param name="turn">Turn number.</param>
-    /// <param name="army">Army whose turn it is.</param>
-    [Signal] public delegate void TurnBeganEventHandler(int turn, Army army);
-
-    /// <summary>Signals that a unit has completed its action.</summary>
-    /// <param name="unit">Unit that completed its action.</param>
-    [Signal] public delegate void ActionEndedEventHandler(Unit unit);
-
-    /// <summary>Signals that the level's success or failure objective has been completed.</summary>
-    /// <param name="success"><c>true</c> if <see cref="Success"/> was completed, and <c>false</c> if <see cref="Failure"/> was completed.</param>
-    [Signal] public delegate void ObjectiveCompletedEventHandler(bool success);
-#endregion
 #region Exports
     private int _turn = 1;
-    private Objective _success = null, _failure = null;
     private bool _showGlobalZone = false;
 
     [Export(PropertyHint.File, "*.tscn")] public string CombatScenePath = null;
@@ -225,7 +208,7 @@ public partial class LevelManager : Node
 #endregion
 #region Begin Turn State
     /// <summary>Signal that a turn is about to begin.</summary>
-    public void OnBeginTurnEntered() => Callable.From<int, Army>((t, a) => EmitSignal(SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
+    public void OnBeginTurnEntered() => Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
 
     /// <summary>Perform any updates that the turn has begun that need to happen after upkeep.</summary>
     public void OnBeginTurnExited()
@@ -678,7 +661,7 @@ public partial class LevelManager : Node
     {
         CancelHint.Visible = false;
         if (IsInstanceValid(_selected))
-            Callable.From<Unit>((u) => EmitSignal(SignalName.ActionEnded, u)).CallDeferred(_selected);
+            Callable.From<Unit>((u) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, u)).CallDeferred(_selected);
         else
             Callable.From<StringName>(State.SendEvent).CallDeferred(_events[DoneEvent]);
     }
@@ -814,7 +797,7 @@ public partial class LevelManager : Node
                 unit.Cell = Grid.CellOf(unit.GlobalPosition - Grid.GlobalPosition);
                 Grid.Occupants[unit.Cell] = unit;
             }
-            UnitEvents.Singleton.UnitDefeated += OnUnitDefeated;
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.UnitDefeated, Callable.From<Unit>(OnUnitDefeated));
 
             _armies = GetChildren().OfType<Army>().GetCyclicalEnumerator();
             if (StartingArmy is null)
@@ -824,6 +807,8 @@ public partial class LevelManager : Node
                     if (!_armies.MoveNext())
                         break;
             UpdateTurnCounter();
+
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.EventComplete, Callable.From(OnEventComplete));
 
             MusicController.ResetPlayback();
         }

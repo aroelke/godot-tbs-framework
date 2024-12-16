@@ -1,5 +1,6 @@
 using System.Linq;
 using Godot;
+using TbsTemplate.Extensions;
 
 namespace TbsTemplate.UI.Controls.Device;
 
@@ -16,10 +17,9 @@ public partial class InputManager : Node2D
 
     /// <summary>Last known position the mouse was on the screen if it's off the screen, or <c>null</c> if it's on the screen.</summary>
     private static Vector2? _lastKnownPointerPosition = Vector2.Zero;
-    private static InputManager _singleton = null;
 
     /// <summary>Reference to the autoloaded <c>InputManager</c> node so its signals can be connected.</summary>
-    public static InputManager Singleton => _singleton ??= ((SceneTree)Engine.GetMainLoop()).Root.GetNode<InputManager>("InputManager");
+    public static InputManager Singleton => AutoloadNodes.GetNode<InputManager>("InputManager");
 
     /// <returns><c>true</c> if the mouse is in the <see cref="Viewport"/>, and <c>false</c> otherwise.</returns>
     public static bool IsMouseOnScreen() => _lastKnownPointerPosition is null;

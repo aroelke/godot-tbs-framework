@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Godot;
+using TbsTemplate.Extensions;
 
 namespace TbsTemplate.UI;
 
@@ -10,14 +11,13 @@ public partial class MusicController : AudioStreamPlayer
     /// <summary>Signals that a fade in or out has completed.</summary>
     [Signal] public delegate void FadeCompletedEventHandler();
 
-    private static MusicController _singleton = null;
     private static readonly Dictionary<AudioStream, float> _positions = [];
 
     /// <summary>
     /// Reference to the auto-loaded music controller to help with signal connection. Other functions and properties should be accessed via
     /// static methods.
     /// </summary>
-    public static MusicController Singleton => _singleton ??= ((SceneTree)Engine.GetMainLoop()).Root.GetNode<MusicController>("MusicController");
+    public static MusicController Singleton => AutoloadNodes.GetNode<MusicController>("MusicController");
 
     /// <summary>Play a song. If the song is already playing, it won't restart or fade.</summary>
     /// <param name="music">Song to play. If <c>null</c>, the current song won't stop.</param>

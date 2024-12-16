@@ -1,3 +1,4 @@
+using System;
 using Godot;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
@@ -11,13 +12,6 @@ namespace TbsTemplate.Scenes.Level;
 /// </summary>
 public partial class EventController : Node
 {
-    /// <summary>Signal that an event is complete.</summary>
-    [Signal] public delegate void EventCompleteEventHandler();
-
-    /// <summary>Signal that the level objective has been completed, whether succeeded or failed.</summary>
-    /// <param name="success"><c>true</c> if the success objective was completed, and <c>false</c> if the failure one was.</param>
-    [Signal] public delegate void ObjectiveCompletedEventHandler(bool success);
-
     /// <summary>Objective to complete for success of the level.</summary>
     [Export] public Objective Success = null;
 
@@ -32,13 +26,13 @@ public partial class EventController : Node
         if (Success?.Complete ?? false)
         {
             if (signal)
-                EmitSignal(SignalName.ObjectiveCompleted, true);
+                LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.SuccessObjectiveComplete);
             return true;
         }
         else if (Failure?.Complete ?? false)
         {
             if (signal)
-                EmitSignal(SignalName.ObjectiveCompleted, false);
+                LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.FailureObjectiveComplete);
             return true;
         }
         else
@@ -47,24 +41,34 @@ public partial class EventController : Node
 
     /// <summary>
     /// Event to perform before an army's turn begins. By default, evaluates the objectives and signals to start the turn if not success or failure.
-    /// Overriding classes should signal <c>EventComplete</c> at the end of their handlers.
+    /// Overriding classes should signal <see cref="EventComplete"/> when they're ready for the turn to begin.
     /// </summary>
     /// <param name="turn">Turn number that's about to begin.</param>
     /// <param name="army">Army that's about to begin its turn.</param>
     public virtual void OnTurnBegan(int turn, Army army)
     {
         if (!EvaluateObjective())
-            EmitSignal(SignalName.EventComplete);
+            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.EventComplete);
     }
 
     /// <summary>
     /// Event to perform just after a unit ends its action. By default, evaluates the objectives and signals to continue to the next action if not success
-    /// or failure. Override classes should signal <c>EventComplete</c> at the end of their handlers.
+    /// or failure. Overriding classes should signal <see cref="EventComplete"/> when they're ready for the turn to end.
     /// </summary>
     /// <param name="unit">Unit that just acted.</param>
     public virtual void OnActionEnded(Unit unit)
     {
         if (!EvaluateObjective())
-            EmitSignal(SignalName.EventComplete);
+            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.EventComplete);
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+        if (!Engine.IsEditorHint())
+        {
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.TurnBegan, Callable.From<int, Army>(OnTurnBegan));
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.ActionEnded, Callable.From<Unit>(OnActionEnded));
+        }
     }
 }
