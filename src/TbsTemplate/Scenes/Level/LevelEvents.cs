@@ -1,4 +1,5 @@
 using Godot;
+using TbsTemplate.Extensions;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 
@@ -7,13 +8,11 @@ namespace TbsTemplate.Scenes.Level;
 /// <summary>"Event bus" for a level that allows objects to subscribe to various events that occur during play.</summary>
 public partial class LevelEvents : Node
 {
-    private static LevelEvents _singleton = null;
-
     /// <summary>
     /// Auto-loaded instance of <see cref="LevelEvents"/> in case instances methods are required. Signal connection methods are statically
     /// overriden.
     /// </summary>
-    public static LevelEvents Singleton => _singleton ??= ((SceneTree)Engine.GetMainLoop()).Root.GetNode<LevelEvents>("LevelEvents");
+    public static LevelEvents Singleton => AutloadNodes.GetNode<LevelEvents>("LevelEvents");
 #region Level Manager
     /// <summary>Signals that an army's turn has begun.</summary>
     /// <param name="turn">Number of the turn that began.</param>
