@@ -26,13 +26,13 @@ public partial class EventController : Node
         if (Success?.Complete ?? false)
         {
             if (signal)
-                LevelEvents.EmitSignal(LevelEvents.SignalName.SuccessObjectiveComplete);
+                LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.SuccessObjectiveComplete);
             return true;
         }
         else if (Failure?.Complete ?? false)
         {
             if (signal)
-                LevelEvents.EmitSignal(LevelEvents.SignalName.FailureObjectiveComplete);
+                LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.FailureObjectiveComplete);
             return true;
         }
         else
@@ -48,7 +48,7 @@ public partial class EventController : Node
     public virtual void OnTurnBegan(int turn, Army army)
     {
         if (!EvaluateObjective())
-            LevelEvents.EmitSignal(LevelEvents.SignalName.EventComplete);
+            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.EventComplete);
     }
 
     /// <summary>
@@ -59,7 +59,7 @@ public partial class EventController : Node
     public virtual void OnActionEnded(Unit unit)
     {
         if (!EvaluateObjective())
-            LevelEvents.EmitSignal(LevelEvents.SignalName.EventComplete);
+            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.EventComplete);
     }
 
     public override void _Ready()
@@ -67,8 +67,8 @@ public partial class EventController : Node
         base._Ready();
         if (!Engine.IsEditorHint())
         {
-            LevelEvents.Connect(LevelEvents.SignalName.TurnBegan, Callable.From<int, Army>(OnTurnBegan));
-            LevelEvents.Connect(LevelEvents.SignalName.ActionEnded, Callable.From<Unit>(OnActionEnded));
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.TurnBegan, Callable.From<int, Army>(OnTurnBegan));
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.ActionEnded, Callable.From<Unit>(OnActionEnded));
         }
     }
 }

@@ -208,7 +208,7 @@ public partial class LevelManager : Node
 #endregion
 #region Begin Turn State
     /// <summary>Signal that a turn is about to begin.</summary>
-    public void OnBeginTurnEntered() => Callable.From<int, Army>((t, a) => LevelEvents.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
+    public void OnBeginTurnEntered() => Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
 
     /// <summary>Perform any updates that the turn has begun that need to happen after upkeep.</summary>
     public void OnBeginTurnExited()
@@ -661,7 +661,7 @@ public partial class LevelManager : Node
     {
         CancelHint.Visible = false;
         if (IsInstanceValid(_selected))
-            Callable.From<Unit>((u) => LevelEvents.EmitSignal(LevelEvents.SignalName.ActionEnded, u)).CallDeferred(_selected);
+            Callable.From<Unit>((u) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, u)).CallDeferred(_selected);
         else
             Callable.From<StringName>(State.SendEvent).CallDeferred(_events[DoneEvent]);
     }
@@ -797,7 +797,7 @@ public partial class LevelManager : Node
                 unit.Cell = Grid.CellOf(unit.GlobalPosition - Grid.GlobalPosition);
                 Grid.Occupants[unit.Cell] = unit;
             }
-            LevelEvents.Connect(LevelEvents.SignalName.UnitDefeated, Callable.From<Unit>(OnUnitDefeated));
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.UnitDefeated, Callable.From<Unit>(OnUnitDefeated));
 
             _armies = GetChildren().OfType<Army>().GetCyclicalEnumerator();
             if (StartingArmy is null)
@@ -808,7 +808,7 @@ public partial class LevelManager : Node
                         break;
             UpdateTurnCounter();
 
-            LevelEvents.Connect(LevelEvents.SignalName.EventComplete, Callable.From(OnEventComplete));
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.EventComplete, Callable.From(OnEventComplete));
 
             MusicController.ResetPlayback();
         }

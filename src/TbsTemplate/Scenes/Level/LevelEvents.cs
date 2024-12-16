@@ -14,15 +14,6 @@ public partial class LevelEvents : Node
     /// overriden.
     /// </summary>
     public static LevelEvents Singleton => _singleton ??= ((SceneTree)Engine.GetMainLoop()).Root.GetNode<LevelEvents>("LevelEvents");
-
-    /// <inheritdoc cref="GodotObject.EmitSignal(StringName, Variant[])"/>
-    /// <remarks>Emits the signal from the singleton/></remarks>
-    public static new Error EmitSignal(StringName signal, params Variant[] args) => ((GodotObject)Singleton).EmitSignal(signal, args);
-
-    /// <inheritdoc cref="GodotObject.EmitSignal(StringName, Variant[])"/>
-    /// <remarks>Connects to a signal in the singleton.</remarks>
-    public static new Error Connect(StringName signal, Callable callable, uint flags=0) => ((GodotObject)Singleton).Connect(signal, callable, flags);
-
 #region Level Manager
     /// <summary>Signals that an army's turn has begun.</summary>
     /// <param name="turn">Number of the turn that began.</param>

@@ -27,8 +27,8 @@ public partial class TestMap : Node2D
 
         if (!Engine.IsEditorHint())
         {
-            LevelEvents.Connect(LevelEvents.SignalName.SuccessObjectiveComplete, Callable.From(() => OnObjectiveCompleted(true)));
-            LevelEvents.Connect(LevelEvents.SignalName.FailureObjectiveComplete, Callable.From(() => OnObjectiveCompleted(false)));
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.SuccessObjectiveComplete, Callable.From(() => OnObjectiveCompleted(true)));
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.FailureObjectiveComplete, Callable.From(() => OnObjectiveCompleted(false)));
         }
     }
 }

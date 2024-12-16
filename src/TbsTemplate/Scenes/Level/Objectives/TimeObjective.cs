@@ -32,6 +32,6 @@ public partial class TimeObjective : Objective
     {
         base._Ready();
         if (!Engine.IsEditorHint())
-            LevelEvents.Connect(LevelEvents.SignalName.TurnBegan, Callable.From<int, Army>((t, _) => _turn = t));
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.TurnBegan, Callable.From<int, Army>((t, _) => _turn = t));
     }
 }
