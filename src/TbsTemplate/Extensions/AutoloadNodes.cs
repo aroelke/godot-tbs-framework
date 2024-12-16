@@ -17,7 +17,7 @@ public static class AutloadNodes
         if (_autoloads.TryGetValue(path, out Node node))
             return (T)node;
         else
-            return (T)(_autoloads[path] = ((SceneTree)Engine.GetMainLoop()).Root.GetNode<T>("LevelEvents"));
+            return (T)(_autoloads[path] = ((SceneTree)Engine.GetMainLoop()).Root.GetNode<T>(path));
     }
 
     /// <summary>Fetches an autload node, if it exists.</summary>
@@ -29,6 +29,6 @@ public static class AutloadNodes
         if (_autoloads.TryGetValue(path, out Node node))
             return node as T;
         else
-            return (_autoloads[path] = ((SceneTree)Engine.GetMainLoop()).Root.GetNodeOrNull<T>("LevelEvents")) as T;
+            return (_autoloads[path] = ((SceneTree)Engine.GetMainLoop()).Root.GetNodeOrNull<T>(path)) as T;
     }
 }
