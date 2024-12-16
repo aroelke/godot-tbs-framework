@@ -24,7 +24,6 @@ public partial class DeviceManager : Node
     private static string _name = "";
     private static InputMode _mode = InputMode.Digital;
     private static bool _enableSystemMouse = true;
-    private static DeviceManager _singleton = null;
 
     /// <summary>Ensures that <see cref="InputDeviceChanged"/> is only fired once when either the device and/or device name change.</summary>
     /// <param name="device">New input device.</param>
@@ -42,7 +41,7 @@ public partial class DeviceManager : Node
     }
 
     /// <summary>Reference to the autoloaded <c>DeviceManager</c> node so its signals can be connected.</summary>
-    public static DeviceManager Singleton => _singleton ??= ((SceneTree)Engine.GetMainLoop()).Root.GetNode<DeviceManager>("DeviceManager");
+    public static DeviceManager Singleton => AutoloadNodes.GetNode<DeviceManager>("DeviceManager");
 
     /// <summary>The current input device.</summary>
     public static InputDevice Device

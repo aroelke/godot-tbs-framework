@@ -25,7 +25,7 @@ public partial class SceneManager : Node
     private static readonly Stack<Node> _history = new();
 
     /// <summary>Reference to the autoloaded scene manager.</summary>
-    public static SceneManager Singleton => AutloadNodes.GetNode<SceneManager>("SceneManager");
+    public static SceneManager Singleton => AutoloadNodes.GetNode<SceneManager>("SceneManager");
 
     /// <summary>Currently-running scene transition, or the one that will run next scene change if the scene isn't changing.</summary>
     public static SceneTransition CurrentTransition => Singleton.FadeToBlack;

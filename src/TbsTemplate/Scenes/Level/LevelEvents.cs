@@ -12,7 +12,7 @@ public partial class LevelEvents : Node
     /// Auto-loaded instance of <see cref="LevelEvents"/> in case instances methods are required. Signal connection methods are statically
     /// overriden.
     /// </summary>
-    public static LevelEvents Singleton => AutloadNodes.GetNode<LevelEvents>("LevelEvents");
+    public static LevelEvents Singleton => AutoloadNodes.GetNode<LevelEvents>("LevelEvents");
 #region Level Manager
     /// <summary>Signals that an army's turn has begun.</summary>
     /// <param name="turn">Number of the turn that began.</param>

@@ -17,7 +17,7 @@ public partial class MusicController : AudioStreamPlayer
     /// Reference to the auto-loaded music controller to help with signal connection. Other functions and properties should be accessed via
     /// static methods.
     /// </summary>
-    public static MusicController Singleton => AutloadNodes.GetNode<MusicController>("MusicController");
+    public static MusicController Singleton => AutoloadNodes.GetNode<MusicController>("MusicController");
 
     /// <summary>Play a song. If the song is already playing, it won't restart or fade.</summary>
     /// <param name="music">Song to play. If <c>null</c>, the current song won't stop.</param>

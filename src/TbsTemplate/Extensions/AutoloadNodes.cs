@@ -4,7 +4,7 @@ using Godot;
 namespace TbsTemplate.Extensions;
 
 /// <summary>Cache for autoload nodes.</summary>
-public static class AutloadNodes
+public static class AutoloadNodes
 {
     private static readonly Dictionary<NodePath, Node> _autoloads = [];
 
