@@ -65,6 +65,9 @@ public partial class EventController : Node
     public virtual void _ActionEnded(Unit unit) => SkipEvent();
     public void OnActionEnded(Unit unit) => Callable.From<Unit>(_ActionEnded).CallDeferred(unit);
 
+    public virtual void _TurnEnded(int turn, Army army) => SkipEvent();
+    public void OnTurnEnded(int turn, Army army) => Callable.From<int, Army>(_TurnEnded).CallDeferred(turn, army);
+
     public override void _Ready()
     {
         base._Ready();
@@ -72,6 +75,7 @@ public partial class EventController : Node
         {
             LevelEvents.Singleton.Connect(LevelEvents.SignalName.TurnBegan, Callable.From<int, Army>(OnTurnBegan));
             LevelEvents.Singleton.Connect(LevelEvents.SignalName.ActionEnded, Callable.From<Unit>(OnActionEnded));
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.TurnEnded, Callable.From<int, Army>(OnTurnEnded));
         }
     }
 }

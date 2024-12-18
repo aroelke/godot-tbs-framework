@@ -158,7 +158,6 @@ public partial class LevelManager : Node
     private AudioStreamPlayer ZoneUpdateSound(bool on) => on ? ZoneOnSound : ZoneOffSound;
 #endregion
 #region Exports
-    private int _turn = 1;
     private bool _showGlobalZone = false;
 
     [Export(PropertyHint.File, "*.tscn")] public string CombatScenePath = null;
@@ -178,16 +177,7 @@ public partial class LevelManager : Node
 
     /// <summary>Turn count (including current turn, so it starts at 1).</summary>
     [ExportGroup("Turn Control")]
-    [Export] public int Turn
-    {
-        get => _turn;
-        set
-        {
-            _turn = value;
-            if (!Engine.IsEditorHint())
-                TurnLabel.Text = $"Turn {_turn}: {_armies.Current.Faction.Name}";
-        }
-    }
+    [Export] public int Turn = 1;
 
     /// <summary>Whether or not to show the global danger zone relative to the player's <see cref="Army"/>.</summary>
     [ExportGroup("Range Overlay")]
@@ -709,6 +699,9 @@ public partial class LevelManager : Node
             Callable.From<StringName>(State.SendEvent).CallDeferred(_events[SkipEvent]);
     }
 #endregion
+#region End Turn State
+    public void OnEndTurnEntered() => Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnEnded, t, a)).CallDeferred(Turn, _armies.Current);
+#endregion
 #region State Independent
     /// <summary>When an event is completed, go to the next state.</summary>
     public void OnEventComplete() => State.SendEvent(_events[DoneEvent]);
@@ -806,7 +799,6 @@ public partial class LevelManager : Node
                 while (_armies.Current != StartingArmy)
                     if (!_armies.MoveNext())
                         break;
-            UpdateTurnCounter();
 
             LevelEvents.Singleton.Connect(LevelEvents.SignalName.EventComplete, Callable.From(OnEventComplete));
 

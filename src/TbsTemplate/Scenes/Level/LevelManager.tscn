@@ -33,7 +33,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -1410167566
+seed = -1586744495
 
 [sub_resource type="Resource" id="Resource_lt2uh"]
 script = ExtResource("22_tix5y")
@@ -347,7 +347,13 @@ process_mode = 4
 Event = &"skip"
 To = NodePath("../../Idle")
 
-[node name="ToBeginTurn" parent="State/Root/Active/TurnAdvancing" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+[node name="ToEndTurn" parent="State/Root/Active/TurnAdvancing" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+Event = &"done"
+To = NodePath("../../EndTurn")
+
+[node name="EndTurn" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
+
+[node name="ToBeginTurn" parent="State/Root/Active/EndTurn" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"done"
 To = NodePath("../../BeginTurn")
 
@@ -446,3 +452,4 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateEntered" from="State/Root/Active/EndAction" to="." method="OnEndActionEntered"]
 [connection signal="StateExited" from="State/Root/Active/EndAction" to="." method="OnEndActionExited"]
 [connection signal="StateEntered" from="State/Root/Active/TurnAdvancing" to="." method="OnTurnAdvancingEntered"]
+[connection signal="StateEntered" from="State/Root/Active/EndTurn" to="." method="OnEndTurnEntered"]

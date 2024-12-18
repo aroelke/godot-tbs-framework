@@ -18,6 +18,8 @@ public partial class LevelEvents : Node
 
     /// <summary>Signals that a unit's action has ended.</summary>
     [Signal] public delegate void ActionEndedEventHandler(Unit unit);
+
+    [Signal] public delegate void TurnEndedEventHandler(int turn, Army army);
 #endregion
 #region Event Controller
     /// <summary>Signal that an event is complete, so the level can stop waiting for it.</summary>
