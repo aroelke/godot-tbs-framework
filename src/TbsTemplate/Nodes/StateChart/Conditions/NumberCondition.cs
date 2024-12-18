@@ -7,7 +7,7 @@ namespace TbsTemplate.Nodes.StateChart.Conditions;
 
 /// <summary><see cref="Chart"/> action condition that evaluates a single numerical property and compares it to a static value.</summary>
 /// <typeparam name="T">Numerical type</typeparam>
-[Tool]
+[Icon("res://icons/statechart/NumberCondition.svg"), Tool]
 public abstract partial class NumberCondition<[MustBeVariant] T> : Condition where T : INumber<T>
 {
     private const string Equal          = "=";
