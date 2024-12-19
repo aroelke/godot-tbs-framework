@@ -456,11 +456,7 @@ public partial class LevelManager : Node
 
         // Move the unit and delete the pathfinder as we don't need it anymore
         Grid.Occupants.Remove(_selected.Cell);
-        _selected.Connect(
-            Unit.SignalName.DoneMoving,
-            Callable.From(_target is null ? () => State.SendEvent(_events[DoneEvent]) : () => State.SendEvent(_events[SkipEvent])),
-            (uint)ConnectFlags.OneShot
-        );
+        _selected.Connect(Unit.SignalName.DoneMoving, _target is null ? () => State.SendEvent(_events[DoneEvent]) : () => State.SendEvent(_events[SkipEvent]), (uint)ConnectFlags.OneShot);
         Grid.Occupants[_path[^1]] = _selected;
         _selected.MoveAlong(_path); // must be last in case it fires right away
     }
@@ -636,7 +632,7 @@ public partial class LevelManager : Node
         _target = null;
         _combatResults = null;
         ActionLayers.Clear();
-        SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, Callable.From(() => State.SendEvent(_events[DoneEvent])), (uint)ConnectFlags.OneShot);
+        SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, () => State.SendEvent(_events[DoneEvent]), (uint)ConnectFlags.OneShot);
     }
 
     public void OnCombatExited()
@@ -788,7 +784,7 @@ public partial class LevelManager : Node
                     if (!_armies.MoveNext())
                         break;
 
-            LevelEvents.Singleton.Connect(LevelEvents.SignalName.EventComplete, Callable.From(OnEventComplete));
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.EventComplete, OnEventComplete);
 
             MusicController.ResetPlayback();
         }

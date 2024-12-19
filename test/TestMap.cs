@@ -1,4 +1,5 @@
 using Godot;
+using TbsTemplate.Extensions;
 using TbsTemplate.Scenes;
 using TbsTemplate.Scenes.Level;
 using TbsTemplate.UI;
@@ -27,8 +28,8 @@ public partial class TestMap : Node2D
 
         if (!Engine.IsEditorHint())
         {
-            LevelEvents.Singleton.Connect(LevelEvents.SignalName.SuccessObjectiveComplete, Callable.From(() => OnObjectiveCompleted(true)));
-            LevelEvents.Singleton.Connect(LevelEvents.SignalName.FailureObjectiveComplete, Callable.From(() => OnObjectiveCompleted(false)));
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.SuccessObjectiveComplete, () => OnObjectiveCompleted(true));
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.FailureObjectiveComplete, () => OnObjectiveCompleted(false));
         }
     }
 }

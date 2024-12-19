@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
+using TbsTemplate.Extensions;
 using TbsTemplate.Scenes.Combat.Animations;
 using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.Scenes.Level.Object;
@@ -122,7 +123,7 @@ public partial class CombatScene : Node
             if (action.Hit)
             {
                 _animations[action.Actor].ZIndex = 1;
-                _animations[action.Actor].Connect(CombatAnimation.SignalName.AttackStrike, Callable.From(() => {
+                _animations[action.Actor].Connect(CombatAnimation.SignalName.AttackStrike, () => {
                     if (action.Damage > 0)
                     {
                         HitSound.Play();
@@ -134,13 +135,13 @@ public partial class CombatScene : Node
                     }
                     else
                         BlockSound.Play();
-                }), (uint)ConnectFlags.OneShot);
+                }, (uint)ConnectFlags.OneShot);
             }
             else
             {
                 _animations[action.Target].ZIndex = 1;
-                _animations[action.Actor].Connect(CombatAnimation.SignalName.AttackDodged, Callable.From(() => _animations[action.Target].PlayAnimation(CombatAnimation.DodgeAnimation)), (uint)ConnectFlags.OneShot);
-                _animations[action.Actor].Connect(CombatAnimation.SignalName.AttackStrike, Callable.From(() => MissSound.Play()), (uint)ConnectFlags.OneShot);
+                _animations[action.Actor].Connect(CombatAnimation.SignalName.AttackDodged, () => _animations[action.Target].PlayAnimation(CombatAnimation.DodgeAnimation), (uint)ConnectFlags.OneShot);
+                _animations[action.Actor].Connect(CombatAnimation.SignalName.AttackStrike, () => MissSound.Play(), (uint)ConnectFlags.OneShot);
             }
 
             // Play the animation sequence for the turn
@@ -200,7 +201,7 @@ public partial class CombatScene : Node
         {
             MusicController.Resume(BackgroundMusic);
             MusicController.FadeIn(SceneManager.CurrentTransition.TransitionTime/2);
-            SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, Callable.From(Start), (uint)ConnectFlags.OneShot);
+            SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, Start, (uint)ConnectFlags.OneShot);
         }
     }
 
