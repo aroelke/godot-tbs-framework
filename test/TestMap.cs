@@ -13,11 +13,11 @@ public partial class TestMap : Node2D
     {
         await ToSignal(GetTree().CreateTimer(1), Timer.SignalName.Timeout);
 
-        SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<TestGameOver>((s) => {
+        SceneManager.Singleton.Connect<TestGameOver>(SceneManager.SignalName.SceneLoaded, (s) => {
             MusicController.Stop();
             s.win = success;
             QueueFree();
-        }), (uint)ConnectFlags.OneShot);
+        }, (uint)ConnectFlags.OneShot);
         SceneManager.JumpToScene(GameOverScreen);
     }
 

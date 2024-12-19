@@ -1,6 +1,7 @@
 #pragma warning disable IDE1006 // Naming Styles
 
 using Godot;
+using TbsTemplate.Extensions;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 using TbsTemplate.Scenes.Level.Objectives;
@@ -74,7 +75,7 @@ public partial class EventController : Node
         if (!Engine.IsEditorHint())
         {
             LevelEvents.Singleton.Connect(LevelEvents.SignalName.TurnBegan, Callable.From<int, Army>(OnTurnBegan));
-            LevelEvents.Singleton.Connect(LevelEvents.SignalName.ActionEnded, Callable.From<Unit>(OnActionEnded));
+            LevelEvents.Singleton.Connect<Unit>(LevelEvents.SignalName.ActionEnded, OnActionEnded);
             LevelEvents.Singleton.Connect(LevelEvents.SignalName.TurnEnded, Callable.From<int, Army>(OnTurnEnded));
         }
     }

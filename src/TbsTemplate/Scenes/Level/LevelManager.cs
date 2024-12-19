@@ -620,7 +620,7 @@ public partial class LevelManager : Node
         Pointer.StartWaiting(hide:true);
 
         _combatResults = CombatCalculations.CombatResults(_selected, _target);
-        SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<CombatScene>((s) => s.Initialize(_selected, _target, _combatResults)), (uint)ConnectFlags.OneShot);
+        SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, _combatResults), (uint)ConnectFlags.OneShot);
         SceneManager.CallScene(CombatScenePath);
     }
 
@@ -774,7 +774,7 @@ public partial class LevelManager : Node
                 unit.Cell = Grid.CellOf(unit.GlobalPosition - Grid.GlobalPosition);
                 Grid.Occupants[unit.Cell] = unit;
             }
-            LevelEvents.Singleton.Connect(LevelEvents.SignalName.UnitDefeated, Callable.From<Unit>(OnUnitDefeated));
+            LevelEvents.Singleton.Connect<Unit>(LevelEvents.SignalName.UnitDefeated, OnUnitDefeated);
 
             _armies = GetChildren().OfType<Army>().GetCyclicalEnumerator();
             if (StartingArmy is null)
