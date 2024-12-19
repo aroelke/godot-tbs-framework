@@ -74,9 +74,9 @@ public partial class EventController : Node
         base._Ready();
         if (!Engine.IsEditorHint())
         {
-            LevelEvents.Singleton.Connect(LevelEvents.SignalName.TurnBegan, Callable.From<int, Army>(OnTurnBegan));
+            LevelEvents.Singleton.Connect<int, Army>(LevelEvents.SignalName.TurnBegan, OnTurnBegan);
             LevelEvents.Singleton.Connect<Unit>(LevelEvents.SignalName.ActionEnded, OnActionEnded);
-            LevelEvents.Singleton.Connect(LevelEvents.SignalName.TurnEnded, Callable.From<int, Army>(OnTurnEnded));
+            LevelEvents.Singleton.Connect<int, Army>(LevelEvents.SignalName.TurnEnded, OnTurnEnded);
         }
     }
 }

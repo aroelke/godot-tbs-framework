@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Godot;
+using TbsTemplate.Extensions;
 using TbsTemplate.Scenes.Level.Object.Group;
 
 namespace TbsTemplate.Scenes.Level.Objectives;
@@ -32,6 +33,6 @@ public partial class TimeObjective : Objective
     {
         base._Ready();
         if (!Engine.IsEditorHint())
-            LevelEvents.Singleton.Connect(LevelEvents.SignalName.TurnBegan, Callable.From<int, Army>((t, _) => _turn = t));
+            LevelEvents.Singleton.Connect<int, Army>(LevelEvents.SignalName.TurnBegan, (t, _) => _turn = t);
     }
 }
