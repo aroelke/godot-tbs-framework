@@ -13,7 +13,6 @@ using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI;
 using TbsTemplate.UI.Controls.Device;
-using TbsTemplate.Scenes.Level.Objectives;
 using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Combat;
 using TbsTemplate.Nodes.Components;
@@ -38,6 +37,7 @@ public partial class LevelManager : Node
     private readonly StringName OccupiedProperty    = "occupied";    // Current cell occupant (see below for options)
     private readonly StringName TargetProperty      = "target";      // Current cell contains a potential target (for attack or support)
     private readonly StringName TraversableProperty = "traversable"; // Current cell is traversable
+    private readonly StringName ActiveProperty      = "active";      // Number of remaining active units
     // State chart occupied values
     private const string NotOccupied          = "";         // Nothing in the cell
     private const string SelectedOccuiped     = "selected"; // Cell occupied by the selected unit (if there is one)
@@ -158,7 +158,6 @@ public partial class LevelManager : Node
     private AudioStreamPlayer ZoneUpdateSound(bool on) => on ? ZoneOnSound : ZoneOffSound;
 #endregion
 #region Exports
-    private int _turn = 1;
     private bool _showGlobalZone = false;
 
     [Export(PropertyHint.File, "*.tscn")] public string CombatScenePath = null;
@@ -178,16 +177,7 @@ public partial class LevelManager : Node
 
     /// <summary>Turn count (including current turn, so it starts at 1).</summary>
     [ExportGroup("Turn Control")]
-    [Export] public int Turn
-    {
-        get => _turn;
-        set
-        {
-            _turn = value;
-            if (!Engine.IsEditorHint())
-                TurnLabel.Text = $"Turn {_turn}: {_armies.Current.Faction.Name}";
-        }
-    }
+    [Export] public int Turn = 1;
 
     /// <summary>Whether or not to show the global danger zone relative to the player's <see cref="Army"/>.</summary>
     [ExportGroup("Range Overlay")]
@@ -659,6 +649,9 @@ public partial class LevelManager : Node
     /// <summary>If a unit was selected, signal that its action has ended. Otherwise, just continue.</summary>
     public void OnEndActionEntered()
     {
+        _selected.Finish();
+        State.ExpressionProperties = State.ExpressionProperties.SetItem(ActiveProperty, ((IEnumerable<Unit>)_armies.Current).Count((u) => u.Active));
+
         CancelHint.Visible = false;
         if (IsInstanceValid(_selected))
             Callable.From<Unit>((u) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, u)).CallDeferred(_selected);
@@ -669,44 +662,32 @@ public partial class LevelManager : Node
     /// <summary>Clean up at the end of the unit's turn.</summary>
     public void OnEndActionExited()
     {
-        // If the turn was skipped, there might not be a selected unit
-        if (_selected is not null)
-        {
-            if (_selected.Health.Value > 0)
-                _selected.Finish();
-            else
-                _selected.Die();
-            _selected = null;
-        }
+        if (_selected.Health.Value <= 0)
+            _selected.Die();
+        _selected = null;
     }
 #endregion
-#region Turn Advancing State
-    /// <summary>
-    /// Clean up after finishing a unit's action, then go to the next army if it was the last available unit in the current army, incrementing the turn
-    /// counter when going back to <see cref="StartingArmy"/>.
-    /// </summary>
-    public async void OnTurnAdvancingEntered()
+#region End Turn State
+    /// <summary>After a delay, signal that the turn is ending and wait for a response.</summary>
+    public async void OnEndTurnEntered()
     {
-        bool advance = !((IEnumerable<Unit>)_armies.Current).Any(static (u) => u.Active);
-        if (advance)
+        TurnAdvance.Start();
+        await ToSignal(TurnAdvance, Timer.SignalName.Timeout);
+
+        Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnEnded, t, a)).CallDeferred(Turn, _armies.Current);
+    }
+
+    /// <summary>Refresh all the units in the army whose turn just ended so they aren't gray anymore and are animated.</summary>
+    public void OnEndTurnExited()
+    {
+        foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
+            unit.Refresh();
+
+        do
         {
-            TurnAdvance.Start();
-            await ToSignal(TurnAdvance, Timer.SignalName.Timeout);
-
-            // Refresh all the units in the army whose turn just ended so they aren't gray anymore and are animated
-            foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
-                unit.Refresh();
-
-            do
-            {
-                if (_armies.MoveNext() && _armies.Current == StartingArmy)
-                    Turn++;
-            } while (!((IEnumerable<Unit>)_armies.Current).Any());
-
-            Callable.From<StringName>(State.SendEvent).CallDeferred(_events[DoneEvent]);
-        }
-        else
-            Callable.From<StringName>(State.SendEvent).CallDeferred(_events[SkipEvent]);
+            if (_armies.MoveNext() && _armies.Current == StartingArmy)
+                Turn++;
+        } while (!((IEnumerable<Unit>)_armies.Current).Any());
     }
 #endregion
 #region State Independent
@@ -806,7 +787,6 @@ public partial class LevelManager : Node
                 while (_armies.Current != StartingArmy)
                     if (!_armies.MoveNext())
                         break;
-            UpdateTurnCounter();
 
             LevelEvents.Singleton.Connect(LevelEvents.SignalName.EventComplete, Callable.From(OnEventComplete));
 

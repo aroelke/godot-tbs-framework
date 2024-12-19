@@ -1,4 +1,5 @@
-using System;
+#pragma warning disable IDE1006 // Naming Styles
+
 using Godot;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
@@ -8,7 +9,8 @@ namespace TbsTemplate.Scenes.Level;
 
 /// <summary>
 /// Object controlling scriptable aspects of a level.  Interacts with the <see cref="LevelManager"/> to advance the state of the level and handles
-/// objectives.
+/// objectives. Each event has an overridable method like <see cref="Node"/> does, which starts with an underscore for consistency with <see cref="Node"/>'s
+/// ones.
 /// </summary>
 public partial class EventController : Node
 {
@@ -39,28 +41,32 @@ public partial class EventController : Node
             return false;
     }
 
-    /// <summary>
-    /// Event to perform before an army's turn begins. By default, evaluates the objectives and signals to start the turn if not success or failure.
-    /// Overriding classes should signal <see cref="EventComplete"/> when they're ready for the turn to begin.
-    /// </summary>
-    /// <param name="turn">Turn number that's about to begin.</param>
-    /// <param name="army">Army that's about to begin its turn.</param>
-    public virtual void OnTurnBegan(int turn, Army army)
+    /// <summary>Skip the event.  Just evaluate the objectives, and, if none are accomplished, continue the turn.</summary>
+    public void SkipEvent()
     {
         if (!EvaluateObjective())
             LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.EventComplete);
     }
 
     /// <summary>
+    /// Event to perform before an army's turn begins. By default, evaluates the objectives and signals to start the turn if not success or failure.
+    /// Overriding classes should signal <c>EventComplete</c> when they're ready for the turn to begin.
+    /// </summary>
+    /// <param name="turn">Turn number that's about to begin.</param>
+    /// <param name="army">Army that's about to begin its turn.</param>
+    public virtual void _TurnBegan(int turn, Army army) => SkipEvent();
+    public void OnTurnBegan(int turn, Army army) => Callable.From<int, Army>(_TurnBegan).CallDeferred(turn, army);
+
+    /// <summary>
     /// Event to perform just after a unit ends its action. By default, evaluates the objectives and signals to continue to the next action if not success
-    /// or failure. Overriding classes should signal <see cref="EventComplete"/> when they're ready for the turn to end.
+    /// or failure. Overriding classes should signal <c>EventComplete</c> when they're ready for the turn to end.
     /// </summary>
     /// <param name="unit">Unit that just acted.</param>
-    public virtual void OnActionEnded(Unit unit)
-    {
-        if (!EvaluateObjective())
-            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.EventComplete);
-    }
+    public virtual void _ActionEnded(Unit unit) => SkipEvent();
+    public void OnActionEnded(Unit unit) => Callable.From<Unit>(_ActionEnded).CallDeferred(unit);
+
+    public virtual void _TurnEnded(int turn, Army army) => SkipEvent();
+    public void OnTurnEnded(int turn, Army army) => Callable.From<int, Army>(_TurnEnded).CallDeferred(turn, army);
 
     public override void _Ready()
     {
@@ -69,6 +75,8 @@ public partial class EventController : Node
         {
             LevelEvents.Singleton.Connect(LevelEvents.SignalName.TurnBegan, Callable.From<int, Army>(OnTurnBegan));
             LevelEvents.Singleton.Connect(LevelEvents.SignalName.ActionEnded, Callable.From<Unit>(OnActionEnded));
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.TurnEnded, Callable.From<int, Army>(OnTurnEnded));
         }
     }
 }
+#pragma warning restore IDE1006 // Naming Styles

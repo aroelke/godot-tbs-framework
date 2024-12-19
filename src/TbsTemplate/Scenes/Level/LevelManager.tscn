@@ -1,4 +1,4 @@
-[gd_scene load_steps=46 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=48 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DBrain.tscn" id="3_td8u6"]
@@ -24,6 +24,7 @@
 [ext_resource type="PackedScene" uid="uid://dtrul7dw5r6ly" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/Vector2Reaction.tscn" id="23_u3pac"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/AllCondition.cs" id="25_6qv6s"]
 [ext_resource type="PackedScene" uid="uid://bajcy40oic1wf" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/ProcessReaction.tscn" id="25_lv3jy"]
+[ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/IntCondition.cs" id="27_kyhbc"]
 [ext_resource type="AudioStream" uid="uid://bg4mbs7d25qaj" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Select - 1.wav" id="28_dnjya"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/AnyCondition.cs" id="29_kfqmx"]
 [ext_resource type="PackedScene" uid="uid://b7i65c130fgfs" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/EnterTreeReaction.tscn" id="29_o6hju"]
@@ -33,7 +34,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -1410167566
+seed = -707327076
 
 [sub_resource type="Resource" id="Resource_lt2uh"]
 script = ExtResource("22_tix5y")
@@ -91,6 +92,12 @@ Conditions = [SubResource("Resource_w328r"), SubResource("Resource_x33ju")]
 [sub_resource type="Resource" id="Resource_j0hg7"]
 script = ExtResource("23_6etqp")
 Condition = ExtResource("22_sve70")
+
+[sub_resource type="Resource" id="Resource_3lvnu"]
+script = ExtResource("27_kyhbc")
+Value = 0
+Comparison = "="
+Number = &"active"
 
 [node name="LevelManager" type="Node"]
 script = ExtResource("1_r2v0t")
@@ -250,9 +257,9 @@ Event = &"select"
 To = NodePath("../../UnitSelected")
 Condition = SubResource("Resource_mydqi")
 
-[node name="ToEndAction" parent="State/Root/Active/Idle" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+[node name="ToEndTurn" parent="State/Root/Active/Idle" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"skip"
-To = NodePath("../../EndAction")
+To = NodePath("../../EndTurn")
 
 [node name="UnitSelected" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
 process_mode = 4
@@ -336,18 +343,18 @@ To = NodePath("../../EndAction")
 [node name="EndAction" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
-[node name="ToAdvancing" parent="State/Root/Active/EndAction" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+[node name="ToEndTurn" parent="State/Root/Active/EndAction" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"done"
-To = NodePath("../../TurnAdvancing")
+To = NodePath("../../EndTurn")
+Condition = SubResource("Resource_3lvnu")
 
-[node name="TurnAdvancing" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
-process_mode = 4
-
-[node name="ToIdle" parent="State/Root/Active/TurnAdvancing" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-Event = &"skip"
+[node name="ToIdle" parent="State/Root/Active/EndAction" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+Event = &"done"
 To = NodePath("../../Idle")
 
-[node name="ToBeginTurn" parent="State/Root/Active/TurnAdvancing" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+[node name="EndTurn" parent="State/Root/Active" instance=ExtResource("19_o30vs")]
+
+[node name="ToBeginTurn" parent="State/Root/Active/EndTurn" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"done"
 To = NodePath("../../BeginTurn")
 
@@ -445,4 +452,5 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateEnteredTree" from="State/Root/Active/InCombat/OnEnteredTree" to="." method="OnCombatEnteredTree"]
 [connection signal="StateEntered" from="State/Root/Active/EndAction" to="." method="OnEndActionEntered"]
 [connection signal="StateExited" from="State/Root/Active/EndAction" to="." method="OnEndActionExited"]
-[connection signal="StateEntered" from="State/Root/Active/TurnAdvancing" to="." method="OnTurnAdvancingEntered"]
+[connection signal="StateEntered" from="State/Root/Active/EndTurn" to="." method="OnEndTurnEntered"]
+[connection signal="StateExited" from="State/Root/Active/EndTurn" to="." method="OnEndTurnExited"]
