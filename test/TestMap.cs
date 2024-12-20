@@ -1,4 +1,5 @@
 using Godot;
+using TbsTemplate.Extensions;
 using TbsTemplate.Scenes;
 using TbsTemplate.Scenes.Level;
 using TbsTemplate.UI;
@@ -12,11 +13,11 @@ public partial class TestMap : Node2D
     {
         await ToSignal(GetTree().CreateTimer(1), Timer.SignalName.Timeout);
 
-        SceneManager.Singleton.Connect(SceneManager.SignalName.SceneLoaded, Callable.From<TestGameOver>((s) => {
+        SceneManager.Singleton.Connect<TestGameOver>(SceneManager.SignalName.SceneLoaded, (s) => {
             MusicController.Stop();
             s.win = success;
             QueueFree();
-        }), (uint)ConnectFlags.OneShot);
+        }, (uint)ConnectFlags.OneShot);
         SceneManager.JumpToScene(GameOverScreen);
     }
 
@@ -27,8 +28,8 @@ public partial class TestMap : Node2D
 
         if (!Engine.IsEditorHint())
         {
-            LevelEvents.Singleton.Connect(LevelEvents.SignalName.SuccessObjectiveComplete, Callable.From(() => OnObjectiveCompleted(true)));
-            LevelEvents.Singleton.Connect(LevelEvents.SignalName.FailureObjectiveComplete, Callable.From(() => OnObjectiveCompleted(false)));
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.SuccessObjectiveComplete, () => OnObjectiveCompleted(true));
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.FailureObjectiveComplete, () => OnObjectiveCompleted(false));
         }
     }
 }
