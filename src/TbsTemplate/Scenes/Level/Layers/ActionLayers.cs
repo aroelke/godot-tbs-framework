@@ -86,6 +86,15 @@ public partial class ActionLayers : Node2D
             Clear(name);
     }
 
+    /// <summary>Clear all but one layer.</summary>
+    /// <param name="name">Name of the layer to keep.</param>
+    public void Keep(StringName name)
+    {
+        foreach ((StringName layer, _) in _layers)
+            if (layer != name)
+                Clear(layer);
+    }
+
     public override string[] _GetConfigurationWarnings()
     {
         List<string> warnings = new(base._GetConfigurationWarnings() ?? []);

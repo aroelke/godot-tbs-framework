@@ -480,17 +480,33 @@ public partial class LevelManager : Node
 #endregion
 #region Unit Commanding State
     private ContextMenu _commandMenu = null;
+    private IEnumerable<Vector2I> _targets = [];
 
     public void OnCommandingEntered()
     {
         // Show the unit's attack/support ranges
+        _targets = [];
         ActionLayers.Clear(MoveLayer);
         ActionLayers[AttackLayer] = _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
         ActionLayers[SupportLayer] = _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
 
         List<(StringName, Action)> options = [];
-        if (ActionLayers[AttackLayer].Any() || ActionLayers[SupportLayer].Any())
-            options.Add(("Attack", () => State.SendEvent(_events[SelectEvent])));
+        if (ActionLayers[AttackLayer].Any())
+        {
+            options.Add(("Attack", () => {
+                _targets = ActionLayers[AttackLayer];
+                ActionLayers.Keep(AttackLayer);
+                State.SendEvent(_events[SelectEvent]);
+            }));
+        }
+        if (ActionLayers[SupportLayer].Any())
+        {
+            options.Add(("Support", () => {
+                _targets = ActionLayers[SupportLayer];
+                ActionLayers.Keep(SupportLayer);
+                State.SendEvent(_events[SelectEvent]);
+            }));
+        }
         foreach (SpecialActionRegion region in SpecialActionRegions)
         {
             if (region.HasSpecialAction(_selected, _selected.Cell))
@@ -537,15 +553,11 @@ public partial class LevelManager : Node
 
     public void OnTargetingEntered()
     {
-        // Show the unit's attack/support ranges
-        ImmutableHashSet<Vector2I> attackable = _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false).ToImmutableHashSet();
-        ImmutableHashSet<Vector2I> supportable = _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false).ToImmutableHashSet();
-
         // Restrict cursor movement to actionable cells
         if (_target is null)
         {
             Pointer.AnalogTracking = false;
-            Cursor.HardRestriction = attackable.Union(supportable);
+            Cursor.HardRestriction = _targets.ToImmutableHashSet();
             Cursor.Wrap = true;
         }
     }
