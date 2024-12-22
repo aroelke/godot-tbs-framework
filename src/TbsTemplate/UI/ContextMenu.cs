@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -77,13 +78,8 @@ public partial class ContextMenu : PanelContainer
 
     /// <summary>Set up the options menu.</summary>
     /// <param name="options">List of items to present in the menu.</param>
-    /// <param name="wrap">Whether button navigation should wrap.</param>
     [OnInstantiate]
-    public void Initialize(IEnumerable<StringName> options, bool wrap)
-    {
-        Options = [.. options];
-        Wrap = wrap;
-    }
+    public void Initialize(IEnumerable<StringName> options) => Options = [.. options];
 
     /// <inheritdoc cref="Control.GrabFocus"/>
     /// <param name="option">Option corresponding to the button to focus on.</param>

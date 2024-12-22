@@ -93,7 +93,8 @@ public partial class LevelManager : Node
     private ContextMenu ShowMenu(Rect2 rect, IEnumerable<(StringName name, Action action)> options)
     {
 
-        ContextMenu menu = ContextMenu.Instantiate(options.Select((o) => o.name), true);
+        ContextMenu menu = ContextMenu.Instantiate(options.Select((o) => o.name));
+        menu.Wrap = true;
         UserInterface.AddChild(menu);
         menu.Visible = false;
         foreach ((StringName name, Action action) in options)
