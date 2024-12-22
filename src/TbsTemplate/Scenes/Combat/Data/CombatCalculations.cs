@@ -38,6 +38,8 @@ public static class CombatCalculations
     /// <param name="defender">Unit receiving the attack.</param>
     public static CombatAction CreateAttackAction(Unit attacker, Unit defender) => new(attacker, defender, CombatActionType.Attack, Damage(attacker, defender), rnd.Next(100) < HitChance(attacker, defender));
 
+    public static CombatAction CreateSupportAction(Unit supporter, Unit recipient) => new(supporter, recipient, CombatActionType.Support, -supporter.Stats.Healing, true);
+
     /// <summary>
     /// Deterine which unit, if any, will follow up in a combat situation. Currently, a unit follows up if its agility is higher than the
     /// other participant's.
@@ -59,7 +61,7 @@ public static class CombatCalculations
     /// <param name="a">One of the participants.</param>
     /// <param name="b">One of the participants.</param>
     /// <returns>A list of data structures specifying the action taken during each round of combat.</returns>
-    public static ImmutableList<CombatAction> CombatResults(Unit a, Unit b)
+    public static ImmutableList<CombatAction> AttackResults(Unit a, Unit b)
     {
         // Compute complete combat action list
         ImmutableList<CombatAction> actions = [CreateAttackAction(a, b), CreateAttackAction(b, a)];

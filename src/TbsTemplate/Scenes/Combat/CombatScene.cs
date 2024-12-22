@@ -119,46 +119,59 @@ public partial class CombatScene : Node
                 animation.PlayAnimation(CombatAnimation.IdleAnimation);
             }
 
-            // Set up animation triggers
-            if (action.Hit)
+            switch (action.Type)
             {
-                _animations[action.Actor].ZIndex = 1;
-                _animations[action.Actor].Connect(CombatAnimation.SignalName.AttackStrike, () => {
-                    if (action.Damage > 0)
-                    {
-                        HitSound.Play();
-                        HitSparks.Position = _animations[action.Actor].Position + _animations[action.Actor].ContactPoint;
-                        HitSparks.ZIndex = _animations[action.Actor].ZIndex + 1;
-                        HitSparks.Emitting = true;
-                        Camera.Trauma += CameraShakeHitTrauma;
-                        _infos[action.Target].Health.Value = _infos[action.Target].Health.Value - action.Damage;
-                    }
-                    else
-                        BlockSound.Play();
-                }, (uint)ConnectFlags.OneShot);
-            }
-            else
-            {
-                _animations[action.Target].ZIndex = 1;
-                _animations[action.Actor].Connect(CombatAnimation.SignalName.AttackDodged, () => _animations[action.Target].PlayAnimation(CombatAnimation.DodgeAnimation), (uint)ConnectFlags.OneShot);
-                _animations[action.Actor].Connect(CombatAnimation.SignalName.AttackStrike, () => MissSound.Play(), (uint)ConnectFlags.OneShot);
-            }
+            case CombatActionType.Attack:
+                // Set up animation triggers
+                if (action.Hit)
+                {
+                    _animations[action.Actor].ZIndex = 1;
+                    _animations[action.Actor].Connect(CombatAnimation.SignalName.AttackStrike, () => {
+                        if (action.Damage > 0)
+                        {
+                            HitSound.Play();
+                            HitSparks.Position = _animations[action.Actor].Position + _animations[action.Actor].ContactPoint;
+                            HitSparks.ZIndex = _animations[action.Actor].ZIndex + 1;
+                            HitSparks.Emitting = true;
+                            Camera.Trauma += CameraShakeHitTrauma;
+                            _infos[action.Target].Health.Value -= action.Damage;
+                        }
+                        else
+                            BlockSound.Play();
+                    }, (uint)ConnectFlags.OneShot);
+                }
+                else
+                {
+                    _animations[action.Target].ZIndex = 1;
+                    _animations[action.Actor].Connect(CombatAnimation.SignalName.AttackDodged, () => _animations[action.Target].PlayAnimation(CombatAnimation.DodgeAnimation), (uint)ConnectFlags.OneShot);
+                    _animations[action.Actor].Connect(CombatAnimation.SignalName.AttackStrike, () => MissSound.Play(), (uint)ConnectFlags.OneShot);
+                }
 
-            // Play the animation sequence for the turn
-            _animations[action.Actor].PlayAnimation(CombatAnimation.AttackAnimation);
-            await ActionCompleted(action);
-            await Delay(HitDelay);
-            _animations[action.Actor].PlayAnimation(CombatAnimation.AttackReturnAnimation);
-            if (!action.Hit)
-                _animations[action.Target].PlayAnimation(CombatAnimation.DodgeReturnAnimation);
-            await ActionCompleted(action);
+                // Play the animation sequence for the turn
+                _animations[action.Actor].PlayAnimation(CombatAnimation.AttackAnimation);
+                await ActionCompleted(action);
+                await Delay(HitDelay);
+                _animations[action.Actor].PlayAnimation(CombatAnimation.AttackReturnAnimation);
+                if (!action.Hit)
+                    _animations[action.Target].PlayAnimation(CombatAnimation.DodgeReturnAnimation);
+                await ActionCompleted(action);
 
-            // Clean up any triggers
-            if (action.Hit && _infos[action.Target].Health.Value == 0)
-            {
-                _animations[action.Target].PlayAnimation(CombatAnimation.DieAnimation);
-                DeathSound.Play();
-                await ToSignal(_animations[action.Target], CombatAnimation.SignalName.AnimationFinished);
+                // Clean up any triggers
+                if (action.Hit && _infos[action.Target].Health.Value == 0)
+                {
+                    _animations[action.Target].PlayAnimation(CombatAnimation.DieAnimation);
+                    DeathSound.Play();
+                    await ToSignal(_animations[action.Target], CombatAnimation.SignalName.AnimationFinished);
+                }
+                break;
+            case CombatActionType.Support:
+                _animations[action.Actor].Connect(CombatAnimation.SignalName.SpellCast, () => _infos[action.Target].Health.Value -= action.Damage, (uint)ConnectFlags.OneShot);
+                _animations[action.Actor].PlayAnimation(CombatAnimation.SupportAnimation);
+                await ActionCompleted(action);
+                await Delay(HitDelay);
+                _animations[action.Actor].PlayAnimation(CombatAnimation.SupportReturnAnimation);
+                await ActionCompleted(action);
+                break;
             }
 
             if (LeftInfo.Health.Value == 0 || RightInfo.Health.Value == 0)

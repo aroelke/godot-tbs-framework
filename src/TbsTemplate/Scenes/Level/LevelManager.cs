@@ -63,6 +63,7 @@ public partial class LevelManager : Node
     private IEnumerator<Army> _armies = null;
     private Vector2I? _initialCell = null;
     private BoundedNode2D _prevCameraTarget = null;
+    private StringName _command = null;
 
     private Grid Grid = null;
 #endregion
@@ -399,6 +400,10 @@ public partial class LevelManager : Node
             if (highlighted != _selected && _armies.Current.Faction.AlliedTo(highlighted))
                 ErrorSound.Play();
         }
+        else if (ActionLayers[AttackLayer].Contains(cell))
+            _command = AttackLayer;
+        else if (ActionLayers[SupportLayer].Contains(cell))
+            _command = SupportLayer;
     }
 
     /// <summary>
@@ -495,6 +500,7 @@ public partial class LevelManager : Node
             {
                 options.Add(new(name, () => {
                     _targets = ActionLayers[layer];
+                    _command = layer;
                     ActionLayers.Keep(layer);
                     State.SendEvent(_events[SelectEvent]);
                 }));
@@ -525,6 +531,7 @@ public partial class LevelManager : Node
     public void OnCommandingCanceled()
     {
         ActionLayers.Clear();
+        _command = null;
 
         // Move the selected unit back to its original cell
         Grid.Occupants.Remove(_selected.Cell);
@@ -624,7 +631,12 @@ public partial class LevelManager : Node
         Cursor.Halt();
         Pointer.StartWaiting(hide:true);
 
-        _combatResults = CombatCalculations.CombatResults(_selected, _target);
+        if (_command == AttackLayer)
+            _combatResults = CombatCalculations.AttackResults(_selected, _target);
+        else if (_command == SupportLayer)
+            _combatResults = [CombatCalculations.CreateSupportAction(_selected, _target)];
+        else
+            throw new NotSupportedException($"Unknown action {_command}");
         SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, _combatResults), (uint)ConnectFlags.OneShot);
         SceneManager.CallScene(CombatScenePath);
     }
