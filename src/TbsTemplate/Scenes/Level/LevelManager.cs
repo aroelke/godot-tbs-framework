@@ -484,14 +484,12 @@ public partial class LevelManager : Node
     public void OnCommandingEntered()
     {
         // Show the unit's attack/support ranges
-        IEnumerable<Vector2I> attackable = _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
-        IEnumerable<Vector2I> supportable = _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
         ActionLayers.Clear(MoveLayer);
-        ActionLayers[AttackLayer] = attackable;
-        ActionLayers[SupportLayer] = supportable;
+        ActionLayers[AttackLayer] = _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
+        ActionLayers[SupportLayer] = _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
 
         List<(StringName, Action)> options = [];
-        if (attackable.Any() || supportable.Any())
+        if (ActionLayers[AttackLayer].Any() || ActionLayers[SupportLayer].Any())
             options.Add(("Attack", () => State.SendEvent(_events[SelectEvent])));
         foreach (SpecialActionRegion region in SpecialActionRegions)
         {
