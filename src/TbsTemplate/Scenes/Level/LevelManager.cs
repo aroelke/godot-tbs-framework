@@ -90,15 +90,12 @@ public partial class LevelManager : Node
         );
     }
 
-    private ContextMenu ShowMenu(Rect2 rect, IEnumerable<(StringName name, Action action)> options)
+    private ContextMenu ShowMenu(Rect2 rect, IEnumerable<ContextMenuOption> options)
     {
-
-        ContextMenu menu = ContextMenu.Instantiate(options.Select((o) => o.name));
+        ContextMenu menu = ContextMenu.Instantiate(options);
         menu.Wrap = true;
         UserInterface.AddChild(menu);
         menu.Visible = false;
-        foreach ((StringName name, Action action) in options)
-            menu[name].Pressed += action;
         menu.MenuClosed += () => {
             Cursor.Resume();
             Camera.Target = _prevCameraTarget;
@@ -119,7 +116,7 @@ public partial class LevelManager : Node
         return menu;
     }
 
-    private ContextMenu ShowMenu(Rect2 rect, params (StringName, Action)[] options) => ShowMenu(rect, (IEnumerable<(StringName, Action)>)options);
+    private ContextMenu ShowMenu(Rect2 rect, params ContextMenuOption[] options) => ShowMenu(rect, (IEnumerable<ContextMenuOption>)options);
 
     /// <summary>Update the UI turn counter for the current turn and change its color to match the army.</summary>
     private void UpdateTurnCounter()
@@ -305,15 +302,15 @@ public partial class LevelManager : Node
         SelectSound.Play();
         State.SendEvent(_events[WaitEvent]);
         ShowMenu(new() { Position = Pointer.Position, Size = Vector2.Zero },
-            ("End Turn", () => {
+            new("End Turn", () => {
                 State.SendEvent(_events[DoneEvent]); // Done waiting
                 foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
                     unit.Finish();
                 State.SendEvent(_events[SkipEvent]); // Skip to end of turn
                 SelectSound.Play();
             }),
-            ("Quit Game", () => GetTree().Quit()),
-            ("Cancel", Cancel)
+            new("Quit Game", () => GetTree().Quit()),
+            new("Cancel", Cancel)
         ).MenuCanceled += Cancel;
     }
 
@@ -491,12 +488,12 @@ public partial class LevelManager : Node
         ActionLayers[AttackLayer] = _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
         ActionLayers[SupportLayer] = _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
 
-        List<(StringName, Action)> options = [];
+        List<ContextMenuOption> options = [];
         void AddActionOption(StringName name, StringName layer)
         {
             if (ActionLayers[layer].Any())
             {
-                options.Add((name, () => {
+                options.Add(new(name, () => {
                     _targets = ActionLayers[layer];
                     ActionLayers.Keep(layer);
                     State.SendEvent(_events[SelectEvent]);
@@ -509,14 +506,14 @@ public partial class LevelManager : Node
         {
             if (region.HasSpecialAction(_selected, _selected.Cell))
             {
-                options.Add((region.Name, () => {
+                options.Add(new(region.Name, () => {
                     region.PerformSpecialAction(_selected, _selected.Cell);
                     State.SendEvent(_events[SkipEvent]);
                 }));
             }
         }
-        options.Add(("End", () => State.SendEvent(_events[SkipEvent])));
-        options.Add(("Cancel", () => State.SendEvent(_events[CancelEvent])));
+        options.Add(new("End", () => State.SendEvent(_events[SkipEvent])));
+        options.Add(new("Cancel", () => State.SendEvent(_events[CancelEvent])));
         _commandMenu = ShowMenu(Grid.CellRect(_selected.Cell), options);
         _commandMenu.MenuCanceled += () => State.SendEvent(_events[CancelEvent]);
         _commandMenu.MenuClosed += () => _commandMenu = null;
