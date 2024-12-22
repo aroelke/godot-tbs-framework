@@ -551,7 +551,7 @@ public partial class LevelManager : Node
     }
 #endregion
 #region Targeting State
-    private ImmutableList<CombatAction> _combatResults = null;
+    private List<CombatAction> _combatResults = null;
 
     public void OnTargetingEntered()
     {
@@ -637,7 +637,7 @@ public partial class LevelManager : Node
             _combatResults = [CombatCalculations.CreateSupportAction(_selected, _target)];
         else
             throw new NotSupportedException($"Unknown action {_command}");
-        SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, _combatResults), (uint)ConnectFlags.OneShot);
+        SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, _combatResults.ToImmutableList()), (uint)ConnectFlags.OneShot);
         SceneManager.CallScene(CombatScenePath);
     }
 

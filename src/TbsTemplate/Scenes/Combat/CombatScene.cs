@@ -88,7 +88,7 @@ public partial class CombatScene : Node
         _infos[left] = LeftInfo;
         LeftInfo.Health = left.Health;
         LeftInfo.Damage = _actions.Where((a) => a.Actor == left).Select(static (a) => a.Damage).ToArray();
-        LeftInfo.HitChance = Mathf.Clamp(CombatCalculations.HitChance(left, right), 0, 100);
+        LeftInfo.HitChance = _actions.Any((a) => a.Actor == left) ? Math.Min(CombatCalculations.HitChance(left, right), 100) : -1;
         LeftInfo.TransitionDuration = HitDelay;
 
         _animations[right] = right.Class.CombatAnimations.Instantiate<CombatAnimation>();
@@ -99,7 +99,7 @@ public partial class CombatScene : Node
         _infos[right] = RightInfo;
         RightInfo.Health = right.Health;
         RightInfo.Damage = _actions.Where((a) => a.Actor == right).Select(static (a) => a.Damage).ToArray();
-        RightInfo.HitChance = Mathf.Clamp(CombatCalculations.HitChance(right, left), 0, 100);
+        RightInfo.HitChance = _actions.Any((a) => a.Actor == right) ? Math.Min(CombatCalculations.HitChance(right, left), 100) : -1;
         RightInfo.TransitionDuration = HitDelay;
 
         foreach ((var _, CombatAnimation animation) in _animations)

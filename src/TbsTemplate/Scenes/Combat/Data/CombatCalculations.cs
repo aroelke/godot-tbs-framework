@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Godot;
 using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Scenes.Combat.Data;
@@ -31,7 +32,7 @@ public static class CombatCalculations
     /// <param name="attacker">Attacking unit.</param>
     /// <param name="defender">Defending unit.</param>
     /// <returns>A number from 0 through 100 that indicates the chance, in percent that the attacker's attack will hit.</returns>
-    public static int HitChance(Unit attacker, Unit defender) => attacker.Stats.Accuracy - defender.Stats.Evasion;
+    public static int HitChance(Unit attacker, Unit defender) => attacker.AttackableCells().Contains(defender.Cell) ? attacker.Stats.Accuracy - defender.Stats.Evasion : -1;
 
     /// <summary>Create an action representing the result of a single attack.</summary>
     /// <param name="attacker">Unit performing the attack.</param>
@@ -61,12 +62,17 @@ public static class CombatCalculations
     /// <param name="a">One of the participants.</param>
     /// <param name="b">One of the participants.</param>
     /// <returns>A list of data structures specifying the action taken during each round of combat.</returns>
-    public static ImmutableList<CombatAction> AttackResults(Unit a, Unit b)
+    public static List<CombatAction> AttackResults(Unit a, Unit b)
     {
+        if (!a.AttackableCells().Contains(b.Cell))
+            throw new ArgumentException("An attack must begin with a valid attacker.");
+
         // Compute complete combat action list
-        ImmutableList<CombatAction> actions = [CreateAttackAction(a, b), CreateAttackAction(b, a)];
+        List<CombatAction> actions = [CreateAttackAction(a, b)];
+        if (b.AttackableCells().Contains(a.Cell))
+            actions.Add(CreateAttackAction(b, a));
         if (FollowUp(a, b) is (Unit doubler, Unit doublee))
-            actions = actions.Add(CreateAttackAction(doubler, doublee));
+            actions.Add(CreateAttackAction(doubler, doublee));
 
         return actions;
     }
