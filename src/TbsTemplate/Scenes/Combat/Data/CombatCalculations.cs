@@ -33,6 +33,11 @@ public static class CombatCalculations
     /// <returns>A number from 0 through 100 that indicates the chance, in percent that the attacker's attack will hit.</returns>
     public static int HitChance(Unit attacker, Unit defender) => attacker.Stats.Accuracy - defender.Stats.Evasion;
 
+    /// <summary>Create an action representing the result of a single attack.</summary>
+    /// <param name="attacker">Unit performing the attack.</param>
+    /// <param name="defender">Unit receiving the attack.</param>
+    public static CombatAction CreateAttackAction(Unit attacker, Unit defender) => new(attacker, defender, CombatActionType.Attack, Damage(attacker, defender), rnd.Next(100) < HitChance(attacker, defender));
+
     /// <summary>
     /// Deterine which unit, if any, will follow up in a combat situation. Currently, a unit follows up if its agility is higher than the
     /// other participant's.
@@ -57,12 +62,9 @@ public static class CombatCalculations
     public static ImmutableList<CombatAction> CombatResults(Unit a, Unit b)
     {
         // Compute complete combat action list
-        ImmutableList<CombatAction> actions = ImmutableList.Create<CombatAction>(
-            new() { Actor = a, Target = b, Damage = Damage(a, b), Hit = rnd.Next(100) < HitChance(a, b) },
-            new() { Actor = b, Target = a, Damage = Damage(b, a), Hit = rnd.Next(100) < HitChance(b, a) }
-        );
+        ImmutableList<CombatAction> actions = [CreateAttackAction(a, b), CreateAttackAction(b, a)];
         if (FollowUp(a, b) is (Unit doubler, Unit doublee))
-            actions = actions.Add(new() { Actor = doubler, Target = doublee, Damage = Damage(doubler, doublee), Hit = rnd.Next(100) < HitChance(doubler, doublee) });
+            actions = actions.Add(CreateAttackAction(doubler, doublee));
 
         return actions;
     }
