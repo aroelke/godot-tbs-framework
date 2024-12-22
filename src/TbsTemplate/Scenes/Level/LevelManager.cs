@@ -491,22 +491,19 @@ public partial class LevelManager : Node
         ActionLayers[SupportLayer] = _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
 
         List<(StringName, Action)> options = [];
-        if (ActionLayers[AttackLayer].Any())
+        void AddActionOption(StringName name, StringName layer)
         {
-            options.Add(("Attack", () => {
-                _targets = ActionLayers[AttackLayer];
-                ActionLayers.Keep(AttackLayer);
-                State.SendEvent(_events[SelectEvent]);
-            }));
+            if (ActionLayers[layer].Any())
+            {
+                options.Add((name, () => {
+                    _targets = ActionLayers[layer];
+                    ActionLayers.Keep(layer);
+                    State.SendEvent(_events[SelectEvent]);
+                }));
+            }
         }
-        if (ActionLayers[SupportLayer].Any())
-        {
-            options.Add(("Support", () => {
-                _targets = ActionLayers[SupportLayer];
-                ActionLayers.Keep(SupportLayer);
-                State.SendEvent(_events[SelectEvent]);
-            }));
-        }
+        AddActionOption("Attack", AttackLayer);
+        AddActionOption("Support", SupportLayer);
         foreach (SpecialActionRegion region in SpecialActionRegions)
         {
             if (region.HasSpecialAction(_selected, _selected.Cell))
