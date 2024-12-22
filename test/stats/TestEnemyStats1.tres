@@ -5,10 +5,10 @@
 [resource]
 script = ExtResource("1_wk2ta")
 Health = 8
-Attack = 1
+Attack = 5
 Defense = 0
 Healing = 0
-Accuracy = 0
+Accuracy = 100
 Evasion = 0
 Agility = 0
 Move = 5
