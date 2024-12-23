@@ -11,6 +11,8 @@ public partial class CombatAnimation : BoundedNode2D
     public static readonly StringName IdleAnimation = "RESET";
     public static readonly StringName AttackAnimation = "attack";
     public static readonly StringName AttackReturnAnimation = "attack_return";
+    public static readonly StringName SupportAnimation = "support";
+    public static readonly StringName SupportReturnAnimation = "support_return";
     public static readonly StringName DodgeAnimation = "dodge";
     public static readonly StringName DodgeReturnAnimation = "dodge_return";
     public static readonly StringName DieAnimation = "die";
@@ -29,6 +31,9 @@ public partial class CombatAnimation : BoundedNode2D
 
     /// <summary>Signals the frame in which the attack animation connects (or misses) with the opponent.</summary>
     [Signal] public delegate void AttackStrikeEventHandler();
+
+    /// <summary>Signals the frame at which the animation for a spell that is cast should begin.</summary>
+    [Signal] public delegate void SpellCastEventHandler();
 
     private bool _left = true;
     private Vector2 _spriteOffset = Vector2.Zero;

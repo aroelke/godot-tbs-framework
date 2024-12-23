@@ -77,6 +77,7 @@ public partial class ActionLayers : Node2D
     {
         _layers[layer].Clear();
         _cells[layer] = [];
+        UpdateLayers();
     }
 
     /// <summary>Clear all layers.</summary>
@@ -84,6 +85,15 @@ public partial class ActionLayers : Node2D
     {
         foreach ((StringName name, _) in _layers)
             Clear(name);
+    }
+
+    /// <summary>Clear all but one layer.</summary>
+    /// <param name="name">Name of the layer to keep.</param>
+    public void Keep(StringName name)
+    {
+        foreach ((StringName layer, _) in _layers)
+            if (layer != name)
+                Clear(layer);
     }
 
     public override string[] _GetConfigurationWarnings()

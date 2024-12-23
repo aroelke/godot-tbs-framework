@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=4 uid="uid://bmfxux38ovtj2"]
+[gd_scene load_steps=32 format=4 uid="uid://bmfxux38ovtj2"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/LevelManager.tscn" id="1_h3e4w"]
 [ext_resource type="Script" path="res://test/TestMap.cs" id="1_stn1b"]
@@ -19,6 +19,7 @@
 [ext_resource type="Resource" uid="uid://dp74yifhop864" path="res://test/factions/TestEnemyFaction1.tres" id="10_k4gkn"]
 [ext_resource type="Resource" uid="uid://cbi1a2igyxbt4" path="res://test/factions/TestEnemyFaction2.tres" id="12_8r5wl"]
 [ext_resource type="Resource" uid="uid://cljpmwsb1nbjt" path="res://test/factions/TestAllyFaction.tres" id="14_hmodb"]
+[ext_resource type="Script" path="res://src/TbsTemplate/Data/Stats.cs" id="15_y2o8i"]
 [ext_resource type="PackedScene" uid="uid://h3yhm0thhl8m" path="res://src/TbsTemplate/Nodes/StateChart/StateChartInspector.tscn" id="16_i76wh"]
 [ext_resource type="PackedScene" uid="uid://bottrwv1ptmbg" path="res://src/TbsTemplate/Scenes/Level/Objectives/AnyObjective.tscn" id="17_atmq1"]
 [ext_resource type="PackedScene" uid="uid://bdxrle0amq3ew" path="res://src/TbsTemplate/Scenes/Level/Objectives/TimeObjective.tscn" id="19_rxp4c"]
@@ -28,6 +29,28 @@
 [ext_resource type="PackedScene" uid="uid://blf1owsru7rvw" path="res://src/TbsTemplate/Scenes/Level/Objectives/ActionObjective.tscn" id="24_h6vny"]
 [ext_resource type="PackedScene" uid="uid://bi8p6x3pf3217" path="res://src/TbsTemplate/Scenes/Level/EventController.tscn" id="25_i6qxt"]
 [ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://test/assets/ui/Hints.tres" id="28_y0mi7"]
+
+[sub_resource type="Resource" id="Resource_3k4db"]
+script = ExtResource("15_y2o8i")
+Health = 10
+Attack = 4
+Defense = 1
+Healing = 0
+Accuracy = 100
+Evasion = 100
+Agility = 1
+Move = 5
+
+[sub_resource type="Resource" id="Resource_y583k"]
+script = ExtResource("15_y2o8i")
+Health = 8
+Attack = 2
+Defense = 0
+Healing = 5
+Accuracy = 100
+Evasion = 0
+Agility = 1
+Move = 5
 
 [node name="TestMap" type="Node2D"]
 script = ExtResource("1_stn1b")
@@ -94,7 +117,8 @@ Faction = ExtResource("6_qur3m")
 [node name="PlayerA" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(192, 128)
 Class = ExtResource("7_crsy2")
-Stats = ExtResource("8_1sr4q")
+Stats = SubResource("Resource_3k4db")
+SupportRange = PackedInt32Array()
 Faction = ExtResource("6_qur3m")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(6, 4)
@@ -104,6 +128,7 @@ Size = Vector2(32, 32)
 position = Vector2(256, 256)
 Class = ExtResource("7_crsy2")
 Stats = ExtResource("8_1sr4q")
+SupportRange = PackedInt32Array()
 Faction = ExtResource("6_qur3m")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(8, 8)
@@ -112,7 +137,7 @@ Size = Vector2(32, 32)
 [node name="PlayerC" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(128, 256)
 Class = ExtResource("7_crsy2")
-Stats = ExtResource("8_1sr4q")
+Stats = SubResource("Resource_y583k")
 AttackRange = PackedInt32Array(2)
 Faction = ExtResource("6_qur3m")
 Grid = NodePath("../../Grid")
@@ -126,6 +151,7 @@ Faction = ExtResource("10_k4gkn")
 position = Vector2(128, 224)
 Class = ExtResource("7_crsy2")
 Stats = ExtResource("9_g2gda")
+AttackRange = PackedInt32Array(1)
 Faction = ExtResource("10_k4gkn")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(4, 7)

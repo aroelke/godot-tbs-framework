@@ -63,6 +63,7 @@ public partial class LevelManager : Node
     private IEnumerator<Army> _armies = null;
     private Vector2I? _initialCell = null;
     private BoundedNode2D _prevCameraTarget = null;
+    private StringName _command = null;
 
     private Grid Grid = null;
 #endregion
@@ -90,14 +91,12 @@ public partial class LevelManager : Node
         );
     }
 
-    private ContextMenu ShowMenu(Rect2 rect, IEnumerable<(StringName name, Action action)> options)
+    private ContextMenu ShowMenu(Rect2 rect, IEnumerable<ContextMenuOption> options)
     {
-
-        ContextMenu menu = ContextMenu.Instantiate(options.Select((o) => o.name), true);
+        ContextMenu menu = ContextMenu.Instantiate(options);
+        menu.Wrap = true;
         UserInterface.AddChild(menu);
         menu.Visible = false;
-        foreach ((StringName name, Action action) in options)
-            menu[name].Pressed += action;
         menu.MenuClosed += () => {
             Cursor.Resume();
             Camera.Target = _prevCameraTarget;
@@ -118,7 +117,7 @@ public partial class LevelManager : Node
         return menu;
     }
 
-    private ContextMenu ShowMenu(Rect2 rect, params (StringName, Action)[] options) => ShowMenu(rect, (IEnumerable<(StringName, Action)>)options);
+    private ContextMenu ShowMenu(Rect2 rect, params ContextMenuOption[] options) => ShowMenu(rect, (IEnumerable<ContextMenuOption>)options);
 
     /// <summary>Update the UI turn counter for the current turn and change its color to match the army.</summary>
     private void UpdateTurnCounter()
@@ -304,15 +303,15 @@ public partial class LevelManager : Node
         SelectSound.Play();
         State.SendEvent(_events[WaitEvent]);
         ShowMenu(new() { Position = Pointer.Position, Size = Vector2.Zero },
-            ("End Turn", () => {
+            new("End Turn", () => {
                 State.SendEvent(_events[DoneEvent]); // Done waiting
                 foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
                     unit.Finish();
                 State.SendEvent(_events[SkipEvent]); // Skip to end of turn
                 SelectSound.Play();
             }),
-            ("Quit Game", () => GetTree().Quit()),
-            ("Cancel", Cancel)
+            new("Quit Game", () => GetTree().Quit()),
+            new("Cancel", Cancel)
         ).MenuCanceled += Cancel;
     }
 
@@ -364,43 +363,49 @@ public partial class LevelManager : Node
     /// <param name="cell">Cell the <see cref="Object.Cursor"/> moved into.</param>
     public void OnSelectedCursorMoved(Vector2I cell)
     {
-        _target = null;
+        void UpdatePath(Path path) => PathLayer.Path = _path = path;
 
-        if (ActionLayers[MoveLayer].Contains(cell))
-            PathLayer.Path = _path = _path.Add(cell).Clamp(_selected.Stats.Move);
-        else if (Grid.Occupants.GetValueOrDefault(cell) is Unit target)
+        // If the previous cell was an ally that could be supported and moved through, add it to the path as if it
+        // had been added in the previous movement
+        if (_target is not null && ActionLayers[SupportLayer].Contains(_target.Cell) && ActionLayers[MoveLayer].Contains(_target.Cell))
+            UpdatePath(_path.Add(_target.Cell));
+
+        _target = null;
+        _command = null;
+
+        IEnumerable<Vector2I> sources = [];
+        if (Grid.Occupants.GetValueOrDefault(cell) is Unit target)
         {
-            IEnumerable<Vector2I> sources = [];
+            // Compute cells the highlighted unit could be targeted from (friend or foe)
             if (target != _selected && _armies.Current.Faction.AlliedTo(target) && ActionLayers[SupportLayer].Contains(cell))
                 sources = _selected.SupportableCells(cell).Where(ActionLayers[MoveLayer].Contains);
             else if (!_armies.Current.Faction.AlliedTo(target) && ActionLayers[AttackLayer].Contains(cell))
                 sources = _selected.AttackableCells(cell).Where(ActionLayers[MoveLayer].Contains);
             sources = sources.Where((c) => !Grid.Occupants.ContainsKey(c) || Grid.Occupants[c] == _selected);
+
             if (sources.Any())
             {
                 _target = target;
+
+                // Store the action command related to selecting the target as if it were the command state
+                if (ActionLayers[AttackLayer].Contains(cell))
+                    _command = AttackLayer;
+                else if (ActionLayers[SupportLayer].Contains(cell))
+                    _command = SupportLayer;
+
+                // If the end of the path isn't a cell that could act on the target, find the furthest one that can and add
+                // it to the path
                 if (!sources.Contains(_path[^1]))
-                    PathLayer.Path = _path = sources.Select((c) => _path.Add(c).Clamp(_selected.Stats.Move)).OrderBy(
+                {
+                    UpdatePath(sources.Select((c) => _path.Add(c).Clamp(_selected.Stats.Move)).OrderBy(
                         (p) => new Vector2I(-(int)p[^1].DistanceTo(cell), (int)p[^1].DistanceTo(_path[^1])),
                         static (a, b) => a < b ? -1 : a > b ? 1 : 0
-                    ).First();
+                    ).First());
+                }
             }
         }
-    }
-
-    /// <summary>
-    /// If the cursor tries to select a cell that contains an allied, non-selected unit, don't do anything but play a sound to indicate that's
-    /// not allowed.
-    /// </summary>
-    /// <param name="cell">Cell being selected.</param>
-    public void OnSelectedCellSelected(Vector2I cell)
-    {
-        if (ActionLayers[MoveLayer].Contains(cell))
-        {
-            Unit highlighted = Grid.Occupants.GetValueOrDefault(cell) as Unit;
-            if (highlighted != _selected && _armies.Current.Faction.AlliedTo(highlighted))
-                ErrorSound.Play();
-        }
+        if (!sources.Any() && ActionLayers[MoveLayer].Contains(cell))
+            UpdatePath(_path.Add(cell).Clamp(_selected.Stats.Move));
     }
 
     /// <summary>
@@ -480,31 +485,43 @@ public partial class LevelManager : Node
 #endregion
 #region Unit Commanding State
     private ContextMenu _commandMenu = null;
+    private IEnumerable<Vector2I> _targets = [];
 
     public void OnCommandingEntered()
     {
         // Show the unit's attack/support ranges
-        IEnumerable<Vector2I> attackable = _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
-        IEnumerable<Vector2I> supportable = _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
+        _targets = [];
         ActionLayers.Clear(MoveLayer);
-        ActionLayers[AttackLayer] = attackable;
-        ActionLayers[SupportLayer] = supportable;
+        ActionLayers[AttackLayer] = _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
+        ActionLayers[SupportLayer] = _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
 
-        List<(StringName, Action)> options = [];
-        if (attackable.Any() || supportable.Any())
-            options.Add(("Attack", () => State.SendEvent(_events[SelectEvent])));
+        List<ContextMenuOption> options = [];
+        void AddActionOption(StringName name, StringName layer)
+        {
+            if (ActionLayers[layer].Any())
+            {
+                options.Add(new(name, () => {
+                    _targets = ActionLayers[layer];
+                    _command = layer;
+                    ActionLayers.Keep(layer);
+                    State.SendEvent(_events[SelectEvent]);
+                }));
+            }
+        }
+        AddActionOption("Attack", AttackLayer);
+        AddActionOption("Support", SupportLayer);
         foreach (SpecialActionRegion region in SpecialActionRegions)
         {
             if (region.HasSpecialAction(_selected, _selected.Cell))
             {
-                options.Add((region.Name, () => {
+                options.Add(new(region.Name, () => {
                     region.PerformSpecialAction(_selected, _selected.Cell);
                     State.SendEvent(_events[SkipEvent]);
                 }));
             }
         }
-        options.Add(("End", () => State.SendEvent(_events[SkipEvent])));
-        options.Add(("Cancel", () => State.SendEvent(_events[CancelEvent])));
+        options.Add(new("End", () => State.SendEvent(_events[SkipEvent])));
+        options.Add(new("Cancel", () => State.SendEvent(_events[CancelEvent])));
         _commandMenu = ShowMenu(Grid.CellRect(_selected.Cell), options);
         _commandMenu.MenuCanceled += () => State.SendEvent(_events[CancelEvent]);
         _commandMenu.MenuClosed += () => _commandMenu = null;
@@ -516,6 +533,7 @@ public partial class LevelManager : Node
     public void OnCommandingCanceled()
     {
         ActionLayers.Clear();
+        _command = null;
 
         // Move the selected unit back to its original cell
         Grid.Occupants.Remove(_selected.Cell);
@@ -535,19 +553,15 @@ public partial class LevelManager : Node
     }
 #endregion
 #region Targeting State
-    private ImmutableList<CombatAction> _combatResults = null;
+    private List<CombatAction> _combatResults = null;
 
     public void OnTargetingEntered()
     {
-        // Show the unit's attack/support ranges
-        ImmutableHashSet<Vector2I> attackable = _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false).ToImmutableHashSet();
-        ImmutableHashSet<Vector2I> supportable = _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false).ToImmutableHashSet();
-
         // Restrict cursor movement to actionable cells
         if (_target is null)
         {
             Pointer.AnalogTracking = false;
-            Cursor.HardRestriction = attackable.Union(supportable);
+            Cursor.HardRestriction = _targets.ToImmutableHashSet();
             Cursor.Wrap = true;
         }
     }
@@ -619,8 +633,13 @@ public partial class LevelManager : Node
         Cursor.Halt();
         Pointer.StartWaiting(hide:true);
 
-        _combatResults = CombatCalculations.CombatResults(_selected, _target);
-        SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, _combatResults), (uint)ConnectFlags.OneShot);
+        if (_command == AttackLayer)
+            _combatResults = CombatCalculations.AttackResults(_selected, _target);
+        else if (_command == SupportLayer)
+            _combatResults = [CombatCalculations.CreateSupportAction(_selected, _target)];
+        else
+            throw new NotSupportedException($"Unknown action {_command}");
+        SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, _combatResults.ToImmutableList()), (uint)ConnectFlags.OneShot);
         SceneManager.CallScene(CombatScenePath);
     }
 

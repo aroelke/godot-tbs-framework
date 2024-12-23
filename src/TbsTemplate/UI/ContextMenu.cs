@@ -1,10 +1,17 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using TbsTemplate.Extensions;
 using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.UI;
+
+/// <summary><see cref="ContextMenu"/> item defining a name and action to perform when clicked.</summary>
+/// <param name="Name">String to display for the menu item.</param>
+/// <param name="Action">What to do when the item is selected.</param>
+public readonly record struct ContextMenuOption(StringName Name, Action Action);
 
 /// <summary>
 /// A context menu consisting of a vertical list of <see cref="Button"/>s.  Sends a signal when one of them is clicked, but also exposes them
@@ -75,14 +82,16 @@ public partial class ContextMenu : PanelContainer
     /// <summary>sWhich item to default focusing on when grabbing focus with nothing specified.</summary>
     [Export] public int DefaultFocus = 0;
 
-    /// <summary>Set up the options menu.</summary>
-    /// <param name="options">List of items to present in the menu.</param>
-    /// <param name="wrap">Whether button navigation should wrap.</param>
+    /// <summary>Set up a context menu with a set of options mapped to actions.</summary>
+    /// <param name="options">List of options to show and their actions.</param>
     [OnInstantiate]
-    public void Initialize(IEnumerable<StringName> options, bool wrap)
+    public void Initialize(IEnumerable<ContextMenuOption> options)
     {
-        Options = [.. options];
-        Wrap = wrap;
+        Options = [.. options.Select((o) => o.Name)];
+        this.Connect(SignalName.Ready, () => {
+            foreach ((StringName name, Action action) in options)
+                _items[name].Pressed += action;
+        }, (uint)ConnectFlags.OneShot);
     }
 
     /// <inheritdoc cref="Control.GrabFocus"/>
