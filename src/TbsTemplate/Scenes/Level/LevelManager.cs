@@ -363,10 +363,12 @@ public partial class LevelManager : Node
     /// <param name="cell">Cell the <see cref="Object.Cursor"/> moved into.</param>
     public void OnSelectedCursorMoved(Vector2I cell)
     {
+        void UpdatePath(Path path) => PathLayer.Path = _path = path;
+
         // If the previous cell was an ally that could be supported and moved through, add it to the path as if it
         // had been added in the previous movement
         if (_target is not null && ActionLayers[SupportLayer].Contains(_target.Cell) && ActionLayers[MoveLayer].Contains(_target.Cell))
-            PathLayer.Path = _path = _path.Add(_target.Cell);
+            UpdatePath(_path.Add(_target.Cell));
 
         _target = null;
         _command = null;
@@ -395,15 +397,15 @@ public partial class LevelManager : Node
                 // it to the path
                 if (!sources.Contains(_path[^1]))
                 {
-                    PathLayer.Path = _path = sources.Select((c) => _path.Add(c).Clamp(_selected.Stats.Move)).OrderBy(
+                    UpdatePath(sources.Select((c) => _path.Add(c).Clamp(_selected.Stats.Move)).OrderBy(
                         (p) => new Vector2I(-(int)p[^1].DistanceTo(cell), (int)p[^1].DistanceTo(_path[^1])),
                         static (a, b) => a < b ? -1 : a > b ? 1 : 0
-                    ).First();
+                    ).First());
                 }
             }
         }
         if (!sources.Any() && ActionLayers[MoveLayer].Contains(cell))
-            PathLayer.Path = _path = _path.Add(cell).Clamp(_selected.Stats.Move);
+            UpdatePath(_path.Add(cell).Clamp(_selected.Stats.Move));
     }
 
     /// <summary>
