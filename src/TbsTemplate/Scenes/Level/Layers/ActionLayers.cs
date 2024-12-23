@@ -77,6 +77,7 @@ public partial class ActionLayers : Node2D
     {
         _layers[layer].Clear();
         _cells[layer] = [];
+        UpdateLayers();
     }
 
     /// <summary>Clear all layers.</summary>

@@ -364,10 +364,9 @@ public partial class LevelManager : Node
     public void OnSelectedCursorMoved(Vector2I cell)
     {
         _target = null;
+        _command = null;
 
-        if (ActionLayers[MoveLayer].Contains(cell))
-            PathLayer.Path = _path = _path.Add(cell).Clamp(_selected.Stats.Move);
-        else if (Grid.Occupants.GetValueOrDefault(cell) is Unit target)
+        if (Grid.Occupants.GetValueOrDefault(cell) is Unit target)
         {
             IEnumerable<Vector2I> sources = [];
             if (target != _selected && _armies.Current.Faction.AlliedTo(target) && ActionLayers[SupportLayer].Contains(cell))
@@ -375,35 +374,25 @@ public partial class LevelManager : Node
             else if (!_armies.Current.Faction.AlliedTo(target) && ActionLayers[AttackLayer].Contains(cell))
                 sources = _selected.AttackableCells(cell).Where(ActionLayers[MoveLayer].Contains);
             sources = sources.Where((c) => !Grid.Occupants.ContainsKey(c) || Grid.Occupants[c] == _selected);
+
             if (sources.Any())
             {
                 _target = target;
+                if (ActionLayers[AttackLayer].Contains(cell))
+                    _command = AttackLayer;
+                else if (ActionLayers[SupportLayer].Contains(cell))
+                    _command = SupportLayer;
                 if (!sources.Contains(_path[^1]))
+                {
                     PathLayer.Path = _path = sources.Select((c) => _path.Add(c).Clamp(_selected.Stats.Move)).OrderBy(
                         (p) => new Vector2I(-(int)p[^1].DistanceTo(cell), (int)p[^1].DistanceTo(_path[^1])),
                         static (a, b) => a < b ? -1 : a > b ? 1 : 0
                     ).First();
+                }
             }
         }
-    }
-
-    /// <summary>
-    /// If the cursor tries to select a cell that contains an allied, non-selected unit, don't do anything but play a sound to indicate that's
-    /// not allowed.
-    /// </summary>
-    /// <param name="cell">Cell being selected.</param>
-    public void OnSelectedCellSelected(Vector2I cell)
-    {
-        if (ActionLayers[MoveLayer].Contains(cell))
-        {
-            Unit highlighted = Grid.Occupants.GetValueOrDefault(cell) as Unit;
-            if (highlighted != _selected && _armies.Current.Faction.AlliedTo(highlighted))
-                ErrorSound.Play();
-        }
-        else if (ActionLayers[AttackLayer].Contains(cell))
-            _command = AttackLayer;
-        else if (ActionLayers[SupportLayer].Contains(cell))
-            _command = SupportLayer;
+        else if (ActionLayers[MoveLayer].Contains(cell))
+            PathLayer.Path = _path = _path.Add(cell).Clamp(_selected.Stats.Move);
     }
 
     /// <summary>

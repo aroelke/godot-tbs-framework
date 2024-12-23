@@ -1,4 +1,4 @@
-[gd_scene load_steps=48 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=42 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DBrain.tscn" id="3_td8u6"]
@@ -22,7 +22,6 @@
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/InvertCondition.cs" id="23_6etqp"]
 [ext_resource type="PackedScene" uid="uid://dhytcbhqvrpx0" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/InputReaction.tscn" id="23_nnivc"]
 [ext_resource type="PackedScene" uid="uid://dtrul7dw5r6ly" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/Vector2Reaction.tscn" id="23_u3pac"]
-[ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/AllCondition.cs" id="25_6qv6s"]
 [ext_resource type="PackedScene" uid="uid://bajcy40oic1wf" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/ProcessReaction.tscn" id="25_lv3jy"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/IntCondition.cs" id="27_kyhbc"]
 [ext_resource type="AudioStream" uid="uid://bg4mbs7d25qaj" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Select - 1.wav" id="28_dnjya"]
@@ -34,7 +33,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = 391898757
+seed = 1330899880
 
 [sub_resource type="Resource" id="Resource_lt2uh"]
 script = ExtResource("22_tix5y")
@@ -55,39 +54,17 @@ script = ExtResource("22_tix5y")
 Property = &"occupied"
 Value = "active"
 
-[sub_resource type="Resource" id="Resource_mqluk"]
-script = ExtResource("22_tix5y")
-Property = &"occupied"
-Value = ""
+[sub_resource type="Resource" id="Resource_jrebm"]
+script = ExtResource("21_7vj21")
+Flag = &"traversable"
 
-[sub_resource type="Resource" id="Resource_lmaao"]
-script = ExtResource("22_tix5y")
-Property = &"occupied"
-Value = "selected"
-
-[sub_resource type="Resource" id="Resource_rpjvf"]
-script = ExtResource("29_kfqmx")
-Conditions = [SubResource("Resource_mqluk"), SubResource("Resource_lmaao")]
-
-[sub_resource type="Resource" id="Resource_w328r"]
-script = ExtResource("25_6qv6s")
-Conditions = [ExtResource("22_sve70"), SubResource("Resource_rpjvf")]
-
-[sub_resource type="Resource" id="Resource_7j6x2"]
-script = ExtResource("23_6etqp")
-Condition = ExtResource("22_sve70")
-
-[sub_resource type="Resource" id="Resource_eytjs"]
+[sub_resource type="Resource" id="Resource_kld8o"]
 script = ExtResource("21_7vj21")
 Flag = &"target"
 
-[sub_resource type="Resource" id="Resource_x33ju"]
-script = ExtResource("25_6qv6s")
-Conditions = [SubResource("Resource_7j6x2"), SubResource("Resource_eytjs")]
-
 [sub_resource type="Resource" id="Resource_70pa8"]
 script = ExtResource("29_kfqmx")
-Conditions = [SubResource("Resource_w328r"), SubResource("Resource_x33ju")]
+Conditions = [SubResource("Resource_jrebm"), SubResource("Resource_kld8o")]
 
 [sub_resource type="Resource" id="Resource_j0hg7"]
 script = ExtResource("23_6etqp")
@@ -266,8 +243,6 @@ process_mode = 4
 
 [node name="OnCursorMoved" parent="State/Root/Active/UnitSelected" instance=ExtResource("16_kxyas")]
 
-[node name="OnCellSelected" parent="State/Root/Active/UnitSelected" instance=ExtResource("16_kxyas")]
-
 [node name="ToMoving" parent="State/Root/Active/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"select"
 To = NodePath("../../UnitMoving")
@@ -401,7 +376,6 @@ stream = ExtResource("32_e2hk2")
 [connection signal="CellEntered" from="Cursor" to="State/Root/Active/Idle/OnCursorEnteredCell" method="OnUpdated"]
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]
 [connection signal="CellSelected" from="Cursor" to="State/Root/Active/Idle/OnEmptyCellSelected" method="OnUpdated"]
-[connection signal="CellSelected" from="Cursor" to="State/Root/Active/UnitSelected/OnCellSelected" method="OnUpdated"]
 [connection signal="CellSelected" from="Cursor" to="State/Root/Active/UnitTargeting/OnCellSelected" method="OnUpdated"]
 [connection signal="CursorMoved" from="Cursor" to="Pointer" method="OnCursorMoved"]
 [connection signal="FlightCompleted" from="Pointer" to="." method="OnPointerFlightCompleted"]
@@ -422,7 +396,6 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateEntered" from="State/Root/Active/UnitSelected" to="." method="OnSelectedEntered"]
 [connection signal="StateExited" from="State/Root/Active/UnitSelected" to="." method="OnSelectedExited"]
 [connection signal="StateUpdated" from="State/Root/Active/UnitSelected/OnCursorMoved" to="." method="OnSelectedCursorMoved"]
-[connection signal="StateUpdated" from="State/Root/Active/UnitSelected/OnCellSelected" to="." method="OnSelectedCellSelected"]
 [connection signal="Taken" from="State/Root/Active/UnitSelected/ToMoving" to="." method="OnDestinationChosen"]
 [connection signal="Taken" from="State/Root/Active/UnitSelected/ToMoving" to="SoundLibrary/SelectSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/Active/UnitSelected/ToIdle" to="." method="OnUnitDeselected"]
