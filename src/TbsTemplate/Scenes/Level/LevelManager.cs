@@ -363,12 +363,18 @@ public partial class LevelManager : Node
     /// <param name="cell">Cell the <see cref="Object.Cursor"/> moved into.</param>
     public void OnSelectedCursorMoved(Vector2I cell)
     {
+        // If the previous cell was an ally that could be supported and moved through, add it to the path as if it
+        // had been added in the previous movement
+        if (_target is not null && ActionLayers[SupportLayer].Contains(_target.Cell) && ActionLayers[MoveLayer].Contains(_target.Cell))
+            PathLayer.Path = _path = _path.Add(_target.Cell);
+
         _target = null;
         _command = null;
 
+        IEnumerable<Vector2I> sources = [];
         if (Grid.Occupants.GetValueOrDefault(cell) is Unit target)
         {
-            IEnumerable<Vector2I> sources = [];
+            // Compute cells the highlighted unit could be targeted from (friend or foe)
             if (target != _selected && _armies.Current.Faction.AlliedTo(target) && ActionLayers[SupportLayer].Contains(cell))
                 sources = _selected.SupportableCells(cell).Where(ActionLayers[MoveLayer].Contains);
             else if (!_armies.Current.Faction.AlliedTo(target) && ActionLayers[AttackLayer].Contains(cell))
@@ -378,10 +384,15 @@ public partial class LevelManager : Node
             if (sources.Any())
             {
                 _target = target;
+
+                // Store the action command related to selecting the target as if it were the command state
                 if (ActionLayers[AttackLayer].Contains(cell))
                     _command = AttackLayer;
                 else if (ActionLayers[SupportLayer].Contains(cell))
                     _command = SupportLayer;
+
+                // If the end of the path isn't a cell that could act on the target, find the furthest one that can and add
+                // it to the path
                 if (!sources.Contains(_path[^1]))
                 {
                     PathLayer.Path = _path = sources.Select((c) => _path.Add(c).Clamp(_selected.Stats.Move)).OrderBy(
@@ -391,7 +402,7 @@ public partial class LevelManager : Node
                 }
             }
         }
-        else if (ActionLayers[MoveLayer].Contains(cell))
+        if (!sources.Any() && ActionLayers[MoveLayer].Contains(cell))
             PathLayer.Path = _path = _path.Add(cell).Clamp(_selected.Stats.Move);
     }
 
