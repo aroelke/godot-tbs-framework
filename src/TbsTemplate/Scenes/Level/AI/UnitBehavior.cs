@@ -8,4 +8,9 @@ namespace TbsTemplate.Scenes.Level.AI;
 /// specific situation.
 /// </summary>
 [GlobalClass, Tool]
-public abstract partial class Behavior : Resource {}
+public abstract partial class UnitBehavior : Resource
+{
+    /// <summary>Find the cell a unit will move to if chosen to act.</summary>
+    /// <param name="unit">Acting unit.</param>
+    public abstract Vector2I MoveTarget(Unit unit);
+}

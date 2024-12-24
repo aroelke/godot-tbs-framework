@@ -122,7 +122,7 @@ public partial class Unit : GridNode, IHasHealth
     [ExportGroup("AI")]
 
     ///<summary>Behavior defining the square to move to when AI controlled.</summary>
-    [Export] public MovementBehavior MovementBehavior = null;
+    [Export] public UnitBehavior Behavior = null;
 
     /// <summary>Whether or not the unit has completed its turn.</summary>
     public bool Active => !AnimationTree.Get(Done).AsBool();
