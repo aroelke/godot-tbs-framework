@@ -7,6 +7,7 @@ using TbsTemplate.Data;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level.Map;
+using TbsTemplate.Scenes.Level.AI;
 
 namespace TbsTemplate.Scenes.Level.Object;
 
@@ -117,6 +118,11 @@ public partial class Unit : GridNode, IHasHealth
 
     /// <summary>Factor to multiply <see cref="MoveSpeed"/> by while <see cref="MoveAccelerateAction"/> is held down.</summary>
     [Export] public double MoveAccelerationFactor = 2;
+
+    [ExportGroup("AI")]
+
+    ///<summary>Behavior defining the square to move to when AI controlled.</summary>
+    [Export] public MovementBehavior MovementBehavior = null;
 
     /// <summary>Whether or not the unit has completed its turn.</summary>
     public bool Active => !AnimationTree.Get(Done).AsBool();
