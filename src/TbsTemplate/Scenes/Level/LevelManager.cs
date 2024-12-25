@@ -197,7 +197,14 @@ public partial class LevelManager : Node
 #endregion
 #region Begin Turn State
     /// <summary>Signal that a turn is about to begin.</summary>
-    public void OnBeginTurnEntered() => Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
+    public void OnBeginTurnEntered()
+    {
+        if (_armies.Current.Faction.IsPlayer)
+            Cursor.Resume();
+        else
+            Cursor.Halt(hide:true);
+        Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
+    }
 
     /// <summary>Perform any updates that the turn has begun that need to happen after upkeep.</summary>
     public void OnBeginTurnExited()
