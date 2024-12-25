@@ -209,6 +209,7 @@ public partial class LevelManager : Node
             Cursor.Halt(hide:false);
             Pointer.StartWaiting(hide:true);
             _armies.Current.Controller.UnitSelected += OnIdleUnitSelected;
+            _armies.Current.Controller.UnitMoved += OnSelectedUnitMoved;
         }
         Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
     }
@@ -313,6 +314,7 @@ public partial class LevelManager : Node
         if (unit.Faction != _armies.Current.Faction)
             throw new InvalidOperationException($"Cannot select unit not from army {_armies.Current.Name}");
 
+        _selected = unit;
         Cursor.Cell = unit.Cell;
         State.ExpressionProperties = State.ExpressionProperties.SetItem(OccupiedProperty, ActiveAllyOccupied);
         State.SendEvent(_events[SelectEvent]);
@@ -381,6 +383,8 @@ public partial class LevelManager : Node
             if (Camera.Zoom > zoomTarget)
                 Camera.PushZoom(zoomTarget);
         }
+
+        Callable.From<Unit>(_armies.Current.Controller.MoveUnit).CallDeferred(_selected);
     }
 
     /// <summary>
@@ -433,6 +437,17 @@ public partial class LevelManager : Node
         }
         if (!sources.Any() && ActionLayers[MoveLayer].Contains(cell))
             UpdatePath(_path.Add(cell).Clamp(_selected.Stats.Move));
+    }
+
+    public void OnSelectedUnitMoved(Godot.Collections.Array<Vector2I> path)
+    {
+        if (!path.All(ActionLayers[MoveLayer].Contains) || path.Any((c) => Grid.Occupants.ContainsKey(c) && Grid.Occupants[c] != _selected))
+            throw new InvalidOperationException("The chosen path must only contain traversable cells.");
+
+        _path = _path.Clear().AddRange(path);
+        Cursor.Cell = _path[^1];
+        State.ExpressionProperties = State.ExpressionProperties.SetItem(TraversableProperty, true);
+        State.SendEvent(_events[SelectEvent]);
     }
 
     /// <summary>
@@ -725,6 +740,7 @@ public partial class LevelManager : Node
         if (!_armies.Current.Faction.IsPlayer)
         {
             _armies.Current.Controller.UnitSelected -= OnIdleUnitSelected;
+            _armies.Current.Controller.UnitMoved -= OnSelectedUnitMoved;
         }
 
         foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)

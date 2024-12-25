@@ -13,6 +13,8 @@ public partial class AIController : Node
     /// <param name="unit">Selected unit.</param>
     [Signal] public delegate void UnitSelectedEventHandler(Unit unit);
 
+    [Signal] public delegate void UnitMovedEventHandler(Godot.Collections.Array<Vector2I> path);
+
     private Army _army = null;
     private Army Army => _army ??= GetParentOrNull<Army>();
 
@@ -20,6 +22,14 @@ public partial class AIController : Node
     public void SelectUnit()
     {
         EmitSignal(SignalName.UnitSelected, ((IEnumerable<Unit>)Army).First());
+    }
+
+    /// <summary>Choose the path along which a unit will move.</summary>
+    /// <param name="unit">Unit to move.</param>
+    public void MoveUnit(Unit unit)
+    {
+        Godot.Collections.Array<Vector2I> path = [unit.Cell];
+        EmitSignal(SignalName.UnitMoved, path);
     }
 
     public override string[] _GetConfigurationWarnings()
