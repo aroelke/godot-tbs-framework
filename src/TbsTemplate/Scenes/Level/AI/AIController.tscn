@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://ca6g5c6dsaqjb"]
+
+[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/AI/AIController.cs" id="1_c0any"]
+
+[node name="AiController" type="Node"]
+script = ExtResource("1_c0any")

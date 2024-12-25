@@ -200,9 +200,16 @@ public partial class LevelManager : Node
     public void OnBeginTurnEntered()
     {
         if (_armies.Current.Faction.IsPlayer)
+        {
             Cursor.Resume();
+            Pointer.StopWaiting();
+        }
         else
-            Cursor.Halt(hide:true);
+        {
+            Cursor.Halt(hide:false);
+            Pointer.StartWaiting(hide:true);
+            _armies.Current.Controller.UnitSelected += OnIdleUnitSelected;
+        }
         Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
     }
 
@@ -223,6 +230,9 @@ public partial class LevelManager : Node
         ActionLayers.Modulate = ActionRangeIdleModulate;
         Cursor.Cell = Grid.CellOf(Pointer.Position);
         OnIdleCursorEnteredCell(Cursor.Cell);
+
+        if (!_armies.Current.Faction.IsPlayer)
+            Callable.From(_armies.Current.Controller.SelectUnit).CallDeferred();
     }
 
     /// <summary>
@@ -296,6 +306,16 @@ public partial class LevelManager : Node
             }
             OnIdleCursorEnteredCell(Cursor.Cell);
         }
+    }
+
+    public void OnIdleUnitSelected(Unit unit)
+    {
+        if (unit.Faction != _armies.Current.Faction)
+            throw new InvalidOperationException($"Cannot select unit not from army {_armies.Current.Name}");
+
+        Cursor.Cell = unit.Cell;
+        State.ExpressionProperties = State.ExpressionProperties.SetItem(OccupiedProperty, ActiveAllyOccupied);
+        State.SendEvent(_events[SelectEvent]);
     }
 
     /// <summary>Open the map menu and wait for an item to be selected.</summary>
@@ -702,6 +722,11 @@ public partial class LevelManager : Node
     /// <summary>Refresh all the units in the army whose turn just ended so they aren't gray anymore and are animated.</summary>
     public void OnEndTurnExited()
     {
+        if (!_armies.Current.Faction.IsPlayer)
+        {
+            _armies.Current.Controller.UnitSelected -= OnIdleUnitSelected;
+        }
+
         foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
             unit.Refresh();
 
