@@ -7,7 +7,7 @@ using TbsTemplate.Data;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level.Map;
-using TbsTemplate.Scenes.Level.AI;
+using TbsTemplate.Scenes.Level.Control;
 
 namespace TbsTemplate.Scenes.Level.Object;
 

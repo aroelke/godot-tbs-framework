@@ -4,7 +4,6 @@ using TbsTemplate.Scenes;
 using TbsTemplate.Scenes.Level;
 using TbsTemplate.UI;
 
-[SceneTree]
 public partial class TestMap : Node2D
 {
     [Export(PropertyHint.File, "*.tscn")] public string GameOverScreen = null;
@@ -24,7 +23,7 @@ public partial class TestMap : Node2D
     public override void _Ready()
     {
         base._Ready();
-        _.CanvasLayer.ObjectiveLabel.Text = $"Success: {_.EventController.Success?.Description ?? "None"}\nFailure: {_.EventController.Failure?.Description ?? "Never"}";
+        GetNode<Label>("CanvasLayer/ObjectiveLabel").Text = $"Success: {GetNode<EventController>("EventController").Success?.Description ?? "None"}\nFailure: {GetNode<EventController>("EventController").Failure?.Description ?? "Never"}";
 
         if (!Engine.IsEditorHint())
         {

@@ -4,7 +4,7 @@ using Godot;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 
-namespace TbsTemplate.Scenes.Level.AI;
+namespace TbsTemplate.Scenes.Level.Control;
 
 /// <summary>Automatically controls units based on their <see cref="UnitBehavior"/>s and the state of the level.</summary>
 public partial class AIController : Node

@@ -1,7 +1,7 @@
 using Godot;
 using TbsTemplate.Scenes.Level.Object;
 
-namespace TbsTemplate.Scenes.Level.AI;
+namespace TbsTemplate.Scenes.Level.Control;
 
 /// <summary>A behavior for a <see cref="Unit"/> that does not move.</summary>
 [GlobalClass, Tool]

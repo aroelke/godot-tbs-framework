@@ -6,9 +6,9 @@ namespace TbsTemplate
     {
         namespace Level
         {
-            namespace AI
+            namespace Control
             {
-                /// <summary>Objects used for controlling <see cref="Unit"/>s on non-player turns.</summary>
+                /// <summary>Objects used for controlling <see cref="Unit"/>s.</summary>
                 static internal class NamespaceDoc {}
             }
         }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsTemplate.Data;
-using TbsTemplate.Scenes.Level.AI;
+using TbsTemplate.Scenes.Level.Control;
 
 namespace TbsTemplate.Scenes.Level.Object.Group;
 

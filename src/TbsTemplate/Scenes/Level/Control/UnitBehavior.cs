@@ -1,7 +1,7 @@
 using Godot;
 using TbsTemplate.Scenes.Level.Object;
 
-namespace TbsTemplate.Scenes.Level.AI;
+namespace TbsTemplate.Scenes.Level.Control;
 
 /// <summary>
 /// A <see cref="Unit"/> resource that provides information about how the AI uses it in a
