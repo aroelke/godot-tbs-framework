@@ -16,6 +16,7 @@ using TbsTemplate.UI.Controls.Device;
 using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Combat;
 using TbsTemplate.Nodes.Components;
+using System.Runtime.InteropServices;
 
 namespace TbsTemplate.Scenes.Level;
 
@@ -210,6 +211,7 @@ public partial class LevelManager : Node
             Pointer.StartWaiting(hide:true);
             _armies.Current.Controller.UnitSelected += OnIdleUnitSelected;
             _armies.Current.Controller.UnitMoved += OnSelectedUnitMoved;
+            _armies.Current.Controller.UnitCommanded += OnCommandingUnitCommanded;
         }
         Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
     }
@@ -313,6 +315,8 @@ public partial class LevelManager : Node
     {
         if (unit.Faction != _armies.Current.Faction)
             throw new InvalidOperationException($"Cannot select unit not from army {_armies.Current.Name}");
+        if (!unit.Active)
+            throw new InvalidOperationException($"Cannot select inactive unit {unit.Name}");
 
         _selected = unit;
         Cursor.Cell = unit.Cell;
@@ -493,7 +497,8 @@ public partial class LevelManager : Node
     /// <summary>Begin moving the selected <see cref="Unit"/> and then wait for it to finish moving.</summary>
     public void OnMovingEntered()
     {
-        Cursor.Halt();
+        if (_armies.Current.Faction.IsPlayer)
+            Cursor.Halt();
 
         // Track the unit as it's moving
         _prevDeadzone = new(Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight);
@@ -522,7 +527,8 @@ public partial class LevelManager : Node
         Camera.Target = _prevCameraTarget;
         _path = null;
         UpdateDangerZones();
-        Cursor.Resume();
+        if (_armies.Current.Faction.IsPlayer)
+            Cursor.Resume();
     }
 #endregion
 #region Unit Commanding State
@@ -531,45 +537,63 @@ public partial class LevelManager : Node
 
     public void OnCommandingEntered()
     {
-        // Show the unit's attack/support ranges
-        _targets = [];
-        ActionLayers.Clear(MoveLayer);
-        ActionLayers[AttackLayer] = _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
-        ActionLayers[SupportLayer] = _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
+        if (_armies.Current.Faction.IsPlayer)
+        {
+            // Show the unit's attack/support ranges
+            _targets = [];
+            ActionLayers.Clear(MoveLayer);
+            ActionLayers[AttackLayer] = _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
+            ActionLayers[SupportLayer] = _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
 
-        List<ContextMenuOption> options = [];
-        void AddActionOption(StringName name, StringName layer)
-        {
-            if (ActionLayers[layer].Any())
+            List<ContextMenuOption> options = [];
+            void AddActionOption(StringName name, StringName layer)
             {
-                options.Add(new(name, () => {
-                    _targets = ActionLayers[layer];
-                    _command = layer;
-                    ActionLayers.Keep(layer);
-                    State.SendEvent(_events[SelectEvent]);
-                }));
+                if (ActionLayers[layer].Any())
+                {
+                    options.Add(new(name, () => {
+                        _targets = ActionLayers[layer];
+                        _command = layer;
+                        ActionLayers.Keep(layer);
+                        State.SendEvent(_events[SelectEvent]);
+                    }));
+                }
             }
-        }
-        AddActionOption("Attack", AttackLayer);
-        AddActionOption("Support", SupportLayer);
-        foreach (SpecialActionRegion region in SpecialActionRegions)
-        {
-            if (region.HasSpecialAction(_selected, _selected.Cell))
+            AddActionOption("Attack", AttackLayer);
+            AddActionOption("Support", SupportLayer);
+            foreach (SpecialActionRegion region in SpecialActionRegions)
             {
-                options.Add(new(region.Name, () => {
-                    region.PerformSpecialAction(_selected, _selected.Cell);
-                    State.SendEvent(_events[SkipEvent]);
-                }));
+                if (region.HasSpecialAction(_selected, _selected.Cell))
+                {
+                    options.Add(new(region.Name, () => {
+                        region.PerformSpecialAction(_selected, _selected.Cell);
+                        State.SendEvent(_events[SkipEvent]);
+                    }));
+                }
             }
+            options.Add(new("End", () => State.SendEvent(_events[SkipEvent])));
+            options.Add(new("Cancel", () => State.SendEvent(_events[CancelEvent])));
+            _commandMenu = ShowMenu(Grid.CellRect(_selected.Cell), options);
+            _commandMenu.MenuCanceled += () => State.SendEvent(_events[CancelEvent]);
+            _commandMenu.MenuClosed += () => _commandMenu = null;
         }
-        options.Add(new("End", () => State.SendEvent(_events[SkipEvent])));
-        options.Add(new("Cancel", () => State.SendEvent(_events[CancelEvent])));
-        _commandMenu = ShowMenu(Grid.CellRect(_selected.Cell), options);
-        _commandMenu.MenuCanceled += () => State.SendEvent(_events[CancelEvent]);
-        _commandMenu.MenuClosed += () => _commandMenu = null;
+        else
+        {
+            Godot.Collections.Array<StringName> commands = ["End"];
+            Callable.From<Unit, Godot.Collections.Array<StringName>>(_armies.Current.Controller.CommandUnit).CallDeferred(_selected, commands);
+        }
     }
 
-    public void OnCommandingProcess(float delta) => _commandMenu.Position = MenuPosition(Grid.CellRect(_selected.Cell), _commandMenu.Size);
+    public void OnCommandingUnitCommanded(StringName command, Unit target)
+    {
+        if (command == "End")
+            State.SendEvent(_events[SkipEvent]);
+    }
+
+    public void OnCommandingProcess(float delta)
+    {
+        if (_armies.Current.Faction.IsPlayer)
+            _commandMenu.Position = MenuPosition(Grid.CellRect(_selected.Cell), _commandMenu.Size);
+    }
 
     /// <summary>Move the selected <see cref="Unit"/> and <see cref="Object.Cursor"/> back to the cell the unit was at before it moved.</summary>
     public void OnCommandingCanceled()
@@ -710,10 +734,7 @@ public partial class LevelManager : Node
         State.ExpressionProperties = State.ExpressionProperties.SetItem(ActiveProperty, ((IEnumerable<Unit>)_armies.Current).Count((u) => u.Active));
 
         CancelHint.Visible = false;
-        if (IsInstanceValid(_selected))
-            Callable.From<Unit>((u) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, u)).CallDeferred(_selected);
-        else
-            Callable.From<StringName>(State.SendEvent).CallDeferred(_events[DoneEvent]);
+        Callable.From<Unit>((u) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, u)).CallDeferred(_selected);
     }
 
     /// <summary>Clean up at the end of the unit's turn.</summary>
@@ -741,6 +762,7 @@ public partial class LevelManager : Node
         {
             _armies.Current.Controller.UnitSelected -= OnIdleUnitSelected;
             _armies.Current.Controller.UnitMoved -= OnSelectedUnitMoved;
+            _armies.Current.Controller.UnitCommanded -= OnCommandingUnitCommanded;
         }
 
         foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)

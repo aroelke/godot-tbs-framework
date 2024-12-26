@@ -2,5 +2,5 @@
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/AI/AIController.cs" id="1_c0any"]
 
-[node name="AiController" type="Node"]
+[node name="AIController" type="Node"]
 script = ExtResource("1_c0any")
