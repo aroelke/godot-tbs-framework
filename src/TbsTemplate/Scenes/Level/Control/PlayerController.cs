@@ -153,10 +153,7 @@ public partial class PlayerController : ArmyController
         _menu.MenuClosed += () => _menu = null;
     }
 
-    public override void FinalizeTurn()
-    {
-        throw new NotImplementedException();
-    }
+    public override void FinalizeTurn() { _selected = null; }
 
     public override void _Process(double delta)
     {
