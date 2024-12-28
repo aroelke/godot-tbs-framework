@@ -12,6 +12,8 @@ public abstract partial class ArmyController : Node
     /// <param name="unit">Selected unit.</param>
     [Signal] public delegate void UnitSelectedEventHandler(Unit unit);
 
+    [Signal] public delegate void PathUpdatedEventHandler(Godot.Collections.Array<Vector2I> path);
+
     /// <summary>Signals that a path for a <see cref="Unit"/> to move on has been chosen.</summary>
     /// <param name="path">Contiguous list of cells for the unit to move through.</param>
     [Signal] public delegate void UnitMovedEventHandler(Godot.Collections.Array<Vector2I> path);
@@ -36,6 +38,8 @@ public abstract partial class ArmyController : Node
     /// <summary>Choose the path along which a unit will move. Once the path has been determined, emit <c>UnitMoved</c>.</summary>
     /// <param name="unit">Unit to move.</param>
     public abstract void MoveUnit(Unit unit);
+
+    public abstract void EndMove();
 
     /// <summary>Choose an action for a unit to perform. Once a command has been selected, emit <c>UnitCommanded</c>.</summary>
     /// <param name="source">Unit chosen to perform a command.</param>
