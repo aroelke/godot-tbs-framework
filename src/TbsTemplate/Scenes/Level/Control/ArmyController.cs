@@ -26,6 +26,10 @@ public abstract partial class ArmyController : Node
     /// <summary>Army being controlled. Should be the direct parent of this controller.</summary>
     public Army Army => _army ??= GetParentOrNull<Army>();
 
+    public Cursor Cursor = null;
+
+    public abstract void InitializeTurn();
+
     /// <summary>Choose a unit in the army to select. Once the <see cref="Unit"/> has been selected, emit <c>UnitSelected</c>.</summary>
     public abstract void SelectUnit();
 
@@ -37,6 +41,8 @@ public abstract partial class ArmyController : Node
     /// <param name="source">Unit chosen to perform a command.</param>
     /// <param name="commands">List of commands available to perform.</param>
     public abstract void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands);
+
+    public abstract void FinalizeTurn();
 
     public override string[] _GetConfigurationWarnings()
     {

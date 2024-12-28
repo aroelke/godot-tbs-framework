@@ -1,4 +1,4 @@
-[gd_scene load_steps=40 format=4 uid="uid://bmfxux38ovtj2"]
+[gd_scene load_steps=41 format=4 uid="uid://bmfxux38ovtj2"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/LevelManager.tscn" id="1_h3e4w"]
 [ext_resource type="Script" path="res://test/TestMap.cs" id="1_stn1b"]
@@ -17,6 +17,7 @@
 [ext_resource type="Resource" uid="uid://blftirgdcpabh" path="res://test/stats/TestEnemyStats2.tres" id="9_awc5y"]
 [ext_resource type="Resource" uid="uid://xatocb6uwrwx" path="res://test/stats/TestEnemyStats1.tres" id="9_g2gda"]
 [ext_resource type="Resource" uid="uid://dp74yifhop864" path="res://test/factions/TestEnemyFaction1.tres" id="10_k4gkn"]
+[ext_resource type="PackedScene" uid="uid://drlrlusbfh208" path="res://src/TbsTemplate/Scenes/Level/Control/PlayerController.tscn" id="12_8av15"]
 [ext_resource type="Resource" uid="uid://cbi1a2igyxbt4" path="res://test/factions/TestEnemyFaction2.tres" id="12_8r5wl"]
 [ext_resource type="Resource" uid="uid://cljpmwsb1nbjt" path="res://test/factions/TestAllyFaction.tres" id="14_hmodb"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Data/Stats.cs" id="15_y2o8i"]
@@ -134,6 +135,8 @@ AllowedUnits = [NodePath("../../OtherEnemy/OtherEnemyA"), NodePath("../../Ally/A
 [node name="Player" parent="LevelManager" instance=ExtResource("4_xrn4s")]
 Faction = ExtResource("6_qur3m")
 
+[node name="PlayerController" parent="LevelManager/Player" instance=ExtResource("12_8av15")]
+
 [node name="PlayerA" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(192, 128)
 Class = ExtResource("7_crsy2")
@@ -167,7 +170,7 @@ Size = Vector2(32, 32)
 [node name="Enemy" parent="LevelManager" instance=ExtResource("4_xrn4s")]
 Faction = ExtResource("10_k4gkn")
 
-[node name="AiController" parent="LevelManager/Enemy" instance=ExtResource("17_2a1se")]
+[node name="AIController" parent="LevelManager/Enemy" instance=ExtResource("17_2a1se")]
 
 [node name="EnemyA" parent="LevelManager/Enemy" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(128, 224)
@@ -213,7 +216,7 @@ Size = Vector2(32, 32)
 [node name="OtherEnemy" parent="LevelManager" instance=ExtResource("4_xrn4s")]
 Faction = ExtResource("12_8r5wl")
 
-[node name="AiController" parent="LevelManager/OtherEnemy" instance=ExtResource("17_2a1se")]
+[node name="AIController" parent="LevelManager/OtherEnemy" instance=ExtResource("17_2a1se")]
 
 [node name="OtherEnemyA" parent="LevelManager/OtherEnemy" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(256, 192)
@@ -229,7 +232,7 @@ Size = Vector2(32, 32)
 [node name="Ally" parent="LevelManager" instance=ExtResource("4_xrn4s")]
 Faction = ExtResource("14_hmodb")
 
-[node name="AiController" parent="LevelManager/Ally" instance=ExtResource("17_2a1se")]
+[node name="AIController" parent="LevelManager/Ally" instance=ExtResource("17_2a1se")]
 
 [node name="AllyA" parent="LevelManager/Ally" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(192, 192)

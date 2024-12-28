@@ -8,6 +8,11 @@ namespace TbsTemplate.Scenes.Level.Control;
 /// <summary>Automatically controls units based on their <see cref="UnitBehavior"/>s and the state of the level.</summary>
 public partial class AIController : ArmyController
 {
+    public override void InitializeTurn()
+    {
+        Cursor.Halt(hide:true);
+    }
+
     public override void SelectUnit()
     {
         EmitSignal(SignalName.UnitSelected, ((IEnumerable<Unit>)Army).Where((u) => u.Active).First());
@@ -23,4 +28,7 @@ public partial class AIController : ArmyController
     {
         EmitSignal(SignalName.UnitCommanded, new StringName("End"), (Unit)null);
     }
+
+    // Don't resume the cursor.  The player controller will be responsible for that.
+    public override void FinalizeTurn() {}
 }

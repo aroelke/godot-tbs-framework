@@ -200,19 +200,15 @@ public partial class LevelManager : Node
     /// <summary>Signal that a turn is about to begin.</summary>
     public void OnBeginTurnEntered()
     {
+        _armies.Current.Controller.InitializeTurn();
+
         if (_armies.Current.Faction.IsPlayer)
-        {
-            Cursor.Resume();
             Pointer.StopWaiting();
-        }
         else
-        {
-            Cursor.Halt(hide:false);
             Pointer.StartWaiting(hide:true);
-            _armies.Current.Controller.UnitSelected += OnIdleUnitSelected;
-            _armies.Current.Controller.UnitMoved += OnSelectedUnitMoved;
-            _armies.Current.Controller.UnitCommanded += OnCommandingUnitCommanded;
-        }
+        _armies.Current.Controller.UnitSelected += OnIdleUnitSelected;
+        _armies.Current.Controller.UnitMoved += OnSelectedUnitMoved;
+        _armies.Current.Controller.UnitCommanded += OnCommandingUnitCommanded;
         Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
     }
 
@@ -234,8 +230,7 @@ public partial class LevelManager : Node
         Cursor.Cell = Grid.CellOf(Pointer.Position);
         OnIdleCursorEnteredCell(Cursor.Cell);
 
-        if (!_armies.Current.Faction.IsPlayer)
-            Callable.From(_armies.Current.Controller.SelectUnit).CallDeferred();
+        Callable.From(_armies.Current.Controller.SelectUnit).CallDeferred();
     }
 
     /// <summary>
@@ -758,12 +753,10 @@ public partial class LevelManager : Node
     /// <summary>Refresh all the units in the army whose turn just ended so they aren't gray anymore and are animated.</summary>
     public void OnEndTurnExited()
     {
-        if (!_armies.Current.Faction.IsPlayer)
-        {
-            _armies.Current.Controller.UnitSelected -= OnIdleUnitSelected;
-            _armies.Current.Controller.UnitMoved -= OnSelectedUnitMoved;
-            _armies.Current.Controller.UnitCommanded -= OnCommandingUnitCommanded;
-        }
+        _armies.Current.Controller.UnitSelected -= OnIdleUnitSelected;
+        _armies.Current.Controller.UnitMoved -= OnSelectedUnitMoved;
+        _armies.Current.Controller.UnitCommanded -= OnCommandingUnitCommanded;
+        _armies.Current.Controller.FinalizeTurn();
 
         foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
             unit.Refresh();
@@ -799,7 +792,7 @@ public partial class LevelManager : Node
     /// <param name="cell">Coordinates of the cell selection.</param>
     public void OnCellSelected(Vector2I cell) => Callable.From<Vector2I>((pos) => {
         if (Grid.CellOf(pos) == cell)
-            State.SendEvent(_events[SelectEvent]);
+            /* State.SendEvent(_events[SelectEvent]) */;
         else
             State.SendEvent(_events[SkipEvent]);
     }).CallDeferred(Pointer.Position);
@@ -857,11 +850,15 @@ public partial class LevelManager : Node
             Pointer.Bounds = Camera.Limits;
             Pointer.DefaultFlightTime = Camera.DeadZoneSmoothTime;
 
-            foreach (Unit unit in GetChildren().OfType<IEnumerable<Unit>>().Flatten())
+            foreach (Army army in GetChildren().OfType<Army>())
             {
-                unit.Grid = Grid;
-                unit.Cell = Grid.CellOf(unit.GlobalPosition - Grid.GlobalPosition);
-                Grid.Occupants[unit.Cell] = unit;
+                army.Controller.Cursor = Cursor;
+                foreach (Unit unit in (IEnumerable<Unit>)army)
+                {
+                    unit.Grid = Grid;
+                    unit.Cell = Grid.CellOf(unit.GlobalPosition - Grid.GlobalPosition);
+                    Grid.Occupants[unit.Cell] = unit;
+                }
             }
             LevelEvents.Singleton.Connect<Unit>(LevelEvents.SignalName.UnitDefeated, OnUnitDefeated);
 
@@ -968,7 +965,7 @@ public partial class LevelManager : Node
 
     public override string[] _GetConfigurationWarnings()
     {
-        List<string> warnings = new(base._GetConfigurationWarnings() ?? []);
+        List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
 
         // Make sure there's a map
         int maps = GetChildren().Count(static (c) => c is Grid);

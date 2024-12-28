@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://drlrlusbfh208"]
+
+[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Control/PlayerController.cs" id="1_52vsu"]
+
+[node name="PlayerController" type="Node"]
+script = ExtResource("1_52vsu")
