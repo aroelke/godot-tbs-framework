@@ -21,7 +21,7 @@ public abstract partial class ArmyController : Node
     /// <summary>Signals that an action has been chosen for a unit.</summary>
     /// <param name="command">String representing the action to perform.</param>
     /// <param name="target">Unit the action will be performed on.</param>
-    [Signal] public delegate void UnitCommandedEventHandler(StringName command, Unit target);
+    [Signal] public delegate void UnitCommandedEventHandler(StringName command);
 
     private Army _army = null;
 
@@ -44,7 +44,8 @@ public abstract partial class ArmyController : Node
     /// <summary>Choose an action for a unit to perform. Once a command has been selected, emit <c>UnitCommanded</c>.</summary>
     /// <param name="source">Unit chosen to perform a command.</param>
     /// <param name="commands">List of commands available to perform.</param>
-    public abstract void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands);
+    /// <param name="cancel">Command to perform on cancel.</param>
+    public abstract void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel);
 
     public abstract void FinalizeTurn();
 

@@ -26,9 +26,9 @@ public partial class AIController : ArmyController
 
     public override void EndMove() {}
 
-    public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands)
+    public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)
     {
-        EmitSignal(SignalName.UnitCommanded, new StringName("End"), (Unit)null);
+        EmitSignal(SignalName.UnitCommanded, new StringName("End"));
     }
 
     // Don't resume the cursor.  The player controller will be responsible for that.

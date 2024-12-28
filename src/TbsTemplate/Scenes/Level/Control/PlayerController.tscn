@@ -4,3 +4,5 @@
 
 [node name="PlayerController" type="Node"]
 script = ExtResource("1_52vsu")
+
+[node name="UserInterface" type="CanvasLayer" parent="."]

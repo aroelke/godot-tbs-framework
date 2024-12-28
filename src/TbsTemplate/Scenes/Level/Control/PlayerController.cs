@@ -6,13 +6,52 @@ using TbsTemplate.Extensions;
 using TbsTemplate.Scenes.Level.Control;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
+using TbsTemplate.UI;
+using TbsTemplate.UI.Controls.Device;
 
-[SceneTree]
+[SceneTree, Tool]
 public partial class PlayerController : ArmyController
 {
     private Unit _selected = null, _target = null;
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path;
+    private ContextMenu _menu;
+
+    private Vector2 MenuPosition(Rect2 rect, Vector2 size)
+    {
+        Rect2 viewportRect = Cursor.Grid.GetGlobalTransformWithCanvas()*rect;
+        float viewportCenter = GetViewport().GetVisibleRect().Position.X + GetViewport().GetVisibleRect().Size.X/2;
+        return new(
+            viewportCenter - viewportRect.Position.X < viewportRect.Size.X/2 ? viewportRect.Position.X - size.X : viewportRect.End.X,
+            Mathf.Clamp(viewportRect.Position.Y - (size.Y - viewportRect.Size.Y)/2, 0, GetViewport().GetVisibleRect().Size.Y - size.Y)
+        );
+    }
+
+    private ContextMenu ShowMenu(Rect2 rect, IEnumerable<ContextMenuOption> options)
+    {
+        ContextMenu menu = ContextMenu.Instantiate(options);
+        menu.Wrap = true;
+        GetNode<CanvasLayer>("UserInterface").AddChild(menu);
+        menu.Visible = false;
+        menu.MenuClosed += () => {
+            Cursor.Resume();
+//            Camera.Target = _prevCameraTarget;
+//            _prevCameraTarget = null;
+        };
+
+        Cursor.Halt(hide:true);
+//        _prevCameraTarget = Camera.Target;
+//        Camera.Target = null;
+
+        Callable.From<ContextMenu, Rect2>((m, r) => {
+            m.Visible = true;
+            if (DeviceManager.Mode != InputMode.Mouse)
+                m.GrabFocus();
+            m.Position = MenuPosition(r, m.Size);
+        }).CallDeferred(menu, rect);
+
+        return menu;
+    }
 
     private void ConfirmCursorSelection(Vector2I cell)
     {
@@ -74,7 +113,7 @@ public partial class PlayerController : ArmyController
 
     private void ConfirmPathSelection(Vector2I cell)
     {
-        if (!Cursor.Grid.Occupants.ContainsKey(cell))
+        if (!Cursor.Grid.Occupants.ContainsKey(cell) || Cursor.Grid.Occupants[cell] == _selected)
         {
             EmitSignal(SignalName.UnitMoved, new Godot.Collections.Array<Vector2I>(_path));
         }
@@ -106,13 +145,23 @@ public partial class PlayerController : ArmyController
         Cursor.CellSelected -= ConfirmPathSelection;
     }
 
-    public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands)
+    public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)
     {
-        throw new NotImplementedException();
+        _selected = source;
+        _menu = ShowMenu(Cursor.Grid.CellRect(source.Cell), commands.Select((c) => new ContextMenuOption() { Name = c, Action = () => EmitSignal(SignalName.UnitCommanded, c) }));
+        _menu.MenuCanceled += () => EmitSignal(SignalName.UnitCommanded, cancel);
+        _menu.MenuClosed += () => _menu = null;
     }
 
     public override void FinalizeTurn()
     {
         throw new NotImplementedException();
+    }
+
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+        if (_menu is not null)
+            _menu.Position = MenuPosition(Cursor.Grid.CellRect(_selected.Cell), _menu.Size);
     }
 }

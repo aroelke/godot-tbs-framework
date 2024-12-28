@@ -483,67 +483,65 @@ public partial class LevelManager : Node
     }
 #endregion
 #region Unit Commanding State
+    private List<ContextMenuOption> _options = [];
     private ContextMenu _commandMenu = null;
     private IEnumerable<Vector2I> _targets = [];
 
     public void OnCommandingEntered()
     {
-        if (_armies.Current.Faction.IsPlayer)
-        {
-            // Show the unit's attack/support ranges
-            _targets = [];
-            ActionLayers.Clear(MoveLayer);
-            ActionLayers[AttackLayer] = _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
-            ActionLayers[SupportLayer] = _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
+        // Show the unit's attack/support ranges
+        _targets = [];
+        ActionLayers.Clear(MoveLayer);
+        ActionLayers[AttackLayer] = _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
+        ActionLayers[SupportLayer] = _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
 
-            List<ContextMenuOption> options = [];
-            void AddActionOption(StringName name, StringName layer)
-            {
-                if (ActionLayers[layer].Any())
-                {
-                    options.Add(new(name, () => {
-                        _targets = ActionLayers[layer];
-                        _command = layer;
-                        ActionLayers.Keep(layer);
-                        State.SendEvent(_events[SelectEvent]);
-                    }));
-                }
-            }
-            AddActionOption("Attack", AttackLayer);
-            AddActionOption("Support", SupportLayer);
-            foreach (SpecialActionRegion region in SpecialActionRegions)
-            {
-                if (region.HasSpecialAction(_selected, _selected.Cell))
-                {
-                    options.Add(new(region.Name, () => {
-                        region.PerformSpecialAction(_selected, _selected.Cell);
-                        State.SendEvent(_events[SkipEvent]);
-                    }));
-                }
-            }
-            options.Add(new("End", () => State.SendEvent(_events[SkipEvent])));
-            options.Add(new("Cancel", () => State.SendEvent(_events[CancelEvent])));
-            _commandMenu = ShowMenu(Grid.CellRect(_selected.Cell), options);
-            _commandMenu.MenuCanceled += () => State.SendEvent(_events[CancelEvent]);
-            _commandMenu.MenuClosed += () => _commandMenu = null;
-        }
-        else
+        _options = [];
+        void AddActionOption(StringName name, StringName layer)
         {
-            Godot.Collections.Array<StringName> commands = ["End"];
-            Callable.From<Unit, Godot.Collections.Array<StringName>>(_armies.Current.Controller.CommandUnit).CallDeferred(_selected, commands);
+            if (ActionLayers[layer].Any())
+            {
+                _options.Add(new(name, () => {
+                    _targets = ActionLayers[layer];
+                    _command = layer;
+                    ActionLayers.Keep(layer);
+                    State.SendEvent(_events[SelectEvent]);
+                }));
+            }
         }
+        AddActionOption("Attack", AttackLayer);
+        AddActionOption("Support", SupportLayer);
+        foreach (SpecialActionRegion region in SpecialActionRegions)
+        {
+            if (region.HasSpecialAction(_selected, _selected.Cell))
+            {
+                _options.Add(new(region.Name, () => {
+                    region.PerformSpecialAction(_selected, _selected.Cell);
+                    State.SendEvent(_events[SkipEvent]);
+                }));
+            }
+        }
+        _options.Add(new("End", () => State.SendEvent(_events[SkipEvent])));
+        _options.Add(new("Cancel", () => State.SendEvent(_events[CancelEvent])));
+/*
+        _commandMenu = ShowMenu(Grid.CellRect(_selected.Cell), _options);
+        _commandMenu.MenuCanceled += () => State.SendEvent(_events[CancelEvent]);
+        _commandMenu.MenuClosed += () => _commandMenu = null;
+*/
+
+        Callable.From<Unit, Godot.Collections.Array<StringName>, StringName>(_armies.Current.Controller.CommandUnit).CallDeferred(_selected, new Godot.Collections.Array<StringName>(_options.Select((o) => o.Name)), "Cancel");
     }
 
-    public void OnCommandingUnitCommanded(StringName command, Unit target)
+    public void OnCommandingUnitCommanded(StringName command)
     {
-        if (command == "End")
-            State.SendEvent(_events[SkipEvent]);
+        foreach (ContextMenuOption option in _options)
+            if (option.Name == command)
+                option.Action();
     }
 
     public void OnCommandingProcess(float delta)
     {
-        if (_armies.Current.Faction.IsPlayer)
-            _commandMenu.Position = MenuPosition(Grid.CellRect(_selected.Cell), _commandMenu.Size);
+//        if (_armies.Current.Faction.IsPlayer)
+//            _commandMenu.Position = MenuPosition(Grid.CellRect(_selected.Cell), _commandMenu.Size);
     }
 
     /// <summary>Move the selected <see cref="Unit"/> and <see cref="Object.Cursor"/> back to the cell the unit was at before it moved.</summary>
