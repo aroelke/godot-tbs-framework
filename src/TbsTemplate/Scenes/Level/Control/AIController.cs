@@ -29,6 +29,11 @@ public partial class AIController : ArmyController
         EmitSignal(SignalName.UnitCommanded, new StringName("End"));
     }
 
+    public override void SelectTarget(Unit source)
+    {
+        throw new System.NotImplementedException();
+    }
+
     // Don't resume the cursor.  The player controller will be responsible for that.
     public override void FinalizeTurn() {}
 }

@@ -45,6 +45,8 @@ public abstract partial class ArmyController : Node
     /// <param name="cancel">Command to perform on cancel.</param>
     public abstract void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel);
 
+    public abstract void SelectTarget(Unit source);
+
     public abstract void FinalizeTurn();
 
     public override string[] _GetConfigurationWarnings()
