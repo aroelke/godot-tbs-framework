@@ -434,7 +434,6 @@ public partial class LevelManager : Node
     public void OnSelectedExited()
     {
         _armies.Current.Controller.PathUpdated -= OnSelectedPathUpdated;
-        _armies.Current.Controller.EndMove();
         Cursor.SoftRestriction.Clear();
 
         // Restore the camera zoom back to what it was before a unit was selected

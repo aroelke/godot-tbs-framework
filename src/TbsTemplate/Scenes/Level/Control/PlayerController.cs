@@ -14,9 +14,10 @@ using TbsTemplate.UI.Controls.Device;
 public partial class PlayerController : ArmyController
 {
     private static readonly StringName SelectEvent = "Select";
+    private static readonly StringName PathEvent = "Path";
     private static readonly StringName FinishEvent = "Finish";
 
-    private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, FinishEvent]);
+    private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, PathEvent, FinishEvent]);
     private Unit _selected = null, _target = null;
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path;
@@ -138,17 +139,20 @@ public partial class PlayerController : ArmyController
 
     public override void MoveUnit(Unit unit)
     {
-        State.SendEvent(_events[FinishEvent]);
-
-        _target = null;
         _selected = unit;
-        (_traversable, _attackable, _supportable) = unit.ActionRanges();
+        State.SendEvent(_events[PathEvent]);
+    }
+
+    public void OnPathEntered()
+    {
+        _target = null;
+        (_traversable, _attackable, _supportable) = _selected.ActionRanges();
         _path = Path.Empty(Cursor.Grid, _traversable).Add(_selected.Cell);
         Cursor.CellChanged += AddToPath;
         Cursor.CellSelected += ConfirmPathSelection;
     }
 
-    public override void EndMove()
+    public void OnPathExited()
     {
         Cursor.CellChanged -= AddToPath;
         Cursor.CellSelected -= ConfirmPathSelection;
@@ -156,6 +160,8 @@ public partial class PlayerController : ArmyController
 
     public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)
     {
+        State.SendEvent(_events[FinishEvent]);
+
         _selected = source;
         _menu = ShowMenu(Cursor.Grid.CellRect(source.Cell), commands.Select((c) => new ContextMenuOption() { Name = c, Action = () => EmitSignal(SignalName.UnitCommanded, c) }));
         _menu.MenuCanceled += () => EmitSignal(SignalName.UnitCommanded, cancel);

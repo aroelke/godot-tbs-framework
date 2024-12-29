@@ -39,8 +39,6 @@ public abstract partial class ArmyController : Node
     /// <param name="unit">Unit to move.</param>
     public abstract void MoveUnit(Unit unit);
 
-    public abstract void EndMove();
-
     /// <summary>Choose an action for a unit to perform. Once a command has been selected, emit <c>UnitCommanded</c>.</summary>
     /// <param name="source">Unit chosen to perform a command.</param>
     /// <param name="commands">List of commands available to perform.</param>

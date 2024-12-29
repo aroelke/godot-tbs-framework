@@ -24,8 +24,6 @@ public partial class AIController : ArmyController
         EmitSignal(SignalName.UnitMoved, path);
     }
 
-    public override void EndMove() {}
-
     public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)
     {
         EmitSignal(SignalName.UnitCommanded, new StringName("End"));

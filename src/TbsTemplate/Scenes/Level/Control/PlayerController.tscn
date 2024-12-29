@@ -9,13 +9,14 @@
 [node name="PlayerController" type="Node"]
 script = ExtResource("1_52vsu")
 Select = &"select"
+Path = &"path"
 Finish = &"finish"
 
 [node name="UserInterface" type="CanvasLayer" parent="."]
 
 [node name="State" parent="." instance=ExtResource("2_br7d1")]
 unique_name_in_owner = true
-Events = [&"select", &"finish"]
+Events = [&"select", &"path", &"finish"]
 
 [node name="Root" parent="State" node_paths=PackedStringArray("InitialState") instance=ExtResource("3_w7lyn")]
 process_mode = 4
@@ -31,8 +32,20 @@ To = NodePath("../../Select")
 [node name="Select" parent="State/Root" instance=ExtResource("4_qwlr4")]
 process_mode = 4
 
-[node name="ToReady" parent="State/Root/Select" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
+[node name="ToPath" parent="State/Root/Select" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
+Event = &"path"
+To = NodePath("../../Path")
+
+[node name="Path" parent="State/Root" instance=ExtResource("4_qwlr4")]
+
+[node name="ToSelect" parent="State/Root/Path" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
+Event = &"select"
+To = NodePath("../../Select")
+
+[node name="ToReady" parent="State/Root/Path" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
 Event = &"finish"
 To = NodePath("../../Ready")
 
 [connection signal="StateEntered" from="State/Root/Select" to="." method="OnSelectEntered"]
+[connection signal="StateEntered" from="State/Root/Path" to="." method="OnPathEntered"]
+[connection signal="StateExited" from="State/Root/Path" to="." method="OnPathExited"]
