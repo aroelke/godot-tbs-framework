@@ -289,7 +289,7 @@ grow_horizontal = 0
 grow_vertical = 1
 StateChart = NodePath("../../LevelManager/State")
 
-[node name="PointerInspector" parent="CanvasLayer" node_paths=PackedStringArray("StateChart") instance=ExtResource("16_i76wh")]
+[node name="PlayerInspector" parent="CanvasLayer" node_paths=PackedStringArray("StateChart") instance=ExtResource("16_i76wh")]
 anchors_preset = 0
 anchor_right = 0.0
 anchor_bottom = 0.0
@@ -299,7 +299,7 @@ offset_right = 1280.0
 offset_bottom = 739.0
 grow_horizontal = 1
 grow_vertical = 1
-StateChart = NodePath("../../LevelManager/Pointer/ControlState")
+StateChart = NodePath("../../LevelManager/Player/PlayerController/State")
 
 [node name="ObjectiveLabel" type="Label" parent="CanvasLayer"]
 offset_top = 39.0
@@ -316,3 +316,4 @@ Failure: Never"
 
 [editable path="LevelManager"]
 [editable path="LevelManager/Pointer"]
+[editable path="LevelManager/Player/PlayerController"]

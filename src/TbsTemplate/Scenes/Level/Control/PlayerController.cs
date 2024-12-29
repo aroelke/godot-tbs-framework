@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TbsTemplate.Extensions;
+using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level.Control;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
@@ -12,6 +13,10 @@ using TbsTemplate.UI.Controls.Device;
 [SceneTree, Tool]
 public partial class PlayerController : ArmyController
 {
+    private static readonly StringName SelectEvent = "Select";
+    private static readonly StringName FinishEvent = "Finish";
+
+    private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, FinishEvent]);
     private Unit _selected = null, _target = null;
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path;
@@ -124,13 +129,17 @@ public partial class PlayerController : ArmyController
         Cursor.Resume();
     }
 
-    public override void SelectUnit()
+    public override void SelectUnit() => State.SendEvent(_events[SelectEvent]);
+
+    public void OnSelectEntered()
     {
         Cursor.CellSelected += ConfirmCursorSelection;
     }
 
     public override void MoveUnit(Unit unit)
     {
+        State.SendEvent(_events[FinishEvent]);
+
         _target = null;
         _selected = unit;
         (_traversable, _attackable, _supportable) = unit.ActionRanges();
@@ -153,7 +162,46 @@ public partial class PlayerController : ArmyController
         _menu.MenuClosed += () => _menu = null;
     }
 
-    public override void FinalizeTurn() { _selected = null; }
+    public override void FinalizeTurn() => _selected = null;
+
+    public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
+    {
+        Godot.Collections.Array<Godot.Collections.Dictionary> properties = base._GetPropertyList() ?? [];
+        properties.AddRange(_events.GetPropertyList(State.Events));
+        return properties;
+    }
+
+    public override Variant _Get(StringName property)
+    {
+        if (_events.TryGetPropertyValue(property, out StringName value))
+            return value;
+        else
+            return base._Get(property);
+    }
+
+    public override bool _Set(StringName property, Variant value)
+    {
+        if (value.VariantType == Variant.Type.StringName && _events.SetPropertyValue(property, value.AsStringName()))
+            return true;
+        else
+            return base._Set(property, value);
+    }
+
+    public override bool _PropertyCanRevert(StringName property)
+    {
+        if (_events.PropertyCanRevert(property, out bool revert))
+            return revert;
+        else
+            return base._PropertyCanRevert(property);
+    }
+
+    public override Variant _PropertyGetRevert(StringName property)
+    {
+        if (_events.TryPropertyGetRevert(property, out StringName revert))
+            return revert;
+        else
+            return base._PropertyGetRevert(property);
+    }
 
     public override void _Process(double delta)
     {

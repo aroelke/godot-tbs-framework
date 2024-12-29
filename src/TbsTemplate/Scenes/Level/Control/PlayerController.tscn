@@ -1,8 +1,38 @@
-[gd_scene load_steps=2 format=3 uid="uid://drlrlusbfh208"]
+[gd_scene load_steps=6 format=3 uid="uid://drlrlusbfh208"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Control/PlayerController.cs" id="1_52vsu"]
+[ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/TbsTemplate/Nodes/StateChart/Chart.tscn" id="2_br7d1"]
+[ext_resource type="PackedScene" uid="uid://bykdjiak4bxvt" path="res://src/TbsTemplate/Nodes/StateChart/States/CompoundState.tscn" id="3_w7lyn"]
+[ext_resource type="PackedScene" uid="uid://lrf5ywt1n230" path="res://src/TbsTemplate/Nodes/StateChart/States/AtomicState.tscn" id="4_qwlr4"]
+[ext_resource type="PackedScene" uid="uid://0b22cirxc7k2" path="res://src/TbsTemplate/Nodes/StateChart/States/Transition.tscn" id="5_dwgw0"]
 
 [node name="PlayerController" type="Node"]
 script = ExtResource("1_52vsu")
+Select = &"select"
+Finish = &"finish"
 
 [node name="UserInterface" type="CanvasLayer" parent="."]
+
+[node name="State" parent="." instance=ExtResource("2_br7d1")]
+unique_name_in_owner = true
+Events = [&"select", &"finish"]
+
+[node name="Root" parent="State" node_paths=PackedStringArray("InitialState") instance=ExtResource("3_w7lyn")]
+process_mode = 4
+InitialState = NodePath("Ready")
+
+[node name="Ready" parent="State/Root" instance=ExtResource("4_qwlr4")]
+process_mode = 4
+
+[node name="ToSelect" parent="State/Root/Ready" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
+Event = &"select"
+To = NodePath("../../Select")
+
+[node name="Select" parent="State/Root" instance=ExtResource("4_qwlr4")]
+process_mode = 4
+
+[node name="ToReady" parent="State/Root/Select" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
+Event = &"finish"
+To = NodePath("../../Ready")
+
+[connection signal="StateEntered" from="State/Root/Select" to="." method="OnSelectEntered"]
