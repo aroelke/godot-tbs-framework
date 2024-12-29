@@ -62,7 +62,7 @@ public partial class PlayerController : ArmyController
 
     private void ConfirmCursorSelection(Vector2I cell)
     {
-        if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit unit && unit.Faction == Army.Faction)
+        if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit unit && unit.Faction == Army.Faction && unit.Active)
         {
             EmitSignal(SignalName.UnitSelected, unit);
             Cursor.CellSelected -= ConfirmCursorSelection;
