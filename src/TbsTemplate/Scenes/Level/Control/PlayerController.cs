@@ -120,7 +120,7 @@ public partial class PlayerController : ArmyController
 
     private void ConfirmPathSelection(Vector2I cell)
     {
-        if (!Cursor.Grid.Occupants.ContainsKey(cell) || Cursor.Grid.Occupants[cell] == _selected)
+        if (!Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) || node == _selected)
         {
             EmitSignal(SignalName.UnitMoved, new Godot.Collections.Array<Vector2I>(_path));
         }
