@@ -209,6 +209,7 @@ public partial class LevelManager : Node
         _armies.Current.Controller.UnitSelected += OnIdleUnitSelected;
         _armies.Current.Controller.UnitMoved += OnSelectedUnitMoved;
         _armies.Current.Controller.UnitCommanded += OnCommandingUnitCommanded;
+        _armies.Current.Controller.TargetChosen += OnTargetChosen;
         Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
     }
 
@@ -578,6 +579,8 @@ public partial class LevelManager : Node
             Cursor.HardRestriction = _targets.ToImmutableHashSet();
             Cursor.Wrap = true;
         }
+
+        _armies.Current.Controller.SelectTarget(_selected);
     }
 
     /// <summary>
@@ -617,9 +620,11 @@ public partial class LevelManager : Node
             {
                 if (Grid.Occupants[cell] is Unit target)
                 {
+/*
                     _target = target;
                     SelectSound.Play();
                     State.SendEvent(_events[DoneEvent]);
+*/
                 }
                 else
                     State.SendEvent(_events[SkipEvent]);
@@ -630,6 +635,15 @@ public partial class LevelManager : Node
             SelectSound.Play();
             State.SendEvent(_events[SkipEvent]);
         }
+    }
+
+    public void OnTargetChosen(Unit target)
+    {
+        if ((_command == AttackLayer && target.Faction.AlliedTo(_selected)) || (_command == SupportLayer && !target.Faction.AlliedTo(_selected)))
+            throw new ArgumentException($"{_selected.Name} cannot {_command} {target.Name}");
+        _target = target;
+        SelectSound.Play();
+        State.SendEvent(_events[DoneEvent]);
     }
 
     /// <summary>Clean up displayed ranges and restore <see cref="Object.Cursor"/> freedom when exiting targeting <see cref="Nodes.StateChart.States.State"/>.</summary>
@@ -709,6 +723,7 @@ public partial class LevelManager : Node
         _armies.Current.Controller.UnitSelected -= OnIdleUnitSelected;
         _armies.Current.Controller.UnitMoved -= OnSelectedUnitMoved;
         _armies.Current.Controller.UnitCommanded -= OnCommandingUnitCommanded;
+        _armies.Current.Controller.TargetChosen -= OnTargetChosen;
         _armies.Current.Controller.FinalizeTurn();
 
         foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)

@@ -16,9 +16,10 @@ public partial class PlayerController : ArmyController
     private static readonly StringName SelectEvent = "Select";
     private static readonly StringName PathEvent = "Path";
     private static readonly StringName CommandEvent = "Command";
+    private static readonly StringName TargetEvent = "Target";
     private static readonly StringName FinishEvent = "Finish";
 
-    private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, PathEvent, CommandEvent, FinishEvent]);
+    private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, PathEvent, CommandEvent, TargetEvent, FinishEvent]);
     private Unit _selected = null, _target = null;
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path;
@@ -65,7 +66,6 @@ public partial class PlayerController : ArmyController
         if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit unit && unit.Faction == Army.Faction && unit.Active)
         {
             EmitSignal(SignalName.UnitSelected, unit);
-            Cursor.CellSelected -= ConfirmCursorSelection;
         }
     }
 
@@ -126,6 +126,14 @@ public partial class PlayerController : ArmyController
         }
     }
 
+    private void ConfirmTargetSelection(Vector2I cell)
+    {
+        if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit unit)
+        {
+            EmitSignal(SignalName.TargetChosen, unit);
+        }
+    }
+
     public override void InitializeTurn()
     {
         Cursor.Resume();
@@ -136,6 +144,11 @@ public partial class PlayerController : ArmyController
     public void OnSelectEntered()
     {
         Cursor.CellSelected += ConfirmCursorSelection;
+    }
+
+    public void OnSelectExited()
+    {
+        Cursor.CellSelected -= ConfirmCursorSelection;
     }
 
     public override void MoveUnit(Unit unit)
@@ -170,7 +183,18 @@ public partial class PlayerController : ArmyController
 
     public override void SelectTarget(Unit source)
     {
-        throw new NotImplementedException();
+        _selected = source;
+        State.SendEvent(_events[TargetEvent]);
+    }
+
+    public void OnTargetEntered()
+    {
+        Cursor.CellSelected += ConfirmTargetSelection;
+    }
+
+    public void OnTargetExited()
+    {
+        Cursor.CellSelected -= ConfirmTargetSelection;
     }
 
     public override void FinalizeTurn()

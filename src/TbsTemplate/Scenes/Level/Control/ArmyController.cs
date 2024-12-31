@@ -23,11 +23,16 @@ public abstract partial class ArmyController : Node
     /// <param name="target">Unit the action will be performed on.</param>
     [Signal] public delegate void UnitCommandedEventHandler(StringName command);
 
+    /// <summary>Signals that a target for an action has been chosen.</summary>
+    /// <param name="target">Target of the action.</param>
+    [Signal] public delegate void TargetChosenEventHandler(Unit target);
+
     private Army _army = null;
 
     /// <summary>Army being controlled. Should be the direct parent of this controller.</summary>
     public Army Army => _army ??= GetParentOrNull<Army>();
 
+    /// <summary>Cursor used for indicating or making a selection.</summary>
     public Cursor Cursor = null;
 
     public abstract void InitializeTurn();
@@ -45,6 +50,8 @@ public abstract partial class ArmyController : Node
     /// <param name="cancel">Command to perform on cancel.</param>
     public abstract void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel);
 
+    /// <summary>Choose the target for an action that was selected.</summary>
+    /// <param name="source">Unit that will perform the action.</param>
     public abstract void SelectTarget(Unit source);
 
     public abstract void FinalizeTurn();

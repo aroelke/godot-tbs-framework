@@ -11,13 +11,14 @@ script = ExtResource("1_52vsu")
 Select = &"select"
 Path = &"path"
 Command = &"command"
+Target = &"target"
 Finish = &"finish"
 
 [node name="UserInterface" type="CanvasLayer" parent="."]
 
 [node name="State" parent="." instance=ExtResource("2_br7d1")]
 unique_name_in_owner = true
-Events = [&"select", &"path", &"command", &"finish"]
+Events = [&"select", &"path", &"command", &"target", &"finish"]
 
 [node name="Root" parent="State" node_paths=PackedStringArray("InitialState") instance=ExtResource("3_w7lyn")]
 process_mode = 4
@@ -53,14 +54,31 @@ To = NodePath("../../Command")
 Event = &"path"
 To = NodePath("../../Path")
 
+[node name="ToTarget" parent="State/Root/Command" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
+Event = &"target"
+To = NodePath("../../Target")
+
 [node name="ToSelect" parent="State/Root/Command" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
 Event = &"select"
 To = NodePath("../../Select")
 
-[node name="ToReady" parent="State/Root/Command" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
+[node name="Target" parent="State/Root" instance=ExtResource("4_qwlr4")]
+
+[node name="ToCommand" parent="State/Root/Target" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
+Event = &"command"
+To = NodePath("../../Command")
+
+[node name="ToReady" parent="State/Root/Target" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
 Event = &"finish"
 To = NodePath("../../Ready")
 
+[node name="ToSelect" parent="State/Root/Target" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
+Event = &"select"
+To = NodePath("../../Select")
+
 [connection signal="StateEntered" from="State/Root/Select" to="." method="OnSelectEntered"]
+[connection signal="StateExited" from="State/Root/Select" to="." method="OnSelectExited"]
 [connection signal="StateEntered" from="State/Root/Path" to="." method="OnPathEntered"]
 [connection signal="StateExited" from="State/Root/Path" to="." method="OnPathExited"]
+[connection signal="StateEntered" from="State/Root/Target" to="." method="OnTargetEntered"]
+[connection signal="StateExited" from="State/Root/Target" to="." method="OnTargetExited"]
