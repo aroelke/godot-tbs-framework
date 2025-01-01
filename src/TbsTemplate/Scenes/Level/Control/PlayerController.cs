@@ -69,10 +69,10 @@ public partial class PlayerController : ArmyController
         }
     }
 
+    private void UpdatePath(Path path) => EmitSignal(SignalName.PathUpdated, new Godot.Collections.Array<Vector2I>(_path = path));
+
     private void AddToPath(Vector2I cell)
     {
-        void UpdatePath(Path path) => EmitSignal(SignalName.PathUpdated, new Godot.Collections.Array<Vector2I>(_path = path));
-
         // If the previous cell was an ally that could be supported and moved through, add it to the path as if it
         // had been added in the previous movement
         if (_target is not null && _supportable.Contains(_target.Cell) && _traversable.Contains(_target.Cell))
@@ -161,7 +161,7 @@ public partial class PlayerController : ArmyController
     {
         _target = null;
         (_traversable, _attackable, _supportable) = _selected.ActionRanges();
-        _path = Path.Empty(Cursor.Grid, _traversable).Add(_selected.Cell);
+        UpdatePath(Path.Empty(Cursor.Grid, _traversable).Add(_selected.Cell));
         Cursor.CellChanged += AddToPath;
         Cursor.CellSelected += ConfirmPathSelection;
     }
