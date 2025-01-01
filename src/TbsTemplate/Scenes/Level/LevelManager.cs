@@ -206,10 +206,10 @@ public partial class LevelManager : Node
             Pointer.StopWaiting();
         else
             Pointer.StartWaiting(hide:true);
-        _armies.Current.Controller.UnitSelected += OnIdleUnitSelected;
-        _armies.Current.Controller.UnitMoved += OnSelectedUnitMoved;
-        _armies.Current.Controller.UnitCommanded += OnCommandingUnitCommanded;
-        _armies.Current.Controller.TargetChosen += OnTargetChosen;
+        LevelEvents.Singleton.UnitSelected += OnIdleUnitSelected;
+        LevelEvents.Singleton.UnitMoved += OnSelectedUnitMoved;
+        LevelEvents.Singleton.UnitCommanded += OnCommandingUnitCommanded;
+        LevelEvents.Singleton.TargetChosen += OnTargetChosen;
         Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
     }
 
@@ -384,17 +384,21 @@ public partial class LevelManager : Node
                 Camera.PushZoom(zoomTarget);
         }
 
-        _armies.Current.Controller.PathUpdated += OnSelectedPathUpdated;
+        LevelEvents.Singleton.PathUpdated += OnSelectedPathUpdated;
         Callable.From<Unit>(_armies.Current.Controller.MoveUnit).CallDeferred(_selected);
     }
 
-    public void OnSelectedPathUpdated(Godot.Collections.Array<Vector2I> path)
+    public void OnSelectedPathUpdated(Unit unit, Godot.Collections.Array<Vector2I> path)
     {
+        if (unit != _selected)
+            throw new InvalidOperationException($"Updating path for unselected unit {unit.Name} ({_selected.Name} is selected)");
         PathLayer.Path = _path = _path.SetTo(path);
     }
 
-    public void OnSelectedUnitMoved(Godot.Collections.Array<Vector2I> path)
+    public void OnSelectedUnitMoved(Unit unit, Godot.Collections.Array<Vector2I> path)
     {
+        if (unit != _selected)
+            throw new InvalidOperationException($"Attempting to move unselected unit {unit.Name} ({_selected.Name} is selected)");
         if (!path.All(ActionLayers[MoveLayer].Contains) || path.Any((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Faction.AlliedTo(_selected) ?? false)))
             throw new InvalidOperationException("The chosen path must only contain traversable cells.");
 
@@ -434,7 +438,7 @@ public partial class LevelManager : Node
 
     public void OnSelectedExited()
     {
-        _armies.Current.Controller.PathUpdated -= OnSelectedPathUpdated;
+        LevelEvents.Singleton.PathUpdated -= OnSelectedPathUpdated;
         Cursor.SoftRestriction.Clear();
 
         // Restore the camera zoom back to what it was before a unit was selected
@@ -531,8 +535,10 @@ public partial class LevelManager : Node
         Callable.From<Unit, Godot.Collections.Array<StringName>, StringName>(_armies.Current.Controller.CommandUnit).CallDeferred(_selected, new Godot.Collections.Array<StringName>(_options.Select((o) => o.Name)), "Cancel");
     }
 
-    public void OnCommandingUnitCommanded(StringName command)
+    public void OnCommandingUnitCommanded(Unit unit, StringName command)
     {
+        if (unit != _selected)
+            throw new InvalidOperationException($"Attempting to command unselected unit {unit.Name} ({_selected.Name} is selected)");
         foreach (ContextMenuOption option in _options)
             if (option.Name == command)
                 option.Action();
@@ -637,10 +643,12 @@ public partial class LevelManager : Node
         }
     }
 
-    public void OnTargetChosen(Unit target)
+    public void OnTargetChosen(Unit source, Unit target)
     {
+        if (source != _selected)
+            throw new InvalidOperationException($"Source is unselected unit {source.Name} ({_selected.Name} is selected)");
         if ((_command == AttackLayer && target.Faction.AlliedTo(_selected)) || (_command == SupportLayer && !target.Faction.AlliedTo(_selected)))
-            throw new ArgumentException($"{_selected.Name} cannot {_command} {target.Name}");
+            throw new InvalidOperationException($"{_selected.Name} cannot {_command} {target.Name}");
         _target = target;
         SelectSound.Play();
         State.SendEvent(_events[DoneEvent]);
@@ -720,10 +728,10 @@ public partial class LevelManager : Node
     /// <summary>Refresh all the units in the army whose turn just ended so they aren't gray anymore and are animated.</summary>
     public void OnEndTurnExited()
     {
-        _armies.Current.Controller.UnitSelected -= OnIdleUnitSelected;
-        _armies.Current.Controller.UnitMoved -= OnSelectedUnitMoved;
-        _armies.Current.Controller.UnitCommanded -= OnCommandingUnitCommanded;
-        _armies.Current.Controller.TargetChosen -= OnTargetChosen;
+        LevelEvents.Singleton.UnitSelected -= OnIdleUnitSelected;
+        LevelEvents.Singleton.UnitMoved -= OnSelectedUnitMoved;
+        LevelEvents.Singleton.UnitCommanded -= OnCommandingUnitCommanded;
+        LevelEvents.Singleton.TargetChosen -= OnTargetChosen;
         _armies.Current.Controller.FinalizeTurn();
 
         foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)

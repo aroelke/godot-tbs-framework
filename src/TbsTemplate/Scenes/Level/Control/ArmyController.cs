@@ -8,25 +8,6 @@ namespace TbsTemplate.Scenes.Level.Control;
 /// <summary>Controller for determining which units act in a turn and how they act.</summary>
 public abstract partial class ArmyController : Node
 {
-    /// <summary>Signals that a <see cref="Unit"/> has been chosen to act.</summary>
-    /// <param name="unit">Selected unit.</param>
-    [Signal] public delegate void UnitSelectedEventHandler(Unit unit);
-
-    [Signal] public delegate void PathUpdatedEventHandler(Godot.Collections.Array<Vector2I> path);
-
-    /// <summary>Signals that a path for a <see cref="Unit"/> to move on has been chosen.</summary>
-    /// <param name="path">Contiguous list of cells for the unit to move through.</param>
-    [Signal] public delegate void UnitMovedEventHandler(Godot.Collections.Array<Vector2I> path);
-
-    /// <summary>Signals that an action has been chosen for a unit.</summary>
-    /// <param name="command">String representing the action to perform.</param>
-    /// <param name="target">Unit the action will be performed on.</param>
-    [Signal] public delegate void UnitCommandedEventHandler(StringName command);
-
-    /// <summary>Signals that a target for an action has been chosen.</summary>
-    /// <param name="target">Target of the action.</param>
-    [Signal] public delegate void TargetChosenEventHandler(Unit target);
-
     private Army _army = null;
 
     /// <summary>Army being controlled. Should be the direct parent of this controller.</summary>
@@ -45,10 +26,10 @@ public abstract partial class ArmyController : Node
     public abstract void MoveUnit(Unit unit);
 
     /// <summary>Choose an action for a unit to perform. Once a command has been selected, emit <c>UnitCommanded</c>.</summary>
-    /// <param name="source">Unit chosen to perform a command.</param>
+    /// <param name="unit">Unit chosen to perform a command.</param>
     /// <param name="commands">List of commands available to perform.</param>
     /// <param name="cancel">Command to perform on cancel.</param>
-    public abstract void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel);
+    public abstract void CommandUnit(Unit unit, Godot.Collections.Array<StringName> commands, StringName cancel);
 
     /// <summary>Choose the target for an action that was selected.</summary>
     /// <param name="source">Unit that will perform the action.</param>

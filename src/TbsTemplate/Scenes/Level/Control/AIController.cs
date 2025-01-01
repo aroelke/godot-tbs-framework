@@ -15,18 +15,18 @@ public partial class AIController : ArmyController
 
     public override void SelectUnit()
     {
-        EmitSignal(SignalName.UnitSelected, ((IEnumerable<Unit>)Army).Where((u) => u.Active).First());
+        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.UnitSelected, ((IEnumerable<Unit>)Army).Where((u) => u.Active).First());
     }
 
     public override void MoveUnit(Unit unit)
     {
         Godot.Collections.Array<Vector2I> path = [unit.Cell];
-        EmitSignal(SignalName.UnitMoved, path);
+        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.UnitMoved, unit, path);
     }
 
-    public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)
+    public override void CommandUnit(Unit unit, Godot.Collections.Array<StringName> commands, StringName cancel)
     {
-        EmitSignal(SignalName.UnitCommanded, new StringName("End"));
+        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.UnitCommanded, unit, new StringName("End"));
     }
 
     public override void SelectTarget(Unit source)

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes.Components;
+using TbsTemplate.Scenes.Level;
 using TbsTemplate.Scenes.Level.Control;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
@@ -65,11 +66,11 @@ public partial class PlayerController : ArmyController
     {
         if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit unit && unit.Faction == Army.Faction && unit.Active)
         {
-            EmitSignal(SignalName.UnitSelected, unit);
+            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.UnitSelected, unit);
         }
     }
 
-    private void UpdatePath(Path path) => EmitSignal(SignalName.PathUpdated, new Godot.Collections.Array<Vector2I>(_path = path));
+    private void UpdatePath(Path path) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.PathUpdated, _selected, new Godot.Collections.Array<Vector2I>(_path = path));
 
     private void AddToPath(Vector2I cell)
     {
@@ -122,7 +123,7 @@ public partial class PlayerController : ArmyController
     {
         if (!Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) || node == _selected)
         {
-            EmitSignal(SignalName.UnitMoved, new Godot.Collections.Array<Vector2I>(_path));
+            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.UnitMoved, _selected, new Godot.Collections.Array<Vector2I>(_path));
         }
     }
 
@@ -130,7 +131,7 @@ public partial class PlayerController : ArmyController
     {
         if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit unit)
         {
-            EmitSignal(SignalName.TargetChosen, unit);
+            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TargetChosen, _selected, unit);
         }
     }
 
@@ -172,11 +173,11 @@ public partial class PlayerController : ArmyController
         Cursor.CellSelected -= ConfirmPathSelection;
     }
 
-    public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)
+    public override void CommandUnit(Unit unit, Godot.Collections.Array<StringName> commands, StringName cancel)
     {
-        _selected = source;
-        _menu = ShowMenu(Cursor.Grid.CellRect(source.Cell), commands.Select((c) => new ContextMenuOption() { Name = c, Action = () => EmitSignal(SignalName.UnitCommanded, c) }));
-        _menu.MenuCanceled += () => EmitSignal(SignalName.UnitCommanded, cancel);
+        _selected = unit;
+        _menu = ShowMenu(Cursor.Grid.CellRect(unit.Cell), commands.Select((c) => new ContextMenuOption() { Name = c, Action = () => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.UnitCommanded, unit, c) }));
+        _menu.MenuCanceled += () => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.UnitCommanded, unit, cancel);
         _menu.MenuClosed += () => _menu = null;
         State.SendEvent(_events[CommandEvent]);
     }
