@@ -390,7 +390,7 @@ public partial class LevelManager : Node
 
     public void OnSelectedPathUpdated(Godot.Collections.Array<Vector2I> path)
     {
-        PathLayer.Path = _path = _path.Clear().AddRange(path);
+        PathLayer.Path = _path = _path.SetTo(path);
     }
 
     public void OnSelectedUnitMoved(Godot.Collections.Array<Vector2I> path)
@@ -398,7 +398,7 @@ public partial class LevelManager : Node
         if (!path.All(ActionLayers[MoveLayer].Contains) || path.Any((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Faction.AlliedTo(_selected) ?? false)))
             throw new InvalidOperationException("The chosen path must only contain traversable cells.");
 
-        _path = _path.Clear().AddRange(path);
+        _path = _path.SetTo(path);
         Cursor.Cell = _path[^1];
         State.ExpressionProperties = State.ExpressionProperties.SetItem(TraversableProperty, true);
         State.SendEvent(_events[SelectEvent]);

@@ -143,6 +143,10 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// is not adjacent to the previous path end and in case any sequential cells in <paramref name="items"/> are not adjacent.</returns>
     public Path AddRange(IEnumerable<Vector2I> items) => items.Aggregate(this, static (p, item) => p.Add(item));
 
+    /// <summary>Create a new path using the same grid and set of traversable cells.</summary>
+    /// <param name="items">Cells in the new path.</param>
+    public Path SetTo(IEnumerable<Vector2I> items) => Clear().AddRange(items);
+
     /// <summary>
     /// Insert a cell at the specified index. If it's not adjacent to either of its neighbors, add a path segment on each side that connects them.
     /// </summary>
