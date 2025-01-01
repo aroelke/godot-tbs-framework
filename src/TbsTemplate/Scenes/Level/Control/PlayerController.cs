@@ -6,6 +6,7 @@ using TbsTemplate.Extensions;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level;
 using TbsTemplate.Scenes.Level.Control;
+using TbsTemplate.Scenes.Level.Events;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.UI;

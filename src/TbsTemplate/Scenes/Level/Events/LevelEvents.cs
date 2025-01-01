@@ -3,7 +3,7 @@ using TbsTemplate.Extensions;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 
-namespace TbsTemplate.Scenes.Level;
+namespace TbsTemplate.Scenes.Level.Events;
 
 /// <summary>"Event bus" for a level that allows objects to subscribe to various events that occur during play.</summary>
 public partial class LevelEvents : Node

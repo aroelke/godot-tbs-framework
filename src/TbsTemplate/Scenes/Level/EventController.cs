@@ -2,6 +2,7 @@
 
 using Godot;
 using TbsTemplate.Extensions;
+using TbsTemplate.Scenes.Level.Events;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 using TbsTemplate.Scenes.Level.Objectives;

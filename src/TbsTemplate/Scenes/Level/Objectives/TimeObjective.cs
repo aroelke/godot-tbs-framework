@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godot;
 using TbsTemplate.Extensions;
+using TbsTemplate.Scenes.Level.Events;
 using TbsTemplate.Scenes.Level.Object.Group;
 
 namespace TbsTemplate.Scenes.Level.Objectives;

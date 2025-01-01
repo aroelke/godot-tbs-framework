@@ -17,6 +17,7 @@ using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Combat;
 using TbsTemplate.Nodes.Components;
 using System.Runtime.InteropServices;
+using TbsTemplate.Scenes.Level.Events;
 
 namespace TbsTemplate.Scenes.Level;
 
