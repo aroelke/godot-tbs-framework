@@ -207,7 +207,6 @@ public partial class LevelManager : Node
             Pointer.StopWaiting();
         else
             Pointer.StartWaiting(hide:true);
-        LevelEvents.Singleton.UnitSelected += OnIdleUnitSelected;
         LevelEvents.Singleton.UnitMoved += OnSelectedUnitMoved;
         LevelEvents.Singleton.UnitCommanded += OnCommandingUnitCommanded;
         LevelEvents.Singleton.TargetChosen += OnTargetChosen;
@@ -729,7 +728,6 @@ public partial class LevelManager : Node
     /// <summary>Refresh all the units in the army whose turn just ended so they aren't gray anymore and are animated.</summary>
     public void OnEndTurnExited()
     {
-        LevelEvents.Singleton.UnitSelected -= OnIdleUnitSelected;
         LevelEvents.Singleton.UnitMoved -= OnSelectedUnitMoved;
         LevelEvents.Singleton.UnitCommanded -= OnCommandingUnitCommanded;
         LevelEvents.Singleton.TargetChosen -= OnTargetChosen;

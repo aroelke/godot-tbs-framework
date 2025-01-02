@@ -1,4 +1,4 @@
-[gd_scene load_steps=42 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=43 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DBrain.tscn" id="3_td8u6"]
@@ -17,6 +17,7 @@
 [ext_resource type="PackedScene" uid="uid://lrf5ywt1n230" path="res://src/TbsTemplate/Nodes/StateChart/States/AtomicState.tscn" id="19_o30vs"]
 [ext_resource type="PackedScene" uid="uid://0b22cirxc7k2" path="res://src/TbsTemplate/Nodes/StateChart/States/Transition.tscn" id="20_p4yt1"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/FlagCondition.cs" id="21_7vj21"]
+[ext_resource type="PackedScene" uid="uid://c4k8muyxyqkfy" path="res://src/TbsTemplate/Scenes/Level/Events/UnitSelectedReaction.tscn" id="21_nuiou"]
 [ext_resource type="Resource" uid="uid://bskotywb1gwgv" path="res://src/TbsTemplate/Scenes/Level/TraversableCondition.tres" id="22_sve70"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/StringCondition.cs" id="22_tix5y"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/InvertCondition.cs" id="23_6etqp"]
@@ -33,7 +34,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -1380195346
+seed = -664181429
 
 [sub_resource type="Resource" id="Resource_lt2uh"]
 script = ExtResource("22_tix5y")
@@ -229,6 +230,8 @@ process_mode = 4
 [node name="OnEmptyCellSelected" parent="State/Root/Running/Idle" instance=ExtResource("16_kxyas")]
 Condition = SubResource("Resource_i525d")
 
+[node name="UnitSelectedReaction" parent="State/Root/Running/Idle" instance=ExtResource("21_nuiou")]
+
 [node name="ToSelected" parent="State/Root/Running/Idle" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"select"
 To = NodePath("../../UnitSelected")
@@ -388,6 +391,7 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateUpdated" from="State/Root/Running/Idle/OnCursorEnteredCell" to="." method="OnIdleCursorEnteredCell"]
 [connection signal="Updated" from="State/Root/Running/Idle/OnPointerStopped" to="." method="OnIdlePointerStopped"]
 [connection signal="StateUpdated" from="State/Root/Running/Idle/OnEmptyCellSelected" to="." method="OnIdleEmptyCellSelected"]
+[connection signal="StateUnitSelected" from="State/Root/Running/Idle/UnitSelectedReaction" to="." method="OnIdleUnitSelected"]
 [connection signal="Taken" from="State/Root/Running/Idle/ToSelected" to="." method="OnIdleToSelectedTaken"]
 [connection signal="Taken" from="State/Root/Running/Idle/ToSelected" to="SoundLibrary/SelectSound" method="play" binds= [0.0]]
 [connection signal="StateEntered" from="State/Root/Running/UnitSelected" to="." method="OnSelectedEntered"]
