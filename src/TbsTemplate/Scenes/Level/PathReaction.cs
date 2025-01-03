@@ -8,6 +8,7 @@ namespace TbsTemplate.Scenes.Level;
 public partial class PathReaction : Reaction2<Unit, Godot.Collections.Array<Vector2I>>
 {
     /// <summary>Signals that the path event has occurred.</summary>
+    /// <param name="unit">Unit to move along the path.</param>
     /// <param name="path">Sequence of <see cref="Vector2I"/>s that caused the event.</param>
     [Signal] public delegate void StateUpdatedEventHandler(Unit unit, Godot.Collections.Array<Vector2I> path);
 

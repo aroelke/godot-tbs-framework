@@ -16,7 +16,6 @@ using TbsTemplate.UI.Controls.Device;
 using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Combat;
 using TbsTemplate.Nodes.Components;
-using System.Runtime.InteropServices;
 
 namespace TbsTemplate.Scenes.Level;
 
@@ -209,7 +208,7 @@ public partial class LevelManager : Node
         _armies.Current.Controller.UnitSelected += _.State.Root.Running.Idle.OnUnitSelected.React;
         _armies.Current.Controller.PathUpdated += _.State.Root.Running.UnitSelected.OnPathUpdated.React;
         _armies.Current.Controller.PathConfirmed += _.State.Root.Running.UnitSelected.OnPathConfirmed.React;
-        _armies.Current.Controller.UnitCommanded += OnCommandingUnitCommanded;
+        _armies.Current.Controller.UnitCommanded += _.State.Root.Running.UnitCommanding.OnUnitCommanded.React;
         _armies.Current.Controller.TargetChosen += OnTargetChosen;
         Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
     }
@@ -534,8 +533,10 @@ public partial class LevelManager : Node
         Callable.From<Unit, Godot.Collections.Array<StringName>, StringName>(_armies.Current.Controller.CommandUnit).CallDeferred(_selected, new Godot.Collections.Array<StringName>(_options.Select((o) => o.Name)), "Cancel");
     }
 
-    public void OnCommandingUnitCommanded(StringName command)
+    public void OnCommandingUnitCommanded(Unit unit, StringName command)
     {
+        if (unit != _selected)
+            throw new InvalidOperationException($"Cannon command unselected unit {unit.Name} ({_selected.Name} is selected)");
         foreach (ContextMenuOption option in _options)
             if (option.Name == command)
                 option.Action();
@@ -726,7 +727,7 @@ public partial class LevelManager : Node
         _armies.Current.Controller.UnitSelected -= _.State.Root.Running.Idle.OnUnitSelected.React;
         _armies.Current.Controller.PathUpdated -= _.State.Root.Running.UnitSelected.OnPathUpdated.React;
         _armies.Current.Controller.PathConfirmed -= _.State.Root.Running.UnitSelected.OnPathConfirmed.React;
-        _armies.Current.Controller.UnitCommanded -= OnCommandingUnitCommanded;
+        _armies.Current.Controller.UnitCommanded -= _.State.Root.Running.UnitCommanding.OnUnitCommanded.React;
         _armies.Current.Controller.TargetChosen -= OnTargetChosen;
         _armies.Current.Controller.FinalizeTurn();
 

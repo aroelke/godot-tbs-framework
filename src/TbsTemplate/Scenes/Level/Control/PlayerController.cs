@@ -175,8 +175,8 @@ public partial class PlayerController : ArmyController
     public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)
     {
         _selected = source;
-        _menu = ShowMenu(Cursor.Grid.CellRect(source.Cell), commands.Select((c) => new ContextMenuOption() { Name = c, Action = () => EmitSignal(SignalName.UnitCommanded, c) }));
-        _menu.MenuCanceled += () => EmitSignal(SignalName.UnitCommanded, cancel);
+        _menu = ShowMenu(Cursor.Grid.CellRect(source.Cell), commands.Select((c) => new ContextMenuOption() { Name = c, Action = () => EmitSignal(SignalName.UnitCommanded, source, c) }));
+        _menu.MenuCanceled += () => EmitSignal(SignalName.UnitCommanded, source, cancel);
         _menu.MenuClosed += () => _menu = null;
         State.SendEvent(_events[CommandEvent]);
     }
