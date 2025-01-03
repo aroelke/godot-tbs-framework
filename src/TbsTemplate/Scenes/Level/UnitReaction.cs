@@ -12,5 +12,5 @@ public partial class UnitReaction : Func1Reaction<Unit>
     [Signal] public delegate void StateUpdatedEventHandler(Unit unit);
 
     public UnitReaction() : base(SignalName.StateUpdated) {}
-    public void OnUpdated(Unit value) => React(value);
+    public new void React(Unit value) => base.React(value);
 }

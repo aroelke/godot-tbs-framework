@@ -35,7 +35,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = 1105243141
+seed = 1676060929
 
 [sub_resource type="Resource" id="Resource_lt2uh"]
 script = ExtResource("22_tix5y")
@@ -377,11 +377,11 @@ unique_name_in_owner = true
 stream = ExtResource("32_e2hk2")
 
 [connection signal="child_entered_tree" from="." to="." method="OnChildEnteredTree"]
-[connection signal="CellChanged" from="Cursor" to="State/Root/Running/Idle/OnCursorMoved" method="OnUpdated"]
-[connection signal="CellEntered" from="Cursor" to="State/Root/Running/Idle/OnCursorEnteredCell" method="OnUpdated"]
+[connection signal="CellChanged" from="Cursor" to="State/Root/Running/Idle/OnCursorMoved" method="React"]
+[connection signal="CellEntered" from="Cursor" to="State/Root/Running/Idle/OnCursorEnteredCell" method="React"]
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]
-[connection signal="CellSelected" from="Cursor" to="State/Root/Running/Idle/OnEmptyCellSelected" method="OnUpdated"]
-[connection signal="CellSelected" from="Cursor" to="State/Root/Running/UnitTargeting/OnCellSelected" method="OnUpdated"]
+[connection signal="CellSelected" from="Cursor" to="State/Root/Running/Idle/OnEmptyCellSelected" method="React"]
+[connection signal="CellSelected" from="Cursor" to="State/Root/Running/UnitTargeting/OnCellSelected" method="React"]
 [connection signal="CursorMoved" from="Cursor" to="Pointer" method="OnCursorMoved"]
 [connection signal="FlightCompleted" from="Pointer" to="." method="OnPointerFlightCompleted"]
 [connection signal="FlightStarted" from="Pointer" to="." method="OnPointerFlightStarted"]

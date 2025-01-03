@@ -11,5 +11,5 @@ public partial class PathReaction : Func1Reaction<Godot.Collections.Array<Vector
     [Signal] public delegate void StateUpdatedEventHandler(Godot.Collections.Array<Vector2I> path);
 
     public PathReaction() : base(SignalName.StateUpdated) {}
-    public void OnUpdated(Godot.Collections.Array<Vector2I> value) => React(value);
+    public new void React(Godot.Collections.Array<Vector2I> value) => base.React(value);
 }

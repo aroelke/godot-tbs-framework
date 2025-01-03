@@ -206,9 +206,9 @@ public partial class LevelManager : Node
             Pointer.StopWaiting();
         else
             Pointer.StartWaiting(hide:true);
-        _armies.Current.Controller.UnitSelected += _.State.Root.Running.Idle.OnUnitSelected.OnUpdated;
-        _armies.Current.Controller.PathUpdated += _.State.Root.Running.UnitSelected.OnPathUpdated.OnUpdated;
-        _armies.Current.Controller.PathConfirmed += _.State.Root.Running.UnitSelected.OnPathConfirmed.OnUpdated;
+        _armies.Current.Controller.UnitSelected += _.State.Root.Running.Idle.OnUnitSelected.React;
+        _armies.Current.Controller.PathUpdated += _.State.Root.Running.UnitSelected.OnPathUpdated.React;
+        _armies.Current.Controller.PathConfirmed += _.State.Root.Running.UnitSelected.OnPathConfirmed.React;
         _armies.Current.Controller.UnitCommanded += OnCommandingUnitCommanded;
         _armies.Current.Controller.TargetChosen += OnTargetChosen;
         Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
@@ -719,9 +719,9 @@ public partial class LevelManager : Node
     /// <summary>Refresh all the units in the army whose turn just ended so they aren't gray anymore and are animated.</summary>
     public void OnEndTurnExited()
     {
-        _armies.Current.Controller.UnitSelected -= _.State.Root.Running.Idle.OnUnitSelected.OnUpdated;
-        _armies.Current.Controller.PathUpdated -= _.State.Root.Running.UnitSelected.OnPathUpdated.OnUpdated;
-        _armies.Current.Controller.PathConfirmed -= _.State.Root.Running.UnitSelected.OnPathConfirmed.OnUpdated;
+        _armies.Current.Controller.UnitSelected -= _.State.Root.Running.Idle.OnUnitSelected.React;
+        _armies.Current.Controller.PathUpdated -= _.State.Root.Running.UnitSelected.OnPathUpdated.React;
+        _armies.Current.Controller.PathConfirmed -= _.State.Root.Running.UnitSelected.OnPathConfirmed.React;
         _armies.Current.Controller.UnitCommanded -= OnCommandingUnitCommanded;
         _armies.Current.Controller.TargetChosen -= OnTargetChosen;
         _armies.Current.Controller.FinalizeTurn();

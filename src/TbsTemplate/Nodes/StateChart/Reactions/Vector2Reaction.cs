@@ -10,5 +10,5 @@ public partial class Vector2Reaction : Func1Reaction<Vector2>
     [Signal] public delegate void UpdatedEventHandler(Vector2 value);
 
     public Vector2Reaction() : base(SignalName.Updated) {}
-    public void OnUpdated(Vector2 value) => React(value);
+    public new void React(Vector2 value) => base.React(value);
 }
