@@ -1,0 +1,11 @@
+[gd_scene load_steps=4 format=3 uid="uid://dxamaj2vnf0lt"]
+
+[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/UnitReaction.cs" id="1_2wflh"]
+[ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/UnCondition.cs" id="2_rdgm3"]
+
+[sub_resource type="Resource" id="Resource_wjmhy"]
+script = ExtResource("2_rdgm3")
+
+[node name="UnitReaction" type="Node"]
+script = ExtResource("1_2wflh")
+Condition = SubResource("Resource_wjmhy")
