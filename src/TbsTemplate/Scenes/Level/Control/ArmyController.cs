@@ -12,6 +12,8 @@ public abstract partial class ArmyController : Node
     /// <param name="unit">Selected unit.</param>
     [Signal] public delegate void UnitSelectedEventHandler(Unit unit);
 
+    /// <summary>Signals that a change has been made to the path during path selection.</summary>
+    /// <param name="path">New path after update.</param>
     [Signal] public delegate void PathUpdatedEventHandler(Godot.Collections.Array<Vector2I> path);
 
     /// <summary>Signals that a path for a <see cref="Unit"/> to move on has been chosen.</summary>
