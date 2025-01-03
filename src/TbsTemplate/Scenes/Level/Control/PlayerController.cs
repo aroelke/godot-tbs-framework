@@ -122,7 +122,7 @@ public partial class PlayerController : ArmyController
     {
         if (!Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) || node == _selected)
         {
-            EmitSignal(SignalName.UnitMoved, new Godot.Collections.Array<Vector2I>(_path));
+            EmitSignal(SignalName.PathConfirmed, new Godot.Collections.Array<Vector2I>(_path));
         }
     }
 

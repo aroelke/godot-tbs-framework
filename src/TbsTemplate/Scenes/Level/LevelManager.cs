@@ -207,7 +207,8 @@ public partial class LevelManager : Node
         else
             Pointer.StartWaiting(hide:true);
         _armies.Current.Controller.UnitSelected += _.State.Root.Running.Idle.OnUnitSelected.OnUpdated;
-        _armies.Current.Controller.UnitMoved += OnSelectedUnitMoved;
+        _armies.Current.Controller.PathUpdated += _.State.Root.Running.UnitSelected.OnPathUpdated.OnUpdated;
+        _armies.Current.Controller.PathConfirmed += _.State.Root.Running.UnitSelected.OnPathConfirmed.OnUpdated;
         _armies.Current.Controller.UnitCommanded += OnCommandingUnitCommanded;
         _armies.Current.Controller.TargetChosen += OnTargetChosen;
         Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
@@ -384,7 +385,6 @@ public partial class LevelManager : Node
                 Camera.PushZoom(zoomTarget);
         }
 
-        _armies.Current.Controller.PathUpdated += OnSelectedPathUpdated;
         Callable.From<Unit>(_armies.Current.Controller.MoveUnit).CallDeferred(_selected);
     }
 
@@ -393,7 +393,7 @@ public partial class LevelManager : Node
         PathLayer.Path = _path = _path.SetTo(path);
     }
 
-    public void OnSelectedUnitMoved(Godot.Collections.Array<Vector2I> path)
+    public void OnSelectedPathConfirmed(Godot.Collections.Array<Vector2I> path)
     {
         if (!path.All(ActionLayers[MoveLayer].Contains) || path.Any((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Faction.AlliedTo(_selected) ?? false)))
             throw new InvalidOperationException("The chosen path must only contain traversable cells.");
@@ -434,7 +434,6 @@ public partial class LevelManager : Node
 
     public void OnSelectedExited()
     {
-        _armies.Current.Controller.PathUpdated -= OnSelectedPathUpdated;
         Cursor.SoftRestriction.Clear();
 
         // Restore the camera zoom back to what it was before a unit was selected
@@ -721,7 +720,8 @@ public partial class LevelManager : Node
     public void OnEndTurnExited()
     {
         _armies.Current.Controller.UnitSelected -= _.State.Root.Running.Idle.OnUnitSelected.OnUpdated;
-        _armies.Current.Controller.UnitMoved -= OnSelectedUnitMoved;
+        _armies.Current.Controller.PathUpdated -= _.State.Root.Running.UnitSelected.OnPathUpdated.OnUpdated;
+        _armies.Current.Controller.PathConfirmed -= _.State.Root.Running.UnitSelected.OnPathConfirmed.OnUpdated;
         _armies.Current.Controller.UnitCommanded -= OnCommandingUnitCommanded;
         _armies.Current.Controller.TargetChosen -= OnTargetChosen;
         _armies.Current.Controller.FinalizeTurn();

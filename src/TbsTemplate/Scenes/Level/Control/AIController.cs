@@ -21,7 +21,7 @@ public partial class AIController : ArmyController
     public override void MoveUnit(Unit unit)
     {
         Godot.Collections.Array<Vector2I> path = [unit.Cell];
-        EmitSignal(SignalName.UnitMoved, path);
+        EmitSignal(SignalName.PathConfirmed, path);
     }
 
     public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)

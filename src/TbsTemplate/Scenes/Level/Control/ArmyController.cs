@@ -18,7 +18,7 @@ public abstract partial class ArmyController : Node
 
     /// <summary>Signals that a path for a <see cref="Unit"/> to move on has been chosen.</summary>
     /// <param name="path">Contiguous list of cells for the unit to move through.</param>
-    [Signal] public delegate void UnitMovedEventHandler(Godot.Collections.Array<Vector2I> path);
+    [Signal] public delegate void PathConfirmedEventHandler(Godot.Collections.Array<Vector2I> path);
 
     /// <summary>Signals that an action has been chosen for a unit.</summary>
     /// <param name="command">String representing the action to perform.</param>
