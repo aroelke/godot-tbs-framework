@@ -11,7 +11,7 @@ namespace TbsTemplate.Nodes.StateChart;
 
 /// <summary>
 /// A state chart modeled after <see href="https://github.com/derkork/godot-statecharts"/>. Contains a hierarchy of <see cref="State"/>s that have
-/// zero or more <see cref="Transition"/>s to other states within the hierarchy and <see cref="Reactions.BaseReaction"/>s to specific events. While a
+/// zero or more <see cref="Transition"/>s to other states within the hierarchy and <see cref="Reactions.Reaction"/>s to specific events. While a
 /// <see cref="State"/> is active, it can receive events, which cause it to trigger <see cref="Transition"/>s to other <see cref="State"/>s or
 /// emit signals.
 /// </summary>
