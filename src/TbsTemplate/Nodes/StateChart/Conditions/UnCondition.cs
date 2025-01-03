@@ -4,7 +4,7 @@ namespace TbsTemplate.Nodes.StateChart.Conditions;
 
 /// <summary>
 /// A <see cref="Chart"/> action condition that is always satisfied. Mostly used as a default value for automatic
-/// <see cref="States.Transition"/>s and <see cref="Reactions.Reaction"/>s.
+/// <see cref="States.Transition"/>s and <see cref="Reactions.BaseReaction"/>s.
 /// </summary>
 [GlobalClass, Icon("res://icons/statechart/UnCondition.svg"), Tool]
 public partial class UnCondition : Condition
