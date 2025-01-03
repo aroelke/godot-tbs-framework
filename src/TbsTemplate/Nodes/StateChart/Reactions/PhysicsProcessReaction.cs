@@ -3,7 +3,7 @@ using Godot;
 namespace TbsTemplate.Nodes.StateChart.Reactions;
 
 /// <summary>Allows a <see cref="State"/> to perform a task every physics process cycle.</summary>
-public partial class PhysicsProcessReaction : Func1Reaction<double>
+public partial class PhysicsProcessReaction : Action1Reaction<double>
 {
     /// <summary>Signals that a physics process cycle has executed while the <see cref="State"/> is active.</summary>
     /// <param name="delta">Time since the last physics process step (whether or not the <see cref="State"/> was active).</param>

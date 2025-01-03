@@ -5,7 +5,7 @@ using TbsTemplate.Scenes.Level.Object;
 namespace TbsTemplate.Scenes.Level;
 
 /// <summary>State reaction to an event involving a <see cref="Unit"/>.</summary>
-public partial class UnitReaction : Func1Reaction<Unit>
+public partial class UnitReaction : Action1Reaction<Unit>
 {
     /// <summary>Signals that the <see cref="Unit"/> event has occurred.</summary>
     /// <param name="unit">Unit that caused the event to happen.</param>

@@ -3,7 +3,7 @@ using Godot;
 namespace TbsTemplate.Nodes.StateChart.Reactions;
 
 /// <summary>State reaction to an event involving a <see cref="Vector2I"/>l</summary>
-public partial class Vector2IReaction : Func1Reaction<Vector2I>
+public partial class Vector2IReaction : Action1Reaction<Vector2I>
 {
 	/// <summary>Signals that a <see cref="Vector2I"/> event has occurred.</summary>
     /// <param name="value">Value of the vector that caused the reaction.</param>

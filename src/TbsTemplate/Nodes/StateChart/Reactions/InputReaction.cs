@@ -3,7 +3,7 @@ using Godot;
 namespace TbsTemplate.Nodes.StateChart.Reactions;
 
 /// <summary>Allows a <see cref="State"/> to react to input events.</summary>
-public partial class InputReaction : Func1Reaction<InputEvent>
+public partial class InputReaction : Action1Reaction<InputEvent>
 {
     /// <summary>Signals that the <see cref="State"/> has received an input event while active.</summary>
     /// <param name="event">Input event description.</param>
