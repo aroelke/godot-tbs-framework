@@ -28,8 +28,9 @@ public abstract partial class ArmyController : Node
     [Signal] public delegate void UnitCommandedEventHandler(Unit unit, StringName command);
 
     /// <summary>Signals that a target for an action has been chosen.</summary>
+    /// <param name="source">Unit performing the action.</param>
     /// <param name="target">Target of the action.</param>
-    [Signal] public delegate void TargetChosenEventHandler(Unit target);
+    [Signal] public delegate void TargetChosenEventHandler(Unit source, Unit target);
 
     private Army _army = null;
 

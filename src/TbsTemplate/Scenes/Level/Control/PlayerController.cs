@@ -128,9 +128,9 @@ public partial class PlayerController : ArmyController
 
     private void ConfirmTargetSelection(Vector2I cell)
     {
-        if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit unit)
+        if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit target)
         {
-            EmitSignal(SignalName.TargetChosen, unit);
+            EmitSignal(SignalName.TargetChosen, _selected, target);
         }
     }
 
