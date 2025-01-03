@@ -4,7 +4,7 @@ namespace TbsTemplate.Nodes.StateChart.Reactions;
 
 /// <summary>Reaction that has no parameters.</summary>
 /// <param name="signal">Name of the signal to emit when reacting.</param>
-public abstract partial class Reaction(StringName signal) : BaseReaction
+public abstract partial class ActionReaction(StringName signal) : BaseReaction
 {
     /// <summary>React to an event.</summary>
     public void React()
