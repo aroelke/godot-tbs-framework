@@ -1,15 +1,16 @@
 using Godot;
 using TbsTemplate.Nodes.StateChart.Reactions;
+using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Scenes.Level;
 
 /// <summary>State reaction to an event involving an array of <see cref="Vector2I"/>s.</summary>
-public partial class PathReaction : Reaction1<Godot.Collections.Array<Vector2I>>
+public partial class PathReaction : Reaction2<Unit, Godot.Collections.Array<Vector2I>>
 {
     /// <summary>Signals that the path event has occurred.</summary>
     /// <param name="path">Sequence of <see cref="Vector2I"/>s that caused the event.</param>
-    [Signal] public delegate void StateUpdatedEventHandler(Godot.Collections.Array<Vector2I> path);
+    [Signal] public delegate void StateUpdatedEventHandler(Unit unit, Godot.Collections.Array<Vector2I> path);
 
     public PathReaction() : base(SignalName.StateUpdated) {}
-    public new void React(Godot.Collections.Array<Vector2I> value) => base.React(value);
+    public new void React(Unit unit, Godot.Collections.Array<Vector2I> value) => base.React(unit, value);
 }

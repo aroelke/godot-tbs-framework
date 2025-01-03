@@ -69,7 +69,7 @@ public partial class PlayerController : ArmyController
         }
     }
 
-    private void UpdatePath(Path path) => EmitSignal(SignalName.PathUpdated, new Godot.Collections.Array<Vector2I>(_path = path));
+    private void UpdatePath(Path path) => EmitSignal(SignalName.PathUpdated, _selected, new Godot.Collections.Array<Vector2I>(_path = path));
 
     private void AddToPath(Vector2I cell)
     {
@@ -122,7 +122,7 @@ public partial class PlayerController : ArmyController
     {
         if (!Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) || node == _selected)
         {
-            EmitSignal(SignalName.PathConfirmed, new Godot.Collections.Array<Vector2I>(_path));
+            EmitSignal(SignalName.PathConfirmed, _selected, new Godot.Collections.Array<Vector2I>(_path));
         }
     }
 

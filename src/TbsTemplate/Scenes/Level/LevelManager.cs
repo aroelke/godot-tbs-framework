@@ -388,13 +388,17 @@ public partial class LevelManager : Node
         Callable.From<Unit>(_armies.Current.Controller.MoveUnit).CallDeferred(_selected);
     }
 
-    public void OnSelectedPathUpdated(Godot.Collections.Array<Vector2I> path)
+    public void OnSelectedPathUpdated(Unit unit, Godot.Collections.Array<Vector2I> path)
     {
+        if (unit != _selected)
+            throw new InvalidOperationException($"Cannot update path for unselected unit {unit.Name} ({_selected.Name} is selected)");
         PathLayer.Path = _path = _path.SetTo(path);
     }
 
-    public void OnSelectedPathConfirmed(Godot.Collections.Array<Vector2I> path)
+    public void OnSelectedPathConfirmed(Unit unit, Godot.Collections.Array<Vector2I> path)
     {
+        if (unit != _selected)
+            throw new InvalidOperationException($"Cannot confirm path for unselected unit {unit.Name} ({_selected.Name} is selected)");
         if (!path.All(ActionLayers[MoveLayer].Contains) || path.Any((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Faction.AlliedTo(_selected) ?? false)))
             throw new InvalidOperationException("The chosen path must only contain traversable cells.");
 
