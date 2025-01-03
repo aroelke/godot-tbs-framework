@@ -35,7 +35,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = 1676060929
+seed = 272285310
 
 [sub_resource type="Resource" id="Resource_lt2uh"]
 script = ExtResource("22_tix5y")
@@ -394,7 +394,7 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateInput" from="State/Root/Running/Idle/OnInput" to="." method="OnIdleInput"]
 [connection signal="StateUpdated" from="State/Root/Running/Idle/OnCursorMoved" to="." method="OnIdleCursorMoved"]
 [connection signal="StateUpdated" from="State/Root/Running/Idle/OnCursorEnteredCell" to="." method="OnIdleCursorEnteredCell"]
-[connection signal="Updated" from="State/Root/Running/Idle/OnPointerStopped" to="." method="OnIdlePointerStopped"]
+[connection signal="StateUpdated" from="State/Root/Running/Idle/OnPointerStopped" to="." method="OnIdlePointerStopped"]
 [connection signal="StateUpdated" from="State/Root/Running/Idle/OnEmptyCellSelected" to="." method="OnIdleEmptyCellSelected"]
 [connection signal="StateUpdated" from="State/Root/Running/Idle/OnUnitSelected" to="." method="OnIdleUnitSelected"]
 [connection signal="Taken" from="State/Root/Running/Idle/ToSelected" to="." method="OnIdleToSelectedTaken"]
