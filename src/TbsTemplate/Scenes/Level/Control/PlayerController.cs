@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes.Components;
-using TbsTemplate.Scenes.Level.Control;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.UI;
 using TbsTemplate.UI.Controls.Device;
+
+namespace TbsTemplate.Scenes.Level.Control;
 
 [SceneTree, Tool]
 public partial class PlayerController : ArmyController
