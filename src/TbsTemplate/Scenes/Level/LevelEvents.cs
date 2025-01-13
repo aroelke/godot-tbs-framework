@@ -1,5 +1,6 @@
 using Godot;
 using TbsTemplate.Extensions;
+using TbsTemplate.Nodes;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 
@@ -23,6 +24,12 @@ public partial class LevelEvents : Node
     /// <param name="turn">Number of the turn that ended.</param>
     /// <param name="army">Army whose turn ended.</param>
     [Signal] public delegate void TurnEndedEventHandler(int turn, Army army);
+
+    /// <summary>Signal that the camera should focus on something. Use <c>null</c> to keep it in place.</summary>
+    [Signal] public delegate void FocusCameraEventHandler(BoundedNode2D target);
+
+    /// <summary>Signal that the camera should focus on the previous thing it was focusing on.</summary>
+    [Signal] public delegate void RevertCameraFocusEventHandler();
 #endregion
 #region Event Controller
     /// <summary>Signal that an event is complete, so the level can stop waiting for it.</summary>

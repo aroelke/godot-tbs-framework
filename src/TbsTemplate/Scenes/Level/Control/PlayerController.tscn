@@ -15,6 +15,7 @@ Target = &"target"
 Finish = &"finish"
 
 [node name="UserInterface" type="CanvasLayer" parent="."]
+unique_name_in_owner = true
 
 [node name="State" parent="." instance=ExtResource("2_br7d1")]
 unique_name_in_owner = true

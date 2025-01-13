@@ -16,6 +16,7 @@ using TbsTemplate.UI.Controls.Device;
 using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Combat;
 using TbsTemplate.Nodes.Components;
+using System.Text.Json;
 
 namespace TbsTemplate.Scenes.Level;
 
@@ -62,7 +63,7 @@ public partial class LevelManager : Node
     private Unit _selected = null, _target = null;
     private IEnumerator<Army> _armies = null;
     private Vector2I? _initialCell = null;
-    private BoundedNode2D _prevCameraTarget = null;
+    private readonly Stack<BoundedNode2D> _cameraHistory = [];
     private StringName _command = null;
 
     private Grid Grid = null;
@@ -99,13 +100,12 @@ public partial class LevelManager : Node
         menu.Visible = false;
         menu.MenuClosed += () => {
             Cursor.Resume();
-            Camera.Target = _prevCameraTarget;
-            _prevCameraTarget = null;
+            PushCameraFocus(null);
+            PopCameraFocus();
         };
 
         Cursor.Halt(hide:true);
-        _prevCameraTarget = Camera.Target;
-        Camera.Target = null;
+        PushCameraFocus(null);
 
         Callable.From<ContextMenu, Rect2>((m, r) => {
             m.Visible = true;
@@ -456,8 +456,7 @@ public partial class LevelManager : Node
         // Track the unit as it's moving
         _prevDeadzone = new(Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight);
         (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = Vector4.Zero;
-        _prevCameraTarget = Camera.Target;
-        Camera.Target = _selected.MotionBox;
+        PushCameraFocus(_selected.MotionBox);
 
         // Move the unit and delete the pathfinder as we don't need it anymore
         Grid.Occupants.Remove(_selected.Cell);
@@ -477,7 +476,7 @@ public partial class LevelManager : Node
     public void OnMovingExited()
     {
         (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = _prevDeadzone;
-        Camera.Target = _prevCameraTarget;
+        PopCameraFocus();
         _path = null;
         UpdateDangerZones();
         if (_armies.Current.Faction.IsPlayer)
@@ -744,6 +743,17 @@ public partial class LevelManager : Node
     }
 #endregion
 #region State Independent
+    /// <summary>Change the camera focus to a new object and save the previous one for reverting focus.</summary>
+    /// <param name="target">New camera focus target. Use <c>null</c> to not focus on anything.</param>
+    public void PushCameraFocus(BoundedNode2D target)
+    {
+        _cameraHistory.Push(Camera.Target);
+        Camera.Target = target;
+    }
+
+    /// <summary>Focus the camera back on the previous target.</summary>
+    public void PopCameraFocus() => Camera.Target = _cameraHistory.Pop();
+
     /// <summary>When an event is completed, go to the next state.</summary>
     public void OnEventComplete() => State.SendEvent(_events[DoneEvent]);
 
@@ -752,14 +762,13 @@ public partial class LevelManager : Node
     public void OnPointerFlightStarted(Vector2 target)
     {
         State.SendEvent(_events[WaitEvent]);
-        _prevCameraTarget = Camera.Target;
-        Camera.Target = Grid.Occupants.ContainsKey(Grid.CellOf(target)) ? Grid.Occupants[Grid.CellOf(target)] : Camera.Target;
+        PushCameraFocus(Grid.Occupants.ContainsKey(Grid.CellOf(target)) ? Grid.Occupants[Grid.CellOf(target)] : Camera.Target);
     }
 
     /// <summary>When the pointer finished flying, return to the previous state.</summary>
     public void OnPointerFlightCompleted()
     {
-        Camera.Target = _prevCameraTarget;
+        PopCameraFocus();
         State.SendEvent(_events[DoneEvent]);
     }
 
@@ -845,6 +854,8 @@ public partial class LevelManager : Node
                     if (!_armies.MoveNext())
                         break;
 
+            LevelEvents.Singleton.Connect<BoundedNode2D>(LevelEvents.SignalName.FocusCamera, PushCameraFocus);
+            LevelEvents.Singleton.Connect(LevelEvents.SignalName.RevertCameraFocus, PopCameraFocus);
             LevelEvents.Singleton.Connect(LevelEvents.SignalName.EventComplete, OnEventComplete);
 
             MusicController.ResetPlayback();

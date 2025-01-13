@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TbsTemplate.Extensions;
+using TbsTemplate.Nodes;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
@@ -40,17 +41,15 @@ public partial class PlayerController : ArmyController
     {
         ContextMenu menu = ContextMenu.Instantiate(options);
         menu.Wrap = true;
-        GetNode<CanvasLayer>("UserInterface").AddChild(menu);
+        UserInterface.AddChild(menu);
         menu.Visible = false;
         menu.MenuClosed += () => {
             Cursor.Resume();
-//            Camera.Target = _prevCameraTarget;
-//            _prevCameraTarget = null;
+            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.RevertCameraFocus);
         };
 
         Cursor.Halt(hide:true);
-//        _prevCameraTarget = Camera.Target;
-//        Camera.Target = null;
+        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.FocusCamera, (BoundedNode2D)null);
 
         Callable.From<ContextMenu, Rect2>((m, r) => {
             m.Visible = true;
