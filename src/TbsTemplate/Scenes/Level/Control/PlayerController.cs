@@ -67,6 +67,35 @@ public partial class PlayerController : ArmyController
         {
             EmitSignal(SignalName.UnitSelected, unit);
         }
+        else
+        {
+            Cursor.CellSelected -= ConfirmTargetSelection;
+            Cursor.Halt(hide:true);
+
+            void Cancel()
+            {
+//                State.SendEvent(_events[DoneEvent]);
+                CancelSound.Play();
+            }
+
+            SelectSound.Play();
+//            State.SendEvent(_events[WaitEvent]);
+            ContextMenu menu = ShowMenu(Cursor.Grid.CellRect(cell), [
+                new("End Turn", () => {
+//                    State.SendEvent(_events[DoneEvent]); // Done waiting
+//                    State.SendEvent(_events[SkipEvent]); // Skip to end of turn
+                    EmitSignal(SignalName.TurnSkipped);
+                    SelectSound.Play();
+                }),
+                new("Quit Game", () => GetTree().Quit()),
+                new("Cancel", Cancel)
+            ]);
+            menu.MenuCanceled += Cancel;
+            menu.MenuClosed += () => {
+                Cursor.Resume();
+                Cursor.CellSelected += ConfirmTargetSelection;
+            };
+        }
     }
 
     private void UpdatePath(Path path) => EmitSignal(SignalName.PathUpdated, _selected, new Godot.Collections.Array<Vector2I>(_path = path));

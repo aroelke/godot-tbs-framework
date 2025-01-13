@@ -12,6 +12,8 @@ public abstract partial class ArmyController : Node
     /// <param name="unit">Selected unit.</param>
     [Signal] public delegate void UnitSelectedEventHandler(Unit unit);
 
+    [Signal] public delegate void TurnSkippedEventHandler();
+
     /// <summary>Signals that a change has been made to the path during path selection.</summary>
     /// <param name="unit">Unit that will move along the path.</param>
     /// <param name="path">New path after update.</param>

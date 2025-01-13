@@ -206,6 +206,7 @@ public partial class LevelManager : Node
         else
             Pointer.StartWaiting(hide:true);
         _armies.Current.Controller.UnitSelected += _.State.Root.Running.Idle.OnUnitSelected.React;
+        _armies.Current.Controller.TurnSkipped += _.State.Root.Running.Idle.OnTurnSkipped.React;
         _armies.Current.Controller.PathUpdated += _.State.Root.Running.UnitSelected.OnPathUpdated.React;
         _armies.Current.Controller.PathConfirmed += _.State.Root.Running.UnitSelected.OnPathConfirmed.React;
         _armies.Current.Controller.UnitCommanded += _.State.Root.Running.UnitCommanding.OnUnitCommanded.React;
@@ -323,6 +324,7 @@ public partial class LevelManager : Node
     /// <summary>Open the map menu and wait for an item to be selected.</summary>
     public void OnIdleEmptyCellSelected(Vector2I cell)
     {
+/*
         void Cancel()
         {
             State.SendEvent(_events[DoneEvent]);
@@ -342,6 +344,14 @@ public partial class LevelManager : Node
             new("Quit Game", () => GetTree().Quit()),
             new("Cancel", Cancel)
         ).MenuCanceled += Cancel;
+*/
+    }
+
+    public void OnIdleTurnSkipped()
+    {
+        foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
+            unit.Finish();
+        State.SendEvent(_events[SkipEvent]);
     }
 
     /// <summary>Choose a selected <see cref="Unit"/>.</summary>
@@ -726,6 +736,7 @@ public partial class LevelManager : Node
     public void OnEndTurnExited()
     {
         _armies.Current.Controller.UnitSelected -= _.State.Root.Running.Idle.OnUnitSelected.React;
+        _armies.Current.Controller.TurnSkipped -= _.State.Root.Running.Idle.OnTurnSkipped.React;
         _armies.Current.Controller.PathUpdated -= _.State.Root.Running.UnitSelected.OnPathUpdated.React;
         _armies.Current.Controller.PathConfirmed -= _.State.Root.Running.UnitSelected.OnPathConfirmed.React;
         _armies.Current.Controller.UnitCommanded -= _.State.Root.Running.UnitCommanding.OnUnitCommanded.React;
