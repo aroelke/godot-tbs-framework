@@ -92,33 +92,6 @@ public partial class LevelManager : Node
         );
     }
 
-    private ContextMenu ShowMenu(Rect2 rect, IEnumerable<ContextMenuOption> options)
-    {
-        ContextMenu menu = ContextMenu.Instantiate(options);
-        menu.Wrap = true;
-        UserInterface.AddChild(menu);
-        menu.Visible = false;
-        menu.MenuClosed += () => {
-            Cursor.Resume();
-            PushCameraFocus(null);
-            PopCameraFocus();
-        };
-
-        Cursor.Halt(hide:true);
-        PushCameraFocus(null);
-
-        Callable.From<ContextMenu, Rect2>((m, r) => {
-            m.Visible = true;
-            if (DeviceManager.Mode != InputMode.Mouse)
-                m.GrabFocus();
-            m.Position = MenuPosition(r, m.Size);
-        }).CallDeferred(menu, rect);
-
-        return menu;
-    }
-
-    private ContextMenu ShowMenu(Rect2 rect, params ContextMenuOption[] options) => ShowMenu(rect, (IEnumerable<ContextMenuOption>)options);
-
     /// <summary>Update the UI turn counter for the current turn and change its color to match the army.</summary>
     private void UpdateTurnCounter()
     {
@@ -479,11 +452,6 @@ public partial class LevelManager : Node
         }
         _options.Add(new("End", () => State.SendEvent(_events[SkipEvent])));
         _options.Add(new("Cancel", () => State.SendEvent(_events[CancelEvent])));
-/*
-        _commandMenu = ShowMenu(Grid.CellRect(_selected.Cell), _options);
-        _commandMenu.MenuCanceled += () => State.SendEvent(_events[CancelEvent]);
-        _commandMenu.MenuClosed += () => _commandMenu = null;
-*/
 
         Callable.From<Unit, Godot.Collections.Array<StringName>, StringName>(_armies.Current.Controller.CommandUnit).CallDeferred(_selected, new Godot.Collections.Array<StringName>(_options.Select((o) => o.Name)), "Cancel");
     }
