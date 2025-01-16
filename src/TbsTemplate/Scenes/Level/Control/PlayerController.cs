@@ -28,7 +28,7 @@ public partial class PlayerController : ArmyController
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path;
     private ContextMenu _menu;
-
+#region Menus
     private Vector2 MenuPosition(Rect2 rect, Vector2 size)
     {
         Rect2 viewportRect = Cursor.Grid.GetGlobalTransformWithCanvas()*rect;
@@ -62,6 +62,15 @@ public partial class PlayerController : ArmyController
 
         return menu;
     }
+#endregion
+#region Begin Turn
+    public override void InitializeTurn()
+    {
+        Cursor.Resume();
+    }
+#endregion
+#region Unit Selection
+    public override void SelectUnit() => State.SendEvent(_events[SelectEvent]);
 
     private void ConfirmCursorSelection(Vector2I cell)
     {
@@ -98,6 +107,45 @@ public partial class PlayerController : ArmyController
                 Cursor.CellSelected += ConfirmTargetSelection;
             };
         }
+    }
+
+    public void OnSelectEntered()
+    {
+        Cursor.CellSelected += ConfirmCursorSelection;
+    }
+
+    public void OnSelectInput(InputEvent @event)
+    {
+        if (@event.IsActionPressed(InputActions.Previous) || @event.IsActionPressed(InputActions.Next))
+        {
+            if (Cursor.Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit)
+            {
+                if (@event.IsActionPressed(InputActions.Previous) && unit.Army.Previous(unit) is Unit prev)
+                    Cursor.Cell = prev.Cell;
+                if (@event.IsActionPressed(InputActions.Next) && unit.Army.Next(unit) is Unit next)
+                    Cursor.Cell = next.Cell;
+            }
+            else
+            {
+                IEnumerable<Unit> units = Army.GetChildren().OfType<Unit>().Where((u) => u.Active);
+                if (!units.Any())
+                    units = Army.GetChildren().OfType<Unit>();
+                if (units.Any())
+                    Cursor.Cell = units.OrderBy((u) => u.Cell.DistanceTo(Cursor.Cell)).First().Cell;
+            }
+        }
+    }
+
+    public void OnSelectExited()
+    {
+        Cursor.CellSelected -= ConfirmCursorSelection;
+    }
+#endregion
+#region Path Selection
+    public override void MoveUnit(Unit unit)
+    {
+        _selected = unit;
+        State.SendEvent(_events[PathEvent]);
     }
 
     private void UpdatePath(Path path) => EmitSignal(SignalName.PathUpdated, _selected, new Godot.Collections.Array<Vector2I>(_path = path));
@@ -157,59 +205,6 @@ public partial class PlayerController : ArmyController
         }
     }
 
-    private void ConfirmTargetSelection(Vector2I cell)
-    {
-        if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit target)
-        {
-            EmitSignal(SignalName.TargetChosen, _selected, target);
-        }
-    }
-
-    public override void InitializeTurn()
-    {
-        Cursor.Resume();
-    }
-
-    public override void SelectUnit() => State.SendEvent(_events[SelectEvent]);
-
-    public void OnSelectEntered()
-    {
-        Cursor.CellSelected += ConfirmCursorSelection;
-    }
-
-    public void OnSelectInput(InputEvent @event)
-    {
-        if (@event.IsActionPressed(InputActions.Previous) || @event.IsActionPressed(InputActions.Next))
-        {
-            if (Cursor.Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit)
-            {
-                if (@event.IsActionPressed(InputActions.Previous) && unit.Army.Previous(unit) is Unit prev)
-                    Cursor.Cell = prev.Cell;
-                if (@event.IsActionPressed(InputActions.Next) && unit.Army.Next(unit) is Unit next)
-                    Cursor.Cell = next.Cell;
-            }
-            else
-            {
-                IEnumerable<Unit> units = Army.GetChildren().OfType<Unit>().Where((u) => u.Active);
-                if (!units.Any())
-                    units = Army.GetChildren().OfType<Unit>();
-                if (units.Any())
-                    Cursor.Cell = units.OrderBy((u) => u.Cell.DistanceTo(Cursor.Cell)).First().Cell;
-            }
-        }
-    }
-
-    public void OnSelectExited()
-    {
-        Cursor.CellSelected -= ConfirmCursorSelection;
-    }
-
-    public override void MoveUnit(Unit unit)
-    {
-        _selected = unit;
-        State.SendEvent(_events[PathEvent]);
-    }
-
     public void OnPathEntered()
     {
         _target = null;
@@ -224,7 +219,8 @@ public partial class PlayerController : ArmyController
         Cursor.CellChanged -= AddToPath;
         Cursor.CellSelected -= ConfirmPathSelection;
     }
-
+#endregion
+#region Command Selection
     public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)
     {
         _selected = source;
@@ -233,11 +229,20 @@ public partial class PlayerController : ArmyController
         _menu.MenuClosed += () => _menu = null;
         State.SendEvent(_events[CommandEvent]);
     }
-
+#endregion
+#region Target Selection
     public override void SelectTarget(Unit source)
     {
         _selected = source;
         State.SendEvent(_events[TargetEvent]);
+    }
+
+    private void ConfirmTargetSelection(Vector2I cell)
+    {
+        if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit target)
+        {
+            EmitSignal(SignalName.TargetChosen, _selected, target);
+        }
     }
 
     public void OnTargetEntered()
@@ -249,13 +254,15 @@ public partial class PlayerController : ArmyController
     {
         Cursor.CellSelected -= ConfirmTargetSelection;
     }
-
+#endregion
+#region End Turn
     public override void FinalizeTurn()
     {
         _selected = null;
         State.SendEvent(_events[FinishEvent]);
     }
-
+#endregion
+#region Properties
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
     {
         Godot.Collections.Array<Godot.Collections.Dictionary> properties = base._GetPropertyList() ?? [];
@@ -302,3 +309,4 @@ public partial class PlayerController : ArmyController
             _menu.Position = MenuPosition(Cursor.Grid.CellRect(_selected.Cell), _menu.Size);
     }
 }
+#endregion
