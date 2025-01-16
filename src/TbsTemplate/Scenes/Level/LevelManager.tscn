@@ -1,4 +1,4 @@
-[gd_scene load_steps=47 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=44 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DBrain.tscn" id="3_td8u6"]
@@ -38,21 +38,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -1609513462
-
-[sub_resource type="Resource" id="Resource_lt2uh"]
-script = ExtResource("22_tix5y")
-Property = &"occupied"
-Value = ""
-
-[sub_resource type="Resource" id="Resource_yjpfk"]
-script = ExtResource("22_tix5y")
-Property = &"occupied"
-Value = "inactive"
-
-[sub_resource type="Resource" id="Resource_i525d"]
-script = ExtResource("29_kfqmx")
-Conditions = [SubResource("Resource_lt2uh"), SubResource("Resource_yjpfk")]
+seed = 1388704272
 
 [sub_resource type="Resource" id="Resource_mydqi"]
 script = ExtResource("22_tix5y")
@@ -223,16 +209,11 @@ To = NodePath("../../Idle")
 [node name="Idle" parent="State/Root/Running" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
-[node name="OnInput" parent="State/Root/Running/Idle" instance=ExtResource("23_nnivc")]
-
 [node name="OnCursorMoved" parent="State/Root/Running/Idle" instance=ExtResource("16_kxyas")]
 
 [node name="OnCursorEnteredCell" parent="State/Root/Running/Idle" instance=ExtResource("16_kxyas")]
 
 [node name="OnPointerStopped" parent="State/Root/Running/Idle" instance=ExtResource("23_u3pac")]
-
-[node name="OnEmptyCellSelected" parent="State/Root/Running/Idle" instance=ExtResource("16_kxyas")]
-Condition = SubResource("Resource_i525d")
 
 [node name="OnUnitSelected" parent="State/Root/Running/Idle" instance=ExtResource("21_sbtfw")]
 
@@ -304,8 +285,6 @@ To = NodePath("../../EndAction")
 process_mode = 4
 
 [node name="OnCellSelected" parent="State/Root/Running/UnitTargeting" instance=ExtResource("16_kxyas")]
-
-[node name="OnInput" parent="State/Root/Running/UnitTargeting" instance=ExtResource("23_nnivc")]
 
 [node name="OnTargetChosen" parent="State/Root/Running/UnitTargeting" instance=ExtResource("28_5f3xe")]
 
@@ -389,7 +368,6 @@ stream = ExtResource("32_e2hk2")
 [connection signal="CellChanged" from="Cursor" to="State/Root/Running/Idle/OnCursorMoved" method="React"]
 [connection signal="CellEntered" from="Cursor" to="State/Root/Running/Idle/OnCursorEnteredCell" method="React"]
 [connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]
-[connection signal="CellSelected" from="Cursor" to="State/Root/Running/Idle/OnEmptyCellSelected" method="React"]
 [connection signal="CellSelected" from="Cursor" to="State/Root/Running/UnitTargeting/OnCellSelected" method="React"]
 [connection signal="CursorMoved" from="Cursor" to="Pointer" method="OnCursorMoved"]
 [connection signal="FlightCompleted" from="Pointer" to="." method="OnPointerFlightCompleted"]
@@ -400,11 +378,9 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateExited" from="State/Root/Running/BeginTurn" to="." method="OnBeginTurnExited"]
 [connection signal="EventReceived" from="State/Root/Running/Idle" to="." method="OnIdleEventReceived"]
 [connection signal="StateEntered" from="State/Root/Running/Idle" to="." method="OnIdleEntered"]
-[connection signal="StateInput" from="State/Root/Running/Idle/OnInput" to="." method="OnIdleInput"]
 [connection signal="StateUpdated" from="State/Root/Running/Idle/OnCursorMoved" to="." method="OnIdleCursorMoved"]
 [connection signal="StateUpdated" from="State/Root/Running/Idle/OnCursorEnteredCell" to="." method="OnIdleCursorEnteredCell"]
 [connection signal="StateUpdated" from="State/Root/Running/Idle/OnPointerStopped" to="." method="OnIdlePointerStopped"]
-[connection signal="StateUpdated" from="State/Root/Running/Idle/OnEmptyCellSelected" to="." method="OnIdleEmptyCellSelected"]
 [connection signal="StateUpdated" from="State/Root/Running/Idle/OnUnitSelected" to="." method="OnIdleUnitSelected"]
 [connection signal="StateUpdated" from="State/Root/Running/Idle/OnTurnSkipped" to="." method="OnIdleTurnSkipped"]
 [connection signal="Taken" from="State/Root/Running/Idle/ToSelected" to="." method="OnIdleToSelectedTaken"]
@@ -434,7 +410,6 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateEntered" from="State/Root/Running/UnitTargeting" to="." method="OnTargetingEntered"]
 [connection signal="StateExited" from="State/Root/Running/UnitTargeting" to="." method="OnTargetingExited"]
 [connection signal="StateUpdated" from="State/Root/Running/UnitTargeting/OnCellSelected" to="." method="OnTargetingCellSelected"]
-[connection signal="StateInput" from="State/Root/Running/UnitTargeting/OnInput" to="." method="OnTargetingInput"]
 [connection signal="StateUpdated" from="State/Root/Running/UnitTargeting/OnTargetChosen" to="." method="OnTargetChosen"]
 [connection signal="Taken" from="State/Root/Running/UnitTargeting/ToCommanding" to="SoundLibrary/CancelSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/Running/UnitTargeting/ToCombat" to="." method="OnTargetingExited"]

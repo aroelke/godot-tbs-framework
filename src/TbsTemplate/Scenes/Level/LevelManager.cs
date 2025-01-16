@@ -280,35 +280,6 @@ public partial class LevelManager : Node
     /// <param name="position">Position the pointer stopped over.</param>
     public void OnIdlePointerStopped(Vector2 position) => OnIdleCursorEnteredCell(Grid.CellOf(position));
 
-    /// <summary>
-    /// Cycle the <see cref="Object.Cursor"/> between units in the same army using <see cref="InputActions.Previous"/> and <see cref="InputActions.Next"/>
-    /// while nothing is selected.
-    /// </summary>
-    public void OnIdleInput(InputEvent @event)
-    {
-/*
-        if (@event.IsActionPressed(InputActions.Previous) || @event.IsActionPressed(InputActions.Next))
-        {
-            if (Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit)
-            {
-                Army army = GetChildren().OfType<Army>().Where((a) => a.Contains(unit)).First();
-                if (@event.IsActionPressed(InputActions.Previous) && army.Previous(unit) is Unit prev)
-                    Cursor.Cell = prev.Cell;
-                if (@event.IsActionPressed(InputActions.Next) && army.Next(unit) is Unit next)
-                    Cursor.Cell = next.Cell;
-            }
-            else
-            {
-                IEnumerable<Unit> units = _armies.Current.GetChildren().OfType<Unit>().Where((u) => u.Active);
-                if (!units.Any())
-                    units = _armies.Current.GetChildren().OfType<Unit>();
-                if (units.Any())
-                    Cursor.Cell = units.OrderBy((u) => u.Cell.DistanceTo(Cursor.Cell)).First().Cell;
-            }
-        }
-*/
-    }
-
     public void OnIdleUnitSelected(Unit unit)
     {
         if (unit.Army.Faction != _armies.Current.Faction)
@@ -320,32 +291,6 @@ public partial class LevelManager : Node
         Cursor.Cell = unit.Cell;
         State.ExpressionProperties = State.ExpressionProperties.SetItem(OccupiedProperty, ActiveAllyOccupied);
         State.SendEvent(_events[SelectEvent]);
-    }
-
-    /// <summary>Open the map menu and wait for an item to be selected.</summary>
-    public void OnIdleEmptyCellSelected(Vector2I cell)
-    {
-/*
-        void Cancel()
-        {
-            State.SendEvent(_events[DoneEvent]);
-            CancelSound.Play();
-        }
-
-        SelectSound.Play();
-        State.SendEvent(_events[WaitEvent]);
-        ShowMenu(new() { Position = Pointer.Position, Size = Vector2.Zero },
-            new("End Turn", () => {
-                State.SendEvent(_events[DoneEvent]); // Done waiting
-                foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
-                    unit.Finish();
-                State.SendEvent(_events[SkipEvent]); // Skip to end of turn
-                SelectSound.Play();
-            }),
-            new("Quit Game", () => GetTree().Quit()),
-            new("Cancel", Cancel)
-        ).MenuCanceled += Cancel;
-*/
     }
 
     public void OnIdleTurnSkipped()
@@ -595,35 +540,6 @@ public partial class LevelManager : Node
         }
 
         _armies.Current.Controller.SelectTarget(_selected, _targets);
-    }
-
-    /// <summary>
-    /// Cycle the <see cref="Object.Cursor"/> between targets of the same action (attack, support, etc.) using <see cref="InputActions.Previous"/>
-    /// and <see cref="InputActions.Next"/> while choosing targets.
-    /// </summary>
-    public void OnTargetingInput(InputEvent @event)
-    {
-/*
-        int next = 0;
-        if (@event.IsActionPressed(InputActions.Previous))
-            next = -1;
-        else if (@event.IsActionPressed(InputActions.Next))
-            next = 1;
-
-        if (next != 0)
-        {
-            Vector2I[] cells = [];
-            if (ActionLayers[AttackLayer].Contains(Cursor.Cell))
-                cells = [.. ActionLayers[AttackLayer]];
-            else if (ActionLayers[SupportLayer].Contains(Cursor.Cell))
-                cells = [.. ActionLayers[SupportLayer]];
-            else
-                GD.PushError("Cursor is not on an actionable cell during targeting");
-            
-            if (cells.Length > 1)
-                Cursor.Cell = cells[(Array.IndexOf(cells, Cursor.Cell) + next + cells.Length) % cells.Length];
-        }
-*/
     }
 
     /// <summary>If a target is selected, begin combat fighting that target.  Otherwise, just end the selected <see cref="Unit"/>'s turn.</summary>
