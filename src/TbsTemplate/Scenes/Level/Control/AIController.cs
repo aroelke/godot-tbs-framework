@@ -29,7 +29,7 @@ public partial class AIController : ArmyController
         EmitSignal(SignalName.UnitCommanded, source, new StringName("End"));
     }
 
-    public override void SelectTarget(Unit source)
+    public override void SelectTarget(Unit source, IEnumerable<Vector2I> targets)
     {
         throw new System.NotImplementedException();
     }

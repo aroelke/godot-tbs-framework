@@ -590,11 +590,11 @@ public partial class LevelManager : Node
         if (_target is null)
         {
             Pointer.AnalogTracking = false;
-            Cursor.HardRestriction = _targets.ToImmutableHashSet();
+            Cursor.HardRestriction = [.. _targets];
             Cursor.Wrap = true;
         }
 
-        _armies.Current.Controller.SelectTarget(_selected);
+        _armies.Current.Controller.SelectTarget(_selected, _targets);
     }
 
     /// <summary>
@@ -603,6 +603,7 @@ public partial class LevelManager : Node
     /// </summary>
     public void OnTargetingInput(InputEvent @event)
     {
+/*
         int next = 0;
         if (@event.IsActionPressed(InputActions.Previous))
             next = -1;
@@ -622,6 +623,7 @@ public partial class LevelManager : Node
             if (cells.Length > 1)
                 Cursor.Cell = cells[(Array.IndexOf(cells, Cursor.Cell) + next + cells.Length) % cells.Length];
         }
+*/
     }
 
     /// <summary>If a target is selected, begin combat fighting that target.  Otherwise, just end the selected <see cref="Unit"/>'s turn.</summary>

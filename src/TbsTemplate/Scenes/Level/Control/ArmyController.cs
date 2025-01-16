@@ -59,7 +59,8 @@ public abstract partial class ArmyController : Node
 
     /// <summary>Choose the target for an action that was selected.</summary>
     /// <param name="source">Unit that will perform the action.</param>
-    public abstract void SelectTarget(Unit source);
+    /// <param name="targets">Cells <paramref name="source"/> can act on.</param>
+    public abstract void SelectTarget(Unit source, IEnumerable<Vector2I> targets);
 
     public abstract void FinalizeTurn();
 

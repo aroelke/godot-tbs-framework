@@ -231,9 +231,12 @@ public partial class PlayerController : ArmyController
     }
 #endregion
 #region Target Selection
-    public override void SelectTarget(Unit source)
+    private IEnumerable<Vector2I> _targets = null;
+
+    public override void SelectTarget(Unit source, IEnumerable<Vector2I> targets)
     {
         _selected = source;
+        _targets = targets;
         State.SendEvent(_events[TargetEvent]);
     }
 
@@ -248,6 +251,29 @@ public partial class PlayerController : ArmyController
     public void OnTargetEntered()
     {
         Cursor.CellSelected += ConfirmTargetSelection;
+    }
+
+    public void OnTargetInput(InputEvent @event)
+    {
+        int next = 0;
+        if (@event.IsActionPressed(InputActions.Previous))
+            next = -1;
+        else if (@event.IsActionPressed(InputActions.Next))
+            next = 1;
+
+        if (next != 0)
+        {
+            if (_targets.Contains(Cursor.Cell))
+            {
+                if (_targets.Count() > 1)
+                {
+                    Vector2I[] cells = [.. _targets];
+                    Cursor.Cell = cells[(Array.IndexOf(cells, Cursor.Cell) + next + cells.Length) % cells.Length];
+                }
+            }
+            else
+                GD.PushError("Cursor is not on an actionable cell during targeting");
+        }
     }
 
     public void OnTargetExited()
