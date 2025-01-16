@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://drlrlusbfh208"]
+[gd_scene load_steps=10 format=3 uid="uid://drlrlusbfh208"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Control/PlayerController.cs" id="1_52vsu"]
 [ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/TbsTemplate/Nodes/StateChart/Chart.tscn" id="2_br7d1"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://0b22cirxc7k2" path="res://src/TbsTemplate/Nodes/StateChart/States/Transition.tscn" id="5_dwgw0"]
 [ext_resource type="AudioStream" uid="uid://bg4mbs7d25qaj" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Select - 1.wav" id="6_0v5ht"]
 [ext_resource type="PackedScene" uid="uid://dhytcbhqvrpx0" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/InputReaction.tscn" id="6_ntg8o"]
+[ext_resource type="PackedScene" uid="uid://bajcy40oic1wf" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/ProcessReaction.tscn" id="7_bii0f"]
 [ext_resource type="AudioStream" uid="uid://b4dbo5h2e7ru4" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Cancel - 1.wav" id="7_qn3tt"]
 
 [node name="PlayerController" type="Node"]
@@ -56,6 +57,8 @@ To = NodePath("../../Command")
 
 [node name="Command" parent="State/Root" instance=ExtResource("4_qwlr4")]
 
+[node name="OnProcess" parent="State/Root/Command" instance=ExtResource("7_bii0f")]
+
 [node name="ToPath" parent="State/Root/Command" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
 Event = &"path"
 To = NodePath("../../Path")
@@ -99,6 +102,7 @@ stream = ExtResource("7_qn3tt")
 [connection signal="StateInput" from="State/Root/Select/OnInput" to="." method="OnSelectInput"]
 [connection signal="StateEntered" from="State/Root/Path" to="." method="OnPathEntered"]
 [connection signal="StateExited" from="State/Root/Path" to="." method="OnPathExited"]
+[connection signal="StateProcess" from="State/Root/Command/OnProcess" to="." method="OnCommandProcess"]
 [connection signal="StateEntered" from="State/Root/Target" to="." method="OnTargetEntered"]
 [connection signal="StateExited" from="State/Root/Target" to="." method="OnTargetExited"]
 [connection signal="StateInput" from="State/Root/Target/OnInput" to="." method="OnTargetInput"]

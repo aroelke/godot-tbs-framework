@@ -229,6 +229,11 @@ public partial class PlayerController : ArmyController
         _menu.MenuClosed += () => _menu = null;
         State.SendEvent(_events[CommandEvent]);
     }
+
+    public void OnCommandProcess(double delta)
+    {
+        _menu.Position = MenuPosition(Cursor.Grid.CellRect(_selected.Cell), _menu.Size);
+    }
 #endregion
 #region Target Selection
     private IEnumerable<Vector2I> _targets = null;

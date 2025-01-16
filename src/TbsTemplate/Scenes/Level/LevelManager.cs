@@ -465,12 +465,6 @@ public partial class LevelManager : Node
                 option.Action();
     }
 
-    public void OnCommandingProcess(float delta)
-    {
-//        if (_armies.Current.Faction.IsPlayer)
-//            _commandMenu.Position = MenuPosition(Grid.CellRect(_selected.Cell), _commandMenu.Size);
-    }
-
     /// <summary>Move the selected <see cref="Unit"/> and <see cref="Object.Cursor"/> back to the cell the unit was at before it moved.</summary>
     public void OnCommandingCanceled()
     {

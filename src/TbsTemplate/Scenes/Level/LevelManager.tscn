@@ -1,4 +1,4 @@
-[gd_scene load_steps=44 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=43 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DBrain.tscn" id="3_td8u6"]
@@ -25,7 +25,6 @@
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/InvertCondition.cs" id="23_6etqp"]
 [ext_resource type="PackedScene" uid="uid://dhytcbhqvrpx0" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/InputReaction.tscn" id="23_nnivc"]
 [ext_resource type="PackedScene" uid="uid://dtrul7dw5r6ly" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/Vector2Reaction.tscn" id="23_u3pac"]
-[ext_resource type="PackedScene" uid="uid://bajcy40oic1wf" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/ProcessReaction.tscn" id="25_lv3jy"]
 [ext_resource type="PackedScene" path="res://src/TbsTemplate/Scenes/Level/CommandReaction.tscn" id="27_7kdnf"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/IntCondition.cs" id="27_kyhbc"]
 [ext_resource type="PackedScene" path="res://src/TbsTemplate/Scenes/Level/TargetReaction.tscn" id="28_5f3xe"]
@@ -38,7 +37,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = 1388704272
+seed = -1724661756
 
 [sub_resource type="Resource" id="Resource_mydqi"]
 script = ExtResource("22_tix5y")
@@ -265,8 +264,6 @@ To = NodePath("../../InCombat")
 [node name="UnitCommanding" parent="State/Root/Running" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
-[node name="OnProcess" parent="State/Root/Running/UnitCommanding" instance=ExtResource("25_lv3jy")]
-
 [node name="OnUnitCommanded" parent="State/Root/Running/UnitCommanding" instance=ExtResource("27_7kdnf")]
 
 [node name="ToTargeting" parent="State/Root/Running/UnitCommanding" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
@@ -400,7 +397,6 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateExited" from="State/Root/Running/UnitMoving" to="." method="OnMovingExited"]
 [connection signal="StateInput" from="State/Root/Running/UnitMoving/OnInput" to="." method="OnMovingInput"]
 [connection signal="StateEntered" from="State/Root/Running/UnitCommanding" to="." method="OnCommandingEntered"]
-[connection signal="StateProcess" from="State/Root/Running/UnitCommanding/OnProcess" to="." method="OnCommandingProcess"]
 [connection signal="StateUpdated" from="State/Root/Running/UnitCommanding/OnUnitCommanded" to="." method="OnCommandingUnitCommanded"]
 [connection signal="Taken" from="State/Root/Running/UnitCommanding/ToTargeting" to="SoundLibrary/SelectSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/Running/UnitCommanding/ToSelected" to="." method="OnCommandingCanceled"]
