@@ -65,7 +65,7 @@ public partial class Army : GridNodeGroup, IEnumerable<Unit>
     public void OnChildEnteredTree(Node child)
     {
         if (child is Unit unit)
-            unit.Faction = Faction;
+            unit.Army = this;
     }
 
     public override string[] _GetConfigurationWarnings()
@@ -83,7 +83,7 @@ public partial class Army : GridNodeGroup, IEnumerable<Unit>
         base._Ready();
 
         foreach (Unit unit in (IEnumerable<Unit>)this)
-            unit.Faction = Faction;
+            unit.Army = this;
     }
 
     IEnumerator<Unit> IEnumerable<Unit>.GetEnumerator() => GetChildren().OfType<Unit>().GetEnumerator();

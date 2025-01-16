@@ -29,5 +29,5 @@ public partial class Faction : Resource
     public bool AlliedTo(Faction other) => other == this || Allies.Contains(other);
 
     /// <summary>Whether or not this faction is allied to a <see cref="Unit"/>'s faction.</summary>
-    public bool AlliedTo(Unit unit) => unit is not null && AlliedTo(unit.Faction);
+    public bool AlliedTo(Unit unit) => unit is not null && AlliedTo(unit.Army.Faction);
 }

@@ -230,7 +230,7 @@ public partial class LevelManager : Node
     {
         ActionLayers.Modulate = ActionRangeIdleModulate;
         Cursor.Cell = Grid.CellOf(Pointer.Position);
-        OnIdleCursorEnteredCell(Cursor.Cell);
+//        OnIdleCursorEnteredCell(Cursor.Cell);
 
         Callable.From(_armies.Current.Controller.SelectUnit).CallDeferred();
     }
@@ -286,6 +286,7 @@ public partial class LevelManager : Node
     /// </summary>
     public void OnIdleInput(InputEvent @event)
     {
+/*
         if (@event.IsActionPressed(InputActions.Previous) || @event.IsActionPressed(InputActions.Next))
         {
             if (Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit)
@@ -304,13 +305,13 @@ public partial class LevelManager : Node
                 if (units.Any())
                     Cursor.Cell = units.OrderBy((u) => u.Cell.DistanceTo(Cursor.Cell)).First().Cell;
             }
-            OnIdleCursorEnteredCell(Cursor.Cell);
         }
+*/
     }
 
     public void OnIdleUnitSelected(Unit unit)
     {
-        if (unit.Faction != _armies.Current.Faction)
+        if (unit.Army.Faction != _armies.Current.Faction)
             throw new InvalidOperationException($"Cannot select unit not from army {_armies.Current.Name}");
         if (!unit.Active)
             throw new InvalidOperationException($"Cannot select inactive unit {unit.Name}");
@@ -408,7 +409,7 @@ public partial class LevelManager : Node
     {
         if (unit != _selected)
             throw new InvalidOperationException($"Cannot confirm path for unselected unit {unit.Name} ({_selected.Name} is selected)");
-        if (!path.All(ActionLayers[MoveLayer].Contains) || path.Any((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Faction.AlliedTo(_selected) ?? false)))
+        if (!path.All(ActionLayers[MoveLayer].Contains) || path.Any((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Army.Faction.AlliedTo(_selected) ?? false)))
             throw new InvalidOperationException("The chosen path must only contain traversable cells.");
 
         _path = _path.SetTo(path);
@@ -503,8 +504,8 @@ public partial class LevelManager : Node
         // Show the unit's attack/support ranges
         _targets = [];
         ActionLayers.Clear(MoveLayer);
-        ActionLayers[AttackLayer] = _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
-        ActionLayers[SupportLayer] = _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Faction.AlliedTo(_selected) ?? false);
+        ActionLayers[AttackLayer] = _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false);
+        ActionLayers[SupportLayer] = _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false);
 
         _options = [];
         void AddActionOption(StringName name, StringName layer)
@@ -654,7 +655,7 @@ public partial class LevelManager : Node
     {
         if (source != _selected)
             throw new InvalidOperationException($"Cannot choose target for unselected unit {source.Name} ({_selected.Name} is selected)");
-        if ((_command == AttackLayer && target.Faction.AlliedTo(_selected)) || (_command == SupportLayer && !target.Faction.AlliedTo(_selected)))
+        if ((_command == AttackLayer && target.Army.Faction.AlliedTo(_selected)) || (_command == SupportLayer && !target.Army.Faction.AlliedTo(_selected)))
             throw new ArgumentException($"{_selected.Name} cannot {_command} {target.Name}");
         _target = target;
         SelectSound.Play();
@@ -907,8 +908,8 @@ public partial class LevelManager : Node
                 .SetItem(OccupiedProperty, Grid.Occupants.GetValueOrDefault(Cursor.Cell) switch
                 {
                     Unit unit when unit == _selected => SelectedOccuiped,
-                    Unit unit when _armies.Current.Faction == unit.Faction => unit.Active ? ActiveAllyOccupied : InActiveAllyOccupied,
-                    Unit unit when _armies.Current.Faction.AlliedTo(unit.Faction) => FriendlyOccuipied,
+                    Unit unit when _armies.Current.Faction == unit.Army.Faction => unit.Active ? ActiveAllyOccupied : InActiveAllyOccupied,
+                    Unit unit when _armies.Current.Faction.AlliedTo(unit.Army.Faction) => FriendlyOccuipied,
                     Unit => EnemyOccupied,
                     null => NotOccupied,
                     _ => OtherOccupied

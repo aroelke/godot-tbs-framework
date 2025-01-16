@@ -7,7 +7,9 @@ using TbsTemplate.Nodes;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
+using TbsTemplate.Scenes.Level.Object.Group;
 using TbsTemplate.UI;
+using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.Scenes.Level.Control;
@@ -63,7 +65,7 @@ public partial class PlayerController : ArmyController
 
     private void ConfirmCursorSelection(Vector2I cell)
     {
-        if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit unit && unit.Faction == Army.Faction && unit.Active)
+        if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit unit && unit.Army.Faction == Army.Faction && unit.Active)
         {
             EmitSignal(SignalName.UnitSelected, unit);
         }
@@ -173,6 +175,28 @@ public partial class PlayerController : ArmyController
     public void OnSelectEntered()
     {
         Cursor.CellSelected += ConfirmCursorSelection;
+    }
+
+    public void OnSelectInput(InputEvent @event)
+    {
+        if (@event.IsActionPressed(InputActions.Previous) || @event.IsActionPressed(InputActions.Next))
+        {
+            if (Cursor.Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit)
+            {
+                if (@event.IsActionPressed(InputActions.Previous) && unit.Army.Previous(unit) is Unit prev)
+                    Cursor.Cell = prev.Cell;
+                if (@event.IsActionPressed(InputActions.Next) && unit.Army.Next(unit) is Unit next)
+                    Cursor.Cell = next.Cell;
+            }
+            else
+            {
+                IEnumerable<Unit> units = Army.GetChildren().OfType<Unit>().Where((u) => u.Active);
+                if (!units.Any())
+                    units = Army.GetChildren().OfType<Unit>();
+                if (units.Any())
+                    Cursor.Cell = units.OrderBy((u) => u.Cell.DistanceTo(Cursor.Cell)).First().Cell;
+            }
+        }
     }
 
     public void OnSelectExited()

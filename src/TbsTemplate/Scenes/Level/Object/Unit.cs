@@ -8,6 +8,7 @@ using TbsTemplate.Extensions;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Control;
+using TbsTemplate.Scenes.Level.Object.Group;
 
 namespace TbsTemplate.Scenes.Level.Object;
 
@@ -34,7 +35,7 @@ public partial class Unit : GridNode, IHasHealth
     /// <summary>Signal that the unit is done moving along its path.</summary>
     [Signal] public delegate void DoneMovingEventHandler();
 
-    private Faction _faction = null;
+    private Army _army = null;
     private Stats _stats = new();
     private Vector2I _target = Vector2I.Zero;
 
@@ -63,8 +64,8 @@ public partial class Unit : GridNode, IHasHealth
 
     private (IEnumerable<Vector2I>, IEnumerable<Vector2I>, IEnumerable<Vector2I>) ExcludeOccupants(IEnumerable<Vector2I> move, IEnumerable<Vector2I> attack, IEnumerable<Vector2I> support)
     {
-        IEnumerable<Unit> allies = Grid.Occupants.Select(static (e) => e.Value).OfType<Unit>().Where((u) => Faction.AlliedTo(u));
-        IEnumerable<Unit> enemies = Grid.Occupants.Select(static (e) => e.Value).OfType<Unit>().Where((u) => !Faction.AlliedTo(u));
+        IEnumerable<Unit> allies = Grid.Occupants.Select(static (e) => e.Value).OfType<Unit>().Where(Army.Faction.AlliedTo);
+        IEnumerable<Unit> enemies = Grid.Occupants.Select(static (e) => e.Value).OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u));
         return (
             move.Where((c) => !enemies.Any((u) => u.Cell == c)),
             attack.Where((c) => !allies.Any((u) => u.Cell == c)),
@@ -96,21 +97,6 @@ public partial class Unit : GridNode, IHasHealth
     /// <summary>Distances from the unit's occupied cell that it can support.</summary>
     [Export] public int[] SupportRange = [1, 2, 3];
 
-    /// <summary>Faction to which this unit belongs, to determine its allies and enemies.</summary>
-    [Export] public Faction Faction
-    {
-        get => _faction;
-        set
-        {
-            if (_faction != value)
-            {
-                _faction = value;
-                if (Sprite is not null && _faction is not null)
-                    Sprite.Modulate = _faction.Color;
-            }
-        }
-    }
-
     [ExportGroup("Path Traversal", "Move")]
 
     /// <summary>Base speed, in world pixels/second, to move along the path while moving.</summary>
@@ -123,6 +109,18 @@ public partial class Unit : GridNode, IHasHealth
 
     ///<summary>Behavior defining the square to move to when AI controlled.</summary>
     [Export] public UnitBehavior Behavior = null;
+
+    /// <summary>Army to which this unit belongs, which determines its alliances and gives access to its compatriots.</summary>
+    public Army Army
+    {
+        get => _army;
+        set
+        {
+            _army = value;
+            if (Sprite is not null && _army is not null)
+                Sprite.Modulate = _army.Faction.Color;
+        }
+    }
 
     /// <summary>Whether or not the unit has completed its turn.</summary>
     public bool Active => !AnimationTree.Get(Done).AsBool();
@@ -149,7 +147,7 @@ public partial class Unit : GridNode, IHasHealth
                     if ((!cells.ContainsKey(neighbor) || cells[neighbor] > cost) && // cell hasn't been examined yet or this path is shorter to get there
                         Grid.Occupants.GetValueOrDefault(neighbor) switch // cell is empty or contains an allied unit
                         {
-                            Unit unit => unit.Faction.AlliedTo(this),
+                            Unit unit => unit.Army.Faction.AlliedTo(this),
                             null => true,
                             _ => false
                         } &&
@@ -234,7 +232,7 @@ public partial class Unit : GridNode, IHasHealth
     public void Refresh()
     {
         CheckValidState("refresh", "", DoneState);
-        Sprite.Modulate = Faction.Color;
+        Sprite.Modulate = Army.Faction.Color;
         AnimationTree.Set(Done, false);
         AnimationTree.Set(Idle, true);
     }
@@ -286,8 +284,8 @@ public partial class Unit : GridNode, IHasHealth
     {
         base._Ready();
 
-        if (_faction is not null)
-            Sprite.Modulate = _faction.Color;
+        if (_army is not null)
+            Sprite.Modulate = _army.Faction.Color;
 
         if (!Engine.IsEditorHint())
         {
@@ -325,8 +323,8 @@ public partial class Unit : GridNode, IHasHealth
         }
         else
         {
-            if (_faction is not null)
-                Sprite.Modulate = _faction.Color;
+            if (_army is not null)
+                Sprite.Modulate = _army.Faction.Color;
         }
     }
 }
