@@ -37,7 +37,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -1724661756
+seed = 1036191408
 
 [sub_resource type="Resource" id="Resource_mydqi"]
 script = ExtResource("22_tix5y")
@@ -281,8 +281,6 @@ To = NodePath("../../EndAction")
 [node name="UnitTargeting" parent="State/Root/Running" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
-[node name="OnCellSelected" parent="State/Root/Running/UnitTargeting" instance=ExtResource("16_kxyas")]
-
 [node name="OnTargetChosen" parent="State/Root/Running/UnitTargeting" instance=ExtResource("28_5f3xe")]
 
 [node name="ToCommanding" parent="State/Root/Running/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
@@ -364,8 +362,6 @@ stream = ExtResource("32_e2hk2")
 [connection signal="child_entered_tree" from="." to="." method="OnChildEnteredTree"]
 [connection signal="CellChanged" from="Cursor" to="State/Root/Running/Idle/OnCursorMoved" method="React"]
 [connection signal="CellEntered" from="Cursor" to="State/Root/Running/Idle/OnCursorEnteredCell" method="React"]
-[connection signal="CellSelected" from="Cursor" to="." method="OnCellSelected"]
-[connection signal="CellSelected" from="Cursor" to="State/Root/Running/UnitTargeting/OnCellSelected" method="React"]
 [connection signal="CursorMoved" from="Cursor" to="Pointer" method="OnCursorMoved"]
 [connection signal="FlightCompleted" from="Pointer" to="." method="OnPointerFlightCompleted"]
 [connection signal="FlightStarted" from="Pointer" to="." method="OnPointerFlightStarted"]
@@ -405,7 +401,6 @@ stream = ExtResource("32_e2hk2")
 [connection signal="Taken" from="State/Root/Running/UnitCommanding/ToEndAction" to="SoundLibrary/SelectSound" method="play" binds= [0.0]]
 [connection signal="StateEntered" from="State/Root/Running/UnitTargeting" to="." method="OnTargetingEntered"]
 [connection signal="StateExited" from="State/Root/Running/UnitTargeting" to="." method="OnTargetingExited"]
-[connection signal="StateUpdated" from="State/Root/Running/UnitTargeting/OnCellSelected" to="." method="OnTargetingCellSelected"]
 [connection signal="StateUpdated" from="State/Root/Running/UnitTargeting/OnTargetChosen" to="." method="OnTargetChosen"]
 [connection signal="Taken" from="State/Root/Running/UnitTargeting/ToCommanding" to="SoundLibrary/CancelSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/Running/UnitTargeting/ToCombat" to="." method="OnTargetingExited"]

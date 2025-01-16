@@ -504,42 +504,26 @@ public partial class LevelManager : Node
         _armies.Current.Controller.SelectTarget(_selected, _targets);
     }
 
-    /// <summary>If a target is selected, begin combat fighting that target.  Otherwise, just end the selected <see cref="Unit"/>'s turn.</summary>
-    /// <param name="cell">Cell being selected.</param>
-    public void OnTargetingCellSelected(Vector2I cell)
-    {
-        if (!Cursor.HardRestriction.IsEmpty)
-        {
-            if (Grid.CellOf(Pointer.Position) == cell && Grid.Occupants[cell] != _selected)
-            {
-                if (Grid.Occupants[cell] is Unit target)
-                {
-/*
-                    _target = target;
-                    SelectSound.Play();
-                    State.SendEvent(_events[DoneEvent]);
-*/
-                }
-                else
-                    State.SendEvent(_events[SkipEvent]);
-            }
-        }
-        else
-        {
-            SelectSound.Play();
-            State.SendEvent(_events[SkipEvent]);
-        }
-    }
-
     public void OnTargetChosen(Unit source, Unit target)
     {
         if (source != _selected)
             throw new InvalidOperationException($"Cannot choose target for unselected unit {source.Name} ({_selected.Name} is selected)");
         if ((_command == AttackLayer && target.Army.Faction.AlliedTo(_selected)) || (_command == SupportLayer && !target.Army.Faction.AlliedTo(_selected)))
             throw new ArgumentException($"{_selected.Name} cannot {_command} {target.Name}");
-        _target = target;
-        SelectSound.Play();
-        State.SendEvent(_events[DoneEvent]);
+        
+        if (Grid.CellOf(Pointer.Position) == Cursor.Cell)
+        {
+            if (Cursor.Cell != target.Cell)
+                GD.PushWarning($"Target {target.Name} is not in the cursor's cell");
+            _target = target;
+            SelectSound.Play();
+            State.SendEvent(_events[DoneEvent]);
+        }
+        else
+        {
+            CancelSound.Play();
+            State.SendEvent(_events[CancelEvent]);
+        }
     }
 
     /// <summary>Clean up displayed ranges and restore <see cref="Object.Cursor"/> freedom when exiting targeting <see cref="Nodes.StateChart.States.State"/>.</summary>
@@ -663,15 +647,6 @@ public partial class LevelManager : Node
         PopCameraFocus();
         State.SendEvent(_events[DoneEvent]);
     }
-
-    /// <summary>When a cell is selected, act based on what is or isn't in the cell.</summary>
-    /// <param name="cell">Coordinates of the cell selection.</param>
-    public void OnCellSelected(Vector2I cell) => Callable.From<Vector2I>((pos) => {
-        if (Grid.CellOf(pos) == cell)
-            /* State.SendEvent(_events[SelectEvent]) */;
-        else
-            State.SendEvent(_events[SkipEvent]);
-    }).CallDeferred(Pointer.Position);
 
     /// <summary>Automatically connect to a child <see cref="Army"/>'s <see cref="Node.SignalName.ChildEnteredTree"/> signal so new units in it can be automatically added to the grid.</summary>
     /// <param name="child">Child being added to the tree.</param>
