@@ -38,7 +38,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = 702721259
+seed = -1609513462
 
 [sub_resource type="Resource" id="Resource_lt2uh"]
 script = ExtResource("22_tix5y")
@@ -395,7 +395,7 @@ stream = ExtResource("32_e2hk2")
 [connection signal="FlightCompleted" from="Pointer" to="." method="OnPointerFlightCompleted"]
 [connection signal="FlightStarted" from="Pointer" to="." method="OnPointerFlightStarted"]
 [connection signal="PointerMoved" from="Pointer" to="Cursor" method="OnPointerMoved"]
-[connection signal="PointerStopped" from="Pointer" to="State/Root/Running/Idle/OnPointerStopped" method="OnUpdated"]
+[connection signal="PointerStopped" from="Pointer" to="State/Root/Running/Idle/OnPointerStopped" method="React"]
 [connection signal="StateEntered" from="State/Root/Running/BeginTurn" to="." method="OnBeginTurnEntered"]
 [connection signal="StateExited" from="State/Root/Running/BeginTurn" to="." method="OnBeginTurnExited"]
 [connection signal="EventReceived" from="State/Root/Running/Idle" to="." method="OnIdleEventReceived"]
