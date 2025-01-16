@@ -33,17 +33,25 @@ public partial class MoveController : Node
     private double _remaining = 0;
     private Vector2I _previous = Vector2I.Zero;
 
-    private void Process(double delta)
+    private Vector2I GetDirection()
     {
-        Vector2I digital = new(
+        Vector2I direction = new(
             Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveRight)) - Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveLeft)),
             Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveDown)) - Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveUp))
         );
-        Vector2I analog = new(
-            Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveRight)) - Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveLeft)),
-            Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveDown)) - Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveUp))
-        );
-        Vector2I current = EnableAnalog ? (digital + analog).Clamp(-Vector2I.One, Vector2I.One) : digital;
+        if (EnableAnalog)
+        {
+            direction += new Vector2I(
+                Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveRight)) - Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveLeft)),
+                Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveDown)) - Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveUp))
+            );
+        }
+        return direction.Clamp(-Vector2I.One, Vector2I.One);
+    }
+
+    private void Process(double delta)
+    {
+        Vector2I current = GetDirection();
 
         if (_previous != Vector2I.Zero && _previous == current)
         {
@@ -66,6 +74,9 @@ public partial class MoveController : Node
         }
         _previous = current;
     }
+
+    /// <summary>Whether or not a directon is being held.</summary>
+    public bool Active => GetDirection() != Vector2I.Zero;
 
     /// <summary>Initial delay after pressing a button to begin echoing the input.</summary>
     [Export] public double EchoDelay = 0.3;

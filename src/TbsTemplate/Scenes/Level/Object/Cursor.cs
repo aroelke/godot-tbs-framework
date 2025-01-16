@@ -190,7 +190,11 @@ public partial class Cursor : GridNode
     public void OnCellChanged(Vector2I cell)
     {
         if (!_halted)
+        {
             MoveSound.Play();
+            if (!MoveController.Active && (DeviceManager.Mode == InputMode.Digital || !HardRestriction.IsEmpty))
+                Callable.From<Vector2I>((c) => EmitSignal(SignalName.CellEntered, c)).CallDeferred(cell);
+        }
 
         // Briefly break continuous digital movement to allow reaction from the player when the cursor has reached the edge of the soft restriction
         if (SoftRestriction.Contains(cell))
