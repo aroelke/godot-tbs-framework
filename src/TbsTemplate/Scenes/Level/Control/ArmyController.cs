@@ -42,6 +42,7 @@ public abstract partial class ArmyController : Node
     /// <summary>Cursor used for indicating or making a selection.</summary>
     public Cursor Cursor = null;
 
+    /// <summary>Perform any setup needed to begin the army's turn.</summary>
     public abstract void InitializeTurn();
 
     /// <summary>Choose a unit in the army to select. Once the <see cref="Unit"/> has been selected, emit <c>UnitSelected</c>.</summary>
@@ -62,6 +63,10 @@ public abstract partial class ArmyController : Node
     /// <param name="targets">Cells <paramref name="source"/> can act on.</param>
     public abstract void SelectTarget(Unit source, IEnumerable<Vector2I> targets);
 
+    /// <summary>Clean up at the end of a unit's action and get ready for the next unit's action.</summary>
+    public abstract void FinalizeAction();
+
+    /// <summary>Clean up at the end of an army's turn.</summary>
     public abstract void FinalizeTurn();
 
     public override string[] _GetConfigurationWarnings()

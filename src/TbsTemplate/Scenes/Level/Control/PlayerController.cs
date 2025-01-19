@@ -286,10 +286,15 @@ public partial class PlayerController : ArmyController
         Cursor.CellSelected -= ConfirmTargetSelection;
     }
 #endregion
-#region End Turn
-    public override void FinalizeTurn()
+#region Finalization
+    public override void FinalizeAction()
     {
         _selected = null;
+        State.SendEvent(_events[FinishEvent]);
+    }
+
+    public override void FinalizeTurn()
+    {
         State.SendEvent(_events[FinishEvent]);
     }
 #endregion

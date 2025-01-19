@@ -71,6 +71,10 @@ To = NodePath("../../Target")
 Event = &"select"
 To = NodePath("../../Select")
 
+[node name="ToReady" parent="State/Root/Command" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
+Event = &"finish"
+To = NodePath("../../Ready")
+
 [node name="Target" parent="State/Root" instance=ExtResource("4_qwlr4")]
 
 [node name="OnInput" parent="State/Root/Target" instance=ExtResource("6_ntg8o")]

@@ -34,6 +34,8 @@ public partial class AIController : ArmyController
         throw new System.NotImplementedException();
     }
 
+    public override void FinalizeAction() {}
+
     // Don't resume the cursor.  The player controller will be responsible for that.
     public override void FinalizeTurn() {}
 }

@@ -572,6 +572,7 @@ public partial class LevelManager : Node
     /// <summary>If a unit was selected, signal that its action has ended. Otherwise, just continue.</summary>
     public void OnEndActionEntered()
     {
+        _armies.Current.Controller.FinalizeAction();
         _selected.Finish();
         State.ExpressionProperties = State.ExpressionProperties.SetItem(ActiveProperty, ((IEnumerable<Unit>)_armies.Current).Count((u) => u.Active));
 
