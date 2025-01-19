@@ -403,9 +403,9 @@ public partial class LevelManager : Node
     }
 
     /// <summary>Press the cancel button during movement to skip to the end.</summary>
-    public void OnMovingInput(InputEvent @event)
+    public void OnMovingEventReceived(StringName @event)
     {
-        if (@event.IsActionPressed(InputActions.Cancel))
+        if (@event == _events[CancelEvent])
             _selected.SkipMoving();
     }
 
