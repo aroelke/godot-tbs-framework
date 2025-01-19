@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=34 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DBrain.tscn" id="3_td8u6"]
@@ -28,12 +28,11 @@
 [ext_resource type="AudioStream" uid="uid://bg4mbs7d25qaj" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Select - 1.wav" id="28_dnjya"]
 [ext_resource type="PackedScene" uid="uid://b7i65c130fgfs" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/EnterTreeReaction.tscn" id="29_o6hju"]
 [ext_resource type="AudioStream" uid="uid://b4dbo5h2e7ru4" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Cancel - 1.wav" id="29_regtl"]
-[ext_resource type="AudioStream" uid="uid://oyebi18i5hmn" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Error - 1.wav" id="30_mo20p"]
 [ext_resource type="AudioStream" uid="uid://dx4swhb5suesh" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Open - 1.wav" id="31_yh2xe"]
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -151758798
+seed = -331445525
 
 [sub_resource type="Resource" id="Resource_mydqi"]
 script = ExtResource("22_tix5y")
@@ -326,10 +325,6 @@ stream = ExtResource("28_dnjya")
 [node name="CancelSound" type="AudioStreamPlayer" parent="SoundLibrary"]
 unique_name_in_owner = true
 stream = ExtResource("29_regtl")
-
-[node name="ErrorSound" type="AudioStreamPlayer" parent="SoundLibrary"]
-unique_name_in_owner = true
-stream = ExtResource("30_mo20p")
 
 [node name="ZoneOnSound" type="AudioStreamPlayer" parent="SoundLibrary"]
 unique_name_in_owner = true

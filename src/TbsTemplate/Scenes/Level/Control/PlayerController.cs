@@ -214,6 +214,8 @@ public partial class PlayerController : ArmyController
             EmitSignal(SignalName.TargetChosen, _selected, target);
             EmitSignal(SignalName.PathConfirmed, _selected, new Godot.Collections.Array<Vector2I>(_path));
         }
+        else
+            ErrorSound.Play();
     }
 
     public void OnPathEntered()
