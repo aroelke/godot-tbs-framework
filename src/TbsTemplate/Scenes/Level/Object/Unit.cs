@@ -116,9 +116,12 @@ public partial class Unit : GridNode, IHasHealth
         get => _army;
         set
         {
-            _army = value;
-            if (Sprite is not null && _army is not null)
-                Sprite.Modulate = _army.Faction.Color;
+            if (_army != value)
+            {
+                _army = value;
+                if (Sprite is not null && _army is not null)
+                    Sprite.Modulate = _army.Faction.Color;
+            }
         }
     }
 
