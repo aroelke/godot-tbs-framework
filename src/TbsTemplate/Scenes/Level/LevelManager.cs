@@ -173,13 +173,13 @@ public partial class LevelManager : Node
             Pointer.StopWaiting();
         else
             Pointer.StartWaiting(hide:true);
+        _armies.Current.Controller.SelectionCanceled += OnSelectionCanceled;
         _armies.Current.Controller.UnitSelected += _.State.Root.Running.Idle.OnUnitSelected.React;
         _armies.Current.Controller.TurnSkipped += _.State.Root.Running.Idle.OnTurnSkipped.React;
         _armies.Current.Controller.PathUpdated += _.State.Root.Running.UnitSelected.OnPathUpdated.React;
         _armies.Current.Controller.UnitCommanded += _.State.Root.Running.UnitSelected.OnUnitCommanded.React;
         _armies.Current.Controller.TargetChosen += _.State.Root.Running.UnitSelected.OnTargetChosen.React;
         _armies.Current.Controller.PathConfirmed += _.State.Root.Running.UnitSelected.OnPathConfirmed.React;
-        _armies.Current.Controller.PathCanceled += _.State.Root.Running.UnitSelected.OnPathCanceled.React;
         _armies.Current.Controller.UnitCommanded += _.State.Root.Running.UnitCommanding.OnUnitCommanded.React;
         _armies.Current.Controller.TargetChosen += _.State.Root.Running.UnitTargeting.OnTargetChosen.React;
         Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
@@ -348,8 +348,6 @@ public partial class LevelManager : Node
         State.ExpressionProperties = State.ExpressionProperties.SetItem(TraversableProperty, true);
         State.SendEvent(_events[SelectEvent]);
     }
-
-    public void OnSelectedPathCanceled() => State.SendEvent(_events[CancelEvent]);
 
     public void OnSelectedCanceled()
     {
@@ -610,13 +608,13 @@ public partial class LevelManager : Node
     /// <summary>Refresh all the units in the army whose turn just ended so they aren't gray anymore and are animated.</summary>
     public void OnEndTurnExited()
     {
+        _armies.Current.Controller.SelectionCanceled -= OnSelectionCanceled;
         _armies.Current.Controller.UnitSelected -= _.State.Root.Running.Idle.OnUnitSelected.React;
         _armies.Current.Controller.TurnSkipped -= _.State.Root.Running.Idle.OnTurnSkipped.React;
         _armies.Current.Controller.PathUpdated -= _.State.Root.Running.UnitSelected.OnPathUpdated.React;
         _armies.Current.Controller.UnitCommanded -= _.State.Root.Running.UnitSelected.OnUnitCommanded.React;
         _armies.Current.Controller.TargetChosen -= _.State.Root.Running.UnitSelected.OnTargetChosen.React;
         _armies.Current.Controller.PathConfirmed -= _.State.Root.Running.UnitSelected.OnPathConfirmed.React;
-        _armies.Current.Controller.PathCanceled -= _.State.Root.Running.UnitSelected.OnPathCanceled.React;
         _armies.Current.Controller.UnitCommanded -= _.State.Root.Running.UnitCommanding.OnUnitCommanded.React;
         _armies.Current.Controller.TargetChosen -= _.State.Root.Running.UnitTargeting.OnTargetChosen.React;
         _armies.Current.Controller.FinalizeTurn();
@@ -632,6 +630,8 @@ public partial class LevelManager : Node
     }
 #endregion
 #region State Independent
+    public void OnSelectionCanceled() => State.SendEvent(_events[CancelEvent]);
+
     /// <summary>Change the camera focus to a new object and save the previous one for reverting focus.</summary>
     /// <param name="target">New camera focus target. Use <c>null</c> to not focus on anything.</param>
     public void PushCameraFocus(BoundedNode2D target)
@@ -745,9 +745,6 @@ public partial class LevelManager : Node
     public override void _Input(InputEvent @event)
     {
         base._Input(@event);
-
-        if (@event.IsActionPressed(InputActions.Cancel))
-            State.SendEvent(_events[CancelEvent]);
 
         if (@event.IsActionPressed(InputActions.ToggleDangerZone))
         {

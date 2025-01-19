@@ -202,7 +202,7 @@ public partial class PlayerController : ArmyController
         bool occupied = Cursor.Grid.Occupants.TryGetValue(cell, out GridNode occupant);
         if (!_traversable.Contains(cell) && !occupied)
         {
-            EmitSignal(SignalName.PathCanceled);
+            EmitSignal(SignalName.SelectionCanceled);
         }
         else if (!occupied || occupant == _selected)
         {
@@ -309,6 +309,15 @@ public partial class PlayerController : ArmyController
     public override void FinalizeTurn()
     {
         State.SendEvent(_events[FinishEvent]);
+    }
+#endregion
+#region All States
+    public override void _Input(InputEvent @event)
+    {
+        base._Input(@event);
+
+        if (@event.IsActionPressed(InputActions.Cancel))
+            EmitSignal(SignalName.SelectionCanceled);
     }
 #endregion
 #region Properties

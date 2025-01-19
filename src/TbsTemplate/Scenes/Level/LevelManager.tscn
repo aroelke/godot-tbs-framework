@@ -32,7 +32,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -331445525
+seed = 651990010
 
 [sub_resource type="Resource" id="Resource_mydqi"]
 script = ExtResource("22_tix5y")
@@ -217,8 +217,6 @@ process_mode = 4
 
 [node name="OnPathConfirmed" parent="State/Root/Running/UnitSelected" instance=ExtResource("22_h5tkx")]
 
-[node name="OnPathCanceled" parent="State/Root/Running/UnitSelected" instance=ExtResource("22_mocgv")]
-
 [node name="ToMoving" parent="State/Root/Running/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"select"
 To = NodePath("../../UnitMoving")
@@ -359,7 +357,6 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateUpdated" from="State/Root/Running/UnitSelected/OnUnitCommanded" to="." method="OnSelectedUnitCommanded"]
 [connection signal="StateUpdated" from="State/Root/Running/UnitSelected/OnTargetChosen" to="." method="OnSelectedTargetChosen"]
 [connection signal="StateUpdated" from="State/Root/Running/UnitSelected/OnPathConfirmed" to="." method="OnSelectedPathConfirmed"]
-[connection signal="StateUpdated" from="State/Root/Running/UnitSelected/OnPathCanceled" to="." method="OnSelectedPathCanceled"]
 [connection signal="Taken" from="State/Root/Running/UnitSelected/ToMoving" to="." method="OnDestinationChosen"]
 [connection signal="Taken" from="State/Root/Running/UnitSelected/ToMoving" to="SoundLibrary/SelectSound" method="play" binds= [0.0]]
 [connection signal="Taken" from="State/Root/Running/UnitSelected/ToIdle" to="." method="OnSelectedCanceled"]

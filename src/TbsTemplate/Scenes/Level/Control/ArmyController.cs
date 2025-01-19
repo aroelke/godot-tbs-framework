@@ -8,6 +8,9 @@ namespace TbsTemplate.Scenes.Level.Control;
 /// <summary>Controller for determining which units act in a turn and how they act.</summary>
 public abstract partial class ArmyController : Node
 {
+    /// <summary>Signals that a selection has been canceled.</summary>
+    [Signal] public delegate void SelectionCanceledEventHandler();
+
     /// <summary>Signals that a <see cref="Unit"/> has been chosen to act.</summary>
     /// <param name="unit">Selected unit.</param>
     [Signal] public delegate void UnitSelectedEventHandler(Unit unit);
@@ -24,10 +27,6 @@ public abstract partial class ArmyController : Node
     /// <param name="unit">Unit that will move along the path.</param>
     /// <param name="path">Contiguous list of cells for the unit to move through.</param>
     [Signal] public delegate void PathConfirmedEventHandler(Unit unit, Godot.Collections.Array<Vector2I> path);
-
-    /// <summary>Signals that path selection has been canceled.</summary>
-    [Signal] public delegate void PathCanceledEventHandler();
-
     /// <summary>Signals that an action has been chosen for a unit.</summary>
     /// <param name="unit">Unit being commanded.</param>
     /// <param name="command">String representing the action to perform.</param>
