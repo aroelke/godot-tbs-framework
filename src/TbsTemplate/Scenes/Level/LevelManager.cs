@@ -137,9 +137,6 @@ public partial class LevelManager : Node
     /// <summary>Background music to play during the level.</summary>
     [Export] public AudioStream BackgroundMusic = null;
 
-    /// <summary>Regions in which units can perform special actions defined by the region.</summary>
-    [Export] public SpecialActionRegion[] SpecialActionRegions = [];
-
     /// <summary>
     /// <see cref="Army"/> that gets the first turn and is controlled by the player. If null, use the first <see cref="Army"/>
     /// in the child list. After that, go down the child list in order, wrapping when at the end.
@@ -440,7 +437,7 @@ public partial class LevelManager : Node
         }
         AddActionOption("Attack", AttackLayer);
         AddActionOption("Support", SupportLayer);
-        foreach (SpecialActionRegion region in SpecialActionRegions)
+        foreach (SpecialActionRegion region in Grid.SpecialActionRegions)
         {
             if (region.HasSpecialAction(_selected, _selected.Cell))
             {

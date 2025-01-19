@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Scenes.Level.Map;
@@ -27,6 +28,9 @@ public partial class Grid : Node2D
 
     /// <summary>Characters and objects occupying the grid.</summary>
     public readonly Dictionary<Vector2I, GridNode> Occupants = [];
+
+    /// <summary>Regions in which units can perform special actions defined by the region.</summary>
+    public IEnumerable<SpecialActionRegion> SpecialActionRegions => GetChildren().OfType<SpecialActionRegion>();
 
     /// <summary>Check if a cell offset is in the grid.</summary>
     /// <param name="offset">offset to check.</param>
