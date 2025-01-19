@@ -142,6 +142,8 @@ public partial class PlayerController : ArmyController
     }
 #endregion
 #region Path Selection
+    private StringName _command = null;
+
     public override void MoveUnit(Unit unit)
     {
         _selected = unit;
@@ -158,7 +160,7 @@ public partial class PlayerController : ArmyController
             UpdatePath(_path.Add(_target.Cell));
 
         _target = null;
-//        _command = null;
+        _command = null;
 
         IEnumerable<Vector2I> sources = [];
         if (Cursor.Grid.Occupants.GetValueOrDefault(cell) is Unit target)
@@ -175,12 +177,10 @@ public partial class PlayerController : ArmyController
                 _target = target;
 
                 // Store the action command related to selecting the target as if it were the command state
-/*
                 if (_attackable.Contains(cell))
-                    _command = AttackLayer;
+                    _command = "Attack";
                 else if (_supportable.Contains(cell))
-                    _command = SupportLayer;
-*/
+                    _command = "Support";
 
                 // If the end of the path isn't a cell that could act on the target, find the furthest one that can and add
                 // it to the path
@@ -200,12 +200,18 @@ public partial class PlayerController : ArmyController
     private void ConfirmPathSelection(Vector2I cell)
     {
         bool occupied = Cursor.Grid.Occupants.TryGetValue(cell, out GridNode occupant);
-        if (!_traversable.Contains(cell) || occupied)
+        if (!_traversable.Contains(cell) && !occupied)
         {
             EmitSignal(SignalName.PathCanceled);
         }
         else if (!occupied || occupant == _selected)
         {
+            EmitSignal(SignalName.PathConfirmed, _selected, new Godot.Collections.Array<Vector2I>(_path));
+        }
+        else if (occupied && occupant is Unit target)
+        {
+            EmitSignal(SignalName.UnitCommanded, _selected, _command);
+            EmitSignal(SignalName.TargetChosen, _selected, target);
             EmitSignal(SignalName.PathConfirmed, _selected, new Godot.Collections.Array<Vector2I>(_path));
         }
     }

@@ -176,6 +176,8 @@ public partial class LevelManager : Node
         _armies.Current.Controller.UnitSelected += _.State.Root.Running.Idle.OnUnitSelected.React;
         _armies.Current.Controller.TurnSkipped += _.State.Root.Running.Idle.OnTurnSkipped.React;
         _armies.Current.Controller.PathUpdated += _.State.Root.Running.UnitSelected.OnPathUpdated.React;
+        _armies.Current.Controller.UnitCommanded += _.State.Root.Running.UnitSelected.OnUnitCommanded.React;
+        _armies.Current.Controller.TargetChosen += _.State.Root.Running.UnitSelected.OnTargetChosen.React;
         _armies.Current.Controller.PathConfirmed += _.State.Root.Running.UnitSelected.OnPathConfirmed.React;
         _armies.Current.Controller.PathCanceled += _.State.Root.Running.UnitSelected.OnPathCanceled.React;
         _armies.Current.Controller.UnitCommanded += _.State.Root.Running.UnitCommanding.OnUnitCommanded.React;
@@ -292,6 +294,8 @@ public partial class LevelManager : Node
     {
         _selected.Select();
         _initialCell = _selected.Cell;
+        _command = null;
+        _target = null;
 
         // Compute move/attack/support ranges for selected unit
         (ActionLayers[MoveLayer], ActionLayers[AttackLayer], ActionLayers[SupportLayer]) = _selected.ActionRanges();
@@ -319,6 +323,20 @@ public partial class LevelManager : Node
         PathLayer.Path = _path = _path.SetTo(path);
     }
 
+    public void OnSelectedUnitCommanded(Unit unit, StringName command)
+    {
+        if (unit != _selected)
+            throw new InvalidOperationException($"Cannot command unselected unit {unit.Name} ({_selected.Name} is selected)");
+        _command = command;
+    }
+
+    public void OnSelectedTargetChosen(Unit source, Unit target)
+    {
+        if (source != _selected)
+            throw new InvalidOperationException($"Cannot choose action target for unselected unit {source.Name} ({_selected.Name} is selected)");
+        _target = target;
+    }
+
     public void OnSelectedPathConfirmed(Unit unit, Godot.Collections.Array<Vector2I> path)
     {
         if (unit != _selected)
@@ -327,7 +345,6 @@ public partial class LevelManager : Node
             throw new InvalidOperationException("The chosen path must only contain traversable cells.");
 
         _path = _path.SetTo(path);
-        Cursor.Cell = _path[^1];
         State.ExpressionProperties = State.ExpressionProperties.SetItem(TraversableProperty, true);
         State.SendEvent(_events[SelectEvent]);
     }
@@ -407,7 +424,6 @@ public partial class LevelManager : Node
 #endregion
 #region Unit Commanding State
     private List<ContextMenuOption> _options = [];
-    private ContextMenu _commandMenu = null;
     private IEnumerable<Vector2I> _targets = [];
 
     public void OnCommandingEntered()
@@ -425,7 +441,7 @@ public partial class LevelManager : Node
             {
                 _options.Add(new(name, () => {
                     _targets = ActionLayers[layer];
-                    _command = layer;
+                    _command = name;
                     ActionLayers.Keep(layer);
                     State.SendEvent(_events[SelectEvent]);
                 }));
@@ -501,7 +517,7 @@ public partial class LevelManager : Node
     {
         if (source != _selected)
             throw new InvalidOperationException($"Cannot choose target for unselected unit {source.Name} ({_selected.Name} is selected)");
-        if ((_command == AttackLayer && target.Army.Faction.AlliedTo(_selected)) || (_command == SupportLayer && !target.Army.Faction.AlliedTo(_selected)))
+        if ((_command == "Attack" && target.Army.Faction.AlliedTo(_selected)) || (_command == "Support" && !target.Army.Faction.AlliedTo(_selected)))
             throw new ArgumentException($"{_selected.Name} cannot {_command} {target.Name}");
         
         if (Grid.CellOf(Pointer.Position) == Cursor.Cell)
@@ -534,9 +550,9 @@ public partial class LevelManager : Node
         Cursor.Halt();
         Pointer.StartWaiting(hide:true);
 
-        if (_command == AttackLayer)
+        if (_command == "Attack")
             _combatResults = CombatCalculations.AttackResults(_selected, _target);
-        else if (_command == SupportLayer)
+        else if (_command == "Support")
             _combatResults = [CombatCalculations.CreateSupportAction(_selected, _target)];
         else
             throw new NotSupportedException($"Unknown action {_command}");
@@ -597,6 +613,8 @@ public partial class LevelManager : Node
         _armies.Current.Controller.UnitSelected -= _.State.Root.Running.Idle.OnUnitSelected.React;
         _armies.Current.Controller.TurnSkipped -= _.State.Root.Running.Idle.OnTurnSkipped.React;
         _armies.Current.Controller.PathUpdated -= _.State.Root.Running.UnitSelected.OnPathUpdated.React;
+        _armies.Current.Controller.UnitCommanded -= _.State.Root.Running.UnitSelected.OnUnitCommanded.React;
+        _armies.Current.Controller.TargetChosen -= _.State.Root.Running.UnitSelected.OnTargetChosen.React;
         _armies.Current.Controller.PathConfirmed -= _.State.Root.Running.UnitSelected.OnPathConfirmed.React;
         _armies.Current.Controller.PathCanceled -= _.State.Root.Running.UnitSelected.OnPathCanceled.React;
         _armies.Current.Controller.UnitCommanded -= _.State.Root.Running.UnitCommanding.OnUnitCommanded.React;
