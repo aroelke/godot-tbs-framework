@@ -199,7 +199,12 @@ public partial class PlayerController : ArmyController
 
     private void ConfirmPathSelection(Vector2I cell)
     {
-        if (!Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) || node == _selected)
+        bool occupied = Cursor.Grid.Occupants.TryGetValue(cell, out GridNode occupant);
+        if (!_traversable.Contains(cell) || occupied)
+        {
+            EmitSignal(SignalName.PathCanceled);
+        }
+        else if (!occupied || occupant == _selected)
         {
             EmitSignal(SignalName.PathConfirmed, _selected, new Godot.Collections.Array<Vector2I>(_path));
         }

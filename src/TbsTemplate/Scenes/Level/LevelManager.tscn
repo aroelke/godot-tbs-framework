@@ -1,4 +1,4 @@
-[gd_scene load_steps=43 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=35 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DBrain.tscn" id="3_td8u6"]
@@ -16,20 +16,16 @@
 [ext_resource type="PackedScene" uid="uid://dnfp4qfxs85wh" path="res://src/TbsTemplate/Nodes/StateChart/States/HistoryState.tscn" id="18_n547p"]
 [ext_resource type="PackedScene" uid="uid://lrf5ywt1n230" path="res://src/TbsTemplate/Nodes/StateChart/States/AtomicState.tscn" id="19_o30vs"]
 [ext_resource type="PackedScene" uid="uid://0b22cirxc7k2" path="res://src/TbsTemplate/Nodes/StateChart/States/Transition.tscn" id="20_p4yt1"]
-[ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/FlagCondition.cs" id="21_7vj21"]
 [ext_resource type="PackedScene" path="res://src/TbsTemplate/Scenes/Level/UnitReaction.tscn" id="21_sbtfw"]
 [ext_resource type="PackedScene" path="res://src/TbsTemplate/Scenes/Level/PathReaction.tscn" id="22_h5tkx"]
 [ext_resource type="PackedScene" uid="uid://6l44mlff5sgr" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/ActionReaction.tscn" id="22_mocgv"]
-[ext_resource type="Resource" uid="uid://bskotywb1gwgv" path="res://src/TbsTemplate/Scenes/Level/TraversableCondition.tres" id="22_sve70"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/StringCondition.cs" id="22_tix5y"]
-[ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/InvertCondition.cs" id="23_6etqp"]
 [ext_resource type="PackedScene" uid="uid://dhytcbhqvrpx0" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/InputReaction.tscn" id="23_nnivc"]
 [ext_resource type="PackedScene" uid="uid://dtrul7dw5r6ly" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/Vector2Reaction.tscn" id="23_u3pac"]
 [ext_resource type="PackedScene" path="res://src/TbsTemplate/Scenes/Level/CommandReaction.tscn" id="27_7kdnf"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/IntCondition.cs" id="27_kyhbc"]
 [ext_resource type="PackedScene" path="res://src/TbsTemplate/Scenes/Level/TargetReaction.tscn" id="28_5f3xe"]
 [ext_resource type="AudioStream" uid="uid://bg4mbs7d25qaj" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Select - 1.wav" id="28_dnjya"]
-[ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/AnyCondition.cs" id="29_kfqmx"]
 [ext_resource type="PackedScene" uid="uid://b7i65c130fgfs" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/EnterTreeReaction.tscn" id="29_o6hju"]
 [ext_resource type="AudioStream" uid="uid://b4dbo5h2e7ru4" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Cancel - 1.wav" id="29_regtl"]
 [ext_resource type="AudioStream" uid="uid://oyebi18i5hmn" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Error - 1.wav" id="30_mo20p"]
@@ -37,28 +33,12 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = 1766585185
+seed = 1895553072
 
 [sub_resource type="Resource" id="Resource_mydqi"]
 script = ExtResource("22_tix5y")
 Property = &"occupied"
 Value = "active"
-
-[sub_resource type="Resource" id="Resource_jrebm"]
-script = ExtResource("21_7vj21")
-Flag = &"traversable"
-
-[sub_resource type="Resource" id="Resource_kld8o"]
-script = ExtResource("21_7vj21")
-Flag = &"target"
-
-[sub_resource type="Resource" id="Resource_70pa8"]
-script = ExtResource("29_kfqmx")
-Conditions = [SubResource("Resource_jrebm"), SubResource("Resource_kld8o")]
-
-[sub_resource type="Resource" id="Resource_j0hg7"]
-script = ExtResource("23_6etqp")
-Condition = ExtResource("22_sve70")
 
 [sub_resource type="Resource" id="Resource_3lvnu"]
 script = ExtResource("27_kyhbc")
@@ -234,17 +214,13 @@ process_mode = 4
 
 [node name="OnPathConfirmed" parent="State/Root/Running/UnitSelected" instance=ExtResource("22_h5tkx")]
 
+[node name="OnPathCanceled" parent="State/Root/Running/UnitSelected" instance=ExtResource("22_mocgv")]
+
 [node name="ToMoving" parent="State/Root/Running/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"select"
 To = NodePath("../../UnitMoving")
-Condition = SubResource("Resource_70pa8")
 
 [node name="ToIdle" parent="State/Root/Running/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
-Event = &"select"
-To = NodePath("../../Idle")
-Condition = SubResource("Resource_j0hg7")
-
-[node name="ToIdleOnCancel" parent="State/Root/Running/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"cancel"
 To = NodePath("../../Idle")
 
@@ -382,13 +358,11 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateExited" from="State/Root/Running/UnitSelected" to="." method="OnSelectedExited"]
 [connection signal="StateUpdated" from="State/Root/Running/UnitSelected/OnPathUpdated" to="." method="OnSelectedPathUpdated"]
 [connection signal="StateUpdated" from="State/Root/Running/UnitSelected/OnPathConfirmed" to="." method="OnSelectedPathConfirmed"]
+[connection signal="StateUpdated" from="State/Root/Running/UnitSelected/OnPathCanceled" to="." method="OnSelectedPathCanceled"]
 [connection signal="Taken" from="State/Root/Running/UnitSelected/ToMoving" to="." method="OnDestinationChosen"]
 [connection signal="Taken" from="State/Root/Running/UnitSelected/ToMoving" to="SoundLibrary/SelectSound" method="play" binds= [0.0]]
-[connection signal="Taken" from="State/Root/Running/UnitSelected/ToIdle" to="." method="OnUnitDeselected"]
-[connection signal="Taken" from="State/Root/Running/UnitSelected/ToIdle" to="ActionLayers" method="Clear"]
+[connection signal="Taken" from="State/Root/Running/UnitSelected/ToIdle" to="." method="OnSelectedCanceled"]
 [connection signal="Taken" from="State/Root/Running/UnitSelected/ToIdle" to="SoundLibrary/CancelSound" method="play" binds= [0.0]]
-[connection signal="Taken" from="State/Root/Running/UnitSelected/ToIdleOnCancel" to="." method="OnSelectedCanceled"]
-[connection signal="Taken" from="State/Root/Running/UnitSelected/ToIdleOnCancel" to="SoundLibrary/CancelSound" method="play" binds= [0.0]]
 [connection signal="StateEntered" from="State/Root/Running/UnitMoving" to="." method="OnMovingEntered"]
 [connection signal="StateExited" from="State/Root/Running/UnitMoving" to="." method="OnMovingExited"]
 [connection signal="StateInput" from="State/Root/Running/UnitMoving/OnInput" to="." method="OnMovingInput"]

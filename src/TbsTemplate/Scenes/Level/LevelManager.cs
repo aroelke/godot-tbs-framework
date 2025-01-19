@@ -12,11 +12,9 @@ using TbsTemplate.Nodes;
 using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI;
-using TbsTemplate.UI.Controls.Device;
 using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Combat;
 using TbsTemplate.Nodes.Components;
-using System.Text.Json;
 
 namespace TbsTemplate.Scenes.Level;
 
@@ -179,6 +177,7 @@ public partial class LevelManager : Node
         _armies.Current.Controller.TurnSkipped += _.State.Root.Running.Idle.OnTurnSkipped.React;
         _armies.Current.Controller.PathUpdated += _.State.Root.Running.UnitSelected.OnPathUpdated.React;
         _armies.Current.Controller.PathConfirmed += _.State.Root.Running.UnitSelected.OnPathConfirmed.React;
+        _armies.Current.Controller.PathCanceled += _.State.Root.Running.UnitSelected.OnPathCanceled.React;
         _armies.Current.Controller.UnitCommanded += _.State.Root.Running.UnitCommanding.OnUnitCommanded.React;
         _armies.Current.Controller.TargetChosen += _.State.Root.Running.UnitTargeting.OnTargetChosen.React;
         Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
@@ -333,24 +332,21 @@ public partial class LevelManager : Node
         State.SendEvent(_events[SelectEvent]);
     }
 
-    /// <summary>
-    /// Put the selected <see cref="Unit"/> back into its idle state, then clear stored data related to it, except its action layers, which might
-    /// still need to be displayed.
-    /// </summary>
-    public void OnUnitDeselected()
+    public void OnSelectedPathCanceled() => State.SendEvent(_events[CancelEvent]);
+
+    public void OnSelectedCanceled()
     {
+        CancelSound.Play();
+
+        if (Cursor.Cell != _selected.Cell)
+            ActionLayers.Clear();
+        PathLayer.Clear();
+
         _initialCell = null;
         _selected.Deselect();
         _selected = null;
-        CancelHint.Visible = false;
-        PathLayer.Clear();
-    }
 
-    /// <summary>Move the <see cref="Object.Cursor"/> back to the selected <see cref="Unit"/> and then deselect it.</summary>
-    public void OnSelectedCanceled()
-    {
-        Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(_selected.Cell);
-        OnUnitDeselected();
+        CancelHint.Visible = false;
     }
 
     /// <summary>Clean up overlays when movement destination is chosen.</summary>
@@ -602,6 +598,7 @@ public partial class LevelManager : Node
         _armies.Current.Controller.TurnSkipped -= _.State.Root.Running.Idle.OnTurnSkipped.React;
         _armies.Current.Controller.PathUpdated -= _.State.Root.Running.UnitSelected.OnPathUpdated.React;
         _armies.Current.Controller.PathConfirmed -= _.State.Root.Running.UnitSelected.OnPathConfirmed.React;
+        _armies.Current.Controller.PathCanceled -= _.State.Root.Running.UnitSelected.OnPathCanceled.React;
         _armies.Current.Controller.UnitCommanded -= _.State.Root.Running.UnitCommanding.OnUnitCommanded.React;
         _armies.Current.Controller.TargetChosen -= _.State.Root.Running.UnitTargeting.OnTargetChosen.React;
         _armies.Current.Controller.FinalizeTurn();
