@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Godot;
 using TbsTemplate.Extensions;
 using TbsTemplate.Scenes.Level.Object.Group;
@@ -12,22 +11,10 @@ public partial class TimeObjective : Objective
     private int _turn = 0;
 
     /// <summary>Number of turns to elapse before completion.</summary>
-    [Export] public int Turns = 0;
+    [Export(PropertyHint.Range, "1,10,or_greater")] public int Turns = 0;
 
     public override bool Complete => _turn > Turns;
     public override string Description => $"Survive {Turns} Turns";
-
-    public override string[] _GetConfigurationWarnings()
-    {
-        List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
-
-        if (Turns < 0)
-            warnings.Add("Turn count should not be negative.");
-        else if (Turns == 0)
-            warnings.Add("Time objective will always be completed.");
-
-        return [.. warnings];
-    }
 
     public override void _Ready()
     {
