@@ -317,11 +317,10 @@ Failure = NodePath("../FailureObjective")
 [node name="DefeatUnitObjective" parent="SuccessObjective" node_paths=PackedStringArray("Target") instance=ExtResource("20_6u8j8")]
 Target = NodePath("../../LevelManager/OtherEnemy/OtherEnemyA")
 
-[node name="OccupyObjective" parent="SuccessObjective" node_paths=PackedStringArray("Region", "Army", "Units") instance=ExtResource("22_axkl2")]
+[node name="OccupyObjective" parent="SuccessObjective" node_paths=PackedStringArray("Region", "Army") instance=ExtResource("22_axkl2")]
 Region = NodePath("../../LevelManager/Grid/Occupy")
 Army = NodePath("../../LevelManager/Player")
-Units = [NodePath("../../LevelManager/Ally/AllyA")]
-Count = 2
+Count = 4
 
 [node name="CaptureObjective" parent="SuccessObjective" node_paths=PackedStringArray("ActionRegion") instance=ExtResource("24_h6vny")]
 ActionRegion = NodePath("../../LevelManager/Grid/Capture")
