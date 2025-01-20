@@ -5,10 +5,10 @@
 [resource]
 script = ExtResource("1_thnud")
 Health = 10
-Attack = 4
-Defense = 1
-Healing = 0
+Attack = 5
+Defense = 0
+Healing = 5
 Accuracy = 100
-Evasion = 0
+Evasion = 25
 Agility = 1
 Move = 5
