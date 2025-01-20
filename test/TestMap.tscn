@@ -166,7 +166,7 @@ Size = Vector2(32, 32)
 [node name="Enemy" parent="LevelManager" instance=ExtResource("4_xrn4s")]
 Faction = ExtResource("10_k4gkn")
 
-[node name="AIController" parent="LevelManager/Enemy" instance=ExtResource("17_2a1se")]
+[node name="EnemyController" parent="LevelManager/Enemy" instance=ExtResource("12_8av15")]
 
 [node name="EnemyA" parent="LevelManager/Enemy" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(128, 224)
