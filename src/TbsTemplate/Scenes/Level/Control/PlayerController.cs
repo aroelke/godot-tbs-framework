@@ -80,7 +80,6 @@ public partial class PlayerController : ArmyController
         }
         else
         {
-            Cursor.CellSelected -= ConfirmTargetSelection;
             Cursor.Halt(hide:true);
 
             void Cancel()
@@ -102,10 +101,7 @@ public partial class PlayerController : ArmyController
                 new("Cancel", Cancel)
             ]);
             menu.MenuCanceled += Cancel;
-            menu.MenuClosed += () => {
-                Cursor.Resume();
-                Cursor.CellSelected += ConfirmTargetSelection;
-            };
+            menu.MenuClosed += Cursor.Resume;
         }
     }
 
