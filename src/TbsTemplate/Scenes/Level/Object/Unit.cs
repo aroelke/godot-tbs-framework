@@ -244,7 +244,7 @@ public partial class Unit : GridNode, IHasHealth
     public void Die()
     {
         GD.Print($"Defeated unit ${Name}!");
-        Grid.Occupants[Cell] = null;
+        Grid.Occupants.Remove(Cell);
         QueueFree();
     }
 
