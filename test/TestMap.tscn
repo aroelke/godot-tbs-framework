@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=4 uid="uid://bmfxux38ovtj2"]
+[gd_scene load_steps=39 format=4 uid="uid://bmfxux38ovtj2"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/LevelManager.tscn" id="1_h3e4w"]
 [ext_resource type="Script" path="res://test/TestMap.cs" id="1_stn1b"]
@@ -14,6 +14,7 @@
 [ext_resource type="Resource" uid="uid://rw7lv271d7de" path="res://test/stats/TestPlayerStats.tres" id="8_1sr4q"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Layers/SpecialActionRegion.cs" id="8_kin6v"]
 [ext_resource type="Resource" uid="uid://xatocb6uwrwx" path="res://test/stats/TestEnemyStats1.tres" id="9_g2gda"]
+[ext_resource type="PackedScene" uid="uid://bsnwitybsx8xd" path="res://src/TbsTemplate/Scenes/Level/Map/OccupantHighlighter.tscn" id="9_xbntu"]
 [ext_resource type="Resource" uid="uid://dp74yifhop864" path="res://test/factions/TestEnemyFaction1.tres" id="10_k4gkn"]
 [ext_resource type="PackedScene" uid="uid://drlrlusbfh208" path="res://src/TbsTemplate/Scenes/Level/Control/PlayerController.tscn" id="12_8av15"]
 [ext_resource type="Resource" uid="uid://cbi1a2igyxbt4" path="res://test/factions/TestEnemyFaction2.tres" id="12_8r5wl"]
@@ -108,6 +109,9 @@ Terrain = "selection"
 Action = &"Capture"
 AllowedArmies = [NodePath("../../Player")]
 OneShot = true
+
+[node name="OccupantHighlighter" parent="LevelManager/Grid" instance=ExtResource("9_xbntu")]
+z_index = 100
 
 [node name="Player" parent="LevelManager" instance=ExtResource("4_xrn4s")]
 Faction = ExtResource("6_qur3m")

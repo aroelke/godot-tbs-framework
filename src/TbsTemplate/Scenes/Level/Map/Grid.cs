@@ -20,6 +20,8 @@ public partial class Grid : Node2D
     /// <summary>Default terrain to use when it isn't placed explicitly on the map.</summary>
     [Export] public Terrain DefaultTerrain = null;
 
+    [Export] public TileMapLayer OccupantsLayer = null;
+
     /// <summary>Grid cell dimensions derived from the <see cref="TileSet"/>.  If there is no <see cref="TileSet"/>, the size is zero.</summary>
     public Vector2 CellSize => GroundLayer?.TileSet?.TileSize ?? Vector2.Zero;
 
@@ -115,7 +117,7 @@ public partial class Grid : Node2D
 
     public override string[] _GetConfigurationWarnings()
     {
-        List<string> warnings = new(base._GetConfigurationWarnings() ?? []);
+        List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
 
         if (DefaultTerrain is null)
             warnings.Add("No default terrain set");
