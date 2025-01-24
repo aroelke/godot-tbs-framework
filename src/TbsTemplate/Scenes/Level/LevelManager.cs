@@ -561,8 +561,9 @@ public partial class LevelManager : Node
     /// <summary>Update the map to reflect combat results when it's added back to the tree.</summary>
     public void OnCombatEnteredTree()
     {
-        _selected.Health.Value -= CombatCalculations.TotalDamage(_selected, _combatResults);
-        _target.Health.Value -= CombatCalculations.TotalDamage(_target, _combatResults);
+        foreach (CombatAction action in _combatResults)
+            if (action.Actor.Health.Value > 0 && action.Hit)
+                action.Target.Health.Value -= action.Damage;
         _target = null;
         _combatResults = null;
         ActionLayers.Clear();
