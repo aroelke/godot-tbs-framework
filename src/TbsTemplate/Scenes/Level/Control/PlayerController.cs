@@ -153,11 +153,11 @@ public partial class PlayerController : ArmyController
     {
         if (@event.IsActionPressed(InputActions.Previous) || @event.IsActionPressed(InputActions.Next))
         {
-            if (Cursor.Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit)
+            if (Cursor.Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit hovered)
             {
-                if (@event.IsActionPressed(InputActions.Previous) && unit.Army.Previous(unit) is Unit prev)
+                if (@event.IsActionPressed(InputActions.Previous) && hovered.Army.Previous(hovered) is Unit prev)
                     Cursor.Cell = prev.Cell;
-                if (@event.IsActionPressed(InputActions.Next) && unit.Army.Next(unit) is Unit next)
+                if (@event.IsActionPressed(InputActions.Next) && hovered.Army.Next(hovered) is Unit next)
                     Cursor.Cell = next.Cell;
             }
             else
@@ -169,6 +169,9 @@ public partial class PlayerController : ArmyController
                     Cursor.Cell = units.OrderBy((u) => u.Cell.DistanceTo(Cursor.Cell)).First().Cell;
             }
         }
+
+        if (@event.IsActionPressed(InputActions.Cancel) && Cursor.Grid.Occupants.TryGetValue(Cursor.Cell, out GridNode node) && node is Unit untrack)
+            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.RemoveFromDangerZone, Army, untrack);
     }
 
     public void OnSelectExited()

@@ -184,24 +184,6 @@ public partial class LevelManager : Node
         Callable.From(_armies.Current.Controller.SelectUnit).CallDeferred();
     }
 
-    /// <summary>
-    /// Handle events that might occur during idle <see cref="Nodes.StateChart.States.State"/>.
-    /// - select: if the cursor is over a <see cref="Unit"/> enemy to the player during the player's turn, toggle its attack range in the local danger zone
-    /// - cancel: if the cursor is over a <see cref="Unit"/> enemy to the player during the player's turn, remove its attack range from the local danger zone
-    /// </summary>
-    /// <param name="event">Name of the event.</param>
-    public void OnIdleEventReceived(StringName @event)
-    {
-        if (_armies.Current.Faction.IsPlayer && Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit && !_armies.Current.Contains(unit))
-        {
-            if (@event == _events[CancelEvent] && _trackedUnits[_armies.Current].Contains(unit))
-            {
-                _trackedUnits[_armies.Current].Remove(unit);
-                ZoneUpdateSound(_trackedUnits[_armies.Current].Contains(unit)).Play();
-            }
-        }
-    }
-
     /// <summary>Clear the displayed action ranges when moving the <see cref="Object.Cursor"/> to a new cell while in idle <see cref="Nodes.StateChart.States.State"/>.</summary>
     /// <param name="cell">Cell the <see cref="Object.Cursor"/> moved to.</param>
     public void OnIdleCursorMoved(Vector2I cell) => ActionLayers.Clear();
@@ -684,6 +666,15 @@ public partial class LevelManager : Node
         UpdateDangerZones();
     }
 
+    public void RemoveFromDangerZone(Army army, Unit unit)
+    {
+        if (_trackedUnits[army].Remove(unit))
+        {
+            ZoneUpdateSound(false);
+            UpdateDangerZones();
+        }
+    }
+
     public override void _EnterTree()
     {
         base._EnterTree();
@@ -733,6 +724,7 @@ public partial class LevelManager : Node
             LevelEvents.Singleton.Connect(LevelEvents.SignalName.RevertCameraFocus, PopCameraFocus);
             LevelEvents.Singleton.Connect(LevelEvents.SignalName.EventComplete, OnEventComplete);
             LevelEvents.Singleton.Connect<Army, Unit>(LevelEvents.SignalName.ToggleDangerZone, ToggleDangerZone);
+            LevelEvents.Singleton.Connect<Army, Unit>(LevelEvents.SignalName.RemoveFromDangerZone, RemoveFromDangerZone);
 
             MusicController.ResetPlayback();
         }
