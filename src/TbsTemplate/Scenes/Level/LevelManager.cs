@@ -195,7 +195,7 @@ public partial class LevelManager : Node
         if (_armies.Current.Faction.IsPlayer && Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit && !_armies.Current.Contains(unit))
         {
             if (@event == _events[SelectEvent])
-                ToggleDangerZone(unit);
+                ToggleDangerZone(_armies.Current, unit);
             else if (@event == _events[CancelEvent] && _trackedUnits[_armies.Current].Contains(unit))
             {
                 _trackedUnits[_armies.Current].Remove(unit);
@@ -668,19 +668,20 @@ public partial class LevelManager : Node
 
     /// <summary>Add or remove a unit from the current army's displayed danger zone, or toggle the current army's global danger zone.</summary>
     /// <param name="unit">Unit to remove if present or add otherwise. Use <c>null</c> to toggle global danger zone.</param>
-    public void ToggleDangerZone(Unit unit)
+    /// <remarks>Note that the UI will only update if the current army's danger zone is toggled.</remarks>
+    public void ToggleDangerZone(Army army, Unit unit)
     {
         if (unit is not null)
         {
-            if (!_trackedUnits[_armies.Current].Remove(unit))
-                _trackedUnits[_armies.Current].Add(unit);
-            ZoneUpdateSound(_trackedUnits[_armies.Current].Contains(unit)).Play();
+            if (!_trackedUnits[army].Remove(unit))
+                _trackedUnits[army].Add(unit);
+            ZoneUpdateSound(_trackedUnits[army].Contains(unit)).Play();
         }
         else
         {
-            if (!_trackedArmies.Remove(_armies.Current))
-                _trackedArmies.Add(_armies.Current);
-            ZoneUpdateSound(_trackedArmies.Contains(_armies.Current)).Play();
+            if (!_trackedArmies.Remove(army))
+                _trackedArmies.Add(army);
+            ZoneUpdateSound(_trackedArmies.Contains(army)).Play();
         }
         UpdateDangerZones();
     }
@@ -733,17 +734,10 @@ public partial class LevelManager : Node
             LevelEvents.Singleton.Connect<BoundedNode2D>(LevelEvents.SignalName.FocusCamera, PushCameraFocus);
             LevelEvents.Singleton.Connect(LevelEvents.SignalName.RevertCameraFocus, PopCameraFocus);
             LevelEvents.Singleton.Connect(LevelEvents.SignalName.EventComplete, OnEventComplete);
+            LevelEvents.Singleton.Connect<Army, Unit>(LevelEvents.SignalName.ToggleDangerZone, ToggleDangerZone);
 
             MusicController.ResetPlayback();
         }
-    }
-
-    public override void _Input(InputEvent @event)
-    {
-        base._Input(@event);
-
-        if (@event.IsActionPressed(InputActions.ToggleDangerZone))
-            ToggleDangerZone(Grid.Occupants.GetValueOrDefault(Cursor.Cell) as Unit);
     }
 
     public override void _Process(double delta)

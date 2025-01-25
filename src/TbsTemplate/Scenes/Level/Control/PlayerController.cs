@@ -82,6 +82,9 @@ public partial class PlayerController : ArmyController
             State.SendEvent(_events[FinishEvent]);
             EmitSignal(SignalName.SelectionCanceled);
         }
+
+        if (@event.IsActionPressed(InputActions.ToggleDangerZone))
+            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ToggleDangerZone, Army, Cursor.Grid.Occupants.GetValueOrDefault(Cursor.Cell) as Unit);
     }
 
     public void OnActiveExited()
