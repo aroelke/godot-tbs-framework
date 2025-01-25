@@ -16,14 +16,14 @@
 [ext_resource type="PackedScene" uid="uid://dnfp4qfxs85wh" path="res://src/TbsTemplate/Nodes/StateChart/States/HistoryState.tscn" id="18_n547p"]
 [ext_resource type="PackedScene" uid="uid://lrf5ywt1n230" path="res://src/TbsTemplate/Nodes/StateChart/States/AtomicState.tscn" id="19_o30vs"]
 [ext_resource type="PackedScene" uid="uid://0b22cirxc7k2" path="res://src/TbsTemplate/Nodes/StateChart/States/Transition.tscn" id="20_p4yt1"]
-[ext_resource type="PackedScene" path="res://src/TbsTemplate/Scenes/Level/UnitReaction.tscn" id="21_sbtfw"]
-[ext_resource type="PackedScene" path="res://src/TbsTemplate/Scenes/Level/PathReaction.tscn" id="22_h5tkx"]
+[ext_resource type="PackedScene" uid="uid://dxamaj2vnf0lt" path="res://src/TbsTemplate/Scenes/Level/UnitReaction.tscn" id="21_sbtfw"]
+[ext_resource type="PackedScene" uid="uid://hri0gp84mgng" path="res://src/TbsTemplate/Scenes/Level/PathReaction.tscn" id="22_h5tkx"]
 [ext_resource type="PackedScene" uid="uid://6l44mlff5sgr" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/ActionReaction.tscn" id="22_mocgv"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/StringCondition.cs" id="22_tix5y"]
 [ext_resource type="PackedScene" uid="uid://dtrul7dw5r6ly" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/Vector2Reaction.tscn" id="23_u3pac"]
-[ext_resource type="PackedScene" path="res://src/TbsTemplate/Scenes/Level/CommandReaction.tscn" id="27_7kdnf"]
+[ext_resource type="PackedScene" uid="uid://8kjm1k78c32w" path="res://src/TbsTemplate/Scenes/Level/CommandReaction.tscn" id="27_7kdnf"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/IntCondition.cs" id="27_kyhbc"]
-[ext_resource type="PackedScene" path="res://src/TbsTemplate/Scenes/Level/TargetReaction.tscn" id="28_5f3xe"]
+[ext_resource type="PackedScene" uid="uid://bxjlkc4hevsxb" path="res://src/TbsTemplate/Scenes/Level/TargetReaction.tscn" id="28_5f3xe"]
 [ext_resource type="AudioStream" uid="uid://bg4mbs7d25qaj" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Select - 1.wav" id="28_dnjya"]
 [ext_resource type="PackedScene" uid="uid://b7i65c130fgfs" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/EnterTreeReaction.tscn" id="29_o6hju"]
 [ext_resource type="AudioStream" uid="uid://b4dbo5h2e7ru4" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Cancel - 1.wav" id="29_regtl"]
@@ -31,7 +31,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = 625738880
+seed = 194237305
 
 [sub_resource type="Resource" id="Resource_mydqi"]
 script = ExtResource("22_tix5y")

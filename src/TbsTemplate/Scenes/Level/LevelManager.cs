@@ -47,12 +47,12 @@ public partial class LevelManager : Node
     private const string OtherOccupied        = "other";    // Cell occupied by something else
 
     // Overlay Layer names
-    private readonly StringName MoveLayer       = "MoveLayer";
-    private readonly StringName AttackLayer     = "AttackLayer";
-    private readonly StringName SupportLayer    = "SupportLayer";
-    private readonly StringName AllyTraversable = "TraversableZone";
-    private readonly StringName LocalDangerZone = "LocalDangerZone";
-    private readonly StringName GlobalDanger    = "GlobalDangerZone";
+    private StringName MoveLayer           => _.ActionLayers.MoveLayer.Name;
+    private StringName AttackLayer         => _.ActionLayers.AttackLayer.Name;
+    private StringName SupportLayer        => _.ActionLayers.SupportLayer.Name;
+    private StringName AllyTraversableZone => _.ZoneLayers.TraversableZone.Name;
+    private StringName LocalDangerZone     => _.ZoneLayers.LocalDangerZone.Name;
+    private StringName GlobalDangerZone    => _.ZoneLayers.GlobalDangerZone.Name;
 #endregion
 #region Declarations
     private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, CancelEvent, SkipEvent, WaitEvent, DoneEvent], @default:"");
@@ -98,20 +98,20 @@ public partial class LevelManager : Node
         else
             ZoneLayers.Clear(LocalDangerZone);
         if (allies.Any())
-            ZoneLayers[AllyTraversable] = allies.SelectMany((u) => u.TraversableCells());
+            ZoneLayers[AllyTraversableZone] = allies.SelectMany((u) => u.TraversableCells());
         else
-            ZoneLayers.Clear(AllyTraversable);
+            ZoneLayers.Clear(AllyTraversableZone);
 
         // Update global danger zone
         if (_trackedArmies.Contains(_armies.Current))
         {
-            ZoneLayers[GlobalDanger] = GetChildren().OfType<Army>()
+            ZoneLayers[GlobalDangerZone] = GetChildren().OfType<Army>()
                 .Where((a) => !a.Faction.AlliedTo(_armies.Current.Faction))
                 .SelectMany(static (a) => (IEnumerable<Unit>)a)
                 .SelectMany(static (u) => u.AttackableCells(u.TraversableCells()));
         }
         else
-            ZoneLayers.Clear(GlobalDanger);
+            ZoneLayers.Clear(GlobalDangerZone);
     }
 
     /// <returns>The audio player that plays the "zone on" or "zone off" sound depending on <paramref name="on"/>.</returns>
