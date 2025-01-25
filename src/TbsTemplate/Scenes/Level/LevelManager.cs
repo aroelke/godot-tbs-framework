@@ -67,18 +67,8 @@ public partial class LevelManager : Node
     private Grid Grid = null;
 #endregion
 #region Helper Properties and Methods
-    private ImmutableHashSet<Unit> _zoneUnits = [];
-
-    /// <summary>Units to include in the local unit zones. Updates the highlighted squares when set.</summary>
-    private ImmutableHashSet<Unit> ZoneUnits
-    {
-        get => _zoneUnits;
-        set
-        {
-            _zoneUnits = value;
-            UpdateDangerZones();
-        }
-    }
+    private readonly Dictionary<Army, HashSet<Unit>> _trackedUnits = [];
+    private readonly HashSet<Army> _trackedArmies = [];
 
     private Vector2 MenuPosition(Rect2 rect, Vector2 size)
     {
@@ -100,26 +90,26 @@ public partial class LevelManager : Node
     /// <summary>Update the displayed danger zones to reflect the current positions of the enemy <see cref="Unit"/>s.</summary>
     private void UpdateDangerZones()
     {
-        Faction player = GetChildren().OfType<Army>().Where((a) => a.Faction.IsPlayer).First().Faction;
-
         // Update local danger zone
-        IEnumerable<Unit> enemies = ZoneUnits.Where((u) => !player.AlliedTo(u));
-        IEnumerable<Unit> allies = ZoneUnits.Where(player.AlliedTo);
+        IEnumerable<Unit> allies = _trackedUnits[_armies.Current].Where(_armies.Current.Faction.AlliedTo);
+        IEnumerable<Unit> enemies = _trackedUnits[_armies.Current].Where((u) => !_armies.Current.Faction.AlliedTo(u));
         if (enemies.Any())
-            ZoneLayers[LocalDangerZone] = enemies.SelectMany((u) => u.AttackableCells(u.TraversableCells())).ToImmutableHashSet();
+            ZoneLayers[LocalDangerZone] = enemies.SelectMany((u) => u.AttackableCells(u.TraversableCells()));
         else
             ZoneLayers.Clear(LocalDangerZone);
         if (allies.Any())
-            ZoneLayers[AllyTraversable] = allies.SelectMany((u) => u.TraversableCells()).ToImmutableHashSet();
+            ZoneLayers[AllyTraversable] = allies.SelectMany((u) => u.TraversableCells());
         else
             ZoneLayers.Clear(AllyTraversable);
-        
+
         // Update global danger zone
-        if (ShowGlobalDangerZone)
+        if (_trackedArmies.Contains(_armies.Current))
+        {
             ZoneLayers[GlobalDanger] = GetChildren().OfType<Army>()
-                .Where((a) => !a.Faction.AlliedTo(player))
+                .Where((a) => !a.Faction.AlliedTo(_armies.Current.Faction))
                 .SelectMany(static (a) => (IEnumerable<Unit>)a)
-                .SelectMany(static (u) => u.AttackableCells(u.TraversableCells())).ToImmutableHashSet();
+                .SelectMany(static (u) => u.AttackableCells(u.TraversableCells()));
+        }
         else
             ZoneLayers.Clear(GlobalDanger);
     }
@@ -145,19 +135,6 @@ public partial class LevelManager : Node
     /// <summary>Turn count (including current turn, so it starts at 1).</summary>
     [ExportGroup("Turn Control")]
     [Export] public int Turn = 1;
-
-    /// <summary>Whether or not to show the global danger zone relative to the player's <see cref="Army"/>.</summary>
-    [ExportGroup("Range Overlay")]
-    [Export] public bool ShowGlobalDangerZone
-    {
-        get => _showGlobalZone;
-        set
-        {
-            _showGlobalZone = value;
-            if (!Engine.IsEditorHint())
-                UpdateDangerZones();
-        }
-    }
 
     /// <summary>Modulate color for the action range overlay to use during idle state to differentiate from the one displayed while selecting a move path.</summary>
     [ExportGroup("Range Overlay")]
@@ -189,6 +166,7 @@ public partial class LevelManager : Node
     public void OnBeginTurnExited()
     {
         UpdateTurnCounter();
+        UpdateDangerZones();
         Callable.From<Vector2I>((c) => {
             Cursor.Cell = c;
             OnIdleCursorEnteredCell(Cursor.Cell);
@@ -217,17 +195,11 @@ public partial class LevelManager : Node
         if (_armies.Current.Faction.IsPlayer && Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit && !_armies.Current.Contains(unit))
         {
             if (@event == _events[SelectEvent])
+                ToggleDangerZone(unit);
+            else if (@event == _events[CancelEvent] && _trackedUnits[_armies.Current].Contains(unit))
             {
-#pragma warning disable CA1868 // Contains is necessary since the unit has to be added if it isn't in the set and removed if it is
-                ZoneUnits = ZoneUnits.Contains(unit) ? ZoneUnits.Remove(unit) : ZoneUnits.Add(unit);
-#pragma warning restore CA1868 // Unnecessary call to 'Contains(item)'
-
-                ZoneUpdateSound(ZoneUnits.Contains(unit)).Play();
-            }
-            else if (@event == _events[CancelEvent] && ZoneUnits.Contains(unit))
-            {
-                ZoneUnits = ZoneUnits.Remove(unit);
-                ZoneUpdateSound(ZoneUnits.Contains(unit)).Play();
+                _trackedUnits[_armies.Current].Remove(unit);
+                ZoneUpdateSound(_trackedUnits[_armies.Current].Contains(unit)).Play();
             }
         }
     }
@@ -680,7 +652,9 @@ public partial class LevelManager : Node
 
     public void OnUnitDefeated(Unit defeated)
     {
-        ZoneUnits = ZoneUnits.Remove(defeated);
+        foreach ((var _, HashSet<Unit> tracked) in _trackedUnits)
+            tracked.Remove(defeated);
+        UpdateDangerZones();
 
         // If the dead unit is the currently-selected one, it will be cleared away at the end of its action.
         if (_selected != defeated)
@@ -690,6 +664,25 @@ public partial class LevelManager : Node
             _armies.Current.RemoveChild(_selected);
             defeated.Visible = false;
         }
+    }
+
+    /// <summary>Add or remove a unit from the current army's displayed danger zone, or toggle the current army's global danger zone.</summary>
+    /// <param name="unit">Unit to remove if present or add otherwise. Use <c>null</c> to toggle global danger zone.</param>
+    public void ToggleDangerZone(Unit unit)
+    {
+        if (unit is not null)
+        {
+            if (!_trackedUnits[_armies.Current].Remove(unit))
+                _trackedUnits[_armies.Current].Add(unit);
+            ZoneUpdateSound(_trackedUnits[_armies.Current].Contains(unit)).Play();
+        }
+        else
+        {
+            if (!_trackedArmies.Remove(_armies.Current))
+                _trackedArmies.Add(_armies.Current);
+            ZoneUpdateSound(_trackedArmies.Contains(_armies.Current)).Play();
+        }
+        UpdateDangerZones();
     }
 
     public override void _EnterTree()
@@ -724,6 +717,8 @@ public partial class LevelManager : Node
                     unit.Cell = Grid.CellOf(unit.GlobalPosition - Grid.GlobalPosition);
                     Grid.Occupants[unit.Cell] = unit;
                 }
+
+                _trackedUnits[army] = [];
             }
             LevelEvents.Singleton.Connect<Unit>(LevelEvents.SignalName.UnitDefeated, OnUnitDefeated);
 
@@ -748,20 +743,7 @@ public partial class LevelManager : Node
         base._Input(@event);
 
         if (@event.IsActionPressed(InputActions.ToggleDangerZone))
-        {
-            if (Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit)
-            {
-#pragma warning disable CA1868 // Contains is necessary since the unit has to be added if it isn't in the set and removed if it is
-                ZoneUnits = ZoneUnits.Contains(unit) ? ZoneUnits.Remove(unit) : ZoneUnits.Add(unit);
-#pragma warning restore CA1868 // Unnecessary call to 'Contains(item)'
-                ZoneUpdateSound(ZoneUnits.Contains(unit)).Play();
-            }
-            else
-            {
-                ShowGlobalDangerZone = !ShowGlobalDangerZone;
-                ZoneUpdateSound(ShowGlobalDangerZone).Play();
-            }
-        }
+            ToggleDangerZone(Grid.Occupants.GetValueOrDefault(Cursor.Cell) as Unit);
     }
 
     public override void _Process(double delta)
