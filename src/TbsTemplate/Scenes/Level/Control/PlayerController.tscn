@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://drlrlusbfh208"]
+[gd_scene load_steps=13 format=3 uid="uid://drlrlusbfh208"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Control/PlayerController.cs" id="1_52vsu"]
 [ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/TbsTemplate/Nodes/StateChart/Chart.tscn" id="2_br7d1"]
@@ -9,7 +9,12 @@
 [ext_resource type="PackedScene" uid="uid://dhytcbhqvrpx0" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/InputReaction.tscn" id="6_ntg8o"]
 [ext_resource type="PackedScene" uid="uid://bajcy40oic1wf" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/ProcessReaction.tscn" id="7_bii0f"]
 [ext_resource type="AudioStream" uid="uid://b4dbo5h2e7ru4" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Cancel - 1.wav" id="7_qn3tt"]
+[ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/FlagCondition.cs" id="8_bbg4i"]
 [ext_resource type="AudioStream" uid="uid://oyebi18i5hmn" path="res://test/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Error - 1.wav" id="10_guidb"]
+
+[sub_resource type="Resource" id="Resource_r1v5l"]
+script = ExtResource("8_bbg4i")
+Flag = &"cancelable"
 
 [node name="PlayerController" type="Node"]
 script = ExtResource("1_52vsu")
@@ -35,66 +40,44 @@ process_mode = 4
 
 [node name="ToSelect" parent="State/Root/Ready" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
 Event = &"select"
-To = NodePath("../../Select")
+To = NodePath("../../Active/Select")
 
-[node name="Select" parent="State/Root" instance=ExtResource("4_qwlr4")]
+[node name="ToPath" parent="State/Root/Ready" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
+Event = &"path"
+To = NodePath("../../Active/Path")
+
+[node name="ToCommand" parent="State/Root/Ready" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
+Event = &"command"
+To = NodePath("../../Active/Command")
+
+[node name="ToTarget" parent="State/Root/Ready" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
+Event = &"target"
+To = NodePath("../../Active/Target")
+
+[node name="Active" parent="State/Root" node_paths=PackedStringArray("InitialState") instance=ExtResource("3_w7lyn")]
+InitialState = NodePath("Select")
+
+[node name="Select" parent="State/Root/Active" instance=ExtResource("4_qwlr4")]
 process_mode = 4
 
-[node name="OnInput" parent="State/Root/Select" instance=ExtResource("6_ntg8o")]
+[node name="OnInput" parent="State/Root/Active/Select" instance=ExtResource("6_ntg8o")]
 
-[node name="ToPath" parent="State/Root/Select" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"path"
-To = NodePath("../../Path")
+[node name="Path" parent="State/Root/Active" instance=ExtResource("4_qwlr4")]
 
-[node name="ToReady" parent="State/Root/Select" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
+[node name="Command" parent="State/Root/Active" instance=ExtResource("4_qwlr4")]
+
+[node name="OnProcess" parent="State/Root/Active/Command" instance=ExtResource("7_bii0f")]
+
+[node name="Target" parent="State/Root/Active" instance=ExtResource("4_qwlr4")]
+
+[node name="OnInput" parent="State/Root/Active/Target" instance=ExtResource("6_ntg8o")]
+
+[node name="OnInput" parent="State/Root/Active" instance=ExtResource("6_ntg8o")]
+
+[node name="ToReady" parent="State/Root/Active" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
 Event = &"finish"
 To = NodePath("../../Ready")
-
-[node name="Path" parent="State/Root" instance=ExtResource("4_qwlr4")]
-
-[node name="ToSelect" parent="State/Root/Path" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"select"
-To = NodePath("../../Select")
-
-[node name="ToCommand" parent="State/Root/Path" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"command"
-To = NodePath("../../Command")
-
-[node name="Command" parent="State/Root" instance=ExtResource("4_qwlr4")]
-
-[node name="OnProcess" parent="State/Root/Command" instance=ExtResource("7_bii0f")]
-
-[node name="ToPath" parent="State/Root/Command" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"path"
-To = NodePath("../../Path")
-
-[node name="ToTarget" parent="State/Root/Command" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"target"
-To = NodePath("../../Target")
-
-[node name="ToSelect" parent="State/Root/Command" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"select"
-To = NodePath("../../Select")
-
-[node name="ToReady" parent="State/Root/Command" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"finish"
-To = NodePath("../../Ready")
-
-[node name="Target" parent="State/Root" instance=ExtResource("4_qwlr4")]
-
-[node name="OnInput" parent="State/Root/Target" instance=ExtResource("6_ntg8o")]
-
-[node name="ToCommand" parent="State/Root/Target" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"command"
-To = NodePath("../../Command")
-
-[node name="ToReady" parent="State/Root/Target" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"finish"
-To = NodePath("../../Ready")
-
-[node name="ToSelect" parent="State/Root/Target" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"select"
-To = NodePath("../../Select")
+Condition = SubResource("Resource_r1v5l")
 
 [node name="SoundLibrary" type="Node" parent="."]
 
@@ -110,12 +93,14 @@ stream = ExtResource("7_qn3tt")
 unique_name_in_owner = true
 stream = ExtResource("10_guidb")
 
-[connection signal="StateEntered" from="State/Root/Select" to="." method="OnSelectEntered"]
-[connection signal="StateExited" from="State/Root/Select" to="." method="OnSelectExited"]
-[connection signal="StateInput" from="State/Root/Select/OnInput" to="." method="OnSelectInput"]
-[connection signal="StateEntered" from="State/Root/Path" to="." method="OnPathEntered"]
-[connection signal="StateExited" from="State/Root/Path" to="." method="OnPathExited"]
-[connection signal="StateProcess" from="State/Root/Command/OnProcess" to="." method="OnCommandProcess"]
-[connection signal="StateEntered" from="State/Root/Target" to="." method="OnTargetEntered"]
-[connection signal="StateExited" from="State/Root/Target" to="." method="OnTargetExited"]
-[connection signal="StateInput" from="State/Root/Target/OnInput" to="." method="OnTargetInput"]
+[connection signal="StateExited" from="State/Root/Active" to="." method="OnActiveExited"]
+[connection signal="StateEntered" from="State/Root/Active/Select" to="." method="OnSelectEntered"]
+[connection signal="StateExited" from="State/Root/Active/Select" to="." method="OnSelectExited"]
+[connection signal="StateInput" from="State/Root/Active/Select/OnInput" to="." method="OnSelectInput"]
+[connection signal="StateEntered" from="State/Root/Active/Path" to="." method="OnPathEntered"]
+[connection signal="StateExited" from="State/Root/Active/Path" to="." method="OnPathExited"]
+[connection signal="StateProcess" from="State/Root/Active/Command/OnProcess" to="." method="OnCommandProcess"]
+[connection signal="StateEntered" from="State/Root/Active/Target" to="." method="OnTargetEntered"]
+[connection signal="StateExited" from="State/Root/Active/Target" to="." method="OnTargetExited"]
+[connection signal="StateInput" from="State/Root/Active/Target/OnInput" to="." method="OnTargetInput"]
+[connection signal="StateInput" from="State/Root/Active/OnInput" to="." method="OnActiveInput"]

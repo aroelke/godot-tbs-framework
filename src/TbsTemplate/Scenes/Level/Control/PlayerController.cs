@@ -23,6 +23,8 @@ public partial class PlayerController : ArmyController
     private static readonly StringName TargetEvent = "Target";
     private static readonly StringName FinishEvent = "Finish";
 
+    private static readonly StringName CancelableProperty = "cancelable";
+
     private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, PathEvent, CommandEvent, TargetEvent, FinishEvent]);
     private Unit _selected = null, _target = null;
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
@@ -63,19 +65,47 @@ public partial class PlayerController : ArmyController
         return menu;
     }
 #endregion
-#region Begin Turn
+#region Initialization and Finalization
     public override void InitializeTurn()
     {
         Cursor.Resume();
     }
+
+    public override void FinalizeAction() {}
+    public override void FinalizeTurn() {}
+#endregion
+#region Active
+    public void OnActiveInput(InputEvent @event)
+    {
+        if (@event.IsActionPressed(InputActions.Cancel))
+        {
+            State.SendEvent(_events[FinishEvent]);
+            EmitSignal(SignalName.SelectionCanceled);
+        }
+    }
+
+    public void OnActiveExited()
+    {
+        Callable.From(() => _selected = null).CallDeferred();
+    }
 #endregion
 #region Unit Selection
-    public override void SelectUnit() => State.SendEvent(_events[SelectEvent]);
+    private void ExitSelect()
+    {
+        State.ExpressionProperties = State.ExpressionProperties.SetItem(CancelableProperty, true);
+        State.SendEvent(_events[FinishEvent]);
+    }
+
+    public override void SelectUnit() => Callable.From(() => {
+        State.ExpressionProperties = State.ExpressionProperties.SetItem(CancelableProperty, false);
+        State.SendEvent(_events[SelectEvent]);
+    }).CallDeferred();
 
     private void ConfirmCursorSelection(Vector2I cell)
     {
         if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit unit && unit.Army.Faction == Army.Faction && unit.Active)
         {
+            ExitSelect();
             EmitSignal(SignalName.UnitSelected, unit);
         }
         else
@@ -94,6 +124,7 @@ public partial class PlayerController : ArmyController
                 new("End Turn", () => {
 //                    State.SendEvent(_events[DoneEvent]); // Done waiting
 //                    State.SendEvent(_events[SkipEvent]); // Skip to end of turn
+                    ExitSelect();
                     EmitSignal(SignalName.TurnSkipped);
                     SelectSound.Play();
                 }),
@@ -142,8 +173,10 @@ public partial class PlayerController : ArmyController
 
     public override void MoveUnit(Unit unit)
     {
-        _selected = unit;
-        State.SendEvent(_events[PathEvent]);
+        Callable.From(() => {
+            _selected = unit;
+            State.SendEvent(_events[PathEvent]);
+        }).CallDeferred();
     }
 
     private void UpdatePath(Path path) => EmitSignal(SignalName.PathUpdated, _selected, new Godot.Collections.Array<Vector2I>(_path = path));
@@ -198,14 +231,17 @@ public partial class PlayerController : ArmyController
         bool occupied = Cursor.Grid.Occupants.TryGetValue(cell, out GridNode occupant);
         if (!_traversable.Contains(cell) && !occupied)
         {
+            State.SendEvent(_events[FinishEvent]);
             EmitSignal(SignalName.SelectionCanceled);
         }
         else if (!occupied || occupant == _selected)
         {
+            State.SendEvent(_events[FinishEvent]);
             EmitSignal(SignalName.PathConfirmed, _selected, new Godot.Collections.Array<Vector2I>(_path));
         }
         else if (occupied && occupant is Unit target && (_attackable.Contains(target.Cell) || _supportable.Contains(target.Cell)))
         {
+            State.SendEvent(_events[FinishEvent]);
             EmitSignal(SignalName.UnitCommanded, _selected, _command);
             EmitSignal(SignalName.TargetChosen, _selected, target);
             EmitSignal(SignalName.PathConfirmed, _selected, new Godot.Collections.Array<Vector2I>(_path));
@@ -232,11 +268,19 @@ public partial class PlayerController : ArmyController
 #region Command Selection
     public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)
     {
-        _selected = source;
-        _menu = ShowMenu(Cursor.Grid.CellRect(source.Cell), commands.Select((c) => new ContextMenuOption() { Name = c, Action = () => EmitSignal(SignalName.UnitCommanded, source, c) }));
-        _menu.MenuCanceled += () => EmitSignal(SignalName.UnitCommanded, source, cancel);
-        _menu.MenuClosed += () => _menu = null;
-        State.SendEvent(_events[CommandEvent]);
+        Callable.From(() => {
+            _selected = source;
+            _menu = ShowMenu(Cursor.Grid.CellRect(source.Cell), commands.Select((c) => new ContextMenuOption() { Name = c, Action = () => {
+                State.SendEvent(_events[FinishEvent]);
+                EmitSignal(SignalName.UnitCommanded, source, c);
+            }}));
+            _menu.MenuCanceled += () => {
+                State.SendEvent(_events[FinishEvent]);
+                EmitSignal(SignalName.UnitCommanded, source, cancel);
+            };
+            _menu.MenuClosed += () => _menu = null;
+            State.SendEvent(_events[CommandEvent]);
+        }).CallDeferred();
     }
 
     public void OnCommandProcess(double delta)
@@ -249,15 +293,18 @@ public partial class PlayerController : ArmyController
 
     public override void SelectTarget(Unit source, IEnumerable<Vector2I> targets)
     {
-        _selected = source;
-        _targets = targets;
-        State.SendEvent(_events[TargetEvent]);
+        Callable.From(() => {
+            _selected = source;
+            _targets = targets;
+            State.SendEvent(_events[TargetEvent]);
+        }).CallDeferred();
     }
 
     private void ConfirmTargetSelection(Vector2I cell)
     {
         if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit target)
         {
+            State.SendEvent(_events[FinishEvent]);
             EmitSignal(SignalName.TargetChosen, _selected, target);
         }
     }
@@ -294,26 +341,14 @@ public partial class PlayerController : ArmyController
     {
         Cursor.CellSelected -= ConfirmTargetSelection;
     }
-#endregion
-#region Finalization
-    public override void FinalizeAction()
-    {
-        _selected = null;
-        State.SendEvent(_events[FinishEvent]);
-    }
-
-    public override void FinalizeTurn()
-    {
-        State.SendEvent(_events[FinishEvent]);
-    }
-#endregion
+    #endregion
 #region All States
-    public override void _Input(InputEvent @event)
+    public override void _Ready()
     {
-        base._Input(@event);
+        base._Ready();
 
-        if (@event.IsActionPressed(InputActions.Cancel))
-            EmitSignal(SignalName.SelectionCanceled);
+        if (!Engine.IsEditorHint())
+            State.ExpressionProperties = State.ExpressionProperties.SetItem(CancelableProperty, true);
     }
 #endregion
 #region Properties
