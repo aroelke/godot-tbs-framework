@@ -194,9 +194,7 @@ public partial class LevelManager : Node
     {
         if (_armies.Current.Faction.IsPlayer && Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit unit && !_armies.Current.Contains(unit))
         {
-            if (@event == _events[SelectEvent])
-                ToggleDangerZone(_armies.Current, unit);
-            else if (@event == _events[CancelEvent] && _trackedUnits[_armies.Current].Contains(unit))
+            if (@event == _events[CancelEvent] && _trackedUnits[_armies.Current].Contains(unit))
             {
                 _trackedUnits[_armies.Current].Remove(unit);
                 ZoneUpdateSound(_trackedUnits[_armies.Current].Contains(unit)).Play();

@@ -106,10 +106,15 @@ public partial class PlayerController : ArmyController
 
     private void ConfirmCursorSelection(Vector2I cell)
     {
-        if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit unit && unit.Army.Faction == Army.Faction && unit.Active)
+        if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit unit)
         {
-            ExitSelect();
-            EmitSignal(SignalName.UnitSelected, unit);
+            if (unit.Army.Faction == Army.Faction && unit.Active)
+            {
+                ExitSelect();
+                EmitSignal(SignalName.UnitSelected, unit);
+            }
+            else if (unit.Army.Faction != Army.Faction)
+                LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ToggleDangerZone, Army, unit);
         }
         else
         {
