@@ -66,11 +66,7 @@ public partial class PlayerController : ArmyController
     }
 #endregion
 #region Initialization and Finalization
-    public override void InitializeTurn()
-    {
-        Cursor.Resume();
-    }
-
+    public override void InitializeTurn() => Cursor.Resume();
     public override void FinalizeAction() {}
     public override void FinalizeTurn() {}
 #endregion
@@ -87,10 +83,7 @@ public partial class PlayerController : ArmyController
             LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ToggleDangerZone, Army, Cursor.Grid.Occupants.GetValueOrDefault(Cursor.Cell) as Unit);
     }
 
-    public void OnActiveExited()
-    {
-        Callable.From(() => _selected = null).CallDeferred();
-    }
+    public void OnActiveExited() => Callable.From(() => _selected = null).CallDeferred();
 #endregion
 #region Unit Selection
     private void ExitSelect()
@@ -120,34 +113,22 @@ public partial class PlayerController : ArmyController
         {
             Cursor.Halt(hide:true);
 
-            void Cancel()
-            {
-//                State.SendEvent(_events[DoneEvent]);
-                CancelSound.Play();
-            }
-
             SelectSound.Play();
-//            State.SendEvent(_events[WaitEvent]);
             ContextMenu menu = ShowMenu(Cursor.Grid.CellRect(cell), [
                 new("End Turn", () => {
-//                    State.SendEvent(_events[DoneEvent]); // Done waiting
-//                    State.SendEvent(_events[SkipEvent]); // Skip to end of turn
                     ExitSelect();
                     EmitSignal(SignalName.TurnSkipped);
                     SelectSound.Play();
                 }),
                 new("Quit Game", () => GetTree().Quit()),
-                new("Cancel", Cancel)
+                new("Cancel", () => CancelSound.Play())
             ]);
-            menu.MenuCanceled += Cancel;
+            menu.MenuCanceled += () => CancelSound.Play();
             menu.MenuClosed += Cursor.Resume;
         }
     }
 
-    public void OnSelectEntered()
-    {
-        Cursor.CellSelected += ConfirmCursorSelection;
-    }
+    public void OnSelectEntered() => Cursor.CellSelected += ConfirmCursorSelection;
 
     public void OnSelectInput(InputEvent @event)
     {
@@ -174,10 +155,7 @@ public partial class PlayerController : ArmyController
             LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.RemoveFromDangerZone, Army, untrack);
     }
 
-    public void OnSelectExited()
-    {
-        Cursor.CellSelected -= ConfirmCursorSelection;
-    }
+    public void OnSelectExited() => Cursor.CellSelected -= ConfirmCursorSelection;
 #endregion
 #region Path Selection
     private StringName _command = null;
@@ -294,10 +272,7 @@ public partial class PlayerController : ArmyController
         }).CallDeferred();
     }
 
-    public void OnCommandProcess(double delta)
-    {
-        _menu.Position = MenuPosition(Cursor.Grid.CellRect(_selected.Cell), _menu.Size);
-    }
+    public void OnCommandProcess(double delta) => _menu.Position = MenuPosition(Cursor.Grid.CellRect(_selected.Cell), _menu.Size);
 #endregion
 #region Target Selection
     private IEnumerable<Vector2I> _targets = null;
@@ -320,10 +295,7 @@ public partial class PlayerController : ArmyController
         }
     }
 
-    public void OnTargetEntered()
-    {
-        Cursor.CellSelected += ConfirmTargetSelection;
-    }
+    public void OnTargetEntered() => Cursor.CellSelected += ConfirmTargetSelection;
 
     public void OnTargetInput(InputEvent @event)
     {
@@ -348,16 +320,12 @@ public partial class PlayerController : ArmyController
         }
     }
 
-    public void OnTargetExited()
-    {
-        Cursor.CellSelected -= ConfirmTargetSelection;
-    }
-    #endregion
+    public void OnTargetExited() => Cursor.CellSelected -= ConfirmTargetSelection;
+#endregion
 #region All States
     public override void _Ready()
     {
         base._Ready();
-
         if (!Engine.IsEditorHint())
             State.ExpressionProperties = State.ExpressionProperties.SetItem(CancelableProperty, true);
     }

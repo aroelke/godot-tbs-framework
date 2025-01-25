@@ -179,7 +179,6 @@ public partial class LevelManager : Node
     {
         ActionLayers.Modulate = ActionRangeIdleModulate;
         Cursor.Cell = Grid.CellOf(Pointer.Position);
-//        OnIdleCursorEnteredCell(Cursor.Cell);
 
         Callable.From(_armies.Current.Controller.SelectUnit).CallDeferred();
     }
