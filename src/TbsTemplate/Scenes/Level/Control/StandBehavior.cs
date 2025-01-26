@@ -7,5 +7,6 @@ namespace TbsTemplate.Scenes.Level.Control;
 [GlobalClass, Tool]
 public partial class StandBehavior : UnitBehavior
 {
-    public override Vector2I MoveTarget(Unit unit) => unit.Cell;
+    public override Vector2I DesiredMoveTarget(Unit unit) => unit.Cell;
+    public override StringName DesiredAction() => "End";
 }
