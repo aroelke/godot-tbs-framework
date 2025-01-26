@@ -17,15 +17,14 @@ namespace TbsTemplate.Scenes.Level.Control;
 [SceneTree, Tool]
 public partial class PlayerController : ArmyController
 {
-    private static readonly StringName SelectEvent = "Select";
-    private static readonly StringName PathEvent = "Path";
+    private static readonly StringName SelectEvent  = "Select";
+    private static readonly StringName PathEvent    = "Path";
     private static readonly StringName CommandEvent = "Command";
-    private static readonly StringName TargetEvent = "Target";
-    private static readonly StringName FinishEvent = "Finish";
+    private static readonly StringName TargetEvent  = "Target";
+    private static readonly StringName FinishEvent  = "Finish";
+    private static readonly StringName CancelEvent  = "Cancel";
 
-    private static readonly StringName CancelableProperty = "cancelable";
-
-    private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, PathEvent, CommandEvent, TargetEvent, FinishEvent]);
+    private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, PathEvent, CommandEvent, TargetEvent, FinishEvent, CancelEvent]);
     private Unit _selected = null, _target = null;
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path;
@@ -75,7 +74,7 @@ public partial class PlayerController : ArmyController
     {
         if (@event.IsActionPressed(InputActions.Cancel))
         {
-            State.SendEvent(_events[FinishEvent]);
+            State.SendEvent(_events[CancelEvent]);
             EmitSignal(SignalName.SelectionCanceled);
         }
 
@@ -86,16 +85,7 @@ public partial class PlayerController : ArmyController
     public void OnActiveExited() => Callable.From(() => _selected = null).CallDeferred();
 #endregion
 #region Unit Selection
-    private void ExitSelect()
-    {
-        State.ExpressionProperties = State.ExpressionProperties.SetItem(CancelableProperty, true);
-        State.SendEvent(_events[FinishEvent]);
-    }
-
-    public override void SelectUnit() => Callable.From(() => {
-        State.ExpressionProperties = State.ExpressionProperties.SetItem(CancelableProperty, false);
-        State.SendEvent(_events[SelectEvent]);
-    }).CallDeferred();
+    public override void SelectUnit() => Callable.From(() => State.SendEvent(_events[SelectEvent])).CallDeferred();
 
     private void ConfirmCursorSelection(Vector2I cell)
     {
@@ -103,7 +93,7 @@ public partial class PlayerController : ArmyController
         {
             if (unit.Army.Faction == Army.Faction && unit.Active)
             {
-                ExitSelect();
+                State.SendEvent(_events[FinishEvent]);
                 EmitSignal(SignalName.UnitSelected, unit);
             }
             else if (unit.Army.Faction != Army.Faction)
@@ -116,7 +106,7 @@ public partial class PlayerController : ArmyController
             SelectSound.Play();
             ContextMenu menu = ShowMenu(Cursor.Grid.CellRect(cell), [
                 new("End Turn", () => {
-                    ExitSelect();
+                    State.SendEvent(_events[FinishEvent]);
                     EmitSignal(SignalName.TurnSkipped);
                     SelectSound.Play();
                 }),
@@ -321,14 +311,6 @@ public partial class PlayerController : ArmyController
     }
 
     public void OnTargetExited() => Cursor.CellSelected -= ConfirmTargetSelection;
-#endregion
-#region All States
-    public override void _Ready()
-    {
-        base._Ready();
-        if (!Engine.IsEditorHint())
-            State.ExpressionProperties = State.ExpressionProperties.SetItem(CancelableProperty, true);
-    }
 #endregion
 #region Properties
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
