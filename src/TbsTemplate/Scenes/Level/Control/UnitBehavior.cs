@@ -14,6 +14,10 @@ public abstract partial class UnitBehavior : Resource
     /// <param name="unit">Acting unit.</param>
     public abstract Vector2I DesiredMoveTarget(Unit unit);
 
-    /// <summary>Determine the action that the unit will perform if moved to <see cref="DesiredMoveTarget"/>.</summary>
-    public abstract StringName DesiredAction();
+    /// <summary>
+    /// Determine the action that the unit will perform if moved to <see cref="DesiredMoveTarget"/>
+    /// and what it will be performed on.
+    /// </summary>
+    /// <param name="unit">Acting unit.</param>
+    public abstract (StringName, GridNode) DesiredAction(Unit unit);
 }
