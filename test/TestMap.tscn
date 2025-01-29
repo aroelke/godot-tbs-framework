@@ -1,4 +1,4 @@
-[gd_scene load_steps=40 format=4 uid="uid://bmfxux38ovtj2"]
+[gd_scene load_steps=41 format=4 uid="uid://bmfxux38ovtj2"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/LevelManager.tscn" id="1_h3e4w"]
 [ext_resource type="Script" path="res://test/TestMap.cs" id="1_stn1b"]
@@ -34,15 +34,23 @@
 
 [sub_resource type="Resource" id="Resource_3cv8i"]
 script = ExtResource("18_etfbt")
+AttackInRange = false
 
 [sub_resource type="Resource" id="Resource_8oweu"]
 script = ExtResource("18_etfbt")
+AttackInRange = false
 
 [sub_resource type="Resource" id="Resource_gb2l1"]
 script = ExtResource("18_etfbt")
+AttackInRange = false
 
 [sub_resource type="Resource" id="Resource_7jau6"]
 script = ExtResource("18_etfbt")
+AttackInRange = true
+
+[sub_resource type="Resource" id="Resource_f04x0"]
+script = ExtResource("18_etfbt")
+AttackInRange = true
 
 [sub_resource type="Resource" id="Resource_6fypd"]
 script = ExtResource("15_y2o8i")
@@ -57,6 +65,7 @@ Move = 0
 
 [sub_resource type="Resource" id="Resource_v4pm8"]
 script = ExtResource("18_etfbt")
+AttackInRange = false
 
 [sub_resource type="Resource" id="Resource_0pfh3"]
 script = ExtResource("15_y2o8i")
@@ -71,6 +80,7 @@ Move = 0
 
 [sub_resource type="Resource" id="Resource_on27k"]
 script = ExtResource("18_etfbt")
+AttackInRange = false
 
 [node name="TestMap" type="Node2D"]
 script = ExtResource("1_stn1b")
@@ -243,7 +253,7 @@ Class = ExtResource("7_crsy2")
 Stats = ExtResource("9_g2gda")
 AttackRange = PackedInt32Array(1)
 SupportRange = PackedInt32Array()
-Behavior = SubResource("Resource_7jau6")
+Behavior = SubResource("Resource_f04x0")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(11, 6)
 Size = Vector2(32, 32)
