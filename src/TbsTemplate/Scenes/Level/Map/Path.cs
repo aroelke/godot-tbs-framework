@@ -128,6 +128,11 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
             // Append the cell if it's adjacent to the last cell in the path or the path is empty
             cells = _cells.Add(value);
         }
+        else if (_cells[^1] == value)
+        {
+            // Don't have to do anything if it's the same cell as the end of the path
+            return this;
+        }
         else
         {
             // Append the cell and the shortest path between it and the last cell in the path
