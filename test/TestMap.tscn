@@ -1,4 +1,4 @@
-[gd_scene load_steps=41 format=4 uid="uid://bmfxux38ovtj2"]
+[gd_scene load_steps=43 format=4 uid="uid://bmfxux38ovtj2"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/LevelManager.tscn" id="1_h3e4w"]
 [ext_resource type="Script" path="res://test/TestMap.cs" id="1_stn1b"]
@@ -14,7 +14,7 @@
 [ext_resource type="Resource" uid="uid://rw7lv271d7de" path="res://test/stats/TestPlayerStats.tres" id="8_1sr4q"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Layers/SpecialActionRegion.cs" id="8_kin6v"]
 [ext_resource type="Resource" uid="uid://xatocb6uwrwx" path="res://test/stats/TestEnemyStats1.tres" id="9_g2gda"]
-[ext_resource type="PackedScene" path="res://src/TbsTemplate/Scenes/Level/Map/OccupantHighlighter.tscn" id="9_xbntu"]
+[ext_resource type="PackedScene" uid="uid://bsnwitybsx8xd" path="res://src/TbsTemplate/Scenes/Level/Map/OccupantHighlighter.tscn" id="9_xbntu"]
 [ext_resource type="Resource" uid="uid://dp74yifhop864" path="res://test/factions/TestEnemyFaction1.tres" id="10_k4gkn"]
 [ext_resource type="PackedScene" uid="uid://drlrlusbfh208" path="res://src/TbsTemplate/Scenes/Level/Control/PlayerController.tscn" id="12_8av15"]
 [ext_resource type="Resource" uid="uid://cbi1a2igyxbt4" path="res://test/factions/TestEnemyFaction2.tres" id="12_8r5wl"]
@@ -26,6 +26,7 @@
 [ext_resource type="PackedScene" uid="uid://bdxrle0amq3ew" path="res://src/TbsTemplate/Scenes/Level/Objectives/TimeObjective.tscn" id="19_rxp4c"]
 [ext_resource type="PackedScene" uid="uid://bi38gny50edyk" path="res://src/TbsTemplate/Scenes/Level/Objectives/RouteObjective.tscn" id="20_1l8iw"]
 [ext_resource type="PackedScene" uid="uid://7wc21qvj7n3n" path="res://src/TbsTemplate/Scenes/Level/Objectives/DefeatUnitObjective.tscn" id="20_6u8j8"]
+[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Control/MoveBehavior.cs" id="20_xb7xj"]
 [ext_resource type="PackedScene" uid="uid://b8dnpt7lcd2it" path="res://src/TbsTemplate/Scenes/Level/Objectives/OccupyObjective.tscn" id="22_axkl2"]
 [ext_resource type="PackedScene" uid="uid://blf1owsru7rvw" path="res://src/TbsTemplate/Scenes/Level/Objectives/ActionObjective.tscn" id="24_h6vny"]
 [ext_resource type="PackedScene" uid="uid://bi8p6x3pf3217" path="res://src/TbsTemplate/Scenes/Level/EventController.tscn" id="25_i6qxt"]
@@ -48,7 +49,10 @@ AttackInRange = false
 script = ExtResource("18_etfbt")
 AttackInRange = true
 
-[sub_resource type="Resource" id="Resource_f04x0"]
+[sub_resource type="Resource" id="Resource_a428m"]
+script = ExtResource("20_xb7xj")
+
+[sub_resource type="Resource" id="Resource_wu3ny"]
 script = ExtResource("18_etfbt")
 AttackInRange = true
 
@@ -253,7 +257,7 @@ Class = ExtResource("7_crsy2")
 Stats = ExtResource("9_g2gda")
 AttackRange = PackedInt32Array(1)
 SupportRange = PackedInt32Array()
-Behavior = SubResource("Resource_f04x0")
+Behavior = SubResource("Resource_a428m")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(11, 6)
 Size = Vector2(32, 32)
@@ -264,7 +268,7 @@ Class = ExtResource("7_crsy2")
 Stats = ExtResource("9_g2gda")
 AttackRange = PackedInt32Array(1)
 SupportRange = PackedInt32Array()
-Behavior = SubResource("Resource_7jau6")
+Behavior = SubResource("Resource_wu3ny")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(11, 7)
 Size = Vector2(32, 32)
