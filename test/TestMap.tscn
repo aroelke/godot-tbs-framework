@@ -14,7 +14,7 @@
 [ext_resource type="Resource" uid="uid://rw7lv271d7de" path="res://test/stats/TestPlayerStats.tres" id="8_1sr4q"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Layers/SpecialActionRegion.cs" id="8_kin6v"]
 [ext_resource type="Resource" uid="uid://xatocb6uwrwx" path="res://test/stats/TestEnemyStats1.tres" id="9_g2gda"]
-[ext_resource type="PackedScene" uid="uid://bsnwitybsx8xd" path="res://src/TbsTemplate/Scenes/Level/Map/OccupantHighlighter.tscn" id="9_xbntu"]
+[ext_resource type="PackedScene" path="res://src/TbsTemplate/Scenes/Level/Map/OccupantHighlighter.tscn" id="9_xbntu"]
 [ext_resource type="Resource" uid="uid://dp74yifhop864" path="res://test/factions/TestEnemyFaction1.tres" id="10_k4gkn"]
 [ext_resource type="PackedScene" uid="uid://drlrlusbfh208" path="res://src/TbsTemplate/Scenes/Level/Control/PlayerController.tscn" id="12_8av15"]
 [ext_resource type="Resource" uid="uid://cbi1a2igyxbt4" path="res://test/factions/TestEnemyFaction2.tres" id="12_8r5wl"]
@@ -158,7 +158,7 @@ Size = Vector2(32, 32)
 [node name="Enemy" parent="LevelManager" instance=ExtResource("4_xrn4s")]
 Faction = ExtResource("10_k4gkn")
 
-[node name="EnemyController" parent="LevelManager/Enemy" instance=ExtResource("12_8av15")]
+[node name="AIController" parent="LevelManager/Enemy" instance=ExtResource("17_2a1se")]
 
 [node name="EnemyA" parent="LevelManager/Enemy" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(480, 64)
