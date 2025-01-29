@@ -20,8 +20,6 @@ public partial class Grid : Node2D
     /// <summary>Default terrain to use when it isn't placed explicitly on the map.</summary>
     [Export] public Terrain DefaultTerrain = null;
 
-    [Export] public TileMapLayer OccupantsLayer = null;
-
     /// <summary>Grid cell dimensions derived from the <see cref="TileSet"/>.  If there is no <see cref="TileSet"/>, the size is zero.</summary>
     public Vector2 CellSize => GroundLayer?.TileSet?.TileSize ?? Vector2.Zero;
 
