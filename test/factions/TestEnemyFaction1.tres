@@ -7,4 +7,4 @@ script = ExtResource("1_0aain")
 Name = &"Enemy A"
 Color = Color(1, 0.247059, 0.247059, 1)
 AllyPaths = PackedStringArray()
-IsPlayer = true
+IsPlayer = false
