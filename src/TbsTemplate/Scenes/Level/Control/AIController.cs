@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Godot;
-using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Scenes.Level.Control;
@@ -25,29 +25,37 @@ public partial class AIController : ArmyController
         _target = null;
     }
 
-    public override void SelectUnit()
+    public override async void SelectUnit()
     {
         _selected = ((IEnumerable<Unit>)Army).Where((u) => u.Active).First();
 
-        IEnumerable<Vector2I> destinations = _selected.Behavior.Destinations(_selected);
-        Dictionary<StringName, IEnumerable<Vector2I>> actions = _selected.Behavior.Actions(_selected);
-        
-        IEnumerable<Unit> attackable = actions.ContainsKey("Attack") ? actions["Attack"].Select((c) => _selected.Grid.Occupants[c]).OfType<Unit>().OrderBy((u) => u.Cell.DistanceTo(_selected.Cell)) : [];
-        if (attackable.Any())
-        {
-            _action = "Attack";
-            _target = attackable.First();
-            _destination = _selected.AttackableCells(_target.Cell).Where(destinations.Contains).OrderBy((c) => _selected.Behavior.GetPath(_selected, c).Cost).First();
-        }
-        else
-        {
-            IEnumerable<Unit> enemies = _selected.Grid.Occupants.Select(static (p) => p.Value).OfType<Unit>().Where((u) => !u.Army.Faction.AlliedTo(_selected)).OrderBy((u) => u.Cell.DistanceTo(_selected.Cell));
-            if (enemies.Any())
-                _destination = destinations.OrderBy((c) => c.DistanceTo(enemies.First().Cell)).OrderBy((c) => _selected.Behavior.GetPath(_selected, c).Cost).First();
+        (_destination, _action, _target) = await Task.Run<(Vector2I, StringName, Unit)>(() => {
+            Vector2I destination = -Vector2I.One;
+            StringName action = null;
+            Unit target = null;
+
+            IEnumerable<Vector2I> destinations = _selected.Behavior.Destinations(_selected);
+            Dictionary<StringName, IEnumerable<Vector2I>> actions = _selected.Behavior.Actions(_selected);
+
+            IEnumerable<Unit> attackable = actions.ContainsKey("Attack") ? actions["Attack"].Select((c) => _selected.Grid.Occupants[c]).OfType<Unit>().OrderBy((u) => u.Cell.DistanceTo(_selected.Cell)) : [];
+            if (attackable.Any())
+            {
+                action = "Attack";
+                target = attackable.First();
+                destination = _selected.AttackableCells(target.Cell).Where(destinations.Contains).OrderBy((c) => _selected.Behavior.GetPath(_selected, c).Cost).First();
+            }
             else
-                _destination = _selected.Cell;
-            _action = "End";
-        }
+            {
+                IEnumerable<Unit> enemies = _selected.Grid.Occupants.Select(static (p) => p.Value).OfType<Unit>().Where((u) => !u.Army.Faction.AlliedTo(_selected)).OrderBy((u) => u.Cell.DistanceTo(_selected.Cell));
+                if (enemies.Any())
+                    destination = destinations.OrderBy((c) => c.DistanceTo(enemies.First().Cell)).OrderBy((c) => _selected.Behavior.GetPath(_selected, c).Cost).First();
+                else
+                    destination = _selected.Cell;
+                action = "End";
+            }
+
+            return (destination, action, target);
+        });
 
         EmitSignal(SignalName.UnitSelected, _selected);
     }
