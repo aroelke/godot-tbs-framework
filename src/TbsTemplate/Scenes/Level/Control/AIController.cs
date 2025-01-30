@@ -37,13 +37,13 @@ public partial class AIController : ArmyController
         {
             _action = "Attack";
             _target = attackable.First();
-            _destination = _selected.AttackableCells(_target.Cell).Where(destinations.Contains).OrderBy((c) => Path.Empty(_selected.Grid, destinations).Add(_selected.Cell).Add(c).Cost).First();
+            _destination = _selected.AttackableCells(_target.Cell).Where(destinations.Contains).OrderBy((c) => _selected.Behavior.GetPath(_selected, c).Cost).First();
         }
         else
         {
             IEnumerable<Unit> enemies = _selected.Grid.Occupants.Select(static (p) => p.Value).OfType<Unit>().Where((u) => !u.Army.Faction.AlliedTo(_selected)).OrderBy((u) => u.Cell.DistanceTo(_selected.Cell));
             if (enemies.Any())
-                _destination = destinations.OrderBy((c) => c.DistanceTo(enemies.First().Cell)).First();
+                _destination = destinations.OrderBy((c) => c.DistanceTo(enemies.First().Cell)).OrderBy((c) => _selected.Behavior.GetPath(_selected, c).Cost).First();
             else
                 _destination = _selected.Cell;
             _action = "End";
