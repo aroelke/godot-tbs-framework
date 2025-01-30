@@ -212,6 +212,8 @@ public partial class LevelManager : Node
         _selected = unit;
         Cursor.Cell = unit.Cell;
         State.ExpressionProperties = State.ExpressionProperties.SetItem(OccupiedProperty, ActiveAllyOccupied);
+        ActionLayers.Modulate = Colors.White;
+
         State.SendEvent(_events[SelectEvent]);
     }
 
@@ -220,13 +222,6 @@ public partial class LevelManager : Node
         foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
             unit.Finish();
         State.SendEvent(_events[SkipEvent]);
-    }
-
-    /// <summary>Choose a selected <see cref="Unit"/>.</summary>
-    public void OnIdleToSelectedTaken()
-    {
-        ActionLayers.Modulate = Colors.White;
-        _selected = Grid.Occupants[Cursor.Cell] as Unit;
     }
 #endregion
 #region Unit Selected State
