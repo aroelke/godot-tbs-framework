@@ -14,9 +14,9 @@ namespace TbsTemplate.Scenes.Level.Control;
 [GlobalClass, Tool]
 public abstract partial class UnitBehavior : Resource
 {
-    /// <summary>Find the cell a unit will move to if chosen to act.</summary>
-    /// <param name="unit">Acting unit.</param>
-    public abstract Vector2I DesiredMoveTarget(Unit unit);
+    public abstract IEnumerable<Vector2I> Destinations(Unit unit);
+
+    public abstract Dictionary<StringName, IEnumerable<Vector2I>> Actions(Unit unit);
 
     /// <summary>Determine the path the unit will traverse between two cells.</summary>
     /// <param name="unit">Unit that will move along the path.</param>
@@ -37,11 +37,4 @@ public abstract partial class UnitBehavior : Resource
     /// <param name="to">Destination cell.</param>
     /// <returns>The path from <paramref name="unit"/>'s cell to <paramref name="to"/> that <paramref name="unit"/> will take.</returns>
     public Path GetPath(Unit unit, Vector2I to) => GetPath(unit, unit.Cell, to);
-
-    /// <summary>
-    /// Determine the action that the unit will perform if moved to <see cref="DesiredMoveTarget"/>
-    /// and what it will be performed on.
-    /// </summary>
-    /// <param name="unit">Acting unit.</param>
-    public abstract (StringName, GridNode) DesiredAction(Unit unit);
 }

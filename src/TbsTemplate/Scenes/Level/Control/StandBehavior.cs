@@ -12,19 +12,22 @@ public partial class StandBehavior : UnitBehavior
     /// <summary>Whether or not the unit should attack enemies in range.</summary>
     [Export] public bool AttackInRange = false;
 
-    public override Vector2I DesiredMoveTarget(Unit unit) => unit.Cell;
-    public override (StringName, GridNode) DesiredAction(Unit unit)
+    public override IEnumerable<Vector2I> Destinations(Unit unit) => [unit.Cell];
+
+    public override Dictionary<StringName, IEnumerable<Vector2I>> Actions(Unit unit)
     {
-        if (!AttackInRange)
-            return ("End", unit);
-        else
+        if (AttackInRange)
         {
+            Dictionary<StringName, IEnumerable<Vector2I>> actions = [];
+
             IEnumerable<Vector2I> attackable = unit.AttackableCells();
             IEnumerable<Unit> targets = unit.Grid.Occupants.Where((p) => attackable.Contains(p.Key)).Select((p) => p.Value).OfType<Unit>();
             if (targets.Any())
-                return ("Attack", targets.First());
-            else
-                return ("End", unit);
+                actions["Attack"] = targets.Select((u) => u.Cell);
+
+            return actions;
         }
+        else
+            return [];
     }
 }

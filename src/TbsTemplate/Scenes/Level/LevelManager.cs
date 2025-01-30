@@ -302,6 +302,7 @@ public partial class LevelManager : Node
 
     public void OnSelectedCanceled()
     {
+        GD.Print("Select canceled");
         CancelSound.Play();
 
         if (Cursor.Cell != _selected.Cell)
@@ -479,6 +480,7 @@ public partial class LevelManager : Node
         }
         else
         {
+            GD.Print("target canceled");
             CancelSound.Play();
             State.SendEvent(_events[CancelEvent]);
         }
