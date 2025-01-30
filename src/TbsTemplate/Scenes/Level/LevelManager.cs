@@ -289,6 +289,8 @@ public partial class LevelManager : Node
             throw new InvalidOperationException($"Cannot confirm path for unselected unit {unit.Name} ({_selected.Name} is selected)");
         if (!path.All(ActionLayers[MoveLayer].Contains) || path.Any((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Army.Faction.AlliedTo(_selected) ?? false)))
             throw new InvalidOperationException("The chosen path must only contain traversable cells.");
+        if (Grid.Occupants.ContainsKey(path[^1]) && Grid.Occupants[path[^1]] != unit)
+            throw new InvalidOperationException("The chosen path must not end on an occupied cell.");
 
         _path = _path.SetTo(path);
         State.ExpressionProperties = State.ExpressionProperties.SetItem(TraversableProperty, true);
