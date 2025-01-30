@@ -69,6 +69,10 @@ public partial class PlayerController : ArmyController
     public override void FinalizeAction() {}
     public override void FinalizeTurn() {}
 #endregion
+#region State Independent
+    public void OnCancel() => CancelSound.Play();
+    public void OnFinish() => SelectSound.Play();
+#endregion
 #region Active
     public void OnActiveInput(InputEvent @event)
     {
@@ -254,7 +258,7 @@ public partial class PlayerController : ArmyController
                 EmitSignal(SignalName.UnitCommanded, source, c);
             }}));
             _menu.MenuCanceled += () => {
-                State.SendEvent(_events[FinishEvent]);
+//                State.SendEvent(_events[FinishEvent]);
                 EmitSignal(SignalName.UnitCommanded, source, cancel);
             };
             _menu.MenuClosed += () => _menu = null;

@@ -302,9 +302,6 @@ public partial class LevelManager : Node
 
     public void OnSelectedCanceled()
     {
-        GD.Print("Select canceled");
-        CancelSound.Play();
-
         if (Cursor.Cell != _selected.Cell)
             ActionLayers.Clear();
         PathLayer.Clear();
@@ -475,15 +472,10 @@ public partial class LevelManager : Node
             if (Cursor.Cell != target.Cell)
                 GD.PushWarning($"Target {target.Name} is not in the cursor's cell");
             _target = target;
-            SelectSound.Play();
             State.SendEvent(_events[DoneEvent]);
         }
         else
-        {
-            GD.Print("target canceled");
-            CancelSound.Play();
             State.SendEvent(_events[CancelEvent]);
-        }
     }
 
     /// <summary>Clean up displayed ranges and restore <see cref="Object.Cursor"/> freedom when exiting targeting <see cref="Nodes.StateChart.States.State"/>.</summary>
