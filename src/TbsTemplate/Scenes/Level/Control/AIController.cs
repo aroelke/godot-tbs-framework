@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
+using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Scenes.Level.Control;
@@ -31,6 +32,7 @@ public partial class AIController : ArmyController
         // Also, use a collection expression to immediately evaluated it rather than waiting until later, because that will be in the
         // wrong thread.
         IEnumerable<Unit> available = [.. ((IEnumerable<Unit>)Army).Where(static (u) => u.Active)];
+        IEnumerable<Unit> enemies = Cursor.Grid.Occupants.Values.OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u));
 
         (_selected, _destination, _action, _target) = await Task.Run<(Unit, Vector2I, StringName, Unit)>(() => {
             Unit selected = null;
@@ -38,7 +40,7 @@ public partial class AIController : ArmyController
             StringName action = null;
             Unit target = null;
 
-            selected = available.First();
+            selected = available.MinBy((u) => enemies.Select((e) => u.Cell.DistanceTo(e.Cell)).Min());
 
             IEnumerable<Vector2I> destinations = selected.Behavior.Destinations(selected);
             Dictionary<StringName, IEnumerable<Vector2I>> actions = selected.Behavior.Actions(selected);
