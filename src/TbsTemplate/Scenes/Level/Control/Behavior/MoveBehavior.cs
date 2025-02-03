@@ -3,7 +3,7 @@ using System.Linq;
 using Godot;
 using TbsTemplate.Scenes.Level.Object;
 
-namespace TbsTemplate.Scenes.Level.Control;
+namespace TbsTemplate.Scenes.Level.Control.Behavior;
 
 [GlobalClass, Tool]
 public partial class MoveBehavior : UnitBehavior

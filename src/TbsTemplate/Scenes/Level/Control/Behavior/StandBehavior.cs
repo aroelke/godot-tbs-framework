@@ -3,7 +3,7 @@ using System.Linq;
 using Godot;
 using TbsTemplate.Scenes.Level.Object;
 
-namespace TbsTemplate.Scenes.Level.Control;
+namespace TbsTemplate.Scenes.Level.Control.Behavior;
 
 /// <summary>A behavior for a <see cref="Unit"/> that does not move.</summary>
 [GlobalClass, Tool]
