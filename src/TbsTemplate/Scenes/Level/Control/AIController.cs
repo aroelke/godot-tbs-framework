@@ -27,34 +27,40 @@ public partial class AIController : ArmyController
 
     public override async void SelectUnit()
     {
-        _selected = ((IEnumerable<Unit>)Army).Where((u) => u.Active).First();
+        // Compute this outside the task because it calls Node.GetChildren(), which has to be called on the same thread as that node.
+        // Also, use a collection expression to immediately evaluated it rather than waiting until later, because that will be in the
+        // wrong thread.
+        IEnumerable<Unit> available = [.. ((IEnumerable<Unit>)Army).Where(static (u) => u.Active)];
 
-        (_destination, _action, _target) = await Task.Run<(Vector2I, StringName, Unit)>(() => {
+        (_selected, _destination, _action, _target) = await Task.Run<(Unit, Vector2I, StringName, Unit)>(() => {
+            Unit selected = null;
             Vector2I destination = -Vector2I.One;
             StringName action = null;
             Unit target = null;
 
-            IEnumerable<Vector2I> destinations = _selected.Behavior.Destinations(_selected);
-            Dictionary<StringName, IEnumerable<Vector2I>> actions = _selected.Behavior.Actions(_selected);
+            selected = available.First();
 
-            IEnumerable<Unit> attackable = actions.ContainsKey("Attack") ? actions["Attack"].Select((c) => _selected.Grid.Occupants[c]).OfType<Unit>().OrderBy((u) => u.Cell.DistanceTo(_selected.Cell)) : [];
+            IEnumerable<Vector2I> destinations = selected.Behavior.Destinations(selected);
+            Dictionary<StringName, IEnumerable<Vector2I>> actions = selected.Behavior.Actions(selected);
+
+            IEnumerable<Unit> attackable = actions.ContainsKey("Attack") ? actions["Attack"].Select((c) => selected.Grid.Occupants[c]).OfType<Unit>().OrderBy((u) => u.Cell.DistanceTo(selected.Cell)) : [];
             if (attackable.Any())
             {
                 action = "Attack";
                 target = attackable.First();
-                destination = _selected.AttackableCells(target.Cell).Where(destinations.Contains).OrderBy((c) => _selected.Behavior.GetPath(_selected, c).Cost).First();
+                destination = selected.AttackableCells(target.Cell).Where(destinations.Contains).OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).First();
             }
             else
             {
-                IEnumerable<Unit> enemies = _selected.Grid.Occupants.Select(static (p) => p.Value).OfType<Unit>().Where((u) => !u.Army.Faction.AlliedTo(_selected)).OrderBy((u) => u.Cell.DistanceTo(_selected.Cell));
+                IEnumerable<Unit> enemies = selected.Grid.Occupants.Select(static (p) => p.Value).OfType<Unit>().Where((u) => !u.Army.Faction.AlliedTo(selected)).OrderBy((u) => u.Cell.DistanceTo(selected.Cell));
                 if (enemies.Any())
-                    destination = destinations.OrderBy((c) => c.DistanceTo(enemies.First().Cell)).OrderBy((c) => _selected.Behavior.GetPath(_selected, c).Cost).First();
+                    destination = destinations.OrderBy((c) => c.DistanceTo(enemies.First().Cell)).OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).First();
                 else
-                    destination = _selected.Cell;
+                    destination = selected.Cell;
                 action = "End";
             }
 
-            return (destination, action, target);
+            return (selected, destination, action, target);
         });
 
         EmitSignal(SignalName.UnitSelected, _selected);
