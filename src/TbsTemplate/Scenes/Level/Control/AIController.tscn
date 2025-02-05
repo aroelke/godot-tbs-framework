@@ -4,3 +4,4 @@
 
 [node name="AIController" type="Node"]
 script = ExtResource("1_c0any")
+Decision = 1

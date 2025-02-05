@@ -19,4 +19,20 @@ public static class ImmutableListExtensions
                     return Disentangle(ImmutableList<T>.Empty.AddRange(items.Take(i)).AddRange(items.TakeLast(items.Count - j)));
         return items;
     }
+
+    /// <summary>Swap two elements of a list.</summary>
+    /// <typeparam name="T">Type of the elements of the list.</typeparam>
+    /// <param name="items">List containing elements to be swapped.</param>
+    /// <param name="i">Index of one of the elements to be swapped.</param>
+    /// <param name="j">Index of one of the elements to be swapped.</param>
+    /// <returns>A new list with the elements at indicies <paramref name="i"/> and <paramref name="j"/> swapped.</returns>
+    public static IImmutableList<T> Swap<T>(this IImmutableList<T> items, int i, int j)
+    {
+        if (i == j)
+            return items;
+
+        T a = items[i];
+        T b = items[j];
+        return items.SetItem(i, b).SetItem(j, a);
+    }
 }

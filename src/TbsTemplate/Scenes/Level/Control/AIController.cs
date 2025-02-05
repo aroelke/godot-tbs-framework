@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
+using TbsTemplate.Extensions;
+using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Scenes.Level.Control;
@@ -12,7 +14,8 @@ public partial class AIController : ArmyController
 {
     public enum DecisionType
     {
-        ClosestEnemy
+        ClosestEnemy, // Activate units in order of proximity to their enemies
+        TargetLoop
     }
 
     private Unit _selected = null;
@@ -63,12 +66,52 @@ public partial class AIController : ArmyController
                 }
                 else
                 {
-                    IEnumerable<Unit> enemies = selected.Grid.Occupants.Select(static (p) => p.Value).OfType<Unit>().Where((u) => !u.Army.Faction.AlliedTo(selected)).OrderBy((u) => u.Cell.DistanceTo(selected.Cell));
-                    if (enemies.Any())
-                        destination = destinations.OrderBy((c) => c.DistanceTo(enemies.First().Cell)).OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).First();
+                    IEnumerable<Unit> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Cell));
+                    if (ordered.Any())
+                        destination = destinations.OrderBy((c) => c.DistanceTo(ordered.First().Cell)).OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).First();
                     else
                         destination = selected.Cell;
                     action = "End";
+                }
+                break;
+            case DecisionType.TargetLoop:
+                // optimize for enemy unit with lowest remaining health
+                double best = double.PositiveInfinity;
+                foreach (Unit enemy in enemies.OrderBy((u) => u.Health.Value))
+                {
+                    IEnumerable<Unit> attackers = available.Where((u) => {
+                        Dictionary<StringName, IEnumerable<Vector2I>> actions = u.Behavior.Actions(u);
+                        return actions.ContainsKey("Attack") && actions["Attack"].Contains(enemy.Cell);
+                    });
+
+                    foreach (IList<Unit> permutation in attackers.Permutations())
+                    {
+                        Dictionary<Unit, List<CombatAction>> battles = permutation.ToDictionary((u) => u, (u) => CombatCalculations.AttackResults(u, enemy));
+                        double damage = permutation.Select((u) => CombatCalculations.TotalExpectedDamage(enemy, battles[u])).Sum();
+                        double remaining = enemy.Health.Value - damage;
+
+                        if (selected is null || remaining < best)
+                        {
+                            selected = permutation[0];
+                            action = "Attack";
+                            destination = selected.AttackableCells(enemy.Cell).Where(selected.Behavior.Destinations(selected).Contains).OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).First();
+                            target = enemy;
+                            best = remaining;
+                        }
+                    }
+                }
+
+                // If no one has been selected yet, just pick the unit closest to an enemy
+                if (selected is null)
+                {
+                    selected = available.MinBy((u) => enemies.Select((e) => u.Cell.DistanceTo(e.Cell)).Min());
+                    action = "End";
+
+                    IEnumerable<Unit> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Cell));
+                    if (ordered.Any())
+                        destination = selected.Behavior.Destinations(selected).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).First();
+                    else
+                        destination = selected.Cell;
                 }
                 break;
             default:

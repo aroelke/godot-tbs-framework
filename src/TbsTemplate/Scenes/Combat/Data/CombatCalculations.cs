@@ -32,13 +32,16 @@ public static class CombatCalculations
     /// <param name="attacker">Attacking unit.</param>
     /// <param name="defender">Defending unit.</param>
     /// <returns>A number from 0 through 100 that indicates the chance, in percent that the attacker's attack will hit.</returns>
-    public static int HitChance(Unit attacker, Unit defender) => attacker.AttackableCells().Contains(defender.Cell) ? attacker.Stats.Accuracy - defender.Stats.Evasion : -1;
+    public static int HitChance(Unit attacker, Unit defender) => attacker.Stats.Accuracy - defender.Stats.Evasion;
 
     /// <summary>Create an action representing the result of a single attack.</summary>
     /// <param name="attacker">Unit performing the attack.</param>
     /// <param name="defender">Unit receiving the attack.</param>
     public static CombatAction CreateAttackAction(Unit attacker, Unit defender) => new(attacker, defender, CombatActionType.Attack, Damage(attacker, defender), rnd.Next(100) < HitChance(attacker, defender));
 
+    /// <summary>Create an action representing the result of a single support.</summary>
+    /// <param name="supporter">Unit performing the support.</param>
+    /// <param name="recipient">Unit receiving the support.</param>
     public static CombatAction CreateSupportAction(Unit supporter, Unit recipient) => new(supporter, recipient, CombatActionType.Support, -supporter.Stats.Healing, true);
 
     /// <summary>
@@ -64,9 +67,6 @@ public static class CombatCalculations
     /// <returns>A list of data structures specifying the action taken during each round of combat.</returns>
     public static List<CombatAction> AttackResults(Unit a, Unit b)
     {
-        if (!a.AttackableCells().Contains(b.Cell))
-            throw new ArgumentException("An attack must begin with a valid attacker.");
-
         // Compute complete combat action list
         List<CombatAction> actions = [CreateAttackAction(a, b)];
         if (b.AttackableCells().Contains(a.Cell))
@@ -82,4 +82,10 @@ public static class CombatCalculations
     /// <param name="actions">Actions describing what happened in combat.</param>
     /// <returns>The total amount of damage dealt to <paramref name="target"/> based on <paramref name="actions"/>.</returns>
     public static int TotalDamage(Unit target, IEnumerable<CombatAction> actions) => actions.Where((a) => a.Hit && a.Target == target).Select((a) => a.Damage).Sum();
+
+    /// <summary>Compute the expected amount of damage dealt to a participant in combat (e.g. sum of damage of each hit multiplied by its accuracy).</summary>
+    /// <param name="target">Participant to compute damage for.</param>
+    /// <param name="actions">Actions describing what will happen in combat.</param>
+    /// <returns>The total expected amount of damage, in a statistical sense, <paramref name="target"/> will receive based on <paramref name="actions"/>.</returns>
+    public static double TotalExpectedDamage(Unit target, IEnumerable<CombatAction> actions) => actions.Where((a) => a.Target == target).Select((a) => a.Damage*HitChance(a.Actor, target)/100.0).Sum();
 }
