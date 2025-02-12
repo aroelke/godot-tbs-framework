@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://xh5fyjvme26u"]
+
+[node name="ClearablePathContainer" type="HBoxContainer"]
+size_flags_horizontal = 3
+
+[node name="RemovePathButton" type="Button" parent="."]
+layout_mode = 2
+tooltip_text = "Remove"
+toggle_mode = true
+text = " x "
+
+[node name="PathNameLabel" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+vertical_alignment = 1
+clip_text = true
+text_overrun_behavior = 3
+max_lines_visible = 1

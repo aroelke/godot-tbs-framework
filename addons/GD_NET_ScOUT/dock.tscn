@@ -1,0 +1,158 @@
+[gd_scene load_steps=2 format=3 uid="uid://ihmt7i76chf0"]
+
+[ext_resource type="Script" path="res://addons/GD_NET_ScOUT/Dock.cs" id="1_qnpso"]
+
+[node name="ScOUT" type="VBoxContainer" node_paths=PackedStringArray("_hideAllButton", "_dirContainer", "_addDirButton", "_addDirDialog", "_sceneFileContainer", "_addSceneFileButton", "_addSceneFilesDialog", "_verboseLoggingButton", "_printReportsButton", "_exportReportsButton", "_testReportPath", "_saveAsButton", "_saveAsDialog", "_setProjectSettingButton", "_messageLabel")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_qnpso")
+_hideAllButton = NodePath("HBoxContainer/HideAllButton")
+_dirContainer = NodePath("DirContainer")
+_addDirButton = NodePath("DirContainer/AddDirButton")
+_addDirDialog = NodePath("AddDirDialog")
+_sceneFileContainer = NodePath("SceneFileContainer")
+_addSceneFileButton = NodePath("SceneFileContainer/AddSceneFileButton")
+_addSceneFilesDialog = NodePath("AddSceneFileDialog")
+_verboseLoggingButton = NodePath("OtherOptions/VerboseLogging")
+_printReportsButton = NodePath("OtherOptions/PrintTestReports")
+_exportReportsButton = NodePath("OtherOptions/HBoxContainer/ExportTestReport")
+_testReportPath = NodePath("OtherOptions/HBoxContainer/TextEdit")
+_saveAsButton = NodePath("SaveScene/HBoxContainer/SaveAsButton")
+_saveAsDialog = NodePath("SaveSceneFileDialog")
+_setProjectSettingButton = NodePath("SaveScene/HBoxContainer/SetProjectSetting")
+_messageLabel = NodePath("MessageLabel")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_direction = 3
+layout_mode = 2
+
+[node name="HideAllButton" type="CheckButton" parent="HBoxContainer"]
+layout_mode = 2
+text = "Hide"
+
+[node name="CreateTestSceneRunner" type="RichTextLabel" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+text = "[center][b]Create Test Scene Runner[/b][/center]"
+fit_content = true
+autowrap_mode = 0
+
+[node name="SceneFileContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="SceneFileContainer"]
+layout_mode = 2
+tooltip_text = "Individual '*.tscn' test scene files. Each test scene must have exactly 1 'TestRunner' node."
+mouse_filter = 0
+text = "    Test Scene Files"
+vertical_alignment = 1
+
+[node name="AddSceneFileButton" type="Button" parent="SceneFileContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+tooltip_text = "Add new..."
+text = " + "
+
+[node name="DirContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="DirContainer"]
+layout_mode = 2
+tooltip_text = "Directories containing '*.tscn' test scene files. Other file types are ignored. Non-recursive. Each test scene must have exactly 1 'TestRunner' node."
+mouse_filter = 0
+text = "    Test Scene Directories"
+vertical_alignment = 1
+
+[node name="AddDirButton" type="Button" parent="DirContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+tooltip_text = "Add new..."
+text = " + "
+
+[node name="OtherOptions" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="OtherOptions"]
+layout_mode = 2
+tooltip_text = "Where and how test results will be saved."
+mouse_filter = 0
+text = "    Test Results"
+vertical_alignment = 1
+
+[node name="VerboseLogging" type="CheckBox" parent="OtherOptions"]
+layout_mode = 2
+tooltip_text = "If enabled, each test will print results to stdout as it runs."
+text = "Verbose Logging"
+
+[node name="PrintTestReports" type="CheckBox" parent="OtherOptions"]
+layout_mode = 2
+tooltip_text = "If enabled, a JUnit-style XML test report will be printed to stdout after tests have finished running."
+text = "Print Test Reports to StdOut"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="OtherOptions"]
+layout_mode = 2
+
+[node name="ExportTestReport" type="CheckBox" parent="OtherOptions/HBoxContainer"]
+layout_mode = 2
+tooltip_text = "If enabled, a JUnit-style XML test report will be saved to the specified path after tests have finished running."
+text = "Export Test Reports "
+
+[node name="TextEdit" type="TextEdit" parent="OtherOptions/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Test report directory. If tests will be run from editor, both 'res://*' and 'user://*' directories are valid. If tests will be run from exported project, reports can only be saved to a 'user://*' directory."
+text = "user://scout-report.xml"
+editable = false
+scroll_fit_content_height = true
+
+[node name="SaveScene" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="SaveScene"]
+layout_mode = 2
+
+[node name="SaveAsButton" type="Button" parent="SaveScene/HBoxContainer"]
+layout_mode = 2
+tooltip_text = "Choose at least one directory and/or at least one scene."
+disabled = true
+text = " Save As "
+
+[node name="SetProjectSetting" type="CheckBox" parent="SaveScene/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Will set value for 'application/run/main_scene.gdnetscout' in project settings. Useful for automating tests as part of CI/CD."
+text = "Set as main scene for test exports"
+
+[node name="MessageLabel" type="RichTextLabel" parent="."]
+modulate = Color(0.745098, 0.745098, 0.745098, 1)
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+
+[node name="AddDirDialog" type="FileDialog" parent="."]
+title = "Open a Directory"
+initial_position = 2
+size = Vector2i(800, 600)
+exclusive = false
+popup_window = true
+ok_button_text = "Select Current Folder"
+file_mode = 2
+
+[node name="AddSceneFileDialog" type="FileDialog" parent="."]
+title = "Open File(s)"
+initial_position = 2
+size = Vector2i(800, 600)
+ok_button_text = "Open"
+file_mode = 1
+filters = PackedStringArray("*.tscn")
+
+[node name="SaveSceneFileDialog" type="FileDialog" parent="."]
+title = "Save Test Scene Runner"
+initial_position = 2
+size = Vector2i(800, 600)
+ok_button_text = "Save"
+filters = PackedStringArray("*.tscn")

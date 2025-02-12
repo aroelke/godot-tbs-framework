@@ -1,0 +1,48 @@
+[gd_scene load_steps=3 format=3 uid="uid://ce83kbl7xjwpr"]
+
+[ext_resource type="Script" path="res://addons/GD_NET_ScOUT/TestRunner.cs" id="1_dxr4g"]
+[ext_resource type="Script" path="res://addons/GD_NET_ScOUT/ShowHideButton.cs" id="2_rofdj"]
+
+[node name="TestRunner" type="ScrollContainer" node_paths=PackedStringArray("_showHideButton", "_loadTests", "_runTests", "_testList")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_dxr4g")
+_showHideButton = NodePath("VBoxContainer/Buttons/ShowHide")
+_loadTests = NodePath("VBoxContainer/Buttons/Load")
+_runTests = NodePath("VBoxContainer/Buttons/Run")
+_testList = NodePath("VBoxContainer/TestList")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Buttons" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="ShowHide" type="Button" parent="VBoxContainer/Buttons" node_paths=PackedStringArray("_elements")]
+layout_mode = 2
+text = " _ "
+script = ExtResource("2_rofdj")
+_elements = [NodePath("../Load"), NodePath("../Run"), NodePath("../../TestList")]
+
+[node name="Load" type="Button" parent="VBoxContainer/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Reload Tests"
+
+[node name="Run" type="Button" parent="VBoxContainer/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Run Tests"
+
+[node name="TestList" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[connection signal="pressed" from="VBoxContainer/Buttons/ShowHide" to="VBoxContainer/Buttons/ShowHide" method="OnButtonPressed"]
+[connection signal="pressed" from="VBoxContainer/Buttons/Load" to="." method="LoadTests"]
+[connection signal="pressed" from="VBoxContainer/Buttons/Run" to="." method="RunTests"]

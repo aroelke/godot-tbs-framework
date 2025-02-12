@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://dkd0yvu0kvent"]
+
+[ext_resource type="Script" path="res://addons/GD_NET_ScOUT/TestSceneRunner.cs" id="1_eb6aw"]
+
+[node name="TestSceneRunner" type="Node2D"]
+script = ExtResource("1_eb6aw")
+Scenes = []
