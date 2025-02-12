@@ -13,7 +13,7 @@
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/UnCondition.cs" id="14_xq8gn"]
 [ext_resource type="PackedScene" uid="uid://bajcy40oic1wf" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/ProcessReaction.tscn" id="15_n3x6e"]
 [ext_resource type="PackedScene" uid="uid://o14hjfw71flw" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/PhysicsProcessReaction.tscn" id="16_qorhx"]
-[ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://test/assets/ui/mouse.png" id="16_sbop6"]
+[ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://demo/assets/ui/mouse.png" id="16_sbop6"]
 
 [sub_resource type="Resource" id="Resource_0s27s"]
 script = ExtResource("14_xq8gn")

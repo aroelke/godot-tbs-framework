@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="godot-tbs-template"
-run/main_scene="res://test/TestMap.tscn"
+run/main_scene="res://demo/TestMap.tscn"
 config/features=PackedStringArray("4.3", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -28,7 +28,7 @@ LevelEvents="*res://src/TbsTemplate/Scenes/Level/LevelEvents.tscn"
 window/size/viewport_width=1280
 window/size/viewport_height=960
 window/stretch/mode="canvas_items"
-mouse_cursor/custom_image="res://test/assets/ui/mouse.png"
+mouse_cursor/custom_image="res://demo/assets/ui/mouse.png"
 
 [dotnet]
 
