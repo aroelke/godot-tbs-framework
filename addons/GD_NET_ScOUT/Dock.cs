@@ -7,6 +7,7 @@ using GD_NET_ScOUT;
 
 using Godot;
 
+#nullable enable
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
 namespace GD_NET_ScOUT_TOOL;

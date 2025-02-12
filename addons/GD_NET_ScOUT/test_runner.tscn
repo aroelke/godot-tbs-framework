@@ -42,6 +42,7 @@ text = "Run Tests"
 [node name="TestList" type="VBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+alignment = 2
 
 [connection signal="pressed" from="VBoxContainer/Buttons/ShowHide" to="VBoxContainer/Buttons/ShowHide" method="OnButtonPressed"]
 [connection signal="pressed" from="VBoxContainer/Buttons/Load" to="." method="LoadTests"]

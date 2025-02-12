@@ -1,3 +1,5 @@
+#nullable enable
+
 using Godot;
 
 namespace GD_NET_ScOUT;

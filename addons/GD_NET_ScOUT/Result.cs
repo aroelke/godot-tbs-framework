@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace GD_NET_ScOUT;
 
 public readonly struct Result

@@ -9,6 +9,7 @@ using Godot;
 
 // ReSharper disable SwitchStatementHandlesSomeKnownEnumValuesWithDefault
 
+#nullable enable
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
 namespace GD_NET_ScOUT;
@@ -238,8 +239,6 @@ public partial class TestRunner : Control
     {
         this.GetSceneScout()?.RegisterTestRunner(this);
         Visible = !IsOwnedBySceneScout;
-        OffsetRight = GetViewport().GetVisibleRect().Size.X / 2f;
-        OffsetBottom = GetViewport().GetVisibleRect().Size.Y;
         LoadTests();
         if (_runTestsOnSceneLoad || IsOwnedBySceneScout)
         {

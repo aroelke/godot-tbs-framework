@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 
 namespace GD_NET_ScOUT;
