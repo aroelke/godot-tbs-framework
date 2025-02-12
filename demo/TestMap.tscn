@@ -173,6 +173,7 @@ Size = Vector2(32, 32)
 Faction = ExtResource("10_k4gkn")
 
 [node name="AIController" parent="LevelManager/Enemy" instance=ExtResource("17_2a1se")]
+Decision = 1
 
 [node name="EnemyA" parent="LevelManager/Enemy" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(480, 64)

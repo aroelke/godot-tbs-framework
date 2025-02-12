@@ -1,6 +1,7 @@
-[gd_scene load_steps=15 format=4 uid="uid://b7t58lmlgaqot"]
+[gd_scene load_steps=18 format=4 uid="uid://b7t58lmlgaqot"]
 
 [ext_resource type="PackedScene" uid="uid://ce83kbl7xjwpr" path="res://addons/GD_NET_ScOUT/test_runner.tscn" id="1_6m0a5"]
+[ext_resource type="Script" path="res://test/unit/Scenes/Level/Control/AIController/AIControllerNothingInRange.cs" id="1_rbv2w"]
 [ext_resource type="PackedScene" uid="uid://bgcsg0l8mj2sn" path="res://src/TbsTemplate/Scenes/Level/Object/Cursor.tscn" id="2_5t7b3"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsTemplate/Scenes/Level/Map/Grid.tscn" id="2_ph1x6"]
 [ext_resource type="Resource" uid="uid://c8b5eys4r78im" path="res://test/unit/Scenes/Level/Control/AIController/floor.tres" id="3_7845x"]
@@ -13,17 +14,24 @@
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Control/Behavior/StandBehavior.cs" id="10_cmp0u"]
 [ext_resource type="Resource" uid="uid://dq8fwpgeqedrs" path="res://test/unit/Scenes/Level/Control/AIController/class.tres" id="10_hsn4e"]
 
-[sub_resource type="Resource" id="Resource_4r57r"]
+[sub_resource type="Resource" id="Resource_djrew"]
 script = ExtResource("10_cmp0u")
 AttackInRange = false
 
-[sub_resource type="Resource" id="Resource_extyr"]
+[sub_resource type="Resource" id="Resource_btify"]
+script = ExtResource("10_cmp0u")
+AttackInRange = false
+
+[sub_resource type="Resource" id="Resource_ngf1k"]
+script = ExtResource("10_cmp0u")
+AttackInRange = false
+
+[sub_resource type="Resource" id="Resource_m5j5f"]
 script = ExtResource("10_cmp0u")
 AttackInRange = false
 
 [node name="AIControllerNothingInRange" type="Node"]
-
-[node name="TestRunner" parent="." instance=ExtResource("1_6m0a5")]
+script = ExtResource("1_rbv2w")
 
 [node name="Cursor" parent="." node_paths=PackedStringArray("Grid") instance=ExtResource("2_5t7b3")]
 Grid = NodePath("../Grid")
@@ -43,12 +51,28 @@ Faction = ExtResource("4_lmgpj")
 [node name="AIController" parent="Army1" node_paths=PackedStringArray("Cursor") instance=ExtResource("8_mkwg3")]
 Cursor = NodePath("../../Cursor")
 
-[node name="Unit" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("7_l2rol")]
-position = Vector2(0, 64)
+[node name="Unit1" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("7_l2rol")]
+position = Vector2(0, 32)
 Class = ExtResource("10_hsn4e")
-Behavior = SubResource("Resource_4r57r")
+Behavior = SubResource("Resource_djrew")
 Grid = NodePath("../../Grid")
-Cell = Vector2i(0, 2)
+Cell = Vector2i(0, 1)
+Size = Vector2(32, 32)
+
+[node name="Unit2" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("7_l2rol")]
+position = Vector2(32, 64)
+Class = ExtResource("10_hsn4e")
+Behavior = SubResource("Resource_btify")
+Grid = NodePath("../../Grid")
+Cell = Vector2i(1, 2)
+Size = Vector2(32, 32)
+
+[node name="Unit3" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("7_l2rol")]
+position = Vector2(0, 96)
+Class = ExtResource("10_hsn4e")
+Behavior = SubResource("Resource_ngf1k")
+Grid = NodePath("../../Grid")
+Cell = Vector2i(0, 3)
 Size = Vector2(32, 32)
 
 [node name="Army2" parent="." instance=ExtResource("3_b077t")]
@@ -60,7 +84,11 @@ Cursor = NodePath("../../Cursor")
 [node name="Unit" parent="Army2" node_paths=PackedStringArray("Grid") instance=ExtResource("7_l2rol")]
 position = Vector2(192, 64)
 Class = ExtResource("10_hsn4e")
-Behavior = SubResource("Resource_extyr")
+Behavior = SubResource("Resource_m5j5f")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(6, 2)
 Size = Vector2(32, 32)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="TestRunner" parent="CanvasLayer" instance=ExtResource("1_6m0a5")]
