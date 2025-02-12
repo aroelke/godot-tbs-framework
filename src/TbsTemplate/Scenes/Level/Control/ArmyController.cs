@@ -43,7 +43,7 @@ public abstract partial class ArmyController : Node
     public Army Army => _army ??= GetParentOrNull<Army>();
 
     /// <summary>Cursor used for indicating or making a selection.</summary>
-    public Cursor Cursor = null;
+    [Export] public Cursor Cursor = null;
 
     /// <summary>Perform any setup needed to begin the army's turn.</summary>
     public abstract void InitializeTurn();
