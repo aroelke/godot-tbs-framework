@@ -243,7 +243,6 @@ public partial class Unit : GridNode, IHasHealth
     /// <summary>Play the unit's death animation and then remove it from the scene.</summary>
     public void Die()
     {
-        GD.Print($"Defeated unit ${Name}!");
         Grid.Occupants.Remove(Cell);
         QueueFree();
     }
