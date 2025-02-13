@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bnnyegc88m621"
-path="res://.godot/imported/cell.png-f3d0ecb4862edf3149b035f00da1a3a5.ctex"
+path="res://.godot/imported/cell.png-7d2b5f7a4844d23ef12c6683b0d693dd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://test/unit/Scenes/Level/Control/AIController/cell.png"
-dest_files=["res://.godot/imported/cell.png-f3d0ecb4862edf3149b035f00da1a3a5.ctex"]
+source_file="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/cell.png"
+dest_files=["res://.godot/imported/cell.png-7d2b5f7a4844d23ef12c6683b0d693dd.ctex"]
 
 [params]
 

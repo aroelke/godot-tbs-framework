@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using GD_NET_ScOUT;
 using Godot;
-using TbsTemplate.Scenes.Level.Control;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 
-namespace TbsTemplate.UnitTesting.Scenes.Level.Control;
+namespace TbsTemplate.Scenes.Level.Control.Test;
 
 [Test]
 public partial class AIControllerNothingInRange : Node
@@ -18,8 +17,8 @@ public partial class AIControllerNothingInRange : Node
     public void SetupTests()
     {
         _controller = GetNode<AIController>("Army1/AIController");
-        _allies = (IEnumerable<Unit>)GetNode<Army>("Army1");
-        _enemies = (IEnumerable<Unit>)GetNode<Army>("Army2");
+        _allies = GetNode<Army>("Army1");
+        _enemies = GetNode<Army>("Army2");
     }
 
     [BeforeEach]
