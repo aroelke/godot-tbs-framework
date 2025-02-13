@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=4 uid="uid://cjrfaj5cfe0xy"]
+[gd_scene load_steps=13 format=4 uid="uid://cjrfaj5cfe0xy"]
 
 [ext_resource type="Script" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/AIControllerTestScene.cs" id="1_0ihwx"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsTemplate/Scenes/Level/Map/Grid.tscn" id="1_c3a26"]
@@ -9,8 +9,6 @@
 [ext_resource type="PackedScene" uid="uid://bgcsg0l8mj2sn" path="res://src/TbsTemplate/Scenes/Level/Object/Cursor.tscn" id="4_h6fah"]
 [ext_resource type="PackedScene" uid="uid://b0cvutx2lj5uy" path="res://src/TbsTemplate/Scenes/Level/Object/Unit.tscn" id="7_biprk"]
 [ext_resource type="PackedScene" uid="uid://ca6g5c6dsaqjb" path="res://src/TbsTemplate/Scenes/Level/Control/AIController.tscn" id="8_82y75"]
-[ext_resource type="Script" path="res://src/TbsTemplate/Data/Class.cs" id="8_g274r"]
-[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Control/Behavior/StandBehavior.cs" id="9_b3es4"]
 [ext_resource type="PackedScene" uid="uid://ce83kbl7xjwpr" path="res://addons/GD_NET_ScOUT/test_runner.tscn" id="10_ve72a"]
 
 [sub_resource type="Resource" id="Resource_hqq8i"]
@@ -20,30 +18,6 @@ Color = Color(1, 1, 1, 1)
 AllyPaths = PackedStringArray()
 IsPlayer = false
 
-[sub_resource type="Resource" id="Resource_cvx7u"]
-script = ExtResource("8_g274r")
-CombatAnimationPath = ""
-
-[sub_resource type="Resource" id="Resource_g1dkv"]
-script = ExtResource("9_b3es4")
-AttackInRange = false
-
-[sub_resource type="Resource" id="Resource_dfv50"]
-script = ExtResource("8_g274r")
-CombatAnimationPath = ""
-
-[sub_resource type="Resource" id="Resource_naxwj"]
-script = ExtResource("9_b3es4")
-AttackInRange = false
-
-[sub_resource type="Resource" id="Resource_ogqg7"]
-script = ExtResource("8_g274r")
-CombatAnimationPath = ""
-
-[sub_resource type="Resource" id="Resource_xoede"]
-script = ExtResource("9_b3es4")
-AttackInRange = false
-
 [sub_resource type="Resource" id="Resource_ngiwh"]
 script = ExtResource("3_q533t")
 Name = &"Army 2"
@@ -51,16 +25,9 @@ Color = Color(0, 0, 0, 1)
 AllyPaths = PackedStringArray()
 IsPlayer = false
 
-[sub_resource type="Resource" id="Resource_als4p"]
-script = ExtResource("8_g274r")
-CombatAnimationPath = ""
-
-[sub_resource type="Resource" id="Resource_k4ye3"]
-script = ExtResource("9_b3es4")
-AttackInRange = false
-
 [node name="AIControllerTestScene" type="Node"]
 script = ExtResource("1_0ihwx")
+UnitScene = ExtResource("7_biprk")
 
 [node name="Grid" parent="." node_paths=PackedStringArray("GroundLayer") instance=ExtResource("1_c3a26")]
 GroundLayer = NodePath("TileMapLayer")
@@ -80,40 +47,8 @@ Faction = SubResource("Resource_hqq8i")
 [node name="AIController" parent="Army1" node_paths=PackedStringArray("Cursor") instance=ExtResource("8_82y75")]
 Cursor = NodePath("../../Cursor")
 
-[node name="Unit1" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("7_biprk")]
-position = Vector2(0, 32)
-Class = SubResource("Resource_cvx7u")
-Behavior = SubResource("Resource_g1dkv")
-Grid = NodePath("../../Grid")
-Cell = Vector2i(0, 1)
-Size = Vector2(32, 32)
-
-[node name="Unit2" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("7_biprk")]
-position = Vector2(32, 64)
-Class = SubResource("Resource_dfv50")
-Behavior = SubResource("Resource_naxwj")
-Grid = NodePath("../../Grid")
-Cell = Vector2i(1, 2)
-Size = Vector2(32, 32)
-
-[node name="Unit3" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("7_biprk")]
-position = Vector2(0, 96)
-Class = SubResource("Resource_ogqg7")
-Behavior = SubResource("Resource_xoede")
-Grid = NodePath("../../Grid")
-Cell = Vector2i(0, 3)
-Size = Vector2(32, 32)
-
 [node name="Army2" parent="." instance=ExtResource("2_btmox")]
 Faction = SubResource("Resource_ngiwh")
-
-[node name="Unit" parent="Army2" node_paths=PackedStringArray("Grid") instance=ExtResource("7_biprk")]
-position = Vector2(192, 64)
-Class = SubResource("Resource_als4p")
-Behavior = SubResource("Resource_k4ye3")
-Grid = NodePath("../../Grid")
-Cell = Vector2i(6, 2)
-Size = Vector2(32, 32)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
