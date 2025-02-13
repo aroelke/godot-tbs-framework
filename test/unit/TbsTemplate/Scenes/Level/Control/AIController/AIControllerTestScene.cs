@@ -7,32 +7,30 @@ using TbsTemplate.Scenes.Level.Object.Group;
 namespace TbsTemplate.Scenes.Level.Control.Test;
 
 [Test]
-public partial class AIControllerNothingInRange : Node
+public partial class AIControllerTestScene : Node
 {
-    private AIController _controller = null;
-    private IEnumerable<Unit> _allies = null;
-    private IEnumerable<Unit> _enemies = null;
+    private AIController _dut = null;
 
     [BeforeAll]
     public void SetupTests()
     {
-        _controller = GetNode<AIController>("Army1/AIController");
-        _allies = GetNode<Army>("Army1");
-        _enemies = GetNode<Army>("Army2");
+        _dut = GetNode<AIController>("Army1/AIController");
     }
 
     [BeforeEach]
-    public void SetupController()
+    public void InitializeTest()
     {
-        _controller.InitializeTurn();
+        _dut.InitializeTurn();
     }
 
     [Test]
     public void TestNoEnemiesInRange()
     {
+        IEnumerable<Unit> allies = GetNode<Army>("Army1");
+        IEnumerable<Unit> enemies = GetNode<Army>("Army2");
         Unit correct = GetNode<Unit>("Army1/Unit2");
 
-        (Unit selected, Vector2I destination, StringName action, Unit target) = _controller.ComputeAction(_allies, _enemies);
+        (Unit selected, Vector2I destination, StringName action, Unit target) = _dut.ComputeAction(allies, enemies);
         Assert.AreSame(selected, correct);
         Assert.AreEqual(destination, correct.Cell);
         Assert.AreEqual<StringName>(action, "End");
@@ -40,8 +38,9 @@ public partial class AIControllerNothingInRange : Node
     }
 
     [AfterEach]
-    public void CompleteTests()
+    public void FinalizeTest()
     {
-        _controller.FinalizeTurn();
+        _dut.FinalizeAction();
+        _dut.FinalizeTurn();
     }
 }
