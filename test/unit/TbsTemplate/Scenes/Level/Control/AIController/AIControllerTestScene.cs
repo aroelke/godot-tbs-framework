@@ -15,13 +15,16 @@ public partial class AIControllerTestScene : Node
 
     [Export] public PackedScene UnitScene = null;
 
-    private Unit CreateUnit(Vector2I cell)
+    private Unit CreateUnit(Vector2I cell, int[] attackRange=null, UnitBehavior behavior=null)
     {
         Unit unit = UnitScene.Instantiate<Unit>();
         unit.Class = new();
-        unit.Behavior = new StandBehavior();
+        unit.Behavior = behavior ?? new StandBehavior();
         unit.Grid = _dut.Cursor.Grid;
         unit.Cell = cell;
+        unit.Grid.Occupants[cell] = unit;
+        if (attackRange is not null)
+            unit.AttackRange = attackRange;
         return unit;
     }
 
@@ -58,25 +61,40 @@ public partial class AIControllerTestScene : Node
             Assert.AreSame(target, expectedTarget);
     }
 
-    [Test] public void TestNoEnemiesInRangeClosest()
+    [Test]
+    public void TestNoEnemiesInRangeClosest()
     {
         Unit[] allies = [CreateUnit(new(0, 1)), CreateUnit(new(1, 2)), CreateUnit(new(0, 3))];
-        Unit[] enemies = [CreateUnit(new(1, 2))];
+        Unit[] enemies = [CreateUnit(new(6, 2))];
         RunTest(AIController.DecisionType.ClosestEnemy, allies, enemies,
             expectedSelected:    allies[1],
-            expectedDestination: new(1, 2),
+            expectedDestination: allies[1].Cell,
             expectedAction:      "End"
         );
     }
 
-    [Test] public void TestNoEnemiesInRangeLoop()
+    [Test]
+    public void TestNoEnemiesInRangeLoop()
     {
         Unit[] allies = [CreateUnit(new(0, 1)), CreateUnit(new(1, 2)), CreateUnit(new(0, 3))];
-        Unit[] enemies = [CreateUnit(new(1, 2))];
+        Unit[] enemies = [CreateUnit(new(6, 2))];
         RunTest(AIController.DecisionType.ClosestEnemy, allies, enemies,
             expectedSelected:    allies[1],
-            expectedDestination: new(1, 2),
+            expectedDestination: allies[1].Cell,
             expectedAction:      "End"
+        );
+    }
+
+    [Test]
+    public void TestEnemiesInRangeClosest()
+    {
+        Unit[] allies = [CreateUnit(new(3, 2), attackRange:[1, 2], behavior:new StandBehavior() { AttackInRange = true })];
+        Unit[] enemies = [CreateUnit(new(2, 1)), CreateUnit(new(2, 2)), CreateUnit(new(1, 3))];
+        RunTest(AIController.DecisionType.ClosestEnemy, allies, enemies,
+            expectedSelected:    allies[0],
+            expectedDestination: allies[0].Cell,
+            expectedAction:      "Attack",
+            expectedTarget:      enemies[1]
         );
     }
 
@@ -87,8 +105,8 @@ public partial class AIControllerTestScene : Node
         _dut.FinalizeTurn();
 
         foreach (Unit unit in (IEnumerable<Unit>)_allies)
-            unit.QueueFree();
+            unit.Die();
         foreach (Unit unit in (IEnumerable<Unit>)_enemies)
-            unit.QueueFree();
+            unit.Die();
     }
 }
