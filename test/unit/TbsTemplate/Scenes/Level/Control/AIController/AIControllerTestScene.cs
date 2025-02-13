@@ -92,9 +92,9 @@ public partial class AIControllerTestScene : Node
         _dut.FinalizeAction();
         _dut.FinalizeTurn();
 
-        foreach (Unit unit in _allies)
+        foreach (Unit unit in (IEnumerable<Unit>)_allies)
             unit.QueueFree();
-        foreach (Unit unit in _enemies)
+        foreach (Unit unit in (IEnumerable<Unit>)_enemies)
             unit.QueueFree();
     }
 }
