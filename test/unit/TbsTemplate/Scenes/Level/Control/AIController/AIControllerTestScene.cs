@@ -23,9 +23,10 @@ public partial class AIControllerTestScene : Node
         _dut.InitializeTurn();
     }
 
-    [Test]
-    public void TestNoEnemiesInRange()
+    private void TestNoEnemiesInRange(AIController.DecisionType decider)
     {
+        _dut.Decision = decider;
+
         IEnumerable<Unit> allies = GetNode<Army>("Army1");
         IEnumerable<Unit> enemies = GetNode<Army>("Army2");
         Unit correct = GetNode<Unit>("Army1/Unit2");
@@ -36,6 +37,8 @@ public partial class AIControllerTestScene : Node
         Assert.AreEqual<StringName>(action, "End");
         Assert.AreEqual(target, null);
     }
+    [Test] public void TestNoEnemiesInRangeClosest() => TestNoEnemiesInRange(AIController.DecisionType.ClosestEnemy);
+    [Test] public void TestNoEnemiesInRangeLoop() => TestNoEnemiesInRange(AIController.DecisionType.TargetLoop);
 
     [AfterEach]
     public void FinalizeTest()
