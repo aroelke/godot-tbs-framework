@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Security;
 using GD_NET_ScOUT;
 using Godot;
 using TbsTemplate.Scenes.Level.Control.Behavior;
@@ -16,6 +15,16 @@ public partial class AIControllerTestScene : Node
 
     [Export] public PackedScene UnitScene = null;
 
+    private Unit CreateUnit(Vector2I cell)
+    {
+        Unit unit = UnitScene.Instantiate<Unit>();
+        unit.Class = new();
+        unit.Behavior = new StandBehavior();
+        unit.Grid = _dut.Cursor.Grid;
+        unit.Cell = cell;
+        return unit;
+    }
+
     [BeforeAll]
     public void SetupTests()
     {
@@ -30,61 +39,46 @@ public partial class AIControllerTestScene : Node
         _dut.InitializeTurn();
     }
 
-    private void RunTest(AIController.DecisionType decider, Vector2I[] allyCells, Vector2I[] enemyCells, int expectedSelected, Vector2I expectedDestination, string expectedAction, int expectedTarget=-1)
+    private void RunTest(AIController.DecisionType decider, Unit[] allies, Unit[] enemies, Unit expectedSelected, Vector2I expectedDestination, string expectedAction, Unit expectedTarget=null)
     {
         _dut.Decision = decider;
-        Unit correctSelection = null;
-        Unit correctTarget = null;
 
-        Unit CreateUnit(Vector2I cell)
-        {
-            Unit unit = UnitScene.Instantiate<Unit>();
-            unit.Class = new();
-            unit.Behavior = new StandBehavior();
-            unit.Grid = _dut.Cursor.Grid;
-            unit.Cell = cell;
-            return unit;
-        }
-        for (int i = 0; i < allyCells.Length; i++)
-        {
-            Unit ally = CreateUnit(allyCells[i]);
-            if (i == expectedSelected)
-                correctSelection = ally;
+        foreach (Unit ally in allies)
             _allies.AddChild(ally);
-        }
-        for (int i = 0; i < enemyCells.Length; i++)
-        {
-            Unit enemy = CreateUnit(enemyCells[i]);
-            if (i == expectedTarget)
-                correctTarget = enemy;
+        foreach (Unit enemy in enemies)
             _enemies.AddChild(enemy);
-        }
 
         (Unit selected, Vector2I destination, StringName action, Unit target) = _dut.ComputeAction(_allies, _enemies);
-        Assert.AreSame(selected, correctSelection);
+        Assert.AreSame(selected, expectedSelected);
         Assert.AreEqual(destination, expectedDestination);
         Assert.AreEqual<StringName>(action, expectedAction);
-        if (correctTarget is null)
+        if (expectedTarget is null)
             Assert.IsNull(target);
         else
-            Assert.AreSame(target, correctTarget);
+            Assert.AreSame(target, expectedTarget);
     }
 
-    [Test] public void TestNoEnemiesInRangeClosest() => RunTest(AIController.DecisionType.ClosestEnemy,
-        allyCells:           [new(0, 1), new(1, 2), new(0, 3)],
-        enemyCells:          [new(6, 2)],
-        expectedSelected:    1,
-        expectedDestination: new(1, 2),
-        expectedAction:      "End"
-    );
+    [Test] public void TestNoEnemiesInRangeClosest()
+    {
+        Unit[] allies = [CreateUnit(new(0, 1)), CreateUnit(new(1, 2)), CreateUnit(new(0, 3))];
+        Unit[] enemies = [CreateUnit(new(1, 2))];
+        RunTest(AIController.DecisionType.ClosestEnemy, allies, enemies,
+            expectedSelected:    allies[1],
+            expectedDestination: new(1, 2),
+            expectedAction:      "End"
+        );
+    }
 
-    [Test] public void TestNoEnemiesInRangeLoop() => RunTest(AIController.DecisionType.TargetLoop,
-        allyCells:           [new(0, 1), new(1, 2), new(0, 3)],
-        enemyCells:          [new(6, 2)],
-        expectedSelected:    1,
-        expectedDestination: new(1, 2),
-        expectedAction:      "End"
-    );
+    [Test] public void TestNoEnemiesInRangeLoop()
+    {
+        Unit[] allies = [CreateUnit(new(0, 1)), CreateUnit(new(1, 2)), CreateUnit(new(0, 3))];
+        Unit[] enemies = [CreateUnit(new(1, 2))];
+        RunTest(AIController.DecisionType.ClosestEnemy, allies, enemies,
+            expectedSelected:    allies[1],
+            expectedDestination: new(1, 2),
+            expectedAction:      "End"
+        );
+    }
 
     [AfterEach]
     public void FinalizeTest()
