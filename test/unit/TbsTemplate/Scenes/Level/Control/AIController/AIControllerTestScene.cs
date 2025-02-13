@@ -61,7 +61,6 @@ public partial class AIControllerTestScene : Node
         }
 
         (Unit selected, Vector2I destination, StringName action, Unit target) = _dut.ComputeAction(_allies, _enemies);
-        GD.Print($"expected {correctSelection.Name} at {correctSelection.Cell} :: got {selected.Name} at {selected.Cell}");
         Assert.AreSame(selected, correctSelection);
         Assert.AreEqual(destination, expectedDestination);
         Assert.AreEqual<StringName>(action, expectedAction);
