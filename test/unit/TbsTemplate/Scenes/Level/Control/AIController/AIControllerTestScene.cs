@@ -155,6 +155,23 @@ public partial class AIControllerTestScene : Node
         );
     }
 
+    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose the unit that can attack the enemy, even though it's further away.</summary>
+    [Test]
+    public void TestMultipleAlliesSingleEnemyOnlyOneInRangeLoop()
+    {
+        Unit[] allies = [
+            CreateUnit(new(2, 1), attackRange:[1], behavior:new StandBehavior { AttackInRange = true }),
+            CreateUnit(new(2, 4), attackRange:[3], behavior:new StandBehavior { AttackInRange = true })
+        ];
+        Unit[] enemies = [CreateUnit(new(3, 2))];
+        RunTest(AIController.DecisionType.TargetLoop, allies, enemies,
+            expectedSelected:    allies[1],
+            expectedDestination: allies[1].Cell,
+            expectedAction:      "Attack",
+            expectedTarget:      enemies[0]
+        );
+    }
+
     [AfterEach]
     public void FinalizeTest()
     {
