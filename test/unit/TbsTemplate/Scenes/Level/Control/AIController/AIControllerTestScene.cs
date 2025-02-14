@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using GD_NET_ScOUT;
 using Godot;
+using TbsTemplate.Data;
 using TbsTemplate.Scenes.Level.Control.Behavior;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
@@ -15,16 +16,27 @@ public partial class AIControllerTestScene : Node
 
     [Export] public PackedScene UnitScene = null;
 
-    private Unit CreateUnit(Vector2I cell, int[] attackRange=null, UnitBehavior behavior=null)
+    private Unit CreateUnit(Vector2I cell, int[] attackRange=null, Stats stats=null, (int max, int current)? hp = null, UnitBehavior behavior=null)
     {
         Unit unit = UnitScene.Instantiate<Unit>();
-        unit.Class = new();
-        unit.Behavior = behavior ?? new StandBehavior();
+
         unit.Grid = _dut.Cursor.Grid;
         unit.Cell = cell;
         unit.Grid.Occupants[cell] = unit;
+
+        unit.Class = new();
         if (attackRange is not null)
             unit.AttackRange = attackRange;
+        if (stats is not null)
+            unit.Stats = stats;
+        if (hp is not null)
+        {
+            unit.Health.Maximum = hp.Value.max;
+            unit.Ready += () => unit.Health.Value = hp.Value.current; // Do in Ready handler because Unit inits its health to max
+        }
+
+        unit.Behavior = behavior ?? new StandBehavior();
+
         return unit;
     }
 
@@ -61,6 +73,7 @@ public partial class AIControllerTestScene : Node
             Assert.AreSame(target, expectedTarget);
     }
 
+    /// <summary><see cref="AIController.DecisionType.ClosestEnemy"/>: AI should choose its unit closest to any enemy.</summary>
     [Test]
     public void TestNoEnemiesInRangeClosest()
     {
@@ -73,6 +86,7 @@ public partial class AIControllerTestScene : Node
         );
     }
 
+    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose its unit closest to any enemy and no enemies are in range to attack.</summary>
     [Test]
     public void TestNoEnemiesInRangeLoop()
     {
@@ -85,6 +99,7 @@ public partial class AIControllerTestScene : Node
         );
     }
 
+    /// <summary><see cref="AIController.DecisionType.ClosestEnemy"/>: AI should choose to attack the enemy closest to its selected unit.</summary>
     [Test]
     public void TestEnemiesInRangeClosest()
     {
@@ -95,6 +110,48 @@ public partial class AIControllerTestScene : Node
             expectedDestination: allies[0].Cell,
             expectedAction:      "Attack",
             expectedTarget:      enemies[1]
+        );
+    }
+
+    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose to attack the enemy with the lower HP when it deals the same damage to all enemies.</summary>
+    [Test]
+    public void TestSingleAllyMultipleEnemiesSameDamageLoop()
+    {
+        Unit[] allies = [CreateUnit(new(3, 2), attackRange:[1, 2], behavior:new StandBehavior() { AttackInRange = true })];
+        Unit[] enemies = [CreateUnit(new(2, 1), hp:(10, 5)), CreateUnit(new(2, 2), hp:(10, 10))];
+        RunTest(AIController.DecisionType.TargetLoop, allies, enemies,
+            expectedSelected:    allies[0],
+            expectedDestination: allies[0].Cell,
+            expectedAction:      "Attack",
+            expectedTarget:      enemies[0]
+        );
+    }
+
+    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose to attack the enemy it can do more damage to when enemies have the same HP.</summary>
+    [Test]
+    public void TestSingleAllyMultipleEnemiesDifferentDamageLoop()
+    {
+        Unit[] allies = [CreateUnit(new(3, 2), attackRange:[1, 2], stats:new() { Attack = 5 }, behavior:new StandBehavior() { AttackInRange = true })];
+        Unit[] enemies = [CreateUnit(new(2, 1), stats:new() { Defense = 3 }), CreateUnit(new(2, 2), stats:new() { Defense = 0 })];
+        RunTest(AIController.DecisionType.TargetLoop, allies, enemies,
+            expectedSelected:    allies[0],
+            expectedDestination: allies[0].Cell,
+            expectedAction:      "Attack",
+            expectedTarget:      enemies[1]
+        );
+    }
+
+    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose to attack the enemy it can bring to the lowest HP regardless of current HP or damage.</summary>
+    [Test]
+    public void TestSingleAllyMultipleEnemiesDifferentEndHealthLoop()
+    {
+        Unit[] allies = [CreateUnit(new(3, 2), attackRange:[1, 2], stats:new() { Attack = 5 }, behavior:new StandBehavior() { AttackInRange = true })];
+        Unit[] enemies = [CreateUnit(new(2, 1), hp:(10, 5), stats:new() { Health = 10, Defense = 3 }), CreateUnit(new(2, 2), hp:(10, 10), stats:new() { Health = 10, Defense = 0 })];
+        RunTest(AIController.DecisionType.TargetLoop, allies, enemies,
+            expectedSelected:    allies[0],
+            expectedDestination: allies[0].Cell,
+            expectedAction:      "Attack",
+            expectedTarget:      enemies[0]
         );
     }
 
