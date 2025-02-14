@@ -54,7 +54,7 @@ public partial class AIControllerTestScene : Node
         _dut.InitializeTurn();
     }
 
-    private void RunTest(AIController.DecisionType decider, Unit[] allies, Unit[] enemies, Unit expectedSelected, Vector2I expectedDestination, string expectedAction, Unit expectedTarget=null)
+    private void RunTest(AIController.DecisionType decider, IEnumerable<Unit> allies, IEnumerable<Unit> enemies, Unit expectedSelected, Vector2I expectedDestination, string expectedAction, Unit expectedTarget=null)
     {
         _dut.Decision = decider;
 
@@ -64,13 +64,13 @@ public partial class AIControllerTestScene : Node
             _enemies.AddChild(enemy);
 
         (Unit selected, Vector2I destination, StringName action, Unit target) = _dut.ComputeAction(_allies, _enemies);
-        Assert.AreSame(selected, expectedSelected);
-        Assert.AreEqual(destination, expectedDestination);
-        Assert.AreEqual<StringName>(action, expectedAction);
+        Assert.AreSame(selected, expectedSelected, $"Expected to select {expectedSelected.Army.Faction.Name} unit at {expectedSelected.Cell}, but selected {expectedSelected.Army.Faction.Name} unit at {selected.Cell}");
+        Assert.AreEqual(destination, expectedDestination, $"Expected to choose destination cell {expectedDestination}, but chose {destination}");
+        Assert.AreEqual<StringName>(action, expectedAction, $"Expected action {expectedAction}, but chose {action}");
         if (expectedTarget is null)
-            Assert.IsNull(target);
+            Assert.IsNull(target, $"Unexpected target {target?.Army.Faction.Name} unit at {target?.Cell}");
         else
-            Assert.AreSame(target, expectedTarget);
+            Assert.AreSame(target, expectedTarget, $"Expected to target {expectedTarget.Army.Faction.Name} unit at {expectedTarget.Cell}, but chose {target.Army.Faction.Name} unit at {target.Cell}");
     }
 
     /// <summary><see cref="AIController.DecisionType.ClosestEnemy"/>: AI should choose its unit closest to any enemy.</summary>
