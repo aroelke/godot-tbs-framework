@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using GD_NET_ScOUT;
 using Godot;
 using TbsTemplate.Data;
@@ -54,7 +55,7 @@ public partial class AIControllerTestScene : Node
         _dut.InitializeTurn();
     }
 
-    private void RunTest(AIController.DecisionType decider, IEnumerable<Unit> allies, IEnumerable<Unit> enemies, Unit expectedSelected, Vector2I expectedDestination, string expectedAction, Unit expectedTarget=null)
+    private void RunTest(AIController.DecisionType decider, IEnumerable<Unit> allies, IEnumerable<Unit> enemies, Dictionary<Unit, Vector2I> expected, string expectedAction, Unit expectedTarget=null)
     {
         _dut.Decision = decider;
 
@@ -64,14 +65,18 @@ public partial class AIControllerTestScene : Node
             _enemies.AddChild(enemy);
 
         (Unit selected, Vector2I destination, StringName action, Unit target) = _dut.ComputeAction(_allies, _enemies);
-        Assert.AreSame(selected, expectedSelected, $"Expected to select {expectedSelected.Army.Faction.Name} unit at {expectedSelected.Cell}, but selected {expectedSelected.Army.Faction.Name} unit at {selected.Cell}");
-        Assert.AreEqual(destination, expectedDestination, $"Expected to choose destination cell {expectedDestination}, but chose {destination}");
+        Assert.IsTrue(expected.Any(
+            (p) => selected == p.Key && destination == p.Value),
+            $"Expected to choose one of {string.Join(',', expected.Select((p) => $"{p.Key.Army.Faction.Name} unit at {p.Key.Cell} moves {p.Value}"))}; but chose {selected.Army.Faction.Name} unit at {selected.Cell} to {destination}"
+        );
         Assert.AreEqual<StringName>(action, expectedAction, $"Expected action {expectedAction}, but chose {action}");
         if (expectedTarget is null)
             Assert.IsNull(target, $"Unexpected target {target?.Army.Faction.Name} unit at {target?.Cell}");
         else
             Assert.AreSame(target, expectedTarget, $"Expected to target {expectedTarget.Army.Faction.Name} unit at {expectedTarget.Cell}, but chose {target.Army.Faction.Name} unit at {target.Cell}");
     }
+    private void RunTest(AIController.DecisionType decider, IEnumerable<Unit> allies, IEnumerable<Unit> enemies, Unit expectedSelected, Vector2I expectedDestination, string expectedAction, Unit expectedTarget=null)
+        => RunTest(decider, allies, enemies, new() {{ expectedSelected, expectedDestination }}, expectedAction, expectedTarget);
 
     /// <summary><see cref="AIController.DecisionType.ClosestEnemy"/>: AI should choose its unit closest to any enemy.</summary>
     [Test]
@@ -169,6 +174,25 @@ public partial class AIControllerTestScene : Node
             expectedDestination: allies[1].Cell,
             expectedAction:      "Attack",
             expectedTarget:      enemies[0]
+        );
+    }
+
+    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose the target it can kill with its units, even if one of its units can do more damage to a different one.</summary>
+    [Test]
+    public void TestMultipleAlliesMultipleEnemiesOneCanBeKilledLoop()
+    {
+        Unit[] allies = [
+            CreateUnit(new(0, 1), attackRange:[1, 2], stats:new() { Attack = 7 }, behavior:new StandBehavior() { AttackInRange = true }),
+            CreateUnit(new(0, 2), attackRange:[1],    stats:new() { Attack = 7 }, behavior:new StandBehavior() { AttackInRange = true })
+        ];
+        Unit[] enemies = [
+            CreateUnit(new(1, 1), stats:new() { Defense = 0 }),
+            CreateUnit(new(1, 2), stats:new() { Defense = 2 })
+        ];
+        RunTest(AIController.DecisionType.TargetLoop, allies, enemies,
+            expected:            allies.ToDictionary((u) => u, (u) => u.Cell),
+            expectedAction:      "Attack",
+            expectedTarget:      enemies[1]
         );
     }
 
