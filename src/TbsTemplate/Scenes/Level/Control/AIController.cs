@@ -45,7 +45,7 @@ public partial class AIController : ArmyController
         switch (Decision)
         {
         case DecisionType.ClosestEnemy:
-            selected = available.MinBy((u) => enemies.Select((e) => u.Cell.DistanceTo(e.Cell)).Min());
+            selected = enemies.Any() ? available.MinBy((u) => enemies.Select((e) => u.Cell.DistanceTo(e.Cell)).Min()) : available.First();
 
             IEnumerable<Vector2I> destinations = selected.Behavior.Destinations(selected);
             Dictionary<StringName, IEnumerable<Vector2I>> actions = selected.Behavior.Actions(selected);
@@ -68,28 +68,31 @@ public partial class AIController : ArmyController
             }
             break;
         case DecisionType.TargetLoop:
-            // optimize for enemy unit with lowest remaining health
-            double best = double.PositiveInfinity;
-            foreach (Unit enemy in enemies.OrderBy((u) => u.Health.Value))
+            if (enemies.Any())
             {
-                IEnumerable<Unit> attackers = available.Where((u) => {
-                    Dictionary<StringName, IEnumerable<Vector2I>> actions = u.Behavior.Actions(u);
-                    return actions.ContainsKey("Attack") && actions["Attack"].Contains(enemy.Cell);
-                });
-
-                foreach (IList<Unit> permutation in attackers.Permutations())
+                // optimize for enemy unit with lowest remaining health
+                double best = double.PositiveInfinity;
+                foreach (Unit enemy in enemies.OrderBy((u) => u.Health.Value))
                 {
-                    Dictionary<Unit, List<CombatAction>> battles = permutation.ToDictionary((u) => u, (u) => CombatCalculations.AttackResults(u, enemy));
-                    double damage = permutation.Select((u) => CombatCalculations.TotalExpectedDamage(enemy, battles[u])).Sum();
-                    double remaining = enemy.Health.Value - damage;
+                    IEnumerable<Unit> attackers = available.Where((u) => {
+                        Dictionary<StringName, IEnumerable<Vector2I>> actions = u.Behavior.Actions(u);
+                        return actions.ContainsKey("Attack") && actions["Attack"].Contains(enemy.Cell);
+                    });
 
-                    if (selected is null || remaining < best)
+                    foreach (IList<Unit> permutation in attackers.Permutations())
                     {
-                        selected = permutation[0];
-                        action = "Attack";
-                        destination = selected.AttackableCells(enemy.Cell).Where(selected.Behavior.Destinations(selected).Contains).OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).First();
-                        target = enemy;
-                        best = remaining;
+                        Dictionary<Unit, List<CombatAction>> battles = permutation.ToDictionary((u) => u, (u) => CombatCalculations.AttackResults(u, enemy));
+                        double damage = permutation.Select((u) => CombatCalculations.TotalExpectedDamage(enemy, battles[u])).Sum();
+                        double remaining = enemy.Health.Value - damage;
+
+                        if (selected is null || remaining < best)
+                        {
+                            selected = permutation[0];
+                            action = "Attack";
+                            destination = selected.AttackableCells(enemy.Cell).Where(selected.Behavior.Destinations(selected).Contains).OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).First();
+                            target = enemy;
+                            best = remaining;
+                        }
                     }
                 }
             }
@@ -97,7 +100,7 @@ public partial class AIController : ArmyController
             // If no one has been selected yet, just pick the unit closest to an enemy
             if (selected is null)
             {
-                selected = available.MinBy((u) => enemies.Select((e) => u.Cell.DistanceTo(e.Cell)).Min());
+                selected = enemies.Any() ? available.MinBy((u) => enemies.Select((e) => u.Cell.DistanceTo(e.Cell)).Min()) : available.First();
                 action = "End";
 
                 IEnumerable<Unit> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Cell));
