@@ -80,7 +80,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary><see cref="AIController.DecisionType.ClosestEnemy"/>: AI should choose its unit closest to any enemy.</summary>
     [Test]
-    public void TestNoEnemiesInRangeClosest()
+    public void TestClosestStandingNoEnemiesInRange()
     {
         Unit[] allies = [CreateUnit(new(0, 1)), CreateUnit(new(1, 2)), CreateUnit(new(0, 3))];
         Unit[] enemies = [CreateUnit(new(6, 2))];
@@ -93,7 +93,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose its unit closest to any enemy and no enemies are in range to attack.</summary>
     [Test]
-    public void TestNoEnemiesInRangeLoop()
+    public void TestLoopStandingNoEnemiesInRange()
     {
         Unit[] allies = [CreateUnit(new(0, 1)), CreateUnit(new(1, 2)), CreateUnit(new(0, 3))];
         Unit[] enemies = [CreateUnit(new(6, 2))];
@@ -106,7 +106,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary><see cref="AIController.DecisionType.ClosestEnemy"/>: AI should choose to attack the enemy closest to its selected unit.</summary>
     [Test]
-    public void TestEnemiesInRangeClosest()
+    public void TestClosestStandingEnemiesInRange()
     {
         Unit[] allies = [CreateUnit(new(3, 2), attackRange:[1, 2], behavior:new StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1)), CreateUnit(new(2, 2)), CreateUnit(new(1, 3))];
@@ -120,7 +120,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose to attack the enemy with the lower HP when it deals the same damage to all enemies.</summary>
     [Test]
-    public void TestSingleAllyMultipleEnemiesSameDamageLoop()
+    public void TestLoopStandingSingleAllyMultipleEnemiesSameDamage()
     {
         Unit[] allies = [CreateUnit(new(3, 2), attackRange:[1, 2], behavior:new StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), hp:(10, 5)), CreateUnit(new(2, 2), hp:(10, 10))];
@@ -134,7 +134,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose to attack the enemy it can do more damage to when enemies have the same HP.</summary>
     [Test]
-    public void TestSingleAllyMultipleEnemiesDifferentDamageLoop()
+    public void TestLoopStandingSingleAllyMultipleEnemiesDifferentDamage()
     {
         Unit[] allies = [CreateUnit(new(3, 2), attackRange:[1, 2], stats:new() { Attack = 5 }, behavior:new StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), stats:new() { Defense = 3 }), CreateUnit(new(2, 2), stats:new() { Defense = 0 })];
@@ -148,7 +148,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose to attack the enemy it can bring to the lowest HP regardless of current HP or damage.</summary>
     [Test]
-    public void TestSingleAllyMultipleEnemiesDifferentEndHealthLoop()
+    public void TestLoopStandingSingleAllyMultipleEnemiesDifferentEndHealth()
     {
         Unit[] allies = [CreateUnit(new(3, 2), attackRange:[1, 2], stats:new() { Attack = 5 }, behavior:new StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), hp:(10, 5), stats:new() { Health = 10, Defense = 3 }), CreateUnit(new(2, 2), hp:(10, 10), stats:new() { Health = 10, Defense = 0 })];
@@ -162,7 +162,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose the unit that can attack the enemy, even though it's further away.</summary>
     [Test]
-    public void TestMultipleAlliesSingleEnemyOnlyOneInRangeLoop()
+    public void TestLoopStandingMultipleAlliesSingleEnemyOnlyOneInRange()
     {
         Unit[] allies = [
             CreateUnit(new(2, 1), attackRange:[1], behavior:new StandBehavior { AttackInRange = true }),
@@ -179,7 +179,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose the target it can kill with its units, even if one of its units can do more damage to a different one.</summary>
     [Test]
-    public void TestMultipleAlliesMultipleEnemiesOneCanBeKilledLoop()
+    public void TestLoopStandingMultipleAlliesMultipleEnemiesOneCanBeKilled()
     {
         Unit[] allies = [
             CreateUnit(new(0, 1), attackRange:[1, 2], stats:new() { Attack = 7 }, behavior:new StandBehavior() { AttackInRange = true }),
