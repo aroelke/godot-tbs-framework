@@ -196,6 +196,30 @@ public partial class AIControllerTestScene : Node
         );
     }
 
+    /// <summary><summary><see cref="AIController.DecisionType.ClosestEnemy"/>: AI should be able to choose an action when there aren't enemies.</summary>
+    [Test]
+    public void TestClosestMovingNoEnemiesPresent()
+    {
+        Unit ally = CreateUnit(new(3, 2), behavior:new MoveBehavior());
+        RunTest(AIController.DecisionType.ClosestEnemy, [ally], [],
+            expectedSelected:    ally,
+            expectedDestination: ally.Cell,
+            expectedAction:      "End"
+        );
+    }
+
+    /// <summary><summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should be able to choose an action when there aren't enemies.</summary>
+    [Test]
+    public void TestLoopMovingNoEnemiesPresent()
+    {
+        Unit ally = CreateUnit(new(3, 2), behavior:new MoveBehavior());
+        RunTest(AIController.DecisionType.TargetLoop, [ally], [],
+            expectedSelected:    ally,
+            expectedDestination: ally.Cell,
+            expectedAction:      "End"
+        );
+    }
+
     [AfterEach]
     public void FinalizeTest()
     {
