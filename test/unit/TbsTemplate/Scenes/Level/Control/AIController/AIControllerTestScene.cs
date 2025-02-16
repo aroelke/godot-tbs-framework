@@ -53,6 +53,7 @@ public partial class AIControllerTestScene : Node
     public void InitializeTest()
     {
         _dut.InitializeTurn();
+        _dut.Cursor.Cell = Vector2I.Zero;
     }
 
     private void RunTest(AIController.DecisionType decider, IEnumerable<Unit> allies, IEnumerable<Unit> enemies, Dictionary<Unit, Vector2I> expected, string expectedAction, Unit expectedTarget=null)
@@ -67,7 +68,7 @@ public partial class AIControllerTestScene : Node
         (Unit selected, Vector2I destination, StringName action, Unit target) = _dut.ComputeAction(_allies, _enemies);
         Assert.IsTrue(expected.Any(
             (p) => selected == p.Key && destination == p.Value),
-            $"Expected to choose one of {string.Join(',', expected.Select((p) => $"{p.Key.Army.Faction.Name} unit at {p.Key.Cell} moves {p.Value}"))}; but chose {selected.Army.Faction.Name} unit at {selected.Cell} to {destination}"
+            $"Expected to move one of {string.Join(',', expected.Select((p) => $"{p.Key.Army.Faction.Name} unit at {p.Key.Cell} to {p.Value}"))}; but moved {selected.Army.Faction.Name} unit at {selected.Cell} to {destination}"
         );
         Assert.AreEqual<StringName>(action, expectedAction, $"Expected action {expectedAction}, but chose {action}");
         if (expectedTarget is null)
@@ -223,6 +224,32 @@ public partial class AIControllerTestScene : Node
             expectedSelected:    ally,
             expectedDestination: ally.Cell,
             expectedAction:      "End"
+        );
+    }
+
+    [Test]
+    public void TestClosestMovingSingleReachableEnemy()
+    {
+        Unit ally = CreateUnit(new(1, 2), stats:new() { Move = 5 }, behavior:new MoveBehavior());
+        Unit enemy = CreateUnit(new(4, 2));
+        RunTest(AIController.DecisionType.ClosestEnemy, [ally], [enemy],
+            expectedSelected:    ally,
+            expectedDestination: new(2, 2),
+            expectedAction:      "Attack",
+            expectedTarget:      enemy
+        );
+    }
+
+    [Test]
+    public void TestLoopMovingSingleReachableEnemy()
+    {
+        Unit ally = CreateUnit(new(1, 2), stats:new() { Move = 5 }, behavior:new MoveBehavior());
+        Unit enemy = CreateUnit(new(4, 2));
+        RunTest(AIController.DecisionType.TargetLoop, [ally], [enemy],
+            expectedSelected:    ally,
+            expectedDestination: new(2, 2),
+            expectedAction:      "Attack",
+            expectedTarget:      enemy
         );
     }
 
