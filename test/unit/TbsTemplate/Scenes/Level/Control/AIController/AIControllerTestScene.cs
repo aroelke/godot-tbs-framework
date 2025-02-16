@@ -230,11 +230,11 @@ public partial class AIControllerTestScene : Node
     [Test]
     public void TestClosestMovingSingleReachableEnemy()
     {
-        Unit ally = CreateUnit(new(1, 2), stats:new() { Move = 5 }, behavior:new MoveBehavior());
+        Unit ally = CreateUnit(new(1, 2), attackRange:[1], stats:new() { Move = 5 }, behavior:new MoveBehavior());
         Unit enemy = CreateUnit(new(4, 2));
         RunTest(AIController.DecisionType.ClosestEnemy, [ally], [enemy],
             expectedSelected:    ally,
-            expectedDestination: new(2, 2),
+            expectedDestination: new(3, 2),
             expectedAction:      "Attack",
             expectedTarget:      enemy
         );
@@ -243,13 +243,26 @@ public partial class AIControllerTestScene : Node
     [Test]
     public void TestLoopMovingSingleReachableEnemy()
     {
-        Unit ally = CreateUnit(new(1, 2), stats:new() { Move = 5 }, behavior:new MoveBehavior());
+        Unit ally = CreateUnit(new(1, 2), attackRange:[1], stats:new() { Move = 5 }, behavior:new MoveBehavior());
         Unit enemy = CreateUnit(new(4, 2));
         RunTest(AIController.DecisionType.TargetLoop, [ally], [enemy],
             expectedSelected:    ally,
-            expectedDestination: new(2, 2),
+            expectedDestination: new(3, 2),
             expectedAction:      "Attack",
             expectedTarget:      enemy
+        );
+    }
+
+    [Test]
+    public void TestClosestMovingMultipleReachableEnemies()
+    {
+        Unit ally = CreateUnit(new(1, 2), attackRange:[1], stats:new() { Move = 5 }, behavior:new MoveBehavior());
+        Unit[] enemies = [CreateUnit(new(4, 1)), CreateUnit(new(4, 2))];
+        RunTest(AIController.DecisionType.ClosestEnemy, [ally], enemies,
+            expectedSelected:    ally,
+            expectedDestination: new(3, 2),
+            expectedAction:      "Attack",
+            expectedTarget:      enemies[1]
         );
     }
 
@@ -260,8 +273,16 @@ public partial class AIControllerTestScene : Node
         _dut.FinalizeTurn();
 
         foreach (Unit unit in (IEnumerable<Unit>)_allies)
-            unit.Die();
+        {
+            unit.Grid.Occupants.Remove(unit.Cell);
+            _allies.RemoveChild(unit);
+            unit.Free();
+        }
         foreach (Unit unit in (IEnumerable<Unit>)_enemies)
-            unit.Die();
+        {
+            unit.Grid.Occupants.Remove(unit.Cell);
+            _enemies.RemoveChild(unit);
+            unit.Free();
+        }
     }
 }
