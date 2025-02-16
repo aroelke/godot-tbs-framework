@@ -196,7 +196,10 @@ public partial class AIControllerTestScene : Node
         );
     }
 
-    /// <summary><summary><see cref="AIController.DecisionType.ClosestEnemy"/>: AI should be able to choose an action when there aren't enemies.</summary>
+    /// <summary>
+    /// <see cref="AIController.DecisionType.ClosestEnemy"/>: AI should be able to choose an action when there aren't enemies. It also should keep the chosen unit in place even if that unit
+    /// could move.
+    /// </summary>
     [Test]
     public void TestClosestMovingNoEnemiesPresent()
     {
@@ -208,7 +211,10 @@ public partial class AIControllerTestScene : Node
         );
     }
 
-    /// <summary><summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should be able to choose an action when there aren't enemies.</summary>
+    /// <summary>
+    /// <see cref="AIController.DecisionType.TargetLoop"/>: AI should be able to choose an action when there aren't enemies.  It also should keep the chosen unit in place even if that unit
+    /// could move.
+    // </summary>
     [Test]
     public void TestLoopMovingNoEnemiesPresent()
     {
