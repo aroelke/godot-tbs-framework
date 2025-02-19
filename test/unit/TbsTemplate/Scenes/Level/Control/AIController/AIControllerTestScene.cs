@@ -307,6 +307,20 @@ public partial class AIControllerTestScene : Node
         );
     }
 
+    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose the square at the furthest range it could attack its target.</summary>
+    [Test]
+    public void TestLoopMovingSingleReachableEnemyRanged()
+    {
+        Unit ally = CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Move = 5 }, behavior:new MoveBehavior());
+        Unit enemy = CreateUnit(new(4, 2));
+        RunTest(AIController.DecisionType.TargetLoop, [ally], [enemy],
+            expectedSelected:    ally,
+            expectedDestination: new(2, 2),
+            expectedAction:      "Attack",
+            expectedTarget:      enemy
+        );
+    }
+
     /// <summary><see cref="AIController.DecisionType.ClosestEnemy"/>: AI should choose the cell closest to the closest target if there are multiple targets.</summary>
     [Test]
     public void TestClosestMovingMultipleReachableEnemies()
