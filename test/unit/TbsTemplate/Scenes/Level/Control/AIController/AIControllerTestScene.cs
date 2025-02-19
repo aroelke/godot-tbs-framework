@@ -66,15 +66,37 @@ public partial class AIControllerTestScene : Node
             _enemies.AddChild(enemy);
 
         (Unit selected, Vector2I destination, StringName action, Unit target) = _dut.ComputeAction(_allies, _enemies);
-        Assert.IsTrue(expected.Any(
-            (p) => selected == p.Key && destination == p.Value),
-            $"Expected to move one of {string.Join(',', expected.Select((p) => $"{p.Key.Army.Faction.Name} unit at {p.Key.Cell} to {p.Value}"))}; but moved {selected.Army.Faction.Name} unit at {selected.Cell} to {destination}"
-        );
-        Assert.AreEqual<StringName>(action, expectedAction, $"Expected action {expectedAction}, but chose {action}");
-        if (expectedTarget is null)
-            Assert.IsNull(target, $"Unexpected target {target?.Army.Faction.Name} unit at {target?.Cell}");
-        else
-            Assert.AreSame(target, expectedTarget, $"Expected to target {expectedTarget.Army.Faction.Name} unit at {expectedTarget.Cell}, but chose {target.Army.Faction.Name} unit at {target.Cell}");
+
+        try
+        {
+            Assert.IsTrue(expected.Any(
+                (p) => selected == p.Key && destination == p.Value),
+                $"Expected to move one of {string.Join(',', expected.Select((p) => $"{p.Key.Army.Faction.Name} unit at {p.Key.Cell} to {p.Value}"))}; but moved {selected.Army.Faction.Name} unit at {selected.Cell} to {destination}"
+            );
+            Assert.AreEqual<StringName>(action, expectedAction, $"Expected action {expectedAction}, but chose {action}");
+            if (expectedTarget is null)
+                Assert.IsNull(target, $"Unexpected target {target?.Army.Faction.Name} unit at {target?.Cell}");
+            else
+                Assert.AreSame(target, expectedTarget, $"Expected to target {expectedTarget.Army.Faction.Name} unit at {expectedTarget.Cell}, but chose {target.Army.Faction.Name} unit at {target.Cell}");
+        }
+        finally
+        {
+            _dut.FinalizeAction();
+            _dut.FinalizeTurn();
+
+            foreach (Unit unit in (IEnumerable<Unit>)_allies)
+            {
+                unit.Grid.Occupants.Remove(unit.Cell);
+                _allies.RemoveChild(unit);
+                unit.Free();
+            }
+            foreach (Unit unit in (IEnumerable<Unit>)_enemies)
+            {
+                unit.Grid.Occupants.Remove(unit.Cell);
+                _enemies.RemoveChild(unit);
+                unit.Free();
+            }
+        }
     }
     private void RunTest(AIController.DecisionType decider, IEnumerable<Unit> allies, IEnumerable<Unit> enemies, Unit expectedSelected, Vector2I expectedDestination, string expectedAction, Unit expectedTarget=null)
         => RunTest(decider, allies, enemies, new() {{ expectedSelected, expectedDestination }}, expectedAction, expectedTarget);
@@ -264,25 +286,5 @@ public partial class AIControllerTestScene : Node
             expectedAction:      "Attack",
             expectedTarget:      enemies[1]
         );
-    }
-
-    [AfterEach]
-    public void FinalizeTest()
-    {
-        _dut.FinalizeAction();
-        _dut.FinalizeTurn();
-
-        foreach (Unit unit in (IEnumerable<Unit>)_allies)
-        {
-            unit.Grid.Occupants.Remove(unit.Cell);
-            _allies.RemoveChild(unit);
-            unit.Free();
-        }
-        foreach (Unit unit in (IEnumerable<Unit>)_enemies)
-        {
-            unit.Grid.Occupants.Remove(unit.Cell);
-            _enemies.RemoveChild(unit);
-            unit.Free();
-        }
     }
 }
