@@ -56,6 +56,13 @@ public partial class AIControllerTestScene : Node
         _dut.Cursor.Cell = Vector2I.Zero;
     }
 
+    /// <summary>Run a test to make sure the AI performs the right action for a given game state.</summary>
+    /// <param name="decider">Algorithm the AI should use to determine actions.</param>
+    /// <param name="allies">Units in the AI's army.</param>
+    /// <param name="enemies">Units not in the AI's army.</param>
+    /// <param name="expected">Mapping of units the AI can choose onto the destination cells it should move the one it chooses.</param>
+    /// <param name="expectedAction">Action the AI should perform with its chosen unit.</param>
+    /// <param name="expectedTarget">Unit the AI should be targeting with its action.</param>
     private void RunTest(AIController.DecisionType decider, IEnumerable<Unit> allies, IEnumerable<Unit> enemies, Dictionary<Unit, Vector2I> expected, string expectedAction, Unit expectedTarget=null)
     {
         _dut.Decision = decider;
@@ -98,6 +105,15 @@ public partial class AIControllerTestScene : Node
             }
         }
     }
+
+    /// <summary>Run a test to make sure the AI performs the right action for a given game state.</summary>
+    /// <param name="decider">Algorithm the AI should use to determine actions.</param>
+    /// <param name="allies">Units in the AI's army.</param>
+    /// <param name="enemies">Units not in the AI's army.</param>
+    /// <param name="expectedSelected">Unit the AI should choose for its action.</param>
+    /// <param name="expectedDestination">Cell the AI should move its unit to.</param>
+    /// <param name="expectedAction">Action the AI should perform with its chosen unit.</param>
+    /// <param name="expectedTarget">Unit the AI should be targeting with its action.</param>
     private void RunTest(AIController.DecisionType decider, IEnumerable<Unit> allies, IEnumerable<Unit> enemies, Unit expectedSelected, Vector2I expectedDestination, string expectedAction, Unit expectedTarget=null)
         => RunTest(decider, allies, enemies, new() {{ expectedSelected, expectedDestination }}, expectedAction, expectedTarget);
 
