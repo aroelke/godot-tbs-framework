@@ -265,6 +265,7 @@ public partial class AIControllerTestScene : Node
         );
     }
 
+    /// <summary><see cref="AIController.DecisionType.ClosestEnemy"/>: AI should choose the closest allowed destination when there are multiple options.</summary>
     [Test]
     public void TestClosestMovingSingleReachableEnemy()
     {
@@ -278,6 +279,7 @@ public partial class AIControllerTestScene : Node
         );
     }
 
+    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose the closest allowed destination when there are multiple options.</summary>
     [Test]
     public void TestLoopMovingSingleReachableEnemy()
     {
@@ -291,6 +293,7 @@ public partial class AIControllerTestScene : Node
         );
     }
 
+    /// <summary><see cref="AIController.DecisionType.ClosestEnemy"/>: AI should choose the cell closest to the closest target if there are multiple targets.</summary>
     [Test]
     public void TestClosestMovingMultipleReachableEnemies()
     {
