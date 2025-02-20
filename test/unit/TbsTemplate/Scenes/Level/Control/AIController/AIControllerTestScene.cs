@@ -334,4 +334,17 @@ public partial class AIControllerTestScene : Node
             expectedTarget:      enemies[1]
         );
     }
+
+    /// <summary><see cref="AIController.DecisionType.ClosestEnemy"/>: AI should choose the traversable cell closest to any enemy when it can't attack anything.</summary>
+    [Test]
+    public void TestClosestMovingSingleUnreachableEnemy()
+    {
+        Unit ally = CreateUnit(new(0, 2), attackRange:[1], stats:new() { Move = 3 }, behavior:new MoveBehavior());
+        Unit enemy = CreateUnit(new(5, 2));
+        RunTest(AIController.DecisionType.ClosestEnemy, [ally], [enemy],
+            expectedSelected:    ally,
+            expectedDestination: new(3, 2),
+            expectedAction:      "End"
+        );
+    }
 }
