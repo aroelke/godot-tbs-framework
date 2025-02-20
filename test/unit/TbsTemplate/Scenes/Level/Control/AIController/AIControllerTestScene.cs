@@ -347,4 +347,17 @@ public partial class AIControllerTestScene : Node
             expectedAction:      "End"
         );
     }
+
+    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose the traversable cell closest to any enemy when it can't attack anything.</summary>
+    [Test]
+    public void TestLoopMovingSingleUnreachableEnemy()
+    {
+        Unit ally = CreateUnit(new(0, 2), attackRange:[1], stats:new() { Move = 3 }, behavior:new MoveBehavior());
+        Unit enemy = CreateUnit(new(5, 2));
+        RunTest(AIController.DecisionType.TargetLoop, [ally], [enemy],
+            expectedSelected:    ally,
+            expectedDestination: new(3, 2),
+            expectedAction:      "End"
+        );
+    }
 }
