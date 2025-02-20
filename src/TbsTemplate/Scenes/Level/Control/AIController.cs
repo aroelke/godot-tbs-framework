@@ -105,7 +105,7 @@ public partial class AIController : ArmyController
 
                 IEnumerable<Unit> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Cell));
                 if (ordered.Any())
-                    destination = selected.Behavior.Destinations(selected).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).First();
+                    destination = selected.Behavior.Destinations(selected).OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
                 else
                     destination = selected.Cell;
             }
