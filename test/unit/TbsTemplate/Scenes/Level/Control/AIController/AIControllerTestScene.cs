@@ -82,17 +82,17 @@ public partial class AIControllerTestScene : Node
                 foreach (IEnumerable<Unit> enemyPermutation in enemies.Permutations())
                 {
                     string run = $"[{string.Join(',', allyPermutation.Select(PrintUnit))}] & [{string.Join(',', enemyPermutation.Select(PrintUnit))}]";
-                    (Unit selected, Vector2I destination, StringName action, Unit target) = _dut.ComputeAction(_allies, _enemies);
+                    (Unit selected, Vector2I destination, StringName action, Unit target) = _dut.ComputeAction(allyPermutation, enemyPermutation);
 
-                        Assert.IsTrue(expected.Any(
-                            (p) => selected == p.Key && destination == p.Value),
-                            $"{run}: Expected to move {string.Join('/', expected.Keys.Select(PrintUnit))}; but moved {PrintUnit(selected)} to {destination}"
-                        );
-                        Assert.AreEqual<StringName>(action, expectedAction, $"{run}: Expected action {expectedAction}, but chose {action}");
-                        if (expectedTarget is null)
-                            Assert.IsNull(target, $"{run}: Unexpected target {(target is not null ? PrintUnit(target) : "")}");
-                        else
-                            Assert.AreSame(target, expectedTarget, $"{run}: Expected to target {PrintUnit(expectedTarget)}, but chose {PrintUnit(target)}");
+                    Assert.IsTrue(expected.Any(
+                        (p) => selected == p.Key && destination == p.Value),
+                        $"{run}: Expected to move {string.Join('/', expected.Select((e) => $"{PrintUnit(e.Key)}->{e.Value}"))}; but moved {PrintUnit(selected)} to {destination}"
+                    );
+                    Assert.AreEqual<StringName>(action, expectedAction, $"{run}: Expected action {expectedAction}, but chose {action}");
+                    if (expectedTarget is null)
+                        Assert.IsNull(target, $"{run}: Unexpected target {(target is not null ? PrintUnit(target) : "")}");
+                    else
+                        Assert.AreSame(target, expectedTarget, $"{run}: Expected to target {PrintUnit(expectedTarget)}, but chose {PrintUnit(target)}");
                 }
             }
         }
@@ -368,6 +368,22 @@ public partial class AIControllerTestScene : Node
             expectedSelected:    ally,
             expectedDestination: new(3, 2),
             expectedAction:      "End"
+        );
+    }
+
+    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should not block other allies from attacking when making ordering decisions.</summary>
+    [Test]
+    public void TestLoopAttackInCorrectOrder()
+    {
+        Unit[] allies = [
+            CreateUnit(new(0, 2), attackRange:[1, 2], stats:new() { Move = 4 }, behavior:new MoveBehavior()),
+            CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Move = 4 }, behavior:new MoveBehavior())
+        ];
+        Unit enemy = CreateUnit(new(6, 2));
+        RunTest(AIController.DecisionType.TargetLoop, allies, [enemy],
+            expected: new() {{ allies[0], new(4, 2) }, { allies[1], new(5, 2) }},
+            expectedAction: "Attack",
+            expectedTarget: enemy
         );
     }
 }
