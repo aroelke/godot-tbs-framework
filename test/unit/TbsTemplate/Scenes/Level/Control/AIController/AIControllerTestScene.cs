@@ -403,4 +403,21 @@ public partial class AIControllerTestScene : Node
             expectedTarget: enemy
         );
     }
+
+    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should attack in the order that reduces the number of allies that die in retaliation regardless of damage dealt.</summary>
+    [Test]
+    public void TestLoopMinimizeAllyDeaths()
+    {
+        Unit[] allies = [
+            CreateUnit(new(0, 2), attackRange:[1, 2], stats:new() { Health = 10, Attack = 3, Defense = 0, Move = 4 }, hp:(10, 10), behavior:new MoveBehavior()),
+            CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Health = 10, Attack = 3, Defense = 3, Move = 4 }, hp:(10, 5), behavior:new MoveBehavior())
+        ];
+        Unit enemy = CreateUnit(new(6, 2), attackRange:[1, 2], stats:new() { Health = 10, Attack = 8, Defense = 0 }, hp:(10, 10));
+        RunTest(AIController.DecisionType.TargetLoop, allies, [enemy],
+            expectedSelected: allies[0],
+            expectedDestination: new(4, 2),
+            expectedAction: "Attack",
+            expectedTarget: enemy
+        );
+    }
 }
