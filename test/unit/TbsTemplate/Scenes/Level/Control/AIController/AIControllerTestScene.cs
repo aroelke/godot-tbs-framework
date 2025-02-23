@@ -3,6 +3,7 @@ using System.Linq;
 using GD_NET_ScOUT;
 using Godot;
 using TbsTemplate.Data;
+using TbsTemplate.Extensions;
 using TbsTemplate.Scenes.Level.Control.Behavior;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
@@ -74,19 +75,26 @@ public partial class AIControllerTestScene : Node
         foreach (Unit enemy in enemies)
             _enemies.AddChild(enemy);
 
-        (Unit selected, Vector2I destination, StringName action, Unit target) = _dut.ComputeAction(_allies, _enemies);
-
         try
         {
-            Assert.IsTrue(expected.Any(
-                (p) => selected == p.Key && destination == p.Value),
-                $"Expected to move {string.Join('/', expected.Keys.Select(PrintUnit))}; but moved {PrintUnit(selected)} to {destination}"
-            );
-            Assert.AreEqual<StringName>(action, expectedAction, $"Expected action {expectedAction}, but chose {action}");
-            if (expectedTarget is null)
-                Assert.IsNull(target, $"Unexpected target {(target is not null ? PrintUnit(target) : "")}");
-            else
-                Assert.AreSame(target, expectedTarget, $"Expected to target {PrintUnit(expectedTarget)}, but chose {PrintUnit(target)}");
+            foreach (IEnumerable<Unit> allyPermutation in allies.Permutations())
+            {
+                foreach (IEnumerable<Unit> enemyPermutation in enemies.Permutations())
+                {
+                    string run = $"[{string.Join(',', allyPermutation.Select(PrintUnit))}] & [{string.Join(',', enemyPermutation.Select(PrintUnit))}]";
+                    (Unit selected, Vector2I destination, StringName action, Unit target) = _dut.ComputeAction(_allies, _enemies);
+
+                        Assert.IsTrue(expected.Any(
+                            (p) => selected == p.Key && destination == p.Value),
+                            $"{run}: Expected to move {string.Join('/', expected.Keys.Select(PrintUnit))}; but moved {PrintUnit(selected)} to {destination}"
+                        );
+                        Assert.AreEqual<StringName>(action, expectedAction, $"{run}: Expected action {expectedAction}, but chose {action}");
+                        if (expectedTarget is null)
+                            Assert.IsNull(target, $"{run}: Unexpected target {(target is not null ? PrintUnit(target) : "")}");
+                        else
+                            Assert.AreSame(target, expectedTarget, $"{run}: Expected to target {PrintUnit(expectedTarget)}, but chose {PrintUnit(target)}");
+                }
+            }
         }
         finally
         {
