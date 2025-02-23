@@ -17,6 +17,8 @@ public partial class AIControllerTestScene : Node
 
     [Export] public PackedScene UnitScene = null;
 
+    private string PrintUnit(Unit unit) => $"{unit.Army.Faction.Name}@{unit.Cell}";
+
     private Unit CreateUnit(Vector2I cell, int[] attackRange=null, Stats stats=null, (int max, int current)? hp = null, UnitBehavior behavior=null)
     {
         Unit unit = UnitScene.Instantiate<Unit>();
@@ -78,13 +80,13 @@ public partial class AIControllerTestScene : Node
         {
             Assert.IsTrue(expected.Any(
                 (p) => selected == p.Key && destination == p.Value),
-                $"Expected to move one of {string.Join(',', expected.Select((p) => $"{p.Key.Army.Faction.Name} unit at {p.Key.Cell} to {p.Value}"))}; but moved {selected.Army.Faction.Name} unit at {selected.Cell} to {destination}"
+                $"Expected to move {string.Join('/', expected.Keys.Select(PrintUnit))}; but moved {PrintUnit(selected)} to {destination}"
             );
             Assert.AreEqual<StringName>(action, expectedAction, $"Expected action {expectedAction}, but chose {action}");
             if (expectedTarget is null)
-                Assert.IsNull(target, $"Unexpected target {target?.Army.Faction.Name} unit at {target?.Cell}");
+                Assert.IsNull(target, $"Unexpected target {(target is not null ? PrintUnit(target) : "")}");
             else
-                Assert.AreSame(target, expectedTarget, $"Expected to target {expectedTarget.Army.Faction.Name} unit at {expectedTarget.Cell}, but chose {target.Army.Faction.Name} unit at {target.Cell}");
+                Assert.AreSame(target, expectedTarget, $"Expected to target {PrintUnit(expectedTarget)}, but chose {PrintUnit(target)}");
         }
         finally
         {

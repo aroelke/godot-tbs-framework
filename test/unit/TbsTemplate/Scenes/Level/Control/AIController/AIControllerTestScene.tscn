@@ -13,14 +13,14 @@
 
 [sub_resource type="Resource" id="Resource_hqq8i"]
 script = ExtResource("3_q533t")
-Name = &"Army 1"
+Name = &"A"
 Color = Color(1, 1, 1, 1)
 AllyPaths = PackedStringArray()
 IsPlayer = false
 
 [sub_resource type="Resource" id="Resource_ngiwh"]
 script = ExtResource("3_q533t")
-Name = &"Army 2"
+Name = &"E"
 Color = Color(0, 0, 0, 1)
 AllyPaths = PackedStringArray()
 IsPlayer = false
