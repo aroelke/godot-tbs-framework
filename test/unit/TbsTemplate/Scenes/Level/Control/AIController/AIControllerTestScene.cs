@@ -373,15 +373,32 @@ public partial class AIControllerTestScene : Node
 
     /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should not block other allies from attacking when making ordering decisions.</summary>
     [Test]
-    public void TestLoopAttackInCorrectOrder()
+    public void TestLoopDontBlockAllies()
     {
         Unit[] allies = [
             CreateUnit(new(0, 2), attackRange:[1, 2], stats:new() { Move = 4 }, behavior:new MoveBehavior()),
             CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Move = 4 }, behavior:new MoveBehavior())
         ];
-        Unit enemy = CreateUnit(new(6, 2));
+        Unit enemy = CreateUnit(new(6, 2), stats:new() { Attack = 0 });
         RunTest(AIController.DecisionType.TargetLoop, allies, [enemy],
             expected: new() {{ allies[0], new(4, 2) }, { allies[1], new(5, 2) }},
+            expectedAction: "Attack",
+            expectedTarget: enemy
+        );
+    }
+
+    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should attack in the order that reduces retaliation damage to its units even when nobody dies.</summary>
+    [Test]
+    public void TestLoopMinimizeRetaliationDamage()
+    {
+        Unit[] allies = [
+            CreateUnit(new(0, 2), attackRange:[1, 2], stats:new() { Attack = 3, Move = 4 }, behavior:new MoveBehavior()),
+            CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Attack = 3, Move = 4 }, behavior:new MoveBehavior())
+        ];
+        Unit enemy = CreateUnit(new(6, 2), stats:new() { Health = 10, Attack = 5, Defense = 0 }, hp:(10, 10));
+        RunTest(AIController.DecisionType.TargetLoop, allies, [enemy],
+            expectedSelected: allies[0],
+            expectedDestination: new(4, 2),
             expectedAction: "Attack",
             expectedTarget: enemy
         );
