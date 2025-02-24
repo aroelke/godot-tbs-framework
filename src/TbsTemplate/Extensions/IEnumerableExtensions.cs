@@ -32,6 +32,9 @@ public static class IEnumerableExtensions
     /// <inheritdoc cref="Collections.Permutations{T}(IEnumerable{T})"/>
     public static IEnumerable<IList<T>> Permutations<T>(this IEnumerable<T> collection) => Collections.Permutations(collection, collection.Count());
 
+    /// <inheritdoc cref="Collections.Cross{T, U}(IEnumerable{T}, IEnumerable{U})"/>
+    public static IEnumerable<(T, U)> Cross<T, U>(this IEnumerable<T> a, IEnumerable<U> b) => Collections.Cross(a, b);
+
     /// <summary>Create a collection that cycles back to the first element after the last element is reached.</summary>
     /// <typeparam name="T">Type of the elements in <paramref name="collection"/></typeparam>
     /// <param name="collection">Collection of elements to convert.</param>
