@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
@@ -81,15 +82,37 @@ public partial class AIController : ArmyController
 
                     foreach (IList<Unit> permutation in attackers.Permutations())
                     {
-                        Dictionary<Unit, List<CombatAction>> battles = permutation.ToDictionary((u) => u, (u) => CombatCalculations.AttackResults(u, enemy));
-                        double damage = permutation.Select((u) => CombatCalculations.TotalExpectedDamage(enemy, battles[u])).Sum();
+                        (double, Vector2I) EvaluateAction(IList<Unit> units, IImmutableSet<Vector2I> blocked=null)
+                        {
+                            if (units.Count == 0)
+                                return (0, Vector2I.Zero);
+
+                            blocked ??= [];
+                            double best = 0;
+                            Vector2I closest = units[0].Cell;
+
+                            foreach (Vector2I destination in units[0].AttackableCells(enemy.Cell).Where((c) => units[0].Behavior.Destinations(units[0]).Contains(c) && !blocked.Contains(c)))
+                            {
+                                (double damage, _) = EvaluateAction([.. units.Skip(1)], blocked.Add(destination));
+                                damage += CombatCalculations.TotalExpectedDamage(enemy, CombatCalculations.AttackResults(units[0], enemy));
+                                if (damage > best || (damage == best && units[0].Behavior.GetPath(units[0], destination).Cost < units[0].Behavior.GetPath(units[0], closest).Cost))
+                                {
+                                    best = damage;
+                                    closest = destination;
+                                }
+                            }
+
+                            return (best, closest);
+                        }
+
+                        (double damage, Vector2I source) = EvaluateAction(permutation);
                         double remaining = enemy.Health.Value - damage;
 
                         if (selected is null || remaining < best)
                         {
                             selected = permutation[0];
                             action = "Attack";
-                            destination = selected.AttackableCells(enemy.Cell).Where(selected.Behavior.Destinations(selected).Contains).OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).First();
+                            destination = source;
                             target = enemy;
                             best = remaining;
                         }
