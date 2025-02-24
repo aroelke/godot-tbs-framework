@@ -41,4 +41,23 @@ public partial class CollectionsTestScene : Node
         [3, 1, 2, 4], [3, 1, 4, 2], [3, 2, 1, 4], [3, 2, 4, 1], [3, 4, 1, 2], [3, 4, 2, 1],
         [4, 1, 2, 3], [4, 1, 3, 2], [4, 2, 1, 3], [4, 2, 3, 1], [4, 3, 1, 2], [4, 3, 2, 1]
     ]);
+
+    private static void TestCross<T, U>(IEnumerable<T> a, IEnumerable<U> b, IEnumerable<(T, U)> expected)
+    {
+        IList<(T, U)> cross = [.. a.Cross(b)];
+        Assert.AreEqual(cross.Count, expected.Count());
+        foreach ((T, U) test in expected)
+        {
+            Assert.IsTrue(cross.Contains(test));
+            cross.Remove(test);
+        }
+        Assert.IsTrue(cross.Count == 0, "There were extra elements in the cross product");
+    }
+
+    [Test] public void TestOneCrossOne() => TestCross([1], ['a'], [(1, 'a')]);
+    [Test] public void TestOneCrossTwo() => TestCross([1], ['a', 'b'], [(1, 'a'), (1, 'b')]);
+    [Test] public void TestTwoCrossOne() => TestCross([1, 2], ['a'], [(1, 'a'), (2, 'a')]);
+    [Test] public void TestTwoCrossTwo() => TestCross([1, 2], ['a', 'b'], [(1, 'a'), (1, 'b'), (2, 'a'), (2, 'b')]);
+    [Test] public void TestTwoCrossThree() => TestCross([1, 2], ['a', 'b', 'c'], [(1, 'a'), (1, 'b'), (1, 'c'), (2, 'a'), (2, 'b'), (2, 'c')]);
+    [Test] public void TestThreeCrossTwo() => TestCross([1, 2, 3], ['a', 'b'], [(1, 'a'), (1, 'b'), (2, 'a'), (2, 'b'), (3, 'a'), (3, 'b')]);
 }
