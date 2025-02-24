@@ -19,6 +19,29 @@ public partial class AIController : ArmyController
         TargetLoop
     }
 
+    private readonly record struct MoveEvaluation(Unit Unit, double Dealt, double Taken, Vector2I Closest)
+    {
+        public static bool operator >(MoveEvaluation a, MoveEvaluation b)
+        {
+            if (a.Dealt > b.Dealt)
+                return true;
+            else if (a.Dealt == b.Dealt && a.PathCost() < b.PathCost())
+                return true;
+            else
+                return false;
+        }
+        public static bool operator <(MoveEvaluation a, MoveEvaluation b) => a != b && !(a > b);
+
+        public readonly void Deconstruct(out double dealt, out double taken, out Vector2I closest)
+        {
+            dealt = Dealt;
+            taken = Taken;
+            closest = Closest;
+        }
+
+        public readonly int PathCost() => Unit.Behavior.GetPath(Unit, Closest).Cost;
+    }
+
     private Unit _selected = null;
     private Vector2I _destination = -Vector2I.One;
     private StringName _action = null;
@@ -82,30 +105,26 @@ public partial class AIController : ArmyController
 
                     foreach (IList<Unit> permutation in attackers.Permutations())
                     {
-                        (double, Vector2I) EvaluateAction(IList<Unit> units, IImmutableSet<Vector2I> blocked=null)
+                        MoveEvaluation EvaluateAction(IList<Unit> units, IImmutableSet<Vector2I> blocked=null)
                         {
                             if (units.Count == 0)
-                                return (0, Vector2I.Zero);
+                                return new(null, 0, 0, Vector2I.Zero);
 
                             blocked ??= [];
-                            double best = 0;
-                            Vector2I closest = units[0].Cell;
+                            MoveEvaluation best = new(units[0], 0, 0, units[0].Cell);
 
                             foreach (Vector2I destination in units[0].AttackableCells(enemy.Cell).Where((c) => units[0].Behavior.Destinations(units[0]).Contains(c) && !blocked.Contains(c)))
                             {
-                                (double damage, _) = EvaluateAction([.. units.Skip(1)], blocked.Add(destination));
-                                damage += CombatCalculations.TotalExpectedDamage(enemy, CombatCalculations.AttackResults(units[0], enemy));
-                                if (damage > best || (damage == best && units[0].Behavior.GetPath(units[0], destination).Cost < units[0].Behavior.GetPath(units[0], closest).Cost))
-                                {
-                                    best = damage;
-                                    closest = destination;
-                                }
+                                MoveEvaluation next = EvaluateAction([.. units.Skip(1)], blocked.Add(destination));
+                                MoveEvaluation evaluation = new(best.Unit, next.Dealt + CombatCalculations.TotalExpectedDamage(enemy, CombatCalculations.AttackResults(best.Unit, enemy)), 0, destination);
+                                if (evaluation > best)
+                                    best = evaluation;
                             }
 
-                            return (best, closest);
+                            return best;
                         }
 
-                        (double damage, Vector2I source) = EvaluateAction(permutation);
+                        (double damage, _, Vector2I source) = EvaluateAction(permutation);
                         double remaining = enemy.Health.Value - damage;
 
                         if (selected is null || remaining < best)
