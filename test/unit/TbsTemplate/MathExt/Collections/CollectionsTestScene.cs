@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using GD_NET_ScOUT;
@@ -30,6 +31,7 @@ public partial class CollectionsTestScene : Node
         Assert.IsTrue(permutations.Count == 0, "There were extra permutations in the list");
     }
 
+    [Test] public void TestEmptyPermutations() => Assert.IsTrue(!Array.Empty<int>().Permutations().Any());
     [Test] public void TestOneElementPermutation() => TestPermutations([1], [[1]]);
     [Test] public void TestTwoElementPermutation() => TestPermutations([1, 2], [[1, 2], [2, 1]]);
     [Test] public void TestThreeElementPermutation() => TestPermutations([1, 2, 3], [[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]]);
