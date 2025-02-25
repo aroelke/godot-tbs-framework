@@ -387,9 +387,23 @@ public partial class AIControllerTestScene : Node
         );
     }
 
+    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should attack from a space that its target can't retaliate from, even if it's not the furthest one.</summary>
+    [Test]
+    public void TestLoopMinimizeRetaliationDamageViaPositioning()
+    {
+        Unit ally = CreateUnit(new(1, 2), attackRange:[1, 2], behavior:new MoveBehavior());
+        Unit enemy = CreateUnit(new(5, 2), attackRange:[2]);
+        RunTest(AIController.DecisionType.TargetLoop, [ally], [enemy],
+            expectedSelected: enemy,
+            expectedDestination: new(4, 2),
+            expectedAction: "Attack",
+            expectedTarget: enemy
+        );
+    }
+
     /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should attack in the order that reduces retaliation damage to its units.</summary>
     [Test]
-    public void TestLoopMinimizeRetaliationDamage()
+    public void TestLoopMinimizeRetaliationDamageViaDeath()
     {
         Unit[] allies = [
             CreateUnit(new(0, 2), attackRange:[1, 2], stats:new() { Attack = 5, Move = 4 }, behavior:new MoveBehavior()),
