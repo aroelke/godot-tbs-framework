@@ -387,15 +387,15 @@ public partial class AIControllerTestScene : Node
         );
     }
 
-    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should attack in the order that reduces retaliation damage to its units even when nobody dies.</summary>
+    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should attack in the order that reduces retaliation damage to its units.</summary>
     [Test]
     public void TestLoopMinimizeRetaliationDamage()
     {
         Unit[] allies = [
-            CreateUnit(new(0, 2), attackRange:[1, 2], stats:new() { Attack = 3, Move = 4 }, behavior:new MoveBehavior()),
-            CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Attack = 3, Move = 4 }, behavior:new MoveBehavior())
+            CreateUnit(new(0, 2), attackRange:[1, 2], stats:new() { Attack = 5, Move = 4 }, behavior:new MoveBehavior()),
+            CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Attack = 5, Move = 4 }, behavior:new MoveBehavior())
         ];
-        Unit enemy = CreateUnit(new(6, 2), stats:new() { Health = 10, Attack = 5, Defense = 0 }, hp:(10, 10));
+        Unit enemy = CreateUnit(new(6, 2), attackRange:[1], stats:new() { Health = 10, Attack = 5, Defense = 0 }, hp:(10, 10));
         RunTest(AIController.DecisionType.TargetLoop, allies, [enemy],
             expectedSelected: allies[0],
             expectedDestination: new(4, 2),
