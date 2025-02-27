@@ -25,10 +25,25 @@ public partial class PlayerController : ArmyController
     private static readonly StringName CancelEvent  = "Cancel";
 
     private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, PathEvent, CommandEvent, TargetEvent, FinishEvent, CancelEvent]);
+    private Grid _grid = null;
     private Unit _selected = null, _target = null;
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path;
     private ContextMenu _menu;
+
+    public override Grid Grid
+    {
+        get => _grid;
+        set
+        {
+            if (_grid != value)
+            {
+                _grid = value;
+                if (Cursor is not null)
+                    Cursor.Grid = _grid;
+            }
+        }
+    }
 #region Menus
     private Vector2 MenuPosition(Rect2 rect, Vector2 size)
     {

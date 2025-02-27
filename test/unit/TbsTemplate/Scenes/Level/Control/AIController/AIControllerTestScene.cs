@@ -24,7 +24,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit unit = UnitScene.Instantiate<Unit>();
 
-        unit.Grid = _dut.Cursor.Grid;
+        unit.Grid = _dut.Grid;
         unit.Cell = cell;
         unit.Grid.Occupants[cell] = unit;
 

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Godot;
 using TbsTemplate.Extensions;
 using TbsTemplate.Scenes.Combat.Data;
+using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Scenes.Level.Control;
@@ -42,12 +43,15 @@ public partial class AIController : ArmyController
         public readonly int PathCost() => Unit.Behavior.GetPath(Unit, Closest).Cost;
     }
 
+    private Grid _grid = null;
     private Unit _selected = null;
     private Vector2I _destination = -Vector2I.One;
     private StringName _action = null;
     private Unit _target = null;
 
     [Export] public DecisionType Decision = DecisionType.ClosestEnemy;
+
+    public override Grid Grid { get => _grid; set => _grid = value; }
 
     public override void InitializeTurn()
     {

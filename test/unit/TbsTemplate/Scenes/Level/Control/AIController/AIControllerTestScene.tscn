@@ -44,8 +44,9 @@ Size = Vector2(32, 32)
 [node name="Army1" parent="." instance=ExtResource("2_btmox")]
 Faction = SubResource("Resource_hqq8i")
 
-[node name="AIController" parent="Army1" node_paths=PackedStringArray("Cursor") instance=ExtResource("8_82y75")]
+[node name="AIController" parent="Army1" node_paths=PackedStringArray("Cursor", "Grid") instance=ExtResource("8_82y75")]
 Cursor = NodePath("../../Cursor")
+Grid = NodePath("../../Grid")
 
 [node name="Army2" parent="." instance=ExtResource("2_btmox")]
 Faction = SubResource("Resource_ngiwh")

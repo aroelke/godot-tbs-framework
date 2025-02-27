@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Godot;
+using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 
@@ -44,6 +45,9 @@ public abstract partial class ArmyController : Node
 
     /// <summary>Cursor used for indicating or making a selection.</summary>
     [Export] public Cursor Cursor = null;
+
+    /// <summary>Grid that the army's units will be acting on.</summary>
+    [Export] public abstract Grid Grid { get; set; }
 
     /// <summary>Perform any setup needed to begin the army's turn.</summary>
     public abstract void InitializeTurn();
