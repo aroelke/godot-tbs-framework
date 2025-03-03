@@ -12,6 +12,10 @@ public partial class LevelEvents : Node
     /// <summary>Auto-loaded instance of <see cref="LevelEvents"/> in case instances methods are required.</summary>
     public static LevelEvents Singleton => AutoloadNodes.GetNode<LevelEvents>("LevelEvents");
 #region Level Manager
+    /// <summary>Signals that the region on the map the camera is allowed to see has been updated.</summary>
+    /// <param name="bounds">Rectangle bounding the camera movement.</param>
+    [Signal] public delegate void CameraBoundsUpdatedEventHandler(Rect2I bounds);
+
     /// <summary>Signals that an army's turn has begun.</summary>
     /// <param name="turn">Number of the turn that began.</param>
     /// <param name="army">Army whose turn began.</param>

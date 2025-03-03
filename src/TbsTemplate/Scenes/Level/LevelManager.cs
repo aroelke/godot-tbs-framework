@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using TbsTemplate.Data;
 using TbsTemplate.Extensions;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 using TbsTemplate.Nodes;
 using TbsTemplate.Scenes.Combat.Data;
-using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI;
 using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Combat;
@@ -681,12 +679,14 @@ public partial class LevelManager : Node
 
         if (!Engine.IsEditorHint())
         {
+            LevelEvents.Singleton.Connect<Rect2I>(LevelEvents.SignalName.CameraBoundsUpdated, (b) => Pointer.Bounds = b); // temporary
+
             Grid = GetNode<Grid>("Grid");
 
             Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
             Pointer.World = Cursor.Grid = Grid;
-            Pointer.Bounds = Camera.Limits;
             Pointer.DefaultFlightTime = Camera.DeadZoneSmoothTime;
+            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.CameraBoundsUpdated, Camera.Limits);
 
             foreach (Army army in GetChildren().OfType<Army>())
             {
