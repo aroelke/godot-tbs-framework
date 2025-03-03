@@ -690,6 +690,7 @@ public partial class LevelManager : Node
 
             foreach (Army army in GetChildren().OfType<Army>())
             {
+                army.Controller.Cursor = Cursor;
                 army.Controller.Grid = Grid;
                 foreach (Unit unit in (IEnumerable<Unit>)army)
                 {
