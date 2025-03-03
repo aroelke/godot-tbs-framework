@@ -164,6 +164,7 @@ public partial class PlayerController : ArmyController
     public void OnSelectEntered()
     {
         Cursor.Cell = Grid.CellOf(Pointer.Position);
+        EmitSignal(SignalName.CursorCellEntered, Cursor.Cell);
         Cursor.CellSelected += ConfirmCursorSelection;
     }
 
