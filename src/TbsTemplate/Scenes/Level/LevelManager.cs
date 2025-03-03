@@ -142,21 +142,19 @@ public partial class LevelManager : Node
     /// <summary>Signal that a turn is about to begin.</summary>
     public void OnBeginTurnEntered()
     {
-        _armies.Current.Controller.InitializeTurn();
-
-        if (_armies.Current.Faction.IsPlayer)
-            Pointer.StopWaiting();
-        else
-            Pointer.StartWaiting(hide:true);
+        _armies.Current.Controller.CursorCellEntered += OnIdleCursorEnteredCell;
         _armies.Current.Controller.SelectionCanceled += OnSelectionCanceled;
         _armies.Current.Controller.UnitSelected += _.State.Root.Running.Idle.OnUnitSelected.React;
         _armies.Current.Controller.TurnSkipped += _.State.Root.Running.Idle.OnTurnSkipped.React;
         _armies.Current.Controller.PathUpdated += _.State.Root.Running.UnitSelected.OnPathUpdated.React;
         _armies.Current.Controller.UnitCommanded += _.State.Root.Running.UnitSelected.OnUnitCommanded.React;
         _armies.Current.Controller.TargetChosen += _.State.Root.Running.UnitSelected.OnTargetChosen.React;
+        _armies.Current.Controller.TargetCanceled += OnTargetingCanceled;
         _armies.Current.Controller.PathConfirmed += _.State.Root.Running.UnitSelected.OnPathConfirmed.React;
         _armies.Current.Controller.UnitCommanded += _.State.Root.Running.UnitCommanding.OnUnitCommanded.React;
         _armies.Current.Controller.TargetChosen += _.State.Root.Running.UnitTargeting.OnTargetChosen.React;
+
+        _armies.Current.Controller.InitializeTurn();
         Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
     }
 
@@ -165,10 +163,6 @@ public partial class LevelManager : Node
     {
         UpdateTurnCounter();
         UpdateDangerZones();
-        Callable.From<Vector2I>((c) => {
-            Cursor.Cell = c;
-            OnIdleCursorEnteredCell(Cursor.Cell);
-        }).CallDeferred(((IEnumerable<Unit>)_armies.Current).First().Cell);
     }
 #endregion
 #region Idle State
@@ -176,29 +170,23 @@ public partial class LevelManager : Node
     public void OnIdleEntered()
     {
         ActionLayers.Modulate = ActionRangeIdleModulate;
-        Cursor.Cell = Grid.CellOf(Pointer.Position);
-
         Callable.From(_armies.Current.Controller.SelectUnit).CallDeferred();
     }
 
-    /// <summary>Clear the displayed action ranges when moving the <see cref="Object.Cursor"/> to a new cell while in idle <see cref="Nodes.StateChart.States.State"/>.</summary>
+    /// <summary>Clear the displayed action ranges when moving the <see cref="Cursor"/> to a new cell while in idle <see cref="Nodes.StateChart.States.State"/>.</summary>
     /// <param name="cell">Cell the <see cref="Object.Cursor"/> moved to.</param>
     public void OnIdleCursorMoved(Vector2I cell) => ActionLayers.Clear();
 
     /// <summary>
-    /// When the <see cref="Object.Cursor"/> moves over a <see cref="Unit"/> while in idle <see cref="Nodes.StateChart.States.State"/>, display that <see cref="Unit"/>'s
+    /// When the <see cref="Cursor"/> moves over a <see cref="Unit"/> while in idle <see cref="Nodes.StateChart.States.State"/>, display that <see cref="Unit"/>'s
     /// action ranges.
     /// </summary>
-    /// <param name="cell">Cell the <see cref="Object.Cursor"/> moved into.</param>
+    /// <param name="cell">Cell the <see cref="Cursor"/> moved into.</param>
     public void OnIdleCursorEnteredCell(Vector2I cell)
     {
         if (_armies.Current.Faction.IsPlayer && Grid.Occupants.GetValueOrDefault(cell) is Unit hovered)
             (ActionLayers[MoveLayer], ActionLayers[AttackLayer], ActionLayers[SupportLayer]) = hovered.ActionRanges();
     }
-
-    /// <summary>When the pointer stops moving, display the action range of the unit the cursor is over.</summary>
-    /// <param name="position">Position the pointer stopped over.</param>
-    public void OnIdlePointerStopped(Vector2 position) => OnIdleCursorEnteredCell(Grid.CellOf(position));
 
     public void OnIdleUnitSelected(Unit unit)
     {
@@ -208,7 +196,6 @@ public partial class LevelManager : Node
             throw new InvalidOperationException($"Cannot select inactive unit {unit.Name}");
 
         _selected = unit;
-        Cursor.Cell = unit.Cell;
         State.ExpressionProperties = State.ExpressionProperties.SetItem(OccupiedProperty, ActiveAllyOccupied);
         ActionLayers.Modulate = Colors.White;
 
@@ -244,7 +231,6 @@ public partial class LevelManager : Node
         // Compute move/attack/support ranges for selected unit
         (ActionLayers[MoveLayer], ActionLayers[AttackLayer], ActionLayers[SupportLayer]) = _selected.ActionRanges();
         _path = Path.Empty(Grid, ActionLayers[MoveLayer]).Add(_selected.Cell);
-        Cursor.SoftRestriction = [.. ActionLayers[MoveLayer]];
         CancelHint.Visible = true;
 
         // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
@@ -297,7 +283,7 @@ public partial class LevelManager : Node
 
     public void OnSelectedCanceled()
     {
-        if (Cursor.Cell != _selected.Cell)
+//        if (Cursor.Cell != _selected.Cell)
             ActionLayers.Clear();
         PathLayer.Clear();
 
@@ -318,8 +304,6 @@ public partial class LevelManager : Node
 
     public void OnSelectedExited()
     {
-        Cursor.SoftRestriction.Clear();
-
         // Restore the camera zoom back to what it was before a unit was selected
         if (Camera.HasZoomMemory())
             Camera.PopZoom();
@@ -331,9 +315,6 @@ public partial class LevelManager : Node
     /// <summary>Begin moving the selected <see cref="Unit"/> and then wait for it to finish moving.</summary>
     public void OnMovingEntered()
     {
-        if (_armies.Current.Faction.IsPlayer)
-            Cursor.Halt();
-
         // Track the unit as it's moving
         _prevDeadzone = new(Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight);
         (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = Vector4.Zero;
@@ -360,8 +341,6 @@ public partial class LevelManager : Node
         PopCameraFocus();
         _path = null;
         UpdateDangerZones();
-        if (_armies.Current.Faction.IsPlayer)
-            Cursor.Resume();
     }
 #endregion
 #region Unit Commanding State
@@ -427,7 +406,6 @@ public partial class LevelManager : Node
         _selected.Cell = _initialCell.Value;
         Grid.Occupants[_selected.Cell] = _selected;
         _initialCell = null;
-        Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(_selected.Cell);
 
         _target = null;
         UpdateDangerZones();
@@ -444,14 +422,6 @@ public partial class LevelManager : Node
 
     public void OnTargetingEntered()
     {
-        // Restrict cursor movement to actionable cells
-        if (_target is null)
-        {
-            Pointer.AnalogTracking = false;
-            Cursor.HardRestriction = [.. _targets];
-            Cursor.Wrap = true;
-        }
-
         _armies.Current.Controller.SelectTarget(_selected, _targets);
     }
 
@@ -461,32 +431,19 @@ public partial class LevelManager : Node
             throw new InvalidOperationException($"Cannot choose target for unselected unit {source.Name} ({_selected.Name} is selected)");
         if ((_command == "Attack" && target.Army.Faction.AlliedTo(_selected)) || (_command == "Support" && !target.Army.Faction.AlliedTo(_selected)))
             throw new ArgumentException($"{_selected.Name} cannot {_command} {target.Name}");
-        
-        if (Grid.CellOf(Pointer.Position) == Cursor.Cell)
-        {
-            if (Cursor.Cell != target.Cell)
-                GD.PushWarning($"Target {target.Name} is not in the cursor's cell");
-            _target = target;
-            State.SendEvent(_events[DoneEvent]);
-        }
-        else
-            State.SendEvent(_events[CancelEvent]);
+        _target = target;
+        State.SendEvent(_events[DoneEvent]);
     }
 
+    public void OnTargetingCanceled(Unit source) => State.SendEvent(_events[CancelEvent]);
+
     /// <summary>Clean up displayed ranges and restore <see cref="Object.Cursor"/> freedom when exiting targeting <see cref="Nodes.StateChart.States.State"/>.</summary>
-    public void OnTargetingExited()
-    {
-        Pointer.AnalogTracking = true;
-        Cursor.HardRestriction = Cursor.HardRestriction.Clear();
-        Cursor.Wrap = false;
-    }
+    public void OnTargetingExited() {}
 #endregion
 #region In Combat
     public void OnCombatEntered()
     {
         ActionLayers.Clear();
-        Cursor.Halt();
-        Pointer.StartWaiting(hide:true);
 
         if (_command == "Attack")
             _combatResults = CombatCalculations.AttackResults(_selected, _target);
@@ -510,11 +467,7 @@ public partial class LevelManager : Node
         SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, () => State.SendEvent(_events[DoneEvent]), (uint)ConnectFlags.OneShot);
     }
 
-    public void OnCombatExited()
-    {
-        Pointer.StopWaiting();
-        Cursor.Resume();
-    }
+    public void OnCombatExited() {}
 #endregion
 #region End Action State
     /// <summary>If a unit was selected, signal that its action has ended. Otherwise, just continue.</summary>
@@ -549,6 +502,7 @@ public partial class LevelManager : Node
     /// <summary>Refresh all the units in the army whose turn just ended so they aren't gray anymore and are animated.</summary>
     public void OnEndTurnExited()
     {
+        _armies.Current.Controller.CursorCellEntered -= OnIdleCursorEnteredCell;
         _armies.Current.Controller.SelectionCanceled -= OnSelectionCanceled;
         _armies.Current.Controller.UnitSelected -= _.State.Root.Running.Idle.OnUnitSelected.React;
         _armies.Current.Controller.TurnSkipped -= _.State.Root.Running.Idle.OnTurnSkipped.React;
@@ -679,18 +633,13 @@ public partial class LevelManager : Node
 
         if (!Engine.IsEditorHint())
         {
-            LevelEvents.Singleton.Connect<Rect2I>(LevelEvents.SignalName.CameraBoundsUpdated, (b) => Pointer.Bounds = b); // temporary
-
             Grid = GetNode<Grid>("Grid");
 
             Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
-            Pointer.World = Cursor.Grid = Grid;
-            Pointer.DefaultFlightTime = Camera.DeadZoneSmoothTime;
             LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.CameraBoundsUpdated, Camera.Limits);
 
             foreach (Army army in GetChildren().OfType<Army>())
             {
-                army.Controller.Cursor = Cursor;
                 army.Controller.Grid = Grid;
                 foreach (Unit unit in (IEnumerable<Unit>)army)
                 {
@@ -718,29 +667,6 @@ public partial class LevelManager : Node
             LevelEvents.Singleton.Connect<Army, Unit>(LevelEvents.SignalName.RemoveFromDangerZone, RemoveFromDangerZone);
 
             MusicController.ResetPlayback();
-        }
-    }
-
-    public override void _Process(double delta)
-    {
-        base._Process(delta);
-
-        if (!Engine.IsEditorHint())
-        {
-            State.ExpressionProperties = State.ExpressionProperties
-                .SetItem(OccupiedProperty, Grid.Occupants.GetValueOrDefault(Cursor.Cell) switch
-                {
-                    Unit unit when unit == _selected => SelectedOccuiped,
-                    Unit unit when _armies.Current.Faction == unit.Army.Faction => unit.Active ? ActiveAllyOccupied : InActiveAllyOccupied,
-                    Unit unit when _armies.Current.Faction.AlliedTo(unit.Army.Faction) => FriendlyOccuipied,
-                    Unit => EnemyOccupied,
-                    null => NotOccupied,
-                    _ => OtherOccupied
-                })
-                .SetItem(TargetProperty, Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit target &&
-                                          ((target != _selected && _armies.Current.Faction.AlliedTo(target) && ActionLayers[SupportLayer].Contains(Cursor.Cell)) ||
-                                           (!_armies.Current.Faction.AlliedTo(target) && ActionLayers[AttackLayer].Contains(Cursor.Cell))))
-                .SetItem(TraversableProperty, ActionLayers[MoveLayer].Contains(Cursor.Cell));
         }
     }
 #endregion

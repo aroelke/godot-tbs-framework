@@ -1,7 +1,9 @@
-[gd_scene load_steps=11 format=3 uid="uid://drlrlusbfh208"]
+[gd_scene load_steps=13 format=3 uid="uid://drlrlusbfh208"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Control/PlayerController.cs" id="1_52vsu"]
 [ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/TbsTemplate/Nodes/StateChart/Chart.tscn" id="2_br7d1"]
+[ext_resource type="PackedScene" uid="uid://bgcsg0l8mj2sn" path="res://src/TbsTemplate/Scenes/Level/Object/Cursor.tscn" id="2_rkggg"]
+[ext_resource type="PackedScene" uid="uid://bqrqq7jid7qp2" path="res://src/TbsTemplate/UI/Pointer.tscn" id="3_nkaji"]
 [ext_resource type="PackedScene" uid="uid://bykdjiak4bxvt" path="res://src/TbsTemplate/Nodes/StateChart/States/CompoundState.tscn" id="3_w7lyn"]
 [ext_resource type="PackedScene" uid="uid://lrf5ywt1n230" path="res://src/TbsTemplate/Nodes/StateChart/States/AtomicState.tscn" id="4_qwlr4"]
 [ext_resource type="PackedScene" uid="uid://0b22cirxc7k2" path="res://src/TbsTemplate/Nodes/StateChart/States/Transition.tscn" id="5_dwgw0"]
@@ -20,7 +22,13 @@ Target = &"target"
 Finish = &"finish"
 Cancel = &"cancel"
 
+[node name="Cursor" parent="." instance=ExtResource("2_rkggg")]
+unique_name_in_owner = true
+
 [node name="UserInterface" type="CanvasLayer" parent="."]
+unique_name_in_owner = true
+
+[node name="Pointer" parent="." instance=ExtResource("3_nkaji")]
 unique_name_in_owner = true
 
 [node name="State" parent="." instance=ExtResource("2_br7d1")]
@@ -100,6 +108,14 @@ stream = ExtResource("7_qn3tt")
 unique_name_in_owner = true
 stream = ExtResource("10_guidb")
 
+[connection signal="CellChanged" from="Cursor" to="." method="OnCursorCellChanged"]
+[connection signal="CellEntered" from="Cursor" to="." method="OnCursorCellEntered"]
+[connection signal="CursorMoved" from="Cursor" to="Pointer" method="OnCursorMoved"]
+[connection signal="FlightCompleted" from="Pointer" to="." method="OnPointerFlightCompleted"]
+[connection signal="FlightStarted" from="Pointer" to="." method="OnPointerFlightStarted"]
+[connection signal="PointerMoved" from="Pointer" to="Cursor" method="OnPointerMoved"]
+[connection signal="PointerStopped" from="Pointer" to="." method="OnIdlePointerStopped"]
+[connection signal="StateEntered" from="State/Root/Active" to="." method="OnActiveEntered"]
 [connection signal="StateExited" from="State/Root/Active" to="." method="OnActiveExited"]
 [connection signal="StateEntered" from="State/Root/Active/Select" to="." method="OnSelectEntered"]
 [connection signal="StateExited" from="State/Root/Active/Select" to="." method="OnSelectExited"]

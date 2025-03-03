@@ -41,6 +41,8 @@ public partial class PlayerController : ArmyController
                 _grid = value;
                 if (Cursor is not null)
                     Cursor.Grid = _grid;
+                if (Pointer is not null)
+                    Pointer.World = _grid;
             }
         }
     }
@@ -66,7 +68,6 @@ public partial class PlayerController : ArmyController
             LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.RevertCameraFocus);
         };
 
-        Cursor.Halt(hide:true);
         LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.FocusCamera, (BoundedNode2D)null);
 
         Callable.From<ContextMenu, Rect2>((m, r) => {
@@ -80,15 +81,33 @@ public partial class PlayerController : ArmyController
     }
 #endregion
 #region Initialization and Finalization
-    public override void InitializeTurn() => Cursor.Resume();
+    public override void InitializeTurn()
+    {
+//        Cursor.Resume();
+        Cursor.Cell = ((IEnumerable<Unit>)Army).First().Cell;
+    }
+
     public override void FinalizeAction() {}
     public override void FinalizeTurn() {}
 #endregion
 #region State Independent
     public void OnCancel() => CancelSound.Play();
     public void OnFinish() => SelectSound.Play();
+
+    public void OnCursorCellChanged(Vector2I cell) => EmitSignal(SignalName.CursorCellChanged, cell);
+    public void OnCursorCellEntered(Vector2I cell) => EmitSignal(SignalName.CursorCellEntered, cell);
+
+    public void OnIdlePointerStopped(Vector2 position) => EmitSignal(SignalName.CursorCellEntered, Grid.CellOf(position));
+    public void OnPointerFlightStarted(Vector2 target) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.FocusCamera, target);
+    public void OnPointerFlightCompleted() => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.RevertCameraFocus);
 #endregion
 #region Active
+    public void OnActiveEntered()
+    {
+        Pointer.StopWaiting();
+        Cursor.Resume();
+    }
+
     public void OnActiveInput(InputEvent @event)
     {
         if (@event.IsActionPressed(InputActions.Cancel))
@@ -101,7 +120,12 @@ public partial class PlayerController : ArmyController
             LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ToggleDangerZone, Army, Cursor.Grid.Occupants.GetValueOrDefault(Cursor.Cell) as Unit);
     }
 
-    public void OnActiveExited() => Callable.From(() => _selected = null).CallDeferred();
+    public void OnActiveExited()
+    {
+        Pointer.StartWaiting(hide:true);
+        Cursor.Halt(hide:true);
+        Callable.From(() => _selected = null).CallDeferred();
+    }
 #endregion
 #region Unit Selection
     public override void SelectUnit() => Callable.From(() => State.SendEvent(_events[SelectEvent])).CallDeferred();
@@ -137,7 +161,11 @@ public partial class PlayerController : ArmyController
         }
     }
 
-    public void OnSelectEntered() => Cursor.CellSelected += ConfirmCursorSelection;
+    public void OnSelectEntered()
+    {
+        Cursor.Cell = Grid.CellOf(Pointer.Position);
+        Cursor.CellSelected += ConfirmCursorSelection;
+    }
 
     public void OnSelectInput(InputEvent @event)
     {
@@ -255,10 +283,13 @@ public partial class PlayerController : ArmyController
         UpdatePath(Path.Empty(Cursor.Grid, _traversable).Add(_selected.Cell));
         Cursor.CellChanged += AddToPath;
         Cursor.CellSelected += ConfirmPathSelection;
+        Cursor.SoftRestriction = [.. _traversable];
+        Cursor.Cell = _selected.Cell;
     }
 
     public void OnPathExited()
     {
+        Cursor.SoftRestriction.Clear();
         Cursor.CellChanged -= AddToPath;
         Cursor.CellSelected -= ConfirmPathSelection;
     }
@@ -297,14 +328,26 @@ public partial class PlayerController : ArmyController
 
     private void ConfirmTargetSelection(Vector2I cell)
     {
-        if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit target)
+        if (Cursor.Cell != Grid.CellOf(Pointer.Position))
+        {
+            State.SendEvent(_events[CancelEvent]);
+            EmitSignal(SignalName.TargetCanceled, _selected);
+        }
+        else if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit target)
         {
             State.SendEvent(_events[FinishEvent]);
             EmitSignal(SignalName.TargetChosen, _selected, target);
         }
     }
 
-    public void OnTargetEntered() => Cursor.CellSelected += ConfirmTargetSelection;
+    public void OnTargetEntered()
+    {
+        Cursor.CellSelected += ConfirmTargetSelection;
+
+        Pointer.AnalogTracking = false;
+        Cursor.HardRestriction = [.. _targets];
+        Cursor.Wrap = true;
+    }
 
     public void OnTargetInput(InputEvent @event)
     {
@@ -329,7 +372,22 @@ public partial class PlayerController : ArmyController
         }
     }
 
-    public void OnTargetExited() => Cursor.CellSelected -= ConfirmTargetSelection;
+    public void OnTargetExited()
+    {
+        Cursor.CellSelected -= ConfirmTargetSelection;
+
+        Pointer.AnalogTracking = true;
+        Cursor.HardRestriction = Cursor.HardRestriction.Clear();
+        Cursor.Wrap = false;
+    }
+#endregion
+#region Engine Events
+    public override void _Ready()
+    {
+        base._Ready();
+        if (!Engine.IsEditorHint())
+            LevelEvents.Singleton.Connect<Rect2I>(LevelEvents.SignalName.CameraBoundsUpdated, (b) => Pointer.Bounds = b);
+    }
 #endregion
 #region Properties
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()

@@ -1,14 +1,12 @@
-[gd_scene load_steps=31 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=26 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DBrain.tscn" id="3_td8u6"]
 [ext_resource type="PackedScene" uid="uid://brgi7pl8xxduv" path="res://src/TbsTemplate/Scenes/Level/Layers/ActionLayers.tscn" id="3_v35i6"]
 [ext_resource type="TileSet" uid="uid://cwhi2yq5gtey5" path="res://demo/assets/level/ui/Overlay.tres" id="4_12w8e"]
-[ext_resource type="PackedScene" uid="uid://bgcsg0l8mj2sn" path="res://src/TbsTemplate/Scenes/Level/Object/Cursor.tscn" id="6_3v7mf"]
 [ext_resource type="PackedScene" uid="uid://t41dn0l7cicc" path="res://src/TbsTemplate/Scenes/Level/Layers/PathLayer.tscn" id="6_w4hfb"]
 [ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/TbsTemplate/UI/HUD/CursorHintIcon.tscn" id="9_i7is8"]
 [ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/TbsTemplate/UI/HUD/ControlHint.tscn" id="10_dfuji"]
-[ext_resource type="PackedScene" uid="uid://bqrqq7jid7qp2" path="res://src/TbsTemplate/UI/Pointer.tscn" id="10_h4rp7"]
 [ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://demo/assets/ui/Hints.tres" id="11_7flpq"]
 [ext_resource type="PackedScene" uid="uid://bolt0jtmhdfb8" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/Vector2IReaction.tscn" id="16_kxyas"]
 [ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/TbsTemplate/Nodes/StateChart/Chart.tscn" id="17_sd0pe"]
@@ -19,8 +17,6 @@
 [ext_resource type="PackedScene" uid="uid://dxamaj2vnf0lt" path="res://src/TbsTemplate/Scenes/Level/UnitReaction.tscn" id="21_sbtfw"]
 [ext_resource type="PackedScene" uid="uid://hri0gp84mgng" path="res://src/TbsTemplate/Scenes/Level/PathReaction.tscn" id="22_h5tkx"]
 [ext_resource type="PackedScene" uid="uid://6l44mlff5sgr" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/ActionReaction.tscn" id="22_mocgv"]
-[ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/StringCondition.cs" id="22_tix5y"]
-[ext_resource type="PackedScene" uid="uid://dtrul7dw5r6ly" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/Vector2Reaction.tscn" id="23_u3pac"]
 [ext_resource type="PackedScene" uid="uid://8kjm1k78c32w" path="res://src/TbsTemplate/Scenes/Level/CommandReaction.tscn" id="27_7kdnf"]
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/IntCondition.cs" id="27_kyhbc"]
 [ext_resource type="PackedScene" uid="uid://bxjlkc4hevsxb" path="res://src/TbsTemplate/Scenes/Level/TargetReaction.tscn" id="28_5f3xe"]
@@ -29,12 +25,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -963807444
-
-[sub_resource type="Resource" id="Resource_mydqi"]
-script = ExtResource("22_tix5y")
-Property = &"occupied"
-Value = "active"
+seed = -1037303873
 
 [sub_resource type="Resource" id="Resource_3lvnu"]
 script = ExtResource("27_kyhbc")
@@ -51,9 +42,8 @@ Wait = &"wait"
 Done = &"done"
 CombatScenePath = "res://src/TbsTemplate/Scenes/Combat/CombatScene.tscn"
 
-[node name="Camera" parent="." node_paths=PackedStringArray("Target") instance=ExtResource("3_td8u6")]
+[node name="Camera" parent="." instance=ExtResource("3_td8u6")]
 unique_name_in_owner = true
-Target = NodePath("../Pointer")
 Limits = Rect2i(0, 0, 1000000, 1000000)
 Zoom = Vector2(2, 2)
 ShakeDecay = 0.8
@@ -104,14 +94,7 @@ use_parent_material = true
 tile_set = ExtResource("4_12w8e")
 navigation_enabled = false
 
-[node name="Cursor" parent="." instance=ExtResource("6_3v7mf")]
-unique_name_in_owner = true
-DebugColor = Color(0, 0, 0, 0)
-
 [node name="PathLayer" parent="." instance=ExtResource("6_w4hfb")]
-unique_name_in_owner = true
-
-[node name="Pointer" parent="." instance=ExtResource("10_h4rp7")]
 unique_name_in_owner = true
 
 [node name="UserInterface" type="CanvasLayer" parent="."]
@@ -188,8 +171,6 @@ process_mode = 4
 
 [node name="OnCursorEnteredCell" parent="State/Root/Running/Idle" instance=ExtResource("16_kxyas")]
 
-[node name="OnPointerStopped" parent="State/Root/Running/Idle" instance=ExtResource("23_u3pac")]
-
 [node name="OnUnitSelected" parent="State/Root/Running/Idle" instance=ExtResource("21_sbtfw")]
 
 [node name="OnTurnSkipped" parent="State/Root/Running/Idle" instance=ExtResource("22_mocgv")]
@@ -197,7 +178,6 @@ process_mode = 4
 [node name="ToSelected" parent="State/Root/Running/Idle" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"select"
 To = NodePath("../../UnitSelected")
-Condition = SubResource("Resource_mydqi")
 
 [node name="ToEndTurn" parent="State/Root/Running/Idle" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"skip"
@@ -320,20 +300,12 @@ unique_name_in_owner = true
 stream = ExtResource("32_e2hk2")
 
 [connection signal="child_entered_tree" from="." to="." method="OnChildEnteredTree"]
-[connection signal="CellChanged" from="Cursor" to="State/Root/Running/Idle/OnCursorMoved" method="React"]
-[connection signal="CellEntered" from="Cursor" to="State/Root/Running/Idle/OnCursorEnteredCell" method="React"]
-[connection signal="CursorMoved" from="Cursor" to="Pointer" method="OnCursorMoved"]
-[connection signal="FlightCompleted" from="Pointer" to="." method="OnPointerFlightCompleted"]
-[connection signal="FlightStarted" from="Pointer" to="." method="OnPointerFlightStarted"]
-[connection signal="PointerMoved" from="Pointer" to="Cursor" method="OnPointerMoved"]
-[connection signal="PointerStopped" from="Pointer" to="State/Root/Running/Idle/OnPointerStopped" method="React"]
 [connection signal="StateEntered" from="State/Root/Running/BeginTurn" to="." method="OnBeginTurnEntered"]
 [connection signal="StateExited" from="State/Root/Running/BeginTurn" to="." method="OnBeginTurnExited"]
 [connection signal="EventReceived" from="State/Root/Running/Idle" to="." method="OnIdleEventReceived"]
 [connection signal="StateEntered" from="State/Root/Running/Idle" to="." method="OnIdleEntered"]
 [connection signal="StateUpdated" from="State/Root/Running/Idle/OnCursorMoved" to="." method="OnIdleCursorMoved"]
 [connection signal="StateUpdated" from="State/Root/Running/Idle/OnCursorEnteredCell" to="." method="OnIdleCursorEnteredCell"]
-[connection signal="StateUpdated" from="State/Root/Running/Idle/OnPointerStopped" to="." method="OnIdlePointerStopped"]
 [connection signal="StateUpdated" from="State/Root/Running/Idle/OnUnitSelected" to="." method="OnIdleUnitSelected"]
 [connection signal="StateUpdated" from="State/Root/Running/Idle/OnTurnSkipped" to="." method="OnIdleTurnSkipped"]
 [connection signal="StateEntered" from="State/Root/Running/UnitSelected" to="." method="OnSelectedEntered"]

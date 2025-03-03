@@ -55,8 +55,6 @@ public partial class AIController : ArmyController
 
     public override void InitializeTurn()
     {
-        Cursor.Halt(hide:true);
-
         _selected = null;
         _destination = -Vector2I.One;
         _action = null;
@@ -169,7 +167,7 @@ public partial class AIController : ArmyController
         // Also, use a collection expression to immediately evaluated it rather than waiting until later, because that will be in the
         // wrong thread.
         IEnumerable<Unit> available = [.. ((IEnumerable<Unit>)Army).Where(static (u) => u.Active)];
-        IEnumerable<Unit> enemies = Cursor.Grid.Occupants.Values.OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u));
+        IEnumerable<Unit> enemies = Grid.Occupants.Values.OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u));
 
         (_selected, _destination, _action, _target) = await Task.Run<(Unit, Vector2I, StringName, Unit)>(() => ComputeAction(available, enemies));
 

@@ -56,7 +56,6 @@ public partial class AIControllerTestScene : Node
     public void InitializeTest()
     {
         _dut.InitializeTurn();
-        _dut.Cursor.Cell = Vector2I.Zero;
     }
 
     /// <summary>Run a test to make sure the AI performs the right action for a given game state.</summary>
