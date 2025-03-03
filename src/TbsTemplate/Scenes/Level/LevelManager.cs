@@ -142,8 +142,8 @@ public partial class LevelManager : Node
     /// <summary>Signal that a turn is about to begin.</summary>
     public void OnBeginTurnEntered()
     {
-        _armies.Current.Controller.CursorCellEntered += OnIdleCursorEnteredCell;
         _armies.Current.Controller.SelectionCanceled += OnSelectionCanceled;
+        _armies.Current.Controller.CursorCellEntered += _.State.Root.Running.Idle.OnCursorEnteredCell.React;
         _armies.Current.Controller.UnitSelected += _.State.Root.Running.Idle.OnUnitSelected.React;
         _armies.Current.Controller.TurnSkipped += _.State.Root.Running.Idle.OnTurnSkipped.React;
         _armies.Current.Controller.PathUpdated += _.State.Root.Running.UnitSelected.OnPathUpdated.React;
@@ -502,8 +502,8 @@ public partial class LevelManager : Node
     /// <summary>Refresh all the units in the army whose turn just ended so they aren't gray anymore and are animated.</summary>
     public void OnEndTurnExited()
     {
-        _armies.Current.Controller.CursorCellEntered -= OnIdleCursorEnteredCell;
         _armies.Current.Controller.SelectionCanceled -= OnSelectionCanceled;
+        _armies.Current.Controller.CursorCellEntered -= _.State.Root.Running.Idle.OnCursorEnteredCell.React;
         _armies.Current.Controller.UnitSelected -= _.State.Root.Running.Idle.OnUnitSelected.React;
         _armies.Current.Controller.TurnSkipped -= _.State.Root.Running.Idle.OnTurnSkipped.React;
         _armies.Current.Controller.PathUpdated -= _.State.Root.Running.UnitSelected.OnPathUpdated.React;
