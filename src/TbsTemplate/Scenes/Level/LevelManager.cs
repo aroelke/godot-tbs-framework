@@ -143,6 +143,7 @@ public partial class LevelManager : Node
     public void OnBeginTurnEntered()
     {
         _armies.Current.Controller.SelectionCanceled += OnSelectionCanceled;
+        _armies.Current.Controller.CursorCellChanged += _.State.Root.Running.Idle.OnCursorMoved.React;
         _armies.Current.Controller.CursorCellEntered += _.State.Root.Running.Idle.OnCursorEnteredCell.React;
         _armies.Current.Controller.UnitSelected += _.State.Root.Running.Idle.OnUnitSelected.React;
         _armies.Current.Controller.TurnSkipped += _.State.Root.Running.Idle.OnTurnSkipped.React;
@@ -503,6 +504,7 @@ public partial class LevelManager : Node
     public void OnEndTurnExited()
     {
         _armies.Current.Controller.SelectionCanceled -= OnSelectionCanceled;
+        _armies.Current.Controller.CursorCellChanged -= _.State.Root.Running.Idle.OnCursorMoved.React;
         _armies.Current.Controller.CursorCellEntered -= _.State.Root.Running.Idle.OnCursorEnteredCell.React;
         _armies.Current.Controller.UnitSelected -= _.State.Root.Running.Idle.OnUnitSelected.React;
         _armies.Current.Controller.TurnSkipped -= _.State.Root.Running.Idle.OnTurnSkipped.React;
