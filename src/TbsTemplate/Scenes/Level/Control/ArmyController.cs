@@ -44,6 +44,8 @@ public abstract partial class ArmyController : Node
     /// <param name="target">Target of the action.</param>
     [Signal] public delegate void TargetChosenEventHandler(Unit source, Unit target);
 
+    /// <summary>Signals that targeting for a unit's action was canceled.</summary>
+    /// <param name="source">Unit whose action was canceled.</param>
     [Signal] public delegate void TargetCanceledEventHandler(Unit source);
 
     private Army _army = null;
