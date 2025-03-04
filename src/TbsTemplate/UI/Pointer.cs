@@ -42,6 +42,17 @@ public partial class Pointer : BoundedNode2D
     private bool _tracking = true;
     private Tween _flyer = null;
 
+    /// <summary>Move the pointer to a new location that's not bounded by <see cref="Bounds"/>, and update listeners that the move occurred.</summary>
+    /// <param name="position">Position to warp to.</param>
+    private void Move(Vector2 position)
+    {
+        if (Position != position)
+        {
+            Position = position;
+            EmitSignal(SignalName.PointerMoved, Position);
+        }
+    }
+
     /// <summary>Convert a position in the <see cref="World"/> to a position in the <see cref="Viewport"/>.</summary>
     /// <param name="world"><see cref="World"/> position.</param>
     /// <returns>Position in the <see cref="Viewport"/> that's at the same place as the one in the <see cref="World"/>.</returns>
@@ -93,15 +104,13 @@ public partial class Pointer : BoundedNode2D
     /// <remarks>The pointer is just a point, but it has to have a zero area so the camera can focus on it.</remarks>
     public override Vector2 Size { get => Vector2.Zero; set {}}
 
-    /// <summary>Move the pointer to a new location that's not bounded by <see cref="Bounds"/>, and update listeners that the move occurred.</summary>
-    /// <param name="position">Position to warp to.</param>
-    public void Warp(Vector2 position)
+    /// <summary>Move the pointer to a new location immediately.</summary>
+    /// <param name="target">Location to move to.</param>
+    public void Warp(Vector2 target)
     {
-        if (Position != position)
-        {
-            Position = position;
-            EmitSignal(SignalName.PointerMoved, Position);
-        }
+        if (DeviceManager.Mode == InputMode.Mouse) // use this instead of MouseMode.Active in case the pointer is inactive
+            GetViewport().WarpMouse(WorldToViewport(target));
+        Move(target);
     }
 
     /// <summary>Move the pointer to a new position over time. Update listeners that the move ocurred afterward.</summary>
@@ -109,6 +118,9 @@ public partial class Pointer : BoundedNode2D
     /// <param name="duration">Time to take to move there in seconds.</param>
     public void Fly(Vector2 target, double duration)
     {
+        if (duration <= 0)
+            throw new ArgumentException("Zero flight duration. If this is intentional, use Warp() instead.");
+
         Mouse.Visible = true;
         DeviceManager.EnableSystemMouse = false;
         EmitSignal(SignalName.FlightStarted, target);
@@ -157,7 +169,7 @@ public partial class Pointer : BoundedNode2D
     public void OnDigitalStateEntered() => Mouse.Visible = false;
 
     /// <summary>When changing input mode from mouse to analog, warp the pointer to where the mouse is.</summary>
-    public void OnMouseToAnalogTaken() => Warp(ViewportToWorld(InputManager.GetMousePosition()));
+    public void OnMouseToAnalogTaken() => Move(ViewportToWorld(InputManager.GetMousePosition()));
 
     /// <summary>When entering analog state, make sure the virtual pointer is visible (unless analog input should be treated as digital).</summary>
     public void OnAnalogStateEntered() => Mouse.Visible = _tracking;
@@ -182,7 +194,7 @@ public partial class Pointer : BoundedNode2D
             if (direction != Vector2.Zero)
             {
                 double speed = _accelerate ? (Speed*Acceleration) : Speed;
-                Warp((Position + direction*(float)(speed*delta)).Clamp(Bounds.Position, Bounds.End));
+                Move((Position + direction*(float)(speed*delta)).Clamp(Bounds.Position, Bounds.End));
             }
         }
     }
@@ -207,7 +219,7 @@ public partial class Pointer : BoundedNode2D
         if (Position != ViewportToWorld(InputManager.GetMousePosition()))
         {
             ControlState.SendEvent(_events[DoneEvent]);
-            Warp(ViewportToWorld(InputManager.GetMousePosition()));
+            Move(ViewportToWorld(InputManager.GetMousePosition()));
         }
     }
 
@@ -236,11 +248,11 @@ public partial class Pointer : BoundedNode2D
 
     /// <summary>When the mouse enters the <see cref="Viewport"/>, warp to its entry position.</summary>
     /// <param name="position">Position the mouse entered the <see cref="Viewport"/> on.</param>
-    public void OnMouseEntered(Vector2 position) => Warp(ViewportToWorld(position));
+    public void OnMouseEntered(Vector2 position) => Move(ViewportToWorld(position));
 
     /// <summary>When the mouse exits the <see cref="Viewport"/> , warp to edge of the <see cref="Viewport"/> near where it exited.</summary>
     /// <param name="position">Position on <see cref="Viewport"/> close to where the mouse exited.</param>
-    public void OnMouseExited(Vector2 position) => Warp(ViewportToWorld(position));
+    public void OnMouseExited(Vector2 position) => Move(ViewportToWorld(position));
 
     /// <summary>When the cursor moves during digital input, warp to its location.</summary>
     /// <param name="region">New region enclosed by the cursor.</param>
@@ -248,12 +260,7 @@ public partial class Pointer : BoundedNode2D
     {
         if (!region.Contains(Position, perimeter:true))
         {
-            if (Waiting.Active && DeviceManager.Mode == InputMode.Mouse)
-            {
-                Warp(region.GetCenter());
-                GetViewport().WarpMouse(WorldToViewport(region.GetCenter()));
-            }
-            else if (MouseState.Active)
+            if (MouseState.Active)
                 Fly(region.GetCenter(), DefaultFlightTime);
             else
                 Warp(region.GetCenter());
