@@ -142,8 +142,7 @@ public partial class Pointer : BoundedNode2D
     /// <param name="hide">Whether or not to hide the mouse while waiting.</param>
     public void StartWaiting(bool hide=true)
     {
-        if (hide)
-            DeviceManager.EnableSystemMouse = false;
+        DeviceManager.EnableSystemMouse = !hide;
         ControlState.SendEvent(_events[WaitEvent]);
         Mouse.Visible = false;
     }
