@@ -248,7 +248,7 @@ public partial class Pointer : BoundedNode2D
     {
         if (!region.Contains(Position, perimeter:true))
         {
-            if (Waiting.Active)
+            if (Waiting.Active && DeviceManager.Mode == InputMode.Mouse)
             {
                 Warp(region.GetCenter());
                 GetViewport().WarpMouse(WorldToViewport(region.GetCenter()));
