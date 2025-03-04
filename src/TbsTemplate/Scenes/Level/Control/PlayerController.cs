@@ -404,7 +404,10 @@ public partial class PlayerController : ArmyController
     {
         base._Ready();
         if (!Engine.IsEditorHint())
+        {
             LevelEvents.Singleton.Connect<Rect2I>(LevelEvents.SignalName.CameraBoundsUpdated, (b) => Pointer.Bounds = b);
+            Cursor.Halt();
+        }
     }
 #endregion
 #region Properties
