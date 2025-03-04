@@ -158,6 +158,7 @@ stream = ExtResource("10_guidb")
 [connection signal="StateEntered" from="State/Root/Active/Path" to="." method="OnPathEntered"]
 [connection signal="StateExited" from="State/Root/Active/Path" to="." method="OnPathExited"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReady" to="." method="OnCancel"]
+[connection signal="StateEntered" from="State/Root/Active/Command" to="." method="OnCommandEntered"]
 [connection signal="StateProcess" from="State/Root/Active/Command/OnProcess" to="." method="OnCommandProcess"]
 [connection signal="Taken" from="State/Root/Active/Command/ToReady" to="." method="OnCancel"]
 [connection signal="StateEntered" from="State/Root/Active/Target" to="." method="OnTargetEntered"]
