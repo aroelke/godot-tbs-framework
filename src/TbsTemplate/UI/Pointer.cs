@@ -248,7 +248,12 @@ public partial class Pointer : BoundedNode2D
     {
         if (!region.Contains(Position, perimeter:true))
         {
-            if (MouseState.Active)
+            if (Waiting.Active)
+            {
+                Warp(region.GetCenter());
+                GetViewport().WarpMouse(WorldToViewport(region.GetCenter()));
+            }
+            else if (MouseState.Active)
                 Fly(region.GetCenter(), DefaultFlightTime);
             else
                 Warp(region.GetCenter());

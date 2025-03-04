@@ -83,9 +83,10 @@ public partial class PlayerController : ArmyController
 #region Initialization and Finalization
     public override void InitializeTurn()
     {
+        Cursor.Cell = ((IEnumerable<Unit>)Army).First().Cell;
+
         Cursor.Resume();
         Pointer.StopWaiting();
-        Cursor.Cell = ((IEnumerable<Unit>)Army).First().Cell;
     }
 
     public override void FinalizeAction() {}
