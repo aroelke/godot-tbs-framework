@@ -4,7 +4,6 @@ using Godot;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes;
 using TbsTemplate.Nodes.Components;
-using TbsTemplate.Nodes.StateChart;
 using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI.Controls.Device;
 
@@ -94,10 +93,7 @@ public partial class Pointer : BoundedNode2D
     /// <remarks>The pointer is just a point, but it has to have a zero area so the camera can focus on it.</remarks>
     public override Vector2 Size { get => Vector2.Zero; set {}}
 
-    /// <summary>
-    /// Move the pointer to a new location that's not bounded by <see cref="Bounds"/>, and update listeners that the move occurred. If the pointer is currently
-    /// on its way to a new position due to <see cref="Fly"/>, cancel the movement.
-    /// </summary>
+    /// <summary>Move the pointer to a new location that's not bounded by <see cref="Bounds"/>, and update listeners that the move occurred.</summary>
     /// <param name="position">Position to warp to.</param>
     public void Warp(Vector2 position)
     {
@@ -109,8 +105,8 @@ public partial class Pointer : BoundedNode2D
     }
 
     /// <summary>Move the pointer to a new position over time. Update listeners that the move ocurred afterward.</summary>
-    /// <param name="target"></param>
-    /// <param name="duration"></param>
+    /// <param name="target">Location to move to.</param>
+    /// <param name="duration">Time to take to move there in seconds.</param>
     public void Fly(Vector2 target, double duration)
     {
         Mouse.Visible = true;
