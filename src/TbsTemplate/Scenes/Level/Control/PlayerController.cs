@@ -84,6 +84,8 @@ public partial class PlayerController : ArmyController
 #region Initialization and Finalization
     public override void InitializeTurn()
     {
+        HUD.Visible = true;
+
         Cursor.Cell = ((IEnumerable<Unit>)Army).First().Cell;
 
         Cursor.Resume();
@@ -96,6 +98,7 @@ public partial class PlayerController : ArmyController
     {
         Cursor.Halt(hide:true);
         Pointer.StartWaiting(hide:true);
+        HUD.Visible = false;
     }
 #endregion
 #region State Independent
