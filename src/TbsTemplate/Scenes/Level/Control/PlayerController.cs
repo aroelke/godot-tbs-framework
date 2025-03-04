@@ -406,6 +406,7 @@ public partial class PlayerController : ArmyController
         if (!Engine.IsEditorHint())
         {
             LevelEvents.Singleton.Connect<Rect2I>(LevelEvents.SignalName.CameraBoundsUpdated, (b) => Pointer.Bounds = b);
+            Callable.From(() => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.FocusCamera, Pointer)).CallDeferred();
             Cursor.Halt();
         }
     }
