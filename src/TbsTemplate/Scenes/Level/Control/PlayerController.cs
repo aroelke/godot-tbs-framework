@@ -267,7 +267,7 @@ public partial class PlayerController : ArmyController
         bool occupied = Cursor.Grid.Occupants.TryGetValue(cell, out GridNode occupant);
         if (!_traversable.Contains(cell) && !occupied)
         {
-            State.SendEvent(_events[FinishEvent]);
+            State.SendEvent(_events[CancelEvent]);
             EmitSignal(SignalName.SelectionCanceled);
         }
         else if (!occupied || occupant == _selected)
