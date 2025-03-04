@@ -217,7 +217,6 @@ public partial class LevelManager : Node
         _initialCell = null;
         _selected.Deselect();
         _selected = null;
-        CancelHint.Visible = false;
         PathLayer.Clear();
     }
 
@@ -232,7 +231,6 @@ public partial class LevelManager : Node
         // Compute move/attack/support ranges for selected unit
         (ActionLayers[MoveLayer], ActionLayers[AttackLayer], ActionLayers[SupportLayer]) = _selected.ActionRanges();
         _path = Path.Empty(Grid, ActionLayers[MoveLayer]).Add(_selected.Cell);
-        CancelHint.Visible = true;
 
         // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
         Rect2? zoomRect = Grid.EnclosingRect(ActionLayers.Union());
@@ -284,15 +282,12 @@ public partial class LevelManager : Node
 
     public void OnSelectedCanceled()
     {
-//        if (Cursor.Cell != _selected.Cell)
-            ActionLayers.Clear();
+        ActionLayers.Clear();
         PathLayer.Clear();
 
         _initialCell = null;
         _selected.Deselect();
         _selected = null;
-
-        CancelHint.Visible = false;
     }
 
     /// <summary>Clean up overlays when movement destination is chosen.</summary>
@@ -478,7 +473,6 @@ public partial class LevelManager : Node
         _selected.Finish();
         State.ExpressionProperties = State.ExpressionProperties.SetItem(ActiveProperty, ((IEnumerable<Unit>)_armies.Current).Count((u) => u.Active));
 
-        CancelHint.Visible = false;
         Callable.From<Unit>((u) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, u)).CallDeferred(_selected);
     }
 

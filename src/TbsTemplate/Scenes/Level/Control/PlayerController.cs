@@ -61,6 +61,7 @@ public partial class PlayerController : ArmyController
     {
         Cursor.Halt(hide:true);
         Pointer.StartWaiting(hide:false);
+        CancelHint.Visible = true;
 
         ContextMenu menu = ContextMenu.Instantiate(options);
         menu.Wrap = true;
@@ -161,6 +162,7 @@ public partial class PlayerController : ArmyController
                 new("Cancel", Cancel)
             ]);
             menu.MenuCanceled += Cancel;
+            menu.MenuClosed += () => CancelHint.Visible = false;
         }
     }
 
@@ -168,6 +170,7 @@ public partial class PlayerController : ArmyController
     {
         Cursor.Resume();
         Pointer.StopWaiting();
+        CancelHint.Visible = false;
 
         Cursor.Cell = Grid.CellOf(Pointer.Position);
         EmitSignal(SignalName.CursorCellEntered, Cursor.Cell);
@@ -271,6 +274,7 @@ public partial class PlayerController : ArmyController
         {
             Cursor.Halt(hide:false);
             Pointer.StartWaiting(hide:false);
+            CancelHint.Visible = false;
 
             State.SendEvent(_events[FinishEvent]);
             EmitSignal(SignalName.PathConfirmed, _selected, new Godot.Collections.Array<Vector2I>(_path));
@@ -279,6 +283,7 @@ public partial class PlayerController : ArmyController
         {
             Cursor.Halt(hide:false);
             Pointer.StartWaiting(hide:false);
+            CancelHint.Visible = false;
 
             State.SendEvent(_events[FinishEvent]);
             EmitSignal(SignalName.UnitCommanded, _selected, _command);
@@ -293,6 +298,7 @@ public partial class PlayerController : ArmyController
     {
         Cursor.Resume();
         Pointer.StopWaiting();
+        CancelHint.Visible = true;
 
         _target = null;
         (_traversable, _attackable, _supportable) = _selected.ActionRanges();
@@ -325,6 +331,8 @@ public partial class PlayerController : ArmyController
         }).CallDeferred();
     }
 
+    public void OnCommandEntered() => CancelHint.Visible = true;
+
     public void OnCommandProcess(double delta) => _menu.Position = MenuPosition(Cursor.Grid.CellRect(_selected.Cell), _menu.Size);
 #endregion
 #region Target Selection
@@ -350,6 +358,7 @@ public partial class PlayerController : ArmyController
         {
             Cursor.Halt(hide:false);
             Pointer.StartWaiting(hide:false);
+            CancelHint.Visible = false;
 
             State.SendEvent(_events[FinishEvent]);
             EmitSignal(SignalName.TargetChosen, _selected, target);
@@ -360,6 +369,7 @@ public partial class PlayerController : ArmyController
     {
         Cursor.Resume();
         Pointer.StopWaiting();
+        CancelHint.Visible = true;
         Cursor.CellSelected += ConfirmTargetSelection;
 
         Pointer.AnalogTracking = false;
