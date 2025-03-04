@@ -115,7 +115,6 @@ stream = ExtResource("10_guidb")
 [connection signal="FlightStarted" from="Pointer" to="." method="OnPointerFlightStarted"]
 [connection signal="PointerMoved" from="Pointer" to="Cursor" method="OnPointerMoved"]
 [connection signal="PointerStopped" from="Pointer" to="." method="OnIdlePointerStopped"]
-[connection signal="StateEntered" from="State/Root/Active" to="." method="OnActiveEntered"]
 [connection signal="StateExited" from="State/Root/Active" to="." method="OnActiveExited"]
 [connection signal="StateEntered" from="State/Root/Active/Select" to="." method="OnSelectEntered"]
 [connection signal="StateExited" from="State/Root/Active/Select" to="." method="OnSelectExited"]

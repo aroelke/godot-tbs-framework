@@ -59,14 +59,14 @@ public partial class PlayerController : ArmyController
 
     private ContextMenu ShowMenu(Rect2 rect, IEnumerable<ContextMenuOption> options)
     {
+        Cursor.Halt(hide:true);
+        Pointer.StartWaiting(hide:false);
+
         ContextMenu menu = ContextMenu.Instantiate(options);
         menu.Wrap = true;
         UserInterface.AddChild(menu);
         menu.Visible = false;
-        menu.MenuClosed += () => {
-            Cursor.Resume();
-            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.RevertCameraFocus);
-        };
+        menu.MenuClosed += () => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.RevertCameraFocus);
 
         LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.FocusCamera, (BoundedNode2D)null);
 
@@ -83,12 +83,18 @@ public partial class PlayerController : ArmyController
 #region Initialization and Finalization
     public override void InitializeTurn()
     {
-//        Cursor.Resume();
+        Cursor.Resume();
+        Pointer.StopWaiting();
         Cursor.Cell = ((IEnumerable<Unit>)Army).First().Cell;
     }
 
     public override void FinalizeAction() {}
-    public override void FinalizeTurn() {}
+
+    public override void FinalizeTurn()
+    {
+        Cursor.Halt(hide:true);
+        Pointer.StartWaiting(hide:true);
+    }
 #endregion
 #region State Independent
     public void OnCancel() => CancelSound.Play();
@@ -102,12 +108,6 @@ public partial class PlayerController : ArmyController
     public void OnPointerFlightCompleted() => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.RevertCameraFocus);
 #endregion
 #region Active
-    public void OnActiveEntered()
-    {
-        Pointer.StopWaiting();
-        Cursor.Resume();
-    }
-
     public void OnActiveInput(InputEvent @event)
     {
         if (@event.IsActionPressed(InputActions.Cancel))
@@ -120,12 +120,7 @@ public partial class PlayerController : ArmyController
             LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ToggleDangerZone, Army, Cursor.Grid.Occupants.GetValueOrDefault(Cursor.Cell) as Unit);
     }
 
-    public void OnActiveExited()
-    {
-        Pointer.StartWaiting(hide:true);
-        Cursor.Halt(hide:true);
-        Callable.From(() => _selected = null).CallDeferred();
-    }
+    public void OnActiveExited() => Callable.From(() => _selected = null).CallDeferred();
 #endregion
 #region Unit Selection
     public override void SelectUnit() => Callable.From(() => State.SendEvent(_events[SelectEvent])).CallDeferred();
@@ -144,25 +139,35 @@ public partial class PlayerController : ArmyController
         }
         else
         {
-            Cursor.Halt(hide:true);
+            void Cancel()
+            {
+                CancelSound.Play();
+                Cursor.Resume();
+                Pointer.StopWaiting();
+            }
 
             SelectSound.Play();
             ContextMenu menu = ShowMenu(Cursor.Grid.CellRect(cell), [
                 new("End Turn", () => {
+                    // Cursor is already halted
+                    Pointer.StartWaiting(hide:true);
+
                     State.SendEvent(_events[FinishEvent]);
                     EmitSignal(SignalName.TurnSkipped);
                     SelectSound.Play();
                 }),
                 new("Quit Game", () => GetTree().Quit()),
-                new("Cancel", () => CancelSound.Play())
+                new("Cancel", Cancel)
             ]);
-            menu.MenuCanceled += () => CancelSound.Play();
-            menu.MenuClosed += Cursor.Resume;
+            menu.MenuCanceled += Cancel;
         }
     }
 
     public void OnSelectEntered()
     {
+        Cursor.Resume();
+        Pointer.StopWaiting();
+
         Cursor.Cell = Grid.CellOf(Pointer.Position);
         EmitSignal(SignalName.CursorCellEntered, Cursor.Cell);
         Cursor.CellSelected += ConfirmCursorSelection;
@@ -263,11 +268,17 @@ public partial class PlayerController : ArmyController
         }
         else if (!occupied || occupant == _selected)
         {
+            Cursor.Halt(hide:false);
+            Pointer.StartWaiting(hide:false);
+
             State.SendEvent(_events[FinishEvent]);
             EmitSignal(SignalName.PathConfirmed, _selected, new Godot.Collections.Array<Vector2I>(_path));
         }
         else if (occupied && occupant is Unit target && (_attackable.Contains(target.Cell) || _supportable.Contains(target.Cell)))
         {
+            Cursor.Halt(hide:false);
+            Pointer.StartWaiting(hide:false);
+
             State.SendEvent(_events[FinishEvent]);
             EmitSignal(SignalName.UnitCommanded, _selected, _command);
             EmitSignal(SignalName.TargetChosen, _selected, target);
@@ -279,6 +290,9 @@ public partial class PlayerController : ArmyController
 
     public void OnPathEntered()
     {
+        Cursor.Resume();
+        Pointer.StopWaiting();
+
         _target = null;
         (_traversable, _attackable, _supportable) = _selected.ActionRanges();
         UpdatePath(Path.Empty(Cursor.Grid, _traversable).Add(_selected.Cell));
@@ -304,10 +318,7 @@ public partial class PlayerController : ArmyController
                 State.SendEvent(_events[FinishEvent]);
                 EmitSignal(SignalName.UnitCommanded, source, c);
             }}));
-            _menu.MenuCanceled += () => {
-//                State.SendEvent(_events[FinishEvent]);
-                EmitSignal(SignalName.UnitCommanded, source, cancel);
-            };
+            _menu.MenuCanceled += () => EmitSignal(SignalName.UnitCommanded, source, cancel);
             _menu.MenuClosed += () => _menu = null;
             State.SendEvent(_events[CommandEvent]);
         }).CallDeferred();
@@ -336,6 +347,9 @@ public partial class PlayerController : ArmyController
         }
         else if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit target)
         {
+            Cursor.Halt(hide:false);
+            Pointer.StartWaiting(hide:false);
+
             State.SendEvent(_events[FinishEvent]);
             EmitSignal(SignalName.TargetChosen, _selected, target);
         }
@@ -343,6 +357,8 @@ public partial class PlayerController : ArmyController
 
     public void OnTargetEntered()
     {
+        Cursor.Resume();
+        Pointer.StopWaiting();
         Cursor.CellSelected += ConfirmTargetSelection;
 
         Pointer.AnalogTracking = false;
