@@ -147,7 +147,6 @@ public partial class LevelManager : Node
         _armies.Current.Controller.CursorCellEntered += _.State.Root.Running.Idle.OnCursorEnteredCell.React;
         _armies.Current.Controller.UnitSelected += _.State.Root.Running.Idle.OnUnitSelected.React;
         _armies.Current.Controller.TurnSkipped += _.State.Root.Running.Idle.OnTurnSkipped.React;
-        _armies.Current.Controller.PathUpdated += _.State.Root.Running.UnitSelected.OnPathUpdated.React;
         _armies.Current.Controller.UnitCommanded += _.State.Root.Running.UnitSelected.OnUnitCommanded.React;
         _armies.Current.Controller.TargetChosen += _.State.Root.Running.UnitSelected.OnTargetChosen.React;
         _armies.Current.Controller.TargetCanceled += OnTargetingCanceled;
@@ -217,7 +216,6 @@ public partial class LevelManager : Node
         _initialCell = null;
         _selected.Deselect();
         _selected = null;
-        PathLayer.Clear();
     }
 
     /// <summary>Display the total movement, attack, and support ranges of the selected <see cref="Unit"/> and begin drawing the path arrow for it to move on.</summary>
@@ -243,13 +241,6 @@ public partial class LevelManager : Node
         }
 
         Callable.From<Unit>(_armies.Current.Controller.MoveUnit).CallDeferred(_selected);
-    }
-
-    public void OnSelectedPathUpdated(Unit unit, Godot.Collections.Array<Vector2I> path)
-    {
-        if (unit != _selected)
-            throw new InvalidOperationException($"Cannot update path for unselected unit {unit.Name} ({_selected.Name} is selected)");
-        PathLayer.Path = _path = _path.SetTo(path);
     }
 
     public void OnSelectedUnitCommanded(Unit unit, StringName command)
@@ -283,7 +274,6 @@ public partial class LevelManager : Node
     public void OnSelectedCanceled()
     {
         ActionLayers.Clear();
-        PathLayer.Clear();
 
         _initialCell = null;
         _selected.Deselect();
@@ -294,7 +284,6 @@ public partial class LevelManager : Node
     public void OnDestinationChosen()
     {
         // Clear out movement/action ranges
-        PathLayer.Clear();
         ActionLayers.Clear();
     }
 
@@ -502,7 +491,6 @@ public partial class LevelManager : Node
         _armies.Current.Controller.CursorCellEntered -= _.State.Root.Running.Idle.OnCursorEnteredCell.React;
         _armies.Current.Controller.UnitSelected -= _.State.Root.Running.Idle.OnUnitSelected.React;
         _armies.Current.Controller.TurnSkipped -= _.State.Root.Running.Idle.OnTurnSkipped.React;
-        _armies.Current.Controller.PathUpdated -= _.State.Root.Running.UnitSelected.OnPathUpdated.React;
         _armies.Current.Controller.UnitCommanded -= _.State.Root.Running.UnitSelected.OnUnitCommanded.React;
         _armies.Current.Controller.TargetChosen -= _.State.Root.Running.UnitSelected.OnTargetChosen.React;
         _armies.Current.Controller.PathConfirmed -= _.State.Root.Running.UnitSelected.OnPathConfirmed.React;

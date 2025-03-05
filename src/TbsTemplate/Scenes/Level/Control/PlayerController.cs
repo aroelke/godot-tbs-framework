@@ -218,7 +218,7 @@ public partial class PlayerController : ArmyController
         }).CallDeferred();
     }
 
-    private void UpdatePath(Path path) => EmitSignal(SignalName.PathUpdated, _selected, new Godot.Collections.Array<Vector2I>(_path = path));
+    private void UpdatePath(Path path) => PathLayer.Path = _path = path;
 
     private void AddToPath(Vector2I cell)
     {
@@ -310,6 +310,7 @@ public partial class PlayerController : ArmyController
         Cursor.CellSelected += ConfirmPathSelection;
         Cursor.SoftRestriction = [.. _traversable];
         Cursor.Cell = _selected.Cell;
+        PathLayer.Clear();
     }
 
     public void OnPathExited()
@@ -317,6 +318,7 @@ public partial class PlayerController : ArmyController
         Cursor.SoftRestriction.Clear();
         Cursor.CellChanged -= AddToPath;
         Cursor.CellSelected -= ConfirmPathSelection;
+        PathLayer.Clear();
     }
 #endregion
 #region Command Selection

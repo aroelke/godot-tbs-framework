@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://drlrlusbfh208"]
+[gd_scene load_steps=16 format=3 uid="uid://drlrlusbfh208"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Control/PlayerController.cs" id="1_52vsu"]
 [ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/TbsTemplate/Nodes/StateChart/Chart.tscn" id="2_br7d1"]
@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://0b22cirxc7k2" path="res://src/TbsTemplate/Nodes/StateChart/States/Transition.tscn" id="5_dwgw0"]
 [ext_resource type="AudioStream" uid="uid://bg4mbs7d25qaj" path="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Select - 1.wav" id="6_0v5ht"]
 [ext_resource type="PackedScene" uid="uid://dhytcbhqvrpx0" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/InputReaction.tscn" id="6_ntg8o"]
+[ext_resource type="PackedScene" uid="uid://t41dn0l7cicc" path="res://src/TbsTemplate/Scenes/Level/Layers/PathLayer.tscn" id="6_p5qr4"]
 [ext_resource type="PackedScene" uid="uid://bajcy40oic1wf" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/ProcessReaction.tscn" id="7_bii0f"]
 [ext_resource type="AudioStream" uid="uid://b4dbo5h2e7ru4" path="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Cancel - 1.wav" id="7_qn3tt"]
 [ext_resource type="AudioStream" uid="uid://oyebi18i5hmn" path="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Error - 1.wav" id="10_guidb"]
@@ -65,6 +66,9 @@ Action = &"cancel"
 Description = "Cancel"
 
 [node name="Pointer" parent="." instance=ExtResource("3_nkaji")]
+unique_name_in_owner = true
+
+[node name="PathLayer" parent="." instance=ExtResource("6_p5qr4")]
 unique_name_in_owner = true
 
 [node name="State" parent="." instance=ExtResource("2_br7d1")]

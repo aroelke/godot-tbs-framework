@@ -25,11 +25,6 @@ public abstract partial class ArmyController : Node
     /// <summary>Signals that a unit's action is being skipped.</summary>
     [Signal] public delegate void TurnSkippedEventHandler();
 
-    /// <summary>Signals that a change has been made to the path during path selection.</summary>
-    /// <param name="unit">Unit that will move along the path.</param>
-    /// <param name="path">New path after update.</param>
-    [Signal] public delegate void PathUpdatedEventHandler(Unit unit, Godot.Collections.Array<Vector2I> path);
-
     /// <summary>Signals that a path for a <see cref="Unit"/> to move on has been chosen.</summary>
     /// <param name="unit">Unit that will move along the path.</param>
     /// <param name="path">Contiguous list of cells for the unit to move through.</param>
