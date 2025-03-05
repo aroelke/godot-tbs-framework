@@ -1,10 +1,9 @@
-[gd_scene load_steps=22 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=21 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DBrain.tscn" id="3_td8u6"]
 [ext_resource type="PackedScene" uid="uid://brgi7pl8xxduv" path="res://src/TbsTemplate/Scenes/Level/Layers/ActionLayers.tscn" id="3_v35i6"]
 [ext_resource type="TileSet" uid="uid://cwhi2yq5gtey5" path="res://demo/assets/level/ui/Overlay.tres" id="4_12w8e"]
-[ext_resource type="PackedScene" uid="uid://bolt0jtmhdfb8" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/Vector2IReaction.tscn" id="16_kxyas"]
 [ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/TbsTemplate/Nodes/StateChart/Chart.tscn" id="17_sd0pe"]
 [ext_resource type="PackedScene" uid="uid://bykdjiak4bxvt" path="res://src/TbsTemplate/Nodes/StateChart/States/CompoundState.tscn" id="18_k7m3y"]
 [ext_resource type="PackedScene" uid="uid://dnfp4qfxs85wh" path="res://src/TbsTemplate/Nodes/StateChart/States/HistoryState.tscn" id="18_n547p"]
@@ -21,7 +20,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -1400462818
+seed = 1536353972
 
 [sub_resource type="Resource" id="Resource_3lvnu"]
 script = ExtResource("27_kyhbc")
@@ -103,10 +102,6 @@ To = NodePath("../../Idle")
 
 [node name="Idle" parent="State/Root/Running" instance=ExtResource("19_o30vs")]
 process_mode = 4
-
-[node name="OnCursorMoved" parent="State/Root/Running/Idle" instance=ExtResource("16_kxyas")]
-
-[node name="OnCursorEnteredCell" parent="State/Root/Running/Idle" instance=ExtResource("16_kxyas")]
 
 [node name="OnUnitSelected" parent="State/Root/Running/Idle" instance=ExtResource("21_sbtfw")]
 
@@ -239,8 +234,6 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateExited" from="State/Root/Running/BeginTurn" to="." method="OnBeginTurnExited"]
 [connection signal="EventReceived" from="State/Root/Running/Idle" to="." method="OnIdleEventReceived"]
 [connection signal="StateEntered" from="State/Root/Running/Idle" to="." method="OnIdleEntered"]
-[connection signal="StateUpdated" from="State/Root/Running/Idle/OnCursorMoved" to="." method="OnIdleCursorMoved"]
-[connection signal="StateUpdated" from="State/Root/Running/Idle/OnCursorEnteredCell" to="." method="OnIdleCursorEnteredCell"]
 [connection signal="StateUpdated" from="State/Root/Running/Idle/OnUnitSelected" to="." method="OnIdleUnitSelected"]
 [connection signal="StateUpdated" from="State/Root/Running/Idle/OnTurnSkipped" to="." method="OnIdleTurnSkipped"]
 [connection signal="StateEntered" from="State/Root/Running/UnitSelected" to="." method="OnSelectedEntered"]
@@ -248,7 +241,6 @@ stream = ExtResource("32_e2hk2")
 [connection signal="StateUpdated" from="State/Root/Running/UnitSelected/OnUnitCommanded" to="." method="OnSelectedUnitCommanded"]
 [connection signal="StateUpdated" from="State/Root/Running/UnitSelected/OnTargetChosen" to="." method="OnSelectedTargetChosen"]
 [connection signal="StateUpdated" from="State/Root/Running/UnitSelected/OnPathConfirmed" to="." method="OnSelectedPathConfirmed"]
-[connection signal="Taken" from="State/Root/Running/UnitSelected/ToMoving" to="." method="OnDestinationChosen"]
 [connection signal="Taken" from="State/Root/Running/UnitSelected/ToIdle" to="." method="OnSelectedCanceled"]
 [connection signal="EventReceived" from="State/Root/Running/UnitMoving" to="." method="OnMovingEventReceived"]
 [connection signal="StateEntered" from="State/Root/Running/UnitMoving" to="." method="OnMovingEntered"]
@@ -258,11 +250,9 @@ stream = ExtResource("32_e2hk2")
 [connection signal="Taken" from="State/Root/Running/UnitCommanding/ToSelected" to="." method="OnCommandingCanceled"]
 [connection signal="Taken" from="State/Root/Running/UnitCommanding/ToEndAction" to="." method="OnTurnEndCommand"]
 [connection signal="StateEntered" from="State/Root/Running/UnitTargeting" to="." method="OnTargetingEntered"]
-[connection signal="StateExited" from="State/Root/Running/UnitTargeting" to="." method="OnTargetingExited"]
 [connection signal="StateUpdated" from="State/Root/Running/UnitTargeting/OnTargetChosen" to="." method="OnTargetChosen"]
 [connection signal="Taken" from="State/Root/Running/UnitTargeting/ToCombat" to="." method="OnTargetingExited"]
 [connection signal="StateEntered" from="State/Root/Running/InCombat" to="." method="OnCombatEntered"]
-[connection signal="StateExited" from="State/Root/Running/InCombat" to="." method="OnCombatExited"]
 [connection signal="StateEnteredTree" from="State/Root/Running/InCombat/OnEnteredTree" to="." method="OnCombatEnteredTree"]
 [connection signal="StateEntered" from="State/Root/Running/EndAction" to="." method="OnEndActionEntered"]
 [connection signal="StateExited" from="State/Root/Running/EndAction" to="." method="OnEndActionExited"]

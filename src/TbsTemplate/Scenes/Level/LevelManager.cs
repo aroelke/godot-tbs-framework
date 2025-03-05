@@ -140,8 +140,6 @@ public partial class LevelManager : Node
     public void OnBeginTurnEntered()
     {
         _armies.Current.Controller.SelectionCanceled += OnSelectionCanceled;
-        _armies.Current.Controller.CursorCellChanged += _.State.Root.Running.Idle.OnCursorMoved.React;
-        _armies.Current.Controller.CursorCellEntered += _.State.Root.Running.Idle.OnCursorEnteredCell.React;
         _armies.Current.Controller.UnitSelected += _.State.Root.Running.Idle.OnUnitSelected.React;
         _armies.Current.Controller.TurnSkipped += _.State.Root.Running.Idle.OnTurnSkipped.React;
         _armies.Current.Controller.UnitCommanded += _.State.Root.Running.UnitSelected.OnUnitCommanded.React;
@@ -164,21 +162,7 @@ public partial class LevelManager : Node
 #endregion
 #region Idle State
     /// <summary>Update the UI when re-entering idle.</summary>
-    public void OnIdleEntered()
-    {
-        Callable.From(_armies.Current.Controller.SelectUnit).CallDeferred();
-    }
-
-    /// <summary>Clear the displayed action ranges when moving the <see cref="Cursor"/> to a new cell while in idle <see cref="Nodes.StateChart.States.State"/>.</summary>
-    /// <param name="cell">Cell the <see cref="Object.Cursor"/> moved to.</param>
-    public void OnIdleCursorMoved(Vector2I cell) {}
-
-    /// <summary>
-    /// When the <see cref="Cursor"/> moves over a <see cref="Unit"/> while in idle <see cref="Nodes.StateChart.States.State"/>, display that <see cref="Unit"/>'s
-    /// action ranges.
-    /// </summary>
-    /// <param name="cell">Cell the <see cref="Cursor"/> moved into.</param>
-    public void OnIdleCursorEnteredCell(Vector2I cell) {}
+    public void OnIdleEntered() => Callable.From(_armies.Current.Controller.SelectUnit).CallDeferred();
 
     public void OnIdleUnitSelected(Unit unit)
     {
@@ -218,7 +202,6 @@ public partial class LevelManager : Node
         _target = null;
 
         // Compute move/attack/support ranges for selected unit
-//        (ActionLayers[MoveLayer], ActionLayers[AttackLayer], ActionLayers[SupportLayer]) = _selected.ActionRanges();
         _path = Path.Empty(Grid, _selected.TraversableCells());
 
         // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
@@ -252,7 +235,7 @@ public partial class LevelManager : Node
     {
         if (unit != _selected)
             throw new InvalidOperationException($"Cannot confirm path for unselected unit {unit.Name} ({_selected.Name} is selected)");
-        if (/*!path.All(ActionLayers[MoveLayer].Contains) || */path.Any((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Army.Faction.AlliedTo(_selected) ?? false)))
+        if (path.Any((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Army.Faction.AlliedTo(_selected) ?? false)))
             throw new InvalidOperationException("The chosen path must only contain traversable cells.");
         if (Grid.Occupants.ContainsKey(path[^1]) && Grid.Occupants[path[^1]] != unit)
             throw new InvalidOperationException("The chosen path must not end on an occupied cell.");
@@ -268,9 +251,6 @@ public partial class LevelManager : Node
         _selected.Deselect();
         _selected = null;
     }
-
-    /// <summary>Clean up overlays when movement destination is chosen.</summary>
-    public void OnDestinationChosen() {}
 
     public void OnSelectedExited()
     {
@@ -398,9 +378,6 @@ public partial class LevelManager : Node
     }
 
     public void OnTargetingCanceled(Unit source) => State.SendEvent(_events[CancelEvent]);
-
-    /// <summary>Clean up displayed ranges and restore <see cref="Object.Cursor"/> freedom when exiting targeting <see cref="Nodes.StateChart.States.State"/>.</summary>
-    public void OnTargetingExited() {}
 #endregion
 #region In Combat
     public void OnCombatEntered()
@@ -425,8 +402,6 @@ public partial class LevelManager : Node
         _combatResults = null;
         SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, () => State.SendEvent(_events[DoneEvent]), (uint)ConnectFlags.OneShot);
     }
-
-    public void OnCombatExited() {}
 #endregion
 #region End Action State
     /// <summary>If a unit was selected, signal that its action has ended. Otherwise, just continue.</summary>
@@ -461,8 +436,6 @@ public partial class LevelManager : Node
     public void OnEndTurnExited()
     {
         _armies.Current.Controller.SelectionCanceled -= OnSelectionCanceled;
-        _armies.Current.Controller.CursorCellChanged -= _.State.Root.Running.Idle.OnCursorMoved.React;
-        _armies.Current.Controller.CursorCellEntered -= _.State.Root.Running.Idle.OnCursorEnteredCell.React;
         _armies.Current.Controller.UnitSelected -= _.State.Root.Running.Idle.OnUnitSelected.React;
         _armies.Current.Controller.TurnSkipped -= _.State.Root.Running.Idle.OnTurnSkipped.React;
         _armies.Current.Controller.UnitCommanded -= _.State.Root.Running.UnitSelected.OnUnitCommanded.React;
