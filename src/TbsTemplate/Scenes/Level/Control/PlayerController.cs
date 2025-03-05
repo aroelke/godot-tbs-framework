@@ -31,6 +31,10 @@ public partial class PlayerController : ArmyController
     private Path _path;
     private ContextMenu _menu;
 
+    private StringName MoveLayer    => _.ActionLayers.Move.Name;
+    private StringName AttackLayer  => _.ActionLayers.Attack.Name;
+    private StringName SupportLayer => _.ActionLayers.Support.Name;
+
     public override Grid Grid
     {
         get => _grid;
@@ -46,6 +50,10 @@ public partial class PlayerController : ArmyController
             }
         }
     }
+#region Exports
+    [Export] public Color ActionRangeHoverModulate = Colors.White with { A = 0.66f };
+    [Export] public Color ActionRangeSelectModulate = Colors.White;
+#endregion
 #region Menus
     private Vector2 MenuPosition(Rect2 rect, Vector2 size)
     {
@@ -175,7 +183,10 @@ public partial class PlayerController : ArmyController
         Pointer.StopWaiting();
         CancelHint.Visible = false;
 
-        Cursor.Cell = Grid.CellOf(Pointer.Position);
+        ActionLayers.Clear();
+        ActionLayers.Modulate = ActionRangeHoverModulate;
+
+        OnSelectCursorCellEntered(Cursor.Cell = Grid.CellOf(Pointer.Position));
         EmitSignal(SignalName.CursorCellEntered, Cursor.Cell);
         Cursor.CellSelected += ConfirmCursorSelection;
     }
@@ -203,6 +214,14 @@ public partial class PlayerController : ArmyController
 
         if (@event.IsActionPressed(InputActions.Cancel) && Cursor.Grid.Occupants.TryGetValue(Cursor.Cell, out GridNode node) && node is Unit untrack)
             LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.RemoveFromDangerZone, Army, untrack);
+    }
+
+    public void OnSelectCursorCellChanged(Vector2I cell) => ActionLayers.Clear();
+
+    public void OnSelectCursorCellEntered(Vector2I cell)
+    {
+        if (Grid.Occupants.GetValueOrDefault(cell) is Unit unit)
+            (ActionLayers[MoveLayer], ActionLayers[AttackLayer], ActionLayers[SupportLayer]) = unit.ActionRanges();
     }
 
     public void OnSelectExited() => Cursor.CellSelected -= ConfirmCursorSelection;
@@ -302,9 +321,10 @@ public partial class PlayerController : ArmyController
         Cursor.Resume();
         Pointer.StopWaiting();
         CancelHint.Visible = true;
+        ActionLayers.Modulate = ActionRangeSelectModulate;
 
         _target = null;
-        (_traversable, _attackable, _supportable) = _selected.ActionRanges();
+        (ActionLayers[MoveLayer], ActionLayers[AttackLayer], ActionLayers[SupportLayer]) = (_traversable, _attackable, _supportable) = _selected.ActionRanges();
         UpdatePath(Path.Empty(Cursor.Grid, _traversable).Add(_selected.Cell));
         Cursor.CellChanged += AddToPath;
         Cursor.CellSelected += ConfirmPathSelection;
@@ -319,14 +339,21 @@ public partial class PlayerController : ArmyController
         Cursor.CellChanged -= AddToPath;
         Cursor.CellSelected -= ConfirmPathSelection;
         PathLayer.Clear();
+        ActionLayers.Modulate = ActionRangeHoverModulate;
+        ActionLayers.Clear();
     }
 #endregion
 #region Command Selection
     public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)
     {
+        ActionLayers.Clear(MoveLayer);
+        ActionLayers[AttackLayer] = source.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(source) ?? false);
+        ActionLayers[SupportLayer] = source.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(source) ?? false);
+
         Callable.From(() => {
             _selected = source;
             _menu = ShowMenu(Cursor.Grid.CellRect(source.Cell), commands.Select((c) => new ContextMenuOption() { Name = c, Action = () => {
+                ActionLayers.Keep(c);
                 State.SendEvent(_events[FinishEvent]);
                 EmitSignal(SignalName.UnitCommanded, source, c);
             }}));
@@ -408,6 +435,7 @@ public partial class PlayerController : ArmyController
     public void OnTargetExited()
     {
         Cursor.CellSelected -= ConfirmTargetSelection;
+        ActionLayers.Clear();
 
         Pointer.AnalogTracking = true;
         Cursor.HardRestriction = Cursor.HardRestriction.Clear();

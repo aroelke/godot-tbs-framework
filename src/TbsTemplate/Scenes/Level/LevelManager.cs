@@ -45,9 +45,6 @@ public partial class LevelManager : Node
     private const string OtherOccupied        = "other";    // Cell occupied by something else
 
     // Overlay Layer names
-    private StringName MoveLayer           => _.ActionLayers.MoveLayer.Name;
-    private StringName AttackLayer         => _.ActionLayers.AttackLayer.Name;
-    private StringName SupportLayer        => _.ActionLayers.SupportLayer.Name;
     private StringName AllyTraversableZone => _.ZoneLayers.TraversableZone.Name;
     private StringName LocalDangerZone     => _.ZoneLayers.LocalDangerZone.Name;
     private StringName GlobalDangerZone    => _.ZoneLayers.GlobalDangerZone.Name;
@@ -169,24 +166,19 @@ public partial class LevelManager : Node
     /// <summary>Update the UI when re-entering idle.</summary>
     public void OnIdleEntered()
     {
-        ActionLayers.Modulate = ActionRangeIdleModulate;
         Callable.From(_armies.Current.Controller.SelectUnit).CallDeferred();
     }
 
     /// <summary>Clear the displayed action ranges when moving the <see cref="Cursor"/> to a new cell while in idle <see cref="Nodes.StateChart.States.State"/>.</summary>
     /// <param name="cell">Cell the <see cref="Object.Cursor"/> moved to.</param>
-    public void OnIdleCursorMoved(Vector2I cell) => ActionLayers.Clear();
+    public void OnIdleCursorMoved(Vector2I cell) {}
 
     /// <summary>
     /// When the <see cref="Cursor"/> moves over a <see cref="Unit"/> while in idle <see cref="Nodes.StateChart.States.State"/>, display that <see cref="Unit"/>'s
     /// action ranges.
     /// </summary>
     /// <param name="cell">Cell the <see cref="Cursor"/> moved into.</param>
-    public void OnIdleCursorEnteredCell(Vector2I cell)
-    {
-        if (_armies.Current.Faction.IsPlayer && Grid.Occupants.GetValueOrDefault(cell) is Unit hovered)
-            (ActionLayers[MoveLayer], ActionLayers[AttackLayer], ActionLayers[SupportLayer]) = hovered.ActionRanges();
-    }
+    public void OnIdleCursorEnteredCell(Vector2I cell) {}
 
     public void OnIdleUnitSelected(Unit unit)
     {
@@ -197,7 +189,6 @@ public partial class LevelManager : Node
 
         _selected = unit;
         State.ExpressionProperties = State.ExpressionProperties.SetItem(OccupiedProperty, ActiveAllyOccupied);
-        ActionLayers.Modulate = Colors.White;
 
         State.SendEvent(_events[SelectEvent]);
     }
@@ -227,11 +218,11 @@ public partial class LevelManager : Node
         _target = null;
 
         // Compute move/attack/support ranges for selected unit
-        (ActionLayers[MoveLayer], ActionLayers[AttackLayer], ActionLayers[SupportLayer]) = _selected.ActionRanges();
-        _path = Path.Empty(Grid, ActionLayers[MoveLayer]).Add(_selected.Cell);
+//        (ActionLayers[MoveLayer], ActionLayers[AttackLayer], ActionLayers[SupportLayer]) = _selected.ActionRanges();
+        _path = Path.Empty(Grid, _selected.TraversableCells());
 
         // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
-        Rect2? zoomRect = Grid.EnclosingRect(ActionLayers.Union());
+        Rect2? zoomRect = null; // Grid.EnclosingRect(ActionLayers.Union());
         if (zoomRect is not null)
         {
             Vector2 zoomTarget = Grid.GetViewportRect().Size/zoomRect.Value.Size;
@@ -261,7 +252,7 @@ public partial class LevelManager : Node
     {
         if (unit != _selected)
             throw new InvalidOperationException($"Cannot confirm path for unselected unit {unit.Name} ({_selected.Name} is selected)");
-        if (!path.All(ActionLayers[MoveLayer].Contains) || path.Any((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Army.Faction.AlliedTo(_selected) ?? false)))
+        if (/*!path.All(ActionLayers[MoveLayer].Contains) || */path.Any((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Army.Faction.AlliedTo(_selected) ?? false)))
             throw new InvalidOperationException("The chosen path must only contain traversable cells.");
         if (Grid.Occupants.ContainsKey(path[^1]) && Grid.Occupants[path[^1]] != unit)
             throw new InvalidOperationException("The chosen path must not end on an occupied cell.");
@@ -273,19 +264,13 @@ public partial class LevelManager : Node
 
     public void OnSelectedCanceled()
     {
-        ActionLayers.Clear();
-
         _initialCell = null;
         _selected.Deselect();
         _selected = null;
     }
 
     /// <summary>Clean up overlays when movement destination is chosen.</summary>
-    public void OnDestinationChosen()
-    {
-        // Clear out movement/action ranges
-        ActionLayers.Clear();
-    }
+    public void OnDestinationChosen() {}
 
     public void OnSelectedExited()
     {
@@ -334,27 +319,21 @@ public partial class LevelManager : Node
 
     public void OnCommandingEntered()
     {
-        // Show the unit's attack/support ranges
         _targets = [];
-        ActionLayers.Clear(MoveLayer);
-        ActionLayers[AttackLayer] = _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false);
-        ActionLayers[SupportLayer] = _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false);
-
         _options = [];
-        void AddActionOption(StringName name, StringName layer)
+        void AddActionOption(StringName name, IEnumerable<Vector2I> range)
         {
-            if (ActionLayers[layer].Any())
+            if (range.Any())
             {
                 _options.Add(new(name, () => {
-                    _targets = ActionLayers[layer];
+                    _targets = range;
                     _command = name;
-                    ActionLayers.Keep(layer);
                     State.SendEvent(_events[SelectEvent]);
                 }));
             }
         }
-        AddActionOption("Attack", AttackLayer);
-        AddActionOption("Support", SupportLayer);
+        AddActionOption("Attack", _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
+        AddActionOption("Support", _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
         foreach (SpecialActionRegion region in Grid.SpecialActionRegions)
         {
             if (region.HasSpecialAction(_selected, _selected.Cell))
@@ -383,7 +362,6 @@ public partial class LevelManager : Node
     /// <summary>Move the selected <see cref="Unit"/> and <see cref="Object.Cursor"/> back to the cell the unit was at before it moved.</summary>
     public void OnCommandingCanceled()
     {
-        ActionLayers.Clear();
         _command = null;
 
         // Move the selected unit back to its original cell
@@ -399,7 +377,6 @@ public partial class LevelManager : Node
     public void OnTurnEndCommand()
     {
         _target = null;
-        ActionLayers.Clear();
     }
 #endregion
 #region Targeting State
@@ -428,8 +405,6 @@ public partial class LevelManager : Node
 #region In Combat
     public void OnCombatEntered()
     {
-        ActionLayers.Clear();
-
         if (_command == "Attack")
             _combatResults = CombatCalculations.AttackResults(_selected, _target);
         else if (_command == "Support")
@@ -448,7 +423,6 @@ public partial class LevelManager : Node
                 action.Target.Health.Value -= action.Damage;
         _target = null;
         _combatResults = null;
-        ActionLayers.Clear();
         SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, () => State.SendEvent(_events[DoneEvent]), (uint)ConnectFlags.OneShot);
     }
 

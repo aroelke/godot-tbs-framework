@@ -21,7 +21,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -695077293
+seed = -1400462818
 
 [sub_resource type="Resource" id="Resource_3lvnu"]
 script = ExtResource("27_kyhbc")
@@ -46,27 +46,6 @@ ShakeDecay = 0.8
 ShakeMaxOffset = Vector2(100, 75)
 ShakeMaxRoll = 0.0
 ShakeNoise = SubResource("FastNoiseLite_spp7l")
-
-[node name="ActionLayers" parent="." instance=ExtResource("3_v35i6")]
-unique_name_in_owner = true
-
-[node name="MoveLayer" type="TileMapLayer" parent="ActionLayers"]
-modulate = Color(0, 0, 1, 0.392157)
-use_parent_material = true
-tile_set = ExtResource("4_12w8e")
-navigation_enabled = false
-
-[node name="AttackLayer" type="TileMapLayer" parent="ActionLayers"]
-modulate = Color(1, 0, 0, 0.392157)
-use_parent_material = true
-tile_set = ExtResource("4_12w8e")
-navigation_enabled = false
-
-[node name="SupportLayer" type="TileMapLayer" parent="ActionLayers"]
-modulate = Color(0, 1, 0, 0.392157)
-use_parent_material = true
-tile_set = ExtResource("4_12w8e")
-navigation_enabled = false
 
 [node name="ZoneLayers" parent="." instance=ExtResource("3_v35i6")]
 unique_name_in_owner = true
