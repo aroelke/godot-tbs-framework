@@ -28,6 +28,8 @@ public partial class PlayerController : ArmyController
 
     private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, PathEvent, CommandEvent, TargetEvent, FinishEvent, CancelEvent, WaitEvent]);
     private Grid _grid = null;
+    private TileSet _tileset = null;
+
     private Unit _selected = null, _target = null;
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path;
@@ -52,6 +54,20 @@ public partial class PlayerController : ArmyController
         }
     }
 #region Exports
+    private void UpdateActionRangeTileSet(TileSet ts)
+    {
+        foreach (TileMapLayer layer in ActionLayers.GetChildren().OfType<TileMapLayer>())
+            layer.TileSet = ts;
+        foreach (TileMapLayer layer in ActionLayers.GetChildren().OfType<TileMapLayer>())
+            layer.TileSet = ts;
+    }
+
+    [Export] public TileSet ActionRangeTileSet
+    {
+        get => _tileset;
+        set => UpdateActionRangeTileSet(_tileset = value);
+    }
+
     /// <summary>Color to modulate the action ranges with while hovering over a unit.</summary>
     [Export] public Color ActionRangeHoverModulate = Colors.White with { A = 0.66f };
 
@@ -528,6 +544,9 @@ public partial class PlayerController : ArmyController
     public override void _Ready()
     {
         base._Ready();
+
+        UpdateActionRangeTileSet(_tileset);
+
         if (!Engine.IsEditorHint())
         {
             LevelEvents.Singleton.Connect<Rect2I>(LevelEvents.SignalName.CameraBoundsUpdated, (b) => Pointer.Bounds = b);
