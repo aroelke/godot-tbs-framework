@@ -29,11 +29,16 @@ public partial class PlayerController : ArmyController
     private Unit _selected = null, _target = null;
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path;
+    private readonly HashSet<Unit> _tracked = [];
+    private bool _showGlobalDangerZone = false;
     private ContextMenu _menu;
 
-    private StringName MoveLayer    => _.ActionLayers.Move.Name;
-    private StringName AttackLayer  => _.ActionLayers.Attack.Name;
-    private StringName SupportLayer => _.ActionLayers.Support.Name;
+    private StringName MoveLayer           => _.ActionLayers.Move.Name;
+    private StringName AttackLayer         => _.ActionLayers.Attack.Name;
+    private StringName SupportLayer        => _.ActionLayers.Support.Name;
+    private StringName AllyTraversableZone => _.ZoneLayers.TraversableZone.Name;
+    private StringName LocalDangerZone     => _.ZoneLayers.LocalDangerZone.Name;
+    private StringName GlobalDangerZone    => _.ZoneLayers.GlobalDangerZone.Name;
 
     public override Grid Grid
     {
@@ -89,10 +94,32 @@ public partial class PlayerController : ArmyController
         return menu;
     }
 #endregion
+#region Danger Zone
+    public void UpdateDangerZones()
+    {
+        IEnumerable<Unit> allies = _tracked.Where(Army.Faction.AlliedTo);
+        IEnumerable<Unit> enemies = _tracked.Where((u) => !Army.Faction.AlliedTo(u));
+
+        if (allies.Any())
+            ZoneLayers[AllyTraversableZone] = allies.SelectMany(static (u) => u.TraversableCells());
+        else
+            ZoneLayers.Clear(AllyTraversableZone);
+        if (enemies.Any())
+            ZoneLayers[LocalDangerZone] = enemies.SelectMany(static (u) => u.TraversableCells());
+        else
+            ZoneLayers.Clear(LocalDangerZone);
+        
+        if (_showGlobalDangerZone)
+            ZoneLayers[GlobalDangerZone] = Grid.Occupants.Values.OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u)).SelectMany(static (u) => u.AttackableCells(u.TraversableCells()));
+        else
+            ZoneLayers.Clear(GlobalDangerZone);
+    }
+#endregion
 #region Initialization and Finalization
     public override void InitializeTurn()
     {
         HUD.Visible = true;
+        UpdateDangerZones();
 
         Cursor.Cell = ((IEnumerable<Unit>)Army).First().Cell;
 
@@ -100,7 +127,10 @@ public partial class PlayerController : ArmyController
         Pointer.StopWaiting();
     }
 
-    public override void FinalizeAction() {}
+    public override void FinalizeAction()
+    {
+        UpdateDangerZones();
+    }
 
     public override void FinalizeTurn()
     {
@@ -119,6 +149,12 @@ public partial class PlayerController : ArmyController
     public void OnIdlePointerStopped(Vector2 position) => EmitSignal(SignalName.CursorCellEntered, Grid.CellOf(position));
     public void OnPointerFlightStarted(Vector2 target) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.FocusCamera, target);
     public void OnPointerFlightCompleted() => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.RevertCameraFocus);
+
+    public void OnUnitDefeated(Unit defeated)
+    {
+        if (_tracked.Remove(defeated) || _showGlobalDangerZone)
+            UpdateDangerZones();
+    }
 #endregion
 #region Active
     public void OnActiveInput(InputEvent @event)
@@ -130,7 +166,16 @@ public partial class PlayerController : ArmyController
         }
 
         if (@event.IsActionPressed(InputActions.ToggleDangerZone))
-            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ToggleDangerZone, Army, Cursor.Grid.Occupants.GetValueOrDefault(Cursor.Cell) as Unit);
+        {
+            if (Cursor.Grid.Occupants.TryGetValue(Cursor.Cell, out GridNode node) && node is Unit unit)
+            {
+                if (!_tracked.Remove(unit))
+                    _tracked.Add(unit);
+            }
+            else
+                _showGlobalDangerZone = !_showGlobalDangerZone;
+            UpdateDangerZones();
+        }
     }
 
     public void OnActiveExited() => Callable.From(() => _selected = null).CallDeferred();
@@ -148,7 +193,11 @@ public partial class PlayerController : ArmyController
                 EmitSignal(SignalName.UnitSelected, unit);
             }
             else if (unit.Army.Faction != Army.Faction)
-                LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ToggleDangerZone, Army, unit);
+            {
+                if (!_tracked.Remove(unit))
+                    _tracked.Add(unit);
+                UpdateDangerZones();
+            }
         }
         else
         {
@@ -213,7 +262,10 @@ public partial class PlayerController : ArmyController
         }
 
         if (@event.IsActionPressed(InputActions.Cancel) && Cursor.Grid.Occupants.TryGetValue(Cursor.Cell, out GridNode node) && node is Unit untrack)
-            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.RemoveFromDangerZone, Army, untrack);
+        {
+            _tracked.Remove(untrack);
+            UpdateDangerZones();
+        }
     }
 
     public void OnSelectCursorCellChanged(Vector2I cell) => ActionLayers.Clear();
@@ -298,6 +350,7 @@ public partial class PlayerController : ArmyController
             Pointer.StartWaiting(hide:false);
             CancelHint.Visible = false;
 
+            _selected.Connect(Unit.SignalName.DoneMoving, UpdateDangerZones, (uint)ConnectFlags.OneShot);
             State.SendEvent(_events[FinishEvent]);
             EmitSignal(SignalName.PathConfirmed, _selected, new Godot.Collections.Array<Vector2I>(_path));
         }
@@ -307,6 +360,7 @@ public partial class PlayerController : ArmyController
             Pointer.StartWaiting(hide:false);
             CancelHint.Visible = false;
 
+            _selected.Connect(Unit.SignalName.DoneMoving, UpdateDangerZones, (uint)ConnectFlags.OneShot);
             State.SendEvent(_events[FinishEvent]);
             EmitSignal(SignalName.UnitCommanded, _selected, _command);
             EmitSignal(SignalName.TargetChosen, _selected, target);
@@ -449,6 +503,7 @@ public partial class PlayerController : ArmyController
         if (!Engine.IsEditorHint())
         {
             LevelEvents.Singleton.Connect<Rect2I>(LevelEvents.SignalName.CameraBoundsUpdated, (b) => Pointer.Bounds = b);
+            LevelEvents.Singleton.Connect<Unit>(LevelEvents.SignalName.UnitDefeated, OnUnitDefeated);
             Callable.From(() => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.FocusCamera, Pointer)).CallDeferred();
             Cursor.Halt();
         }

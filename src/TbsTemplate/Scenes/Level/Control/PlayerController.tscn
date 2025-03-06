@@ -49,6 +49,28 @@ use_parent_material = true
 tile_set = ExtResource("16_enq6j")
 navigation_enabled = false
 
+[node name="ZoneLayers" parent="." instance=ExtResource("15_fsxw4")]
+unique_name_in_owner = true
+ShowUnion = true
+
+[node name="TraversableZone" type="TileMapLayer" parent="ZoneLayers"]
+modulate = Color(0, 0.247059, 0.498039, 0.392157)
+use_parent_material = true
+tile_set = ExtResource("16_enq6j")
+navigation_enabled = false
+
+[node name="LocalDangerZone" type="TileMapLayer" parent="ZoneLayers"]
+modulate = Color(0.498039, 0, 0.247059, 0.392157)
+use_parent_material = true
+tile_set = ExtResource("16_enq6j")
+navigation_enabled = false
+
+[node name="GlobalDangerZone" type="TileMapLayer" parent="ZoneLayers"]
+modulate = Color(0, 0, 0, 0.392157)
+use_parent_material = true
+tile_set = ExtResource("16_enq6j")
+navigation_enabled = false
+
 [node name="Cursor" parent="." instance=ExtResource("2_rkggg")]
 unique_name_in_owner = true
 

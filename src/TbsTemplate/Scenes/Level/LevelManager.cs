@@ -43,11 +43,6 @@ public partial class LevelManager : Node
     private const string FriendlyOccuipied    = "friendly"; // Cell occupied by unit in army allied to this turn's army
     private const string EnemyOccupied        = "enemy";    // Cell occupied by unit in enemy army to this turn's army
     private const string OtherOccupied        = "other";    // Cell occupied by something else
-
-    // Overlay Layer names
-    private StringName AllyTraversableZone => _.ZoneLayers.TraversableZone.Name;
-    private StringName LocalDangerZone     => _.ZoneLayers.LocalDangerZone.Name;
-    private StringName GlobalDangerZone    => _.ZoneLayers.GlobalDangerZone.Name;
 #endregion
 #region Declarations
     private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, CancelEvent, SkipEvent, WaitEvent, DoneEvent], @default:"");
@@ -80,33 +75,6 @@ public partial class LevelManager : Node
     {
         TurnLabel.AddThemeColorOverride("font_color", _armies.Current.Faction.Color);
         TurnLabel.Text = $"Turn {Turn}: {_armies.Current.Faction.Name}";
-    }
-
-    /// <summary>Update the displayed danger zones to reflect the current positions of the enemy <see cref="Unit"/>s.</summary>
-    private void UpdateDangerZones()
-    {
-        // Update local danger zone
-        IEnumerable<Unit> allies = _trackedUnits[_armies.Current].Where(_armies.Current.Faction.AlliedTo);
-        IEnumerable<Unit> enemies = _trackedUnits[_armies.Current].Where((u) => !_armies.Current.Faction.AlliedTo(u));
-        if (enemies.Any())
-            ZoneLayers[LocalDangerZone] = enemies.SelectMany((u) => u.AttackableCells(u.TraversableCells()));
-        else
-            ZoneLayers.Clear(LocalDangerZone);
-        if (allies.Any())
-            ZoneLayers[AllyTraversableZone] = allies.SelectMany((u) => u.TraversableCells());
-        else
-            ZoneLayers.Clear(AllyTraversableZone);
-
-        // Update global danger zone
-        if (_trackedArmies.Contains(_armies.Current))
-        {
-            ZoneLayers[GlobalDangerZone] = GetChildren().OfType<Army>()
-                .Where((a) => !a.Faction.AlliedTo(_armies.Current.Faction))
-                .SelectMany(static (a) => (IEnumerable<Unit>)a)
-                .SelectMany(static (u) => u.AttackableCells(u.TraversableCells()));
-        }
-        else
-            ZoneLayers.Clear(GlobalDangerZone);
     }
 
     /// <returns>The audio player that plays the "zone on" or "zone off" sound depending on <paramref name="on"/>.</returns>
@@ -154,11 +122,7 @@ public partial class LevelManager : Node
     }
 
     /// <summary>Perform any updates that the turn has begun that need to happen after upkeep.</summary>
-    public void OnBeginTurnExited()
-    {
-        UpdateTurnCounter();
-        UpdateDangerZones();
-    }
+    public void OnBeginTurnExited() => UpdateTurnCounter();
 #endregion
 #region Idle State
     /// <summary>Update the UI when re-entering idle.</summary>
@@ -290,7 +254,6 @@ public partial class LevelManager : Node
         (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = _prevDeadzone;
         PopCameraFocus();
         _path = null;
-        UpdateDangerZones();
     }
 #endregion
 #region Unit Commanding State
@@ -351,13 +314,9 @@ public partial class LevelManager : Node
         _initialCell = null;
 
         _target = null;
-        UpdateDangerZones();
     }
 
-    public void OnTurnEndCommand()
-    {
-        _target = null;
-    }
+    public void OnTurnEndCommand() => _target = null;
 #endregion
 #region Targeting State
     private List<CombatAction> _combatResults = null;
@@ -507,7 +466,6 @@ public partial class LevelManager : Node
     {
         foreach ((var _, HashSet<Unit> tracked) in _trackedUnits)
             tracked.Remove(defeated);
-        UpdateDangerZones();
 
         // If the dead unit is the currently-selected one, it will be cleared away at the end of its action.
         if (_selected != defeated)
@@ -516,35 +474,6 @@ public partial class LevelManager : Node
         {
             _armies.Current.RemoveChild(_selected);
             defeated.Visible = false;
-        }
-    }
-
-    /// <summary>Add or remove a unit from the current army's displayed danger zone, or toggle the current army's global danger zone.</summary>
-    /// <param name="unit">Unit to remove if present or add otherwise. Use <c>null</c> to toggle global danger zone.</param>
-    /// <remarks>Note that the UI will only update if the current army's danger zone is toggled.</remarks>
-    public void ToggleDangerZone(Army army, Unit unit)
-    {
-        if (unit is not null)
-        {
-            if (!_trackedUnits[army].Remove(unit))
-                _trackedUnits[army].Add(unit);
-            ZoneUpdateSound(_trackedUnits[army].Contains(unit)).Play();
-        }
-        else
-        {
-            if (!_trackedArmies.Remove(army))
-                _trackedArmies.Add(army);
-            ZoneUpdateSound(_trackedArmies.Contains(army)).Play();
-        }
-        UpdateDangerZones();
-    }
-
-    public void RemoveFromDangerZone(Army army, Unit unit)
-    {
-        if (_trackedUnits[army].Remove(unit))
-        {
-            ZoneUpdateSound(false);
-            UpdateDangerZones();
         }
     }
 
@@ -594,8 +523,6 @@ public partial class LevelManager : Node
             LevelEvents.Singleton.Connect<BoundedNode2D>(LevelEvents.SignalName.FocusCamera, PushCameraFocus);
             LevelEvents.Singleton.Connect(LevelEvents.SignalName.RevertCameraFocus, PopCameraFocus);
             LevelEvents.Singleton.Connect(LevelEvents.SignalName.EventComplete, OnEventComplete);
-            LevelEvents.Singleton.Connect<Army, Unit>(LevelEvents.SignalName.ToggleDangerZone, ToggleDangerZone);
-            LevelEvents.Singleton.Connect<Army, Unit>(LevelEvents.SignalName.RemoveFromDangerZone, RemoveFromDangerZone);
 
             MusicController.ResetPlayback();
         }

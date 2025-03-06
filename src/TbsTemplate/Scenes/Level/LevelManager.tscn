@@ -1,9 +1,7 @@
-[gd_scene load_steps=21 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=19 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DBrain.tscn" id="3_td8u6"]
-[ext_resource type="PackedScene" uid="uid://brgi7pl8xxduv" path="res://src/TbsTemplate/Scenes/Level/Layers/ActionLayers.tscn" id="3_v35i6"]
-[ext_resource type="TileSet" uid="uid://cwhi2yq5gtey5" path="res://demo/assets/level/ui/Overlay.tres" id="4_12w8e"]
 [ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/TbsTemplate/Nodes/StateChart/Chart.tscn" id="17_sd0pe"]
 [ext_resource type="PackedScene" uid="uid://bykdjiak4bxvt" path="res://src/TbsTemplate/Nodes/StateChart/States/CompoundState.tscn" id="18_k7m3y"]
 [ext_resource type="PackedScene" uid="uid://dnfp4qfxs85wh" path="res://src/TbsTemplate/Nodes/StateChart/States/HistoryState.tscn" id="18_n547p"]
@@ -20,7 +18,7 @@
 [ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = 1536353972
+seed = -1386428404
 
 [sub_resource type="Resource" id="Resource_3lvnu"]
 script = ExtResource("27_kyhbc")
@@ -45,28 +43,6 @@ ShakeDecay = 0.8
 ShakeMaxOffset = Vector2(100, 75)
 ShakeMaxRoll = 0.0
 ShakeNoise = SubResource("FastNoiseLite_spp7l")
-
-[node name="ZoneLayers" parent="." instance=ExtResource("3_v35i6")]
-unique_name_in_owner = true
-ShowUnion = true
-
-[node name="TraversableZone" type="TileMapLayer" parent="ZoneLayers"]
-modulate = Color(0, 0.247059, 0.498039, 0.392157)
-use_parent_material = true
-tile_set = ExtResource("4_12w8e")
-navigation_enabled = false
-
-[node name="LocalDangerZone" type="TileMapLayer" parent="ZoneLayers"]
-modulate = Color(0.498039, 0, 0.247059, 0.392157)
-use_parent_material = true
-tile_set = ExtResource("4_12w8e")
-navigation_enabled = false
-
-[node name="GlobalDangerZone" type="TileMapLayer" parent="ZoneLayers"]
-modulate = Color(0, 0, 0, 0.392157)
-use_parent_material = true
-tile_set = ExtResource("4_12w8e")
-navigation_enabled = false
 
 [node name="UserInterface" type="CanvasLayer" parent="."]
 unique_name_in_owner = true
