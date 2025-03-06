@@ -130,6 +130,7 @@ public partial class PlayerController : ArmyController
     {
         HUD.Visible = true;
         UpdateDangerZones();
+        ZoneLayers.Visible = true;
 
         Cursor.Cell = ((IEnumerable<Unit>)Army).First().Cell;
 
@@ -141,6 +142,7 @@ public partial class PlayerController : ArmyController
 
     public override void FinalizeTurn()
     {
+        ZoneLayers.Visible = false;
         Cursor.Halt(hide:true);
         Pointer.StartWaiting(hide:true);
         HUD.Visible = false;
