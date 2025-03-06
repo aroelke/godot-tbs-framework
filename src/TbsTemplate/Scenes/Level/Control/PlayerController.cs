@@ -24,8 +24,9 @@ public partial class PlayerController : ArmyController
     private static readonly StringName TargetEvent  = "Target";
     private static readonly StringName FinishEvent  = "Finish";
     private static readonly StringName CancelEvent  = "Cancel";
+    private static readonly StringName WaitEvent    = "Wait";
 
-    private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, PathEvent, CommandEvent, TargetEvent, FinishEvent, CancelEvent]);
+    private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, PathEvent, CommandEvent, TargetEvent, FinishEvent, CancelEvent, WaitEvent]);
     private Grid _grid = null;
     private Unit _selected = null, _target = null;
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
@@ -156,8 +157,18 @@ public partial class PlayerController : ArmyController
     public void OnCursorCellEntered(Vector2I cell) => EmitSignal(SignalName.CursorCellEntered, cell);
 
     public void OnIdlePointerStopped(Vector2 position) => EmitSignal(SignalName.CursorCellEntered, Grid.CellOf(position));
-    public void OnPointerFlightStarted(Vector2 target) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.FocusCamera, target);
-    public void OnPointerFlightCompleted() => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.RevertCameraFocus);
+
+    public void OnPointerFlightStarted(Vector2 target)
+    {
+        State.SendEvent(_events[WaitEvent]);
+        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.FocusCamera, target);
+    }
+
+    public void OnPointerFlightCompleted()
+    {
+        State.SendEvent(_events[FinishEvent]);
+        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.RevertCameraFocus);
+    }
 
     public void OnUnitDefeated(Unit defeated)
     {
@@ -187,11 +198,21 @@ public partial class PlayerController : ArmyController
             UpdateDangerZones();
         }
     }
-
-    public void OnActiveExited() => Callable.From(() => _selected = null).CallDeferred();
 #endregion
 #region Unit Selection
-    public override void SelectUnit() => Callable.From(() => State.SendEvent(_events[SelectEvent])).CallDeferred();
+    public override void SelectUnit()
+    {
+        Cursor.Resume();
+        Pointer.StopWaiting();
+        CancelHint.Visible = false;
+
+        ActionLayers.Clear();
+        ActionLayers.Modulate = ActionRangeHoverModulate;
+
+        OnSelectCursorCellEntered(Cursor.Cell = Grid.CellOf(Pointer.Position));
+        EmitSignal(SignalName.CursorCellEntered, Cursor.Cell);
+        Callable.From(() => State.SendEvent(_events[SelectEvent])).CallDeferred();
+    }
 
     private void ConfirmCursorSelection(Vector2I cell)
     {
@@ -237,19 +258,7 @@ public partial class PlayerController : ArmyController
         }
     }
 
-    public void OnSelectEntered()
-    {
-        Cursor.Resume();
-        Pointer.StopWaiting();
-        CancelHint.Visible = false;
-
-        ActionLayers.Clear();
-        ActionLayers.Modulate = ActionRangeHoverModulate;
-
-        OnSelectCursorCellEntered(Cursor.Cell = Grid.CellOf(Pointer.Position));
-        EmitSignal(SignalName.CursorCellEntered, Cursor.Cell);
-        Cursor.CellSelected += ConfirmCursorSelection;
-    }
+    public void OnSelectEntered() => Cursor.CellSelected += ConfirmCursorSelection;
 
     public void OnSelectInput(InputEvent @event)
     {
@@ -295,9 +304,20 @@ public partial class PlayerController : ArmyController
 
     public override void MoveUnit(Unit unit)
     {
+        Cursor.Resume();
+        Pointer.StopWaiting();
+        CancelHint.Visible = true;
+        ActionLayers.Modulate = ActionRangeSelectModulate;
+
+        _target = null;
         Callable.From(() => {
-            _selected = unit;
             State.SendEvent(_events[PathEvent]);
+
+            _selected = unit;
+            (ActionLayers[MoveLayer], ActionLayers[AttackLayer], ActionLayers[SupportLayer]) = (_traversable, _attackable, _supportable) = _selected.ActionRanges();
+            Cursor.SoftRestriction = [.. _traversable];
+            Cursor.Cell = _selected.Cell;
+            UpdatePath(Path.Empty(Cursor.Grid, _traversable).Add(_selected.Cell));
         }).CallDeferred();
     }
 
@@ -358,21 +378,11 @@ public partial class PlayerController : ArmyController
         }
         else if (!occupied || occupant == _selected)
         {
-            Cursor.Halt(hide:false);
-            Pointer.StartWaiting(hide:false);
-            CancelHint.Visible = false;
-
-            _selected.Connect(Unit.SignalName.DoneMoving, UpdateDangerZones, (uint)ConnectFlags.OneShot);
             State.SendEvent(_events[FinishEvent]);
             EmitSignal(SignalName.PathConfirmed, _selected, new Godot.Collections.Array<Vector2I>(_path));
         }
         else if (occupied && occupant is Unit target && (_attackable.Contains(target.Cell) || _supportable.Contains(target.Cell)))
         {
-            Cursor.Halt(hide:false);
-            Pointer.StartWaiting(hide:false);
-            CancelHint.Visible = false;
-
-            _selected.Connect(Unit.SignalName.DoneMoving, UpdateDangerZones, (uint)ConnectFlags.OneShot);
             State.SendEvent(_events[FinishEvent]);
             EmitSignal(SignalName.UnitCommanded, _selected, _command);
             EmitSignal(SignalName.TargetChosen, _selected, target);
@@ -382,31 +392,35 @@ public partial class PlayerController : ArmyController
             ErrorSound.Play();
     }
 
+    private void CleanUpPath()
+    {
+        Cursor.SoftRestriction.Clear();
+        PathLayer.Clear();
+        ActionLayers.Clear();
+        ActionLayers.Modulate = ActionRangeHoverModulate;
+    }
+
     public void OnPathEntered()
     {
-        Cursor.Resume();
-        Pointer.StopWaiting();
-        CancelHint.Visible = true;
-        ActionLayers.Modulate = ActionRangeSelectModulate;
-
-        _target = null;
-        (ActionLayers[MoveLayer], ActionLayers[AttackLayer], ActionLayers[SupportLayer]) = (_traversable, _attackable, _supportable) = _selected.ActionRanges();
-        UpdatePath(Path.Empty(Cursor.Grid, _traversable).Add(_selected.Cell));
         Cursor.CellChanged += AddToPath;
         Cursor.CellSelected += ConfirmPathSelection;
-        Cursor.SoftRestriction = [.. _traversable];
-        Cursor.Cell = _selected.Cell;
-        PathLayer.Clear();
+    }
+
+    public void OnPathCanceled() => CleanUpPath();
+
+    public void OnPathFinished()
+    {
+        Cursor.Halt(hide:false);
+        Pointer.StartWaiting(hide:false);
+        CancelHint.Visible = false;
+        _selected.Connect(Unit.SignalName.DoneMoving, UpdateDangerZones, (uint)ConnectFlags.OneShot);
+        CleanUpPath();
     }
 
     public void OnPathExited()
     {
-        Cursor.SoftRestriction.Clear();
         Cursor.CellChanged -= AddToPath;
         Cursor.CellSelected -= ConfirmPathSelection;
-        PathLayer.Clear();
-        ActionLayers.Modulate = ActionRangeHoverModulate;
-        ActionLayers.Clear();
     }
 #endregion
 #region Command Selection
@@ -417,6 +431,8 @@ public partial class PlayerController : ArmyController
         ActionLayers[SupportLayer] = source.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(source) ?? false);
 
         Callable.From(() => {
+            State.SendEvent(_events[CommandEvent]);
+
             _selected = source;
             _menu = ShowMenu(Cursor.Grid.CellRect(source.Cell), commands.Select((c) => new ContextMenuOption() { Name = c, Action = () => {
                 ActionLayers.Keep(c);
@@ -425,7 +441,6 @@ public partial class PlayerController : ArmyController
             }}));
             _menu.MenuCanceled += () => EmitSignal(SignalName.UnitCommanded, source, cancel);
             _menu.MenuClosed += () => _menu = null;
-            State.SendEvent(_events[CommandEvent]);
         }).CallDeferred();
     }
 
@@ -438,10 +453,18 @@ public partial class PlayerController : ArmyController
 
     public override void SelectTarget(Unit source, IEnumerable<Vector2I> targets)
     {
+        Cursor.Resume();
+        Pointer.StopWaiting();
+        CancelHint.Visible = true;
+
+        Pointer.AnalogTracking = false;
+        Cursor.Wrap = true;
+
         Callable.From(() => {
-            _selected = source;
-            _targets = targets;
             State.SendEvent(_events[TargetEvent]);
+
+            _selected = source;
+            Cursor.HardRestriction = [.. _targets=targets];
         }).CallDeferred();
     }
 
@@ -463,17 +486,7 @@ public partial class PlayerController : ArmyController
         }
     }
 
-    public void OnTargetEntered()
-    {
-        Cursor.Resume();
-        Pointer.StopWaiting();
-        CancelHint.Visible = true;
-        Cursor.CellSelected += ConfirmTargetSelection;
-
-        Pointer.AnalogTracking = false;
-        Cursor.HardRestriction = [.. _targets];
-        Cursor.Wrap = true;
-    }
+    public void OnTargetEntered() => Cursor.CellSelected += ConfirmTargetSelection;
 
     public void OnTargetInput(InputEvent @event)
     {
@@ -498,15 +511,16 @@ public partial class PlayerController : ArmyController
         }
     }
 
-    public void OnTargetExited()
+    public void OnTargetCompleted()
     {
-        Cursor.CellSelected -= ConfirmTargetSelection;
         ActionLayers.Clear();
 
         Pointer.AnalogTracking = true;
         Cursor.HardRestriction = Cursor.HardRestriction.Clear();
         Cursor.Wrap = false;
     }
+
+    public void OnTargetExited() => Cursor.CellSelected -= ConfirmTargetSelection;
 #endregion
 #region Engine Events
     public override void _Ready()
