@@ -29,14 +29,23 @@ public partial class PlayerController : ArmyController
     private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, PathEvent, CommandEvent, TargetEvent, FinishEvent, CancelEvent, WaitEvent]);
     private Grid _grid = null;
     private TileSet _tileset = null;
+    private Color _move    = Colors.Blue  with { A = 100f/256f };
+    private Color _attack  = Colors.Red   with { A = 100f/256f };
+    private Color _support = Colors.Green with { A = 100f/256f };
+    private Color _ally    = new(0, 0.25f, 0.5f, 100f/256f);
+    private Color _local   = new(0.5f, 0, 0.25f, 100f/256f);
+    private Color _global  = Colors.Black with { A = 100f/256f };
 
     private Unit _selected = null, _target = null;
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path;
 
-    private StringName MoveLayer    => _.ActionLayers.Move.Name;
-    private StringName AttackLayer  => _.ActionLayers.Attack.Name;
-    private StringName SupportLayer => _.ActionLayers.Support.Name;
+    private StringName MoveLayer           => _.ActionLayers.Move.Name;
+    private StringName AttackLayer         => _.ActionLayers.Attack.Name;
+    private StringName SupportLayer        => _.ActionLayers.Support.Name;
+    private StringName AllyTraversableZone => _.ZoneLayers.TraversableZone.Name;
+    private StringName LocalDangerZone     => _.ZoneLayers.LocalDangerZone.Name;
+    private StringName GlobalDangerZone    => _.ZoneLayers.GlobalDangerZone.Name;
 
     public override Grid Grid
     {
@@ -62,10 +71,47 @@ public partial class PlayerController : ArmyController
             layer.TileSet = ts;
     }
 
+    /// <summary>Tile set to use for displaying action ranges and danger zones.</summary>
     [Export] public TileSet ActionRangeTileSet
     {
         get => _tileset;
         set => UpdateActionRangeTileSet(_tileset = value);
+    }
+
+    /// <summary>Color to use for highlighting which cells a unit can move to.</summary>
+    [Export] public Color ActionRangeMoveColor
+    {
+        get => _move;
+        set
+        {
+            _move = value;
+            if (_.ActionLayers?.Move is not null)
+                _.ActionLayers.Move.Modulate = _move;
+        }
+    }
+
+    /// <summary>Color to use for highlighting which cells a unit can attack, but not move to.</summary>
+    [Export] public Color ActionRangeAttackColor
+    {
+        get => _attack;
+        set
+        {
+            _attack = value;
+            if (_.ActionLayers?.Attack is not null)
+                _.ActionLayers.Attack.Modulate = _attack;
+        }
+    }
+
+    /// <summary>Color to use for highlighting which cells a unit can support, but not move to or attack.</summary>
+    [Export] public Color ActionRangeSupportColor
+    {
+        get => _support;
+        set
+        {
+            _support = value;
+            if (_.ActionLayers?.Support is not null)
+                _.ActionLayers.Support.Modulate = _support;
+        }
     }
 
     /// <summary>Color to modulate the action ranges with while hovering over a unit.</summary>
@@ -73,6 +119,42 @@ public partial class PlayerController : ArmyController
 
     /// <summary>Color to modulate the action ranges with while a unit is selected.</summary>
     [Export] public Color ActionRangeSelectModulate = Colors.White;
+
+    /// <summary>Color to use for highlighting which cells a tracked set of allied units can move to.</summary>
+    [Export] public Color ZoneAllyTraversableColor
+    {
+        get => _ally;
+        set
+        {
+            _ally = value;
+            if (_.ZoneLayers?.TraversableZone is not null)
+                _.ZoneLayers.TraversableZone.Modulate = _ally;
+        }
+    }
+
+    /// <summary>Color to use for highlighting which cells a tracked set of enemy units can attack.</summary>
+    [Export] public Color ZoneLocalDangerColor
+    {
+        get => _local;
+        set
+        {
+            _local = value;
+            if (_.ZoneLayers?.LocalDangerZone is not null)
+                _.ZoneLayers.LocalDangerZone.Modulate = _local;
+        }
+    }
+
+    /// <summary>Color to use for highlighting which cells any enemy unit can attack.</summary>
+    [Export] public Color ZoneGlobalDangerColor
+    {
+        get => _global;
+        set
+        {
+            _global = value;
+            if (_.ZoneLayers?.GlobalDangerZone is not null)
+                _.ZoneLayers.GlobalDangerZone.Modulate = _global;
+        }
+    }
 #endregion
 #region Menus
     private ContextMenu _menu = null;
@@ -112,10 +194,6 @@ public partial class PlayerController : ArmyController
     }
 #endregion
 #region Danger Zone
-    private StringName AllyTraversableZone => _.ZoneLayers.TraversableZone.Name;
-    private StringName LocalDangerZone     => _.ZoneLayers.LocalDangerZone.Name;
-    private StringName GlobalDangerZone    => _.ZoneLayers.GlobalDangerZone.Name;
-
     private readonly HashSet<Unit> _tracked = [];
     private bool _showGlobalDangerZone = false;
 
@@ -542,6 +620,12 @@ public partial class PlayerController : ArmyController
         base._Ready();
 
         UpdateActionRangeTileSet(_tileset);
+        _.ActionLayers.Move.Modulate           = _move;
+        _.ActionLayers.Attack.Modulate         = _attack;
+        _.ActionLayers.Support.Modulate        = _support;
+        _.ZoneLayers.TraversableZone.Modulate  = _ally;
+        _.ZoneLayers.LocalDangerZone.Modulate  = _local;
+        _.ZoneLayers.GlobalDangerZone.Modulate = _global;
 
         if (!Engine.IsEditorHint())
         {
