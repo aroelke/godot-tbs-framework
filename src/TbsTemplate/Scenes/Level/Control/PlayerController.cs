@@ -114,6 +114,9 @@ public partial class PlayerController : ArmyController
         else
             ZoneLayers.Clear(GlobalDangerZone);
     }
+
+    /// <returns>The audio player that plays the "zone on" or "zone off" sound depending on <paramref name="on"/>.</returns>
+    private AudioStreamPlayer ZoneUpdateSound(bool on) => on ? ZoneOnSound : ZoneOffSound;
 #endregion
 #region Initialization and Finalization
     public override void InitializeTurn()
@@ -171,9 +174,10 @@ public partial class PlayerController : ArmyController
             {
                 if (!_tracked.Remove(unit))
                     _tracked.Add(unit);
+                ZoneUpdateSound(_tracked.Contains(unit)).Play();
             }
             else
-                _showGlobalDangerZone = !_showGlobalDangerZone;
+                ZoneUpdateSound(_showGlobalDangerZone = !_showGlobalDangerZone).Play();
             UpdateDangerZones();
         }
     }
@@ -196,6 +200,7 @@ public partial class PlayerController : ArmyController
             {
                 if (!_tracked.Remove(unit))
                     _tracked.Add(unit);
+                ZoneUpdateSound(_tracked.Contains(unit)).Play();
                 UpdateDangerZones();
             }
         }
@@ -264,6 +269,7 @@ public partial class PlayerController : ArmyController
         if (@event.IsActionPressed(InputActions.Cancel) && Cursor.Grid.Occupants.TryGetValue(Cursor.Cell, out GridNode node) && node is Unit untrack)
         {
             _tracked.Remove(untrack);
+            ZoneUpdateSound(false).Play();
             UpdateDangerZones();
         }
     }

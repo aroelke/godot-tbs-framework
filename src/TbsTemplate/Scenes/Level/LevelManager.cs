@@ -76,9 +76,6 @@ public partial class LevelManager : Node
         TurnLabel.AddThemeColorOverride("font_color", _armies.Current.Faction.Color);
         TurnLabel.Text = $"Turn {Turn}: {_armies.Current.Faction.Name}";
     }
-
-    /// <returns>The audio player that plays the "zone on" or "zone off" sound depending on <paramref name="on"/>.</returns>
-    private AudioStreamPlayer ZoneUpdateSound(bool on) => on ? ZoneOnSound : ZoneOffSound;
 #endregion
 #region Exports
     private bool _showGlobalZone = false;

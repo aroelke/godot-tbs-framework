@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=17 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DBrain.tscn" id="3_td8u6"]
@@ -14,11 +14,9 @@
 [ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/IntCondition.cs" id="27_kyhbc"]
 [ext_resource type="PackedScene" uid="uid://bxjlkc4hevsxb" path="res://src/TbsTemplate/Scenes/Level/TargetReaction.tscn" id="28_5f3xe"]
 [ext_resource type="PackedScene" uid="uid://b7i65c130fgfs" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/EnterTreeReaction.tscn" id="29_o6hju"]
-[ext_resource type="AudioStream" uid="uid://dx4swhb5suesh" path="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Open - 1.wav" id="31_yh2xe"]
-[ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="32_e2hk2"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -1386428404
+seed = -1464095992
 
 [sub_resource type="Resource" id="Resource_3lvnu"]
 script = ExtResource("27_kyhbc")
@@ -194,16 +192,6 @@ To = NodePath("../../Running/History")
 [node name="TurnAdvance" type="Timer" parent="."]
 unique_name_in_owner = true
 one_shot = true
-
-[node name="SoundLibrary" type="Node" parent="."]
-
-[node name="ZoneOnSound" type="AudioStreamPlayer" parent="SoundLibrary"]
-unique_name_in_owner = true
-stream = ExtResource("31_yh2xe")
-
-[node name="ZoneOffSound" type="AudioStreamPlayer" parent="SoundLibrary"]
-unique_name_in_owner = true
-stream = ExtResource("32_e2hk2")
 
 [connection signal="child_entered_tree" from="." to="." method="OnChildEnteredTree"]
 [connection signal="StateEntered" from="State/Root/Running/BeginTurn" to="." method="OnBeginTurnEntered"]
