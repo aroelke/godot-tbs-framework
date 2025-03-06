@@ -283,9 +283,11 @@ public partial class PlayerController : ArmyController
 
         if (@event.IsActionPressed(InputActions.Cancel) && Cursor.Grid.Occupants.TryGetValue(Cursor.Cell, out GridNode node) && node is Unit untrack)
         {
-            _tracked.Remove(untrack);
-            ZoneUpdateSound(false).Play();
-            UpdateDangerZones();
+            if (_tracked.Remove(untrack))
+            {
+                ZoneUpdateSound(false).Play();
+                UpdateDangerZones();
+            }
         }
     }
 
