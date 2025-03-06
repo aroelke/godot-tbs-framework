@@ -169,11 +169,6 @@ public partial class PlayerController : ArmyController
     public void OnCancel() => CancelSound.Play();
     public void OnFinish() => SelectSound.Play();
 
-    public void OnCursorCellChanged(Vector2I cell) => EmitSignal(SignalName.CursorCellChanged, cell);
-    public void OnCursorCellEntered(Vector2I cell) => EmitSignal(SignalName.CursorCellEntered, cell);
-
-    public void OnIdlePointerStopped(Vector2 position) => EmitSignal(SignalName.CursorCellEntered, Grid.CellOf(position));
-
     public void OnPointerFlightStarted(Vector2 target)
     {
         State.SendEvent(_events[WaitEvent]);
@@ -226,7 +221,6 @@ public partial class PlayerController : ArmyController
         ActionLayers.Modulate = ActionRangeHoverModulate;
 
         OnSelectCursorCellEntered(Cursor.Cell = Grid.CellOf(Pointer.Position));
-        EmitSignal(SignalName.CursorCellEntered, Cursor.Cell);
         Callable.From(() => State.SendEvent(_events[SelectEvent])).CallDeferred();
     }
 
@@ -314,6 +308,8 @@ public partial class PlayerController : ArmyController
         if (Grid.Occupants.GetValueOrDefault(cell) is Unit unit)
             (ActionLayers[MoveLayer], ActionLayers[AttackLayer], ActionLayers[SupportLayer]) = unit.ActionRanges();
     }
+
+    public void OnSelectedPointerStopped(Vector2 position) => OnSelectCursorCellEntered(Grid.CellOf(position));
 
     public void OnSelectExited() => Cursor.CellSelected -= ConfirmCursorSelection;
 #endregion

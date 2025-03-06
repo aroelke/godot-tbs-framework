@@ -9,12 +9,6 @@ namespace TbsTemplate.Scenes.Level.Control;
 /// <summary>Controller for determining which units act in a turn and how they act.</summary>
 public abstract partial class ArmyController : Node
 {
-    /// <summary>Signal that the cursor has "entered" a cell; that is, it stopped its movement there.</summary>
-    [Signal] public delegate void CursorCellChangedEventHandler(Vector2I cell);
-
-    /// <summary>Signal that the cursor has moved into or through a cell.</summary>
-    [Signal] public delegate void CursorCellEnteredEventHandler(Vector2I cell);
-
     /// <summary>Signals that a selection has been canceled.</summary>
     [Signal] public delegate void SelectionCanceledEventHandler();
 
