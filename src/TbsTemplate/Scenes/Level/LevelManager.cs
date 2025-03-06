@@ -57,9 +57,6 @@ public partial class LevelManager : Node
     private Grid Grid = null;
 #endregion
 #region Helper Properties and Methods
-    private readonly Dictionary<Army, HashSet<Unit>> _trackedUnits = [];
-    private readonly HashSet<Army> _trackedArmies = [];
-
     private Vector2 MenuPosition(Rect2 rect, Vector2 size)
     {
         Rect2 viewportRect = Grid.GetGlobalTransformWithCanvas()*rect;
@@ -78,8 +75,6 @@ public partial class LevelManager : Node
     }
 #endregion
 #region Exports
-    private bool _showGlobalZone = false;
-
     [Export(PropertyHint.File, "*.tscn")] public string CombatScenePath = null;
 
     /// <summary>Background music to play during the level.</summary>
@@ -461,9 +456,6 @@ public partial class LevelManager : Node
 
     public void OnUnitDefeated(Unit defeated)
     {
-        foreach ((var _, HashSet<Unit> tracked) in _trackedUnits)
-            tracked.Remove(defeated);
-
         // If the dead unit is the currently-selected one, it will be cleared away at the end of its action.
         if (_selected != defeated)
             defeated.Die();
@@ -504,8 +496,6 @@ public partial class LevelManager : Node
                     unit.Cell = Grid.CellOf(unit.GlobalPosition - Grid.GlobalPosition);
                     Grid.Occupants[unit.Cell] = unit;
                 }
-
-                _trackedUnits[army] = [];
             }
             LevelEvents.Singleton.Connect<Unit>(LevelEvents.SignalName.UnitDefeated, OnUnitDefeated);
 

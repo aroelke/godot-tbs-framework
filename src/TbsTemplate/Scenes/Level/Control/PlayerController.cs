@@ -29,16 +29,10 @@ public partial class PlayerController : ArmyController
     private Unit _selected = null, _target = null;
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path;
-    private readonly HashSet<Unit> _tracked = [];
-    private bool _showGlobalDangerZone = false;
-    private ContextMenu _menu;
 
-    private StringName MoveLayer           => _.ActionLayers.Move.Name;
-    private StringName AttackLayer         => _.ActionLayers.Attack.Name;
-    private StringName SupportLayer        => _.ActionLayers.Support.Name;
-    private StringName AllyTraversableZone => _.ZoneLayers.TraversableZone.Name;
-    private StringName LocalDangerZone     => _.ZoneLayers.LocalDangerZone.Name;
-    private StringName GlobalDangerZone    => _.ZoneLayers.GlobalDangerZone.Name;
+    private StringName MoveLayer    => _.ActionLayers.Move.Name;
+    private StringName AttackLayer  => _.ActionLayers.Attack.Name;
+    private StringName SupportLayer => _.ActionLayers.Support.Name;
 
     public override Grid Grid
     {
@@ -60,6 +54,8 @@ public partial class PlayerController : ArmyController
     [Export] public Color ActionRangeSelectModulate = Colors.White;
 #endregion
 #region Menus
+    private ContextMenu _menu = null;
+
     private Vector2 MenuPosition(Rect2 rect, Vector2 size)
     {
         Rect2 viewportRect = Cursor.Grid.GetGlobalTransformWithCanvas()*rect;
@@ -95,6 +91,13 @@ public partial class PlayerController : ArmyController
     }
 #endregion
 #region Danger Zone
+    private StringName AllyTraversableZone => _.ZoneLayers.TraversableZone.Name;
+    private StringName LocalDangerZone     => _.ZoneLayers.LocalDangerZone.Name;
+    private StringName GlobalDangerZone    => _.ZoneLayers.GlobalDangerZone.Name;
+
+    private readonly HashSet<Unit> _tracked = [];
+    private bool _showGlobalDangerZone = false;
+
     public void UpdateDangerZones()
     {
         IEnumerable<Unit> allies = _tracked.Where(Army.Faction.AlliedTo);
