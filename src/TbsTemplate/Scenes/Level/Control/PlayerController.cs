@@ -14,6 +14,7 @@ using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.Scenes.Level.Control;
 
+/// <summary>Controls units based on player input.  Also includes UI elements to facilitate gameplay.</summary>
 [SceneTree, Tool]
 public partial class PlayerController : ArmyController
 {
@@ -50,7 +51,10 @@ public partial class PlayerController : ArmyController
         }
     }
 #region Exports
+    /// <summary>Color to modulate the action ranges with while hovering over a unit.</summary>
     [Export] public Color ActionRangeHoverModulate = Colors.White with { A = 0.66f };
+
+    /// <summary>Color to modulate the action ranges with while a unit is selected.</summary>
     [Export] public Color ActionRangeSelectModulate = Colors.White;
 #endregion
 #region Menus
@@ -98,7 +102,7 @@ public partial class PlayerController : ArmyController
     private readonly HashSet<Unit> _tracked = [];
     private bool _showGlobalDangerZone = false;
 
-    public void UpdateDangerZones()
+    private void UpdateDangerZones()
     {
         IEnumerable<Unit> allies = _tracked.Where(Army.Faction.AlliedTo);
         IEnumerable<Unit> enemies = _tracked.Where((u) => !Army.Faction.AlliedTo(u));
