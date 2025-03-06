@@ -105,7 +105,7 @@ public partial class PlayerController : ArmyController
         else
             ZoneLayers.Clear(AllyTraversableZone);
         if (enemies.Any())
-            ZoneLayers[LocalDangerZone] = enemies.SelectMany(static (u) => u.TraversableCells());
+            ZoneLayers[LocalDangerZone] = enemies.SelectMany(static (u) => u.AttackableCells(u.TraversableCells()));
         else
             ZoneLayers.Clear(LocalDangerZone);
         
@@ -130,10 +130,7 @@ public partial class PlayerController : ArmyController
         Pointer.StopWaiting();
     }
 
-    public override void FinalizeAction()
-    {
-        UpdateDangerZones();
-    }
+    public override void FinalizeAction() => UpdateDangerZones();
 
     public override void FinalizeTurn()
     {
