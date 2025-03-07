@@ -21,7 +21,7 @@ public partial class StandBehavior : UnitBehavior
             Dictionary<StringName, IEnumerable<Vector2I>> actions = [];
 
             IEnumerable<Vector2I> attackable = unit.AttackableCells();
-            IEnumerable<Unit> targets = unit.Grid.Occupants.Where((p) => attackable.Contains(p.Key)).Select((p) => p.Value).OfType<Unit>();
+            IEnumerable<Unit> targets = unit.Grid.Occupants.Where((p) => attackable.Contains(p.Key) && p.Value is Unit target && !unit.Army.Faction.AlliedTo(target)).Select((p) => p.Value).OfType<Unit>();
             if (targets.Any())
                 actions["Attack"] = targets.Select((u) => u.Cell);
 
