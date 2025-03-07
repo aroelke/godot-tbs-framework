@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Godot;
+using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 
@@ -18,11 +19,6 @@ public abstract partial class ArmyController : Node
     /// <summary>Signals that a unit's action is being skipped.</summary>
     [Signal] public delegate void TurnSkippedEventHandler();
 
-    /// <summary>Signals that a change has been made to the path during path selection.</summary>
-    /// <param name="unit">Unit that will move along the path.</param>
-    /// <param name="path">New path after update.</param>
-    [Signal] public delegate void PathUpdatedEventHandler(Unit unit, Godot.Collections.Array<Vector2I> path);
-
     /// <summary>Signals that a path for a <see cref="Unit"/> to move on has been chosen.</summary>
     /// <param name="unit">Unit that will move along the path.</param>
     /// <param name="path">Contiguous list of cells for the unit to move through.</param>
@@ -37,13 +33,17 @@ public abstract partial class ArmyController : Node
     /// <param name="target">Target of the action.</param>
     [Signal] public delegate void TargetChosenEventHandler(Unit source, Unit target);
 
+    /// <summary>Signals that targeting for a unit's action was canceled.</summary>
+    /// <param name="source">Unit whose action was canceled.</param>
+    [Signal] public delegate void TargetCanceledEventHandler(Unit source);
+
     private Army _army = null;
 
     /// <summary>Army being controlled. Should be the direct parent of this controller.</summary>
     public Army Army => _army ??= GetParentOrNull<Army>();
 
-    /// <summary>Cursor used for indicating or making a selection.</summary>
-    [Export] public Cursor Cursor = null;
+    /// <summary>Grid that the army's units will be acting on.</summary>
+    [Export] public abstract Grid Grid { get; set; }
 
     /// <summary>Perform any setup needed to begin the army's turn.</summary>
     public abstract void InitializeTurn();

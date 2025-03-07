@@ -14,6 +14,7 @@ using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.Scenes.Level.Control;
 
+/// <summary>Controls units based on player input.  Also includes UI elements to facilitate gameplay.</summary>
 [SceneTree, Tool]
 public partial class PlayerController : ArmyController
 {
@@ -23,13 +24,141 @@ public partial class PlayerController : ArmyController
     private static readonly StringName TargetEvent  = "Target";
     private static readonly StringName FinishEvent  = "Finish";
     private static readonly StringName CancelEvent  = "Cancel";
+    private static readonly StringName WaitEvent    = "Wait";
 
-    private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, PathEvent, CommandEvent, TargetEvent, FinishEvent, CancelEvent]);
+    private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, PathEvent, CommandEvent, TargetEvent, FinishEvent, CancelEvent, WaitEvent]);
+    private Grid _grid = null;
+    private TileSet _tileset = null;
+    private Color _move    = Colors.Blue  with { A = 100f/256f };
+    private Color _attack  = Colors.Red   with { A = 100f/256f };
+    private Color _support = Colors.Green with { A = 100f/256f };
+    private Color _ally    = new(0, 0.25f, 0.5f, 100f/256f);
+    private Color _local   = new(0.5f, 0, 0.25f, 100f/256f);
+    private Color _global  = Colors.Black with { A = 100f/256f };
+
     private Unit _selected = null, _target = null;
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path;
-    private ContextMenu _menu;
+
+    private StringName MoveLayer           => _.ActionLayers.Move.Name;
+    private StringName AttackLayer         => _.ActionLayers.Attack.Name;
+    private StringName SupportLayer        => _.ActionLayers.Support.Name;
+    private StringName AllyTraversableZone => _.ZoneLayers.TraversableZone.Name;
+    private StringName LocalDangerZone     => _.ZoneLayers.LocalDangerZone.Name;
+    private StringName GlobalDangerZone    => _.ZoneLayers.GlobalDangerZone.Name;
+
+    public override Grid Grid
+    {
+        get => _grid;
+        set
+        {
+            if (_grid != value)
+            {
+                _grid = value;
+                if (Cursor is not null)
+                    Cursor.Grid = _grid;
+                if (Pointer is not null)
+                    Pointer.World = _grid;
+            }
+        }
+    }
+#region Exports
+    private void UpdateActionRangeTileSet(TileSet ts)
+    {
+        foreach (TileMapLayer layer in ActionLayers.GetChildren().OfType<TileMapLayer>())
+            layer.TileSet = ts;
+        foreach (TileMapLayer layer in ActionLayers.GetChildren().OfType<TileMapLayer>())
+            layer.TileSet = ts;
+    }
+
+    /// <summary>Tile set to use for displaying action ranges and danger zones.</summary>
+    [Export] public TileSet ActionRangeTileSet
+    {
+        get => _tileset;
+        set => UpdateActionRangeTileSet(_tileset = value);
+    }
+
+    /// <summary>Color to use for highlighting which cells a unit can move to.</summary>
+    [Export] public Color ActionRangeMoveColor
+    {
+        get => _move;
+        set
+        {
+            _move = value;
+            if (_.ActionLayers?.Move is not null)
+                _.ActionLayers.Move.Modulate = _move;
+        }
+    }
+
+    /// <summary>Color to use for highlighting which cells a unit can attack, but not move to.</summary>
+    [Export] public Color ActionRangeAttackColor
+    {
+        get => _attack;
+        set
+        {
+            _attack = value;
+            if (_.ActionLayers?.Attack is not null)
+                _.ActionLayers.Attack.Modulate = _attack;
+        }
+    }
+
+    /// <summary>Color to use for highlighting which cells a unit can support, but not move to or attack.</summary>
+    [Export] public Color ActionRangeSupportColor
+    {
+        get => _support;
+        set
+        {
+            _support = value;
+            if (_.ActionLayers?.Support is not null)
+                _.ActionLayers.Support.Modulate = _support;
+        }
+    }
+
+    /// <summary>Color to modulate the action ranges with while hovering over a unit.</summary>
+    [Export] public Color ActionRangeHoverModulate = Colors.White with { A = 0.66f };
+
+    /// <summary>Color to modulate the action ranges with while a unit is selected.</summary>
+    [Export] public Color ActionRangeSelectModulate = Colors.White;
+
+    /// <summary>Color to use for highlighting which cells a tracked set of allied units can move to.</summary>
+    [Export] public Color ZoneAllyTraversableColor
+    {
+        get => _ally;
+        set
+        {
+            _ally = value;
+            if (_.ZoneLayers?.TraversableZone is not null)
+                _.ZoneLayers.TraversableZone.Modulate = _ally;
+        }
+    }
+
+    /// <summary>Color to use for highlighting which cells a tracked set of enemy units can attack.</summary>
+    [Export] public Color ZoneLocalDangerColor
+    {
+        get => _local;
+        set
+        {
+            _local = value;
+            if (_.ZoneLayers?.LocalDangerZone is not null)
+                _.ZoneLayers.LocalDangerZone.Modulate = _local;
+        }
+    }
+
+    /// <summary>Color to use for highlighting which cells any enemy unit can attack.</summary>
+    [Export] public Color ZoneGlobalDangerColor
+    {
+        get => _global;
+        set
+        {
+            _global = value;
+            if (_.ZoneLayers?.GlobalDangerZone is not null)
+                _.ZoneLayers.GlobalDangerZone.Modulate = _global;
+        }
+    }
+#endregion
 #region Menus
+    private ContextMenu _menu = null;
+
     private Vector2 MenuPosition(Rect2 rect, Vector2 size)
     {
         Rect2 viewportRect = Cursor.Grid.GetGlobalTransformWithCanvas()*rect;
@@ -42,16 +171,16 @@ public partial class PlayerController : ArmyController
 
     private ContextMenu ShowMenu(Rect2 rect, IEnumerable<ContextMenuOption> options)
     {
+        Cursor.Halt(hide:true);
+        Pointer.StartWaiting(hide:false);
+        CancelHint.Visible = true;
+
         ContextMenu menu = ContextMenu.Instantiate(options);
         menu.Wrap = true;
         UserInterface.AddChild(menu);
         menu.Visible = false;
-        menu.MenuClosed += () => {
-            Cursor.Resume();
-            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.RevertCameraFocus);
-        };
+        menu.MenuClosed += () => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.RevertCameraFocus);
 
-        Cursor.Halt(hide:true);
         LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.FocusCamera, (BoundedNode2D)null);
 
         Callable.From<ContextMenu, Rect2>((m, r) => {
@@ -64,14 +193,77 @@ public partial class PlayerController : ArmyController
         return menu;
     }
 #endregion
+#region Danger Zone
+    private readonly HashSet<Unit> _tracked = [];
+    private bool _showGlobalDangerZone = false;
+
+    private void UpdateDangerZones()
+    {
+        IEnumerable<Unit> allies = _tracked.Where(Army.Faction.AlliedTo);
+        IEnumerable<Unit> enemies = _tracked.Where((u) => !Army.Faction.AlliedTo(u));
+
+        if (allies.Any())
+            ZoneLayers[AllyTraversableZone] = allies.SelectMany(static (u) => u.TraversableCells());
+        else
+            ZoneLayers.Clear(AllyTraversableZone);
+        if (enemies.Any())
+            ZoneLayers[LocalDangerZone] = enemies.SelectMany(static (u) => u.AttackableCells(u.TraversableCells()));
+        else
+            ZoneLayers.Clear(LocalDangerZone);
+        
+        if (_showGlobalDangerZone)
+            ZoneLayers[GlobalDangerZone] = Grid.Occupants.Values.OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u)).SelectMany(static (u) => u.AttackableCells(u.TraversableCells()));
+        else
+            ZoneLayers.Clear(GlobalDangerZone);
+    }
+
+    /// <returns>The audio player that plays the "zone on" or "zone off" sound depending on <paramref name="on"/>.</returns>
+    private AudioStreamPlayer ZoneUpdateSound(bool on) => on ? ZoneOnSound : ZoneOffSound;
+#endregion
 #region Initialization and Finalization
-    public override void InitializeTurn() => Cursor.Resume();
-    public override void FinalizeAction() {}
-    public override void FinalizeTurn() {}
+    public override void InitializeTurn()
+    {
+        HUD.Visible = true;
+        UpdateDangerZones();
+        ZoneLayers.Visible = true;
+
+        Cursor.Cell = ((IEnumerable<Unit>)Army).First().Cell;
+
+        Cursor.Resume();
+        Pointer.StopWaiting();
+    }
+
+    public override void FinalizeAction() => UpdateDangerZones();
+
+    public override void FinalizeTurn()
+    {
+        ZoneLayers.Visible = false;
+        Cursor.Halt(hide:true);
+        Pointer.StartWaiting(hide:true);
+        HUD.Visible = false;
+    }
 #endregion
 #region State Independent
     public void OnCancel() => CancelSound.Play();
     public void OnFinish() => SelectSound.Play();
+
+    public void OnPointerFlightStarted(Vector2 target)
+    {
+        State.SendEvent(_events[WaitEvent]);
+        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.FocusCamera, target);
+    }
+
+    public void OnPointerFlightCompleted()
+    {
+        State.SendEvent(_events[FinishEvent]);
+        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.RevertCameraFocus);
+    }
+
+    public void OnUnitDefeated(Unit defeated)
+    {
+        if (_tracked.Remove(defeated) || _showGlobalDangerZone)
+            UpdateDangerZones();
+    }
 #endregion
 #region Active
     public void OnActiveInput(InputEvent @event)
@@ -83,13 +275,32 @@ public partial class PlayerController : ArmyController
         }
 
         if (@event.IsActionPressed(InputActions.ToggleDangerZone))
-            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ToggleDangerZone, Army, Cursor.Grid.Occupants.GetValueOrDefault(Cursor.Cell) as Unit);
+        {
+            if (Cursor.Grid.Occupants.TryGetValue(Cursor.Cell, out GridNode node) && node is Unit unit)
+            {
+                if (!_tracked.Remove(unit))
+                    _tracked.Add(unit);
+                ZoneUpdateSound(_tracked.Contains(unit)).Play();
+            }
+            else
+                ZoneUpdateSound(_showGlobalDangerZone = !_showGlobalDangerZone).Play();
+            UpdateDangerZones();
+        }
     }
-
-    public void OnActiveExited() => Callable.From(() => _selected = null).CallDeferred();
 #endregion
 #region Unit Selection
-    public override void SelectUnit() => Callable.From(() => State.SendEvent(_events[SelectEvent])).CallDeferred();
+    public override void SelectUnit()
+    {
+        Cursor.Resume();
+        Pointer.StopWaiting();
+        CancelHint.Visible = false;
+
+        ActionLayers.Clear();
+        ActionLayers.Modulate = ActionRangeHoverModulate;
+
+        OnSelectCursorCellEntered(Cursor.Cell = Grid.CellOf(Pointer.Position));
+        Callable.From(() => State.SendEvent(_events[SelectEvent])).CallDeferred();
+    }
 
     private void ConfirmCursorSelection(Vector2I cell)
     {
@@ -101,24 +312,37 @@ public partial class PlayerController : ArmyController
                 EmitSignal(SignalName.UnitSelected, unit);
             }
             else if (unit.Army.Faction != Army.Faction)
-                LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ToggleDangerZone, Army, unit);
+            {
+                if (!_tracked.Remove(unit))
+                    _tracked.Add(unit);
+                ZoneUpdateSound(_tracked.Contains(unit)).Play();
+                UpdateDangerZones();
+            }
         }
         else
         {
-            Cursor.Halt(hide:true);
+            void Cancel()
+            {
+                CancelSound.Play();
+                Cursor.Resume();
+                Pointer.StopWaiting();
+            }
 
             SelectSound.Play();
             ContextMenu menu = ShowMenu(Cursor.Grid.CellRect(cell), [
                 new("End Turn", () => {
+                    // Cursor is already halted
+                    Pointer.StartWaiting(hide:true);
+
                     State.SendEvent(_events[FinishEvent]);
                     EmitSignal(SignalName.TurnSkipped);
                     SelectSound.Play();
                 }),
                 new("Quit Game", () => GetTree().Quit()),
-                new("Cancel", () => CancelSound.Play())
+                new("Cancel", Cancel)
             ]);
-            menu.MenuCanceled += () => CancelSound.Play();
-            menu.MenuClosed += Cursor.Resume;
+            menu.MenuCanceled += Cancel;
+            menu.MenuClosed += () => CancelHint.Visible = false;
         }
     }
 
@@ -146,8 +370,24 @@ public partial class PlayerController : ArmyController
         }
 
         if (@event.IsActionPressed(InputActions.Cancel) && Cursor.Grid.Occupants.TryGetValue(Cursor.Cell, out GridNode node) && node is Unit untrack)
-            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.RemoveFromDangerZone, Army, untrack);
+        {
+            if (_tracked.Remove(untrack))
+            {
+                ZoneUpdateSound(false).Play();
+                UpdateDangerZones();
+            }
+        }
     }
+
+    public void OnSelectCursorCellChanged(Vector2I cell) => ActionLayers.Clear();
+
+    public void OnSelectCursorCellEntered(Vector2I cell)
+    {
+        if (Grid.Occupants.GetValueOrDefault(cell) is Unit unit)
+            (ActionLayers[MoveLayer], ActionLayers[AttackLayer], ActionLayers[SupportLayer]) = unit.ActionRanges();
+    }
+
+    public void OnSelectedPointerStopped(Vector2 position) => OnSelectCursorCellEntered(Grid.CellOf(position));
 
     public void OnSelectExited() => Cursor.CellSelected -= ConfirmCursorSelection;
 #endregion
@@ -156,13 +396,24 @@ public partial class PlayerController : ArmyController
 
     public override void MoveUnit(Unit unit)
     {
+        Cursor.Resume();
+        Pointer.StopWaiting();
+        CancelHint.Visible = true;
+        ActionLayers.Modulate = ActionRangeSelectModulate;
+
+        _target = null;
         Callable.From(() => {
-            _selected = unit;
             State.SendEvent(_events[PathEvent]);
+
+            _selected = unit;
+            (ActionLayers[MoveLayer], ActionLayers[AttackLayer], ActionLayers[SupportLayer]) = (_traversable, _attackable, _supportable) = _selected.ActionRanges();
+            Cursor.SoftRestriction = [.. _traversable];
+            Cursor.Cell = _selected.Cell;
+            UpdatePath(Path.Empty(Cursor.Grid, _traversable).Add(_selected.Cell));
         }).CallDeferred();
     }
 
-    private void UpdatePath(Path path) => EmitSignal(SignalName.PathUpdated, _selected, new Godot.Collections.Array<Vector2I>(_path = path));
+    private void UpdatePath(Path path) => PathLayer.Path = _path = path;
 
     private void AddToPath(Vector2I cell)
     {
@@ -214,7 +465,7 @@ public partial class PlayerController : ArmyController
         bool occupied = Cursor.Grid.Occupants.TryGetValue(cell, out GridNode occupant);
         if (!_traversable.Contains(cell) && !occupied)
         {
-            State.SendEvent(_events[FinishEvent]);
+            State.SendEvent(_events[CancelEvent]);
             EmitSignal(SignalName.SelectionCanceled);
         }
         else if (!occupied || occupant == _selected)
@@ -233,13 +484,29 @@ public partial class PlayerController : ArmyController
             ErrorSound.Play();
     }
 
+    private void CleanUpPath()
+    {
+        Cursor.SoftRestriction.Clear();
+        PathLayer.Clear();
+        ActionLayers.Clear();
+        ActionLayers.Modulate = ActionRangeHoverModulate;
+    }
+
     public void OnPathEntered()
     {
-        _target = null;
-        (_traversable, _attackable, _supportable) = _selected.ActionRanges();
-        UpdatePath(Path.Empty(Cursor.Grid, _traversable).Add(_selected.Cell));
         Cursor.CellChanged += AddToPath;
         Cursor.CellSelected += ConfirmPathSelection;
+    }
+
+    public void OnPathCanceled() => CleanUpPath();
+
+    public void OnPathFinished()
+    {
+        Cursor.Halt(hide:false);
+        Pointer.StartWaiting(hide:false);
+        CancelHint.Visible = false;
+        _selected.Connect(Unit.SignalName.DoneMoving, UpdateDangerZones, (uint)ConnectFlags.OneShot);
+        CleanUpPath();
     }
 
     public void OnPathExited()
@@ -251,20 +518,25 @@ public partial class PlayerController : ArmyController
 #region Command Selection
     public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)
     {
+        ActionLayers.Clear(MoveLayer);
+        ActionLayers[AttackLayer] = source.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(source) ?? false);
+        ActionLayers[SupportLayer] = source.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(source) ?? false);
+
         Callable.From(() => {
+            State.SendEvent(_events[CommandEvent]);
+
             _selected = source;
             _menu = ShowMenu(Cursor.Grid.CellRect(source.Cell), commands.Select((c) => new ContextMenuOption() { Name = c, Action = () => {
+                ActionLayers.Keep(c);
                 State.SendEvent(_events[FinishEvent]);
                 EmitSignal(SignalName.UnitCommanded, source, c);
             }}));
-            _menu.MenuCanceled += () => {
-//                State.SendEvent(_events[FinishEvent]);
-                EmitSignal(SignalName.UnitCommanded, source, cancel);
-            };
+            _menu.MenuCanceled += () => EmitSignal(SignalName.UnitCommanded, source, cancel);
             _menu.MenuClosed += () => _menu = null;
-            State.SendEvent(_events[CommandEvent]);
         }).CallDeferred();
     }
+
+    public void OnCommandEntered() => CancelHint.Visible = true;
 
     public void OnCommandProcess(double delta) => _menu.Position = MenuPosition(Cursor.Grid.CellRect(_selected.Cell), _menu.Size);
 #endregion
@@ -273,17 +545,34 @@ public partial class PlayerController : ArmyController
 
     public override void SelectTarget(Unit source, IEnumerable<Vector2I> targets)
     {
+        Cursor.Resume();
+        Pointer.StopWaiting();
+        CancelHint.Visible = true;
+
+        Pointer.AnalogTracking = false;
+        Cursor.Wrap = true;
+
         Callable.From(() => {
-            _selected = source;
-            _targets = targets;
             State.SendEvent(_events[TargetEvent]);
+
+            _selected = source;
+            Cursor.HardRestriction = [.. _targets=targets];
         }).CallDeferred();
     }
 
     private void ConfirmTargetSelection(Vector2I cell)
     {
-        if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit target)
+        if (Cursor.Cell != Grid.CellOf(Pointer.Position))
         {
+            State.SendEvent(_events[CancelEvent]);
+            EmitSignal(SignalName.TargetCanceled, _selected);
+        }
+        else if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit target)
+        {
+            Cursor.Halt(hide:false);
+            Pointer.StartWaiting(hide:false);
+            CancelHint.Visible = false;
+
             State.SendEvent(_events[FinishEvent]);
             EmitSignal(SignalName.TargetChosen, _selected, target);
         }
@@ -314,7 +603,38 @@ public partial class PlayerController : ArmyController
         }
     }
 
+    public void OnTargetCompleted()
+    {
+        ActionLayers.Clear();
+
+        Pointer.AnalogTracking = true;
+        Cursor.HardRestriction = Cursor.HardRestriction.Clear();
+        Cursor.Wrap = false;
+    }
+
     public void OnTargetExited() => Cursor.CellSelected -= ConfirmTargetSelection;
+#endregion
+#region Engine Events
+    public override void _Ready()
+    {
+        base._Ready();
+
+        UpdateActionRangeTileSet(_tileset);
+        _.ActionLayers.Move.Modulate           = _move;
+        _.ActionLayers.Attack.Modulate         = _attack;
+        _.ActionLayers.Support.Modulate        = _support;
+        _.ZoneLayers.TraversableZone.Modulate  = _ally;
+        _.ZoneLayers.LocalDangerZone.Modulate  = _local;
+        _.ZoneLayers.GlobalDangerZone.Modulate = _global;
+
+        if (!Engine.IsEditorHint())
+        {
+            LevelEvents.Singleton.Connect<Rect2I>(LevelEvents.SignalName.CameraBoundsUpdated, (b) => Pointer.Bounds = b);
+            LevelEvents.Singleton.Connect<Unit>(LevelEvents.SignalName.UnitDefeated, OnUnitDefeated);
+            Callable.From(() => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.FocusCamera, Pointer)).CallDeferred();
+            Cursor.Halt();
+        }
+    }
 #endregion
 #region Properties
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()

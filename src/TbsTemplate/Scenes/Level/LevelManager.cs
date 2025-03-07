@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using TbsTemplate.Data;
 using TbsTemplate.Extensions;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 using TbsTemplate.Nodes;
 using TbsTemplate.Scenes.Combat.Data;
-using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI;
 using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Combat;
@@ -45,14 +43,6 @@ public partial class LevelManager : Node
     private const string FriendlyOccuipied    = "friendly"; // Cell occupied by unit in army allied to this turn's army
     private const string EnemyOccupied        = "enemy";    // Cell occupied by unit in enemy army to this turn's army
     private const string OtherOccupied        = "other";    // Cell occupied by something else
-
-    // Overlay Layer names
-    private StringName MoveLayer           => _.ActionLayers.MoveLayer.Name;
-    private StringName AttackLayer         => _.ActionLayers.AttackLayer.Name;
-    private StringName SupportLayer        => _.ActionLayers.SupportLayer.Name;
-    private StringName AllyTraversableZone => _.ZoneLayers.TraversableZone.Name;
-    private StringName LocalDangerZone     => _.ZoneLayers.LocalDangerZone.Name;
-    private StringName GlobalDangerZone    => _.ZoneLayers.GlobalDangerZone.Name;
 #endregion
 #region Declarations
     private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, CancelEvent, SkipEvent, WaitEvent, DoneEvent], @default:"");
@@ -67,9 +57,6 @@ public partial class LevelManager : Node
     private Grid Grid = null;
 #endregion
 #region Helper Properties and Methods
-    private readonly Dictionary<Army, HashSet<Unit>> _trackedUnits = [];
-    private readonly HashSet<Army> _trackedArmies = [];
-
     private Vector2 MenuPosition(Rect2 rect, Vector2 size)
     {
         Rect2 viewportRect = Grid.GetGlobalTransformWithCanvas()*rect;
@@ -86,40 +73,8 @@ public partial class LevelManager : Node
         TurnLabel.AddThemeColorOverride("font_color", _armies.Current.Faction.Color);
         TurnLabel.Text = $"Turn {Turn}: {_armies.Current.Faction.Name}";
     }
-
-    /// <summary>Update the displayed danger zones to reflect the current positions of the enemy <see cref="Unit"/>s.</summary>
-    private void UpdateDangerZones()
-    {
-        // Update local danger zone
-        IEnumerable<Unit> allies = _trackedUnits[_armies.Current].Where(_armies.Current.Faction.AlliedTo);
-        IEnumerable<Unit> enemies = _trackedUnits[_armies.Current].Where((u) => !_armies.Current.Faction.AlliedTo(u));
-        if (enemies.Any())
-            ZoneLayers[LocalDangerZone] = enemies.SelectMany((u) => u.AttackableCells(u.TraversableCells()));
-        else
-            ZoneLayers.Clear(LocalDangerZone);
-        if (allies.Any())
-            ZoneLayers[AllyTraversableZone] = allies.SelectMany((u) => u.TraversableCells());
-        else
-            ZoneLayers.Clear(AllyTraversableZone);
-
-        // Update global danger zone
-        if (_trackedArmies.Contains(_armies.Current))
-        {
-            ZoneLayers[GlobalDangerZone] = GetChildren().OfType<Army>()
-                .Where((a) => !a.Faction.AlliedTo(_armies.Current.Faction))
-                .SelectMany(static (a) => (IEnumerable<Unit>)a)
-                .SelectMany(static (u) => u.AttackableCells(u.TraversableCells()));
-        }
-        else
-            ZoneLayers.Clear(GlobalDangerZone);
-    }
-
-    /// <returns>The audio player that plays the "zone on" or "zone off" sound depending on <paramref name="on"/>.</returns>
-    private AudioStreamPlayer ZoneUpdateSound(bool on) => on ? ZoneOnSound : ZoneOffSound;
 #endregion
 #region Exports
-    private bool _showGlobalZone = false;
-
     [Export(PropertyHint.File, "*.tscn")] public string CombatScenePath = null;
 
     /// <summary>Background music to play during the level.</summary>
@@ -144,63 +99,26 @@ public partial class LevelManager : Node
     /// <summary>Signal that a turn is about to begin.</summary>
     public void OnBeginTurnEntered()
     {
-        _armies.Current.Controller.InitializeTurn();
-
-        if (_armies.Current.Faction.IsPlayer)
-            Pointer.StopWaiting();
-        else
-            Pointer.StartWaiting(hide:true);
         _armies.Current.Controller.SelectionCanceled += OnSelectionCanceled;
         _armies.Current.Controller.UnitSelected += _.State.Root.Running.Idle.OnUnitSelected.React;
         _armies.Current.Controller.TurnSkipped += _.State.Root.Running.Idle.OnTurnSkipped.React;
-        _armies.Current.Controller.PathUpdated += _.State.Root.Running.UnitSelected.OnPathUpdated.React;
         _armies.Current.Controller.UnitCommanded += _.State.Root.Running.UnitSelected.OnUnitCommanded.React;
         _armies.Current.Controller.TargetChosen += _.State.Root.Running.UnitSelected.OnTargetChosen.React;
+        _armies.Current.Controller.TargetCanceled += OnTargetingCanceled;
         _armies.Current.Controller.PathConfirmed += _.State.Root.Running.UnitSelected.OnPathConfirmed.React;
         _armies.Current.Controller.UnitCommanded += _.State.Root.Running.UnitCommanding.OnUnitCommanded.React;
         _armies.Current.Controller.TargetChosen += _.State.Root.Running.UnitTargeting.OnTargetChosen.React;
+
+        _armies.Current.Controller.InitializeTurn();
         Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
     }
 
     /// <summary>Perform any updates that the turn has begun that need to happen after upkeep.</summary>
-    public void OnBeginTurnExited()
-    {
-        UpdateTurnCounter();
-        UpdateDangerZones();
-        Callable.From<Vector2I>((c) => {
-            Cursor.Cell = c;
-            OnIdleCursorEnteredCell(Cursor.Cell);
-        }).CallDeferred(((IEnumerable<Unit>)_armies.Current).First().Cell);
-    }
+    public void OnBeginTurnExited() => UpdateTurnCounter();
 #endregion
 #region Idle State
     /// <summary>Update the UI when re-entering idle.</summary>
-    public void OnIdleEntered()
-    {
-        ActionLayers.Modulate = ActionRangeIdleModulate;
-        Cursor.Cell = Grid.CellOf(Pointer.Position);
-
-        Callable.From(_armies.Current.Controller.SelectUnit).CallDeferred();
-    }
-
-    /// <summary>Clear the displayed action ranges when moving the <see cref="Object.Cursor"/> to a new cell while in idle <see cref="Nodes.StateChart.States.State"/>.</summary>
-    /// <param name="cell">Cell the <see cref="Object.Cursor"/> moved to.</param>
-    public void OnIdleCursorMoved(Vector2I cell) => ActionLayers.Clear();
-
-    /// <summary>
-    /// When the <see cref="Object.Cursor"/> moves over a <see cref="Unit"/> while in idle <see cref="Nodes.StateChart.States.State"/>, display that <see cref="Unit"/>'s
-    /// action ranges.
-    /// </summary>
-    /// <param name="cell">Cell the <see cref="Object.Cursor"/> moved into.</param>
-    public void OnIdleCursorEnteredCell(Vector2I cell)
-    {
-        if (_armies.Current.Faction.IsPlayer && Grid.Occupants.GetValueOrDefault(cell) is Unit hovered)
-            (ActionLayers[MoveLayer], ActionLayers[AttackLayer], ActionLayers[SupportLayer]) = hovered.ActionRanges();
-    }
-
-    /// <summary>When the pointer stops moving, display the action range of the unit the cursor is over.</summary>
-    /// <param name="position">Position the pointer stopped over.</param>
-    public void OnIdlePointerStopped(Vector2 position) => OnIdleCursorEnteredCell(Grid.CellOf(position));
+    public void OnIdleEntered() => Callable.From(_armies.Current.Controller.SelectUnit).CallDeferred();
 
     public void OnIdleUnitSelected(Unit unit)
     {
@@ -210,9 +128,7 @@ public partial class LevelManager : Node
             throw new InvalidOperationException($"Cannot select inactive unit {unit.Name}");
 
         _selected = unit;
-        Cursor.Cell = unit.Cell;
         State.ExpressionProperties = State.ExpressionProperties.SetItem(OccupiedProperty, ActiveAllyOccupied);
-        ActionLayers.Modulate = Colors.White;
 
         State.SendEvent(_events[SelectEvent]);
     }
@@ -231,8 +147,6 @@ public partial class LevelManager : Node
         _initialCell = null;
         _selected.Deselect();
         _selected = null;
-        CancelHint.Visible = false;
-        PathLayer.Clear();
     }
 
     /// <summary>Display the total movement, attack, and support ranges of the selected <see cref="Unit"/> and begin drawing the path arrow for it to move on.</summary>
@@ -244,13 +158,10 @@ public partial class LevelManager : Node
         _target = null;
 
         // Compute move/attack/support ranges for selected unit
-        (ActionLayers[MoveLayer], ActionLayers[AttackLayer], ActionLayers[SupportLayer]) = _selected.ActionRanges();
-        _path = Path.Empty(Grid, ActionLayers[MoveLayer]).Add(_selected.Cell);
-        Cursor.SoftRestriction = [.. ActionLayers[MoveLayer]];
-        CancelHint.Visible = true;
+        _path = Path.Empty(Grid, _selected.TraversableCells());
 
         // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
-        Rect2? zoomRect = Grid.EnclosingRect(ActionLayers.Union());
+        Rect2? zoomRect = null; // Grid.EnclosingRect(ActionLayers.Union());
         if (zoomRect is not null)
         {
             Vector2 zoomTarget = Grid.GetViewportRect().Size/zoomRect.Value.Size;
@@ -260,13 +171,6 @@ public partial class LevelManager : Node
         }
 
         Callable.From<Unit>(_armies.Current.Controller.MoveUnit).CallDeferred(_selected);
-    }
-
-    public void OnSelectedPathUpdated(Unit unit, Godot.Collections.Array<Vector2I> path)
-    {
-        if (unit != _selected)
-            throw new InvalidOperationException($"Cannot update path for unselected unit {unit.Name} ({_selected.Name} is selected)");
-        PathLayer.Path = _path = _path.SetTo(path);
     }
 
     public void OnSelectedUnitCommanded(Unit unit, StringName command)
@@ -287,7 +191,7 @@ public partial class LevelManager : Node
     {
         if (unit != _selected)
             throw new InvalidOperationException($"Cannot confirm path for unselected unit {unit.Name} ({_selected.Name} is selected)");
-        if (!path.All(ActionLayers[MoveLayer].Contains) || path.Any((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Army.Faction.AlliedTo(_selected) ?? false)))
+        if (path.Any((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Army.Faction.AlliedTo(_selected) ?? false)))
             throw new InvalidOperationException("The chosen path must only contain traversable cells.");
         if (Grid.Occupants.ContainsKey(path[^1]) && Grid.Occupants[path[^1]] != unit)
             throw new InvalidOperationException("The chosen path must not end on an occupied cell.");
@@ -299,29 +203,13 @@ public partial class LevelManager : Node
 
     public void OnSelectedCanceled()
     {
-        if (Cursor.Cell != _selected.Cell)
-            ActionLayers.Clear();
-        PathLayer.Clear();
-
         _initialCell = null;
         _selected.Deselect();
         _selected = null;
-
-        CancelHint.Visible = false;
-    }
-
-    /// <summary>Clean up overlays when movement destination is chosen.</summary>
-    public void OnDestinationChosen()
-    {
-        // Clear out movement/action ranges
-        PathLayer.Clear();
-        ActionLayers.Clear();
     }
 
     public void OnSelectedExited()
     {
-        Cursor.SoftRestriction.Clear();
-
         // Restore the camera zoom back to what it was before a unit was selected
         if (Camera.HasZoomMemory())
             Camera.PopZoom();
@@ -333,9 +221,6 @@ public partial class LevelManager : Node
     /// <summary>Begin moving the selected <see cref="Unit"/> and then wait for it to finish moving.</summary>
     public void OnMovingEntered()
     {
-        if (_armies.Current.Faction.IsPlayer)
-            Cursor.Halt();
-
         // Track the unit as it's moving
         _prevDeadzone = new(Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight);
         (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = Vector4.Zero;
@@ -361,9 +246,6 @@ public partial class LevelManager : Node
         (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = _prevDeadzone;
         PopCameraFocus();
         _path = null;
-        UpdateDangerZones();
-        if (_armies.Current.Faction.IsPlayer)
-            Cursor.Resume();
     }
 #endregion
 #region Unit Commanding State
@@ -372,27 +254,21 @@ public partial class LevelManager : Node
 
     public void OnCommandingEntered()
     {
-        // Show the unit's attack/support ranges
         _targets = [];
-        ActionLayers.Clear(MoveLayer);
-        ActionLayers[AttackLayer] = _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false);
-        ActionLayers[SupportLayer] = _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false);
-
         _options = [];
-        void AddActionOption(StringName name, StringName layer)
+        void AddActionOption(StringName name, IEnumerable<Vector2I> range)
         {
-            if (ActionLayers[layer].Any())
+            if (range.Any())
             {
                 _options.Add(new(name, () => {
-                    _targets = ActionLayers[layer];
+                    _targets = range;
                     _command = name;
-                    ActionLayers.Keep(layer);
                     State.SendEvent(_events[SelectEvent]);
                 }));
             }
         }
-        AddActionOption("Attack", AttackLayer);
-        AddActionOption("Support", SupportLayer);
+        AddActionOption("Attack", _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
+        AddActionOption("Support", _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
         foreach (SpecialActionRegion region in Grid.SpecialActionRegions)
         {
             if (region.HasSpecialAction(_selected, _selected.Cell))
@@ -421,7 +297,6 @@ public partial class LevelManager : Node
     /// <summary>Move the selected <see cref="Unit"/> and <see cref="Object.Cursor"/> back to the cell the unit was at before it moved.</summary>
     public void OnCommandingCanceled()
     {
-        ActionLayers.Clear();
         _command = null;
 
         // Move the selected unit back to its original cell
@@ -429,31 +304,17 @@ public partial class LevelManager : Node
         _selected.Cell = _initialCell.Value;
         Grid.Occupants[_selected.Cell] = _selected;
         _initialCell = null;
-        Callable.From<Vector2I>((c) => Cursor.Cell = c).CallDeferred(_selected.Cell);
 
         _target = null;
-        UpdateDangerZones();
     }
 
-    public void OnTurnEndCommand()
-    {
-        _target = null;
-        ActionLayers.Clear();
-    }
+    public void OnTurnEndCommand() => _target = null;
 #endregion
 #region Targeting State
     private List<CombatAction> _combatResults = null;
 
     public void OnTargetingEntered()
     {
-        // Restrict cursor movement to actionable cells
-        if (_target is null)
-        {
-            Pointer.AnalogTracking = false;
-            Cursor.HardRestriction = [.. _targets];
-            Cursor.Wrap = true;
-        }
-
         _armies.Current.Controller.SelectTarget(_selected, _targets);
     }
 
@@ -463,33 +324,15 @@ public partial class LevelManager : Node
             throw new InvalidOperationException($"Cannot choose target for unselected unit {source.Name} ({_selected.Name} is selected)");
         if ((_command == "Attack" && target.Army.Faction.AlliedTo(_selected)) || (_command == "Support" && !target.Army.Faction.AlliedTo(_selected)))
             throw new ArgumentException($"{_selected.Name} cannot {_command} {target.Name}");
-        
-        if (Grid.CellOf(Pointer.Position) == Cursor.Cell)
-        {
-            if (Cursor.Cell != target.Cell)
-                GD.PushWarning($"Target {target.Name} is not in the cursor's cell");
-            _target = target;
-            State.SendEvent(_events[DoneEvent]);
-        }
-        else
-            State.SendEvent(_events[CancelEvent]);
+        _target = target;
+        State.SendEvent(_events[DoneEvent]);
     }
 
-    /// <summary>Clean up displayed ranges and restore <see cref="Object.Cursor"/> freedom when exiting targeting <see cref="Nodes.StateChart.States.State"/>.</summary>
-    public void OnTargetingExited()
-    {
-        Pointer.AnalogTracking = true;
-        Cursor.HardRestriction = Cursor.HardRestriction.Clear();
-        Cursor.Wrap = false;
-    }
+    public void OnTargetingCanceled(Unit source) => State.SendEvent(_events[CancelEvent]);
 #endregion
 #region In Combat
     public void OnCombatEntered()
     {
-        ActionLayers.Clear();
-        Cursor.Halt();
-        Pointer.StartWaiting(hide:true);
-
         if (_command == "Attack")
             _combatResults = CombatCalculations.AttackResults(_selected, _target);
         else if (_command == "Support")
@@ -508,14 +351,7 @@ public partial class LevelManager : Node
                 action.Target.Health.Value -= action.Damage;
         _target = null;
         _combatResults = null;
-        ActionLayers.Clear();
         SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, () => State.SendEvent(_events[DoneEvent]), (uint)ConnectFlags.OneShot);
-    }
-
-    public void OnCombatExited()
-    {
-        Pointer.StopWaiting();
-        Cursor.Resume();
     }
 #endregion
 #region End Action State
@@ -526,7 +362,6 @@ public partial class LevelManager : Node
         _selected.Finish();
         State.ExpressionProperties = State.ExpressionProperties.SetItem(ActiveProperty, ((IEnumerable<Unit>)_armies.Current).Count((u) => u.Active));
 
-        CancelHint.Visible = false;
         Callable.From<Unit>((u) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, u)).CallDeferred(_selected);
     }
 
@@ -554,7 +389,6 @@ public partial class LevelManager : Node
         _armies.Current.Controller.SelectionCanceled -= OnSelectionCanceled;
         _armies.Current.Controller.UnitSelected -= _.State.Root.Running.Idle.OnUnitSelected.React;
         _armies.Current.Controller.TurnSkipped -= _.State.Root.Running.Idle.OnTurnSkipped.React;
-        _armies.Current.Controller.PathUpdated -= _.State.Root.Running.UnitSelected.OnPathUpdated.React;
         _armies.Current.Controller.UnitCommanded -= _.State.Root.Running.UnitSelected.OnUnitCommanded.React;
         _armies.Current.Controller.TargetChosen -= _.State.Root.Running.UnitSelected.OnTargetChosen.React;
         _armies.Current.Controller.PathConfirmed -= _.State.Root.Running.UnitSelected.OnPathConfirmed.React;
@@ -622,10 +456,6 @@ public partial class LevelManager : Node
 
     public void OnUnitDefeated(Unit defeated)
     {
-        foreach ((var _, HashSet<Unit> tracked) in _trackedUnits)
-            tracked.Remove(defeated);
-        UpdateDangerZones();
-
         // If the dead unit is the currently-selected one, it will be cleared away at the end of its action.
         if (_selected != defeated)
             defeated.Die();
@@ -633,35 +463,6 @@ public partial class LevelManager : Node
         {
             _armies.Current.RemoveChild(_selected);
             defeated.Visible = false;
-        }
-    }
-
-    /// <summary>Add or remove a unit from the current army's displayed danger zone, or toggle the current army's global danger zone.</summary>
-    /// <param name="unit">Unit to remove if present or add otherwise. Use <c>null</c> to toggle global danger zone.</param>
-    /// <remarks>Note that the UI will only update if the current army's danger zone is toggled.</remarks>
-    public void ToggleDangerZone(Army army, Unit unit)
-    {
-        if (unit is not null)
-        {
-            if (!_trackedUnits[army].Remove(unit))
-                _trackedUnits[army].Add(unit);
-            ZoneUpdateSound(_trackedUnits[army].Contains(unit)).Play();
-        }
-        else
-        {
-            if (!_trackedArmies.Remove(army))
-                _trackedArmies.Add(army);
-            ZoneUpdateSound(_trackedArmies.Contains(army)).Play();
-        }
-        UpdateDangerZones();
-    }
-
-    public void RemoveFromDangerZone(Army army, Unit unit)
-    {
-        if (_trackedUnits[army].Remove(unit))
-        {
-            ZoneUpdateSound(false);
-            UpdateDangerZones();
         }
     }
 
@@ -684,21 +485,17 @@ public partial class LevelManager : Node
             Grid = GetNode<Grid>("Grid");
 
             Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
-            Pointer.World = Cursor.Grid = Grid;
-            Pointer.Bounds = Camera.Limits;
-            Pointer.DefaultFlightTime = Camera.DeadZoneSmoothTime;
+            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.CameraBoundsUpdated, Camera.Limits);
 
             foreach (Army army in GetChildren().OfType<Army>())
             {
-                army.Controller.Cursor = Cursor;
+                army.Controller.Grid = Grid;
                 foreach (Unit unit in (IEnumerable<Unit>)army)
                 {
                     unit.Grid = Grid;
                     unit.Cell = Grid.CellOf(unit.GlobalPosition - Grid.GlobalPosition);
                     Grid.Occupants[unit.Cell] = unit;
                 }
-
-                _trackedUnits[army] = [];
             }
             LevelEvents.Singleton.Connect<Unit>(LevelEvents.SignalName.UnitDefeated, OnUnitDefeated);
 
@@ -713,33 +510,8 @@ public partial class LevelManager : Node
             LevelEvents.Singleton.Connect<BoundedNode2D>(LevelEvents.SignalName.FocusCamera, PushCameraFocus);
             LevelEvents.Singleton.Connect(LevelEvents.SignalName.RevertCameraFocus, PopCameraFocus);
             LevelEvents.Singleton.Connect(LevelEvents.SignalName.EventComplete, OnEventComplete);
-            LevelEvents.Singleton.Connect<Army, Unit>(LevelEvents.SignalName.ToggleDangerZone, ToggleDangerZone);
-            LevelEvents.Singleton.Connect<Army, Unit>(LevelEvents.SignalName.RemoveFromDangerZone, RemoveFromDangerZone);
 
             MusicController.ResetPlayback();
-        }
-    }
-
-    public override void _Process(double delta)
-    {
-        base._Process(delta);
-
-        if (!Engine.IsEditorHint())
-        {
-            State.ExpressionProperties = State.ExpressionProperties
-                .SetItem(OccupiedProperty, Grid.Occupants.GetValueOrDefault(Cursor.Cell) switch
-                {
-                    Unit unit when unit == _selected => SelectedOccuiped,
-                    Unit unit when _armies.Current.Faction == unit.Army.Faction => unit.Active ? ActiveAllyOccupied : InActiveAllyOccupied,
-                    Unit unit when _armies.Current.Faction.AlliedTo(unit.Army.Faction) => FriendlyOccuipied,
-                    Unit => EnemyOccupied,
-                    null => NotOccupied,
-                    _ => OtherOccupied
-                })
-                .SetItem(TargetProperty, Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit target &&
-                                          ((target != _selected && _armies.Current.Faction.AlliedTo(target) && ActionLayers[SupportLayer].Contains(Cursor.Cell)) ||
-                                           (!_armies.Current.Faction.AlliedTo(target) && ActionLayers[AttackLayer].Contains(Cursor.Cell))))
-                .SetItem(TraversableProperty, ActionLayers[MoveLayer].Contains(Cursor.Cell));
         }
     }
 #endregion

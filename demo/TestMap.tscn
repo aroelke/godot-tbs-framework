@@ -132,6 +132,7 @@ z_index = 100
 Faction = ExtResource("6_qur3m")
 
 [node name="PlayerController" parent="LevelManager/Player" instance=ExtResource("12_8av15")]
+ActionRangeTileSet = ExtResource("7_d17w6")
 
 [node name="PlayerA" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(192, 160)
@@ -368,5 +369,4 @@ StateChart = NodePath("../../LevelManager/Player/PlayerController/State")
 [connection signal="child_entered_tree" from="LevelManager/Ally" to="LevelManager" method="OnChildEnteredGroup"]
 
 [editable path="LevelManager"]
-[editable path="LevelManager/Pointer"]
 [editable path="LevelManager/Player/PlayerController"]

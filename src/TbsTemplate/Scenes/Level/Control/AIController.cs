@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Godot;
 using TbsTemplate.Extensions;
 using TbsTemplate.Scenes.Combat.Data;
+using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Scenes.Level.Control;
@@ -42,6 +43,7 @@ public partial class AIController : ArmyController
         public readonly int PathCost() => Unit.Behavior.GetPath(Unit, Closest).Cost;
     }
 
+    private Grid _grid = null;
     private Unit _selected = null;
     private Vector2I _destination = -Vector2I.One;
     private StringName _action = null;
@@ -49,10 +51,10 @@ public partial class AIController : ArmyController
 
     [Export] public DecisionType Decision = DecisionType.ClosestEnemy;
 
+    public override Grid Grid { get => _grid; set => _grid = value; }
+
     public override void InitializeTurn()
     {
-        Cursor.Halt(hide:true);
-
         _selected = null;
         _destination = -Vector2I.One;
         _action = null;
@@ -165,7 +167,7 @@ public partial class AIController : ArmyController
         // Also, use a collection expression to immediately evaluated it rather than waiting until later, because that will be in the
         // wrong thread.
         IEnumerable<Unit> available = [.. ((IEnumerable<Unit>)Army).Where(static (u) => u.Active)];
-        IEnumerable<Unit> enemies = Cursor.Grid.Occupants.Values.OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u));
+        IEnumerable<Unit> enemies = Grid.Occupants.Values.OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u));
 
         (_selected, _destination, _action, _target) = await Task.Run<(Unit, Vector2I, StringName, Unit)>(() => ComputeAction(available, enemies));
 

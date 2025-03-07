@@ -12,6 +12,10 @@ public partial class LevelEvents : Node
     /// <summary>Auto-loaded instance of <see cref="LevelEvents"/> in case instances methods are required.</summary>
     public static LevelEvents Singleton => AutoloadNodes.GetNode<LevelEvents>("LevelEvents");
 #region Level Manager
+    /// <summary>Signals that the region on the map the camera is allowed to see has been updated.</summary>
+    /// <param name="bounds">Rectangle bounding the camera movement.</param>
+    [Signal] public delegate void CameraBoundsUpdatedEventHandler(Rect2I bounds);
+
     /// <summary>Signals that an army's turn has begun.</summary>
     /// <param name="turn">Number of the turn that began.</param>
     /// <param name="army">Army whose turn began.</param>
@@ -30,16 +34,6 @@ public partial class LevelEvents : Node
 
     /// <summary>Signal that the camera should focus on the previous thing it was focusing on.</summary>
     [Signal] public delegate void RevertCameraFocusEventHandler();
-
-    /// <summary>Signal that a local or global danger zone should be toggled.</summary>
-    /// <param name="army">Army whose danger zone should be toggled.</param>
-    /// <param name="unit">Unit to remove from the local danger zone if present, or add if not. Use <c>null</c> for the global danger zone.</param>
-    [Signal] public delegate void ToggleDangerZoneEventHandler(Army army, Unit unit);
-
-    /// <summary>Signal that a unit should be removed from a local danger zone.</summary>
-    /// <param name="army">Army whose danger zone should be updated.</param>
-    /// <param name="unit">Unit to remove from the danger zone.</param>
-    [Signal] public delegate void RemoveFromDangerZoneEventHandler(Army army, Unit unit);
 #endregion
 #region Event Controller
     /// <summary>Signal that an event is complete, so the level can stop waiting for it.</summary>
