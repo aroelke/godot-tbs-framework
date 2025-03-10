@@ -570,9 +570,6 @@ public partial class LevelManager : Node
         if (!GetChildren().Any(static (c) => c is Army))
             warnings.Add("There are not any armies to assign units to.");
 
-        if (GetChildren().Count(static (c) => c is Army army && (army.Faction?.IsPlayer ?? false)) > 1)
-            warnings.Add("Multiple armies are player-controlled. Only the first one will be used for zone display.");
-
         // Make sure there's background music
         if (BackgroundMusic is null)
             warnings.Add("Background music hasn't been added. Whatever's playing will stop.");

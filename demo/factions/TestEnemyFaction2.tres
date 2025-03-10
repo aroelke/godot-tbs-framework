@@ -7,4 +7,3 @@ script = ExtResource("1_boe7q")
 Name = &"Enemy B"
 Color = Color(1, 0.831373, 0, 1)
 AllyPaths = PackedStringArray("res://demo/factions/TestEnemyFaction1.tres")
-IsPlayer = false

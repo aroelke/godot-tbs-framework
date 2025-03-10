@@ -7,4 +7,3 @@ script = ExtResource("1_swscj")
 Name = &"Player"
 Color = Color(0, 0.498039, 1, 1)
 AllyPaths = PackedStringArray("res://demo/factions/TestAllyFaction.tres")
-IsPlayer = true
