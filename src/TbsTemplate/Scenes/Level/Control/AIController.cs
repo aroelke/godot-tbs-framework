@@ -62,6 +62,48 @@ public partial class AIController : ArmyController
         return a;
     }
 
+    private static Grid ChooseBestMove(Unit enemy, IList<Unit> allies, Grid grid)
+    {
+        IEnumerable<Vector2I> destinations = allies[0].AttackableCells(enemy.Cell).Where((c) => allies[0].Behavior.Destinations(allies[0]).Contains(c));
+        if (!destinations.Any())
+            return ChooseBestMove(enemy, [.. allies.Skip(1)], grid);
+
+        Grid best = null;
+        foreach (Vector2I destination in destinations)
+        {
+            Grid current = DuplicateGrid(grid);
+            Unit actor = current.Occupants[allies[0].Cell] as Unit;
+            Unit target = current.Occupants[enemy.Cell] as Unit;
+
+            // move allies[0] clone to destination
+            actor.Cell = destination;
+            current.Occupants.Remove(allies[0].Cell);
+            current.Occupants[destination] = actor;
+
+            // attack target clone with allies[0] clone
+            List<CombatAction> results = CombatCalculations.AttackResults(actor, target);
+            for (int i = 0; i < results.Count && actor.Health.Value > 0 && target.Health.Value > 0; i++)
+                results[i].Target.Health.Value -= (int)Mathf.Round(results[i].Damage*CombatCalculations.HitChance(results[i].Actor, results[i].Target)/100f);
+
+            if (allies.Count > 1)
+                current = ChooseBestMove(target, [.. allies.Skip(1)], current);
+            if (best == null)
+                best = current;
+            else
+            {
+                Grid better = CompareGrids(best, current);
+                if (best != better)
+                {
+                    foreach ((_, GridNode node) in best.Occupants)
+                        node.Free();
+                    best.Free();
+                }
+                best = better;
+            }
+        }
+        return best;
+    }
+
     private Grid _grid = null;
     private Unit _selected = null;
     private Vector2I _destination = -Vector2I.One;
