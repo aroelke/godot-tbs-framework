@@ -43,6 +43,25 @@ public partial class AIController : ArmyController
         public readonly int PathCost() => Unit.Behavior.GetPath(Unit, Closest).Cost;
     }
 
+    private static Grid DuplicateGrid(Grid grid)
+    {
+        Grid copy = grid.Duplicate((int)(DuplicateFlags.Scripts | DuplicateFlags.UseInstantiation)) as Grid;
+        foreach ((Vector2I cell, GridNode occupant) in grid.Occupants)
+        {
+            GridNode clone = occupant.Duplicate((int)(DuplicateFlags.Scripts | DuplicateFlags.UseInstantiation)) as Unit;
+            if (clone is Unit u)
+                u.Army = u.Army;
+            copy.Occupants[cell] = clone;
+        }
+
+        return copy;
+    }
+
+    private static Grid CompareGrids(Grid a, Grid b)
+    {
+        return a;
+    }
+
     private Grid _grid = null;
     private Unit _selected = null;
     private Vector2I _destination = -Vector2I.One;
