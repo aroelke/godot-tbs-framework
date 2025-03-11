@@ -34,7 +34,7 @@ public static class Vector2IExtensions
     /// The Manhattan distance (sum of the absolute values of the differences in coordinates) between <paramref name="a"/> and
     /// <paramref name="b"/>.
     /// </returns>
-    public static int DistanceTo(this Vector2I a, Vector2I b) => (b - a).Abs().Sum();
+    public static int ManhattanDistanceTo(this Vector2I a, Vector2I b) => (b - a).Abs().Sum();
 
     /// <summary>Find the parallel and perpendicular projections of a <see cref="Vector2I"/> onto another.</summary>
     /// <returns>

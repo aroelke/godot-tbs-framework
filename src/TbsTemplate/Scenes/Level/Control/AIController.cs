@@ -181,7 +181,7 @@ public partial class AIController : ArmyController
             IEnumerable<Vector2I> destinations = selected.Behavior.Destinations(selected);
             Dictionary<StringName, IEnumerable<Vector2I>> actions = selected.Behavior.Actions(selected);
 
-            IEnumerable<Unit> attackable = actions.ContainsKey("Attack") ? actions["Attack"].Select((c) => selected.Grid.Occupants[c]).OfType<Unit>().OrderBy((u) => u.Cell.DistanceTo(selected.Cell)) : [];
+            IEnumerable<Unit> attackable = actions.ContainsKey("Attack") ? actions["Attack"].Select((c) => selected.Grid.Occupants[c]).OfType<Unit>().OrderBy((u) => u.Cell.ManhattanDistanceTo(selected.Cell)) : [];
             if (attackable.Any())
             {
                 action = "Attack";
