@@ -18,7 +18,8 @@ public partial class AIController : ArmyController
     public enum DecisionType
     {
         ClosestEnemy, // Activate units in order of proximity to their enemies
-        TargetLoop
+        TargetLoopHeuristic,
+        TargetLoopDuplication
     }
 
     private readonly record struct MoveEvaluation(Unit Unit, double Dealt, double Taken, Vector2I Closest)
@@ -167,7 +168,7 @@ public partial class AIController : ArmyController
                 action = "End";
             }
             break;
-        case DecisionType.TargetLoop:
+        case DecisionType.TargetLoopHeuristic:
             if (enemies.Any())
             {
                 // optimize for enemy unit with lowest remaining health
