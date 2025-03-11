@@ -440,7 +440,7 @@ public partial class AIControllerTestScene : Node
     [Test]
     public void TestLoopMovingSingleReachableEnemyRanged()
     {
-        Unit ally = CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Move = 5 }, behavior:new MoveBehavior());
+        Unit ally = CreateUnit(new(3, 2), attackRange:[1, 2], stats:new() { Move = 5 }, behavior:new MoveBehavior());
         Unit enemy = CreateUnit(new(4, 2));
         RunTest(AIController.DecisionType.TargetLoopHeuristic, [ally], [enemy],
             expectedSelected:    ally,
@@ -454,7 +454,7 @@ public partial class AIControllerTestScene : Node
     [Test]
     public void TestDupMovingSingleReachableEnemyRanged()
     {
-        Unit ally = CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Move = 5 }, behavior:new MoveBehavior());
+        Unit ally = CreateUnit(new(3, 2), attackRange:[1, 2], stats:new() { Move = 5 }, behavior:new MoveBehavior());
         Unit enemy = CreateUnit(new(4, 2));
         RunTest(AIController.DecisionType.TargetLoopDuplication, [ally], [enemy],
             expectedSelected:    ally,
