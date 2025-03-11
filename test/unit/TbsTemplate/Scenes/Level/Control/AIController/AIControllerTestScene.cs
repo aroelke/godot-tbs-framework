@@ -5,6 +5,7 @@ using Godot;
 using TbsTemplate.Data;
 using TbsTemplate.Extensions;
 using TbsTemplate.Scenes.Level.Control.Behavior;
+using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 
@@ -217,12 +218,19 @@ public partial class AIControllerTestScene : Node
     [Test]
     public void TestDupMovingNoEnemiesPresent()
     {
-        Unit ally = CreateUnit(new(3, 2), behavior:new MoveBehavior());
-        RunTest([ally], [],
-            expectedSelected:    ally,
-            expectedDestinations: [ally.Cell],
-            expectedAction:      "End"
-        );
+        Vector2I size = GetNode<Grid>("Grid").Size;
+        for (int i = 0; i < size.X; i++)
+        {
+            for (int j = 0; j < size.Y; j++)
+            {
+                Unit ally = CreateUnit(new(i, j), behavior:new MoveBehavior());
+                RunTest([ally], [],
+                    expectedSelected:    ally,
+                    expectedDestinations: [ally.Cell],
+                    expectedAction:      "End"
+                );
+            }
+        }
     }
 
     /// <summary>AI should choose the closest allowed destination when there are multiple options.</summary>
