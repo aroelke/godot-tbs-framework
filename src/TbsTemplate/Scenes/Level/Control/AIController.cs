@@ -51,18 +51,27 @@ public partial class AIController : ArmyController
         public static bool operator>(GridValue a, GridValue b) => a.CompareTo(b) > 0;
         public static bool operator<(GridValue a, GridValue b) => a.CompareTo(b) < 0;
 
-        public int HealthDifference { get
-        {
-            GridValue @this = this;
-            return @this.Grid.Occupants.Values.OfType<Unit>().Where((u) => !@this.Source.AlliedTo(u.Army.Faction)).Select(static (u) => u.Health.Maximum - u.Health.Value).Sum();
-        }}
+        private readonly IEnumerable<Unit> _enemies = Grid.Occupants.Values.OfType<Unit>().Where((u) => !@Source.AlliedTo(u.Army.Faction));
+
+        /// <summary>Difference between enemy units' current and maximum health, summed over all enemy units.  Higher is better.</summary>
+        public int HealthDifference => _enemies.Select(static (u) => u.Health.Maximum - u.Health.Value).Sum();
+
+        /// <summary>Least current health value among all enemy units. Lower is better.</summary>
+        public int LeastRemainingHealth => _enemies.Select(static (u) => u.Health.Value).Min();
 
         public int CompareTo(GridValue other)
         {
             if (HealthDifference > other.HealthDifference)
                 return 1;
             else if (HealthDifference == other.HealthDifference)
-                return 0;
+            {
+                if (LeastRemainingHealth < other.LeastRemainingHealth)
+                    return 1;
+                else if (LeastRemainingHealth == other.LeastRemainingHealth)
+                    return 0;
+                else
+                    return -1;
+            }
             else
                 return -1;
         }
