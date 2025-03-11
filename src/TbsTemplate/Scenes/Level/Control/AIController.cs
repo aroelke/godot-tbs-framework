@@ -16,36 +16,6 @@ namespace TbsTemplate.Scenes.Level.Control;
 /// <summary>Automatically controls units based on their <see cref="UnitBehavior"/>s and the state of the level.</summary>
 public partial class AIController : ArmyController
 {
-    public enum DecisionType
-    {
-        ClosestEnemy, // Activate units in order of proximity to their enemies
-        TargetLoopHeuristic,
-        TargetLoopDuplication
-    }
-
-    private readonly record struct MoveEvaluation(Unit Unit, double Dealt, double Taken, Vector2I Closest)
-    {
-        public static bool operator >(MoveEvaluation a, MoveEvaluation b)
-        {
-            if (a.Dealt > b.Dealt)
-                return true;
-            else if (a.Dealt == b.Dealt && a.PathCost() < b.PathCost())
-                return true;
-            else
-                return false;
-        }
-        public static bool operator <(MoveEvaluation a, MoveEvaluation b) => a != b && !(a > b);
-
-        public readonly void Deconstruct(out double dealt, out double taken, out Vector2I closest)
-        {
-            dealt = Dealt;
-            taken = Taken;
-            closest = Closest;
-        }
-
-        public readonly int PathCost() => Unit.Behavior.GetPath(Unit, Closest).Cost;
-    }
-
     private readonly record struct GridValue(Faction Source, Grid Grid) : IComparable<GridValue>
     {
         public static bool operator>(GridValue a, GridValue b) => a.CompareTo(b) > 0;
@@ -154,8 +124,6 @@ public partial class AIController : ArmyController
         return (best, move);
     }
 
-    [Export] public DecisionType Decision = DecisionType.ClosestEnemy;
-
     public override Grid Grid { get => _grid; set => _grid = value; }
 
     public override void InitializeTurn()
@@ -173,134 +141,43 @@ public partial class AIController : ArmyController
         StringName action = null;
         Unit target = null;
 
-        switch (Decision)
+        Grid best = null;
+        foreach (Unit enemy in enemies)
         {
-        case DecisionType.ClosestEnemy:
+            IEnumerable<Unit> attackers = available.Where((u) => {
+                Dictionary<StringName, IEnumerable<Vector2I>> actions = u.Behavior.Actions(u);
+                return actions.ContainsKey("Attack") && actions["Attack"].Contains(enemy.Cell);
+            });
+
+            foreach (IList<Unit> permutation in attackers.Permutations())
+            {
+                (Grid current, Vector2I move) = ChooseBestMove(enemy, permutation, Grid);
+                if (best is null || new GridValue(Army.Faction, current) > new GridValue(Army.Faction, best))
+                {
+                    if (best is not null)
+                        CleanUpGrid(best);
+                    best = current;
+                    selected = permutation[0];
+                    destination = move;
+                    action = "Attack";
+                    target = enemy;
+                }
+                else
+                    CleanUpGrid(current);
+            }
+        }
+
+        // If no one has been selected yet, just pick the unit closest to an enemy
+        if (selected is null)
+        {
             selected = enemies.Any() ? available.MinBy((u) => enemies.Select((e) => u.Cell.DistanceTo(e.Cell)).Min()) : available.First();
+            action = "End";
 
-            IEnumerable<Vector2I> destinations = selected.Behavior.Destinations(selected);
-            Dictionary<StringName, IEnumerable<Vector2I>> actions = selected.Behavior.Actions(selected);
-
-            IEnumerable<Unit> attackable = actions.ContainsKey("Attack") ? actions["Attack"].Select((c) => selected.Grid.Occupants[c]).OfType<Unit>().OrderBy((u) => u.Cell.ManhattanDistanceTo(selected.Cell)) : [];
-            if (attackable.Any())
-            {
-                action = "Attack";
-                target = attackable.First();
-                destination = selected.AttackableCells(target.Cell).Where(destinations.Contains).OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).First();
-            }
+            IEnumerable<Unit> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Cell));
+            if (ordered.Any())
+                destination = selected.Behavior.Destinations(selected).OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
             else
-            {
-                IEnumerable<Unit> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Cell));
-                if (ordered.Any())
-                    destination = destinations.OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
-                else
-                    destination = selected.Cell;
-                action = "End";
-            }
-            break;
-        case DecisionType.TargetLoopHeuristic:
-            if (enemies.Any())
-            {
-                // optimize for enemy unit with lowest remaining health
-                double hurt = double.PositiveInfinity;
-                foreach (Unit enemy in enemies.OrderBy((u) => u.Health.Value))
-                {
-                    IEnumerable<Unit> attackers = available.Where((u) => {
-                        Dictionary<StringName, IEnumerable<Vector2I>> actions = u.Behavior.Actions(u);
-                        return actions.ContainsKey("Attack") && actions["Attack"].Contains(enemy.Cell);
-                    });
-
-                    foreach (IList<Unit> permutation in attackers.Permutations())
-                    {
-                        MoveEvaluation EvaluateAction(IList<Unit> units, IImmutableSet<Vector2I> blocked=null)
-                        {
-                            if (units.Count == 0)
-                                return new(null, 0, 0, Vector2I.Zero);
-
-                            blocked ??= [];
-                            MoveEvaluation best = new(units[0], 0, 0, units[0].Cell);
-
-                            foreach (Vector2I destination in units[0].AttackableCells(enemy.Cell).Where((c) => units[0].Behavior.Destinations(units[0]).Contains(c) && !blocked.Contains(c)))
-                            {
-                                MoveEvaluation next = EvaluateAction([.. units.Skip(1)], blocked.Add(destination));
-                                MoveEvaluation evaluation = new(best.Unit, next.Dealt + CombatCalculations.TotalExpectedDamage(enemy, CombatCalculations.AttackResults(best.Unit, enemy)), 0, destination);
-                                if (evaluation > best)
-                                    best = evaluation;
-                            }
-
-                            return best;
-                        }
-
-                        (double damage, _, Vector2I source) = EvaluateAction(permutation);
-                        double remaining = enemy.Health.Value - damage;
-
-                        if (selected is null || remaining < hurt)
-                        {
-                            selected = permutation[0];
-                            action = "Attack";
-                            destination = source;
-                            target = enemy;
-                            hurt = remaining;
-                        }
-                    }
-                }
-            }
-
-            // If no one has been selected yet, just pick the unit closest to an enemy
-            if (selected is null)
-            {
-                selected = enemies.Any() ? available.MinBy((u) => enemies.Select((e) => u.Cell.DistanceTo(e.Cell)).Min()) : available.First();
-                action = "End";
-
-                IEnumerable<Unit> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Cell));
-                if (ordered.Any())
-                    destination = selected.Behavior.Destinations(selected).OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
-                else
-                    destination = selected.Cell;
-            }
-            break;
-        case DecisionType.TargetLoopDuplication:
-            Grid best = null;
-            foreach (Unit enemy in enemies)
-            {
-                IEnumerable<Unit> attackers = available.Where((u) => {
-                    Dictionary<StringName, IEnumerable<Vector2I>> actions = u.Behavior.Actions(u);
-                    return actions.ContainsKey("Attack") && actions["Attack"].Contains(enemy.Cell);
-                });
-
-                foreach (IList<Unit> permutation in attackers.Permutations())
-                {
-                    (Grid current, Vector2I move) = ChooseBestMove(enemy, permutation, Grid);
-                    if (best is null || new GridValue(Army.Faction, current) > new GridValue(Army.Faction, best))
-                    {
-                        if (best is not null)
-                            CleanUpGrid(best);
-                        best = current;
-                        selected = permutation[0];
-                        destination = move;
-                        action = "Attack";
-                        target = enemy;
-                    }
-                    else
-                        CleanUpGrid(current);
-                }
-            }
-
-            // If no one has been selected yet, just pick the unit closest to an enemy
-            if (selected is null)
-            {
-                selected = enemies.Any() ? available.MinBy((u) => enemies.Select((e) => u.Cell.DistanceTo(e.Cell)).Min()) : available.First();
-                action = "End";
-
-                IEnumerable<Unit> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Cell));
-                if (ordered.Any())
-                    destination = selected.Behavior.Destinations(selected).OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
-                else
-                    destination = selected.Cell;
-            }
-            break;
-        default:
-            break;
+                destination = selected.Cell;
         }
 
         return (selected, destination, action, target);
