@@ -145,7 +145,20 @@ public partial class AIControllerTestScene : Node
     {
         Unit[] allies = [CreateUnit(new(0, 1)), CreateUnit(new(1, 2)), CreateUnit(new(0, 3))];
         Unit[] enemies = [CreateUnit(new(6, 2))];
-        RunTest(AIController.DecisionType.ClosestEnemy, allies, enemies,
+        RunTest(AIController.DecisionType.TargetLoopHeuristic, allies, enemies,
+            expectedSelected:    allies[1],
+            expectedDestination: allies[1].Cell,
+            expectedAction:      "End"
+        );
+    }
+
+    /// <summary><see cref="AIController.DecisionType.TargetLoopDuplication"/>: AI should choose its unit closest to any enemy and no enemies are in range to attack.</summary>
+    [Test]
+    public void TestDupStandingNoEnemiesInRange()
+    {
+        Unit[] allies = [CreateUnit(new(0, 1)), CreateUnit(new(1, 2)), CreateUnit(new(0, 3))];
+        Unit[] enemies = [CreateUnit(new(6, 2))];
+        RunTest(AIController.DecisionType.TargetLoopDuplication, allies, enemies,
             expectedSelected:    allies[1],
             expectedDestination: allies[1].Cell,
             expectedAction:      "End"
@@ -180,6 +193,20 @@ public partial class AIControllerTestScene : Node
         );
     }
 
+    /// <summary><see cref="AIController.DecisionType.TargetLoopDuplication"/>: AI should choose to attack the enemy with the lower HP when it deals the same damage to all enemies.</summary>
+    [Test]
+    public void TestDupStandingSingleAllyMultipleEnemiesSameDamage()
+    {
+        Unit[] allies = [CreateUnit(new(3, 2), attackRange:[1, 2], behavior:new StandBehavior() { AttackInRange = true })];
+        Unit[] enemies = [CreateUnit(new(2, 1), hp:(10, 5)), CreateUnit(new(2, 2), hp:(10, 10))];
+        RunTest(AIController.DecisionType.TargetLoopDuplication, allies, enemies,
+            expectedSelected:    allies[0],
+            expectedDestination: allies[0].Cell,
+            expectedAction:      "Attack",
+            expectedTarget:      enemies[0]
+        );
+    }
+
     /// <summary><see cref="AIController.DecisionType.TargetLoopHeuristic"/>: AI should choose to attack the enemy it can do more damage to when enemies have the same HP.</summary>
     [Test]
     public void TestLoopStandingSingleAllyMultipleEnemiesDifferentDamage()
@@ -194,6 +221,20 @@ public partial class AIControllerTestScene : Node
         );
     }
 
+    /// <summary><see cref="AIController.DecisionType.TargetLoopDuplication"/>: AI should choose to attack the enemy it can do more damage to when enemies have the same HP.</summary>
+    [Test]
+    public void TestDupStandingSingleAllyMultipleEnemiesDifferentDamage()
+    {
+        Unit[] allies = [CreateUnit(new(3, 2), attackRange:[1, 2], stats:new() { Attack = 5 }, behavior:new StandBehavior() { AttackInRange = true })];
+        Unit[] enemies = [CreateUnit(new(2, 1), stats:new() { Defense = 3 }), CreateUnit(new(2, 2), stats:new() { Defense = 0 })];
+        RunTest(AIController.DecisionType.TargetLoopDuplication, allies, enemies,
+            expectedSelected:    allies[0],
+            expectedDestination: allies[0].Cell,
+            expectedAction:      "Attack",
+            expectedTarget:      enemies[1]
+        );
+    }
+
     /// <summary><see cref="AIController.DecisionType.TargetLoopHeuristic"/>: AI should choose to attack the enemy it can bring to the lowest HP regardless of current HP or damage.</summary>
     [Test]
     public void TestLoopStandingSingleAllyMultipleEnemiesDifferentEndHealth()
@@ -201,6 +242,20 @@ public partial class AIControllerTestScene : Node
         Unit[] allies = [CreateUnit(new(3, 2), attackRange:[1, 2], stats:new() { Attack = 5 }, behavior:new StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), hp:(10, 5), stats:new() { Health = 10, Defense = 3 }), CreateUnit(new(2, 2), hp:(10, 10), stats:new() { Health = 10, Defense = 0 })];
         RunTest(AIController.DecisionType.TargetLoopHeuristic, allies, enemies,
+            expectedSelected:    allies[0],
+            expectedDestination: allies[0].Cell,
+            expectedAction:      "Attack",
+            expectedTarget:      enemies[0]
+        );
+    }
+
+    /// <summary><see cref="AIController.DecisionType.TargetLoopDuplication"/>: AI should choose to attack the enemy it can bring to the lowest HP regardless of current HP or damage.</summary>
+    [Test]
+    public void TestDupStandingSingleAllyMultipleEnemiesDifferentEndHealth()
+    {
+        Unit[] allies = [CreateUnit(new(3, 2), attackRange:[1, 2], stats:new() { Attack = 5 }, behavior:new StandBehavior() { AttackInRange = true })];
+        Unit[] enemies = [CreateUnit(new(2, 1), hp:(10, 5), stats:new() { Health = 10, Defense = 3 }), CreateUnit(new(2, 2), hp:(10, 10), stats:new() { Health = 10, Defense = 0 })];
+        RunTest(AIController.DecisionType.TargetLoopDuplication, allies, enemies,
             expectedSelected:    allies[0],
             expectedDestination: allies[0].Cell,
             expectedAction:      "Attack",
@@ -225,6 +280,23 @@ public partial class AIControllerTestScene : Node
         );
     }
 
+    /// <summary><see cref="AIController.DecisionType.TargetLoopDuplication"/>: AI should choose the unit that can attack the enemy, even though it's further away.</summary>
+    [Test]
+    public void TestDupStandingMultipleAlliesSingleEnemyOnlyOneInRange()
+    {
+        Unit[] allies = [
+            CreateUnit(new(2, 1), attackRange:[1], behavior:new StandBehavior { AttackInRange = true }),
+            CreateUnit(new(2, 4), attackRange:[3], behavior:new StandBehavior { AttackInRange = true })
+        ];
+        Unit[] enemies = [CreateUnit(new(3, 2))];
+        RunTest(AIController.DecisionType.TargetLoopDuplication, allies, enemies,
+            expectedSelected:    allies[1],
+            expectedDestination: allies[1].Cell,
+            expectedAction:      "Attack",
+            expectedTarget:      enemies[0]
+        );
+    }
+
     /// <summary><see cref="AIController.DecisionType.TargetLoopHeuristic"/>: AI should choose the target it can kill with its units, even if one of its units can do more damage to a different one.</summary>
     [Test]
     public void TestLoopStandingMultipleAlliesMultipleEnemiesOneCanBeKilled()
@@ -238,6 +310,25 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(1, 2), stats:new() { Defense = 2 })
         ];
         RunTest(AIController.DecisionType.TargetLoopHeuristic, allies, enemies,
+            expected:            allies.ToDictionary((u) => u, (u) => u.Cell),
+            expectedAction:      "Attack",
+            expectedTarget:      enemies[1]
+        );
+    }
+
+    /// <summary><see cref="AIController.DecisionType.TargetLoopDuplication"/>: AI should choose the target it can kill with its units, even if one of its units can do more damage to a different one.</summary>
+    [Test]
+    public void TestDupStandingMultipleAlliesMultipleEnemiesOneCanBeKilled()
+    {
+        Unit[] allies = [
+            CreateUnit(new(0, 1), attackRange:[1, 2], stats:new() { Attack = 7 }, behavior:new StandBehavior() { AttackInRange = true }),
+            CreateUnit(new(0, 2), attackRange:[1],    stats:new() { Attack = 7 }, behavior:new StandBehavior() { AttackInRange = true })
+        ];
+        Unit[] enemies = [
+            CreateUnit(new(1, 1), stats:new() { Defense = 0 }),
+            CreateUnit(new(1, 2), stats:new() { Defense = 2 })
+        ];
+        RunTest(AIController.DecisionType.TargetLoopDuplication, allies, enemies,
             expected:            allies.ToDictionary((u) => u, (u) => u.Cell),
             expectedAction:      "Attack",
             expectedTarget:      enemies[1]
@@ -268,6 +359,21 @@ public partial class AIControllerTestScene : Node
     {
         Unit ally = CreateUnit(new(3, 2), behavior:new MoveBehavior());
         RunTest(AIController.DecisionType.TargetLoopHeuristic, [ally], [],
+            expectedSelected:    ally,
+            expectedDestination: ally.Cell,
+            expectedAction:      "End"
+        );
+    }
+
+    /// <summary>
+    /// <see cref="AIController.DecisionType.TargetLoopDuplication"/>: AI should be able to choose an action when there aren't enemies.  It also should keep the chosen unit in place even if that unit
+    /// could move.
+    // </summary>
+    [Test]
+    public void TestDupMovingNoEnemiesPresent()
+    {
+        Unit ally = CreateUnit(new(3, 2), behavior:new MoveBehavior());
+        RunTest(AIController.DecisionType.TargetLoopDuplication, [ally], [],
             expectedSelected:    ally,
             expectedDestination: ally.Cell,
             expectedAction:      "End"
@@ -316,6 +422,20 @@ public partial class AIControllerTestScene : Node
         );
     }
 
+    /// <summary><see cref="AIController.DecisionType.TargetLoopDuplication"/>: AI should choose the closest allowed destination when there are multiple options.</summary>
+    [Test]
+    public void TestDupMovingSingleReachableEnemy()
+    {
+        Unit ally = CreateUnit(new(1, 2), attackRange:[1], stats:new() { Move = 5 }, behavior:new MoveBehavior());
+        Unit enemy = CreateUnit(new(4, 2));
+        RunTest(AIController.DecisionType.TargetLoopDuplication, [ally], [enemy],
+            expectedSelected:    ally,
+            expectedDestination: new(3, 2),
+            expectedAction:      "Attack",
+            expectedTarget:      enemy
+        );
+    }
+
     /// <summary><see cref="AIController.DecisionType.TargetLoopHeuristic"/>: AI should choose the square at the furthest range it could attack its target.</summary>
     [Test]
     public void TestLoopMovingSingleReachableEnemyRanged()
@@ -323,6 +443,20 @@ public partial class AIControllerTestScene : Node
         Unit ally = CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Move = 5 }, behavior:new MoveBehavior());
         Unit enemy = CreateUnit(new(4, 2));
         RunTest(AIController.DecisionType.TargetLoopHeuristic, [ally], [enemy],
+            expectedSelected:    ally,
+            expectedDestination: new(2, 2),
+            expectedAction:      "Attack",
+            expectedTarget:      enemy
+        );
+    }
+
+    /// <summary><see cref="AIController.DecisionType.TargetLoopDuplication"/>: AI should choose the square at the furthest range it could attack its target.</summary>
+    [Test]
+    public void TestDupMovingSingleReachableEnemyRanged()
+    {
+        Unit ally = CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Move = 5 }, behavior:new MoveBehavior());
+        Unit enemy = CreateUnit(new(4, 2));
+        RunTest(AIController.DecisionType.TargetLoopDuplication, [ally], [enemy],
             expectedSelected:    ally,
             expectedDestination: new(2, 2),
             expectedAction:      "Attack",
@@ -370,6 +504,19 @@ public partial class AIControllerTestScene : Node
         );
     }
 
+    /// <summary><see cref="AIController.DecisionType.TargetLoopDuplication"/>: AI should choose the traversable cell closest to any enemy when it can't attack anything.</summary>
+    [Test]
+    public void TestDupMovingSingleUnreachableEnemy()
+    {
+        Unit ally = CreateUnit(new(0, 2), attackRange:[1], stats:new() { Move = 3 }, behavior:new MoveBehavior());
+        Unit enemy = CreateUnit(new(5, 2));
+        RunTest(AIController.DecisionType.TargetLoopDuplication, [ally], [enemy],
+            expectedSelected:    ally,
+            expectedDestination: new(3, 2),
+            expectedAction:      "End"
+        );
+    }
+
     /// <summary><see cref="AIController.DecisionType.TargetLoopHeuristic"/>: AI should not block other allies from attacking when making ordering decisions.</summary>
     [Test]
     public void TestLoopDontBlockAllies()
@@ -386,13 +533,29 @@ public partial class AIControllerTestScene : Node
         );
     }
 
-    /// <summary><see cref="AIController.DecisionType.TargetLoopHeuristic"/>: AI should attack from a space that its target can't retaliate from, even if it's not the furthest one.</summary>
+    /// <summary><see cref="AIController.DecisionType.TargetLoopDuplication"/>: AI should not block other allies from attacking when making ordering decisions.</summary>
     [Test]
-    public void TestLoopMinimizeRetaliationDamageViaPositioning()
+    public void TestDupDontBlockAllies()
+    {
+        Unit[] allies = [
+            CreateUnit(new(0, 2), attackRange:[1, 2], stats:new() { Move = 4 }, behavior:new MoveBehavior()),
+            CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Move = 4 }, behavior:new MoveBehavior())
+        ];
+        Unit enemy = CreateUnit(new(6, 2), stats:new() { Attack = 0 });
+        RunTest(AIController.DecisionType.TargetLoopDuplication, allies, [enemy],
+            expected: new() {{ allies[0], new(4, 2) }, { allies[1], new(5, 2) }},
+            expectedAction: "Attack",
+            expectedTarget: enemy
+        );
+    }
+
+    /// <summary><see cref="AIController.DecisionType.TargetLoopDuplication"/>: AI should attack from a space that its target can't retaliate from, even if it's not the furthest one.</summary>
+    [Test]
+    public void TestDupMinimizeRetaliationDamageViaPositioning()
     {
         Unit ally = CreateUnit(new(1, 2), attackRange:[1, 2], behavior:new MoveBehavior());
         Unit enemy = CreateUnit(new(5, 2), attackRange:[2]);
-        RunTest(AIController.DecisionType.TargetLoopHeuristic, [ally], [enemy],
+        RunTest(AIController.DecisionType.TargetLoopDuplication, [ally], [enemy],
             expectedSelected: enemy,
             expectedDestination: new(4, 2),
             expectedAction: "Attack",
@@ -400,16 +563,16 @@ public partial class AIControllerTestScene : Node
         );
     }
 
-    /// <summary><see cref="AIController.DecisionType.TargetLoopHeuristic"/>: AI should attack in the order that reduces retaliation damage to its units.</summary>
+    /// <summary><see cref="AIController.DecisionType.TargetLoopDuplication"/>: AI should attack in the order that reduces retaliation damage to its units.</summary>
     [Test]
-    public void TestLoopMinimizeRetaliationDamageViaDeath()
+    public void TestDupMinimizeRetaliationDamageViaDeath()
     {
         Unit[] allies = [
             CreateUnit(new(0, 2), attackRange:[1, 2], stats:new() { Attack = 5, Move = 4 }, behavior:new MoveBehavior()),
             CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Attack = 5, Move = 4 }, behavior:new MoveBehavior())
         ];
         Unit enemy = CreateUnit(new(6, 2), attackRange:[1], stats:new() { Health = 10, Attack = 5, Defense = 0 }, hp:(10, 10));
-        RunTest(AIController.DecisionType.TargetLoopHeuristic, allies, [enemy],
+        RunTest(AIController.DecisionType.TargetLoopDuplication, allies, [enemy],
             expectedSelected: allies[0],
             expectedDestination: new(4, 2),
             expectedAction: "Attack",
@@ -417,16 +580,16 @@ public partial class AIControllerTestScene : Node
         );
     }
 
-    /// <summary><see cref="AIController.DecisionType.TargetLoopHeuristic"/>: AI should attack in the order that reduces the number of allies that die in retaliation regardless of damage dealt.</summary>
+    /// <summary><see cref="AIController.DecisionType.TargetLoopDuplication"/>: AI should attack in the order that reduces the number of allies that die in retaliation regardless of damage dealt.</summary>
     [Test]
-    public void TestLoopMinimizeAllyDeaths()
+    public void TestDupMinimizeAllyDeaths()
     {
         Unit[] allies = [
             CreateUnit(new(0, 2), attackRange:[1, 2], stats:new() { Health = 10, Attack = 3, Defense = 0, Move = 4 }, hp:(10, 10), behavior:new MoveBehavior()),
             CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Health = 10, Attack = 3, Defense = 3, Move = 4 }, hp:(10, 5), behavior:new MoveBehavior())
         ];
         Unit enemy = CreateUnit(new(6, 2), attackRange:[1, 2], stats:new() { Health = 10, Attack = 8, Defense = 0 }, hp:(10, 10));
-        RunTest(AIController.DecisionType.TargetLoopHeuristic, allies, [enemy],
+        RunTest(AIController.DecisionType.TargetLoopDuplication, allies, [enemy],
             expectedSelected: allies[0],
             expectedDestination: new(4, 2),
             expectedAction: "Attack",
