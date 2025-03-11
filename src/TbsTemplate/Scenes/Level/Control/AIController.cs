@@ -59,6 +59,13 @@ public partial class AIController : ArmyController
         return copy;
     }
 
+    static void CleanUpGrid(Grid grid)
+    {
+        foreach ((_, GridNode node) in grid.Occupants)
+            node.Free();
+        grid.Free();
+    }
+
     private Grid _grid = null;
     private Unit _selected = null;
     private Vector2I _destination = -Vector2I.One;
@@ -76,13 +83,19 @@ public partial class AIController : ArmyController
         return value;
     }
 
-    private Grid ChooseBestMove(Unit enemy, IList<Unit> allies, Grid grid)
+    private (Grid, Vector2I) ChooseBestMove(Unit enemy, IList<Unit> allies, Grid grid)
     {
         IEnumerable<Vector2I> destinations = allies[0].AttackableCells(enemy.Cell).Where((c) => allies[0].Behavior.Destinations(allies[0]).Contains(c));
         if (!destinations.Any())
-            return ChooseBestMove(enemy, [.. allies.Skip(1)], grid);
+        {
+            if (allies.Count > 1)
+                return ChooseBestMove(enemy, [.. allies.Skip(1)], DuplicateGrid(grid));
+            else
+                return (DuplicateGrid(grid), allies[0].Cell);
+        }
 
         Grid best = null;
+        Vector2I move = -Vector2I.One;
         foreach (Vector2I destination in destinations)
         {
             Grid current = DuplicateGrid(grid);
@@ -100,18 +113,14 @@ public partial class AIController : ArmyController
                 results[i].Target.Health.Value -= (int)Mathf.Round(results[i].Damage*CombatCalculations.HitChance(results[i].Actor, results[i].Target)/100f);
 
             if (allies.Count > 1)
-                current = ChooseBestMove(target, [.. allies.Skip(1)], current);
+                (current, move) = ChooseBestMove(target, [.. allies.Skip(1)], current);
             if (best == null)
+            {
                 best = current;
+                move = destination;
+            }
             else
             {
-                static void CleanUpGrid(Grid grid)
-                {
-                    foreach ((_, GridNode node) in grid.Occupants)
-                        node.Free();
-                    grid.Free();
-                }
-
                 if (EvaluateGrid(current) > EvaluateGrid(best))
                 {
                     CleanUpGrid(best);
@@ -121,7 +130,7 @@ public partial class AIController : ArmyController
                     CleanUpGrid(current);
             }
         }
-        return best;
+        return (best, move);
     }
 
     [Export] public DecisionType Decision = DecisionType.ClosestEnemy;
@@ -172,7 +181,7 @@ public partial class AIController : ArmyController
             if (enemies.Any())
             {
                 // optimize for enemy unit with lowest remaining health
-                double best = double.PositiveInfinity;
+                double hurt = double.PositiveInfinity;
                 foreach (Unit enemy in enemies.OrderBy((u) => u.Health.Value))
                 {
                     IEnumerable<Unit> attackers = available.Where((u) => {
@@ -204,15 +213,55 @@ public partial class AIController : ArmyController
                         (double damage, _, Vector2I source) = EvaluateAction(permutation);
                         double remaining = enemy.Health.Value - damage;
 
-                        if (selected is null || remaining < best)
+                        if (selected is null || remaining < hurt)
                         {
                             selected = permutation[0];
                             action = "Attack";
                             destination = source;
                             target = enemy;
-                            best = remaining;
+                            hurt = remaining;
                         }
                     }
+                }
+            }
+
+            // If no one has been selected yet, just pick the unit closest to an enemy
+            if (selected is null)
+            {
+                selected = enemies.Any() ? available.MinBy((u) => enemies.Select((e) => u.Cell.DistanceTo(e.Cell)).Min()) : available.First();
+                action = "End";
+
+                IEnumerable<Unit> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Cell));
+                if (ordered.Any())
+                    destination = selected.Behavior.Destinations(selected).OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
+                else
+                    destination = selected.Cell;
+            }
+            break;
+        case DecisionType.TargetLoopDuplication:
+            Grid best = null;
+            foreach (Unit enemy in enemies)
+            {
+                IEnumerable<Unit> attackers = available.Where((u) => {
+                    Dictionary<StringName, IEnumerable<Vector2I>> actions = u.Behavior.Actions(u);
+                    return actions.ContainsKey("Attack") && actions["Attack"].Contains(enemy.Cell);
+                });
+
+                foreach (IList<Unit> permutation in attackers.Permutations())
+                {
+                    (Grid current, Vector2I move) = ChooseBestMove(enemy, permutation, Grid);
+                    if (best is null || EvaluateGrid(current) > EvaluateGrid(best))
+                    {
+                        if (best is not null)
+                            CleanUpGrid(best);
+                        best = current;
+                        selected = permutation[0];
+                        destination = move;
+                        action = "Attack";
+                        target = enemy;
+                    }
+                    else
+                        CleanUpGrid(current);
                 }
             }
 
