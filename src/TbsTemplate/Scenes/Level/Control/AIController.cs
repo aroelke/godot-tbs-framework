@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Godot;
+using TbsTemplate.Data;
 using TbsTemplate.Extensions;
 using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.Scenes.Level.Map;
@@ -46,30 +46,23 @@ public partial class AIController : ArmyController
         public readonly int PathCost() => Unit.Behavior.GetPath(Unit, Closest).Cost;
     }
 
-    private readonly record struct GridValue(Grid Grid) : IComparable<GridValue>
+    private readonly record struct GridValue(Faction Source, Grid Grid) : IComparable<GridValue>
     {
         public static bool operator>(GridValue a, GridValue b) => a.CompareTo(b) > 0;
         public static bool operator<(GridValue a, GridValue b) => a.CompareTo(b) < 0;
 
-        /// <summary>Difference between each enemy's current health and max health, summed over all enemy units. Higher is better.</summary>
-        public int HealthDifference => Grid.Occupants.Values.OfType<Unit>().Select((u) => u.Health.Maximum - u.Health.Value).Sum();
-
-        /// <summary>Least health of any enemy unit. Lower is better.</summary>
-        public int LeastHealth => Grid.Occupants.Values.OfType<Unit>().Select((u) => u.Health.Value).Min();
+        public int HealthDifference { get
+        {
+            GridValue @this = this;
+            return @this.Grid.Occupants.Values.OfType<Unit>().Where((u) => !@this.Source.AlliedTo(u.Army.Faction)).Select(static (u) => u.Health.Maximum - u.Health.Value).Sum();
+        }}
 
         public int CompareTo(GridValue other)
         {
             if (HealthDifference > other.HealthDifference)
                 return 1;
             else if (HealthDifference == other.HealthDifference)
-            {
-                if (LeastHealth < other.LeastHealth)
-                    return 1;
-                else if (LeastHealth == other.LeastHealth)
-                    return 0;
-                else
-                    return -1;
-            }
+                return 0;
             else
                 return -1;
         }
@@ -143,7 +136,7 @@ public partial class AIController : ArmyController
             }
             else
             {
-                if (new GridValue(current) > new GridValue(best))
+                if (new GridValue(Army.Faction, current) > new GridValue(Army.Faction, best))
                 {
                     CleanUpGrid(best);
                     best = current;
@@ -272,7 +265,7 @@ public partial class AIController : ArmyController
                 foreach (IList<Unit> permutation in attackers.Permutations())
                 {
                     (Grid current, Vector2I move) = ChooseBestMove(enemy, permutation, Grid);
-                    if (best is null || new GridValue(current) > new GridValue(best))
+                    if (best is null || new GridValue(Army.Faction, current) > new GridValue(Army.Faction, best))
                     {
                         if (best is not null)
                             CleanUpGrid(best);
