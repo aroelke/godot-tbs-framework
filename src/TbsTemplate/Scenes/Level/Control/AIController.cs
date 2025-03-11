@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Godot;
 using TbsTemplate.Extensions;
@@ -45,6 +46,16 @@ public partial class AIController : ArmyController
         public readonly int PathCost() => Unit.Behavior.GetPath(Unit, Closest).Cost;
     }
 
+    private readonly record struct GridValue(Grid Grid) : IComparable<GridValue>
+    {
+        public static bool operator>(GridValue a, GridValue b) => a.CompareTo(b) > 1;
+        public static bool operator<(GridValue a, GridValue b) => a.CompareTo(b) < 1;
+
+        public int HealthRemaining => Grid.Occupants.Values.OfType<Unit>().Select((u) => u.Health.Maximum - u.Health.Value).Sum();
+
+        public int CompareTo(GridValue other) => HealthRemaining - other.HealthRemaining;
+    }
+
     private static Grid DuplicateGrid(Grid grid)
     {
         Grid copy = grid.Duplicate((int)(DuplicateFlags.Scripts | DuplicateFlags.UseInstantiation)) as Grid;
@@ -74,17 +85,6 @@ public partial class AIController : ArmyController
     private Vector2I _destination = -Vector2I.One;
     private StringName _action = null;
     private Unit _target = null;
-
-    private int EvaluateGrid(Grid grid)
-    {
-        int value = 0;
-        foreach ((_, GridNode node) in grid.Occupants)
-        {
-            if (node is Unit unit && !unit.Army.Faction.AlliedTo(Army.Faction))
-                value += unit.Health.Maximum - unit.Health.Value;
-        }
-        return value;
-    }
 
     private (Grid, Vector2I) ChooseBestMove(Unit enemy, IList<Unit> allies, Grid grid)
     {
@@ -124,7 +124,7 @@ public partial class AIController : ArmyController
             }
             else
             {
-                if (EvaluateGrid(current) > EvaluateGrid(best))
+                if (new GridValue(current) > new GridValue(best))
                 {
                     CleanUpGrid(best);
                     best = current;
@@ -253,7 +253,7 @@ public partial class AIController : ArmyController
                 foreach (IList<Unit> permutation in attackers.Permutations())
                 {
                     (Grid current, Vector2I move) = ChooseBestMove(enemy, permutation, Grid);
-                    if (best is null || EvaluateGrid(current) > EvaluateGrid(best))
+                    if (best is null || new GridValue(current) > new GridValue(best))
                     {
                         if (best is not null)
                             CleanUpGrid(best);
