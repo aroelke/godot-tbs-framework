@@ -8,6 +8,7 @@ using TbsTemplate.Extensions;
 using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
+using TbsTemplate.Scenes.Level.Object.Group;
 
 namespace TbsTemplate.Scenes.Level.Control;
 
@@ -57,12 +58,24 @@ public partial class AIController : ArmyController
         return copy;
     }
 
-    private static Grid CompareGrids(Grid a, Grid b)
+    private Grid _grid = null;
+    private Unit _selected = null;
+    private Vector2I _destination = -Vector2I.One;
+    private StringName _action = null;
+    private Unit _target = null;
+
+    private int EvaluateGrid(Grid grid)
     {
-        return a;
+        int value = 0;
+        foreach ((_, GridNode node) in grid.Occupants)
+        {
+            if (node is Unit unit && !unit.Army.Faction.AlliedTo(Army.Faction))
+                value += unit.Health.Maximum - unit.Health.Value;
+        }
+        return value;
     }
 
-    private static Grid ChooseBestMove(Unit enemy, IList<Unit> allies, Grid grid)
+    private Grid ChooseBestMove(Unit enemy, IList<Unit> allies, Grid grid)
     {
         IEnumerable<Vector2I> destinations = allies[0].AttackableCells(enemy.Cell).Where((c) => allies[0].Behavior.Destinations(allies[0]).Contains(c));
         if (!destinations.Any())
@@ -91,24 +104,24 @@ public partial class AIController : ArmyController
                 best = current;
             else
             {
-                Grid better = CompareGrids(best, current);
-                if (best != better)
+                static void CleanUpGrid(Grid grid)
                 {
-                    foreach ((_, GridNode node) in best.Occupants)
+                    foreach ((_, GridNode node) in grid.Occupants)
                         node.Free();
-                    best.Free();
+                    grid.Free();
                 }
-                best = better;
+
+                if (EvaluateGrid(current) > EvaluateGrid(best))
+                {
+                    CleanUpGrid(best);
+                    best = current;
+                }
+                else
+                    CleanUpGrid(current);
             }
         }
         return best;
     }
-
-    private Grid _grid = null;
-    private Unit _selected = null;
-    private Vector2I _destination = -Vector2I.One;
-    private StringName _action = null;
-    private Unit _target = null;
 
     [Export] public DecisionType Decision = DecisionType.ClosestEnemy;
 
