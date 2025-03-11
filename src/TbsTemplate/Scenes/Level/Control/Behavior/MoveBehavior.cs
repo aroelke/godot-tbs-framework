@@ -8,7 +8,7 @@ namespace TbsTemplate.Scenes.Level.Control.Behavior;
 [GlobalClass, Tool]
 public partial class MoveBehavior : UnitBehavior
 {
-    public override IEnumerable<Vector2I> Destinations(Unit unit) => unit.TraversableCells().Where((c) => !unit.Grid.Occupants.ContainsKey(c));
+    public override IEnumerable<Vector2I> Destinations(Unit unit) => unit.TraversableCells().Where((c) => !unit.Grid.Occupants.ContainsKey(c) || unit.Grid.Occupants[c] == unit);
 
     public override Dictionary<StringName, IEnumerable<Vector2I>> Actions(Unit unit)
     {
