@@ -56,24 +56,21 @@ public partial class AIController : ArmyController
         /// <summary>Difference between enemy units' current and maximum health, summed over all enemy units.  Higher is better.</summary>
         public int HealthDifference => _enemies.Select(static (u) => u.Health.Maximum - u.Health.Value).Sum();
 
-        /// <summary>Least current health value among all enemy units. Lower is better.</summary>
-        public int LeastRemainingHealth => _enemies.Select(static (u) => u.Health.Value).Min();
-
         public int CompareTo(GridValue other)
         {
-            if (HealthDifference > other.HealthDifference)
-                return 1;
-            else if (HealthDifference == other.HealthDifference)
-            {
-                if (LeastRemainingHealth < other.LeastRemainingHealth)
-                    return 1;
-                else if (LeastRemainingHealth == other.LeastRemainingHealth)
-                    return 0;
-                else
-                    return -1;
-            }
-            else
-                return -1;
+            // Higher health difference is greater
+            int diff = HealthDifference - other.HealthDifference;
+            if (diff != 0)
+                return diff;
+
+            // Lower least health among units with different heatlh values is greater
+            IList<Unit> enemiesOrdered = [.. _enemies.OrderBy(static (u) => u.Health.Value)];
+            IList<Unit> otherOrdered = [.. other._enemies.OrderBy(static (u) => u.Health.Value)];
+            foreach ((Unit me, Unit you) in enemiesOrdered.Zip(otherOrdered))
+                if (me.Health.Value != you.Health.Value)
+                    return you.Health.Value - me.Health.Value;
+
+            return 0;
         }
     }
 
