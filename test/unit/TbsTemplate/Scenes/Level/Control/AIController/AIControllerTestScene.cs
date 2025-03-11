@@ -237,28 +237,57 @@ public partial class AIControllerTestScene : Node
     [Test]
     public void TestDupMovingSingleReachableEnemy()
     {
-        Unit ally = CreateUnit(new(1, 2), attackRange:[1], stats:new() { Move = 5 }, behavior:new MoveBehavior());
-        Unit enemy = CreateUnit(new(4, 2));
-        RunTest([ally], [enemy],
-            expectedSelected:    ally,
-            expectedDestinations: [new(3, 2)],
-            expectedAction:      "Attack",
-            expectedTarget:      enemy
-        );
+        Vector2I[] destinations = [new(4, 1), new(5, 2), new(4, 3), new(3, 2)];
+        Vector2I size = GetNode<Grid>("Grid").Size;
+        for (int i = 0; i < size.X; i++)
+        {
+            for (int j = 0; j < size.Y; j++)
+            {
+                Unit enemy = CreateUnit(new(4, 2));
+                if (new Vector2I(i, j) != enemy.Cell)
+                {
+                    Unit ally = CreateUnit(new(i, j), attackRange:[1], stats:new() { Move = 5 }, behavior:new MoveBehavior());
+                    int closest = destinations.Select((c) => c.ManhattanDistanceTo(ally.Cell)).Min();
+                    RunTest([ally], [enemy],
+                        expectedSelected:    ally,
+                        expectedDestinations: [.. destinations.Where((c) => c.ManhattanDistanceTo(ally.Cell) == closest)],
+                        expectedAction:      "Attack",
+                        expectedTarget:      enemy
+                    );
+                }
+                else
+                {
+                    enemy.Grid.Occupants.Remove(enemy.Cell);
+                    enemy.Free();
+                }
+            }
+        }
     }
 
-    /// <summary>AI should choose the square at the furthest range it could attack its target.</summary>
+    /// <summary>AI should choose the closest cell it can attack from, even if it's not the furthest and even if it doesn't have to move, when the enemy can't retaliate.</summary>
     [Test]
     public void TestDupMovingSingleReachableEnemyRanged()
     {
-        Unit ally = CreateUnit(new(3, 2), attackRange:[1, 2], stats:new() { Move = 5 }, behavior:new MoveBehavior());
-        Unit enemy = CreateUnit(new(4, 2));
-        RunTest([ally], [enemy],
-            expectedSelected:    ally,
-            expectedDestinations: [new(2, 2), new(3, 1), new(4, 3)],
-            expectedAction:      "Attack",
-            expectedTarget:      enemy
-        );
+        Vector2I[] destinations = [new(4, 0), new(5, 1), new(6, 2), new(5, 3), new(4, 4), new(3, 3), new(2, 2), new(3, 1), new(4, 1), new(5, 2), new(4, 3), new(3, 2)];
+        Vector2I size = GetNode<Grid>("Grid").Size;
+        for (int i = 0; i < size.X; i++)
+        {
+            for (int j = 0; j < size.Y; j++)
+            {
+                Unit enemy = CreateUnit(new(4, 2), attackRange:[]);
+                if (new Vector2I(i, j) != enemy.Cell)
+                {
+                    Unit ally = CreateUnit(new(3, 2), attackRange:[1, 2], stats:new() { Move = 5 }, behavior:new MoveBehavior());
+                    int closest = destinations.Select((c) => c.ManhattanDistanceTo(ally.Cell)).Min();
+                    RunTest([ally], [enemy],
+                        expectedSelected:    ally,
+                        expectedDestinations: [.. destinations.Where((c) => c.ManhattanDistanceTo(ally.Cell) == closest)],
+                        expectedAction:      "Attack",
+                        expectedTarget:      enemy
+                    );
+                }
+            }
+        }
     }
 
     /// <summary>AI should choose the traversable cell closest to any enemy when it can't attack anything.</summary>
