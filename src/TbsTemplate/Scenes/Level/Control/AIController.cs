@@ -48,12 +48,31 @@ public partial class AIController : ArmyController
 
     private readonly record struct GridValue(Grid Grid) : IComparable<GridValue>
     {
-        public static bool operator>(GridValue a, GridValue b) => a.CompareTo(b) > 1;
-        public static bool operator<(GridValue a, GridValue b) => a.CompareTo(b) < 1;
+        public static bool operator>(GridValue a, GridValue b) => a.CompareTo(b) > 0;
+        public static bool operator<(GridValue a, GridValue b) => a.CompareTo(b) < 0;
 
-        public int HealthRemaining => Grid.Occupants.Values.OfType<Unit>().Select((u) => u.Health.Maximum - u.Health.Value).Sum();
+        /// <summary>Difference between each enemy's current health and max health, summed over all enemy units. Higher is better.</summary>
+        public int HealthDifference => Grid.Occupants.Values.OfType<Unit>().Select((u) => u.Health.Maximum - u.Health.Value).Sum();
 
-        public int CompareTo(GridValue other) => HealthRemaining - other.HealthRemaining;
+        /// <summary>Least health of any enemy unit. Lower is better.</summary>
+        public int LeastHealth => Grid.Occupants.Values.OfType<Unit>().Select((u) => u.Health.Value).Min();
+
+        public int CompareTo(GridValue other)
+        {
+            if (HealthDifference > other.HealthDifference)
+                return 1;
+            else if (HealthDifference == other.HealthDifference)
+            {
+                if (LeastHealth < other.LeastHealth)
+                    return 1;
+                else if (LeastHealth == other.LeastHealth)
+                    return 0;
+                else
+                    return -1;
+            }
+            else
+                return -1;
+        }
     }
 
     private static Grid DuplicateGrid(Grid grid)
