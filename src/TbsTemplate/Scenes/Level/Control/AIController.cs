@@ -50,10 +50,13 @@ public partial class AIController : ArmyController
         Grid copy = grid.Duplicate((int)(DuplicateFlags.Scripts | DuplicateFlags.UseInstantiation)) as Grid;
         foreach ((Vector2I cell, GridNode occupant) in grid.Occupants)
         {
-            GridNode clone = occupant.Duplicate((int)(DuplicateFlags.Scripts | DuplicateFlags.UseInstantiation)) as Unit;
-            if (clone is Unit u)
-                u.Army = u.Army;
-            copy.Occupants[cell] = clone;
+            if (occupant is Unit o)
+            {
+                GridNode clone = o.Duplicate((int)(DuplicateFlags.Scripts | DuplicateFlags.UseInstantiation)) as GridNode;
+                if (clone is Unit u)
+                    u.Army = o.Army;
+                copy.Occupants[cell] = clone;
+            }
         }
 
         return copy;
