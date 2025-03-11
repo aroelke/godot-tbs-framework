@@ -58,17 +58,17 @@ public partial class AIController : ArmyController
 
         public int CompareTo(GridValue other)
         {
-            // Higher health difference is greater
-            int diff = HealthDifference - other.HealthDifference;
-            if (diff != 0)
-                return diff;
-
             // Lower least health among units with different heatlh values is greater
             IList<Unit> enemiesOrdered = [.. _enemies.OrderBy(static (u) => u.Health.Value)];
             IList<Unit> otherOrdered = [.. other._enemies.OrderBy(static (u) => u.Health.Value)];
             foreach ((Unit me, Unit you) in enemiesOrdered.Zip(otherOrdered))
                 if (me.Health.Value != you.Health.Value)
                     return you.Health.Value - me.Health.Value;
+
+            // Higher health difference is greater
+            int diff = HealthDifference - other.HealthDifference;
+            if (diff != 0)
+                return diff;
 
             return 0;
         }
