@@ -62,10 +62,10 @@ public partial class AIControllerTestScene : Node
     /// <param name="decider">Algorithm the AI should use to determine actions.</param>
     /// <param name="allies">Units in the AI's army.</param>
     /// <param name="enemies">Units not in the AI's army.</param>
-    /// <param name="expected">Mapping of units the AI can choose onto the destination cells it should move the one it chooses.</param>
+    /// <param name="expected">Mapping of units the AI can choose onto the options for destination cell it should move the one it chooses.</param>
     /// <param name="expectedAction">Action the AI should perform with its chosen unit.</param>
     /// <param name="expectedTarget">Unit the AI should be targeting with its action.</param>
-    private void RunTest(AIController.DecisionType decider, IEnumerable<Unit> allies, IEnumerable<Unit> enemies, Dictionary<Unit, Vector2I> expected, string expectedAction, Unit expectedTarget=null)
+    private void RunTest(AIController.DecisionType decider, IEnumerable<Unit> allies, IEnumerable<Unit> enemies, Dictionary<Unit, HashSet<Vector2I>> expected, string expectedAction, Unit expectedTarget=null)
     {
         _dut.Decision = decider;
 
@@ -83,9 +83,9 @@ public partial class AIControllerTestScene : Node
                     string run = $"[{string.Join(',', allyPermutation.Select(PrintUnit))}] & [{string.Join(',', enemyPermutation.Select(PrintUnit))}]";
                     (Unit selected, Vector2I destination, StringName action, Unit target) = _dut.ComputeAction(allyPermutation, enemyPermutation);
 
-                    Assert.IsTrue(expected.Any(
-                        (p) => selected == p.Key && destination == p.Value),
-                        $"{run}: Expected to move {string.Join('/', expected.Select((e) => $"{PrintUnit(e.Key)}->{e.Value}"))}; but moved {PrintUnit(selected)} to {destination}"
+                    Assert.IsTrue(
+                        expected.Any((p) => selected == p.Key && p.Value.Contains(destination)),
+                        $"{run}: Expected to move {string.Join('/', expected.Select((e) => $"{PrintUnit(e.Key)}->[{string.Join('/', e.Value)}]"))}; but moved {PrintUnit(selected)} to {destination}"
                     );
                     Assert.AreEqual<StringName>(action, expectedAction, $"{run}: Expected action {expectedAction}, but chose {action}");
                     if (expectedTarget is null)
@@ -120,11 +120,11 @@ public partial class AIControllerTestScene : Node
     /// <param name="allies">Units in the AI's army.</param>
     /// <param name="enemies">Units not in the AI's army.</param>
     /// <param name="expectedSelected">Unit the AI should choose for its action.</param>
-    /// <param name="expectedDestination">Cell the AI should move its unit to.</param>
+    /// <param name="expectedDestinations">Options for cell the AI should move its unit to.</param>
     /// <param name="expectedAction">Action the AI should perform with its chosen unit.</param>
     /// <param name="expectedTarget">Unit the AI should be targeting with its action.</param>
-    private void RunTest(AIController.DecisionType decider, IEnumerable<Unit> allies, IEnumerable<Unit> enemies, Unit expectedSelected, Vector2I expectedDestination, string expectedAction, Unit expectedTarget=null)
-        => RunTest(decider, allies, enemies, new() {{ expectedSelected, expectedDestination }}, expectedAction, expectedTarget);
+    private void RunTest(AIController.DecisionType decider, IEnumerable<Unit> allies, IEnumerable<Unit> enemies, Unit expectedSelected, HashSet<Vector2I> expectedDestinations, string expectedAction, Unit expectedTarget=null)
+        => RunTest(decider, allies, enemies, new() {{ expectedSelected, expectedDestinations }}, expectedAction, expectedTarget);
 
     /// <summary><see cref="AIController.DecisionType.ClosestEnemy"/>: AI should choose its unit closest to any enemy.</summary>
     [Test]
@@ -134,7 +134,7 @@ public partial class AIControllerTestScene : Node
         Unit[] enemies = [CreateUnit(new(6, 2))];
         RunTest(AIController.DecisionType.ClosestEnemy, allies, enemies,
             expectedSelected:    allies[1],
-            expectedDestination: allies[1].Cell,
+            expectedDestinations: [allies[1].Cell],
             expectedAction:      "End"
         );
     }
@@ -147,7 +147,7 @@ public partial class AIControllerTestScene : Node
         Unit[] enemies = [CreateUnit(new(6, 2))];
         RunTest(AIController.DecisionType.TargetLoopHeuristic, allies, enemies,
             expectedSelected:    allies[1],
-            expectedDestination: allies[1].Cell,
+            expectedDestinations: [allies[1].Cell],
             expectedAction:      "End"
         );
     }
@@ -160,7 +160,7 @@ public partial class AIControllerTestScene : Node
         Unit[] enemies = [CreateUnit(new(6, 2))];
         RunTest(AIController.DecisionType.TargetLoopDuplication, allies, enemies,
             expectedSelected:    allies[1],
-            expectedDestination: allies[1].Cell,
+            expectedDestinations: [allies[1].Cell],
             expectedAction:      "End"
         );
     }
@@ -173,7 +173,7 @@ public partial class AIControllerTestScene : Node
         Unit[] enemies = [CreateUnit(new(2, 1)), CreateUnit(new(2, 2)), CreateUnit(new(1, 3))];
         RunTest(AIController.DecisionType.ClosestEnemy, allies, enemies,
             expectedSelected:    allies[0],
-            expectedDestination: allies[0].Cell,
+            expectedDestinations: [allies[0].Cell],
             expectedAction:      "Attack",
             expectedTarget:      enemies[1]
         );
@@ -187,7 +187,7 @@ public partial class AIControllerTestScene : Node
         Unit[] enemies = [CreateUnit(new(2, 1), hp:(10, 5)), CreateUnit(new(2, 2), hp:(10, 10))];
         RunTest(AIController.DecisionType.TargetLoopHeuristic, allies, enemies,
             expectedSelected:    allies[0],
-            expectedDestination: allies[0].Cell,
+            expectedDestinations: [allies[0].Cell],
             expectedAction:      "Attack",
             expectedTarget:      enemies[0]
         );
@@ -201,7 +201,7 @@ public partial class AIControllerTestScene : Node
         Unit[] enemies = [CreateUnit(new(2, 1), hp:(10, 5)), CreateUnit(new(2, 2), hp:(10, 10))];
         RunTest(AIController.DecisionType.TargetLoopDuplication, allies, enemies,
             expectedSelected:    allies[0],
-            expectedDestination: allies[0].Cell,
+            expectedDestinations: [allies[0].Cell],
             expectedAction:      "Attack",
             expectedTarget:      enemies[0]
         );
@@ -215,7 +215,7 @@ public partial class AIControllerTestScene : Node
         Unit[] enemies = [CreateUnit(new(2, 1), stats:new() { Defense = 3 }), CreateUnit(new(2, 2), stats:new() { Defense = 0 })];
         RunTest(AIController.DecisionType.TargetLoopHeuristic, allies, enemies,
             expectedSelected:    allies[0],
-            expectedDestination: allies[0].Cell,
+            expectedDestinations: [allies[0].Cell],
             expectedAction:      "Attack",
             expectedTarget:      enemies[1]
         );
@@ -229,7 +229,7 @@ public partial class AIControllerTestScene : Node
         Unit[] enemies = [CreateUnit(new(2, 1), stats:new() { Defense = 3 }), CreateUnit(new(2, 2), stats:new() { Defense = 0 })];
         RunTest(AIController.DecisionType.TargetLoopDuplication, allies, enemies,
             expectedSelected:    allies[0],
-            expectedDestination: allies[0].Cell,
+            expectedDestinations: [allies[0].Cell],
             expectedAction:      "Attack",
             expectedTarget:      enemies[1]
         );
@@ -243,7 +243,7 @@ public partial class AIControllerTestScene : Node
         Unit[] enemies = [CreateUnit(new(2, 1), hp:(10, 5), stats:new() { Health = 10, Defense = 3 }), CreateUnit(new(2, 2), hp:(10, 10), stats:new() { Health = 10, Defense = 0 })];
         RunTest(AIController.DecisionType.TargetLoopHeuristic, allies, enemies,
             expectedSelected:    allies[0],
-            expectedDestination: allies[0].Cell,
+            expectedDestinations: [allies[0].Cell],
             expectedAction:      "Attack",
             expectedTarget:      enemies[0]
         );
@@ -257,7 +257,7 @@ public partial class AIControllerTestScene : Node
         Unit[] enemies = [CreateUnit(new(2, 1), hp:(10, 5), stats:new() { Health = 10, Defense = 3 }), CreateUnit(new(2, 2), hp:(10, 10), stats:new() { Health = 10, Defense = 0 })];
         RunTest(AIController.DecisionType.TargetLoopDuplication, allies, enemies,
             expectedSelected:    allies[0],
-            expectedDestination: allies[0].Cell,
+            expectedDestinations: [allies[0].Cell],
             expectedAction:      "Attack",
             expectedTarget:      enemies[0]
         );
@@ -274,7 +274,7 @@ public partial class AIControllerTestScene : Node
         Unit[] enemies = [CreateUnit(new(3, 2))];
         RunTest(AIController.DecisionType.TargetLoopHeuristic, allies, enemies,
             expectedSelected:    allies[1],
-            expectedDestination: allies[1].Cell,
+            expectedDestinations: [allies[1].Cell],
             expectedAction:      "Attack",
             expectedTarget:      enemies[0]
         );
@@ -291,7 +291,7 @@ public partial class AIControllerTestScene : Node
         Unit[] enemies = [CreateUnit(new(3, 2))];
         RunTest(AIController.DecisionType.TargetLoopDuplication, allies, enemies,
             expectedSelected:    allies[1],
-            expectedDestination: allies[1].Cell,
+            expectedDestinations: [allies[1].Cell],
             expectedAction:      "Attack",
             expectedTarget:      enemies[0]
         );
@@ -310,7 +310,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(1, 2), stats:new() { Defense = 2 })
         ];
         RunTest(AIController.DecisionType.TargetLoopHeuristic, allies, enemies,
-            expected:            allies.ToDictionary((u) => u, (u) => u.Cell),
+            expected:            allies.ToDictionary((u) => u, (u) => new HashSet<Vector2I>() { u.Cell }),
             expectedAction:      "Attack",
             expectedTarget:      enemies[1]
         );
@@ -329,7 +329,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(1, 2), stats:new() { Defense = 2 })
         ];
         RunTest(AIController.DecisionType.TargetLoopDuplication, allies, enemies,
-            expected:            allies.ToDictionary((u) => u, (u) => u.Cell),
+            expected:            allies.ToDictionary((u) => u, (u) => new HashSet<Vector2I>() { u.Cell }),
             expectedAction:      "Attack",
             expectedTarget:      enemies[1]
         );
@@ -345,7 +345,7 @@ public partial class AIControllerTestScene : Node
         Unit ally = CreateUnit(new(3, 2), behavior:new MoveBehavior());
         RunTest(AIController.DecisionType.ClosestEnemy, [ally], [],
             expectedSelected:    ally,
-            expectedDestination: ally.Cell,
+            expectedDestinations: [ally.Cell],
             expectedAction:      "End"
         );
     }
@@ -360,7 +360,7 @@ public partial class AIControllerTestScene : Node
         Unit ally = CreateUnit(new(3, 2), behavior:new MoveBehavior());
         RunTest(AIController.DecisionType.TargetLoopHeuristic, [ally], [],
             expectedSelected:    ally,
-            expectedDestination: ally.Cell,
+            expectedDestinations: [ally.Cell],
             expectedAction:      "End"
         );
     }
@@ -375,7 +375,7 @@ public partial class AIControllerTestScene : Node
         Unit ally = CreateUnit(new(3, 2), behavior:new MoveBehavior());
         RunTest(AIController.DecisionType.TargetLoopDuplication, [ally], [],
             expectedSelected:    ally,
-            expectedDestination: ally.Cell,
+            expectedDestinations: [ally.Cell],
             expectedAction:      "End"
         );
     }
@@ -388,7 +388,7 @@ public partial class AIControllerTestScene : Node
         Unit enemy = CreateUnit(new(4, 2));
         RunTest(AIController.DecisionType.ClosestEnemy, [ally], [enemy],
             expectedSelected:    ally,
-            expectedDestination: new(3, 2),
+            expectedDestinations: [new(3, 2)],
             expectedAction:      "Attack",
             expectedTarget:      enemy
         );
@@ -402,7 +402,7 @@ public partial class AIControllerTestScene : Node
         Unit enemy = CreateUnit(new(4, 2));
         RunTest(AIController.DecisionType.ClosestEnemy, [ally], [enemy],
             expectedSelected:    ally,
-            expectedDestination: new(2, 2),
+            expectedDestinations: [new(2, 2)],
             expectedAction:      "Attack",
             expectedTarget:      enemy
         );
@@ -416,7 +416,7 @@ public partial class AIControllerTestScene : Node
         Unit enemy = CreateUnit(new(4, 2));
         RunTest(AIController.DecisionType.TargetLoopHeuristic, [ally], [enemy],
             expectedSelected:    ally,
-            expectedDestination: new(3, 2),
+            expectedDestinations: [new(3, 2)],
             expectedAction:      "Attack",
             expectedTarget:      enemy
         );
@@ -430,7 +430,7 @@ public partial class AIControllerTestScene : Node
         Unit enemy = CreateUnit(new(4, 2));
         RunTest(AIController.DecisionType.TargetLoopDuplication, [ally], [enemy],
             expectedSelected:    ally,
-            expectedDestination: new(3, 2),
+            expectedDestinations: [new(3, 2)],
             expectedAction:      "Attack",
             expectedTarget:      enemy
         );
@@ -444,7 +444,7 @@ public partial class AIControllerTestScene : Node
         Unit enemy = CreateUnit(new(4, 2));
         RunTest(AIController.DecisionType.TargetLoopHeuristic, [ally], [enemy],
             expectedSelected:    ally,
-            expectedDestination: new(2, 2),
+            expectedDestinations: [new(2, 2), new(3, 1), new(4, 3)],
             expectedAction:      "Attack",
             expectedTarget:      enemy
         );
@@ -458,7 +458,7 @@ public partial class AIControllerTestScene : Node
         Unit enemy = CreateUnit(new(4, 2));
         RunTest(AIController.DecisionType.TargetLoopDuplication, [ally], [enemy],
             expectedSelected:    ally,
-            expectedDestination: new(2, 2),
+            expectedDestinations: [new(2, 2), new(3, 1), new(4, 3)],
             expectedAction:      "Attack",
             expectedTarget:      enemy
         );
@@ -472,7 +472,7 @@ public partial class AIControllerTestScene : Node
         Unit[] enemies = [CreateUnit(new(4, 1)), CreateUnit(new(4, 2))];
         RunTest(AIController.DecisionType.ClosestEnemy, [ally], enemies,
             expectedSelected:    ally,
-            expectedDestination: new(3, 2),
+            expectedDestinations: [new(3, 2)],
             expectedAction:      "Attack",
             expectedTarget:      enemies[1]
         );
@@ -486,7 +486,7 @@ public partial class AIControllerTestScene : Node
         Unit enemy = CreateUnit(new(5, 2));
         RunTest(AIController.DecisionType.ClosestEnemy, [ally], [enemy],
             expectedSelected:    ally,
-            expectedDestination: new(3, 2),
+            expectedDestinations: [new(3, 2)],
             expectedAction:      "End"
         );
     }
@@ -499,7 +499,7 @@ public partial class AIControllerTestScene : Node
         Unit enemy = CreateUnit(new(5, 2));
         RunTest(AIController.DecisionType.TargetLoopHeuristic, [ally], [enemy],
             expectedSelected:    ally,
-            expectedDestination: new(3, 2),
+            expectedDestinations: [new(3, 2)],
             expectedAction:      "End"
         );
     }
@@ -512,7 +512,7 @@ public partial class AIControllerTestScene : Node
         Unit enemy = CreateUnit(new(5, 2));
         RunTest(AIController.DecisionType.TargetLoopDuplication, [ally], [enemy],
             expectedSelected:    ally,
-            expectedDestination: new(3, 2),
+            expectedDestinations: [new(3, 2)],
             expectedAction:      "End"
         );
     }
@@ -527,7 +527,7 @@ public partial class AIControllerTestScene : Node
         ];
         Unit enemy = CreateUnit(new(6, 2), stats:new() { Attack = 0 });
         RunTest(AIController.DecisionType.TargetLoopHeuristic, allies, [enemy],
-            expected: new() {{ allies[0], new(4, 2) }, { allies[1], new(5, 2) }},
+            expected: new() {{ allies[0], new HashSet<Vector2I>() { new(4, 2) }}, { allies[1], new HashSet<Vector2I>() { new(5, 2) }}},
             expectedAction: "Attack",
             expectedTarget: enemy
         );
@@ -543,7 +543,7 @@ public partial class AIControllerTestScene : Node
         ];
         Unit enemy = CreateUnit(new(6, 2), stats:new() { Attack = 0 });
         RunTest(AIController.DecisionType.TargetLoopDuplication, allies, [enemy],
-            expected: new() {{ allies[0], new(4, 2) }, { allies[1], new(5, 2) }},
+            expected: new() {{ allies[0], new HashSet<Vector2I>() { new(4, 2) }}, { allies[1], new HashSet<Vector2I>() { new(5, 2) }}},
             expectedAction: "Attack",
             expectedTarget: enemy
         );
@@ -557,7 +557,7 @@ public partial class AIControllerTestScene : Node
         Unit enemy = CreateUnit(new(5, 2), attackRange:[2]);
         RunTest(AIController.DecisionType.TargetLoopDuplication, [ally], [enemy],
             expectedSelected: enemy,
-            expectedDestination: new(4, 2),
+            expectedDestinations: [new(4, 2)],
             expectedAction: "Attack",
             expectedTarget: enemy
         );
@@ -574,7 +574,7 @@ public partial class AIControllerTestScene : Node
         Unit enemy = CreateUnit(new(6, 2), attackRange:[1], stats:new() { Health = 10, Attack = 5, Defense = 0 }, hp:(10, 10));
         RunTest(AIController.DecisionType.TargetLoopDuplication, allies, [enemy],
             expectedSelected: allies[0],
-            expectedDestination: new(4, 2),
+            expectedDestinations: [new(4, 2)],
             expectedAction: "Attack",
             expectedTarget: enemy
         );
@@ -591,7 +591,7 @@ public partial class AIControllerTestScene : Node
         Unit enemy = CreateUnit(new(6, 2), attackRange:[1, 2], stats:new() { Health = 10, Attack = 8, Defense = 0 }, hp:(10, 10));
         RunTest(AIController.DecisionType.TargetLoopDuplication, allies, [enemy],
             expectedSelected: allies[0],
-            expectedDestination: new(4, 2),
+            expectedDestinations: [new(4, 2)],
             expectedAction: "Attack",
             expectedTarget: enemy
         );
