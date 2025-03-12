@@ -326,7 +326,7 @@ public partial class AIControllerTestScene : Node
         Unit ally = CreateUnit(new(1, 2), attackRange:[1, 2], behavior:new MoveBehavior());
         Unit enemy = CreateUnit(new(5, 2), attackRange:[2]);
         RunTest([ally], [enemy],
-            expectedSelected: enemy,
+            expectedSelected: ally,
             expectedDestinations: [new(4, 2)],
             expectedAction: "Attack",
             expectedTarget: enemy
