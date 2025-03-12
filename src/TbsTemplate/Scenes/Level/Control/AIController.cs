@@ -16,22 +16,24 @@ namespace TbsTemplate.Scenes.Level.Control;
 /// <summary>Automatically controls units based on their <see cref="UnitBehavior"/>s and the state of the level.</summary>
 public partial class AIController : ArmyController
 {
-    private readonly record struct GridValue(Faction Source, Grid Grid) : IComparable<GridValue>
+    /// <summary>Acts as a "value" for a grid which can be compared to other values and evaluate grids against each other.</summary>
+    /// <param name="Source">Faction evaluating the grid.</param>
+    /// <param name="Grid">Grid to be evaluated.</param>
+    private readonly record struct GridValue(Faction Source, Grid Grid) : IEquatable<GridValue>, IComparable<GridValue>
     {
         public static bool operator>(GridValue a, GridValue b) => a.CompareTo(b) > 0;
         public static bool operator<(GridValue a, GridValue b) => a.CompareTo(b) < 0;
 
-        private readonly IEnumerable<Unit> _enemies = Grid.Occupants.Values.OfType<Unit>().Where((u) => !@Source.AlliedTo(u.Army.Faction));
+        /// <summary>Enemy units of <see cref="Source"/>, sorted in increasing order of current health.</summary>
+        private readonly IEnumerable<Unit> _enemies = Grid.Occupants.Values.OfType<Unit>().Where((u) => !@Source.AlliedTo(u.Army.Faction)).OrderBy(static (u) => u.Health.Value);
 
         /// <summary>Difference between enemy units' current and maximum health, summed over all enemy units.  Higher is better.</summary>
         public int HealthDifference => _enemies.Select(static (u) => u.Health.Maximum - u.Health.Value).Sum();
 
-        public int CompareTo(GridValue other)
+        public readonly int CompareTo(GridValue other)
         {
             // Lower least health among units with different heatlh values is greater
-            IList<Unit> enemiesOrdered = [.. _enemies.OrderBy(static (u) => u.Health.Value)];
-            IList<Unit> otherOrdered = [.. other._enemies.OrderBy(static (u) => u.Health.Value)];
-            foreach ((Unit me, Unit you) in enemiesOrdered.Zip(otherOrdered))
+            foreach ((Unit me, Unit you) in _enemies.Zip(other._enemies))
                 if (me.Health.Value != you.Health.Value)
                     return you.Health.Value - me.Health.Value;
 
@@ -42,6 +44,42 @@ public partial class AIController : ArmyController
 
             return 0;
         }
+
+        public bool Equals(GridValue other) => CompareTo(other) == 0;
+        public override int GetHashCode() => Grid.GetHashCode();
+    }
+
+    /// <summary>Acts as a "value" for a move of a unit on a grid which can be compared to other values to evaluate moves against each other.</summary>
+    /// <param name="Unit">Unit that's moving.</param>
+    /// <param name="Destination">Potential destination of the move.</param>
+    /// <param name="Grid">Grid on which the unit will move.</param>
+    private readonly record struct MoveValue(Unit Unit, Vector2I Destination, Grid Grid) : IEquatable<MoveValue>, IComparable<MoveValue>
+    {
+        public static bool operator>(MoveValue a, MoveValue b) => a.CompareTo(b) > 0;
+        public static bool operator<(MoveValue a, MoveValue b) => a.CompareTo(b) < 0;
+
+        /// <summary>Manhattan distance from <see cref="Unit"/>'s cell to <see cref="Destination"/>. Lower is better.</summary>
+        public readonly int Distance = Unit.Cell.ManhattanDistanceTo(Destination);
+
+        /// <summary>Path cost from <see cref="Unit"/>'s cell to <see cref="Destination"/>. Lower is better.</summary>
+        public readonly int Cost = Path.Empty(Grid, Unit.TraversableCells()).Add(Unit.Cell).Add(Destination).Cost;
+
+        // Note that, unlike GridValue, a negative number means this is better
+        public readonly int CompareTo(MoveValue other)
+        {
+            int diff = Distance - other.Distance;
+            if (diff != 0)
+                return diff;
+            
+            diff = Cost - other.Cost;
+            if (diff != 0)
+                return diff;
+
+            return 0;
+        }
+
+        public bool Equals(MoveValue other) => CompareTo(other) == 0;
+        public override int GetHashCode() => HashCode.Combine(Distance, Cost);
     }
 
     private static Grid DuplicateGrid(Grid grid)
@@ -52,6 +90,7 @@ public partial class AIController : ArmyController
             if (occupant is Unit o)
             {
                 GridNode clone = o.Duplicate((int)(DuplicateFlags.Scripts | DuplicateFlags.UseInstantiation)) as GridNode;
+                clone.Grid = copy;
                 if (clone is Unit u)
                     u.Army = o.Army;
                 copy.Occupants[cell] = clone;
@@ -105,17 +144,24 @@ public partial class AIController : ArmyController
 
             if (allies.Count > 1)
                 (current, move) = ChooseBestMove(target, [.. allies.Skip(1)], current);
-            if (best == null)
+
+            GridValue currentGridValue = new(Army.Faction, current);
+            MoveValue currentMoveValue = new(allies[0], destination, current);
+            if (best is null)
             {
                 best = current;
                 move = destination;
             }
             else
             {
-                if (new GridValue(Army.Faction, current) > new GridValue(Army.Faction, best))
+                GridValue bestGridValue = new(Army.Faction, best);
+                MoveValue bestMoveValue = new(allies[0], move, best);
+
+                if (currentGridValue > bestGridValue || (currentGridValue == bestGridValue && currentMoveValue < bestMoveValue))
                 {
                     CleanUpGrid(best);
                     best = current;
+                    move = destination;
                 }
                 else
                     CleanUpGrid(current);
@@ -152,10 +198,9 @@ public partial class AIController : ArmyController
             foreach (IList<Unit> permutation in attackers.Permutations())
             {
                 (Grid current, Vector2I move) = ChooseBestMove(enemy, permutation, Grid);
-                if (best is null || new GridValue(Army.Faction, current) > new GridValue(Army.Faction, best))
+
+                if (best is null)
                 {
-                    if (best is not null)
-                        CleanUpGrid(best);
                     best = current;
                     selected = permutation[0];
                     destination = move;
@@ -163,7 +208,24 @@ public partial class AIController : ArmyController
                     target = enemy;
                 }
                 else
-                    CleanUpGrid(current);
+                {
+                    GridValue currentGridValue = new(Army.Faction, current);
+                    MoveValue currentMoveValue = new(permutation[0], destination, current);
+                    GridValue bestGridValue = new(Army.Faction, best);
+                    MoveValue bestMoveValue = new(permutation[0], move, best);
+
+                    if (currentGridValue > bestGridValue || (currentGridValue == bestGridValue && currentMoveValue < bestMoveValue))
+                    {
+                        CleanUpGrid(best);
+                        best = current;
+                        selected = permutation[0];
+                        destination = move;
+                        action = "Attack";
+                        target = enemy;
+                    }
+                    else
+                        CleanUpGrid(current);
+                }
             }
         }
 
