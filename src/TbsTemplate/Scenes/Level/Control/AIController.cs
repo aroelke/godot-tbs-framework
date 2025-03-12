@@ -53,16 +53,19 @@ public partial class AIController : ArmyController
     /// <param name="Unit">Unit that's moving.</param>
     /// <param name="Destination">Potential destination of the move.</param>
     /// <param name="Grid">Grid on which the unit will move.</param>
-    private readonly record struct MoveValue(Unit Unit, Vector2I Destination, Grid Grid) : IEquatable<MoveValue>, IComparable<MoveValue>
+    private readonly record struct MoveValue(Unit Unit, Vector2I Destination) : IEquatable<MoveValue>, IComparable<MoveValue>
     {
         public static bool operator>(MoveValue a, MoveValue b) => a.CompareTo(b) > 0;
         public static bool operator<(MoveValue a, MoveValue b) => a.CompareTo(b) < 0;
+
+        /// <summary>Starting cell of the move.</summary>
+        public readonly Vector2I Source = Unit.Cell;
 
         /// <summary>Manhattan distance from <see cref="Unit"/>'s cell to <see cref="Destination"/>. Lower is better.</summary>
         public readonly int Distance = Unit.Cell.ManhattanDistanceTo(Destination);
 
         /// <summary>Path cost from <see cref="Unit"/>'s cell to <see cref="Destination"/>. Lower is better.</summary>
-        public readonly int Cost = Path.Empty(Grid, Unit.TraversableCells()).Add(Unit.Cell).Add(Destination).Cost;
+        public readonly int Cost = Path.Empty(Unit.Grid, Unit.TraversableCells()).Add(Unit.Cell).Add(Destination).Cost;
 
         // Note that, unlike GridValue, a negative number means this is better
         public readonly int CompareTo(MoveValue other)
@@ -119,13 +122,18 @@ public partial class AIController : ArmyController
         if (!destinations.Any())
         {
             if (allies.Count > 1)
-                return ChooseBestMove(enemy, [.. allies.Skip(1)], DuplicateGrid(grid));
+            {
+                Grid current = DuplicateGrid(grid);
+                return ChooseBestMove(enemy, [.. allies.Skip(1).Select((a) => current.Occupants[a.Cell]).OfType<Unit>()], current);
+            }
             else
                 return (DuplicateGrid(grid), allies[0].Cell);
         }
 
         Grid best = null;
+        GridValue bestGridValue = new();
         Vector2I move = -Vector2I.One;
+        MoveValue bestMoveValue = new();
         foreach (Vector2I destination in destinations)
         {
             Grid current = DuplicateGrid(grid);
@@ -133,8 +141,9 @@ public partial class AIController : ArmyController
             Unit target = current.Occupants[enemy.Cell] as Unit;
 
             // move allies[0] clone to destination
+            MoveValue currentMoveValue = new(actor, destination);
+            current.Occupants.Remove(actor.Cell);
             actor.Cell = destination;
-            current.Occupants.Remove(allies[0].Cell);
             current.Occupants[destination] = actor;
 
             // attack target clone with allies[0] clone
@@ -143,25 +152,25 @@ public partial class AIController : ArmyController
                 results[i].Target.Health.Value -= (int)Mathf.Round(results[i].Damage*CombatCalculations.HitChance(results[i].Actor, results[i].Target)/100f);
 
             if (allies.Count > 1)
-                (current, move) = ChooseBestMove(target, [.. allies.Skip(1)], current);
+                (current, _) = ChooseBestMove(target, [.. allies.Skip(1).Select((a) => current.Occupants[a.Cell]).OfType<Unit>()], current);
 
             GridValue currentGridValue = new(Army.Faction, current);
-            MoveValue currentMoveValue = new(allies[0], destination, current);
             if (best is null)
             {
                 best = current;
+                bestGridValue = currentGridValue;
                 move = destination;
+                bestMoveValue = currentMoveValue;
             }
             else
             {
-                GridValue bestGridValue = new(Army.Faction, best);
-                MoveValue bestMoveValue = new(allies[0], move, best);
-
                 if (currentGridValue > bestGridValue || (currentGridValue == bestGridValue && currentMoveValue < bestMoveValue))
                 {
                     CleanUpGrid(best);
                     best = current;
+                    bestGridValue = currentGridValue;
                     move = destination;
+                    bestMoveValue = currentMoveValue;
                 }
                 else
                     CleanUpGrid(current);
@@ -188,6 +197,8 @@ public partial class AIController : ArmyController
         Unit target = null;
 
         Grid best = null;
+        GridValue bestGridValue = new();
+        MoveValue bestMoveValue = new();
         foreach (Unit enemy in enemies)
         {
             IEnumerable<Unit> attackers = available.Where((u) => {
@@ -198,6 +209,8 @@ public partial class AIController : ArmyController
             foreach (IList<Unit> permutation in attackers.Permutations())
             {
                 (Grid current, Vector2I move) = ChooseBestMove(enemy, permutation, grid);
+                GridValue currentGridValue = new(Army.Faction, current);
+                MoveValue currentMoveValue = new(permutation[0], move);
 
                 if (best is null)
                 {
@@ -206,14 +219,12 @@ public partial class AIController : ArmyController
                     destination = move;
                     action = "Attack";
                     target = enemy;
+
+                    bestGridValue = currentGridValue;
+                    bestMoveValue = currentMoveValue;
                 }
                 else
                 {
-                    GridValue currentGridValue = new(Army.Faction, current);
-                    MoveValue currentMoveValue = new(permutation[0], destination, current);
-                    GridValue bestGridValue = new(Army.Faction, best);
-                    MoveValue bestMoveValue = new(permutation[0], move, best);
-
                     if (currentGridValue > bestGridValue || (currentGridValue == bestGridValue && currentMoveValue < bestMoveValue))
                     {
                         CleanUpGrid(best);
@@ -222,6 +233,9 @@ public partial class AIController : ArmyController
                         destination = move;
                         action = "Attack";
                         target = enemy;
+
+                        bestGridValue = currentGridValue;
+                        bestMoveValue = currentMoveValue;
                     }
                     else
                         CleanUpGrid(current);
