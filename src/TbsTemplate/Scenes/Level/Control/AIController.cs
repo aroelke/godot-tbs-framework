@@ -180,7 +180,7 @@ public partial class AIController : ArmyController
         _target = null;
     }
 
-    public (Unit selected, Vector2I destination, StringName action, Unit target) ComputeAction(IEnumerable<Unit> available, IEnumerable<Unit> enemies)
+    public (Unit selected, Vector2I destination, StringName action, Unit target) ComputeAction(IEnumerable<Unit> available, IEnumerable<Unit> enemies, Grid grid)
     {
         Unit selected = null;
         Vector2I destination = -Vector2I.One;
@@ -197,7 +197,7 @@ public partial class AIController : ArmyController
 
             foreach (IList<Unit> permutation in attackers.Permutations())
             {
-                (Grid current, Vector2I move) = ChooseBestMove(enemy, permutation, Grid);
+                (Grid current, Vector2I move) = ChooseBestMove(enemy, permutation, grid);
 
                 if (best is null)
                 {
@@ -250,10 +250,11 @@ public partial class AIController : ArmyController
         // Compute this outside the task because it calls Node.GetChildren(), which has to be called on the same thread as that node.
         // Also, use a collection expression to immediately evaluated it rather than waiting until later, because that will be in the
         // wrong thread.
+        Grid copy = DuplicateGrid(Grid);
         IEnumerable<Unit> available = [.. ((IEnumerable<Unit>)Army).Where(static (u) => u.Active)];
         IEnumerable<Unit> enemies = Grid.Occupants.Values.OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u));
 
-        (_selected, _destination, _action, _target) = await Task.Run<(Unit, Vector2I, StringName, Unit)>(() => ComputeAction(available, enemies));
+        (_selected, _destination, _action, _target) = await Task.Run<(Unit, Vector2I, StringName, Unit)>(() => ComputeAction(available, enemies, copy));
 
         EmitSignal(SignalName.UnitSelected, _selected);
     }

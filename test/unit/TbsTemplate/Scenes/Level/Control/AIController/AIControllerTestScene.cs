@@ -79,7 +79,7 @@ public partial class AIControllerTestScene : Node
                 foreach (IEnumerable<Unit> enemyPermutation in enemies.Permutations())
                 {
                     string run = $"[{string.Join(',', allyPermutation.Select(PrintUnit))}] & [{string.Join(',', enemyPermutation.Select(PrintUnit))}]";
-                    (Unit selected, Vector2I destination, StringName action, Unit target) = _dut.ComputeAction(allyPermutation, enemyPermutation);
+                    (Unit selected, Vector2I destination, StringName action, Unit target) = _dut.ComputeAction(allyPermutation, enemyPermutation, _dut.Grid);
 
                     Assert.IsTrue(
                         expected.Any((p) => selected == p.Key && p.Value.Contains(destination)),
