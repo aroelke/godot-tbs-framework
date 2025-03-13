@@ -28,6 +28,8 @@ public partial class AIController : ArmyController
         private readonly IEnumerable<Unit> _enemies = Grid.Occupants.Values.OfType<Unit>().Where((u) => !Source.AlliedTo(u.Army.Faction)).OrderBy(static (u) => u.Health.Value);
         private readonly IEnumerable<Unit> _allies = Grid.Occupants.Values.OfType<Unit>().Where((u) => Source.AlliedTo(u.Army.Faction));
 
+        public int DeadAllies => _allies.Where(static (u) => u.Health.Value == 0).Count();
+
         /// <summary>Difference between enemy units' current and maximum health, summed over all enemy units. Higher is better.</summary>
         public int EnemyHealthDifference => _enemies.Select(static (u) => u.Health.Maximum - u.Health.Value).Sum();
 
@@ -36,13 +38,18 @@ public partial class AIController : ArmyController
 
         public readonly int CompareTo(GridValue other)
         {
+            // Less dead allies is greater
+            int diff = other.DeadAllies - DeadAllies;
+            if (diff != 0)
+                return diff;
+
             // Lower least health among units with different heatlh values is greater
             foreach ((Unit me, Unit you) in _enemies.Zip(other._enemies))
                 if (me.Health.Value != you.Health.Value)
                     return you.Health.Value - me.Health.Value;
 
             // Higher enemy health difference is greater
-            int diff = EnemyHealthDifference - other.EnemyHealthDifference;
+            diff = EnemyHealthDifference - other.EnemyHealthDifference;
             if (diff != 0)
                 return diff;
 
