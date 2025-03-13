@@ -350,6 +350,23 @@ public partial class AIControllerTestScene : Node
         );
     }
 
+    /// <summary>AI should attack an enemy it can kill, even if it can do more damage to another enemy.</summary>
+    [Test]
+    public void TestDupMaximizeEnemyDeaths()
+    {
+        Unit ally = CreateUnit(new(2, 2), attackRange:[2], stats:new() { Health = 10, Attack = 5 }, behavior:new MoveBehavior());
+        Unit[] enemies = [
+            CreateUnit(new(3, 1), attackRange:[1], stats:new() { Health = 10, Defense = 4 }, hp:(5, 1)),
+            CreateUnit(new(3, 3), attackRange:[1], stats:new() { Health = 10, Defense = 0 }, hp:(10, 6))
+        ];
+        RunTest([ally], enemies,
+            expectedSelected: ally,
+            expectedDestinations: [ally.Cell],
+            expectedAction: "Attack",
+            expectedTarget: enemies[0]
+        );
+    }
+
     /// <summary>AI should attack in the order that reduces the number of allies that die in retaliation regardless of damage dealt.</summary>
     [Test]
     public void TestDupMinimizeAllyDeaths()
