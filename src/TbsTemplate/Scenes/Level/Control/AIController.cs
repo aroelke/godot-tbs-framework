@@ -25,10 +25,14 @@ public partial class AIController : ArmyController
         public static bool operator<(GridValue a, GridValue b) => a.CompareTo(b) < 0;
 
         /// <summary>Enemy units of <see cref="Source"/>, sorted in increasing order of current health.</summary>
-        private readonly IEnumerable<Unit> _enemies = Grid.Occupants.Values.OfType<Unit>().Where((u) => !@Source.AlliedTo(u.Army.Faction)).OrderBy(static (u) => u.Health.Value);
+        private readonly IEnumerable<Unit> _enemies = Grid.Occupants.Values.OfType<Unit>().Where((u) => !Source.AlliedTo(u.Army.Faction)).OrderBy(static (u) => u.Health.Value);
+        private readonly IEnumerable<Unit> _allies = Grid.Occupants.Values.OfType<Unit>().Where((u) => Source.AlliedTo(u.Army.Faction));
 
-        /// <summary>Difference between enemy units' current and maximum health, summed over all enemy units.  Higher is better.</summary>
-        public int HealthDifference => _enemies.Select(static (u) => u.Health.Maximum - u.Health.Value).Sum();
+        /// <summary>Difference between enemy units' current and maximum health, summed over all enemy units. Higher is better.</summary>
+        public int EnemyHealthDifference => _enemies.Select(static (u) => u.Health.Maximum - u.Health.Value).Sum();
+
+        /// <summary>Difference between ally units' current and maximum health, summed over all allied units. Lower is better.</summary>
+        public int AllyHealthDifference => _allies.Select(static (u) => u.Health.Maximum - u.Health.Value).Sum();
 
         public readonly int CompareTo(GridValue other)
         {
@@ -37,8 +41,13 @@ public partial class AIController : ArmyController
                 if (me.Health.Value != you.Health.Value)
                     return you.Health.Value - me.Health.Value;
 
-            // Higher health difference is greater
-            int diff = HealthDifference - other.HealthDifference;
+            // Higher enemy health difference is greater
+            int diff = EnemyHealthDifference - other.EnemyHealthDifference;
+            if (diff != 0)
+                return diff;
+
+            // Lower ally health difference is greater
+            diff = other.AllyHealthDifference - AllyHealthDifference;
             if (diff != 0)
                 return diff;
 
