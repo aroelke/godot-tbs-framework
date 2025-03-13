@@ -372,8 +372,8 @@ public partial class AIControllerTestScene : Node
     public void TestDupMinimizeAllyDeaths()
     {
         Unit[] allies = [
-            CreateUnit(new(0, 2), attackRange:[1, 2], stats:new() { Health = 10, Attack = 3, Defense = 0, Move = 4 }, hp:(10, 10), behavior:new MoveBehavior()),
-            CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Health = 10, Attack = 3, Defense = 3, Move = 4 }, hp:(10, 5), behavior:new MoveBehavior())
+            CreateUnit(new(0, 2), attackRange:[1, 2], stats:new() { Health = 10, Attack = 5, Defense = 0, Move = 4 }, hp:(10, 10), behavior:new MoveBehavior()),
+            CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Health = 10, Attack = 5, Defense = 3, Move = 4 }, hp:(10, 5), behavior:new MoveBehavior())
         ];
         Unit enemy = CreateUnit(new(6, 2), attackRange:[1, 2], stats:new() { Health = 10, Attack = 8, Defense = 0 }, hp:(10, 10));
         RunTest(allies, [enemy],
