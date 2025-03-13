@@ -55,7 +55,7 @@ public partial class AIController : ArmyController
         }
 
         public bool Equals(GridValue other) => CompareTo(other) == 0;
-        public override int GetHashCode() => Grid.GetHashCode();
+        public override int GetHashCode() => HashCode.Combine(Source, Grid);
     }
 
     /// <summary>Acts as a "value" for a move of a unit on a grid which can be compared to other values to evaluate moves against each other.</summary>
