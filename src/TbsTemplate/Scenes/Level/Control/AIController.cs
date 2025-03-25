@@ -187,7 +187,7 @@ public partial class AIController : ArmyController
             {
                 Dictionary<StringName, IEnumerable<Vector2I>> actions = [];
 
-                IEnumerable<Vector2I> attackable = unit.AttackableCells(grid, unit.TraversableCells(grid));
+                IEnumerable<Vector2I> attackable = unit.AttackableCells(grid, [unit.Cell]);
                 IEnumerable<VirtualUnit> targets = grid.Occupants.Where((p) => attackable.Contains(p.Key) && !unit.Original.Army.Faction.AlliedTo(p.Value.Original)).Select((p) => p.Value);
                 if (targets.Any())
                     actions["Attack"] = targets.Select((u) => u.Cell);
@@ -379,7 +379,7 @@ public partial class AIController : ArmyController
         if (!destinations.Any())
         {
             if (allies.Count > 1)
-                return ChooseBestMove(enemy, [.. allies.Skip(1).Select((a) => grid.Occupants[a.Cell])], grid);
+                return ChooseBestMove(enemy, [.. allies.Skip(1)], grid);
             else
                 return (grid, allies[0].Cell);
         }
