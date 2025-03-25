@@ -136,6 +136,19 @@ public partial class AIControllerTestScene : Node
         );
     }
 
+    /// <summary>When the behavior prevents movement, AI should not choose to attack if an enemy is reachable but not in range to attack.</summary>
+    [Test]
+    public void TestStandingOneReachableEnemyNotInRange()
+    {
+        Unit ally = CreateUnit(new(0, 2));
+        Unit enemy = CreateUnit(new(3, 2));
+        RunTest([ally], [enemy],
+            expectedSelected:    ally,
+            expectedDestinations: [ally.Cell],
+            expectedAction:      "End"
+        );
+    }
+
     /// <summary>AI should choose to attack the enemy with the lower HP when it deals the same damage to all enemies.</summary>
     [Test]
     public void TestStandingSingleAllyMultipleEnemiesSameDamage()
