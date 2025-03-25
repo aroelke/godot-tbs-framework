@@ -530,11 +530,13 @@ public partial class AIController : ArmyController
         // Compute this outside the task because it calls Node.GetChildren(), which has to be called on the same thread as that node.
         // Also, use a collection expression to immediately evaluated it rather than waiting until later, because that will be in the
         // wrong thread.
-        Grid copy = DuplicateGrid(Grid);
-        IEnumerable<Unit> available = [.. ((IEnumerable<Unit>)Army).Where(static (u) => u.Active)];
-        IEnumerable<Unit> enemies = Grid.Occupants.Values.OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u));
+        VirtualGrid grid = new(Grid);
+        IEnumerable<VirtualUnit> available = [.. ((IEnumerable<Unit>)Army).Where(static (u) => u.Active).Select(static (u) => new VirtualUnit(u))];
+        IEnumerable<VirtualUnit> enemies = [.. Grid.Occupants.Values.OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u)).Select(static (u) => new VirtualUnit(u))];
 
-        (_selected, _destination, _action, _target) = await Task.Run<(Unit, Vector2I, StringName, Unit)>(() => ComputeAction(available, enemies, copy));
+        (VirtualUnit selected, _destination, _action, VirtualUnit? target) = await Task.Run<(VirtualUnit, Vector2I, StringName, VirtualUnit?)>(() => ComputeAction(available, enemies, grid));
+        _selected = selected.Original;
+        _target = target?.Original;
 
         EmitSignal(SignalName.UnitSelected, _selected);
     }
