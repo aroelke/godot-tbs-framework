@@ -1,3 +1,4 @@
+using System.Linq;
 using Godot;
 
 namespace TbsTemplate.Data;
@@ -13,8 +14,10 @@ public partial class Stats : Resource
     {
         Health = a.Health + b.Health,
         Attack = a.Attack + b.Attack,
+        AttackRange = [.. a.AttackRange.Concat(b.AttackRange).Order()],
         Defense = a.Defense + b.Defense,
         Healing = a.Healing + b.Healing,
+        SupportRange = [.. a.SupportRange.Concat(b.SupportRange).Order()],
         Accuracy = a.Accuracy + b.Accuracy,
         Evasion = a.Evasion + b.Evasion,
         Agility = a.Agility + b.Agility,
@@ -27,11 +30,17 @@ public partial class Stats : Resource
     /// <summary>Temporary attack stat. Determines the amount of damage a unit deals whenn it attacks.</summary>
     [Export] public int Attack = 1;
 
+    /// <summary>Distances from the unit's occupied cell that it can attack.</summary>
+    [Export] public int[] AttackRange = [1];
+
     /// <summary>Temporary defense stat. Reduce damage taken from attacks.</summary>
     [Export] public int Defense = 0;
 
     /// <summary>Temporary healing stat. Determines amount of HP restored when supporting.</summary>
     [Export] public int Healing = 0;
+
+    /// <summary>Distances from the unit's occupied cell that it can support.</summary>
+    [Export] public int[] SupportRange = [];
 
     /// <summary>Temporary accuracy stat. Increases chance of hitting when attacking.</summary>
     [Export] public int Accuracy = 100;

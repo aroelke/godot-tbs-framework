@@ -4,11 +4,11 @@ namespace TbsTemplate
     {
         namespace Level
         {
-            namespace Logic
+            namespace State
             {
-                namespace Components
+                namespace Occupants
                 {
-                    /// <summary>Components for game logic classes to define common behavior.</summary>
+                    /// <summary>Objects representing occupants of a <see cref="GridState"/>.</summary>
                     static internal class NamespaceDoc {}
                 }
             }
