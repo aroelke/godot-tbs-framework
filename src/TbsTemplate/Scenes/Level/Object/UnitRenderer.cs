@@ -48,15 +48,18 @@ public partial class UnitRenderer : BoundedNode2D
     {
         get
         {
-            if (_grid.State != State.Grid)
+            if (_grid is not null && _grid.State != State.Grid)
                 throw new InvalidOperationException("GridRenderer.State and State.Grid do not match");
             return _grid;
         }
         set
         {
             _grid = value;
-            State.Grid = _grid.State;
-            _grid.State.SetOccupant(State.Cell, State);
+            if (_grid is not null)
+            {
+                State.Grid = _grid.State;
+                _grid.State.SetOccupant(State.Cell, State);
+            }
         }
     }
 
@@ -151,6 +154,13 @@ public partial class UnitRenderer : BoundedNode2D
 
         if (!Engine.IsEditorHint())
         {
+            State.Health.ValueChanged += (v) => {
+                if (v == 0)
+                    LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.UnitDefeated, this);
+            };
+            State.Health.ValueChanged += HealthBar.SetValue;
+            State.Health.MaximumChanged += HealthBar.SetMax;
+
             Path.Curve = new();
             MotionBox.Size = Size;
             AnimationTree.Active = true;
