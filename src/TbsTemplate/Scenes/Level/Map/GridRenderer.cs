@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.State;
 
 namespace TbsTemplate.Scenes.Level.Map;
@@ -36,6 +37,9 @@ public partial class GridRenderer : Node2D
 
     /// <summary>Grid cell dimensions derived from the <see cref="TileSet"/>.  If there is no <see cref="TileSet"/>, the size is zero.</summary>
     public Vector2 CellSize => GroundLayer?.TileSet?.TileSize ?? Vector2.Zero;
+
+    /// <summary>Regions in which units can perform special actions defined by the region.</summary>
+    public IEnumerable<SpecialActionRegion> SpecialActionRegions => GetChildren().OfType<SpecialActionRegion>();
 
     /// <summary>Find the position in pixels of a cell offset.</summary>
     /// <param name="offset">Cell offset to use for calculation (can be outside grid bounds).</param>
