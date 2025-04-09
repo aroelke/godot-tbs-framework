@@ -19,7 +19,11 @@ public partial class AIController : ArmyController
 {
     private readonly record struct VirtualGrid(Vector2I Size, Terrain[][] Terrain, IImmutableDictionary<Vector2I, VirtualUnit> Occupants)
     {
-        public VirtualGrid(Vector2I size, Terrain terrain, IImmutableDictionary<Vector2I, VirtualUnit> occupants) : this(size, [.. Enumerable.Repeat(Enumerable.Repeat(terrain, size.X).ToArray(), size.Y)], occupants) {}
+        public VirtualGrid(Vector2I size, Terrain terrain, IImmutableDictionary<Vector2I, VirtualUnit> occupants) : this(
+            size,
+            [.. Enumerable.Repeat(Enumerable.Repeat(terrain, size.X).ToArray(), size.Y)],
+            occupants
+        ) {}
 
         public VirtualGrid(Grid grid) : this(
             grid.Size,
@@ -28,6 +32,8 @@ public partial class AIController : ArmyController
         ) {}
 
         public bool Contains(Vector2I cell) => cell.X >= 0 && cell.X < Size.X && cell.Y >= 0 && cell.Y < Size.Y;
+
+        public Terrain GetTerrain(Vector2I cell) => Contains(cell) ? Terrain[cell.Y][cell.X] : null;
 
         public int Cost(IEnumerable<Vector2I> path)
         {
@@ -69,7 +75,7 @@ public partial class AIController : ArmyController
                 astar.AddPoint(grid.CellId(cell), cell, grid.Terrain[cell.X][cell.Y].Cost);
             foreach (Vector2I cell in traversable)
             {
-                foreach (Vector2I direction in Vector2IExtensions.Directions)
+                foreach (Vector2I direction in GridCalculations.Directions)
                 {
                     Vector2I neighbor = cell + direction;
                     if (!astar.ArePointsConnected(grid.CellId(cell), grid.CellId(neighbor)) && traversable.Contains(neighbor))
@@ -230,34 +236,11 @@ public partial class AIController : ArmyController
 
         public IEnumerable<Vector2I> TraversableCells(VirtualGrid grid)
         {
-            int max = 2*(Original.Stats.Move + 1)*(Original.Stats.Move + 1) - 2*Original.Stats.Move - 1;
-
-            Dictionary<Vector2I, int> cells = new(max) {{ Cell, 0 }};
-            Queue<Vector2I> potential = new(max);
-
-            potential.Enqueue(Cell);
-            while (potential.Count > 0)
-            {
-                Vector2I current = potential.Dequeue();
-
-                foreach (Vector2I direction in Vector2IExtensions.Directions)
-                {
-                    Vector2I neighbor = current + direction;
-                    if (grid.Contains(neighbor))
-                    {
-                        int cost = cells[current] + grid.Terrain[neighbor.X][neighbor.Y].Cost;
-                        if ((!cells.ContainsKey(neighbor) || cells[neighbor] > cost) && // cell hasn't been examined yet or this path is shorter to get there
-                            (!grid.Occupants.TryGetValue(neighbor, out VirtualUnit occupant) || occupant.Original.Army.Faction.AlliedTo(Original.Army.Faction)) && // cell is empty or contains an allied unit
-                            cost <= Original.Stats.Move) // cost to get to cell is within range
-                        {
-                            cells[neighbor] = cost;
-                            potential.Enqueue(neighbor);
-                        }
-                    }
-                }
-            }
-
-            return cells.Keys;
+            VirtualUnit @this = this;
+            return GridCalculations.TraversableCells(Cell, Original.Stats.Move, (c) => new(
+                grid.Terrain[c.X][c.Y].Cost,
+                grid.Contains(c) && (!grid.Occupants.TryGetValue(c, out VirtualUnit occupant) || occupant.Original.Army.Faction.AlliedTo(@this.Original.Army.Faction))
+            ), (c) => GridCalculations.Directions.Select((d) => c + d).Where(grid.Contains));
         }
 
         public IEnumerable<Vector2I> AttackableCells(VirtualGrid grid, IEnumerable<Vector2I> sources) => GetCellsInRange(grid, sources, Original.AttackRange);

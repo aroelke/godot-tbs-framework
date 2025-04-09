@@ -129,42 +129,12 @@ public partial class Unit : GridNode, IHasHealth
     public bool Active => !AnimationTree.Get(Done).AsBool();
 
     /// <returns>The set of cells that this unit can reach from its position, accounting for <see cref="Terrain.Cost"/>.</returns>
-    public IEnumerable<Vector2I> TraversableCells()
+    public IEnumerable<Vector2I> TraversableCells() => GridCalculations.TraversableCells(Cell, Stats.Move, (c) => new(Grid.GetTerrain(c).Cost, Grid.Contains(c) && Grid.Occupants.GetValueOrDefault(c) switch
     {
-        int max = 2*(Stats.Move + 1)*(Stats.Move + 1) - 2*Stats.Move - 1;
-
-        Dictionary<Vector2I, int> cells = new(max) {{ Cell, 0 }};
-        Queue<Vector2I> potential = new(max);
-
-        potential.Enqueue(Cell);
-        while (potential.Count > 0)
-        {
-            Vector2I current = potential.Dequeue();
-
-            foreach (Vector2I direction in Vector2IExtensions.Directions)
-            {
-                Vector2I neighbor = current + direction;
-                if (Grid.Contains(neighbor))
-                {
-                    int cost = cells[current] + Grid.GetTerrain(neighbor).Cost;
-                    if ((!cells.ContainsKey(neighbor) || cells[neighbor] > cost) && // cell hasn't been examined yet or this path is shorter to get there
-                        Grid.Occupants.GetValueOrDefault(neighbor) switch // cell is empty or contains an allied unit
-                        {
-                            Unit unit => unit.Army.Faction.AlliedTo(this),
-                            null => true,
-                            _ => false
-                        } &&
-                        cost <= Stats.Move) // cost to get to cell is within range
-                    {
-                        cells[neighbor] = cost;
-                        potential.Enqueue(neighbor);
-                    }
-                }
-            }
-        }
-
-        return cells.Keys;
-    }
+        Unit unit => unit.Army.Faction.AlliedTo(this),
+        null => true,
+        _ => false
+    }),(c) => GridCalculations.Directions.Select((d) => c + d).Where(Grid.Contains));
 
     /// <summary>Compute all of the cells this unit could attack from the given set of source cells.</summary>
     /// <param name="sources">Cells to compute attack range from.</param>
