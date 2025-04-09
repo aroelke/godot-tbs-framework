@@ -7,7 +7,7 @@ using Godot;
 using TbsTemplate.Extensions;
 using TbsTemplate.Scenes.Combat.Animations;
 using TbsTemplate.Scenes.Combat.Data;
-using TbsTemplate.Scenes.Level.Object;
+using TbsTemplate.Scenes.Level.State.Occupants;
 using TbsTemplate.UI;
 using TbsTemplate.UI.Combat;
 using TbsTemplate.UI.Controls.Action;
@@ -20,8 +20,8 @@ public partial class CombatScene : Node
 {
     [Signal] public delegate void TimeExpiredEventHandler();
 
-    private readonly Dictionary<Unit, CombatAnimation> _animations = [];
-    private readonly Dictionary<Unit, ParticipantInfo> _infos = [];
+    private readonly Dictionary<UnitState, CombatAnimation> _animations = [];
+    private readonly Dictionary<UnitState, ParticipantInfo> _infos = [];
     private IImmutableList<CombatAction> _actions = null;
     private double _remaining = 0;
     private bool _canceled = false;
@@ -72,16 +72,16 @@ public partial class CombatScene : Node
     /// <param name="actions">List of actions that will be performed each turn in combat. The length of the list determines the number of turns.</param>
     /// <exception cref="ArgumentException">If any <see cref="CombatAction"/> contains an _animations[action.Actor] who isn't participating in this combat.</exception>
     [OnInstantiate]
-    public void Initialize(Unit left, Unit right, IImmutableList<CombatAction> actions)
+    public void Initialize(UnitState left, UnitState right, IImmutableList<CombatAction> actions)
     {
         foreach (CombatAction action in actions)
             if (action.Actor != left && action.Actor != right)
-                throw new ArgumentException($"CombatAction {action.Actor.Name} is not a participant in combat");
+                throw new ArgumentException($"CombatAction for unit at {action.Actor.Cell} is not a participant in combat");
 
         _actions = actions;
 
         _animations[left] = left.Class.CombatAnimations.Instantiate<CombatAnimation>();
-        _animations[left].Modulate = left.Army.Faction.Color;
+        _animations[left].Modulate = left.Faction.Color;
         _animations[left].Position = LeftPosition;
         _animations[left].Left = true;
         _animations[left].StepTaken += () => StepSound.Play();
@@ -92,7 +92,7 @@ public partial class CombatScene : Node
         LeftInfo.TransitionDuration = HitDelay;
 
         _animations[right] = right.Class.CombatAnimations.Instantiate<CombatAnimation>();
-        _animations[right].Modulate = right.Army.Faction.Color;
+        _animations[right].Modulate = right.Faction.Color;
         _animations[right].Position = RightPosition;
         _animations[right].Left = false;
         _animations[right].StepTaken += () => StepSound.Play();

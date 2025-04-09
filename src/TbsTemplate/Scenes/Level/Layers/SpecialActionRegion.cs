@@ -23,7 +23,7 @@ public partial class SpecialActionRegion : TileMapLayer
     /// <param name="name">Name of the action being performed.</param>
     /// <param name="performer"><see cref="Unit"/> performing the action.</param>
     /// <param name="cell">Cell in which the unit performed the action.</param>
-    [Signal] public delegate void SpecialActionPerformedEventHandler(StringName name, Unit performer, Vector2I cell);
+    [Signal] public delegate void SpecialActionPerformedEventHandler(StringName name, UnitRenderer performer, Vector2I cell);
 
     /// <summary>Short description of the action being performed for display in the UI (for example, in a <see cref="ContextMenu"/>).</summary>
     [Export] public StringName Action = "";
@@ -32,7 +32,7 @@ public partial class SpecialActionRegion : TileMapLayer
     [Export] public Army[] AllowedArmies = [];
 
     /// <summary>List of individual units who are allowed to perform the action.</summary>
-    [Export] public Unit[] AllowedUnits = [];
+    [Export] public UnitRenderer[] AllowedUnits = [];
 
     /// <summary>Whether or not an action should remove the cell it's performed in from the region.</summary>
     [Export] public bool OneShot = false;
@@ -41,22 +41,22 @@ public partial class SpecialActionRegion : TileMapLayer
     [Export] public bool SingleUse = false;
 
     /// <summary>Set of units that have already performed the action. Updates before the performed signal is emitted.</summary>
-    public ImmutableHashSet<Unit> Performed { get; private set; } = [];
+    public ImmutableHashSet<UnitRenderer> Performed { get; private set; } = [];
 
     /// <returns>A set containing all units that are allowed to perform the action in the region.</returns>
-    public ImmutableHashSet<Unit> AllAllowedUnits() => AllowedUnits.ToImmutableHashSet().Union(AllowedArmies.SelectMany((a) => a.GetChildren().OfType<Unit>()));
+    public ImmutableHashSet<UnitRenderer> AllAllowedUnits() => AllowedUnits.ToImmutableHashSet().Union(AllowedArmies.SelectMany((a) => a.GetChildren().OfType<UnitRenderer>()));
 
     /// <summary>Check if a unit can perform the special action in a cell.</summary>
     /// <returns><c>true</c> if <paramref name="unit"/> is allowed to perform the action and <paramref name="cell"/> is in the region, and <c>false</c> otherwise.</returns>
-    public virtual bool HasSpecialAction(Unit unit, Vector2I cell) =>
+    public virtual bool HasSpecialAction(UnitRenderer unit, Vector2I cell) =>
         (!SingleUse || !Performed.Contains(unit)) &&
-        (AllowedUnits.Contains(unit) || AllowedArmies.Any((a) => a.Faction.AlliedTo(unit))) &&
+        (AllowedUnits.Contains(unit) || AllowedArmies.Any((a) => a.Faction.AlliedTo(unit.State.Faction))) &&
         GetUsedCells().Contains(cell);
 
     /// <summary>Perform the special action. By default, this just emits a signal indicating the action is performed by a unit at a cell.</summary>
     /// <param name="performer">Unit performing the action.</param>
     /// <param name="cell">Cell the action is being performed in.</param>
-    public virtual void PerformSpecialAction(Unit performer, Vector2I cell)
+    public virtual void PerformSpecialAction(UnitRenderer performer, Vector2I cell)
     {
         if (HasSpecialAction(performer, cell))
         {

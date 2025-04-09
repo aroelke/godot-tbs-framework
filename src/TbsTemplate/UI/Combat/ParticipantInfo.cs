@@ -2,14 +2,15 @@ using System;
 using System.Linq;
 using Godot;
 using TbsTemplate.Nodes.Components;
+using TbsTemplate.Scenes.Level.State.Components;
 
 namespace TbsTemplate.UI.Combat;
 
 /// <summary>Combat UI element that displays constant information about a character participating in combat.</summary>
 [SceneTree, Tool]
-public partial class ParticipantInfo : GridContainer, IHasHealth
+public partial class ParticipantInfo : GridContainer
 {
-    private int _maxHealth = 10, _currentHealth = 10;
+    private HealthState _health = new();
     private int[] _damage = [0];
     private int _hit = 0;
 
@@ -77,28 +78,28 @@ public partial class ParticipantInfo : GridContainer, IHasHealth
     /// <summary>Amount of time to take to update the health bar when health is changed.</summary>
     [Export(PropertyHint.None, "suffix:s")] public double TransitionDuration = 0.3;
 
-    public HealthComponent Health
+    public HealthState Health
     {
-        get => HealthComponent;
+        get => _health;
         set
         {
-            if (value is not null && HealthComponent is not null)
+            if (value is not null)
             {
-                HealthComponent.Maximum = value.Maximum;
-                HealthComponent.Value = value.Value;
+                _health.Maximum = value.Maximum;
+                _health.Value = value.Value;
 
                 if (HealthBar is not null)
                 {
-                    HealthBar.MaxValue = HealthComponent.Maximum;
-                    HealthBar.Value = HealthComponent.Value;
+                    HealthBar.MaxValue = _health.Maximum;
+                    HealthBar.Value = _health.Value;
                 }
                 if (HealthLabel is not null)
-                    HealthLabel.Text = $"HP: {HealthComponent.Value}";
+                    HealthLabel.Text = $"HP: {_health.Value}";
             }
         }
     }
 
-    public void OnHealthChanged(int value)
+    public void OnHealthChanged(double value)
     {
         void UpdateHealth(double hp)
         {
@@ -110,5 +111,13 @@ public partial class ParticipantInfo : GridContainer, IHasHealth
             CreateTween().TweenMethod(Callable.From<double>(UpdateHealth), HealthBar.Value, value, TransitionDuration);
         else
             UpdateHealth(value);
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+
+        if (!Engine.IsEditorHint())
+            _health.ValueChanged += OnHealthChanged;
     }
 }

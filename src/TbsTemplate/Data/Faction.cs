@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using Godot;
-using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Data;
 
@@ -24,7 +23,4 @@ public partial class Faction : Resource
 
     /// <summary>Whether or not this faction is allied to another one.</summary>
     public bool AlliedTo(Faction other) => other == this || Allies.Contains(other);
-
-    /// <summary>Whether or not this faction is allied to a <see cref="Unit"/>'s faction.</summary>
-    public bool AlliedTo(Unit unit) => unit is not null && AlliedTo(unit.Army.Faction);
 }

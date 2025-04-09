@@ -8,6 +8,7 @@ using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
+using TbsTemplate.Scenes.Level.State.Occupants;
 using TbsTemplate.UI;
 using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI.Controls.Device;
@@ -27,7 +28,7 @@ public partial class PlayerController : ArmyController
     private static readonly StringName WaitEvent    = "Wait";
 
     private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, PathEvent, CommandEvent, TargetEvent, FinishEvent, CancelEvent, WaitEvent]);
-    private Grid _grid = null;
+    private GridRenderer _grid = null;
     private TileSet _tileset = null;
     private Color _move    = Colors.Blue  with { A = 100f/256f };
     private Color _attack  = Colors.Red   with { A = 100f/256f };
@@ -36,7 +37,7 @@ public partial class PlayerController : ArmyController
     private Color _local   = new(0.5f, 0, 0.25f, 100f/256f);
     private Color _global  = Colors.Black with { A = 100f/256f };
 
-    private Unit _selected = null, _target = null;
+    private UnitRenderer _selected = null, _target = null;
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path;
 
@@ -47,7 +48,7 @@ public partial class PlayerController : ArmyController
     private StringName LocalDangerZone     => _.ZoneLayers.LocalDangerZone.Name;
     private StringName GlobalDangerZone    => _.ZoneLayers.GlobalDangerZone.Name;
 
-    public override Grid Grid
+    public override GridRenderer Grid
     {
         get => _grid;
         set
@@ -194,13 +195,13 @@ public partial class PlayerController : ArmyController
     }
 #endregion
 #region Danger Zone
-    private readonly HashSet<Unit> _tracked = [];
+    private readonly HashSet<UnitState> _tracked = [];
     private bool _showGlobalDangerZone = false;
 
     private void UpdateDangerZones()
     {
-        IEnumerable<Unit> allies = _tracked.Where(Army.Faction.AlliedTo);
-        IEnumerable<Unit> enemies = _tracked.Where((u) => !Army.Faction.AlliedTo(u));
+        IEnumerable<UnitState> allies = _tracked.Where((u) => Army.Faction.AlliedTo(u.Faction));
+        IEnumerable<UnitState> enemies = _tracked.Where((u) => !Army.Faction.AlliedTo(u.Faction));
 
         if (allies.Any())
             ZoneLayers[AllyTraversableZone] = allies.SelectMany(static (u) => u.TraversableCells());
@@ -212,7 +213,7 @@ public partial class PlayerController : ArmyController
             ZoneLayers.Clear(LocalDangerZone);
         
         if (_showGlobalDangerZone)
-            ZoneLayers[GlobalDangerZone] = Grid.Occupants.Values.OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u)).SelectMany(static (u) => u.AttackableCells(u.TraversableCells()));
+            ZoneLayers[GlobalDangerZone] = Grid.State.Occupants.Values.OfType<UnitState>().Where((u) => !Army.Faction.AlliedTo(u.Faction)).SelectMany(static (u) => u.AttackableCells(u.TraversableCells()));
         else
             ZoneLayers.Clear(GlobalDangerZone);
     }
@@ -227,7 +228,7 @@ public partial class PlayerController : ArmyController
         UpdateDangerZones();
         ZoneLayers.Visible = true;
 
-        Cursor.Cell = ((IEnumerable<Unit>)Army).First().Cell;
+        Cursor.Cell = ((IEnumerable<UnitRenderer>)Army).First().State.Cell;
 
         Cursor.Resume();
         Pointer.StopWaiting();
@@ -259,9 +260,9 @@ public partial class PlayerController : ArmyController
         LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.RevertCameraFocus);
     }
 
-    public void OnUnitDefeated(Unit defeated)
+    public void OnUnitDefeated(UnitRenderer defeated)
     {
-        if (_tracked.Remove(defeated) || _showGlobalDangerZone)
+        if (_tracked.Remove(defeated.State) || _showGlobalDangerZone)
             UpdateDangerZones();
     }
 #endregion
@@ -276,7 +277,7 @@ public partial class PlayerController : ArmyController
 
         if (@event.IsActionPressed(InputActions.ToggleDangerZone))
         {
-            if (Cursor.Grid.Occupants.TryGetValue(Cursor.Cell, out GridNode node) && node is Unit unit)
+            if (Cursor.Grid.State.Occupants.TryGetValue(Cursor.Cell, out GridOccupantState occupant) && occupant is UnitState unit)
             {
                 if (!_tracked.Remove(unit))
                     _tracked.Add(unit);
@@ -304,9 +305,9 @@ public partial class PlayerController : ArmyController
 
     private void ConfirmCursorSelection(Vector2I cell)
     {
-        if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit unit)
+        if (Cursor.Grid.State.Occupants.TryGetValue(cell, out GridOccupantState occupant) && occupant is UnitState unit)
         {
-            if (unit.Army.Faction == Army.Faction && unit.Active)
+            if (unit.Faction == Army.Faction && unit.Active)
             {
                 State.SendEvent(_events[FinishEvent]);
                 EmitSignal(SignalName.UnitSelected, unit);

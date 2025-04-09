@@ -14,7 +14,7 @@ public abstract partial class ArmyController : Node
 
     /// <summary>Signals that a <see cref="Unit"/> has been chosen to act.</summary>
     /// <param name="unit">Selected unit.</param>
-    [Signal] public delegate void UnitSelectedEventHandler(Unit unit);
+    [Signal] public delegate void UnitSelectedEventHandler(UnitRenderer unit);
 
     /// <summary>Signals that a unit's action is being skipped.</summary>
     [Signal] public delegate void TurnSkippedEventHandler();
@@ -22,20 +22,20 @@ public abstract partial class ArmyController : Node
     /// <summary>Signals that a path for a <see cref="Unit"/> to move on has been chosen.</summary>
     /// <param name="unit">Unit that will move along the path.</param>
     /// <param name="path">Contiguous list of cells for the unit to move through.</param>
-    [Signal] public delegate void PathConfirmedEventHandler(Unit unit, Godot.Collections.Array<Vector2I> path);
+    [Signal] public delegate void PathConfirmedEventHandler(UnitRenderer unit, Godot.Collections.Array<Vector2I> path);
     /// <summary>Signals that an action has been chosen for a unit.</summary>
     /// <param name="unit">Unit being commanded.</param>
     /// <param name="command">String representing the action to perform.</param>
-    [Signal] public delegate void UnitCommandedEventHandler(Unit unit, StringName command);
+    [Signal] public delegate void UnitCommandedEventHandler(UnitRenderer unit, StringName command);
 
     /// <summary>Signals that a target for an action has been chosen.</summary>
     /// <param name="source">Unit performing the action.</param>
     /// <param name="target">Target of the action.</param>
-    [Signal] public delegate void TargetChosenEventHandler(Unit source, Unit target);
+    [Signal] public delegate void TargetChosenEventHandler(UnitRenderer source, UnitRenderer target);
 
     /// <summary>Signals that targeting for a unit's action was canceled.</summary>
     /// <param name="source">Unit whose action was canceled.</param>
-    [Signal] public delegate void TargetCanceledEventHandler(Unit source);
+    [Signal] public delegate void TargetCanceledEventHandler(UnitRenderer source);
 
     private Army _army = null;
 
@@ -43,7 +43,7 @@ public abstract partial class ArmyController : Node
     public Army Army => _army ??= GetParentOrNull<Army>();
 
     /// <summary>Grid that the army's units will be acting on.</summary>
-    [Export] public abstract Grid Grid { get; set; }
+    [Export] public abstract GridRenderer Grid { get; set; }
 
     /// <summary>Perform any setup needed to begin the army's turn.</summary>
     public abstract void InitializeTurn();
@@ -53,18 +53,18 @@ public abstract partial class ArmyController : Node
 
     /// <summary>Choose the path along which a unit will move. Once the path has been determined, emit <c>UnitMoved</c>.</summary>
     /// <param name="unit">Unit to move.</param>
-    public abstract void MoveUnit(Unit unit);
+    public abstract void MoveUnit(UnitRenderer unit);
 
     /// <summary>Choose an action for a unit to perform. Once a command has been selected, emit <c>UnitCommanded</c>.</summary>
     /// <param name="source">Unit chosen to perform a command.</param>
     /// <param name="commands">List of commands available to perform.</param>
     /// <param name="cancel">Command to perform on cancel.</param>
-    public abstract void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel);
+    public abstract void CommandUnit(UnitRenderer source, Godot.Collections.Array<StringName> commands, StringName cancel);
 
     /// <summary>Choose the target for an action that was selected.</summary>
     /// <param name="source">Unit that will perform the action.</param>
     /// <param name="targets">Cells <paramref name="source"/> can act on.</param>
-    public abstract void SelectTarget(Unit source, IEnumerable<Vector2I> targets);
+    public abstract void SelectTarget(UnitRenderer source, IEnumerable<Vector2I> targets);
 
     /// <summary>Clean up at the end of a unit's action and get ready for the next unit's action.</summary>
     public abstract void FinalizeAction();

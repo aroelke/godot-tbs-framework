@@ -17,7 +17,7 @@ public partial class GridNode : BoundedNode2D
     private Vector2I _cell = Vector2I.Zero;
 
     /// <summary>Grid on which the containing object sits.</summary>
-    [Export] public Grid Grid;
+    [Export] public GridRenderer Grid;
 
     /// <summary>Cell on the <see cref="Map.Grid"/> that this object currently occupies.</summary>
     [Export] public virtual Vector2I Cell
@@ -37,7 +37,7 @@ public partial class GridNode : BoundedNode2D
             }
             else
             {
-                Vector2I next = Grid?.Clamp(value) ?? value;
+                Vector2I next = Grid?.State.Clamp(value) ?? value;
                 if (next != _cell)
                 {
                     _cell = next;
@@ -66,7 +66,7 @@ public partial class GridNode : BoundedNode2D
 
         if (Grid is null)
             warnings.Add("No grid to move on has been defined.");
-        else if (Cell.X < 0 || Cell.Y < 0 || Cell.X >= Grid.Size.X || Cell.Y >= Grid.Size.Y)
+        else if (Cell.X < 0 || Cell.Y < 0 || Cell.X >= Grid.State.Size.X || Cell.Y >= Grid.State.Size.Y)
             warnings.Add("Outside grid bounds.");
 
         return [.. warnings];

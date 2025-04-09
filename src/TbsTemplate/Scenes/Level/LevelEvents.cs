@@ -22,7 +22,7 @@ public partial class LevelEvents : Node
     [Signal] public delegate void TurnBeganEventHandler(int turn, Army army);
 
     /// <summary>Signals that a unit's action has ended.</summary>
-    [Signal] public delegate void ActionEndedEventHandler(Unit unit);
+    [Signal] public delegate void ActionEndedEventHandler(UnitRenderer unit);
 
     /// <summary>Signals that an army's turn has ended.</summary>
     /// <param name="turn">Number of the turn that ended.</param>
@@ -47,6 +47,6 @@ public partial class LevelEvents : Node
 #endregion
 #region Units
     /// <summary>Signals that a unit has been defeated.</summary>
-    [Signal] public delegate void UnitDefeatedEventHandler(Unit defeated);
+    [Signal] public delegate void UnitDefeatedEventHandler(UnitRenderer defeated);
 #endregion
 }

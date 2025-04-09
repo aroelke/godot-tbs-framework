@@ -13,6 +13,7 @@ using TbsTemplate.UI;
 using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Combat;
 using TbsTemplate.Nodes.Components;
+using TbsTemplate.Scenes.Level.State.Occupants;
 
 namespace TbsTemplate.Scenes.Level;
 
@@ -48,13 +49,13 @@ public partial class LevelManager : Node
     private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, CancelEvent, SkipEvent, WaitEvent, DoneEvent], @default:"");
 
     private Path _path = null;
-    private Unit _selected = null, _target = null;
+    private UnitRenderer _selected = null, _target = null;
     private IEnumerator<Army> _armies = null;
     private Vector2I? _initialCell = null;
     private readonly Stack<BoundedNode2D> _cameraHistory = [];
     private StringName _command = null;
 
-    private Grid Grid = null;
+    private GridRenderer Grid = null;
 #endregion
 #region Helper Properties and Methods
     private Vector2 MenuPosition(Rect2 rect, Vector2 size)
@@ -120,9 +121,9 @@ public partial class LevelManager : Node
     /// <summary>Update the UI when re-entering idle.</summary>
     public void OnIdleEntered() => Callable.From(_armies.Current.Controller.SelectUnit).CallDeferred();
 
-    public void OnIdleUnitSelected(Unit unit)
+    public void OnIdleUnitSelected(UnitRenderer unit)
     {
-        if (unit.Army.Faction != _armies.Current.Faction)
+        if (unit.State.Faction != _armies.Current.Faction)
             throw new InvalidOperationException($"Cannot select unit not from army {_armies.Current.Name}");
         if (!unit.Active)
             throw new InvalidOperationException($"Cannot select inactive unit {unit.Name}");
@@ -135,7 +136,7 @@ public partial class LevelManager : Node
 
     public void OnIdleTurnSkipped()
     {
-        foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
+        foreach (UnitRenderer unit in (IEnumerable<UnitRenderer>)_armies.Current)
             unit.Finish();
         State.SendEvent(_events[SkipEvent]);
     }
@@ -153,12 +154,12 @@ public partial class LevelManager : Node
     public void OnSelectedEntered()
     {
         _selected.Select();
-        _initialCell = _selected.Cell;
+        _initialCell = _selected.State.Cell;
         _command = null;
         _target = null;
 
         // Compute move/attack/support ranges for selected unit
-        _path = Path.Empty(Grid, _selected.TraversableCells());
+        _path = Path.Empty(Grid, _selected.State.TraversableCells());
 
         // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
         Rect2? zoomRect = null; // Grid.EnclosingRect(ActionLayers.Union());
@@ -170,30 +171,30 @@ public partial class LevelManager : Node
                 Camera.PushZoom(zoomTarget);
         }
 
-        Callable.From<Unit>(_armies.Current.Controller.MoveUnit).CallDeferred(_selected);
+        Callable.From<UnitRenderer>(_armies.Current.Controller.MoveUnit).CallDeferred(_selected);
     }
 
-    public void OnSelectedUnitCommanded(Unit unit, StringName command)
+    public void OnSelectedUnitCommanded(UnitRenderer unit, StringName command)
     {
         if (unit != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit {unit.Name} ({_selected.Name} is selected)");
         _command = command;
     }
 
-    public void OnSelectedTargetChosen(Unit source, Unit target)
+    public void OnSelectedTargetChosen(UnitRenderer source, UnitRenderer target)
     {
         if (source != _selected)
             throw new InvalidOperationException($"Cannot choose action target for unselected unit {source.Name} ({_selected.Name} is selected)");
         _target = target;
     }
 
-    public void OnSelectedPathConfirmed(Unit unit, Godot.Collections.Array<Vector2I> path)
+    public void OnSelectedPathConfirmed(UnitRenderer unit, Godot.Collections.Array<Vector2I> path)
     {
         if (unit != _selected)
             throw new InvalidOperationException($"Cannot confirm path for unselected unit {unit.Name} ({_selected.Name} is selected)");
-        if (path.Any((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Army.Faction.AlliedTo(_selected) ?? false)))
+        if (path.Any((c) => Grid.State.Occupants.ContainsKey(c) && (!(Grid.State.Occupants[c] as UnitState)?.Faction.AlliedTo(_selected.State.Faction) ?? false)))
             throw new InvalidOperationException("The chosen path must only contain traversable cells.");
-        if (Grid.Occupants.ContainsKey(path[^1]) && Grid.Occupants[path[^1]] != unit)
+        if (Grid.State.Occupants.ContainsKey(path[^1]) && Grid.State.Occupants[path[^1]] != unit.State)
             throw new InvalidOperationException("The chosen path must not end on an occupied cell.");
 
         _path = _path.SetTo(path);
@@ -227,9 +228,9 @@ public partial class LevelManager : Node
         PushCameraFocus(_selected.MotionBox);
 
         // Move the unit and delete the pathfinder as we don't need it anymore
-        Grid.Occupants.Remove(_selected.Cell);
-        _selected.Connect(Unit.SignalName.DoneMoving, _target is null ? () => State.SendEvent(_events[DoneEvent]) : () => State.SendEvent(_events[SkipEvent]), (uint)ConnectFlags.OneShot);
-        Grid.Occupants[_path[^1]] = _selected;
+//        Grid.State.RemoveOccupant(_selected.State.Cell);
+        _selected.Connect(UnitRenderer.SignalName.DoneMoving, _target is null ? () => State.SendEvent(_events[DoneEvent]) : () => State.SendEvent(_events[SkipEvent]), (uint)ConnectFlags.OneShot);
+        Grid.State.SetOccupant(_path[^1], _selected.State);
         _selected.MoveAlong(_path); // must be last in case it fires right away
     }
 
@@ -267,14 +268,14 @@ public partial class LevelManager : Node
                 }));
             }
         }
-        AddActionOption("Attack", _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
-        AddActionOption("Support", _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
+        AddActionOption("Attack", _selected.State.AttackableCells().Where((c) => Grid.State.Occupants.TryGetValue(c, out GridOccupantState occupant) && occupant is UnitState unit && !unit.Faction.AlliedTo(_selected.State.Faction)));
+        AddActionOption("Support", _selected.State.SupportableCells().Where((c) => Grid.State.Occupants.TryGetValue(c, out GridOccupantState occupant) && occupant is UnitState unit && unit.Faction.AlliedTo(_selected.State.Faction)));
         foreach (SpecialActionRegion region in Grid.SpecialActionRegions)
         {
-            if (region.HasSpecialAction(_selected, _selected.Cell))
+            if (region.HasSpecialAction(_selected, _selected.State.Cell))
             {
                 _options.Add(new(region.Name, () => {
-                    region.PerformSpecialAction(_selected, _selected.Cell);
+                    region.PerformSpecialAction(_selected, _selected.State.Cell);
                     State.SendEvent(_events[SkipEvent]);
                 }));
             }
@@ -282,10 +283,10 @@ public partial class LevelManager : Node
         _options.Add(new("End", () => State.SendEvent(_events[SkipEvent])));
         _options.Add(new("Cancel", () => State.SendEvent(_events[CancelEvent])));
 
-        Callable.From<Unit, Godot.Collections.Array<StringName>, StringName>(_armies.Current.Controller.CommandUnit).CallDeferred(_selected, new Godot.Collections.Array<StringName>(_options.Select((o) => o.Name)), "Cancel");
+        Callable.From<UnitRenderer, Godot.Collections.Array<StringName>, StringName>(_armies.Current.Controller.CommandUnit).CallDeferred(_selected, new Godot.Collections.Array<StringName>(_options.Select((o) => o.Name)), "Cancel");
     }
 
-    public void OnCommandingUnitCommanded(Unit unit, StringName command)
+    public void OnCommandingUnitCommanded(UnitRenderer unit, StringName command)
     {
         if (unit != _selected)
             throw new InvalidOperationException($"Cannon command unselected unit {unit.Name} ({_selected.Name} is selected)");
@@ -300,9 +301,9 @@ public partial class LevelManager : Node
         _command = null;
 
         // Move the selected unit back to its original cell
-        Grid.Occupants.Remove(_selected.Cell);
-        _selected.Cell = _initialCell.Value;
-        Grid.Occupants[_selected.Cell] = _selected;
+//        Grid.Occupants.Remove(_selected.Cell);
+        _selected.State.Cell = _initialCell.Value;
+//        Grid.Occupants[_selected.Cell] = _selected;
         _initialCell = null;
 
         _target = null;
@@ -318,28 +319,28 @@ public partial class LevelManager : Node
         _armies.Current.Controller.SelectTarget(_selected, _targets);
     }
 
-    public void OnTargetChosen(Unit source, Unit target)
+    public void OnTargetChosen(UnitRenderer source, UnitRenderer target)
     {
         if (source != _selected)
             throw new InvalidOperationException($"Cannot choose target for unselected unit {source.Name} ({_selected.Name} is selected)");
-        if ((_command == "Attack" && target.Army.Faction.AlliedTo(_selected)) || (_command == "Support" && !target.Army.Faction.AlliedTo(_selected)))
+        if ((_command == "Attack" && target.State.Faction.AlliedTo(_selected.State.Faction)) || (_command == "Support" && !target.State.Faction.AlliedTo(_selected.State.Faction)))
             throw new ArgumentException($"{_selected.Name} cannot {_command} {target.Name}");
         _target = target;
         State.SendEvent(_events[DoneEvent]);
     }
 
-    public void OnTargetingCanceled(Unit source) => State.SendEvent(_events[CancelEvent]);
+    public void OnTargetingCanceled(UnitRenderer source) => State.SendEvent(_events[CancelEvent]);
 #endregion
 #region In Combat
     public void OnCombatEntered()
     {
         if (_command == "Attack")
-            _combatResults = CombatCalculations.AttackResults(_selected, _target);
+            _combatResults = CombatCalculations.AttackResults(_selected.State, _target.State);
         else if (_command == "Support")
-            _combatResults = [CombatCalculations.CreateSupportAction(_selected, _target)];
+            _combatResults = [CombatCalculations.CreateSupportAction(_selected.State, _target.State)];
         else
             throw new NotSupportedException($"Unknown action {_command}");
-        SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, _combatResults.ToImmutableList()), (uint)ConnectFlags.OneShot);
+        SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected.State, _target.State, _combatResults.ToImmutableList()), (uint)ConnectFlags.OneShot);
         SceneManager.CallScene(CombatScenePath);
     }
 
@@ -360,15 +361,15 @@ public partial class LevelManager : Node
     {
         _armies.Current.Controller.FinalizeAction();
         _selected.Finish();
-        State.ExpressionProperties = State.ExpressionProperties.SetItem(ActiveProperty, ((IEnumerable<Unit>)_armies.Current).Count((u) => u.Active));
+        State.ExpressionProperties = State.ExpressionProperties.SetItem(ActiveProperty, ((IEnumerable<UnitRenderer>)_armies.Current).Count((u) => u.Active));
 
-        Callable.From<Unit>((u) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, u)).CallDeferred(_selected);
+        Callable.From<UnitRenderer>((u) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, u)).CallDeferred(_selected);
     }
 
     /// <summary>Clean up at the end of the unit's turn.</summary>
     public void OnEndActionExited()
     {
-        if (_selected.Health.Value <= 0)
+        if (_selected.State.Health.Value <= 0)
             _selected.Die();
         _selected = null;
     }
@@ -396,14 +397,14 @@ public partial class LevelManager : Node
         _armies.Current.Controller.TargetChosen -= _.State.Root.Running.UnitTargeting.OnTargetChosen.React;
         _armies.Current.Controller.FinalizeTurn();
 
-        foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
+        foreach (UnitRenderer unit in (IEnumerable<UnitRenderer>)_armies.Current)
             unit.Refresh();
 
         do
         {
             if (_armies.MoveNext() && _armies.Current == StartingArmy)
                 Turn++;
-        } while (!((IEnumerable<Unit>)_armies.Current).Any());
+        } while (!((IEnumerable<UnitRenderer>)_armies.Current).Any());
     }
 #endregion
 #region State Independent
@@ -428,7 +429,7 @@ public partial class LevelManager : Node
     public void OnPointerFlightStarted(Vector2 target)
     {
         State.SendEvent(_events[WaitEvent]);
-        PushCameraFocus(Grid.Occupants.ContainsKey(Grid.CellOf(target)) ? Grid.Occupants[Grid.CellOf(target)] : Camera.Target);
+        PushCameraFocus(Grid.State.Occupants.ContainsKey(Grid.CellOf(target)) ? Grid.State.Occupants[Grid.CellOf(target)] : Camera.Target);
     }
 
     /// <summary>When the pointer finished flying, return to the previous state.</summary>
@@ -450,11 +451,11 @@ public partial class LevelManager : Node
     /// <param name="child"></param>
     public void OnChildEnteredGroup(Node child)
     {
-        if (child is GridNode gd)
-            gd.Grid = Engine.IsEditorHint() ? GetNode<Grid>("Grid") : Grid;
+        if (child is UnitRenderer unit)
+            unit.Grid = Engine.IsEditorHint() ? GetNode<GridRenderer>("Grid") : Grid;
     }
 
-    public void OnUnitDefeated(Unit defeated)
+    public void OnUnitDefeated(UnitRenderer defeated)
     {
         // If the dead unit is the currently-selected one, it will be cleared away at the end of its action.
         if (_selected != defeated)
@@ -482,22 +483,22 @@ public partial class LevelManager : Node
 
         if (!Engine.IsEditorHint())
         {
-            Grid = GetNode<Grid>("Grid");
+            Grid = GetNode<GridRenderer>("Grid");
 
-            Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
+            Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.State.Size*Grid.CellSize));
             LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.CameraBoundsUpdated, Camera.Limits);
 
             foreach (Army army in GetChildren().OfType<Army>())
             {
                 army.Controller.Grid = Grid;
-                foreach (Unit unit in (IEnumerable<Unit>)army)
+                foreach (UnitRenderer unit in (IEnumerable<UnitRenderer>)army)
                 {
                     unit.Grid = Grid;
-                    unit.Cell = Grid.CellOf(unit.GlobalPosition - Grid.GlobalPosition);
-                    Grid.Occupants[unit.Cell] = unit;
+                    unit.State.Cell = Grid.CellOf(unit.GlobalPosition - Grid.GlobalPosition);
+//                    Grid.Occupants[unit.Cell] = unit;
                 }
             }
-            LevelEvents.Singleton.Connect<Unit>(LevelEvents.SignalName.UnitDefeated, OnUnitDefeated);
+            LevelEvents.Singleton.Connect<UnitRenderer>(LevelEvents.SignalName.UnitDefeated, OnUnitDefeated);
 
             _armies = GetChildren().OfType<Army>().GetCyclicalEnumerator();
             if (StartingArmy is null)
@@ -560,7 +561,7 @@ public partial class LevelManager : Node
         List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
 
         // Make sure there's a map
-        int maps = GetChildren().Count(static (c) => c is Grid);
+        int maps = GetChildren().Count(static (c) => c is GridRenderer);
         if (maps < 1)
             warnings.Add("Level does not contain a map.");
         else if (maps > 1)

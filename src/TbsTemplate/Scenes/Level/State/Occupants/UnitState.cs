@@ -31,6 +31,8 @@ public partial class UnitState : GridOccupantState
         );
     }
 
+    [Export] public Class Class = null;
+
     [Export] public Stats Stats = new();
 
     [Export] public Faction Faction = null;

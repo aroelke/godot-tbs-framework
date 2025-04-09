@@ -1,18 +1,12 @@
-[gd_scene load_steps=5 format=3 uid="uid://cvch4ay3dx0wv"]
+[gd_scene load_steps=4 format=3 uid="uid://cvch4ay3dx0wv"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/UI/Combat/ParticipantInfo.cs" id="1_ecooa"]
 [ext_resource type="Texture2D" uid="uid://blfcbg8bx2epd" path="res://demo/assets/raw/Pixel Health Bar/Bar/no health bar (2x).png" id="2_3b0kp"]
-[ext_resource type="PackedScene" uid="uid://duggsftmu8x6l" path="res://src/TbsTemplate/Nodes/Components/HealthComponent.tscn" id="2_07iwx"]
 [ext_resource type="Texture2D" uid="uid://cuanvqgifu4u3" path="res://demo/assets/raw/Pixel Health Bar/Health/health (2x).png" id="3_qcb3p"]
 
 [node name="ParticipantInfo" type="GridContainer"]
 columns = 3
 script = ExtResource("1_ecooa")
-
-[node name="HealthComponent" parent="." instance=ExtResource("2_07iwx")]
-unique_name_in_owner = true
-Maximum = 10
-Value = 10
 
 [node name="HealthLabel" type="Label" parent="."]
 unique_name_in_owner = true
@@ -51,5 +45,3 @@ horizontal_alignment = 2
 unique_name_in_owner = true
 layout_mode = 2
 text = "0%"
-
-[connection signal="ValueChanged" from="HealthComponent" to="." method="OnHealthChanged"]

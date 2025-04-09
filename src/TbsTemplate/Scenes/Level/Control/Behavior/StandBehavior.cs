@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using TbsTemplate.Scenes.Level.Object;
+using TbsTemplate.Scenes.Level.State.Occupants;
 
 namespace TbsTemplate.Scenes.Level.Control.Behavior;
 
@@ -12,16 +12,16 @@ public partial class StandBehavior : UnitBehavior
     /// <summary>Whether or not the unit should attack enemies in range.</summary>
     [Export] public bool AttackInRange = false;
 
-    public override IEnumerable<Vector2I> Destinations(Unit unit) => [unit.Cell];
+    public override IEnumerable<Vector2I> Destinations(UnitState unit) => [unit.Cell];
 
-    public override Dictionary<StringName, IEnumerable<Vector2I>> Actions(Unit unit)
+    public override Dictionary<StringName, IEnumerable<Vector2I>> Actions(UnitState unit)
     {
         if (AttackInRange)
         {
             Dictionary<StringName, IEnumerable<Vector2I>> actions = [];
 
             IEnumerable<Vector2I> attackable = unit.AttackableCells();
-            IEnumerable<Unit> targets = unit.Grid.Occupants.Where((p) => attackable.Contains(p.Key) && p.Value is Unit target && !unit.Army.Faction.AlliedTo(target)).Select((p) => p.Value).OfType<Unit>();
+            IEnumerable<UnitState> targets = unit.Grid.Occupants.Where((p) => attackable.Contains(p.Key) && p.Value is UnitState target && !unit.Faction.AlliedTo(target.Faction)).Select((p) => p.Value).OfType<UnitState>();
             if (targets.Any())
                 actions["Attack"] = targets.Select((u) => u.Cell);
 

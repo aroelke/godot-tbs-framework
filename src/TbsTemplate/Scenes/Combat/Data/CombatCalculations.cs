@@ -2,8 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Godot;
-using TbsTemplate.Scenes.Level.Object;
+using TbsTemplate.Scenes.Level.State.Occupants;
 
 namespace TbsTemplate.Scenes.Combat.Data;
 
@@ -21,7 +20,7 @@ public static class CombatCalculations
     /// <param name="attacker">Attacking unit.</param>
     /// <param name="defender">Defending unit.</param>
     /// <returns>The amount of damage the attacker deals to the defender, with a minimum of 0.</returns>
-    public static int Damage(Unit attacker, Unit defender) => Math.Max(attacker.Stats.Attack - defender.Stats.Defense, 0);
+    public static int Damage(UnitState attacker, UnitState defender) => Math.Max(attacker.Stats.Attack - defender.Stats.Defense, 0);
 
     /// <summary>
     /// Determine the probability that an attacker's attack will land. The formula is currently:
@@ -32,17 +31,17 @@ public static class CombatCalculations
     /// <param name="attacker">Attacking unit.</param>
     /// <param name="defender">Defending unit.</param>
     /// <returns>A number from 0 through 100 that indicates the chance, in percent that the attacker's attack will hit.</returns>
-    public static int HitChance(Unit attacker, Unit defender) => attacker.Stats.Accuracy - defender.Stats.Evasion;
+    public static int HitChance(UnitState attacker, UnitState defender) => attacker.Stats.Accuracy - defender.Stats.Evasion;
 
     /// <summary>Create an action representing the result of a single attack.</summary>
     /// <param name="attacker">Unit performing the attack.</param>
     /// <param name="defender">Unit receiving the attack.</param>
-    public static CombatAction CreateAttackAction(Unit attacker, Unit defender) => new(attacker, defender, CombatActionType.Attack, Damage(attacker, defender), rnd.Next(100) < HitChance(attacker, defender));
+    public static CombatAction CreateAttackAction(UnitState attacker, UnitState defender) => new(attacker, defender, CombatActionType.Attack, Damage(attacker, defender), rnd.Next(100) < HitChance(attacker, defender));
 
     /// <summary>Create an action representing the result of a single support.</summary>
     /// <param name="supporter">Unit performing the support.</param>
     /// <param name="recipient">Unit receiving the support.</param>
-    public static CombatAction CreateSupportAction(Unit supporter, Unit recipient) => new(supporter, recipient, CombatActionType.Support, -supporter.Stats.Healing, true);
+    public static CombatAction CreateSupportAction(UnitState supporter, UnitState recipient) => new(supporter, recipient, CombatActionType.Support, -supporter.Stats.Healing, true);
 
     /// <summary>
     /// Deterine which unit, if any, will follow up in a combat situation. Currently, a unit follows up if its agility is higher than the
@@ -54,7 +53,7 @@ public static class CombatCalculations
     /// If a unit will follow up, a tuple where <c>doubler</c> contains the unit that follows up and <c>other</c> contains the other unit.
     /// If no unit follows up, <c>null</c>.
     /// </returns>
-    public static (Unit doubler, Unit other)? FollowUp(Unit a, Unit b) => (a.Stats.Agility - b.Stats.Agility) switch
+    public static (UnitState doubler, UnitState other)? FollowUp(UnitState a, UnitState b) => (a.Stats.Agility - b.Stats.Agility) switch
     {
         >0 => (a, b),
         <0 => (b, a),
@@ -65,13 +64,13 @@ public static class CombatCalculations
     /// <param name="a">One of the participants.</param>
     /// <param name="b">One of the participants.</param>
     /// <returns>A list of data structures specifying the action taken during each round of combat.</returns>
-    public static List<CombatAction> AttackResults(Unit a, Unit b)
+    public static List<CombatAction> AttackResults(UnitState a, UnitState b)
     {
         // Compute complete combat action list
         List<CombatAction> actions = [CreateAttackAction(a, b)];
         if (b.AttackableCells().Contains(a.Cell))
             actions.Add(CreateAttackAction(b, a));
-        if (FollowUp(a, b) is (Unit doubler, Unit doublee))
+        if (FollowUp(a, b) is (UnitState doubler, UnitState doublee))
             actions.Add(CreateAttackAction(doubler, doublee));
 
         return actions;
@@ -81,11 +80,11 @@ public static class CombatCalculations
     /// <param name="target">Participant to compute damage for.</param>
     /// <param name="actions">Actions describing what happened in combat.</param>
     /// <returns>The total amount of damage dealt to <paramref name="target"/> based on <paramref name="actions"/>.</returns>
-    public static int TotalDamage(Unit target, IEnumerable<CombatAction> actions) => actions.Where((a) => a.Hit && a.Target == target).Select((a) => a.Damage).Sum();
+    public static int TotalDamage(UnitState target, IEnumerable<CombatAction> actions) => actions.Where((a) => a.Hit && a.Target == target).Select((a) => a.Damage).Sum();
 
     /// <summary>Compute the expected amount of damage dealt to a participant in combat (e.g. sum of damage of each hit multiplied by its accuracy).</summary>
     /// <param name="target">Participant to compute damage for.</param>
     /// <param name="actions">Actions describing what will happen in combat.</param>
     /// <returns>The total expected amount of damage, in a statistical sense, <paramref name="target"/> will receive based on <paramref name="actions"/>.</returns>
-    public static double TotalExpectedDamage(Unit target, IEnumerable<CombatAction> actions) => actions.Where((a) => a.Target == target).Select((a) => a.Damage*HitChance(a.Actor, target)/100.0).Sum();
+    public static double TotalExpectedDamage(UnitState target, IEnumerable<CombatAction> actions) => actions.Where((a) => a.Target == target).Select((a) => a.Damage*HitChance(a.Actor, target)/100.0).Sum();
 }

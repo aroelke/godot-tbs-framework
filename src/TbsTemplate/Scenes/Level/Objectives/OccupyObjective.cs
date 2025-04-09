@@ -17,7 +17,7 @@ public partial class OccupyObjective : Objective
     [Export] public Army Army = null;
 
     /// <summary>Units that should occupy the region. May be empty if <see cref="Army"/> is not <c>null</c>.</summary>
-    [Export] public Unit[] Units = [];
+    [Export] public UnitRenderer[] Units = [];
 
     /// <summary>Number of units from the set that must occupy the region.</summary>
     [Export(PropertyHint.Range, "1,10,or_greater")] public int Count = 1;
@@ -32,8 +32,8 @@ public partial class OccupyObjective : Objective
             int occupants = 0;
             HashSet<Vector2I> region = [.. Region.GetUsedCells()];
             if (Army is not null)
-                occupants += region.Where((c) => ((IEnumerable<Unit>)Army).Any((u) => u.Cell == c)).Count();
-            occupants += region.Where((c) => Units.Any((u) => u.Cell == c)).Count();
+                occupants += region.Where((c) => ((IEnumerable<UnitRenderer>)Army).Any((u) => u.State.Cell == c)).Count();
+            occupants += region.Where((c) => Units.Any((u) => u.State.Cell == c)).Count();
             return occupants >= Count;
         }
     }

@@ -63,8 +63,8 @@ public partial class EventController : Node
     /// or failure. Overriding classes should signal <c>EventComplete</c> when they're ready for the turn to end.
     /// </summary>
     /// <param name="unit">Unit that just acted.</param>
-    public virtual void _ActionEnded(Unit unit) => SkipEvent();
-    public void OnActionEnded(Unit unit) => Callable.From<Unit>(_ActionEnded).CallDeferred(unit);
+    public virtual void _ActionEnded(UnitRenderer unit) => SkipEvent();
+    public void OnActionEnded(UnitRenderer unit) => Callable.From<UnitRenderer>(_ActionEnded).CallDeferred(unit);
 
     public virtual void _TurnEnded(int turn, Army army) => SkipEvent();
     public void OnTurnEnded(int turn, Army army) => Callable.From<int, Army>(_TurnEnded).CallDeferred(turn, army);
@@ -75,7 +75,7 @@ public partial class EventController : Node
         if (!Engine.IsEditorHint())
         {
             LevelEvents.Singleton.Connect<int, Army>(LevelEvents.SignalName.TurnBegan, OnTurnBegan);
-            LevelEvents.Singleton.Connect<Unit>(LevelEvents.SignalName.ActionEnded, OnActionEnded);
+            LevelEvents.Singleton.Connect<UnitRenderer>(LevelEvents.SignalName.ActionEnded, OnActionEnded);
             LevelEvents.Singleton.Connect<int, Army>(LevelEvents.SignalName.TurnEnded, OnTurnEnded);
         }
     }

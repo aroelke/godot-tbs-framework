@@ -11,6 +11,8 @@ using TbsTemplate.Scenes.Level.Control.Behavior;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
+using TbsTemplate.Scenes.Level.State;
+using TbsTemplate.Scenes.Level.State.Occupants;
 
 namespace TbsTemplate.Scenes.Level.Control;
 
@@ -21,10 +23,10 @@ public partial class AIController : ArmyController
     {
         public VirtualGrid(Vector2I size, Terrain terrain, IImmutableDictionary<Vector2I, VirtualUnit> occupants) : this(size, [.. Enumerable.Repeat(Enumerable.Repeat(terrain, size.X).ToArray(), size.Y)], occupants) {}
 
-        public VirtualGrid(Grid grid) : this(
+        public VirtualGrid(GridState grid) : this(
             grid.Size,
-            [.. Enumerable.Range(1, grid.Size.X).Select((c) => Enumerable.Range(1, grid.Size.Y).Select((r) => grid.GetTerrain(new(r, c))).ToArray())],
-            grid.Occupants.Where((e) => e.Value is Unit).ToImmutableDictionary((e) => e.Key, (e) => new VirtualUnit(e.Value as Unit))
+            [.. Enumerable.Range(1, grid.Size.X).Select((c) => Enumerable.Range(1, grid.Size.Y).Select((r) => grid.Terrain[r][c]).ToArray())],
+            grid.Occupants.Where((e) => e.Value is UnitState).ToImmutableDictionary((e) => e.Key, (e) => new VirtualUnit(e.Value as UnitState))
         ) {}
 
         public bool Contains(Vector2I cell) => cell.X >= 0 && cell.X < Size.X && cell.Y >= 0 && cell.Y < Size.Y;
@@ -188,7 +190,7 @@ public partial class AIController : ArmyController
                 Dictionary<StringName, IEnumerable<Vector2I>> actions = [];
 
                 IEnumerable<Vector2I> attackable = unit.AttackableCells(grid, [unit.Cell]);
-                IEnumerable<VirtualUnit> targets = grid.Occupants.Where((p) => attackable.Contains(p.Key) && !unit.Original.Army.Faction.AlliedTo(p.Value.Original)).Select((p) => p.Value);
+                IEnumerable<VirtualUnit> targets = grid.Occupants.Where((p) => attackable.Contains(p.Key) && !unit.Original.State.Faction.AlliedTo(p.Value.Original.State.Faction)).Select((p) => p.Value);
                 if (targets.Any())
                     actions["Attack"] = targets.Select((u) => u.Cell);
 
@@ -208,7 +210,7 @@ public partial class AIController : ArmyController
 
         public override Dictionary<StringName, IEnumerable<Vector2I>> Actions(VirtualGrid grid, VirtualUnit unit)
         {
-            IEnumerable<Vector2I> enemies = unit.AttackableCells(grid, unit.TraversableCells(grid)).Where((c) => grid.Occupants.ContainsKey(c) && !grid.Occupants[c].Original.Army.Faction.AlliedTo(unit.Original));
+            IEnumerable<Vector2I> enemies = unit.AttackableCells(grid, unit.TraversableCells(grid)).Where((c) => grid.Occupants.ContainsKey(c) && !grid.Occupants[c].Original.State.Faction.AlliedTo(unit.Original.State.Faction));
             if (enemies.Any())
                 return new() { {"Attack", enemies} };
             else
@@ -218,11 +220,17 @@ public partial class AIController : ArmyController
 
     private static readonly VirtualMoveBehavior VirtualMoveBehaviorInst = new();
 
-    private readonly record struct VirtualUnit(Unit Original, Vector2I Cell, float Health, VirtualUnitBehavior Behavior)
+    private readonly record struct VirtualUnit(UnitRenderer Original, Vector2I Cell, double Health, VirtualUnitBehavior Behavior)
     {
         private static ImmutableHashSet<Vector2I> GetCellsInRange(VirtualGrid grid, IEnumerable<Vector2I> sources, IEnumerable<int> ranges) => [.. sources.SelectMany((c) => ranges.SelectMany((r) => grid.GetCellsAtRange(c, r)))];
 
-        public VirtualUnit(Unit original) : this(original, original.Cell, original.Health.Value, original.Behavior switch {
+        public VirtualUnit(UnitRenderer original) : this(original, original.State.Cell, original.State.Health.Value, original.State.Behavior switch {
+            StandBehavior b => b.AttackInRange ? VirtualStandBehaviorCanAttack : VirtualStandBehaviorCantAttack,
+            MoveBehavior  b => VirtualMoveBehaviorInst,
+            _ => null
+        }) {}
+
+        public VirtualUnit(UnitState state) : this(null, state.Cell, state.Health.Value, state.Behavior switch {
             StandBehavior b => b.AttackInRange ? VirtualStandBehaviorCanAttack : VirtualStandBehaviorCantAttack,
             MoveBehavior  b => VirtualMoveBehaviorInst,
             _ => null
@@ -230,7 +238,7 @@ public partial class AIController : ArmyController
 
         public IEnumerable<Vector2I> TraversableCells(VirtualGrid grid)
         {
-            int max = 2*(Original.Stats.Move + 1)*(Original.Stats.Move + 1) - 2*Original.Stats.Move - 1;
+            int max = 2*(Original.State.Stats.Move + 1)*(Original.State.Stats.Move + 1) - 2*Original.State.Stats.Move - 1;
 
             Dictionary<Vector2I, int> cells = new(max) {{ Cell, 0 }};
             Queue<Vector2I> potential = new(max);
@@ -247,8 +255,8 @@ public partial class AIController : ArmyController
                     {
                         int cost = cells[current] + grid.Terrain[neighbor.X][neighbor.Y].Cost;
                         if ((!cells.ContainsKey(neighbor) || cells[neighbor] > cost) && // cell hasn't been examined yet or this path is shorter to get there
-                            (!grid.Occupants.TryGetValue(neighbor, out VirtualUnit occupant) || occupant.Original.Army.Faction.AlliedTo(Original.Army.Faction)) && // cell is empty or contains an allied unit
-                            cost <= Original.Stats.Move) // cost to get to cell is within range
+                            (!grid.Occupants.TryGetValue(neighbor, out VirtualUnit occupant) || occupant.Original.State.Faction.AlliedTo(Original.State.Faction)) && // cell is empty or contains an allied unit
+                            cost <= Original.State.Stats.Move) // cost to get to cell is within range
                         {
                             cells[neighbor] = cost;
                             potential.Enqueue(neighbor);
@@ -260,7 +268,7 @@ public partial class AIController : ArmyController
             return cells.Keys;
         }
 
-        public IEnumerable<Vector2I> AttackableCells(VirtualGrid grid, IEnumerable<Vector2I> sources) => GetCellsInRange(grid, sources, Original.AttackRange);
+        public IEnumerable<Vector2I> AttackableCells(VirtualGrid grid, IEnumerable<Vector2I> sources) => GetCellsInRange(grid, sources, Original.State.Stats.AttackRange);
     }
 
     /// <summary>Acts as a "value" for a grid which can be compared to other values and evaluate grids against each other.</summary>
@@ -272,16 +280,16 @@ public partial class AIController : ArmyController
         public static bool operator<(GridValue a, GridValue b) => a.CompareTo(b) < 0;
 
         /// <summary>Enemy units of <see cref="Source"/>, sorted in increasing order of current health.</summary>
-        private readonly IOrderedEnumerable<VirtualUnit> _enemies = Grid.Occupants.Values.Where((u) => !Source.AlliedTo(u.Original.Army.Faction)).OrderBy(static (u) => u.Health);
-        private readonly IEnumerable<VirtualUnit> _allies = Grid.Occupants.Values.Where((u) => Source.AlliedTo(u.Original.Army.Faction));
+        private readonly IOrderedEnumerable<VirtualUnit> _enemies = Grid.Occupants.Values.Where((u) => !Source.AlliedTo(u.Original.State.Faction)).OrderBy(static (u) => u.Health);
+        private readonly IEnumerable<VirtualUnit> _allies = Grid.Occupants.Values.Where((u) => Source.AlliedTo(u.Original.State.Faction));
 
         public int DeadAllies => _allies.Where(static (u) => u.Health <= 0).Count();
 
         /// <summary>Difference between enemy units' current and maximum health, summed over all enemy units. Higher is better.</summary>
-        public float EnemyHealthDifference => _enemies.Select(static (u) => u.Original.Stats.Health - u.Health).Sum();
+        public double EnemyHealthDifference => _enemies.Select(static (u) => u.Original.State.Stats.Health - u.Health).Sum();
 
         /// <summary>Difference between ally units' current and maximum health, summed over all allied units. Lower is better.</summary>
-        public float AllyHealthDifference => _allies.Select(static (u) => u.Original.Stats.Health - u.Health).Sum();
+        public double AllyHealthDifference => _allies.Select(static (u) => u.Original.State.Stats.Health - u.Health).Sum();
 
         public readonly int CompareTo(GridValue other)
         {
@@ -296,7 +304,7 @@ public partial class AIController : ArmyController
                     return (int)((you.Health - me.Health)*10);
 
             // Higher enemy health difference is greater
-            float hp = EnemyHealthDifference - other.EnemyHealthDifference;
+            double hp = EnemyHealthDifference - other.EnemyHealthDifference;
             if (diff != 0)
                 return (int)(hp*10);
 
@@ -349,29 +357,11 @@ public partial class AIController : ArmyController
         public override int GetHashCode() => HashCode.Combine(Distance, Cost);
     }
 
-    private static Grid DuplicateGrid(Grid grid)
-    {
-        Grid copy = grid.Duplicate((int)(DuplicateFlags.Scripts | DuplicateFlags.UseInstantiation)) as Grid;
-        foreach ((Vector2I cell, GridNode occupant) in grid.Occupants)
-        {
-            if (occupant is Unit o)
-            {
-                GridNode clone = o.Duplicate((int)(DuplicateFlags.Scripts | DuplicateFlags.UseInstantiation)) as GridNode;
-                clone.Grid = copy;
-                if (clone is Unit u)
-                    u.Army = o.Army;
-                copy.Occupants[cell] = clone;
-            }
-        }
-
-        return copy;
-    }
-
-    private Grid _grid = null;
-    private Unit _selected = null;
+    private GridRenderer _grid = null;
+    private UnitRenderer _selected = null;
     private Vector2I _destination = -Vector2I.One;
     private StringName _action = null;
-    private Unit _target = null;
+    private UnitRenderer _target = null;
 
     private (VirtualGrid, Vector2I) ChooseBestMove(VirtualUnit enemy, IList<VirtualUnit> allies, VirtualGrid grid)
     {
@@ -398,16 +388,16 @@ public partial class AIController : ArmyController
             VirtualGrid current = grid with { Occupants = grid.Occupants.Remove(allies[0].Cell).SetItem(destination, actor) };
 
             // attack target clone with allies[0] clone
-            static float ExpectedDamage(VirtualUnit a, VirtualUnit b) => Math.Max(0f, a.Original.Stats.Accuracy - b.Original.Stats.Evasion)/100f*(a.Original.Stats.Attack - b.Original.Stats.Defense);
+            static float ExpectedDamage(VirtualUnit a, VirtualUnit b) => Math.Max(0f, a.Original.State.Stats.Accuracy - b.Original.State.Stats.Evasion)/100f*(a.Original.State.Stats.Attack - b.Original.State.Stats.Defense);
             target = target with { Health = target.Health - ExpectedDamage(actor, target) };
             if (target.Health > 0)
             {
                 bool retaliate = target.AttackableCells(current, [target.Cell]).Contains(actor.Cell);
                 if (retaliate)
                     actor = actor with { Health = actor.Health - ExpectedDamage(target, actor) };
-                if (actor.Health > 0 && actor.Original.Stats.Agility > target.Original.Stats.Agility)
+                if (actor.Health > 0 && actor.Original.State.Stats.Agility > target.Original.State.Stats.Agility)
                     target = target with { Health = target.Health - ExpectedDamage(actor, target) };
-                else if (target.Health > 0 && retaliate && target.Original.Stats.Agility > actor.Original.Stats.Agility)
+                else if (target.Health > 0 && retaliate && target.Original.State.Stats.Agility > actor.Original.State.Stats.Agility)
                     actor = actor with { Health = actor.Health - ExpectedDamage(target, actor) };
             }
             current = current with { Occupants = current.Occupants.SetItem(actor.Cell, actor).SetItem(target.Cell, target) };
@@ -437,7 +427,7 @@ public partial class AIController : ArmyController
         return (best.Value, move);
     }
 
-    public override Grid Grid { get => _grid; set => _grid = value; }
+    public override GridRenderer Grid { get => _grid; set => _grid = value; }
 
     public override void InitializeTurn()
     {
@@ -514,9 +504,9 @@ public partial class AIController : ArmyController
         return (selected.Value, destination, action, target);
     }
 
-    public (Unit selected, Vector2I destination, StringName action, Unit target) ComputeAction(IEnumerable<Unit> available, IEnumerable<Unit> enemies, Grid grid)
+    public (UnitRenderer selected, Vector2I destination, StringName action, UnitRenderer target) ComputeAction(IEnumerable<UnitRenderer> available, IEnumerable<UnitRenderer> enemies, GridRenderer grid)
     {
-        VirtualGrid virtualGrid = new(grid);
+        VirtualGrid virtualGrid = new(grid.State);
         IEnumerable<VirtualUnit> virtualAvailable = available.Select((u) => new VirtualUnit(u));
         IEnumerable<VirtualUnit> virtualEnemies = enemies.Select((u) => new VirtualUnit(u));
 
@@ -530,9 +520,9 @@ public partial class AIController : ArmyController
         // Compute this outside the task because it calls Node.GetChildren(), which has to be called on the same thread as that node.
         // Also, use a collection expression to immediately evaluated it rather than waiting until later, because that will be in the
         // wrong thread.
-        VirtualGrid grid = new(Grid);
-        IEnumerable<VirtualUnit> available = [.. ((IEnumerable<Unit>)Army).Where(static (u) => u.Active).Select(static (u) => new VirtualUnit(u))];
-        IEnumerable<VirtualUnit> enemies = [.. Grid.Occupants.Values.OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u)).Select(static (u) => new VirtualUnit(u))];
+        VirtualGrid grid = new(Grid.State);
+        IEnumerable<VirtualUnit> available = [.. ((IEnumerable<UnitRenderer>)Army).Where(static (u) => u.Active).Select(static (u) => new VirtualUnit(u))];
+        IEnumerable<VirtualUnit> enemies = [.. Grid.State.Occupants.Values.OfType<UnitState>().Where((u) => !Army.Faction.AlliedTo(u.Faction)).Select(static (u) => new VirtualUnit(u))];
 
         (VirtualUnit selected, _destination, _action, VirtualUnit? target) = await Task.Run<(VirtualUnit, Vector2I, StringName, VirtualUnit?)>(() => ComputeAction(available, enemies, grid));
         _selected = selected.Original;
@@ -541,21 +531,21 @@ public partial class AIController : ArmyController
         EmitSignal(SignalName.UnitSelected, _selected);
     }
 
-    public override void MoveUnit(Unit unit)
+    public override void MoveUnit(UnitRenderer unit)
     {
-        EmitSignal(SignalName.PathConfirmed, unit, new Godot.Collections.Array<Vector2I>(unit.Behavior.GetPath(unit, _destination)));
+        EmitSignal(SignalName.PathConfirmed, unit, new Godot.Collections.Array<Vector2I>(unit.State.Behavior.GetPath(unit, _destination)));
     }
 
-    public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)
+    public override void CommandUnit(UnitRenderer source, Godot.Collections.Array<StringName> commands, StringName cancel)
     {
         EmitSignal(SignalName.UnitCommanded, source, _action);
     }
 
-    public override void SelectTarget(Unit source, IEnumerable<Vector2I> targets)
+    public override void SelectTarget(UnitRenderer source, IEnumerable<Vector2I> targets)
     {
         if (_target is null)
             throw new InvalidOperationException($"{source.Name}'s target has not been determined");
-        if (!targets.Contains(_target.Cell))
+        if (!targets.Contains(_target.State.Cell))
             throw new InvalidOperationException($"{source.Name} can't target {_target}");
         EmitSignal(SignalName.TargetChosen, source, _target);
     }
