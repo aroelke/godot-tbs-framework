@@ -9,7 +9,7 @@ namespace TbsTemplate.Scenes.Level.Map;
 
 /// <summary>Defines the grid dimensions and attributes and contains the locations of the objects and terrain within it.</summary>
 [Tool]
-public partial class Grid : Node2D
+public partial class Grid : Node2D, IGrid
 {
     /// <summary><see cref="TileMapLayer"/> containing ground tiles.</summary>
     [Export] public TileMapLayer GroundLayer = null;
@@ -23,7 +23,6 @@ public partial class Grid : Node2D
     /// <summary>Grid cell dimensions derived from the <see cref="TileSet"/>.  If there is no <see cref="TileSet"/>, the size is zero.</summary>
     public Vector2 CellSize => GroundLayer?.TileSet?.TileSize ?? Vector2.Zero;
 
-    /// <summary>Grid dimensions. Both elements should be positive.</summary>
     public Vector2I Size => GroundLayer?.GetUsedRect().End ?? Vector2I.Zero;
 
     /// <summary>Characters and objects occupying the grid.</summary>
