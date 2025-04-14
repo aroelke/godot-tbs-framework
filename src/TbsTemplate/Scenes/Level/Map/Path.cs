@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Godot;
 using TbsTemplate.Extensions;
 
@@ -19,7 +20,7 @@ namespace TbsTemplate.Scenes.Level.Map;
 /// Paths are immutable, so any functions that cause changes instead return a new Path with the change made, preserving the old one, as in
 /// <see cref="ImmutableList{T}"/>.
 /// 
-/// Paths exist on a <see cref="Grid"/> within traversable cells that they use to compute segments when needed.
+/// Paths exist on an <see cref="IGrid"/> within traversable cells that they use to compute segments when needed.
 /// </summary>
 public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyCollection<Vector2I>, IReadOnlyList<Vector2I>, ICollection, IEnumerable
 {
@@ -28,7 +29,11 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// <param name="astar">Instance of the A-Star algorithm used to compute segments.</param>
     /// <param name="traversable">Collecton of traversable cells the path can use.</param>
     /// <returns>An empty path.</returns>
-    private static Path Empty(Grid grid, AStar2D astar, IEnumerable<Vector2I> traversable) => new(grid, astar, traversable, []);
+    private static Path Empty(IGrid grid, AStar2D astar, IEnumerable<Vector2I> traversable) => new(grid, astar, traversable, []);
+
+    /// <param name="cell">Coordinates of the cell.</param>
+    /// <returns>A unique ID within this map of the given <paramref name="cell"/>.</returns>
+    private static int CellId(IGrid grid, Vector2I cell) => cell.X*grid.Size.X + cell.Y;
 
     public static implicit operator List<Vector2I>(Path path) => [.. path];
 
@@ -36,30 +41,30 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// <param name="grid">Grid containing the cells the path goes through.</param>
     /// <param name="traversable">Collecton of traversable cells the path can use.</param>
     /// <returns>An empty path.</returns>
-    public static Path Empty(Grid grid, IEnumerable<Vector2I> traversable)
+    public static Path Empty(IGrid grid, IEnumerable<Vector2I> traversable)
     {
         AStar2D astar = new();
         foreach (Vector2I cell in traversable)
-            astar.AddPoint(grid.CellId(cell), cell, grid.GetTerrain(cell).Cost);
+            astar.AddPoint(CellId(grid, cell), cell, grid.GetTerrain(cell).Cost);
         foreach (Vector2I cell in traversable)
         {
-            foreach (Vector2I direction in GridCalculations.Directions)
+            foreach (Vector2I direction in IGrid.Directions)
             {
                 Vector2I neighbor = cell + direction;
-                if (!astar.ArePointsConnected(grid.CellId(cell), grid.CellId(neighbor)) && traversable.Contains(neighbor))
-                    astar.ConnectPoints(grid.CellId(cell), grid.CellId(neighbor));
+                if (!astar.ArePointsConnected(CellId(grid, cell), CellId(grid, neighbor)) && traversable.Contains(neighbor))
+                    astar.ConnectPoints(CellId(grid, cell), CellId(grid, neighbor));
             }
         }
         return Empty(grid, astar, traversable);
     }
 
-    private readonly Grid _grid;
+    private readonly IGrid _grid;
     private readonly AStar2D _astar;
     private readonly IEnumerable<Vector2I> _traversable;
     private readonly ImmutableList<Vector2I> _cells;
 
-    /// <summary>Private constructor; use <see cref="Empty(Grid, AStar2D, IEnumerable{Vector2I})"/> instead.</summary>
-    private Path(Grid grid, AStar2D astar, IEnumerable<Vector2I> traversable, ImmutableList<Vector2I> initial)
+    /// <summary>Private constructor; use <see cref="Empty(IGrid, AStar2D, IEnumerable{Vector2I})"/> instead.</summary>
+    private Path(IGrid grid, AStar2D astar, IEnumerable<Vector2I> traversable, ImmutableList<Vector2I> initial)
     {
         _grid = grid;
         _astar = astar;
@@ -123,7 +128,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     public Path Add(Vector2I value)
     {
         ImmutableList<Vector2I> cells = [];
-        if (_cells.Count == 0 || _cells[^1].IsAdjacent(value))
+        if (_cells.Count == 0 || _grid.IsAdjacent(_cells[^1], value))
         {
             // Append the cell if it's adjacent to the last cell in the path or the path is empty
             cells = _cells.Add(value);
@@ -136,7 +141,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
         else
         {
             // Append the cell and the shortest path between it and the last cell in the path
-            cells = _cells.AddRange(_astar.GetPointPath(_grid.CellId(_cells[^1]), _grid.CellId(value)).Select(static (c) => (Vector2I)c));
+            cells = _cells.AddRange(_astar.GetPointPath(CellId(_grid, _cells[^1]), CellId(_grid, value)).Select(static (c) => (Vector2I)c));
         }
         cells = [.. cells.Disentangle()];
         return new(_grid, _astar, _traversable, cells);
@@ -231,7 +236,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     public Path Clamp(int cost)
     {
         if (Cost > cost)
-            return Clear().AddRange(_astar.GetPointPath(_grid.CellId(_cells[0]), _grid.CellId(_cells[^1])).Select((c) => (Vector2I)c));
+            return Clear().AddRange(_astar.GetPointPath(CellId(_grid, _cells[0]), CellId(_grid, _cells[^1])).Select((c) => (Vector2I)c));
         else
             return this;
     }

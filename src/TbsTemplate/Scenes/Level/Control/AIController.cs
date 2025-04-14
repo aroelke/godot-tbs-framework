@@ -17,7 +17,7 @@ namespace TbsTemplate.Scenes.Level.Control;
 /// <summary>Automatically controls units based on their <see cref="UnitBehavior"/>s and the state of the level.</summary>
 public partial class AIController : ArmyController
 {
-    private readonly record struct VirtualGrid(Vector2I Size, Terrain[][] Terrain, IImmutableDictionary<Vector2I, VirtualUnit> Occupants)
+    private readonly record struct VirtualGrid(Vector2I Size, Terrain[][] Terrain, IImmutableDictionary<Vector2I, VirtualUnit> Occupants) : IGrid
     {
         public VirtualGrid(Vector2I size, Terrain terrain, IImmutableDictionary<Vector2I, VirtualUnit> occupants) : this(
             size,
@@ -31,139 +31,17 @@ public partial class AIController : ArmyController
             grid.Occupants.Where((e) => e.Value is Unit).ToImmutableDictionary((e) => e.Key, (e) => new VirtualUnit(e.Value as Unit))
         ) {}
 
-        public bool Contains(Vector2I cell) => cell.X >= 0 && cell.X < Size.X && cell.Y >= 0 && cell.Y < Size.Y;
-
-        public Terrain GetTerrain(Vector2I cell) => Contains(cell) ? Terrain[cell.Y][cell.X] : null;
-
-        public int Cost(IEnumerable<Vector2I> path)
-        {
-            VirtualGrid @this = this;
-            return path.Select((c) => @this.Terrain[c.X][c.Y].Cost).Sum();
-        }
-
-        public IEnumerable<Vector2I> GetCellsAtRange(Vector2I cell, int distance)
-        {
-            HashSet<Vector2I> cells = [];
-            for (int i = 0; i < distance; i++)
-            {
-                Vector2I target;
-                if (Contains(target = cell + new Vector2I(-distance + i, -i)))
-                    cells.Add(target);
-                if (Contains(target = cell + new Vector2I(i, -distance + i)))
-                    cells.Add(target);
-                if (Contains(target = cell + new Vector2I(distance - i, i)))
-                    cells.Add(target);
-                if (Contains(target = cell + new Vector2I(-i, distance - i)))
-                    cells.Add(target);
-            }
-            return cells;
-        }
-
         public int CellId(Vector2I cell) => cell.X*Size.X + cell.Y;
-    }
 
-    private class VirtualPath : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyCollection<Vector2I>, IReadOnlyList<Vector2I>, ICollection, IEnumerable
-    {
-        private static VirtualPath Empty(VirtualGrid grid, AStar2D astar, IEnumerable<Vector2I> traversable) => new(grid, astar, traversable, []);
+        public bool Contains(Vector2I cell) => cell.X >= 0 && cell.X < Size.X && cell.Y >= 0 && cell.Y < Size.Y;
+        public Terrain GetTerrain(Vector2I cell) => Contains(cell) ? Terrain[cell.Y][cell.X] : null;
+        public bool IsTraversable(Vector2I cell, Faction faction) => !Occupants.TryGetValue(cell, out VirtualUnit occupant) || occupant.Original.Army.Faction.AlliedTo(faction);
 
-        public static implicit operator List<Vector2I>(VirtualPath path) => [.. path];
-
-        public static VirtualPath Empty(VirtualGrid grid, IEnumerable<Vector2I> traversable)
-        {
-            AStar2D astar = new();
-            foreach (Vector2I cell in traversable)
-                astar.AddPoint(grid.CellId(cell), cell, grid.Terrain[cell.X][cell.Y].Cost);
-            foreach (Vector2I cell in traversable)
-            {
-                foreach (Vector2I direction in GridCalculations.Directions)
-                {
-                    Vector2I neighbor = cell + direction;
-                    if (!astar.ArePointsConnected(grid.CellId(cell), grid.CellId(neighbor)) && traversable.Contains(neighbor))
-                        astar.ConnectPoints(grid.CellId(cell), grid.CellId(neighbor));
-                }
-            }
-            return Empty(grid, astar, traversable);
-        }
-
-        private readonly VirtualGrid _grid;
-        private readonly AStar2D _astar;
-        private readonly IEnumerable<Vector2I> _traversable;
-        private readonly ImmutableList<Vector2I> _cells;
-
-        private VirtualPath(VirtualGrid grid, AStar2D astar, IEnumerable<Vector2I> traversable, ImmutableList<Vector2I> initial)
-        {
-            _grid = grid;
-            _astar = astar;
-            _traversable = traversable;
-            _cells = initial;
-        }
-
-        public Vector2I this[int index] => _cells[index];
-
-        public int Cost => _grid.Cost(_cells.TakeLast(_cells.Count - 1));
-
-        public int Count => _cells.Count;
-        public bool IsReadOnly => true;
-        public bool IsSynchronized => false;
-        public object SyncRoot => this;
-
-        public int IndexOf(Vector2I item, int index, int count, IEqualityComparer<Vector2I> equalityComparer) => _cells.IndexOf(item, index, count, equalityComparer);
-
-        public int IndexOf(Vector2I item) => _cells.IndexOf(item);
-
-        public int LastIndexOf(Vector2I item, int index, int count, IEqualityComparer<Vector2I> equalityComparer) => _cells.LastIndexOf(item, index, count, equalityComparer);
-
-        public int LastIndexOf(Vector2I item) => _cells.LastIndexOf(item);
-
-        public VirtualPath Add(Vector2I value)
-        {
-            ImmutableList<Vector2I> cells = [];
-            if (_cells.Count == 0 || _cells[^1].IsAdjacent(value))
-            {
-                cells = _cells.Add(value);
-            }
-            else if (_cells[^1] == value)
-            {
-                return this;
-            }
-            else
-            {
-                cells = _cells.AddRange(_astar.GetPointPath(_grid.CellId(_cells[^1]), _grid.CellId(value)).Select(static (c) => (Vector2I)c));
-            }
-            cells = [.. cells.Disentangle()];
-            return new(_grid, _astar, _traversable, cells);
-        }
-
-        public VirtualPath AddRange(IEnumerable<Vector2I> items) => items.Aggregate(this, static (p, item) => p.Add(item));
-
-        public VirtualPath SetTo(IEnumerable<Vector2I> items) => Clear().AddRange(items);
-
-        public VirtualPath Insert(int index, Vector2I element) => throw new NotImplementedException();
-        public VirtualPath InsertRange(int index, IEnumerable<Vector2I> items) => throw new NotImplementedException();
-        public VirtualPath Replace(Vector2I oldValue, Vector2I newValue, IEqualityComparer<Vector2I> equalityComparer) => throw new NotImplementedException();
-        public VirtualPath SetItem(int index, Vector2I value) => throw new NotImplementedException();
-        public VirtualPath RemoveRange(int index, int count) => throw new NotImplementedException();
-
-        public VirtualPath Clamp(int cost)
-        {
-            if (Cost > cost)
-                return Clear().AddRange(_astar.GetPointPath(_grid.CellId(_cells[0]), _grid.CellId(_cells[^1])).Select((c) => (Vector2I)c));
-            else
-                return this;
-        }
-
-        public VirtualPath Clear() => Empty(_grid, _astar, _traversable);
-
-        public bool Contains(Vector2I item) => _cells.Contains(item);
-        public void CopyTo(Vector2I[] array, int arrayIndex) => _cells.CopyTo(array, arrayIndex);
-        public void CopyTo(Array array, int index) => ((ICollection)_cells).CopyTo(array, index);
-
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_cells).GetEnumerator();
-        public IEnumerator<Vector2I> GetEnumerator() => _cells.GetEnumerator();
-
-        public bool Remove(Vector2I item) => throw new NotSupportedException();
-        void ICollection<Vector2I>.Add(Vector2I item) => throw new NotSupportedException();
-        void ICollection<Vector2I>.Clear() => throw new NotSupportedException();
+        public IEnumerable<Vector2I> GetNeighbors(Vector2I cell) => ((IGrid)this).GetNeighbors(cell);
+        public bool IsAdjacent(Vector2I a, Vector2I b) => ((IGrid)this).IsAdjacent(a, b);
+        public IEnumerable<Vector2I> TraversableCells(Faction faction, Vector2I start, int move) => ((IGrid)this).TraversableCells(faction, start, move);
+        public IEnumerable<Vector2I> CellsAtDistance(Vector2I cell, int distance) => ((IGrid)this).CellsAtDistance(cell, distance);
+        public int Cost(IEnumerable<Vector2I> path) => ((IGrid)this).Cost(path);
     }
 
     private abstract class VirtualUnitBehavior
@@ -172,15 +50,15 @@ public partial class AIController : ArmyController
 
         public abstract Dictionary<StringName, IEnumerable<Vector2I>> Actions(VirtualGrid grid, VirtualUnit unit);
 
-        public virtual VirtualPath GetPath(VirtualGrid grid, VirtualUnit unit, Vector2I from, Vector2I to)
+        public virtual Path GetPath(VirtualGrid grid, VirtualUnit unit, Vector2I from, Vector2I to)
         {
             IEnumerable<Vector2I> traversable = unit.TraversableCells(grid);
             if (!traversable.Contains(from) || !traversable.Contains(to))
                 throw new ArgumentException($"Cannot compute path from {from} to {to}; at least one is not traversable.");
-            return VirtualPath.Empty(grid, traversable).Add(from).Add(to);
+            return Path.Empty(grid, traversable).Add(from).Add(to);
         }
 
-        public VirtualPath GetPath(VirtualGrid grid, VirtualUnit unit, Vector2I to) => GetPath(grid, unit, unit.Cell, to);
+        public Path GetPath(VirtualGrid grid, VirtualUnit unit, Vector2I to) => GetPath(grid, unit, unit.Cell, to);
     }
 
     private class VirtualStandBehavior(bool AttackInRange=false) : VirtualUnitBehavior
@@ -226,7 +104,7 @@ public partial class AIController : ArmyController
 
     private readonly record struct VirtualUnit(Unit Original, Vector2I Cell, float Health, VirtualUnitBehavior Behavior)
     {
-        private static ImmutableHashSet<Vector2I> GetCellsInRange(VirtualGrid grid, IEnumerable<Vector2I> sources, IEnumerable<int> ranges) => [.. sources.SelectMany((c) => ranges.SelectMany((r) => grid.GetCellsAtRange(c, r)))];
+        private static ImmutableHashSet<Vector2I> GetCellsInRange(VirtualGrid grid, IEnumerable<Vector2I> sources, IEnumerable<int> ranges) => [.. sources.SelectMany((c) => ranges.SelectMany((r) => grid.CellsAtDistance(c, r)))];
 
         public VirtualUnit(Unit original) : this(original, original.Cell, original.Health.Value, original.Behavior switch {
             StandBehavior b => b.AttackInRange ? VirtualStandBehaviorCanAttack : VirtualStandBehaviorCantAttack,
@@ -234,14 +112,7 @@ public partial class AIController : ArmyController
             _ => null
         }) {}
 
-        public IEnumerable<Vector2I> TraversableCells(VirtualGrid grid)
-        {
-            VirtualUnit @this = this;
-            return GridCalculations.TraversableCells(Cell, Original.Stats.Move, (c) => new(
-                grid.Terrain[c.X][c.Y].Cost,
-                grid.Contains(c) && (!grid.Occupants.TryGetValue(c, out VirtualUnit occupant) || occupant.Original.Army.Faction.AlliedTo(@this.Original.Army.Faction))
-            ), (c) => GridCalculations.Directions.Select((d) => c + d).Where(grid.Contains));
-        }
+        public IEnumerable<Vector2I> TraversableCells(VirtualGrid grid) => grid.TraversableCells(Original.Army.Faction, Cell, Original.Stats.Move);
 
         public IEnumerable<Vector2I> AttackableCells(VirtualGrid grid, IEnumerable<Vector2I> sources) => GetCellsInRange(grid, sources, Original.AttackRange);
     }
@@ -312,7 +183,7 @@ public partial class AIController : ArmyController
         public readonly int Distance = Unit.Cell.ManhattanDistanceTo(Destination);
 
         /// <summary>Path cost from <see cref="Unit"/>'s cell to <see cref="Destination"/>. Lower is better.</summary>
-        public readonly int Cost = VirtualPath.Empty(Grid, Unit.TraversableCells(Grid)).Add(Unit.Cell).Add(Destination).Cost;
+        public readonly int Cost = Path.Empty(Grid, Unit.TraversableCells(Grid)).Add(Unit.Cell).Add(Destination).Cost;
 
         // Note that, unlike GridValue, a negative number means this is better
         public readonly int CompareTo(MoveValue other)

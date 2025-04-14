@@ -60,7 +60,7 @@ public partial class Unit : GridNode, IHasHealth
     /// The set of all cells that are exactly within <paramref name="ranges"/> distance from at least one element of
     /// <paramref name="sources"/>.
     /// </returns>
-    private ImmutableHashSet<Vector2I> GetCellsInRange(IEnumerable<Vector2I> sources, IEnumerable<int> ranges) => sources.SelectMany((c) => ranges.SelectMany((r) => Grid.GetCellsAtRange(c, r))).ToImmutableHashSet();
+    private ImmutableHashSet<Vector2I> GetCellsInRange(IEnumerable<Vector2I> sources, IEnumerable<int> ranges) => [.. sources.SelectMany((c) => ranges.SelectMany((r) => Grid.CellsAtDistance(c, r)))];
 
     private (IEnumerable<Vector2I>, IEnumerable<Vector2I>, IEnumerable<Vector2I>) ExcludeOccupants(IEnumerable<Vector2I> move, IEnumerable<Vector2I> attack, IEnumerable<Vector2I> support)
     {
@@ -129,12 +129,7 @@ public partial class Unit : GridNode, IHasHealth
     public bool Active => !AnimationTree.Get(Done).AsBool();
 
     /// <returns>The set of cells that this unit can reach from its position, accounting for <see cref="Terrain.Cost"/>.</returns>
-    public IEnumerable<Vector2I> TraversableCells() => GridCalculations.TraversableCells(Cell, Stats.Move, (c) => new(Grid.GetTerrain(c).Cost, Grid.Contains(c) && Grid.Occupants.GetValueOrDefault(c) switch
-    {
-        Unit unit => unit.Army.Faction.AlliedTo(this),
-        null => true,
-        _ => false
-    }),(c) => GridCalculations.Directions.Select((d) => c + d).Where(Grid.Contains));
+    public IEnumerable<Vector2I> TraversableCells() => Grid.TraversableCells(Army.Faction, Cell, Stats.Move);
 
     /// <summary>Compute all of the cells this unit could attack from the given set of source cells.</summary>
     /// <param name="sources">Cells to compute attack range from.</param>
