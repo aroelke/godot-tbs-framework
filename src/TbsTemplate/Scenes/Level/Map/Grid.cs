@@ -53,8 +53,6 @@ public partial class Grid : Node2D, IGrid
     /// <returns>The position of the upper-left corner of the cell containing the given <paramref name="position"/>.</returns>
     public Vector2 Snap(Vector2 position) => PositionOf(CellOf(position));
 
-    /// <returns>The terrain information for a cell, or <see cref="DefaultTerrain"/> if the terrain hasn't been set.</returns>
-    /// <exception cref="IndexOutOfRangeException">If the <paramref name="cell"/> is outside the grid.</exception>
     public Terrain GetTerrain(Vector2I cell) => TerrainLayer?.GetCellTileData(cell)?.GetCustomData("terrain").As<Terrain>() ?? DefaultTerrain;
 
     /// <param name="cell">Coordinates of the cell.</param>

@@ -14,4 +14,7 @@ public interface IGrid
     /// <param name="cell">offset to check.</param>
     /// <returns><c>true</c> if the <paramref name="cell"/> is within the grid bounds, and <c>false</c> otherwise.</returns>
     public bool Contains(Vector2I cell);
+
+    /// <returns>The terrain information for a cell, or <see cref="DefaultTerrain"/> if the terrain hasn't been set.</returns>
+    public Terrain GetTerrain(Vector2I cell);
 }

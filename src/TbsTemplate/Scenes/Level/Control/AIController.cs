@@ -29,6 +29,8 @@ public partial class AIController : ArmyController
 
         public bool Contains(Vector2I cell) => IGrid.Contains(this, cell);
 
+         public Terrain GetTerrain(Vector2I cell) => Terrain[cell.Y][cell.X];
+
         public int Cost(IEnumerable<Vector2I> path)
         {
             VirtualGrid @this = this;
