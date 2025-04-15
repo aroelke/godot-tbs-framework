@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -28,6 +27,8 @@ public partial class AIController : ArmyController
         ) {}
 
         public bool Contains(Vector2I cell) => IGrid.Contains(this, cell);
+
+        public bool IsTraversable(Vector2I cell, Faction faction) => !Occupants.TryGetValue(cell, out VirtualUnit unit) || unit.Faction.AlliedTo(faction);
 
         public Terrain GetTerrain(Vector2I cell) => Terrain[cell.Y][cell.X];
 
@@ -96,7 +97,7 @@ public partial class AIController : ArmyController
 
     private static readonly VirtualMoveBehavior VirtualMoveBehaviorInst = new();
 
-    private readonly record struct VirtualUnit(Unit Original, Vector2I Cell, float Health, VirtualUnitBehavior Behavior)
+    private readonly record struct VirtualUnit(Unit Original, Vector2I Cell, float Health, VirtualUnitBehavior Behavior) : IUnit
     {
         private static ImmutableHashSet<Vector2I> GetCellsInRange(VirtualGrid grid, IEnumerable<Vector2I> sources, IEnumerable<int> ranges) => [.. sources.SelectMany((c) => ranges.SelectMany((r) => grid.GetCellsAtDistance(c, r)))];
 
@@ -106,37 +107,11 @@ public partial class AIController : ArmyController
             _ => null
         }) {}
 
-        public IEnumerable<Vector2I> TraversableCells(VirtualGrid grid)
-        {
-            int max = 2*(Original.Stats.Move + 1)*(Original.Stats.Move + 1) - 2*Original.Stats.Move - 1;
+        public Stats Stats => Original.Stats;
 
-            Dictionary<Vector2I, int> cells = new(max) {{ Cell, 0 }};
-            Queue<Vector2I> potential = new(max);
+        public Faction Faction => Original.Faction;
 
-            potential.Enqueue(Cell);
-            while (potential.Count > 0)
-            {
-                Vector2I current = potential.Dequeue();
-
-                foreach (Vector2I direction in Vector2IExtensions.Directions)
-                {
-                    Vector2I neighbor = current + direction;
-                    if (grid.Contains(neighbor))
-                    {
-                        int cost = cells[current] + grid.GetTerrain(neighbor).Cost;
-                        if ((!cells.ContainsKey(neighbor) || cells[neighbor] > cost) && // cell hasn't been examined yet or this path is shorter to get there
-                            (!grid.Occupants.TryGetValue(neighbor, out VirtualUnit occupant) || occupant.Original.Army.Faction.AlliedTo(Original.Army.Faction)) && // cell is empty or contains an allied unit
-                            cost <= Original.Stats.Move) // cost to get to cell is within range
-                        {
-                            cells[neighbor] = cost;
-                            potential.Enqueue(neighbor);
-                        }
-                    }
-                }
-            }
-
-            return cells.Keys;
-        }
+        public IEnumerable<Vector2I> TraversableCells(IGrid grid) => IUnit.TraversableCells(this, grid);
 
         public IEnumerable<Vector2I> AttackableCells(VirtualGrid grid, IEnumerable<Vector2I> sources) => GetCellsInRange(grid, sources, Original.AttackRange);
     }

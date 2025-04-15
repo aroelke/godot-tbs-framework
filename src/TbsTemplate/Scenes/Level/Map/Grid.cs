@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using TbsTemplate.Data;
 using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Object;
 
@@ -32,6 +33,8 @@ public partial class Grid : Node2D, IGrid
     public IEnumerable<SpecialActionRegion> SpecialActionRegions => GetChildren().OfType<SpecialActionRegion>();
 
     public bool Contains(Vector2I cell) => IGrid.Contains(this, cell);
+
+    public bool IsTraversable(Vector2I cell, Faction faction) => !Occupants.TryGetValue(cell, out GridNode occupant) || (occupant is Unit unit && unit.Faction.AlliedTo(faction));
 
     /// <summary>Find the cell offset closest to the given one inside the grid.</summary>
     /// <param name="cell">Cell offset to clamp.

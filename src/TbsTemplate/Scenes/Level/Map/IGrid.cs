@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using TbsTemplate.Data;
 
 namespace TbsTemplate.Scenes.Level.Map;
 
@@ -28,6 +29,9 @@ public interface IGrid
         return cells;
     }
 
+    // List of the four cardinal directions
+    public static readonly Vector2I[] Directions = [Vector2I.Up, Vector2I.Right, Vector2I.Down, Vector2I.Left];
+
     /// <summary>Grid dimensions. Both elements should be positive.</summary>
     public Vector2I Size { get; }
 
@@ -35,6 +39,8 @@ public interface IGrid
     /// <param name="cell">offset to check.</param>
     /// <returns><c>true</c> if the <paramref name="cell"/> is within the grid bounds, and <c>false</c> otherwise.</returns>
     public bool Contains(Vector2I cell);
+
+    public bool IsTraversable(Vector2I cell, Faction faction);
 
     /// <returns>The terrain information for a cell, or <see cref="DefaultTerrain"/> if the terrain hasn't been set.</returns>
     public Terrain GetTerrain(Vector2I cell);
