@@ -33,23 +33,7 @@ public partial class AIController : ArmyController
 
         public int PathCost(IEnumerable<Vector2I> path) => IGrid.PathCost(this, path);
 
-        public IEnumerable<Vector2I> GetCellsAtRange(Vector2I cell, int distance)
-        {
-            HashSet<Vector2I> cells = [];
-            for (int i = 0; i < distance; i++)
-            {
-                Vector2I target;
-                if (Contains(target = cell + new Vector2I(-distance + i, -i)))
-                    cells.Add(target);
-                if (Contains(target = cell + new Vector2I(i, -distance + i)))
-                    cells.Add(target);
-                if (Contains(target = cell + new Vector2I(distance - i, i)))
-                    cells.Add(target);
-                if (Contains(target = cell + new Vector2I(-i, distance - i)))
-                    cells.Add(target);
-            }
-            return cells;
-        }
+        public IEnumerable<Vector2I> GetCellsAtDistance(Vector2I cell, int distance) => IGrid.GetCellsAtDistance(this, cell, distance);
 
         public int CellId(Vector2I cell) => cell.X*Size.X + cell.Y;
     }
@@ -218,7 +202,7 @@ public partial class AIController : ArmyController
 
     private readonly record struct VirtualUnit(Unit Original, Vector2I Cell, float Health, VirtualUnitBehavior Behavior)
     {
-        private static ImmutableHashSet<Vector2I> GetCellsInRange(VirtualGrid grid, IEnumerable<Vector2I> sources, IEnumerable<int> ranges) => [.. sources.SelectMany((c) => ranges.SelectMany((r) => grid.GetCellsAtRange(c, r)))];
+        private static ImmutableHashSet<Vector2I> GetCellsInRange(VirtualGrid grid, IEnumerable<Vector2I> sources, IEnumerable<int> ranges) => [.. sources.SelectMany((c) => ranges.SelectMany((r) => grid.GetCellsAtDistance(c, r)))];
 
         public VirtualUnit(Unit original) : this(original, original.Cell, original.Health.Value, original.Behavior switch {
             StandBehavior b => b.AttackInRange ? VirtualStandBehaviorCanAttack : VirtualStandBehaviorCantAttack,

@@ -79,27 +79,7 @@ public partial class Grid : Node2D, IGrid
 
     public int PathCost(IEnumerable<Vector2I> path) => IGrid.PathCost(this, path);
 
-    /// <summary>Find all the cells that are exactly a specified Manhattan distance away from a center cell.</summary>
-    /// <param name="cell">Cell at the center of the range.</param>
-    /// <param name="distance">Distance away from the center cell to search.</param>
-    /// <returns>A collection of cells that are on the grid and exactly the specified <paramref name="distance"/> away from the center <paramref name="cell"/>.</returns>
-    public IEnumerable<Vector2I> GetCellsAtRange(Vector2I cell, int distance)
-    {
-        HashSet<Vector2I> cells = [];
-        for (int i = 0; i < distance; i++)
-        {
-            Vector2I target;
-            if (Contains(target = cell + new Vector2I(-distance + i, -i)))
-                cells.Add(target);
-            if (Contains(target = cell + new Vector2I(i, -distance + i)))
-                cells.Add(target);
-            if (Contains(target = cell + new Vector2I(distance - i, i)))
-                cells.Add(target);
-            if (Contains(target = cell + new Vector2I(-i, distance - i)))
-                cells.Add(target);
-        }
-        return cells;
-    }
+    public IEnumerable<Vector2I> GetCellsAtDistance(Vector2I cell, int distance) => IGrid.GetCellsAtDistance(this, cell, distance);
 
     public override string[] _GetConfigurationWarnings()
     {

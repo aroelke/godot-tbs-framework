@@ -60,7 +60,7 @@ public partial class Unit : GridNode, IHasHealth
     /// The set of all cells that are exactly within <paramref name="ranges"/> distance from at least one element of
     /// <paramref name="sources"/>.
     /// </returns>
-    private ImmutableHashSet<Vector2I> GetCellsInRange(IEnumerable<Vector2I> sources, IEnumerable<int> ranges) => sources.SelectMany((c) => ranges.SelectMany((r) => Grid.GetCellsAtRange(c, r))).ToImmutableHashSet();
+    private ImmutableHashSet<Vector2I> GetCellsInRange(IEnumerable<Vector2I> sources, IEnumerable<int> ranges) => sources.SelectMany((c) => ranges.SelectMany((r) => Grid.GetCellsAtDistance(c, r))).ToImmutableHashSet();
 
     private (IEnumerable<Vector2I>, IEnumerable<Vector2I>, IEnumerable<Vector2I>) ExcludeOccupants(IEnumerable<Vector2I> move, IEnumerable<Vector2I> attack, IEnumerable<Vector2I> support)
     {
