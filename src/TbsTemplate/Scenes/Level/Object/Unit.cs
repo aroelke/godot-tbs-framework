@@ -53,15 +53,6 @@ public partial class Unit : GridNode, IUnit, IHasHealth
             throw new InvalidOperationException($"Cannot {operation} unit {Name} while in animation state {AnimationState}");
     }
 
-    /// <summary>Get all cells in a set of ranges from a set of source cells.</summary>
-    /// <param name="sources">Cells to compute ranges from.</param>
-    /// <param name="ranges">Ranges to compute from <paramref name="sources"/>.</param>
-    /// <returns>
-    /// The set of all cells that are exactly within <paramref name="ranges"/> distance from at least one element of
-    /// <paramref name="sources"/>.
-    /// </returns>
-    private ImmutableHashSet<Vector2I> GetCellsInRange(IEnumerable<Vector2I> sources, IEnumerable<int> ranges) => sources.SelectMany((c) => ranges.SelectMany((r) => Grid.GetCellsAtDistance(c, r))).ToImmutableHashSet();
-
     private (IEnumerable<Vector2I>, IEnumerable<Vector2I>, IEnumerable<Vector2I>) ExcludeOccupants(IEnumerable<Vector2I> move, IEnumerable<Vector2I> attack, IEnumerable<Vector2I> support)
     {
         IEnumerable<Unit> allies = Grid.Occupants.Select(static (e) => e.Value).OfType<Unit>().Where(Army.Faction.AlliedTo);
@@ -138,7 +129,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     /// <summary>Compute all of the cells this unit could attack from the given set of source cells.</summary>
     /// <param name="sources">Cells to compute attack range from.</param>
     /// <returns>The set of all cells that could be attacked from any of the cell <paramref name="sources"/>.</returns>
-    public IEnumerable<Vector2I> AttackableCells(IEnumerable<Vector2I> sources) => GetCellsInRange(sources, AttackRange);
+    public IEnumerable<Vector2I> AttackableCells(IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(Grid, sources, AttackRange);
 
     /// <inheritdoc cref="AttackableCells"/>
     /// <remarks>Uses a singleton set of cells constructed from the single <paramref name="source"/> cell.</remarks>
@@ -151,7 +142,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     /// <summary>Compute all of the cells this unit could support from the given set of source cells.</summary>
     /// <param name="sources">Cells to compute support range from.</param>
     /// <returns>The set of all cells that could be supported from any of the source cells.</returns>
-    public IEnumerable<Vector2I> SupportableCells(IEnumerable<Vector2I> sources) => GetCellsInRange(sources, SupportRange);
+    public IEnumerable<Vector2I> SupportableCells(IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(Grid, sources, SupportRange);
 
     /// <inheritdoc cref="SupportableCells"/>
     /// <remarks>Uses a singleton set of cells constructed from the single <paramref name="source"/> cell.</remarks>

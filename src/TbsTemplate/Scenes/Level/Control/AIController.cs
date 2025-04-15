@@ -99,8 +99,6 @@ public partial class AIController : ArmyController
 
     private readonly record struct VirtualUnit(Unit Original, Vector2I Cell, float Health, VirtualUnitBehavior Behavior) : IUnit
     {
-        private static ImmutableHashSet<Vector2I> GetCellsInRange(VirtualGrid grid, IEnumerable<Vector2I> sources, IEnumerable<int> ranges) => [.. sources.SelectMany((c) => ranges.SelectMany((r) => grid.GetCellsAtDistance(c, r)))];
-
         public VirtualUnit(Unit original) : this(original, original.Cell, original.Health.Value, original.Behavior switch {
             StandBehavior b => b.AttackInRange ? VirtualStandBehaviorCanAttack : VirtualStandBehaviorCantAttack,
             MoveBehavior  b => VirtualMoveBehaviorInst,
@@ -113,7 +111,7 @@ public partial class AIController : ArmyController
 
         public IEnumerable<Vector2I> TraversableCells(IGrid grid) => IUnit.TraversableCells(this, grid);
 
-        public IEnumerable<Vector2I> AttackableCells(VirtualGrid grid, IEnumerable<Vector2I> sources) => GetCellsInRange(grid, sources, Original.AttackRange);
+        public IEnumerable<Vector2I> AttackableCells(VirtualGrid grid, IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(grid, sources, Original.AttackRange);
     }
 
     /// <summary>Acts as a "value" for a grid which can be compared to other values and evaluate grids against each other.</summary>

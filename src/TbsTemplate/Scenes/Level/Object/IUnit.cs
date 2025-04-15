@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using TbsTemplate.Data;
 using TbsTemplate.Scenes.Level.Map;
@@ -36,6 +37,15 @@ public interface IUnit
 
         return cells.Keys;
     }
+
+    /// <summary>Get all cells in a set of ranges from a set of source cells.</summary>
+    /// <param name="sources">Cells to compute ranges from.</param>
+    /// <param name="ranges">Ranges to compute from <paramref name="sources"/>.</param>
+    /// <returns>
+    /// The set of all cells that are exactly within <paramref name="ranges"/> distance from at least one element of
+    /// <paramref name="sources"/>.
+    /// </returns>
+    protected static IEnumerable<Vector2I> GetCellsInRange(IGrid grid, IEnumerable<Vector2I> sources, IEnumerable<int> ranges) => [.. sources.SelectMany((c) => ranges.SelectMany((r) => grid.GetCellsAtDistance(c, r)))];
 
     public Stats Stats { get; }
 
