@@ -19,53 +19,47 @@ namespace TbsTemplate.Scenes.Level.Map;
 /// Paths are immutable, so any functions that cause changes instead return a new Path with the change made, preserving the old one, as in
 /// <see cref="ImmutableList{T}"/>.
 /// 
-/// Paths exist on a <see cref="Grid"/> within traversable cells that they use to compute segments when needed.
+/// Paths exist on a <see cref="IGrid"/> within traversable cells that they use to compute segments when needed.
 /// </summary>
 public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyCollection<Vector2I>, IReadOnlyList<Vector2I>, ICollection, IEnumerable
 {
-    /// <summary>Create a new, empty path.</summary>
-    /// <param name="grid">Grid containing the cells the path goes through.</param>
-    /// <param name="astar">Instance of the A-Star algorithm used to compute segments.</param>
-    /// <param name="traversable">Collecton of traversable cells the path can use.</param>
-    /// <returns>An empty path.</returns>
-    private static Path Empty(Grid grid, AStar2D astar, IEnumerable<Vector2I> traversable) => new(grid, astar, traversable, []);
-
     public static implicit operator List<Vector2I>(Path path) => [.. path];
 
     /// <summary>Create a new, empty path.</summary>
     /// <param name="grid">Grid containing the cells the path goes through.</param>
     /// <param name="traversable">Collecton of traversable cells the path can use.</param>
     /// <returns>An empty path.</returns>
-    public static Path Empty(Grid grid, IEnumerable<Vector2I> traversable)
-    {
-        AStar2D astar = new();
-        foreach (Vector2I cell in traversable)
-            astar.AddPoint(grid.CellId(cell), cell, grid.GetTerrain(cell).Cost);
-        foreach (Vector2I cell in traversable)
-        {
-            foreach (Vector2I direction in Vector2IExtensions.Directions)
-            {
-                Vector2I neighbor = cell + direction;
-                if (!astar.ArePointsConnected(grid.CellId(cell), grid.CellId(neighbor)) && traversable.Contains(neighbor))
-                    astar.ConnectPoints(grid.CellId(cell), grid.CellId(neighbor));
-            }
-        }
-        return Empty(grid, astar, traversable);
-    }
+    public static Path Empty(IGrid grid, IEnumerable<Vector2I> traversable) => new(grid, traversable, []);
 
-    private readonly Grid _grid;
+    private readonly IGrid _grid;
     private readonly AStar2D _astar;
     private readonly IEnumerable<Vector2I> _traversable;
     private readonly ImmutableList<Vector2I> _cells;
 
-    /// <summary>Private constructor; use <see cref="Empty(Grid, AStar2D, IEnumerable{Vector2I})"/> instead.</summary>
-    private Path(Grid grid, AStar2D astar, IEnumerable<Vector2I> traversable, ImmutableList<Vector2I> initial)
+    private Path(IGrid grid, AStar2D astar, IEnumerable<Vector2I> traversable, ImmutableList<Vector2I> initial)
     {
         _grid = grid;
         _astar = astar;
         _traversable = traversable;
         _cells = initial;
     }
+
+    private Path(IGrid grid, IEnumerable<Vector2I> traversable, ImmutableList<Vector2I> initial) : this(grid, new(), traversable, initial)
+    {
+        foreach (Vector2I cell in traversable)
+            _astar.AddPoint(CellId(cell), cell, grid.GetTerrain(cell).Cost);
+        foreach (Vector2I cell in traversable)
+        {
+            foreach (Vector2I direction in Vector2IExtensions.Directions)
+            {
+                Vector2I neighbor = cell + direction;
+                if (!_astar.ArePointsConnected(CellId(cell), CellId(neighbor)) && traversable.Contains(neighbor))
+                    _astar.ConnectPoints(CellId(cell), CellId(neighbor));
+            }
+        }
+    }
+
+    private int CellId(Vector2I cell) => cell.X*_grid.Size.X + cell.Y;
 
     public Vector2I this[int index] => _cells[index];
 
@@ -136,7 +130,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
         else
         {
             // Append the cell and the shortest path between it and the last cell in the path
-            cells = _cells.AddRange(_astar.GetPointPath(_grid.CellId(_cells[^1]), _grid.CellId(value)).Select(static (c) => (Vector2I)c));
+            cells = _cells.AddRange(_astar.GetPointPath(CellId(_cells[^1]), CellId(value)).Select(static (c) => (Vector2I)c));
         }
         cells = [.. cells.Disentangle()];
         return new(_grid, _astar, _traversable, cells);
@@ -159,10 +153,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// <param name="element">Cell coordinates to insert.</param>
     /// <returns>A new path with <paramref name="element"/> at <paramref name="index"/> and new segments make sure it's adjacent to its neighbors.</returns>
     /// <exception cref="NotImplementedException"></exception>
-    public Path Insert(int index, Vector2I element)
-    {
-        throw new NotImplementedException();
-    }
+    public Path Insert(int index, Vector2I element) => throw new NotImplementedException();
 
     /// <summary>
     /// Insert a collection of cells at the specified index. If the starting cell and/or ending cells are not adjacent to their neighbors, or if any cells in the
@@ -174,10 +165,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// A new path with <paramref name="items"/> at <paramref name="index"/> and new segments making sure each new element is adjacent to its neighbors.
     /// </returns>
     /// <exception cref="NotImplementedException"></exception>
-    public Path InsertRange(int index, IEnumerable<Vector2I> items)
-    {
-        throw new NotImplementedException();
-    }
+    public Path InsertRange(int index, IEnumerable<Vector2I> items) => throw new NotImplementedException();
 
     /// <summary>
     /// Replace the first matching cell with the specified cell, then add segments on either side of the new cell to make it contiguous with its neighbors.
@@ -190,10 +178,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// make sure <paramref name="newValue"/> is adjacent to its neighbors.
     /// </returns>
     /// <exception cref="NotImplementedException"></exception>
-    public Path Replace(Vector2I oldValue, Vector2I newValue, IEqualityComparer<Vector2I> equalityComparer)
-    {
-        throw new NotImplementedException();
-    }
+    public Path Replace(Vector2I oldValue, Vector2I newValue, IEqualityComparer<Vector2I> equalityComparer) => throw new NotImplementedException();
 
     /// <summary>Set the cell at the specified index to a new value, then add segments on either side to ensure that it's adjacent to its neighbors.</summary>
     /// <param name="index">Index to change the cell at.</param>
@@ -202,10 +187,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// A new path with <paramref name="value"/> inserted at <paramref name="index"/> and segments added on either side to ensure the path is contiguous.
     /// </returns>
     /// <exception cref="NotImplementedException"></exception>
-    public Path SetItem(int index, Vector2I value)
-    {
-        throw new NotImplementedException();
-    }
+    public Path SetItem(int index, Vector2I value) => throw new NotImplementedException();
 
     /// <summary>Remove a sequence of cells from the path, then connect the old neighbors together with the shortest path between them, if necessary.</summary>
     /// <param name="index">Starting index to remove cells from.</param>
@@ -215,10 +197,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// will have a segment inserted that joins the two ends.
     /// </returns>
     /// <exception cref="NotImplementedException"></exception>
-    public Path RemoveRange(int index, int count)
-    {
-        throw new NotImplementedException();
-    }
+    public Path RemoveRange(int index, int count) => throw new NotImplementedException();
 
     /// <summary>
     /// If the total <see cref="Terrain.Cost"/> of the cells in the path, except for the first, is greater than the specified value, compute the shortest path
@@ -231,13 +210,13 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     public Path Clamp(int cost)
     {
         if (Cost > cost)
-            return Clear().AddRange(_astar.GetPointPath(_grid.CellId(_cells[0]), _grid.CellId(_cells[^1])).Select((c) => (Vector2I)c));
+            return Clear().AddRange(_astar.GetPointPath(CellId(_cells[0]), CellId(_cells[^1])).Select((c) => (Vector2I)c));
         else
             return this;
     }
 
     /// <returns>An empty path on the same grid and with the same set of traversable cells as this one.</returns>
-    public Path Clear() => Empty(_grid, _astar, _traversable);
+    public Path Clear() => new(_grid, _astar, _traversable, []);
 
     public bool Contains(Vector2I item) => _cells.Contains(item);
     public void CopyTo(Vector2I[] array, int arrayIndex) => _cells.CopyTo(array, arrayIndex);
