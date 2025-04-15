@@ -73,7 +73,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// Movement <see cref="Terrain.Cost"/> to traverse the path from beginning to end. Since each cell's cost represents the cost to move onto it, the first cell
     /// is ignored
     /// </summary>
-    public int Cost => _grid.Cost(_cells.TakeLast(_cells.Count - 1));
+    public int Cost => _grid.PathCost(_cells.TakeLast(_cells.Count - 1));
 
     public int Count => _cells.Count;
     public bool IsReadOnly => true;

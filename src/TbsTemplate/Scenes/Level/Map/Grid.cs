@@ -77,13 +77,7 @@ public partial class Grid : Node2D, IGrid
         return enclosure;
     }
 
-    /// <summary>
-    /// Compute the total cost of a collection of cells. If the cells are a contiguous path, represents the total cost of moving along that
-    /// path.
-    /// </summary>
-    /// <param name="path">List of cells to sum up.</param>
-    /// <returns>The sum of the cost of each cell in the <paramref name="path"/>.</returns>
-    public int Cost(IEnumerable<Vector2I> path) => path.Select((c) => GetTerrain(c).Cost).Sum();
+    public int PathCost(IEnumerable<Vector2I> path) => IGrid.PathCost(this, path);
 
     /// <summary>Find all the cells that are exactly a specified Manhattan distance away from a center cell.</summary>
     /// <param name="cell">Cell at the center of the range.</param>

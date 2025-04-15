@@ -23,7 +23,7 @@ public partial class AIController : ArmyController
 
         public VirtualGrid(Grid grid) : this(
             grid.Size,
-            [.. Enumerable.Range(1, grid.Size.X).Select((c) => Enumerable.Range(1, grid.Size.Y).Select((r) => grid.GetTerrain(new(r, c))).ToArray())],
+            [.. Enumerable.Range(1, grid.Size.Y).Select((r) => Enumerable.Range(1, grid.Size.X).Select((c) => grid.GetTerrain(new(c, r))).ToArray())],
             grid.Occupants.Where((e) => e.Value is Unit).ToImmutableDictionary((e) => e.Key, (e) => new VirtualUnit(e.Value as Unit))
         ) {}
 
@@ -31,11 +31,7 @@ public partial class AIController : ArmyController
 
          public Terrain GetTerrain(Vector2I cell) => Terrain[cell.Y][cell.X];
 
-        public int Cost(IEnumerable<Vector2I> path)
-        {
-            VirtualGrid @this = this;
-            return path.Select((c) => @this.Terrain[c.X][c.Y].Cost).Sum();
-        }
+        public int PathCost(IEnumerable<Vector2I> path) => IGrid.PathCost(this, path);
 
         public IEnumerable<Vector2I> GetCellsAtRange(Vector2I cell, int distance)
         {
@@ -68,7 +64,7 @@ public partial class AIController : ArmyController
         {
             AStar2D astar = new();
             foreach (Vector2I cell in traversable)
-                astar.AddPoint(grid.CellId(cell), cell, grid.Terrain[cell.X][cell.Y].Cost);
+                astar.AddPoint(grid.CellId(cell), cell, grid.GetTerrain(cell).Cost);
             foreach (Vector2I cell in traversable)
             {
                 foreach (Vector2I direction in Vector2IExtensions.Directions)
@@ -96,7 +92,7 @@ public partial class AIController : ArmyController
 
         public Vector2I this[int index] => _cells[index];
 
-        public int Cost => _grid.Cost(_cells.TakeLast(_cells.Count - 1));
+        public int Cost => _grid.PathCost(_cells.TakeLast(_cells.Count - 1));
 
         public int Count => _cells.Count;
         public bool IsReadOnly => true;
@@ -247,7 +243,7 @@ public partial class AIController : ArmyController
                     Vector2I neighbor = current + direction;
                     if (grid.Contains(neighbor))
                     {
-                        int cost = cells[current] + grid.Terrain[neighbor.X][neighbor.Y].Cost;
+                        int cost = cells[current] + grid.GetTerrain(neighbor).Cost;
                         if ((!cells.ContainsKey(neighbor) || cells[neighbor] > cost) && // cell hasn't been examined yet or this path is shorter to get there
                             (!grid.Occupants.TryGetValue(neighbor, out VirtualUnit occupant) || occupant.Original.Army.Faction.AlliedTo(Original.Army.Faction)) && // cell is empty or contains an allied unit
                             cost <= Original.Stats.Move) // cost to get to cell is within range
