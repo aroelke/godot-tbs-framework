@@ -27,7 +27,7 @@ public partial class AIController : ArmyController
             grid.Occupants.Where((e) => e.Value is Unit).ToImmutableDictionary((e) => e.Key, (e) => new VirtualUnit(e.Value as Unit))
         ) {}
 
-        public bool Contains(Vector2I cell) => cell.X >= 0 && cell.X < Size.X && cell.Y >= 0 && cell.Y < Size.Y;
+        public bool Contains(Vector2I cell) => IGrid.Contains(this, cell);
 
         public int Cost(IEnumerable<Vector2I> path)
         {

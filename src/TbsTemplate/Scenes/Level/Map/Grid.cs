@@ -31,10 +31,7 @@ public partial class Grid : Node2D, IGrid
     /// <summary>Regions in which units can perform special actions defined by the region.</summary>
     public IEnumerable<SpecialActionRegion> SpecialActionRegions => GetChildren().OfType<SpecialActionRegion>();
 
-    /// <summary>Check if a cell offset is in the grid.</summary>
-    /// <param name="offset">offset to check.</param>
-    /// <returns><c>true</c> if the <paramref name="offset"/> is within the grid bounds, and <c>false</c> otherwise.</returns>
-    public bool Contains(Vector2I offset) => new Rect2I(Vector2I.Zero, Size).HasPoint(offset);
+    public bool Contains(Vector2I cell) => IGrid.Contains(this, cell);
 
     /// <summary>Find the cell offset closest to the given one inside the grid.</summary>
     /// <param name="cell">Cell offset to clamp.
