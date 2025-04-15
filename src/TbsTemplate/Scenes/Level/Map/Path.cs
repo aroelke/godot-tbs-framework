@@ -23,8 +23,6 @@ namespace TbsTemplate.Scenes.Level.Map;
 /// </summary>
 public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyCollection<Vector2I>, IReadOnlyList<Vector2I>, ICollection, IEnumerable
 {
-    public static implicit operator List<Vector2I>(Path path) => [.. path];
-
     /// <summary>Create a new, empty path.</summary>
     /// <param name="grid">Grid containing the cells the path goes through.</param>
     /// <param name="traversable">Collecton of traversable cells the path can use.</param>
