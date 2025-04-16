@@ -14,27 +14,36 @@ namespace TbsTemplate.Scenes.Level.Control.Behavior;
 [GlobalClass, Tool]
 public abstract partial class UnitBehavior : Resource
 {
-    public abstract IEnumerable<Vector2I> Destinations(Unit unit);
+    /// <summary>Determine the cells a unit is allowed to end its movement on.</summary>
+    /// <param name="unit">Unit that's moving.</param>
+    /// <param name="grid">Grid the unit is moving on.</param>
+    public abstract IEnumerable<Vector2I> Destinations(IUnit unit, IGrid grid);
 
-    public abstract Dictionary<StringName, IEnumerable<Vector2I>> Actions(Unit unit);
+    /// <summary>Determine the actions a unit is able to perform and which cell(s) those actions can be performed on.</summary>
+    /// <param name="unit">Unit that could act.</param>
+    /// <param name="grid">Grid on which the unit will act.</param>
+    /// <returns>A mapping of actions onto collections of grid cells they can be performed on. Actions that can't be performed aren't present.</returns>
+    public abstract Dictionary<StringName, IEnumerable<Vector2I>> Actions(IUnit unit, IGrid grid);
 
     /// <summary>Determine the path the unit will traverse between two cells.</summary>
     /// <param name="unit">Unit that will move along the path.</param>
+    /// <param name="grid">Grid that the unit will move on.</param>
     /// <param name="from">Point to move from.</param>
     /// <param name="to">Point to move to.</param>
     /// <returns>The path from <paramref name="from"/> to <paramref name="to"/> that <paramref name="unit"/> will traverse.</returns>
     /// <exception cref="ArgumentException">If either <paramref name="from"/> or <paramref name="to"/> is not traversable by <paramref name="unit"/>.</exception>
-    public virtual Path GetPath(Unit unit, Vector2I from, Vector2I to)
+    public virtual Path GetPath(IUnit unit, IGrid grid, Vector2I from, Vector2I to)
     {
-        IEnumerable<Vector2I> traversable = unit.TraversableCells();
+        IEnumerable<Vector2I> traversable = unit.TraversableCells(grid);
         if (!traversable.Contains(from) || !traversable.Contains(to))
             throw new ArgumentException($"Cannot compute path from {from} to {to}; at least one is not traversable.");
-        return Path.Empty(unit.Grid, traversable).Add(from).Add(to);
+        return Path.Empty(grid, traversable).Add(from).Add(to);
     }
 
     /// <summary>Determine the path the unit will take from its cell to a destination.</summary>
     /// <param name="unit">Unit that will move along the path.</param>
-    /// <param name="to">Destination cell.</param>
-    /// <returns>The path from <paramref name="unit"/>'s cell to <paramref name="to"/> that <paramref name="unit"/> will take.</returns>
-    public Path GetPath(Unit unit, Vector2I to) => GetPath(unit, unit.Cell, to);
+    /// <param name="grid">Grid that the unit will move on.</param>
+    /// <param name="dest">Destination cell.</param>
+    /// <returns>The path from <paramref name="unit"/>'s cell to <paramref name="dest"/> that <paramref name="unit"/> will take.</returns>
+    public Path GetPath(IUnit unit, IGrid grid, Vector2I dest) => GetPath(unit, grid, unit.Cell, dest);
 }

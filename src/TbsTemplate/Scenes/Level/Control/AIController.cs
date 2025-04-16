@@ -4,43 +4,151 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
+using TbsTemplate.Data;
 using TbsTemplate.Extensions;
-using TbsTemplate.Scenes.Combat.Data;
+using TbsTemplate.Scenes.Level.Control.Behavior;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
+using TbsTemplate.Scenes.Level.Object.Group;
 
 namespace TbsTemplate.Scenes.Level.Control;
 
 /// <summary>Automatically controls units based on their <see cref="UnitBehavior"/>s and the state of the level.</summary>
 public partial class AIController : ArmyController
 {
-    public enum DecisionType
+    private readonly record struct VirtualGrid(Vector2I Size, Terrain[][] Terrain, IImmutableDictionary<Vector2I, VirtualUnit> Occupants) : IGrid
     {
-        ClosestEnemy, // Activate units in order of proximity to their enemies
-        TargetLoop
+        public VirtualGrid(Vector2I size, Terrain terrain, IImmutableDictionary<Vector2I, VirtualUnit> occupants) : this(size, [.. Enumerable.Repeat(Enumerable.Repeat(terrain, size.X).ToArray(), size.Y)], occupants) {}
+
+        public VirtualGrid(Grid grid) : this(
+            grid.Size,
+            [.. Enumerable.Range(1, grid.Size.Y).Select((r) => Enumerable.Range(1, grid.Size.X).Select((c) => grid.GetTerrain(new(c, r))).ToArray())],
+            grid.Occupants.Where((e) => e.Value is Unit).ToImmutableDictionary((e) => e.Key, (e) => new VirtualUnit(e.Value as Unit))
+        ) {}
+
+        public bool Contains(Vector2I cell) => IGrid.Contains(this, cell);
+        public bool IsTraversable(Vector2I cell, Faction faction) => !Occupants.TryGetValue(cell, out VirtualUnit unit) || unit.Faction.AlliedTo(faction);
+        public IEnumerable<Vector2I> GetCellsAtDistance(Vector2I cell, int distance) => IGrid.GetCellsAtDistance(this, cell, distance);
+        public Terrain GetTerrain(Vector2I cell) => Terrain[cell.Y][cell.X];
+        public int PathCost(IEnumerable<Vector2I> path) => IGrid.PathCost(this, path);
+        public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits() => Occupants.ToImmutableDictionary((e) => e.Key, (e) => e.Value as IUnit);
     }
 
-    private readonly record struct MoveEvaluation(Unit Unit, double Dealt, double Taken, Vector2I Closest)
+    private readonly record struct VirtualUnit(Unit Original, Vector2I Cell, float Health) : IUnit
     {
-        public static bool operator >(MoveEvaluation a, MoveEvaluation b)
-        {
-            if (a.Dealt > b.Dealt)
-                return true;
-            else if (a.Dealt == b.Dealt && a.PathCost() < b.PathCost())
-                return true;
-            else
-                return false;
-        }
-        public static bool operator <(MoveEvaluation a, MoveEvaluation b) => a != b && !(a > b);
+        public VirtualUnit(Unit original) : this(original, original.Cell, original.Health.Value) {}
 
-        public readonly void Deconstruct(out double dealt, out double taken, out Vector2I closest)
+        public Stats Stats => Original.Stats;
+
+        public Faction Faction => Original.Faction;
+
+        public IEnumerable<Vector2I> TraversableCells(IGrid grid) => IUnit.TraversableCells(this, grid);
+        public IEnumerable<Vector2I> AttackableCells(IGrid grid, IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(grid, sources, Original.AttackRange);
+        public IEnumerable<Vector2I> SupportableCells(IGrid grid, IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(grid, sources, Original.SupportRange);
+    }
+
+    /// <summary>Acts as a "value" for a grid which can be compared to other values and evaluate grids against each other.</summary>
+    /// <param name="Source">Faction evaluating the grid.</param>
+    /// <param name="Grid">Grid to be evaluated.</param>
+    private readonly record struct GridValue(Faction Source, VirtualGrid Grid) : IEquatable<GridValue>, IComparable<GridValue>
+    {
+        public static bool operator>(GridValue a, GridValue b) => a.CompareTo(b) > 0;
+        public static bool operator<(GridValue a, GridValue b) => a.CompareTo(b) < 0;
+
+        /// <summary>Enemy units of <see cref="Source"/>, sorted in increasing order of current health.</summary>
+        private readonly IOrderedEnumerable<VirtualUnit> _enemies = Grid.Occupants.Values.Where((u) => !Source.AlliedTo(u.Original.Army.Faction)).OrderBy(static (u) => u.Health);
+        private readonly IEnumerable<VirtualUnit> _allies = Grid.Occupants.Values.Where((u) => Source.AlliedTo(u.Original.Army.Faction));
+
+        public int DeadAllies => _allies.Where(static (u) => u.Health <= 0).Count();
+
+        /// <summary>Difference between enemy units' current and maximum health, summed over all enemy units. Higher is better.</summary>
+        public float EnemyHealthDifference => _enemies.Select(static (u) => u.Original.Stats.Health - u.Health).Sum();
+
+        /// <summary>Difference between ally units' current and maximum health, summed over all allied units. Lower is better.</summary>
+        public float AllyHealthDifference => _allies.Select(static (u) => u.Original.Stats.Health - u.Health).Sum();
+
+        public readonly int CompareTo(GridValue other)
         {
-            dealt = Dealt;
-            taken = Taken;
-            closest = Closest;
+            // Less dead allies is greater
+            int diff = other.DeadAllies - DeadAllies;
+            if (diff != 0)
+                return diff;
+
+            // Lower least health among units with different heatlh values is greater
+            foreach ((VirtualUnit me, VirtualUnit you) in _enemies.Zip(other._enemies))
+                if (me.Health != you.Health)
+                    return (int)((you.Health - me.Health)*10);
+
+            // Higher enemy health difference is greater
+            float hp = EnemyHealthDifference - other.EnemyHealthDifference;
+            if (diff != 0)
+                return (int)(hp*10);
+
+            // Lower ally health difference is greater
+            hp = other.AllyHealthDifference - AllyHealthDifference;
+            if (hp != 0)
+                return (int)(hp*10);
+
+            return 0;
         }
 
-        public readonly int PathCost() => Unit.Behavior.GetPath(Unit, Closest).Cost;
+        public bool Equals(GridValue other) => CompareTo(other) == 0;
+        public override int GetHashCode() => HashCode.Combine(Source, Grid);
+    }
+
+    /// <summary>Acts as a "value" for a move of a unit on a grid which can be compared to other values to evaluate moves against each other.</summary>
+    /// <param name="Grid">Grid the unit is moving on</param>
+    /// <param name="Unit">Unit that's moving.</param>
+    /// <param name="Destination">Potential destination of the move.</param>
+    /// <param name="Grid">Grid on which the unit will move.</param>
+    private readonly record struct MoveValue(VirtualGrid Grid, VirtualUnit Unit, Vector2I Destination) : IEquatable<MoveValue>, IComparable<MoveValue>
+    {
+        public static bool operator>(MoveValue a, MoveValue b) => a.CompareTo(b) > 0;
+        public static bool operator<(MoveValue a, MoveValue b) => a.CompareTo(b) < 0;
+
+        /// <summary>Starting cell of the move.</summary>
+        public readonly Vector2I Source = Unit.Cell;
+
+        /// <summary>Manhattan distance from <see cref="Unit"/>'s cell to <see cref="Destination"/>. Lower is better.</summary>
+        public readonly int Distance = Unit.Cell.ManhattanDistanceTo(Destination);
+
+        /// <summary>Path cost from <see cref="Unit"/>'s cell to <see cref="Destination"/>. Lower is better.</summary>
+        public readonly int Cost = Path.Empty(Grid, Unit.TraversableCells(Grid)).Add(Unit.Cell).Add(Destination).Cost;
+
+        // Note that, unlike GridValue, a negative number means this is better
+        public readonly int CompareTo(MoveValue other)
+        {
+            int diff = Distance - other.Distance;
+            if (diff != 0)
+                return diff;
+            
+            diff = Cost - other.Cost;
+            if (diff != 0)
+                return diff;
+
+            return 0;
+        }
+
+        public bool Equals(MoveValue other) => CompareTo(other) == 0;
+        public override int GetHashCode() => HashCode.Combine(Distance, Cost);
+    }
+
+    private static Grid DuplicateGrid(Grid grid)
+    {
+        Grid copy = grid.Duplicate((int)(DuplicateFlags.Scripts | DuplicateFlags.UseInstantiation)) as Grid;
+        foreach ((Vector2I cell, GridNode occupant) in grid.Occupants)
+        {
+            if (occupant is Unit o)
+            {
+                GridNode clone = o.Duplicate((int)(DuplicateFlags.Scripts | DuplicateFlags.UseInstantiation)) as GridNode;
+                clone.Grid = copy;
+                if (clone is Unit u)
+                    u.Army = o.Army;
+                copy.Occupants[cell] = clone;
+            }
+        }
+
+        return copy;
     }
 
     private Grid _grid = null;
@@ -49,7 +157,69 @@ public partial class AIController : ArmyController
     private StringName _action = null;
     private Unit _target = null;
 
-    [Export] public DecisionType Decision = DecisionType.ClosestEnemy;
+    private (VirtualGrid, Vector2I) ChooseBestMove(VirtualUnit enemy, IList<VirtualUnit> allies, VirtualGrid grid)
+    {
+        IEnumerable<Vector2I> destinations = allies[0].AttackableCells(grid, [enemy.Cell]).Where((c) => allies[0].Original.Behavior.Destinations(allies[0], grid).Contains(c));
+        if (!destinations.Any())
+        {
+            if (allies.Count > 1)
+                return ChooseBestMove(enemy, [.. allies.Skip(1)], grid);
+            else
+                return (grid, allies[0].Cell);
+        }
+
+        VirtualGrid? best = null;
+        GridValue bestGridValue = new();
+        Vector2I move = -Vector2I.One;
+        MoveValue bestMoveValue = new();
+        foreach (Vector2I destination in destinations)
+        {
+            VirtualUnit target = enemy;
+
+            // move allies[0] clone to destination
+            MoveValue currentMoveValue = new(grid, allies[0], destination);
+            VirtualUnit actor = allies[0] with { Cell = destination };
+            VirtualGrid current = grid with { Occupants = grid.Occupants.Remove(allies[0].Cell).SetItem(destination, actor) };
+
+            // attack target clone with allies[0] clone
+            static float ExpectedDamage(VirtualUnit a, VirtualUnit b) => Math.Max(0f, a.Original.Stats.Accuracy - b.Original.Stats.Evasion)/100f*(a.Original.Stats.Attack - b.Original.Stats.Defense);
+            target = target with { Health = target.Health - ExpectedDamage(actor, target) };
+            if (target.Health > 0)
+            {
+                bool retaliate = target.AttackableCells(current, [target.Cell]).Contains(actor.Cell);
+                if (retaliate)
+                    actor = actor with { Health = actor.Health - ExpectedDamage(target, actor) };
+                if (actor.Health > 0 && actor.Original.Stats.Agility > target.Original.Stats.Agility)
+                    target = target with { Health = target.Health - ExpectedDamage(actor, target) };
+                else if (target.Health > 0 && retaliate && target.Original.Stats.Agility > actor.Original.Stats.Agility)
+                    actor = actor with { Health = actor.Health - ExpectedDamage(target, actor) };
+            }
+            current = current with { Occupants = current.Occupants.SetItem(actor.Cell, actor).SetItem(target.Cell, target) };
+
+            if (allies.Count > 1)
+                (current, _) = ChooseBestMove(target, [.. allies.Skip(1)], current);
+
+            GridValue currentGridValue = new(Army.Faction, current);
+            if (best is null)
+            {
+                best = current;
+                bestGridValue = currentGridValue;
+                move = destination;
+                bestMoveValue = currentMoveValue;
+            }
+            else
+            {
+                if (currentGridValue > bestGridValue || (currentGridValue == bestGridValue && currentMoveValue < bestMoveValue))
+                {
+                    best = current;
+                    bestGridValue = currentGridValue;
+                    move = destination;
+                    bestMoveValue = currentMoveValue;
+                }
+            }
+        }
+        return (best.Value, move);
+    }
 
     public override Grid Grid { get => _grid; set => _grid = value; }
 
@@ -61,104 +231,82 @@ public partial class AIController : ArmyController
         _target = null;
     }
 
-    public (Unit selected, Vector2I destination, StringName action, Unit target) ComputeAction(IEnumerable<Unit> available, IEnumerable<Unit> enemies)
+    private (VirtualUnit selected, Vector2I destination, StringName action, VirtualUnit? target) ComputeAction(IEnumerable<VirtualUnit> available, IEnumerable<VirtualUnit> enemies, VirtualGrid grid)
     {
-        Unit selected = null;
+        VirtualUnit? selected = null;
         Vector2I destination = -Vector2I.One;
         StringName action = null;
-        Unit target = null;
+        VirtualUnit? target = null;
 
-        switch (Decision)
+        VirtualGrid? best = null;
+        GridValue bestGridValue = new();
+        MoveValue bestMoveValue = new();
+        foreach (VirtualUnit enemy in enemies)
         {
-        case DecisionType.ClosestEnemy:
-            selected = enemies.Any() ? available.MinBy((u) => enemies.Select((e) => u.Cell.DistanceTo(e.Cell)).Min()) : available.First();
+            IEnumerable<VirtualUnit> attackers = available.Where((u) => {
+                Dictionary<StringName, IEnumerable<Vector2I>> actions = u.Original.Behavior.Actions(u, grid);
+                return actions.ContainsKey("Attack") && actions["Attack"].Contains(enemy.Cell);
+            });
 
-            IEnumerable<Vector2I> destinations = selected.Behavior.Destinations(selected);
-            Dictionary<StringName, IEnumerable<Vector2I>> actions = selected.Behavior.Actions(selected);
+            foreach (IList<VirtualUnit> permutation in attackers.Permutations())
+            {
+                (VirtualGrid current, Vector2I move) = ChooseBestMove(enemy, permutation, grid);
+                GridValue currentGridValue = new(Army.Faction, current);
+                MoveValue currentMoveValue = new(grid, permutation[0], move);
 
-            IEnumerable<Unit> attackable = actions.ContainsKey("Attack") ? actions["Attack"].Select((c) => selected.Grid.Occupants[c]).OfType<Unit>().OrderBy((u) => u.Cell.DistanceTo(selected.Cell)) : [];
-            if (attackable.Any())
-            {
-                action = "Attack";
-                target = attackable.First();
-                destination = selected.AttackableCells(target.Cell).Where(destinations.Contains).OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).First();
-            }
-            else
-            {
-                IEnumerable<Unit> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Cell));
-                if (ordered.Any())
-                    destination = destinations.OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
-                else
-                    destination = selected.Cell;
-                action = "End";
-            }
-            break;
-        case DecisionType.TargetLoop:
-            if (enemies.Any())
-            {
-                // optimize for enemy unit with lowest remaining health
-                double best = double.PositiveInfinity;
-                foreach (Unit enemy in enemies.OrderBy((u) => u.Health.Value))
+                if (best is null)
                 {
-                    IEnumerable<Unit> attackers = available.Where((u) => {
-                        Dictionary<StringName, IEnumerable<Vector2I>> actions = u.Behavior.Actions(u);
-                        return actions.ContainsKey("Attack") && actions["Attack"].Contains(enemy.Cell);
-                    });
+                    best = current;
+                    selected = permutation[0];
+                    destination = move;
+                    action = "Attack";
+                    target = enemy;
 
-                    foreach (IList<Unit> permutation in attackers.Permutations())
+                    bestGridValue = currentGridValue;
+                    bestMoveValue = currentMoveValue;
+                }
+                else
+                {
+                    if (currentGridValue > bestGridValue || (currentGridValue == bestGridValue && currentMoveValue < bestMoveValue))
                     {
-                        MoveEvaluation EvaluateAction(IList<Unit> units, IImmutableSet<Vector2I> blocked=null)
-                        {
-                            if (units.Count == 0)
-                                return new(null, 0, 0, Vector2I.Zero);
+                        best = current;
+                        selected = permutation[0];
+                        destination = move;
+                        action = "Attack";
+                        target = enemy;
 
-                            blocked ??= [];
-                            MoveEvaluation best = new(units[0], 0, 0, units[0].Cell);
-
-                            foreach (Vector2I destination in units[0].AttackableCells(enemy.Cell).Where((c) => units[0].Behavior.Destinations(units[0]).Contains(c) && !blocked.Contains(c)))
-                            {
-                                MoveEvaluation next = EvaluateAction([.. units.Skip(1)], blocked.Add(destination));
-                                MoveEvaluation evaluation = new(best.Unit, next.Dealt + CombatCalculations.TotalExpectedDamage(enemy, CombatCalculations.AttackResults(best.Unit, enemy)), 0, destination);
-                                if (evaluation > best)
-                                    best = evaluation;
-                            }
-
-                            return best;
-                        }
-
-                        (double damage, _, Vector2I source) = EvaluateAction(permutation);
-                        double remaining = enemy.Health.Value - damage;
-
-                        if (selected is null || remaining < best)
-                        {
-                            selected = permutation[0];
-                            action = "Attack";
-                            destination = source;
-                            target = enemy;
-                            best = remaining;
-                        }
+                        bestGridValue = currentGridValue;
+                        bestMoveValue = currentMoveValue;
                     }
                 }
             }
-
-            // If no one has been selected yet, just pick the unit closest to an enemy
-            if (selected is null)
-            {
-                selected = enemies.Any() ? available.MinBy((u) => enemies.Select((e) => u.Cell.DistanceTo(e.Cell)).Min()) : available.First();
-                action = "End";
-
-                IEnumerable<Unit> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Cell));
-                if (ordered.Any())
-                    destination = selected.Behavior.Destinations(selected).OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
-                else
-                    destination = selected.Cell;
-            }
-            break;
-        default:
-            break;
         }
 
-        return (selected, destination, action, target);
+        // If no one has been selected yet, just pick the unit closest to an enemy
+        if (selected is null)
+        {
+            selected = enemies.Any() ? available.MinBy((u) => enemies.Select((e) => u.Cell.DistanceTo(e.Cell)).Min()) : available.First();
+            action = "End";
+
+            IEnumerable<VirtualUnit> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Value.Cell));
+            if (ordered.Any())
+                destination = selected.Value.Original.Behavior.Destinations(selected.Value, grid).OrderBy((c) => selected.Value.Original.Behavior.GetPath(selected.Value, grid, c).Cost).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
+            else
+                destination = selected.Value.Cell;
+        }
+
+        return (selected.Value, destination, action, target);
+    }
+
+    public (Unit selected, Vector2I destination, StringName action, Unit target) ComputeAction(IEnumerable<Unit> available, IEnumerable<Unit> enemies, Grid grid)
+    {
+        VirtualGrid virtualGrid = new(grid);
+        IEnumerable<VirtualUnit> virtualAvailable = available.Select((u) => new VirtualUnit(u));
+        IEnumerable<VirtualUnit> virtualEnemies = enemies.Select((u) => new VirtualUnit(u));
+
+        (VirtualUnit selected, Vector2I destination, StringName action, VirtualUnit? target) = ComputeAction(virtualAvailable, virtualEnemies, virtualGrid);
+
+        return (selected.Original, destination, action, target?.Original);
     }
 
     public override async void SelectUnit()
@@ -166,17 +314,20 @@ public partial class AIController : ArmyController
         // Compute this outside the task because it calls Node.GetChildren(), which has to be called on the same thread as that node.
         // Also, use a collection expression to immediately evaluated it rather than waiting until later, because that will be in the
         // wrong thread.
-        IEnumerable<Unit> available = [.. ((IEnumerable<Unit>)Army).Where(static (u) => u.Active)];
-        IEnumerable<Unit> enemies = Grid.Occupants.Values.OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u));
+        VirtualGrid grid = new(Grid);
+        IEnumerable<VirtualUnit> available = [.. ((IEnumerable<Unit>)Army).Where(static (u) => u.Active).Select(static (u) => new VirtualUnit(u))];
+        IEnumerable<VirtualUnit> enemies = [.. Grid.Occupants.Values.OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u)).Select(static (u) => new VirtualUnit(u))];
 
-        (_selected, _destination, _action, _target) = await Task.Run<(Unit, Vector2I, StringName, Unit)>(() => ComputeAction(available, enemies));
+        (VirtualUnit selected, _destination, _action, VirtualUnit? target) = await Task.Run<(VirtualUnit, Vector2I, StringName, VirtualUnit?)>(() => ComputeAction(available, enemies, grid));
+        _selected = selected.Original;
+        _target = target?.Original;
 
         EmitSignal(SignalName.UnitSelected, _selected);
     }
 
     public override void MoveUnit(Unit unit)
     {
-        EmitSignal(SignalName.PathConfirmed, unit, new Godot.Collections.Array<Vector2I>(unit.Behavior.GetPath(unit, _destination)));
+        EmitSignal(SignalName.PathConfirmed, unit, new Godot.Collections.Array<Vector2I>(unit.Behavior.GetPath(unit, unit.Grid, _destination)));
     }
 
     public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)

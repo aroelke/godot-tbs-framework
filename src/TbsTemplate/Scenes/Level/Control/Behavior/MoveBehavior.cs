@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Scenes.Level.Control.Behavior;
@@ -8,11 +9,11 @@ namespace TbsTemplate.Scenes.Level.Control.Behavior;
 [GlobalClass, Tool]
 public partial class MoveBehavior : UnitBehavior
 {
-    public override IEnumerable<Vector2I> Destinations(Unit unit) => unit.TraversableCells().Where((c) => !unit.Grid.Occupants.ContainsKey(c));
+    public override IEnumerable<Vector2I> Destinations(IUnit unit, IGrid grid) => unit.TraversableCells(grid).Where((c) => !grid.GetOccupantUnits().TryGetValue(c, out IUnit occupant) || c == unit.Cell);
 
-    public override Dictionary<StringName, IEnumerable<Vector2I>> Actions(Unit unit)
+    public override Dictionary<StringName, IEnumerable<Vector2I>> Actions(IUnit unit, IGrid grid)
     {
-        IEnumerable<Vector2I> enemies = unit.AttackableCells(unit.TraversableCells()).Where((c) => unit.Grid.Occupants.ContainsKey(c) && !((unit.Grid.Occupants[c] as Unit)?.Army.Faction.AlliedTo(unit) ?? false));
+        IEnumerable<Vector2I> enemies = unit.AttackableCells(grid, unit.TraversableCells(grid)).Where((c) => grid.GetOccupantUnits().TryGetValue(c, out IUnit occupant) && !occupant.Faction.AlliedTo(unit.Faction));
         if (enemies.Any())
             return new() { {"Attack", enemies} };
         else

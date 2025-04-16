@@ -5,6 +5,7 @@ using Godot;
 using TbsTemplate.Data;
 using TbsTemplate.Extensions;
 using TbsTemplate.Scenes.Level.Control.Behavior;
+using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 
@@ -59,16 +60,13 @@ public partial class AIControllerTestScene : Node
     }
 
     /// <summary>Run a test to make sure the AI performs the right action for a given game state.</summary>
-    /// <param name="decider">Algorithm the AI should use to determine actions.</param>
     /// <param name="allies">Units in the AI's army.</param>
     /// <param name="enemies">Units not in the AI's army.</param>
-    /// <param name="expected">Mapping of units the AI can choose onto the destination cells it should move the one it chooses.</param>
+    /// <param name="expected">Mapping of units the AI can choose onto the options for destination cell it should move the one it chooses.</param>
     /// <param name="expectedAction">Action the AI should perform with its chosen unit.</param>
     /// <param name="expectedTarget">Unit the AI should be targeting with its action.</param>
-    private void RunTest(AIController.DecisionType decider, IEnumerable<Unit> allies, IEnumerable<Unit> enemies, Dictionary<Unit, Vector2I> expected, string expectedAction, Unit expectedTarget=null)
+    private void RunTest(IEnumerable<Unit> allies, IEnumerable<Unit> enemies, Dictionary<Unit, HashSet<Vector2I>> expected, string expectedAction, Unit expectedTarget=null)
     {
-        _dut.Decision = decider;
-
         foreach (Unit ally in allies)
             _allies.AddChild(ally);
         foreach (Unit enemy in enemies)
@@ -81,11 +79,11 @@ public partial class AIControllerTestScene : Node
                 foreach (IEnumerable<Unit> enemyPermutation in enemies.Permutations())
                 {
                     string run = $"[{string.Join(',', allyPermutation.Select(PrintUnit))}] & [{string.Join(',', enemyPermutation.Select(PrintUnit))}]";
-                    (Unit selected, Vector2I destination, StringName action, Unit target) = _dut.ComputeAction(allyPermutation, enemyPermutation);
+                    (Unit selected, Vector2I destination, StringName action, Unit target) = _dut.ComputeAction(allyPermutation, enemyPermutation, _dut.Grid);
 
-                    Assert.IsTrue(expected.Any(
-                        (p) => selected == p.Key && destination == p.Value),
-                        $"{run}: Expected to move {string.Join('/', expected.Select((e) => $"{PrintUnit(e.Key)}->{e.Value}"))}; but moved {PrintUnit(selected)} to {destination}"
+                    Assert.IsTrue(
+                        expected.Any((p) => selected == p.Key && p.Value.Contains(destination)),
+                        $"{run}: Expected to move {string.Join('/', expected.Select((e) => $"{PrintUnit(e.Key)}->[{string.Join('/', e.Value)}]"))}; but moved {PrintUnit(selected)} to {destination}"
                     );
                     Assert.AreEqual<StringName>(action, expectedAction, $"{run}: Expected action {expectedAction}, but chose {action}");
                     if (expectedTarget is null)
@@ -116,118 +114,103 @@ public partial class AIControllerTestScene : Node
     }
 
     /// <summary>Run a test to make sure the AI performs the right action for a given game state.</summary>
-    /// <param name="decider">Algorithm the AI should use to determine actions.</param>
     /// <param name="allies">Units in the AI's army.</param>
     /// <param name="enemies">Units not in the AI's army.</param>
     /// <param name="expectedSelected">Unit the AI should choose for its action.</param>
-    /// <param name="expectedDestination">Cell the AI should move its unit to.</param>
+    /// <param name="expectedDestinations">Options for cell the AI should move its unit to.</param>
     /// <param name="expectedAction">Action the AI should perform with its chosen unit.</param>
     /// <param name="expectedTarget">Unit the AI should be targeting with its action.</param>
-    private void RunTest(AIController.DecisionType decider, IEnumerable<Unit> allies, IEnumerable<Unit> enemies, Unit expectedSelected, Vector2I expectedDestination, string expectedAction, Unit expectedTarget=null)
-        => RunTest(decider, allies, enemies, new() {{ expectedSelected, expectedDestination }}, expectedAction, expectedTarget);
+    private void RunTest(IEnumerable<Unit> allies, IEnumerable<Unit> enemies, Unit expectedSelected, HashSet<Vector2I> expectedDestinations, string expectedAction, Unit expectedTarget=null)
+        => RunTest(allies, enemies, new() {{ expectedSelected, expectedDestinations }}, expectedAction, expectedTarget);
 
-    /// <summary><see cref="AIController.DecisionType.ClosestEnemy"/>: AI should choose its unit closest to any enemy.</summary>
+    /// <summary>AI should choose its unit closest to any enemy and no enemies are in range to attack.</summary>
     [Test]
-    public void TestClosestStandingNoEnemiesInRange()
+    public void TestStandingNoEnemiesInRange()
     {
         Unit[] allies = [CreateUnit(new(0, 1)), CreateUnit(new(1, 2)), CreateUnit(new(0, 3))];
         Unit[] enemies = [CreateUnit(new(6, 2))];
-        RunTest(AIController.DecisionType.ClosestEnemy, allies, enemies,
+        RunTest(allies, enemies,
             expectedSelected:    allies[1],
-            expectedDestination: allies[1].Cell,
+            expectedDestinations: [allies[1].Cell],
             expectedAction:      "End"
         );
     }
 
-    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose its unit closest to any enemy and no enemies are in range to attack.</summary>
+    /// <summary>When the behavior prevents movement, AI should not choose to attack if an enemy is reachable but not in range to attack.</summary>
     [Test]
-    public void TestLoopStandingNoEnemiesInRange()
+    public void TestStandingOneReachableEnemyNotInRange()
     {
-        Unit[] allies = [CreateUnit(new(0, 1)), CreateUnit(new(1, 2)), CreateUnit(new(0, 3))];
-        Unit[] enemies = [CreateUnit(new(6, 2))];
-        RunTest(AIController.DecisionType.ClosestEnemy, allies, enemies,
-            expectedSelected:    allies[1],
-            expectedDestination: allies[1].Cell,
+        Unit ally = CreateUnit(new(0, 2));
+        Unit enemy = CreateUnit(new(3, 2));
+        RunTest([ally], [enemy],
+            expectedSelected:    ally,
+            expectedDestinations: [ally.Cell],
             expectedAction:      "End"
         );
     }
 
-    /// <summary><see cref="AIController.DecisionType.ClosestEnemy"/>: AI should choose to attack the enemy closest to its selected unit.</summary>
+    /// <summary>AI should choose to attack the enemy with the lower HP when it deals the same damage to all enemies.</summary>
     [Test]
-    public void TestClosestStandingEnemiesInRange()
-    {
-        Unit[] allies = [CreateUnit(new(3, 2), attackRange:[1, 2], behavior:new StandBehavior() { AttackInRange = true })];
-        Unit[] enemies = [CreateUnit(new(2, 1)), CreateUnit(new(2, 2)), CreateUnit(new(1, 3))];
-        RunTest(AIController.DecisionType.ClosestEnemy, allies, enemies,
-            expectedSelected:    allies[0],
-            expectedDestination: allies[0].Cell,
-            expectedAction:      "Attack",
-            expectedTarget:      enemies[1]
-        );
-    }
-
-    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose to attack the enemy with the lower HP when it deals the same damage to all enemies.</summary>
-    [Test]
-    public void TestLoopStandingSingleAllyMultipleEnemiesSameDamage()
+    public void TestStandingSingleAllyMultipleEnemiesSameDamage()
     {
         Unit[] allies = [CreateUnit(new(3, 2), attackRange:[1, 2], behavior:new StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), hp:(10, 5)), CreateUnit(new(2, 2), hp:(10, 10))];
-        RunTest(AIController.DecisionType.TargetLoop, allies, enemies,
+        RunTest(allies, enemies,
             expectedSelected:    allies[0],
-            expectedDestination: allies[0].Cell,
+            expectedDestinations: [allies[0].Cell],
             expectedAction:      "Attack",
             expectedTarget:      enemies[0]
         );
     }
 
-    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose to attack the enemy it can do more damage to when enemies have the same HP.</summary>
+    /// <summary>AI should choose to attack the enemy it can do more damage to when enemies have the same HP.</summary>
     [Test]
-    public void TestLoopStandingSingleAllyMultipleEnemiesDifferentDamage()
+    public void TestStandingSingleAllyMultipleEnemiesDifferentDamage()
     {
         Unit[] allies = [CreateUnit(new(3, 2), attackRange:[1, 2], stats:new() { Attack = 5 }, behavior:new StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), stats:new() { Defense = 3 }), CreateUnit(new(2, 2), stats:new() { Defense = 0 })];
-        RunTest(AIController.DecisionType.TargetLoop, allies, enemies,
+        RunTest(allies, enemies,
             expectedSelected:    allies[0],
-            expectedDestination: allies[0].Cell,
+            expectedDestinations: [allies[0].Cell],
             expectedAction:      "Attack",
             expectedTarget:      enemies[1]
         );
     }
 
-    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose to attack the enemy it can bring to the lowest HP regardless of current HP or damage.</summary>
+    /// <summary>AI should choose to attack the enemy it can bring to the lowest HP regardless of current HP or damage.</summary>
     [Test]
-    public void TestLoopStandingSingleAllyMultipleEnemiesDifferentEndHealth()
+    public void TestStandingSingleAllyMultipleEnemiesDifferentEndHealth()
     {
         Unit[] allies = [CreateUnit(new(3, 2), attackRange:[1, 2], stats:new() { Attack = 5 }, behavior:new StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), hp:(10, 5), stats:new() { Health = 10, Defense = 3 }), CreateUnit(new(2, 2), hp:(10, 10), stats:new() { Health = 10, Defense = 0 })];
-        RunTest(AIController.DecisionType.TargetLoop, allies, enemies,
+        RunTest(allies, enemies,
             expectedSelected:    allies[0],
-            expectedDestination: allies[0].Cell,
+            expectedDestinations: [allies[0].Cell],
             expectedAction:      "Attack",
             expectedTarget:      enemies[0]
         );
     }
 
-    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose the unit that can attack the enemy, even though it's further away.</summary>
+    /// <summary>AI should choose the unit that can attack the enemy, even though it's further away.</summary>
     [Test]
-    public void TestLoopStandingMultipleAlliesSingleEnemyOnlyOneInRange()
+    public void TestStandingMultipleAlliesSingleEnemyOnlyOneInRange()
     {
         Unit[] allies = [
             CreateUnit(new(2, 1), attackRange:[1], behavior:new StandBehavior { AttackInRange = true }),
             CreateUnit(new(2, 4), attackRange:[3], behavior:new StandBehavior { AttackInRange = true })
         ];
         Unit[] enemies = [CreateUnit(new(3, 2))];
-        RunTest(AIController.DecisionType.TargetLoop, allies, enemies,
+        RunTest(allies, enemies,
             expectedSelected:    allies[1],
-            expectedDestination: allies[1].Cell,
+            expectedDestinations: [allies[1].Cell],
             expectedAction:      "Attack",
             expectedTarget:      enemies[0]
         );
     }
 
-    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose the target it can kill with its units, even if one of its units can do more damage to a different one.</summary>
+    /// <summary>AI should choose the target it can kill with its units, even if one of its units can do more damage to a different one.</summary>
     [Test]
-    public void TestLoopStandingMultipleAlliesMultipleEnemiesOneCanBeKilled()
+    public void TestStandingMultipleAlliesMultipleEnemiesOneCanBeKilled()
     {
         Unit[] allies = [
             CreateUnit(new(0, 1), attackRange:[1, 2], stats:new() { Attack = 7 }, behavior:new StandBehavior() { AttackInRange = true }),
@@ -237,198 +220,178 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(1, 1), stats:new() { Defense = 0 }),
             CreateUnit(new(1, 2), stats:new() { Defense = 2 })
         ];
-        RunTest(AIController.DecisionType.TargetLoop, allies, enemies,
-            expected:            allies.ToDictionary((u) => u, (u) => u.Cell),
+        RunTest(allies, enemies,
+            expected:            allies.ToDictionary((u) => u, (u) => new HashSet<Vector2I>() { u.Cell }),
             expectedAction:      "Attack",
             expectedTarget:      enemies[1]
         );
     }
 
-    /// <summary>
-    /// <see cref="AIController.DecisionType.ClosestEnemy"/>: AI should be able to choose an action when there aren't enemies. It also should keep the chosen unit in place even if that unit
-    /// could move.
-    /// </summary>
+    /// <summary>AI should be able to choose an action when there aren't enemies.  It also should keep the chosen unit in place even if that unit could move.</summary>
     [Test]
-    public void TestClosestMovingNoEnemiesPresent()
+    public void TestMovingNoEnemiesPresent()
     {
-        Unit ally = CreateUnit(new(3, 2), behavior:new MoveBehavior());
-        RunTest(AIController.DecisionType.ClosestEnemy, [ally], [],
-            expectedSelected:    ally,
-            expectedDestination: ally.Cell,
-            expectedAction:      "End"
-        );
+        Vector2I size = GetNode<Grid>("Grid").Size;
+        for (int i = 0; i < size.X; i++)
+        {
+            for (int j = 0; j < size.Y; j++)
+            {
+                Unit ally = CreateUnit(new(i, j), behavior:new MoveBehavior());
+                RunTest([ally], [],
+                    expectedSelected:    ally,
+                    expectedDestinations: [ally.Cell],
+                    expectedAction:      "End"
+                );
+            }
+        }
     }
 
-    /// <summary>
-    /// <see cref="AIController.DecisionType.TargetLoop"/>: AI should be able to choose an action when there aren't enemies.  It also should keep the chosen unit in place even if that unit
-    /// could move.
-    // </summary>
+    /// <summary>AI should choose the closest allowed destination when there are multiple options.</summary>
     [Test]
-    public void TestLoopMovingNoEnemiesPresent()
+    public void TestMovingSingleReachableEnemy()
     {
-        Unit ally = CreateUnit(new(3, 2), behavior:new MoveBehavior());
-        RunTest(AIController.DecisionType.TargetLoop, [ally], [],
-            expectedSelected:    ally,
-            expectedDestination: ally.Cell,
-            expectedAction:      "End"
-        );
+        Vector2I[] destinations = [new(4, 1), new(5, 2), new(4, 3), new(3, 2)];
+        Vector2I size = GetNode<Grid>("Grid").Size;
+        for (int i = 0; i < size.X; i++)
+        {
+            for (int j = 0; j < size.Y; j++)
+            {
+                Unit enemy = CreateUnit(new(4, 2));
+                if (new Vector2I(i, j) != enemy.Cell)
+                {
+                    Unit ally = CreateUnit(new(i, j), attackRange:[1], stats:new() { Move = 5 }, behavior:new MoveBehavior());
+                    int closest = destinations.Select((c) => c.ManhattanDistanceTo(ally.Cell)).Min();
+                    RunTest([ally], [enemy],
+                        expectedSelected:    ally,
+                        expectedDestinations: [.. destinations.Where((c) => c.ManhattanDistanceTo(ally.Cell) == closest)],
+                        expectedAction:      "Attack",
+                        expectedTarget:      enemy
+                    );
+                }
+                else
+                {
+                    enemy.Grid.Occupants.Remove(enemy.Cell);
+                    enemy.Free();
+                }
+            }
+        }
     }
 
-    /// <summary><see cref="AIController.DecisionType.ClosestEnemy"/>: AI should choose the closest allowed destination when there are multiple options.</summary>
+    /// <summary>AI should choose the closest cell it can attack from, even if it's not the furthest and even if it doesn't have to move, when the enemy can't retaliate.</summary>
     [Test]
-    public void TestClosestMovingSingleReachableEnemy()
+    public void TestMovingSingleReachableEnemyRanged()
     {
-        Unit ally = CreateUnit(new(1, 2), attackRange:[1], stats:new() { Move = 5 }, behavior:new MoveBehavior());
-        Unit enemy = CreateUnit(new(4, 2));
-        RunTest(AIController.DecisionType.ClosestEnemy, [ally], [enemy],
-            expectedSelected:    ally,
-            expectedDestination: new(3, 2),
-            expectedAction:      "Attack",
-            expectedTarget:      enemy
-        );
+        Vector2I[] destinations = [new(4, 0), new(5, 1), new(6, 2), new(5, 3), new(4, 4), new(3, 3), new(2, 2), new(3, 1), new(4, 1), new(5, 2), new(4, 3), new(3, 2)];
+        Vector2I size = GetNode<Grid>("Grid").Size;
+        for (int i = 0; i < size.X; i++)
+        {
+            for (int j = 0; j < size.Y; j++)
+            {
+                Unit enemy = CreateUnit(new(4, 2), attackRange:[]);
+                if (new Vector2I(i, j) != enemy.Cell)
+                {
+                    Unit ally = CreateUnit(new(3, 2), attackRange:[1, 2], stats:new() { Move = 5 }, behavior:new MoveBehavior());
+                    int closest = destinations.Select((c) => c.ManhattanDistanceTo(ally.Cell)).Min();
+                    RunTest([ally], [enemy],
+                        expectedSelected:    ally,
+                        expectedDestinations: [.. destinations.Where((c) => c.ManhattanDistanceTo(ally.Cell) == closest)],
+                        expectedAction:      "Attack",
+                        expectedTarget:      enemy
+                    );
+                }
+            }
+        }
     }
 
-    /// <summary><see cref="AIController.DecisionType.ClosestEnemy"/>: AI should choose the square at the furthest range it could attack its target.</summary>
+    /// <summary>AI should choose the traversable cell closest to any enemy when it can't attack anything.</summary>
     [Test]
-    public void TestClosestMovingSingleReachableEnemyRanged()
-    {
-        Unit ally = CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Move = 5 }, behavior:new MoveBehavior());
-        Unit enemy = CreateUnit(new(4, 2));
-        RunTest(AIController.DecisionType.ClosestEnemy, [ally], [enemy],
-            expectedSelected:    ally,
-            expectedDestination: new(2, 2),
-            expectedAction:      "Attack",
-            expectedTarget:      enemy
-        );
-    }
-
-    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose the closest allowed destination when there are multiple options.</summary>
-    [Test]
-    public void TestLoopMovingSingleReachableEnemy()
-    {
-        Unit ally = CreateUnit(new(1, 2), attackRange:[1], stats:new() { Move = 5 }, behavior:new MoveBehavior());
-        Unit enemy = CreateUnit(new(4, 2));
-        RunTest(AIController.DecisionType.TargetLoop, [ally], [enemy],
-            expectedSelected:    ally,
-            expectedDestination: new(3, 2),
-            expectedAction:      "Attack",
-            expectedTarget:      enemy
-        );
-    }
-
-    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose the square at the furthest range it could attack its target.</summary>
-    [Test]
-    public void TestLoopMovingSingleReachableEnemyRanged()
-    {
-        Unit ally = CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Move = 5 }, behavior:new MoveBehavior());
-        Unit enemy = CreateUnit(new(4, 2));
-        RunTest(AIController.DecisionType.TargetLoop, [ally], [enemy],
-            expectedSelected:    ally,
-            expectedDestination: new(2, 2),
-            expectedAction:      "Attack",
-            expectedTarget:      enemy
-        );
-    }
-
-    /// <summary><see cref="AIController.DecisionType.ClosestEnemy"/>: AI should choose the cell closest to the closest target if there are multiple targets.</summary>
-    [Test]
-    public void TestClosestMovingMultipleReachableEnemies()
-    {
-        Unit ally = CreateUnit(new(1, 2), attackRange:[1], stats:new() { Move = 5 }, behavior:new MoveBehavior());
-        Unit[] enemies = [CreateUnit(new(4, 1)), CreateUnit(new(4, 2))];
-        RunTest(AIController.DecisionType.ClosestEnemy, [ally], enemies,
-            expectedSelected:    ally,
-            expectedDestination: new(3, 2),
-            expectedAction:      "Attack",
-            expectedTarget:      enemies[1]
-        );
-    }
-
-    /// <summary><see cref="AIController.DecisionType.ClosestEnemy"/>: AI should choose the traversable cell closest to any enemy when it can't attack anything.</summary>
-    [Test]
-    public void TestClosestMovingSingleUnreachableEnemy()
+    public void TestMovingSingleUnreachableEnemy()
     {
         Unit ally = CreateUnit(new(0, 2), attackRange:[1], stats:new() { Move = 3 }, behavior:new MoveBehavior());
         Unit enemy = CreateUnit(new(5, 2));
-        RunTest(AIController.DecisionType.ClosestEnemy, [ally], [enemy],
+        RunTest([ally], [enemy],
             expectedSelected:    ally,
-            expectedDestination: new(3, 2),
+            expectedDestinations: [new(3, 2)],
             expectedAction:      "End"
         );
     }
 
-    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should choose the traversable cell closest to any enemy when it can't attack anything.</summary>
+    /// <summary>AI should not block other allies from attacking when making ordering decisions.</summary>
     [Test]
-    public void TestLoopMovingSingleUnreachableEnemy()
-    {
-        Unit ally = CreateUnit(new(0, 2), attackRange:[1], stats:new() { Move = 3 }, behavior:new MoveBehavior());
-        Unit enemy = CreateUnit(new(5, 2));
-        RunTest(AIController.DecisionType.TargetLoop, [ally], [enemy],
-            expectedSelected:    ally,
-            expectedDestination: new(3, 2),
-            expectedAction:      "End"
-        );
-    }
-
-    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should not block other allies from attacking when making ordering decisions.</summary>
-    [Test]
-    public void TestLoopDontBlockAllies()
+    public void TestDontBlockAllies()
     {
         Unit[] allies = [
             CreateUnit(new(0, 2), attackRange:[1, 2], stats:new() { Move = 4 }, behavior:new MoveBehavior()),
             CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Move = 4 }, behavior:new MoveBehavior())
         ];
         Unit enemy = CreateUnit(new(6, 2), stats:new() { Attack = 0 });
-        RunTest(AIController.DecisionType.TargetLoop, allies, [enemy],
-            expected: new() {{ allies[0], new(4, 2) }, { allies[1], new(5, 2) }},
+        RunTest(allies, [enemy],
+            expected: new() {{ allies[0], new HashSet<Vector2I>() { new(4, 2) }}, { allies[1], new HashSet<Vector2I>() { new(5, 2) }}},
             expectedAction: "Attack",
             expectedTarget: enemy
         );
     }
 
-    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should attack from a space that its target can't retaliate from, even if it's not the furthest one.</summary>
+    /// <summary>AI should attack from a space that its target can't retaliate from, even if it's not the furthest one.</summary>
     [Test]
-    public void TestLoopMinimizeRetaliationDamageViaPositioning()
+    public void TestMinimizeRetaliationDamageViaPositioning()
     {
         Unit ally = CreateUnit(new(1, 2), attackRange:[1, 2], behavior:new MoveBehavior());
         Unit enemy = CreateUnit(new(5, 2), attackRange:[2]);
-        RunTest(AIController.DecisionType.TargetLoop, [ally], [enemy],
-            expectedSelected: enemy,
-            expectedDestination: new(4, 2),
+        RunTest([ally], [enemy],
+            expectedSelected: ally,
+            expectedDestinations: [new(4, 2)],
             expectedAction: "Attack",
             expectedTarget: enemy
         );
     }
 
-    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should attack in the order that reduces retaliation damage to its units.</summary>
+    /// <summary>AI should attack in the order that reduces retaliation damage to its units.</summary>
     [Test]
-    public void TestLoopMinimizeRetaliationDamageViaDeath()
+    public void TestMinimizeRetaliationDamageViaDeath()
     {
         Unit[] allies = [
             CreateUnit(new(0, 2), attackRange:[1, 2], stats:new() { Attack = 5, Move = 4 }, behavior:new MoveBehavior()),
             CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Attack = 5, Move = 4 }, behavior:new MoveBehavior())
         ];
         Unit enemy = CreateUnit(new(6, 2), attackRange:[1], stats:new() { Health = 10, Attack = 5, Defense = 0 }, hp:(10, 10));
-        RunTest(AIController.DecisionType.TargetLoop, allies, [enemy],
+        RunTest(allies, [enemy],
             expectedSelected: allies[0],
-            expectedDestination: new(4, 2),
+            expectedDestinations: [new(4, 2)],
             expectedAction: "Attack",
             expectedTarget: enemy
         );
     }
 
-    /// <summary><see cref="AIController.DecisionType.TargetLoop"/>: AI should attack in the order that reduces the number of allies that die in retaliation regardless of damage dealt.</summary>
+    /// <summary>AI should attack an enemy it can kill, even if it can do more damage to another enemy.</summary>
     [Test]
-    public void TestLoopMinimizeAllyDeaths()
+    public void TestMaximizeEnemyDeaths()
+    {
+        Unit ally = CreateUnit(new(2, 2), attackRange:[2], stats:new() { Health = 10, Attack = 5 }, behavior:new MoveBehavior());
+        Unit[] enemies = [
+            CreateUnit(new(3, 1), attackRange:[1], stats:new() { Health = 10, Defense = 4 }, hp:(5, 1)),
+            CreateUnit(new(3, 3), attackRange:[1], stats:new() { Health = 10, Defense = 0 }, hp:(10, 6))
+        ];
+        RunTest([ally], enemies,
+            expectedSelected: ally,
+            expectedDestinations: [ally.Cell],
+            expectedAction: "Attack",
+            expectedTarget: enemies[0]
+        );
+    }
+
+    /// <summary>AI should attack in the order that reduces the number of allies that die in retaliation regardless of damage dealt.</summary>
+    [Test]
+    public void TestMinimizeAllyDeaths()
     {
         Unit[] allies = [
-            CreateUnit(new(0, 2), attackRange:[1, 2], stats:new() { Health = 10, Attack = 3, Defense = 0, Move = 4 }, hp:(10, 10), behavior:new MoveBehavior()),
-            CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Health = 10, Attack = 3, Defense = 3, Move = 4 }, hp:(10, 5), behavior:new MoveBehavior())
+            CreateUnit(new(0, 2), attackRange:[1, 2], stats:new() { Health = 10, Attack = 5, Defense = 0, Move = 4 }, hp:(10, 10), behavior:new MoveBehavior()),
+            CreateUnit(new(1, 2), attackRange:[1, 2], stats:new() { Health = 10, Attack = 5, Defense = 3, Move = 4 }, hp:(10, 5), behavior:new MoveBehavior())
         ];
         Unit enemy = CreateUnit(new(6, 2), attackRange:[1, 2], stats:new() { Health = 10, Attack = 8, Defense = 0 }, hp:(10, 10));
-        RunTest(AIController.DecisionType.TargetLoop, allies, [enemy],
+        RunTest(allies, [enemy],
             expectedSelected: allies[0],
-            expectedDestination: new(4, 2),
+            expectedDestinations: [new(4, 2)],
             expectedAction: "Attack",
             expectedTarget: enemy
         );
