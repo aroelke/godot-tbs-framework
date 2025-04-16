@@ -413,7 +413,7 @@ public partial class PlayerController : ArmyController
         }).CallDeferred();
     }
 
-    private void UpdatePath(Path path) => PathLayer.Path = _path = path;
+    private void UpdatePath(Path path) => PathLayer.Path = [.. _path = path];
 
     private void AddToPath(Vector2I cell)
     {
