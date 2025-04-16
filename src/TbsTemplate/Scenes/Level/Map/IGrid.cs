@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Godot;
 using TbsTemplate.Data;
+using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Scenes.Level.Map;
 
@@ -44,6 +46,8 @@ public interface IGrid
 
     /// <returns>The terrain information for a cell, or <see cref="DefaultTerrain"/> if the terrain hasn't been set.</returns>
     public Terrain GetTerrain(Vector2I cell);
+
+    public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits();
 
     /// <summary>
     /// Compute the total cost of a collection of cells. If the cells are a contiguous path, represents the total cost of moving along that

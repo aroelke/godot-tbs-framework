@@ -32,6 +32,8 @@ public partial class AIController : ArmyController
 
         public Terrain GetTerrain(Vector2I cell) => Terrain[cell.Y][cell.X];
 
+        public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits() => Occupants.ToImmutableDictionary((e) => e.Key, (e) => e.Value as IUnit);
+
         public int PathCost(IEnumerable<Vector2I> path) => IGrid.PathCost(this, path);
 
         public IEnumerable<Vector2I> GetCellsAtDistance(Vector2I cell, int distance) => IGrid.GetCellsAtDistance(this, cell, distance);
@@ -39,71 +41,9 @@ public partial class AIController : ArmyController
         public int CellId(Vector2I cell) => cell.X*Size.X + cell.Y;
     }
 
-    private abstract class VirtualUnitBehavior
+    private readonly record struct VirtualUnit(Unit Original, Vector2I Cell, float Health) : IUnit
     {
-        public abstract IEnumerable<Vector2I> Destinations(VirtualGrid grid, VirtualUnit unit);
-
-        public abstract Dictionary<StringName, IEnumerable<Vector2I>> Actions(VirtualGrid grid, VirtualUnit unit);
-
-        public virtual Path GetPath(VirtualGrid grid, VirtualUnit unit, Vector2I from, Vector2I to)
-        {
-            IEnumerable<Vector2I> traversable = unit.TraversableCells(grid);
-            if (!traversable.Contains(from) || !traversable.Contains(to))
-                throw new ArgumentException($"Cannot compute path from {from} to {to}; at least one is not traversable.");
-            return Path.Empty(grid, traversable).Add(from).Add(to);
-        }
-
-        public Path GetPath(VirtualGrid grid, VirtualUnit unit, Vector2I to) => GetPath(grid, unit, unit.Cell, to);
-    }
-
-    private class VirtualStandBehavior(bool AttackInRange=false) : VirtualUnitBehavior
-    {
-        public override IEnumerable<Vector2I> Destinations(VirtualGrid grid, VirtualUnit unit) => [unit.Cell];
-
-        public override Dictionary<StringName, IEnumerable<Vector2I>> Actions(VirtualGrid grid, VirtualUnit unit)
-        {
-            if (AttackInRange)
-            {
-                Dictionary<StringName, IEnumerable<Vector2I>> actions = [];
-
-                IEnumerable<Vector2I> attackable = unit.AttackableCells(grid, [unit.Cell]);
-                IEnumerable<VirtualUnit> targets = grid.Occupants.Where((p) => attackable.Contains(p.Key) && !unit.Original.Army.Faction.AlliedTo(p.Value.Original)).Select((p) => p.Value);
-                if (targets.Any())
-                    actions["Attack"] = targets.Select((u) => u.Cell);
-
-                return actions;
-            }
-            else
-                return [];
-        }
-    }
-
-    private static readonly VirtualStandBehavior VirtualStandBehaviorCantAttack = new(false);
-    private static readonly VirtualStandBehavior VirtualStandBehaviorCanAttack  = new(true);
-
-    private class VirtualMoveBehavior : VirtualUnitBehavior
-    {
-        public override IEnumerable<Vector2I> Destinations(VirtualGrid grid, VirtualUnit unit) => unit.TraversableCells(grid).Where((c) => !grid.Occupants.ContainsKey(c) || grid.Occupants[c] == unit);
-
-        public override Dictionary<StringName, IEnumerable<Vector2I>> Actions(VirtualGrid grid, VirtualUnit unit)
-        {
-            IEnumerable<Vector2I> enemies = unit.AttackableCells(grid, unit.TraversableCells(grid)).Where((c) => grid.Occupants.ContainsKey(c) && !grid.Occupants[c].Original.Army.Faction.AlliedTo(unit.Original));
-            if (enemies.Any())
-                return new() { {"Attack", enemies} };
-            else
-                return [];
-        }
-    }
-
-    private static readonly VirtualMoveBehavior VirtualMoveBehaviorInst = new();
-
-    private readonly record struct VirtualUnit(Unit Original, Vector2I Cell, float Health, VirtualUnitBehavior Behavior) : IUnit
-    {
-        public VirtualUnit(Unit original) : this(original, original.Cell, original.Health.Value, original.Behavior switch {
-            StandBehavior b => b.AttackInRange ? VirtualStandBehaviorCanAttack : VirtualStandBehaviorCantAttack,
-            MoveBehavior  b => VirtualMoveBehaviorInst,
-            _ => null
-        }) {}
+        public VirtualUnit(Unit original) : this(original, original.Cell, original.Health.Value) {}
 
         public Stats Stats => Original.Stats;
 
@@ -228,7 +168,7 @@ public partial class AIController : ArmyController
 
     private (VirtualGrid, Vector2I) ChooseBestMove(VirtualUnit enemy, IList<VirtualUnit> allies, VirtualGrid grid)
     {
-        IEnumerable<Vector2I> destinations = allies[0].AttackableCells(grid, [enemy.Cell]).Where((c) => allies[0].Behavior.Destinations(grid, allies[0]).Contains(c));
+        IEnumerable<Vector2I> destinations = allies[0].AttackableCells(grid, [enemy.Cell]).Where((c) => allies[0].Original.Behavior.Destinations(allies[0], grid).Contains(c));
         if (!destinations.Any())
         {
             if (allies.Count > 1)
@@ -313,7 +253,7 @@ public partial class AIController : ArmyController
         foreach (VirtualUnit enemy in enemies)
         {
             IEnumerable<VirtualUnit> attackers = available.Where((u) => {
-                Dictionary<StringName, IEnumerable<Vector2I>> actions = u.Behavior.Actions(grid, u);
+                Dictionary<StringName, IEnumerable<Vector2I>> actions = u.Original.Behavior.Actions(u, grid);
                 return actions.ContainsKey("Attack") && actions["Attack"].Contains(enemy.Cell);
             });
 
@@ -359,7 +299,7 @@ public partial class AIController : ArmyController
 
             IEnumerable<VirtualUnit> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Value.Cell));
             if (ordered.Any())
-                destination = selected.Value.Behavior.Destinations(grid, selected.Value).OrderBy((c) => selected.Value.Behavior.GetPath(grid, selected.Value, c).Cost).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
+                destination = selected.Value.Original.Behavior.Destinations(selected.Value, grid).OrderBy((c) => selected.Value.Original.Behavior.GetPath(selected.Value, grid, c).Cost).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
             else
                 destination = selected.Value.Cell;
         }
@@ -396,7 +336,7 @@ public partial class AIController : ArmyController
 
     public override void MoveUnit(Unit unit)
     {
-        EmitSignal(SignalName.PathConfirmed, unit, new Godot.Collections.Array<Vector2I>(unit.Behavior.GetPath(unit, _destination)));
+        EmitSignal(SignalName.PathConfirmed, unit, new Godot.Collections.Array<Vector2I>(unit.Behavior.GetPath(unit, unit.Grid, _destination)));
     }
 
     public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)

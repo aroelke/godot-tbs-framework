@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Godot;
 using TbsTemplate.Data;
@@ -57,6 +58,8 @@ public partial class Grid : Node2D, IGrid
     public Vector2 Snap(Vector2 position) => PositionOf(CellOf(position));
 
     public Terrain GetTerrain(Vector2I cell) => TerrainLayer?.GetCellTileData(cell)?.GetCustomData("terrain").As<Terrain>() ?? DefaultTerrain;
+
+    public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits() => Occupants.Where((e) => e.Value is Unit).ToImmutableDictionary((e) => e.Key, (e) => e.Value as IUnit);
 
     /// <param name="cell">Coordinates of the cell.</param>
     /// <returns>A unique ID within this map of the given <paramref name="cell"/>.</returns>
