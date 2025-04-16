@@ -55,4 +55,16 @@ public interface IUnit
 
     /// <returns>The set of cells that this unit can reach from its position, accounting for <see cref="Terrain.Cost"/>, on <paramref name="grid"/>.</returns>
     public IEnumerable<Vector2I> TraversableCells(IGrid grid);
+
+    /// <summary>Compute all of the cells this unit could attack from the given set of source cells.</summary>
+    /// <param name="grid">Grid on which to compute the attack.</param>
+    /// <param name="sources">Cells to compute attack range from.</param>
+    /// <returns>The set of all cells that could be attacked from any of the source cells.</returns>
+    public IEnumerable<Vector2I> AttackableCells(IGrid grid, IEnumerable<Vector2I> sources);
+
+    /// <summary>Compute all of the cells this unit could support from the given set of source cells.</summary>
+    /// <param name="grid">Grid on which to compute the support.</param>
+    /// <param name="sources">Cells to compute support range from.</param>
+    /// <returns>The set of all cells that could be supported from any of the source cells.</returns>
+    public IEnumerable<Vector2I> SupportableCells(IGrid grid, IEnumerable<Vector2I> sources);
 }
