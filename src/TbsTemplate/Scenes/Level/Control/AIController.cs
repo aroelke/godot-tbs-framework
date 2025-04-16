@@ -27,18 +27,11 @@ public partial class AIController : ArmyController
         ) {}
 
         public bool Contains(Vector2I cell) => IGrid.Contains(this, cell);
-
         public bool IsTraversable(Vector2I cell, Faction faction) => !Occupants.TryGetValue(cell, out VirtualUnit unit) || unit.Faction.AlliedTo(faction);
-
-        public Terrain GetTerrain(Vector2I cell) => Terrain[cell.Y][cell.X];
-
-        public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits() => Occupants.ToImmutableDictionary((e) => e.Key, (e) => e.Value as IUnit);
-
-        public int PathCost(IEnumerable<Vector2I> path) => IGrid.PathCost(this, path);
-
         public IEnumerable<Vector2I> GetCellsAtDistance(Vector2I cell, int distance) => IGrid.GetCellsAtDistance(this, cell, distance);
-
-        public int CellId(Vector2I cell) => cell.X*Size.X + cell.Y;
+        public Terrain GetTerrain(Vector2I cell) => Terrain[cell.Y][cell.X];
+        public int PathCost(IEnumerable<Vector2I> path) => IGrid.PathCost(this, path);
+        public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits() => Occupants.ToImmutableDictionary((e) => e.Key, (e) => e.Value as IUnit);
     }
 
     private readonly record struct VirtualUnit(Unit Original, Vector2I Cell, float Health) : IUnit
@@ -50,9 +43,7 @@ public partial class AIController : ArmyController
         public Faction Faction => Original.Faction;
 
         public IEnumerable<Vector2I> TraversableCells(IGrid grid) => IUnit.TraversableCells(this, grid);
-
         public IEnumerable<Vector2I> AttackableCells(IGrid grid, IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(grid, sources, Original.AttackRange);
-
         public IEnumerable<Vector2I> SupportableCells(IGrid grid, IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(grid, sources, Original.SupportRange);
     }
 

@@ -67,7 +67,6 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     /// <summary>Class this unit belongs to, defining some of its stats and animations.</summary>
     [Export] public Class Class = null;
 
-    /// <summary>Stats this unit has that determine its movement range and combat performance.</summary>
     [Export] public Stats Stats
     {
         get => _stats;

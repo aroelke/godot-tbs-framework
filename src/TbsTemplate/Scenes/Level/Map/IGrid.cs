@@ -42,24 +42,28 @@ public interface IGrid
     /// <returns><c>true</c> if the <paramref name="cell"/> is within the grid bounds, and <c>false</c> otherwise.</returns>
     public bool Contains(Vector2I cell);
 
+    /// <summary>Determine if a grid cell is traversable for a member of a faction.</summary>
+    /// <param name="cell">Cell to test.</param>
+    /// <param name="faction">Faction to use for the test.</param>
+    /// <returns><c>true</c> if a member of the faction can traverse the cell, and <c>false</c> otherwise.</returns>
     public bool IsTraversable(Vector2I cell, Faction faction);
-
-    /// <returns>The terrain information for a cell, or <see cref="DefaultTerrain"/> if the terrain hasn't been set.</returns>
-    public Terrain GetTerrain(Vector2I cell);
-
-    public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits();
-
-    /// <summary>
-    /// Compute the total cost of a collection of cells. If the cells are a contiguous path, represents the total cost of moving along that
-    /// path.
-    /// </summary>
-    /// <param name="path">List of cells to sum up.</param>
-    /// <returns>The sum of the cost of each cell in the <paramref name="path"/>.</returns>
-    public int PathCost(IEnumerable<Vector2I> path);
 
     /// <summary>Find all the cells that are exactly a specified Manhattan distance away from a center cell.</summary>
     /// <param name="cell">Cell at the center of the range.</param>
     /// <param name="distance">Distance away from the center cell to search.</param>
     /// <returns>A collection of cells that are on the grid and exactly the specified <paramref name="distance"/> away from the center <paramref name="cell"/>.</returns>
     public IEnumerable<Vector2I> GetCellsAtDistance(Vector2I cell, int distance);
+
+    /// <returns>The terrain information for a cell, or <see cref="DefaultTerrain"/> if the terrain hasn't been set.</returns>
+    public Terrain GetTerrain(Vector2I cell);
+
+    /// <summary>Compute the total cost of a collection of cells. If the cells are a contiguous path, represents the total cost of moving along that path.</summary>
+    /// <param name="path">List of cells to sum up.</param>
+    /// <returns>The sum of the cost of each cell in the <paramref name="path"/>.</returns>
+    public int PathCost(IEnumerable<Vector2I> path);
+
+    /// <summary>Get the units occupying the grid.</summary>
+    /// <returns>A mapping of grid cells occupied by units onto those units.</returns>
+    /// <remarks><b>Note</b>: Returns an immutable dictionary to prevent attempts to update occupants through it.</remarks>
+    public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits();
 }

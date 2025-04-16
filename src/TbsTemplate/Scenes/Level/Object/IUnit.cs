@@ -47,10 +47,13 @@ public interface IUnit
     /// </returns>
     protected static IEnumerable<Vector2I> GetCellsInRange(IGrid grid, IEnumerable<Vector2I> sources, IEnumerable<int> ranges) => [.. sources.SelectMany((c) => ranges.SelectMany((r) => grid.GetCellsAtDistance(c, r)))];
 
+    /// <summary>Stats this unit has that determine its movement range and combat performance.</summary>
     public Stats Stats { get; }
 
+    /// <summary>Faction to which this unit belongs.</summary>
     public Faction Faction { get; }
 
+    /// <summary><see cref="IGrid"/> cell this unit is occupying.</summary>
     public Vector2I Cell { get; }
 
     /// <returns>The set of cells that this unit can reach from its position, accounting for <see cref="Terrain.Cost"/>, on <paramref name="grid"/>.</returns>

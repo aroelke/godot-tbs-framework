@@ -33,10 +33,6 @@ public partial class Grid : Node2D, IGrid
     /// <summary>Regions in which units can perform special actions defined by the region.</summary>
     public IEnumerable<SpecialActionRegion> SpecialActionRegions => GetChildren().OfType<SpecialActionRegion>();
 
-    public bool Contains(Vector2I cell) => IGrid.Contains(this, cell);
-
-    public bool IsTraversable(Vector2I cell, Faction faction) => !Occupants.TryGetValue(cell, out GridNode occupant) || (occupant is Unit unit && unit.Faction.AlliedTo(faction));
-
     /// <summary>Find the cell offset closest to the given one inside the grid.</summary>
     /// <param name="cell">Cell offset to clamp.
     /// <returns>The cell <paramref name="offset"/> clamped to be inside the grid bounds using <c>Vector2I.Clamp</c></returns>
@@ -57,14 +53,6 @@ public partial class Grid : Node2D, IGrid
     /// <returns>The position of the upper-left corner of the cell containing the given <paramref name="position"/>.</returns>
     public Vector2 Snap(Vector2 position) => PositionOf(CellOf(position));
 
-    public Terrain GetTerrain(Vector2I cell) => TerrainLayer?.GetCellTileData(cell)?.GetCustomData("terrain").As<Terrain>() ?? DefaultTerrain;
-
-    public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits() => Occupants.Where((e) => e.Value is Unit).ToImmutableDictionary((e) => e.Key, (e) => e.Value as IUnit);
-
-    /// <param name="cell">Coordinates of the cell.</param>
-    /// <returns>A unique ID within this map of the given <paramref name="cell"/>.</returns>
-    public int CellId(Vector2I cell) => cell.X*Size.X + cell.Y;
-
     /// <param name="cell">Coordinates of the cell.</param>
     /// <returns>The bounding box of the cell.</returns>
     public Rect2 CellRect(Vector2I cell) => new(cell*CellSize, CellSize);
@@ -83,9 +71,12 @@ public partial class Grid : Node2D, IGrid
         return enclosure;
     }
 
-    public int PathCost(IEnumerable<Vector2I> path) => IGrid.PathCost(this, path);
-
+    public bool Contains(Vector2I cell) => IGrid.Contains(this, cell);
+    public bool IsTraversable(Vector2I cell, Faction faction) => !Occupants.TryGetValue(cell, out GridNode occupant) || (occupant is Unit unit && unit.Faction.AlliedTo(faction));
     public IEnumerable<Vector2I> GetCellsAtDistance(Vector2I cell, int distance) => IGrid.GetCellsAtDistance(this, cell, distance);
+    public Terrain GetTerrain(Vector2I cell) => TerrainLayer?.GetCellTileData(cell)?.GetCustomData("terrain").As<Terrain>() ?? DefaultTerrain;
+    public int PathCost(IEnumerable<Vector2I> path) => IGrid.PathCost(this, path);
+    public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits() => Occupants.Where((e) => e.Value is Unit).ToImmutableDictionary((e) => e.Key, (e) => e.Value as IUnit);
 
     public override string[] _GetConfigurationWarnings()
     {
