@@ -1,0 +1,58 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using GD_NET_ScOUT;
+using Godot;
+using TbsTemplate.Data;
+using TbsTemplate.Scenes.Level.Map;
+
+namespace TbsTemplate.Scenes.Level.Object.Test;
+
+[Test]
+public partial class IUnitTestScene : Node
+{
+    private readonly record struct TestGrid(Vector2I Size, Dictionary<Vector2I, Terrain> Terrain, Dictionary<Vector2I, TestUnit> Occupants) : IGrid
+    {
+        public bool Contains(Vector2I cell) => IGrid.Contains(this, cell);
+        public IEnumerable<Vector2I> GetCellsAtDistance(Vector2I cell, int distance) => IGrid.GetCellsAtDistance(this, cell, distance);
+        public int PathCost(IEnumerable<Vector2I> path) => IGrid.PathCost(this, path);
+        public Terrain GetTerrain(Vector2I cell) => Terrain.TryGetValue(cell, out Terrain terrain) ? terrain : new() { Cost = 1 };
+        public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits() => Occupants.ToImmutableDictionary((e) => e.Key, (e) => (IUnit)e.Value);
+        public bool IsTraversable(Vector2I cell, Faction faction) => true;
+    }
+
+    private readonly record struct TestUnit(Stats Stats, Faction Faction, Vector2I Cell) : IUnit
+    {
+        // Functions to test
+        public IEnumerable<Vector2I> TraversableCells(IGrid grid) => IUnit.TraversableCells(this, grid);
+
+        // Not used in testing
+        public IEnumerable<Vector2I> AttackableCells(IGrid grid, IEnumerable<Vector2I> sources) => throw new NotImplementedException();
+        public IEnumerable<Vector2I> SupportableCells(IGrid grid, IEnumerable<Vector2I> sources) => throw new NotImplementedException();
+    }
+
+    private TestGrid _grid = new(new(7, 7), [], []);
+
+    private bool CollectionsEqual<T>(IEnumerable<T> a, IEnumerable<T> b) => a.Count() == b.Count() && a.ToHashSet().SetEquals(b);
+
+    [Export] public Faction[] AlliedFactions = [];
+
+    [Export] public Faction EnemyFaction = null;
+
+    [Test] public void TestUnitTraversibleCellsCenterNoTerrain()
+    {
+        TestUnit dut = new(new() { Move = 1 }, AlliedFactions[0], new(3, 3));
+        TestGrid grid = _grid with { Occupants = new() {{ dut.Cell, dut }} };
+        Vector2I[] expected = [new(3, 3), new(3, 2), new(4, 3), new(3, 4), new(2, 3)];
+        Assert.IsTrue(CollectionsEqual(dut.TraversableCells(grid), expected));
+    }
+
+    [Test] public void TestUnitTraversibleCellsCornerNoTerrain()
+    {
+        TestUnit dut = new(new() { Move = 1 }, AlliedFactions[0], Vector2I.Zero);
+        TestGrid grid = _grid with { Occupants = new() {{ dut.Cell, dut }} };
+        Vector2I[] expected = [Vector2I.Zero, new(1, 0), new(0, 1)];
+        Assert.IsTrue(CollectionsEqual(dut.TraversableCells(grid), expected));
+    }
+}
