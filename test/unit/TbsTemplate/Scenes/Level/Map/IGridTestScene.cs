@@ -75,4 +75,20 @@ public partial class IGridTestScene : Node
         Vector2I[] expected = [new(3, 5), new(4, 6), new(2, 6)];
         Assert.IsTrue(CollectionsEqual(dut.GetCellsAtDistance(target, 1), expected));
     }
+
+    [Test] public void TestGridGetCellsAtDistanceTwoFromCenter()
+    {
+        TestGrid dut = new(new(7, 7), []);
+        Vector2I target = new(3, 3);
+        Vector2I[] expected = [new(3, 1), new(4, 2), new(5, 3), new(4, 4), new(3, 5), new(2, 4), new(1, 3), new(2, 2)];
+        Assert.IsTrue(CollectionsEqual(dut.GetCellsAtDistance(target, 2), expected));
+    }
+
+    [Test] public void TestGridGetCellsAtDistanceThreeFromCenter()
+    {
+        TestGrid dut = new(new(7, 7), []);
+        Vector2I target = new(3, 3);
+        Vector2I[] expected = [new(3, 0), new(4, 1), new(5, 2), new(6, 3), new(5, 4), new(4, 5), new(3, 6), new(2, 5), new(1, 4), new(0, 3), new(1, 2), new(2, 1)];
+        Assert.IsTrue(CollectionsEqual(dut.GetCellsAtDistance(target, 3), expected));
+    }
 }
