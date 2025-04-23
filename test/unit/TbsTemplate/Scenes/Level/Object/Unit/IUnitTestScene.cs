@@ -55,4 +55,12 @@ public partial class IUnitTestScene : Node
         Vector2I[] expected = [Vector2I.Zero, new(1, 0), new(0, 1)];
         Assert.IsTrue(CollectionsEqual(dut.TraversableCells(grid), expected));
     }
+
+    [Test] public void TestUnitTraversibleCellsCenterWithTerrain()
+    {
+        TestUnit dut = new(new() { Move = 2 }, AlliedFactions[0], new(3, 3));
+        TestGrid grid = _grid with { Terrain = new() {{ new(3, 2), new() { Cost = 2 } }}, Occupants = new() {{ dut.Cell, dut }} };
+        Vector2I[] expected = [new(3, 3), new(3, 2), new(4, 3), new(3, 4), new(2, 3), new(4, 2), new(5, 3), new(4, 4), new(3, 5), new(2, 4), new(2, 2), new(1, 3)];
+        Assert.IsTrue(CollectionsEqual(dut.TraversableCells(grid), expected));
+    }
 }
