@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using GD_NET_ScOUT;
 using Godot;
 using TbsTemplate.Data;
@@ -31,4 +32,47 @@ public partial class IGridTestScene : Node
     [Test] public void TestGridContainsEnd() => Assert.IsTrue(new TestGrid(new(3, 5), []).Contains(new(2, 4)));
     [Test] public void TestGridDoesntContainMinusOne() => Assert.IsFalse(new TestGrid(Vector2I.One, []).Contains(-Vector2I.One));
     [Test] public void TestGridDoesntContainSize() => Assert.IsFalse(new TestGrid(new(3, 5), []).Contains(new(3, 5)));
+
+    // "GetCellsAtDistance" tests
+    private bool CollectionsEqual<T>(IEnumerable<T> a, IEnumerable<T> b) => a.Count() == b.Count() && a.ToHashSet().SetEquals(b);
+
+    [Test] public void TestGridGetCellsAtDistanceOneFromCenter()
+    {
+        TestGrid dut = new(new(7, 7), []);
+        Vector2I target = new(3, 3);
+        Vector2I[] expected = [new(3, 2), new(4, 3), new(3, 4), new(2, 3)];
+        Assert.IsTrue(CollectionsEqual(dut.GetCellsAtDistance(target, 1), expected));
+    }
+
+    [Test] public void TestGridGetCellsAtDistanceOneFromLeftEdge()
+    {
+        TestGrid dut = new(new(7, 7), []);
+        Vector2I target = new(0, 3);
+        Vector2I[] expected = [new(0, 2), new(1, 3), new(0, 4)];
+        Assert.IsTrue(CollectionsEqual(dut.GetCellsAtDistance(target, 1), expected));
+    }
+
+    [Test] public void TestGridGetCellsAtDistanceOneFromTopEdge()
+    {
+        TestGrid dut = new(new(7, 7), []);
+        Vector2I target = new(3, 0);
+        Vector2I[] expected = [new(4, 0), new(3, 1), new(2, 0)];
+        Assert.IsTrue(CollectionsEqual(dut.GetCellsAtDistance(target, 1), expected));
+    }
+
+    [Test] public void TestGridGetCellsAtDistanceOneFromRightEdge()
+    {
+        TestGrid dut = new(new(7, 7), []);
+        Vector2I target = new(6, 3);
+        Vector2I[] expected = [new(6, 2), new(6, 4), new(5, 3)];
+        Assert.IsTrue(CollectionsEqual(dut.GetCellsAtDistance(target, 1), expected));
+    }
+
+    [Test] public void TestGridGetCellsAtDistanceOneFromBottomEdge()
+    {
+        TestGrid dut = new(new(7, 7), []);
+        Vector2I target = new(3, 6);
+        Vector2I[] expected = [new(3, 5), new(4, 6), new(2, 6)];
+        Assert.IsTrue(CollectionsEqual(dut.GetCellsAtDistance(target, 1), expected));
+    }
 }
