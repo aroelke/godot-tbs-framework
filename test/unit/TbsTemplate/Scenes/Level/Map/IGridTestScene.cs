@@ -20,7 +20,7 @@ public partial class IGridTestScene : Node
         public int PathCost(IEnumerable<Vector2I> path) => IGrid.PathCost(this, path);
 
         // Supporting functions
-        public Terrain GetTerrain(Vector2I cell) => Terrain.TryGetValue(cell, out Terrain terrain) ? terrain : null;
+        public Terrain GetTerrain(Vector2I cell) => Terrain.TryGetValue(cell, out Terrain terrain) ? terrain : new() { Cost = 1 };
 
         // Not used for testing
         public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits() => throw new NotImplementedException();
@@ -91,4 +91,14 @@ public partial class IGridTestScene : Node
         Vector2I[] expected = [new(3, 0), new(4, 1), new(5, 2), new(6, 3), new(5, 4), new(4, 5), new(3, 6), new(2, 5), new(1, 4), new(0, 3), new(1, 2), new(2, 1)];
         Assert.IsTrue(CollectionsEqual(dut.GetCellsAtDistance(target, 3), expected));
     }
+
+    // "PathCost" tests
+    [Test] public void TestGridPathCostEmpty() => Assert.Equals(new TestGrid(new(5, 5), []).PathCost([]), 0);
+    [Test] public void TestGridPathNoTerrain() => Assert.Equals(new TestGrid(new(5, 5), []).PathCost([new(0, 2), new(1, 2), new(1, 3)]), 3);
+    [Test] public void TestGridPathWithTerrain() => Assert.Equals(new TestGrid(new(5, 5), new() {
+        { new(0, 2), new() { Cost = 3 } },
+        { new(1, 2), new() { Cost = 2 } },
+        { new(1, 3), new() { Cost = 5 } },
+        { new(0, 0), new() { Cost = 9 } }
+    }).PathCost([new(0, 2), new(1, 2), new(1, 3)]), 10);
 }
