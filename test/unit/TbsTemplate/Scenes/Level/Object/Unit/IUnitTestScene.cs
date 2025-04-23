@@ -19,7 +19,7 @@ public partial class IUnitTestScene : Node
         public int PathCost(IEnumerable<Vector2I> path) => IGrid.PathCost(this, path);
         public Terrain GetTerrain(Vector2I cell) => Terrain.TryGetValue(cell, out Terrain terrain) ? terrain : new() { Cost = 1 };
         public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits() => Occupants.ToImmutableDictionary((e) => e.Key, (e) => (IUnit)e.Value);
-        public bool IsTraversable(Vector2I cell, Faction faction) => true;
+        public bool IsTraversable(Vector2I cell, Faction faction) => !Occupants.TryGetValue(cell, out TestUnit occupant) || occupant.Faction.AlliedTo(faction);
     }
 
     private readonly record struct TestUnit(Stats Stats, Faction Faction, Vector2I Cell) : IUnit
@@ -40,27 +40,57 @@ public partial class IUnitTestScene : Node
 
     [Export] public Faction EnemyFaction = null;
 
+    private void TestTraversibleCells(IEnumerable<Vector2I> expected, IEnumerable<Vector2I> actual) => Assert.IsTrue(CollectionsEqual(actual, expected), $"[{string.Join(',', actual)}] != [{string.Join(',', expected)}]");
+
     [Test] public void TestUnitTraversibleCellsCenterNoTerrain()
     {
         TestUnit dut = new(new() { Move = 1 }, AlliedFactions[0], new(3, 3));
         TestGrid grid = _grid with { Occupants = new() {{ dut.Cell, dut }} };
-        Vector2I[] expected = [new(3, 3), new(3, 2), new(4, 3), new(3, 4), new(2, 3)];
-        Assert.IsTrue(CollectionsEqual(dut.TraversableCells(grid), expected));
+        TestTraversibleCells(
+            [new(3, 3), new(3, 2), new(4, 3), new(3, 4), new(2, 3)],
+            dut.TraversableCells(grid)
+        );
     }
 
     [Test] public void TestUnitTraversibleCellsCornerNoTerrain()
     {
         TestUnit dut = new(new() { Move = 1 }, AlliedFactions[0], Vector2I.Zero);
         TestGrid grid = _grid with { Occupants = new() {{ dut.Cell, dut }} };
-        Vector2I[] expected = [Vector2I.Zero, new(1, 0), new(0, 1)];
-        Assert.IsTrue(CollectionsEqual(dut.TraversableCells(grid), expected));
+        TestTraversibleCells(
+            [Vector2I.Zero, new(1, 0), new(0, 1)],
+            dut.TraversableCells(grid)
+        );
     }
 
     [Test] public void TestUnitTraversibleCellsCenterWithTerrain()
     {
         TestUnit dut = new(new() { Move = 2 }, AlliedFactions[0], new(3, 3));
         TestGrid grid = _grid with { Terrain = new() {{ new(3, 2), new() { Cost = 2 } }}, Occupants = new() {{ dut.Cell, dut }} };
-        Vector2I[] expected = [new(3, 3), new(3, 2), new(4, 3), new(3, 4), new(2, 3), new(4, 2), new(5, 3), new(4, 4), new(3, 5), new(2, 4), new(2, 2), new(1, 3)];
-        Assert.IsTrue(CollectionsEqual(dut.TraversableCells(grid), expected));
+        TestTraversibleCells(
+            [new(3, 3), new(3, 2), new(4, 3), new(3, 4), new(2, 3), new(4, 2), new(5, 3), new(4, 4), new(3, 5), new(2, 4), new(2, 2), new(1, 3)],
+            dut.TraversableCells(grid)
+        );
+    }
+
+    [Test] public void TestUnitTraversibleCellsCenterEnemyObstacle()
+    {
+        TestUnit dut = new(new() { Move = 2 }, AlliedFactions[0], new(3, 3));
+        TestUnit enemy = new(new(), EnemyFaction, new(2, 3));
+        TestGrid grid = _grid with { Occupants = new() {{ dut.Cell, dut }, { enemy.Cell, enemy }} };
+        TestTraversibleCells(
+            [new(3, 3), new(3, 2), new(4, 3), new(3, 4), new(3, 1), new(4, 2), new(5, 3), new(4, 4), new(3, 5), new(2, 4), new(2, 2)],
+            dut.TraversableCells(grid)
+        );
+    }
+
+    [Test] public void TestUnitTraversibleCellsCenterAllyObstacle()
+    {
+        TestUnit dut = new(new() { Move = 2 }, AlliedFactions[0], new(3, 3));
+        TestUnit ally = new(new(), AlliedFactions[1], new(2, 3));
+        TestGrid grid = _grid with { Occupants = new() {{ dut.Cell, dut }, { ally.Cell, ally }} };
+        TestTraversibleCells(
+            [new(3, 3), new(3, 2), new(4, 3), new(3, 4), new(2, 3), new(3, 1), new(4, 2), new(5, 3), new(4, 4), new(3, 5), new(2, 4), new(2, 2), new(1, 3)],
+            dut.TraversableCells(grid)
+        );
     }
 }
