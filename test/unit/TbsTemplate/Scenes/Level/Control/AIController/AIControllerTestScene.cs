@@ -124,9 +124,9 @@ public partial class AIControllerTestScene : Node
     private void RunTest(IEnumerable<Unit> allies, IEnumerable<Unit> enemies, Unit expectedSelected, HashSet<Vector2I> expectedDestinations, string expectedAction, Unit expectedTarget=null)
         => RunTest(allies, enemies, new() {{ expectedSelected, expectedDestinations }}, expectedAction, expectedTarget);
 
-    /**********
-     * ATTACK *
-     **********/
+    /*******
+     * END *
+     *******/
 
     /// <summary>AI should choose its unit closest to any enemy and no enemies are in range to attack.</summary>
     [Test]
@@ -153,6 +153,42 @@ public partial class AIControllerTestScene : Node
             expectedAction:      "End"
         );
     }
+
+    /// <summary>AI should be able to choose an action when there aren't enemies.  It also should keep the chosen unit in place even if that unit could move.</summary>
+    [Test]
+    public void TestMovingNoEnemiesPresent()
+    {
+        Vector2I size = GetNode<Grid>("Grid").Size;
+        for (int i = 0; i < size.X; i++)
+        {
+            for (int j = 0; j < size.Y; j++)
+            {
+                Unit ally = CreateUnit(new(i, j), behavior:new MoveBehavior());
+                RunTest([ally], [],
+                    expectedSelected:    ally,
+                    expectedDestinations: [ally.Cell],
+                    expectedAction:      "End"
+                );
+            }
+        }
+    }
+
+    /// <summary>AI should choose the traversable cell closest to any enemy when it can't attack anything.</summary>
+    [Test]
+    public void TestMovingSingleUnreachableEnemy()
+    {
+        Unit ally = CreateUnit(new(0, 2), attack:[1], stats:new() { Move = 3 }, behavior:new MoveBehavior());
+        Unit enemy = CreateUnit(new(5, 2));
+        RunTest([ally], [enemy],
+            expectedSelected:    ally,
+            expectedDestinations: [new(3, 2)],
+            expectedAction:      "End"
+        );
+    }
+
+    /**********
+     * ATTACK *
+     **********/
 
     /// <summary>AI should choose to attack the enemy with the lower HP when it deals the same damage to all enemies.</summary>
     [Test]
@@ -232,25 +268,6 @@ public partial class AIControllerTestScene : Node
         );
     }
 
-    /// <summary>AI should be able to choose an action when there aren't enemies.  It also should keep the chosen unit in place even if that unit could move.</summary>
-    [Test]
-    public void TestMovingNoEnemiesPresent()
-    {
-        Vector2I size = GetNode<Grid>("Grid").Size;
-        for (int i = 0; i < size.X; i++)
-        {
-            for (int j = 0; j < size.Y; j++)
-            {
-                Unit ally = CreateUnit(new(i, j), behavior:new MoveBehavior());
-                RunTest([ally], [],
-                    expectedSelected:    ally,
-                    expectedDestinations: [ally.Cell],
-                    expectedAction:      "End"
-                );
-            }
-        }
-    }
-
     /// <summary>AI should choose the closest allowed destination when there are multiple options.</summary>
     [Test]
     public void TestMovingSingleReachableEnemy()
@@ -306,19 +323,6 @@ public partial class AIControllerTestScene : Node
                 }
             }
         }
-    }
-
-    /// <summary>AI should choose the traversable cell closest to any enemy when it can't attack anything.</summary>
-    [Test]
-    public void TestMovingSingleUnreachableEnemy()
-    {
-        Unit ally = CreateUnit(new(0, 2), attack:[1], stats:new() { Move = 3 }, behavior:new MoveBehavior());
-        Unit enemy = CreateUnit(new(5, 2));
-        RunTest([ally], [enemy],
-            expectedSelected:    ally,
-            expectedDestinations: [new(3, 2)],
-            expectedAction:      "End"
-        );
     }
 
     /// <summary>AI should not block other allies from attacking when making ordering decisions.</summary>
