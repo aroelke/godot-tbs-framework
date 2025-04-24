@@ -75,23 +75,33 @@ public partial class AIControllerTestScene : Node
 
         try
         {
+            void TestPermutation(IEnumerable<Unit> allyPermutation, IEnumerable<Unit> enemyPermutation)
+            {
+                string run = $"[{string.Join(',', allyPermutation.Select(PrintUnit))}]";
+                    if (enemyPermutation.Any())
+                        run +=  $"& [{string.Join(',', enemyPermutation.Select(PrintUnit))}]";
+                (Unit selected, Vector2I destination, StringName action, Unit target) = _dut.ComputeAction(allyPermutation, enemyPermutation, _dut.Grid);
+
+                Assert.IsTrue(
+                    expected.Any((p) => selected == p.Key && p.Value.Contains(destination)),
+                    $"{run}: Expected to move {string.Join('/', expected.Select((e) => $"{PrintUnit(e.Key)}->[{string.Join('/', e.Value)}]"))}; but moved {PrintUnit(selected)} to {destination}"
+                );
+                Assert.AreEqual<StringName>(action, expectedAction, $"{run}: Expected action {expectedAction}, but chose {action}");
+                if (expectedTarget is null)
+                    Assert.IsNull(target, $"{run}: Unexpected target {(target is not null ? PrintUnit(target) : "")}");
+                else
+                    Assert.AreSame(target, expectedTarget, $"{run}: Expected to target {PrintUnit(expectedTarget)}, but chose {PrintUnit(target)}");
+            }
+
             foreach (IEnumerable<Unit> allyPermutation in allies.Permutations())
             {
-                foreach (IEnumerable<Unit> enemyPermutation in enemies.Permutations())
+                if (enemies.Any())
                 {
-                    string run = $"[{string.Join(',', allyPermutation.Select(PrintUnit))}] & [{string.Join(',', enemyPermutation.Select(PrintUnit))}]";
-                    (Unit selected, Vector2I destination, StringName action, Unit target) = _dut.ComputeAction(allyPermutation, enemyPermutation, _dut.Grid);
-
-                    Assert.IsTrue(
-                        expected.Any((p) => selected == p.Key && p.Value.Contains(destination)),
-                        $"{run}: Expected to move {string.Join('/', expected.Select((e) => $"{PrintUnit(e.Key)}->[{string.Join('/', e.Value)}]"))}; but moved {PrintUnit(selected)} to {destination}"
-                    );
-                    Assert.AreEqual<StringName>(action, expectedAction, $"{run}: Expected action {expectedAction}, but chose {action}");
-                    if (expectedTarget is null)
-                        Assert.IsNull(target, $"{run}: Unexpected target {(target is not null ? PrintUnit(target) : "")}");
-                    else
-                        Assert.AreSame(target, expectedTarget, $"{run}: Expected to target {PrintUnit(expectedTarget)}, but chose {PrintUnit(target)}");
+                    foreach (IEnumerable<Unit> enemyPermutation in enemies.Permutations())
+                        TestPermutation(allyPermutation, enemyPermutation);
                 }
+                else
+                    TestPermutation(allyPermutation, []);
             }
         }
         finally
@@ -409,4 +419,20 @@ public partial class AIControllerTestScene : Node
     /***********
      * SUPPORT *
      ***********/
+
+    [Test]
+     public void TestSupportStandingPreferLowestHP()
+     {
+        Unit[] allies = [
+            CreateUnit(new(3, 2), support:[1], stats:new() { Healing = 5 }, behavior:new StandBehavior()),
+            CreateUnit(new(2, 2), stats:new() { Health = 5 },  hp:1),
+            CreateUnit(new(3, 1), stats:new() { Health = 20 }, hp:5)
+        ];
+        RunTest(allies, [],
+            expectedSelected: allies[0],
+            expectedDestinations: [allies[0].Cell],
+            expectedAction: "Support",
+            expectedTarget: allies[1]
+        );
+     }
 }
