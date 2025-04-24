@@ -130,7 +130,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary>AI should choose its unit closest to any enemy and no enemies are in range to attack.</summary>
     [Test]
-    public void TestStandingNoEnemiesInRange()
+    public void TestEndStandingNoEnemiesInRange()
     {
         Unit[] allies = [CreateUnit(new(0, 1)), CreateUnit(new(1, 2)), CreateUnit(new(0, 3))];
         Unit[] enemies = [CreateUnit(new(6, 2))];
@@ -143,7 +143,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary>When the behavior prevents movement, AI should not choose to attack if an enemy is reachable but not in range to attack.</summary>
     [Test]
-    public void TestStandingOneReachableEnemyNotInRange()
+    public void TestEndStandingOneReachableEnemyNotInRange()
     {
         Unit ally = CreateUnit(new(0, 2));
         Unit enemy = CreateUnit(new(3, 2));
@@ -156,7 +156,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary>AI should be able to choose an action when there aren't enemies.  It also should keep the chosen unit in place even if that unit could move.</summary>
     [Test]
-    public void TestMovingNoEnemiesPresent()
+    public void TestEndMovingNoEnemiesPresent()
     {
         Vector2I size = GetNode<Grid>("Grid").Size;
         for (int i = 0; i < size.X; i++)
@@ -175,7 +175,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary>AI should choose the traversable cell closest to any enemy when it can't attack anything.</summary>
     [Test]
-    public void TestMovingSingleUnreachableEnemy()
+    public void TestEndMovingSingleUnreachableEnemy()
     {
         Unit ally = CreateUnit(new(0, 2), attack:[1], stats:new() { Move = 3 }, behavior:new MoveBehavior());
         Unit enemy = CreateUnit(new(5, 2));
@@ -192,7 +192,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary>AI should choose to attack the enemy with the lower HP when it deals the same damage to all enemies.</summary>
     [Test]
-    public void TestStandingSingleAllyMultipleEnemiesSameDamage()
+    public void TestAttackStandingSingleAllyMultipleEnemiesSameDamage()
     {
         Unit[] allies = [CreateUnit(new(3, 2), attack:[1, 2], behavior:new StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), stats:new() { Health = 10 }, hp:5), CreateUnit(new(2, 2), stats:new() { Health = 10 }, hp:10)];
@@ -206,7 +206,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary>AI should choose to attack the enemy it can do more damage to when enemies have the same HP.</summary>
     [Test]
-    public void TestStandingSingleAllyMultipleEnemiesDifferentDamage()
+    public void TestAttackStandingSingleAllyMultipleEnemiesDifferentDamage()
     {
         Unit[] allies = [CreateUnit(new(3, 2), attack:[1, 2], stats:new() { Attack = 5 }, behavior:new StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), stats:new() { Defense = 3 }), CreateUnit(new(2, 2), stats:new() { Defense = 0 })];
@@ -220,7 +220,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary>AI should choose to attack the enemy it can bring to the lowest HP regardless of current HP or damage.</summary>
     [Test]
-    public void TestStandingSingleAllyMultipleEnemiesDifferentEndHealth()
+    public void TestAttackStandingSingleAllyMultipleEnemiesDifferentEndHealth()
     {
         Unit[] allies = [CreateUnit(new(3, 2), attack:[1, 2], stats:new() { Attack = 5 }, behavior:new StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), stats:new() { Health = 10, Defense = 3 }, hp:5), CreateUnit(new(2, 2), stats:new() { Health = 10, Defense = 0 }, hp:10)];
@@ -234,7 +234,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary>AI should choose the unit that can attack the enemy, even though it's further away.</summary>
     [Test]
-    public void TestStandingMultipleAlliesSingleEnemyOnlyOneInRange()
+    public void TestAttackStandingMultipleAlliesSingleEnemyOnlyOneInRange()
     {
         Unit[] allies = [
             CreateUnit(new(2, 1), attack:[1], behavior:new StandBehavior { AttackInRange = true }),
@@ -251,7 +251,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary>AI should choose the target it can kill with its units, even if one of its units can do more damage to a different one.</summary>
     [Test]
-    public void TestStandingMultipleAlliesMultipleEnemiesOneCanBeKilled()
+    public void TestAttackStandingMultipleAlliesMultipleEnemiesOneCanBeKilled()
     {
         Unit[] allies = [
             CreateUnit(new(0, 1), attack:[1, 2], stats:new() { Attack = 7 }, behavior:new StandBehavior() { AttackInRange = true }),
@@ -270,7 +270,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary>AI should choose the closest allowed destination when there are multiple options.</summary>
     [Test]
-    public void TestMovingSingleReachableEnemy()
+    public void TestAttackMovingSingleReachableEnemy()
     {
         Vector2I[] destinations = [new(4, 1), new(5, 2), new(4, 3), new(3, 2)];
         Vector2I size = GetNode<Grid>("Grid").Size;
@@ -301,7 +301,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary>AI should choose the closest cell it can attack from, even if it's not the furthest and even if it doesn't have to move, when the enemy can't retaliate.</summary>
     [Test]
-    public void TestMovingSingleReachableEnemyRanged()
+    public void TestAttackMovingSingleReachableEnemyRanged()
     {
         Vector2I[] destinations = [new(4, 0), new(5, 1), new(6, 2), new(5, 3), new(4, 4), new(3, 3), new(2, 2), new(3, 1), new(4, 1), new(5, 2), new(4, 3), new(3, 2)];
         Vector2I size = GetNode<Grid>("Grid").Size;
@@ -327,7 +327,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary>AI should not block other allies from attacking when making ordering decisions.</summary>
     [Test]
-    public void TestDontBlockAllies()
+    public void TestAttackDontBlockAllies()
     {
         Unit[] allies = [
             CreateUnit(new(0, 2), attack:[1, 2], stats:new() { Move = 4 }, behavior:new MoveBehavior()),
@@ -343,7 +343,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary>AI should attack from a space that its target can't retaliate from, even if it's not the furthest one.</summary>
     [Test]
-    public void TestMinimizeRetaliationDamageViaPositioning()
+    public void TestAttackMinimizeRetaliationDamageViaPositioning()
     {
         Unit ally = CreateUnit(new(1, 2), attack:[1, 2], behavior:new MoveBehavior());
         Unit enemy = CreateUnit(new(5, 2), attack:[2]);
@@ -357,7 +357,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary>AI should attack in the order that reduces retaliation damage to its units.</summary>
     [Test]
-    public void TestMinimizeRetaliationDamageViaDeath()
+    public void TestAttackMinimizeRetaliationDamageViaDeath()
     {
         Unit[] allies = [
             CreateUnit(new(0, 2), attack:[1, 2], stats:new() { Attack = 5, Move = 4 }, behavior:new MoveBehavior()),
@@ -374,7 +374,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary>AI should attack an enemy it can kill, even if it can do more damage to another enemy.</summary>
     [Test]
-    public void TestMaximizeEnemyDeaths()
+    public void TestAttackMaximizeEnemyDeaths()
     {
         Unit ally = CreateUnit(new(2, 2), attack:[2], stats:new() { Health = 10, Attack = 5 }, behavior:new MoveBehavior());
         Unit[] enemies = [
@@ -391,7 +391,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary>AI should attack in the order that reduces the number of allies that die in retaliation regardless of damage dealt.</summary>
     [Test]
-    public void TestMinimizeAllyDeaths()
+    public void TestAttackMinimizeAllyDeaths()
     {
         Unit[] allies = [
             CreateUnit(new(0, 2), attack:[1, 2], stats:new() { Health = 10, Attack = 5, Defense = 0, Move = 4 }, hp:10, behavior:new MoveBehavior()),
