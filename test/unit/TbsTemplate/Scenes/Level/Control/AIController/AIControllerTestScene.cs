@@ -19,9 +19,13 @@ public partial class AIControllerTestScene : Node
 
     [Export] public PackedScene UnitScene = null;
 
+    /*********************
+     * SETUP AND SUPPORT *
+     *********************/
+
     private string PrintUnit(Unit unit) => $"{unit.Army.Faction.Name}@{unit.Cell}";
 
-    private Unit CreateUnit(Vector2I cell, int[] attackRange=null, Stats stats=null, (int max, int current)? hp = null, UnitBehavior behavior=null)
+    private Unit CreateUnit(Vector2I cell, int[] attackRange=null, int[] supportRange=null, Stats stats=null, (int max, int current)? hp = null, UnitBehavior behavior=null)
     {
         Unit unit = UnitScene.Instantiate<Unit>();
 
@@ -30,8 +34,8 @@ public partial class AIControllerTestScene : Node
         unit.Grid.Occupants[cell] = unit;
 
         unit.Class = new();
-        if (attackRange is not null)
-            unit.AttackRange = attackRange;
+        unit.AttackRange = attackRange ?? [];
+        unit.SupportRange = supportRange ?? [];
         if (stats is not null)
             unit.Stats = stats;
         if (hp is not null)
@@ -122,6 +126,10 @@ public partial class AIControllerTestScene : Node
     /// <param name="expectedTarget">Unit the AI should be targeting with its action.</param>
     private void RunTest(IEnumerable<Unit> allies, IEnumerable<Unit> enemies, Unit expectedSelected, HashSet<Vector2I> expectedDestinations, string expectedAction, Unit expectedTarget=null)
         => RunTest(allies, enemies, new() {{ expectedSelected, expectedDestinations }}, expectedAction, expectedTarget);
+
+    /**********
+     * ATTACK *
+     **********/
 
     /// <summary>AI should choose its unit closest to any enemy and no enemies are in range to attack.</summary>
     [Test]
@@ -396,4 +404,8 @@ public partial class AIControllerTestScene : Node
             expectedTarget: enemy
         );
     }
+
+    /***********
+     * SUPPORT *
+     ***********/
 }
