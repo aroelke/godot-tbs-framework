@@ -453,4 +453,55 @@ public partial class AIControllerTestScene : Node
             expectedTarget: allies[1]
         );
     }
+
+    /// <summary>AI should prefer to heal injured allies it can reach over attacking enemies it can reach.</summary>
+    [Test]
+    public void TestPreferSupportOverAttack()
+    {
+        Unit[] allies = [
+            CreateUnit(new(3, 2), attack:[1], support:[1], stats:new() { Attack = 5, Healing = 5, Move = 1 }, behavior:new MoveBehavior()),
+            CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:1),
+        ];
+        Unit enemy = CreateUnit(new(3, 4), stats:new() { Health = 10, Defense = 0 }, hp:10);
+        RunTest(allies, [enemy],
+            expectedSelected: allies[0],
+            expectedDestinations: [new(3, 1)],
+            expectedAction: "Support",
+            expectedTarget: allies[1]
+        );
+    }
+
+    /// <summary>AI should prefer to attack enemies it can reach if there allies in reach but all of them are uninjured.</summary>
+    [Test]
+    public void TestPreferAttackWhenAlliesUninjured()
+    {
+        Unit[] allies = [
+            CreateUnit(new(3, 2), attack:[1], support:[1], stats:new() { Attack = 5, Healing = 5, Move = 1 }, behavior:new MoveBehavior()),
+            CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:5),
+        ];
+        Unit enemy = CreateUnit(new(3, 4), stats:new() { Health = 10, Defense = 0 }, hp:10);
+        RunTest(allies, [enemy],
+            expectedSelected: allies[0],
+            expectedDestinations: [new(3, 3)],
+            expectedAction: "Attack",
+            expectedTarget: enemy
+        );
+    }
+
+    /// <summary>AI should prefer to attack if it thinks it can defeat an enemy, even if there is an injured ally in range.</summary>
+    [Test]
+    public void TestPreferKillOverSupport()
+    {
+        Unit[] allies = [
+            CreateUnit(new(3, 2), attack:[1], support:[1], stats:new() { Attack = 5, Healing = 5, Move = 1 }, behavior:new MoveBehavior()),
+            CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:1),
+        ];
+        Unit enemy = CreateUnit(new(3, 4), stats:new() { Health = 10, Defense = 0 }, hp:5);
+        RunTest(allies, [enemy],
+            expectedSelected: allies[0],
+            expectedDestinations: [new(3, 3)],
+            expectedAction: "Attack",
+            expectedTarget: enemy
+        );
+    }
 }
