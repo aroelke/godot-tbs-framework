@@ -420,11 +420,12 @@ public partial class AIControllerTestScene : Node
      * SUPPORT *
      ***********/
 
+    /// <summary>AI should heal the ally with the lowest HP, even if it can heal a different ally by a greater amount.</summary>
     [Test]
-     public void TestSupportStandingPreferLowestHP()
-     {
+    public void TestSupportStandingPreferLowestHP()
+    {
         Unit[] allies = [
-            CreateUnit(new(3, 2), support:[1], stats:new() { Healing = 5 }, behavior:new StandBehavior()),
+            CreateUnit(new(3, 2), support:[1], stats:new() { Healing = 5 }, behavior:new StandBehavior() { SupportInRange = true }),
             CreateUnit(new(2, 2), stats:new() { Health = 5 },  hp:1),
             CreateUnit(new(3, 1), stats:new() { Health = 20 }, hp:5)
         ];
@@ -434,5 +435,22 @@ public partial class AIControllerTestScene : Node
             expectedAction: "Support",
             expectedTarget: allies[1]
         );
-     }
+    }
+
+    /// <summary>AI should heal the ally with the lowest HP, even if it can heal a different ally by a greater amount.</summary>
+    [Test]
+    public void TestSupportMovingPreferLowestHP()
+    {
+        Unit[] allies = [
+            CreateUnit(new(3, 2), support:[1], stats:new() { Healing = 5, Move = 1 }, behavior:new MoveBehavior()),
+            CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:1),
+            CreateUnit(new(3, 4), stats:new() { Health = 20 }, hp:5)
+        ];
+        RunTest(allies, [],
+            expectedSelected: allies[0],
+            expectedDestinations: [new(3, 1)],
+            expectedAction: "Support",
+            expectedTarget: allies[1]
+        );
+    }
 }
