@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Formats.Tar;
 using System.Linq;
 using GD_NET_ScOUT;
 using Godot;
@@ -82,15 +83,19 @@ public partial class AIControllerTestScene : Node
                         run +=  $"& [{string.Join(',', enemyPermutation.Select(PrintUnit))}]";
                 (Unit selected, Vector2I destination, StringName action, Unit target) = _dut.ComputeAction(allyPermutation, enemyPermutation, _dut.Grid);
 
-                Assert.IsTrue(
-                    expected.Any((p) => selected == p.Key && p.Value.Contains(destination)),
-                    $"{run}: Expected to move {string.Join('/', expected.Select((e) => $"{PrintUnit(e.Key)}->[{string.Join('/', e.Value)}]"))}; but moved {PrintUnit(selected)} to {destination}"
-                );
-                Assert.AreEqual<StringName>(action, expectedAction, $"{run}: Expected action {expectedAction}, but chose {action}");
+                string error = $"Expected to move {string.Join(" or ", expected.Select((e) => $"{PrintUnit(e.Key)} to [{string.Join('/', e.Value)}]"))} and {expectedAction}";
+                if (expectedTarget is not null)
+                    error += $" {PrintUnit(expectedTarget)}";
+                error += $" but moved {PrintUnit(selected)} to {destination} and {action}";
+                if (target is not null)
+                    error += $" {PrintUnit(target)}";
+
+                Assert.IsTrue(expected.Any((p) => selected == p.Key && p.Value.Contains(destination)), $"{run}: Wrong unit selected: {error}");
+                Assert.AreEqual<StringName>(action, expectedAction, $"{run}: Wrong action: {error}");
                 if (expectedTarget is null)
-                    Assert.IsNull(target, $"{run}: Unexpected target {(target is not null ? PrintUnit(target) : "")}");
+                    Assert.IsNull(target, $"{run}: Unexpected target: {error}");
                 else
-                    Assert.AreSame(target, expectedTarget, $"{run}: Expected to target {PrintUnit(expectedTarget)}, but chose {PrintUnit(target)}");
+                    Assert.AreSame(target, expectedTarget, $"{run}: Wrong target: {error}");
             }
 
             foreach (IEnumerable<Unit> allyPermutation in allies.Permutations())
