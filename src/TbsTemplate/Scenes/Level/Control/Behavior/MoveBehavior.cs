@@ -13,10 +13,16 @@ public partial class MoveBehavior : UnitBehavior
 
     public override Dictionary<StringName, IEnumerable<Vector2I>> Actions(IUnit unit, IGrid grid)
     {
+        Dictionary<StringName, IEnumerable<Vector2I>> actions = [];
+
         IEnumerable<Vector2I> enemies = unit.AttackableCells(grid, unit.TraversableCells(grid)).Where((c) => grid.GetOccupantUnits().TryGetValue(c, out IUnit occupant) && !occupant.Faction.AlliedTo(unit.Faction));
         if (enemies.Any())
-            return new() { {"Attack", enemies} };
-        else
-            return [];
+            actions["Attack"] = enemies;
+        
+        IEnumerable<Vector2I> allies = unit.SupportableCells(grid, unit.TraversableCells(grid)).Where((c) => c != unit.Cell && grid.GetOccupantUnits().TryGetValue(c, out IUnit occupant) && occupant.Faction.AlliedTo(unit.Faction));
+        if (allies.Any())
+            actions["Support"] = allies;
+
+        return actions;
     }
 }
