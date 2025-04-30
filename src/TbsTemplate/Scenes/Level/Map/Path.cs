@@ -114,6 +114,9 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// <returns>A new path with <paramref name="value"/> appended, and potentially a contiguous segment between it and the previous end of the path as well.</returns>
     public Path Add(Vector2I value)
     {
+        if (!_traversable.Contains(value))
+            throw new ArgumentException($"{value} is not a traversable cell (from {string.Join(',', _traversable)}).");
+
         ImmutableList<Vector2I> cells = [];
         if (_cells.Count == 0 || _cells[^1].IsAdjacent(value))
         {
