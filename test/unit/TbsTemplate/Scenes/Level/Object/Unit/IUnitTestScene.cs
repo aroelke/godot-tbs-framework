@@ -28,6 +28,7 @@ public partial class IUnitTestScene : Node
         public IEnumerable<Vector2I> TraversableCells(IGrid grid) => IUnit.TraversableCells(this, grid);
 
         // Not used in testing
+        public int Health  => 0;
         public IEnumerable<Vector2I> AttackableCells(IGrid grid, IEnumerable<Vector2I> sources) => throw new NotImplementedException();
         public IEnumerable<Vector2I> SupportableCells(IGrid grid, IEnumerable<Vector2I> sources) => throw new NotImplementedException();
     }

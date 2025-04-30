@@ -18,10 +18,14 @@ public partial class MoveBehavior : UnitBehavior
         IEnumerable<Vector2I> enemies = unit.AttackableCells(grid, unit.TraversableCells(grid)).Where((c) => grid.GetOccupantUnits().TryGetValue(c, out IUnit occupant) && !occupant.Faction.AlliedTo(unit.Faction));
         if (enemies.Any())
             actions["Attack"] = enemies;
-        
-        IEnumerable<Vector2I> allies = unit.SupportableCells(grid, unit.TraversableCells(grid)).Where((c) => c != unit.Cell && grid.GetOccupantUnits().TryGetValue(c, out IUnit occupant) && occupant.Faction.AlliedTo(unit.Faction));
-        if (allies.Any())
-            actions["Support"] = allies;
+
+        IEnumerable<Vector2I> allyCells = unit.SupportableCells(grid, unit.TraversableCells(grid)).Where((c) => c != unit.Cell && grid.GetOccupantUnits().TryGetValue(c, out IUnit occupant) && occupant.Faction.AlliedTo(unit.Faction));
+        if (allyCells.Any())
+        {
+            IEnumerable<IUnit> allies = allyCells.Select((c) => grid.GetOccupantUnits()[c]);
+            int lowest = allies.Select((u) => u.Health).Min();
+            actions["Support"] = allies.Where((u) => u.Health == lowest).Select((u) => u.Cell);
+        }
 
         return actions;
     }

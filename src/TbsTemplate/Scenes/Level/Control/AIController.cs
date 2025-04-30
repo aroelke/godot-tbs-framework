@@ -34,13 +34,13 @@ public partial class AIController : ArmyController
         public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits() => Occupants.ToImmutableDictionary((e) => e.Key, (e) => e.Value as IUnit);
     }
 
-    private readonly record struct VirtualUnit(Unit Original, Vector2I Cell, float Health) : IUnit
+    private readonly record struct VirtualUnit(Unit Original, Vector2I Cell, float ExpectedHealth) : IUnit
     {
         public VirtualUnit(Unit original) : this(original, original.Cell, original.Health.Value) {}
 
         public Stats Stats => Original.Stats;
-
         public Faction Faction => Original.Faction;
+        public int Health => (int)Math.Round(ExpectedHealth);
 
         public IEnumerable<Vector2I> TraversableCells(IGrid grid) => IUnit.TraversableCells(this, grid);
         public IEnumerable<Vector2I> AttackableCells(IGrid grid, IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(grid, sources, Original.AttackRange);
@@ -56,16 +56,16 @@ public partial class AIController : ArmyController
         public static bool operator<(GridValue a, GridValue b) => a.CompareTo(b) < 0;
 
         /// <summary>Enemy units of <see cref="Source"/>, sorted in increasing order of current health.</summary>
-        private readonly IOrderedEnumerable<VirtualUnit> _enemies = Grid.Occupants.Values.Where((u) => !Source.AlliedTo(u.Original.Army.Faction)).OrderBy(static (u) => u.Health);
+        private readonly IOrderedEnumerable<VirtualUnit> _enemies = Grid.Occupants.Values.Where((u) => !Source.AlliedTo(u.Original.Army.Faction)).OrderBy(static (u) => u.ExpectedHealth);
         private readonly IEnumerable<VirtualUnit> _allies = Grid.Occupants.Values.Where((u) => Source.AlliedTo(u.Original.Army.Faction));
 
-        public int DeadAllies => _allies.Where(static (u) => u.Health <= 0).Count();
+        public int DeadAllies => _allies.Where(static (u) => u.ExpectedHealth <= 0).Count();
 
         /// <summary>Difference between enemy units' current and maximum health, summed over all enemy units. Higher is better.</summary>
-        public float EnemyHealthDifference => _enemies.Select(static (u) => u.Original.Stats.Health - u.Health).Sum();
+        public float EnemyHealthDifference => _enemies.Select(static (u) => u.Original.Stats.Health - u.ExpectedHealth).Sum();
 
         /// <summary>Difference between ally units' current and maximum health, summed over all allied units. Lower is better.</summary>
-        public float AllyHealthDifference => _allies.Select(static (u) => u.Original.Stats.Health - u.Health).Sum();
+        public float AllyHealthDifference => _allies.Select(static (u) => u.Original.Stats.Health - u.ExpectedHealth).Sum();
 
         public readonly int CompareTo(GridValue other)
         {
@@ -76,8 +76,8 @@ public partial class AIController : ArmyController
 
             // Lower least health among units with different heatlh values is greater
             foreach ((VirtualUnit me, VirtualUnit you) in _enemies.Zip(other._enemies))
-                if (me.Health != you.Health)
-                    return (int)((you.Health - me.Health)*10);
+                if (me.ExpectedHealth != you.ExpectedHealth)
+                    return (int)((you.ExpectedHealth - me.ExpectedHealth)*10);
 
             // Higher enemy health difference is greater
             float hp = EnemyHealthDifference - other.EnemyHealthDifference;
@@ -185,22 +185,22 @@ public partial class AIController : ArmyController
             if (actor.Faction.AlliedTo(temp.Faction))
             {
                 // heal target clone with remaining[0] clone
-                temp = temp with { Health = Math.Min(temp.Health + actor.Stats.Healing, temp.Stats.Health) };
+                temp = temp with { ExpectedHealth = Math.Min(temp.ExpectedHealth + actor.Stats.Healing, temp.Stats.Health) };
             }
             else
             {
                 // attack target clone with remaining[0] clone
                 static float ExpectedDamage(VirtualUnit a, VirtualUnit b) => Math.Max(0f, a.Original.Stats.Accuracy - b.Original.Stats.Evasion)/100f*(a.Original.Stats.Attack - b.Original.Stats.Defense);
-                temp = temp with { Health = temp.Health - ExpectedDamage(actor, temp) };
-                if (temp.Health > 0)
+                temp = temp with { ExpectedHealth = temp.ExpectedHealth - ExpectedDamage(actor, temp) };
+                if (temp.ExpectedHealth > 0)
                 {
                     bool retaliate = temp.AttackableCells(currentGrid, [temp.Cell]).Contains(actor.Cell);
                     if (retaliate)
-                        actor = actor with { Health = actor.Health - ExpectedDamage(temp, actor) };
-                    if (actor.Health > 0 && actor.Original.Stats.Agility > temp.Original.Stats.Agility)
-                        temp = temp with { Health = temp.Health - ExpectedDamage(actor, temp) };
-                    else if (temp.Health > 0 && retaliate && temp.Original.Stats.Agility > actor.Original.Stats.Agility)
-                        actor = actor with { Health = actor.Health - ExpectedDamage(temp, actor) };
+                        actor = actor with { ExpectedHealth = actor.ExpectedHealth - ExpectedDamage(temp, actor) };
+                    if (actor.ExpectedHealth > 0 && actor.Original.Stats.Agility > temp.Original.Stats.Agility)
+                        temp = temp with { ExpectedHealth = temp.ExpectedHealth - ExpectedDamage(actor, temp) };
+                    else if (temp.ExpectedHealth > 0 && retaliate && temp.Original.Stats.Agility > actor.Original.Stats.Agility)
+                        actor = actor with { ExpectedHealth = actor.ExpectedHealth - ExpectedDamage(temp, actor) };
                 }
             }
             currentGrid = currentGrid with { Occupants = currentGrid.Occupants.SetItem(actor.Cell, actor).SetItem(temp.Cell, temp) };

@@ -34,7 +34,10 @@ public partial class StandBehavior : UnitBehavior
             IEnumerable<Vector2I> supportable = unit.SupportableCells(grid, [unit.Cell]);
             IEnumerable<IUnit> targets = grid.GetOccupantUnits().Where((e) => supportable.Contains(e.Key) && unit.Faction.AlliedTo(e.Value.Faction)).Select((p) => p.Value);
             if (targets.Any())
-                actions["Support"] = targets.Select((u) => u.Cell);
+            {
+                int lowest = targets.Select((u) => u.Health).Min();
+                actions["Support"] = targets.Where((u) => u.Health == lowest).Select((u) => u.Cell);
+            }
         }
 
         return actions;

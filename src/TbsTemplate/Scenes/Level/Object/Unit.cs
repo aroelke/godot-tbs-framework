@@ -100,6 +100,8 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     ///<summary>Behavior defining the square to move to when AI controlled.</summary>
     [Export] public UnitBehavior Behavior = null;
 
+    int IUnit.Health => Health.Value;
+
     /// <summary>Army to which this unit belongs, which determines its alliances and gives access to its compatriots.</summary>
     public Army Army
     {
