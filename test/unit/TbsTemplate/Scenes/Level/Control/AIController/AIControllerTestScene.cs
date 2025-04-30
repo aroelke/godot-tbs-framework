@@ -461,7 +461,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary>AI should prefer to heal injured allies it can reach over attacking enemies it can reach.</summary>
     [Test]
-    public void TestPreferSupportOverAttack()
+    public void TestMovingPreferSupportOverAttack()
     {
         Unit[] allies = [
             CreateUnit(new(3, 2), attack:[1], support:[1], stats:new() { Attack = 5, Healing = 5, Move = 1 }, behavior:new MoveBehavior()),
@@ -478,7 +478,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary>AI should prefer to attack enemies it can reach if there allies in reach but all of them are uninjured.</summary>
     [Test]
-    public void TestPreferAttackWhenAlliesUninjured()
+    public void TestMovingPreferAttackWhenAlliesUninjured()
     {
         Unit[] allies = [
             CreateUnit(new(3, 2), attack:[1], support:[1], stats:new() { Attack = 5, Healing = 5, Move = 1 }, behavior:new MoveBehavior()),
@@ -495,7 +495,7 @@ public partial class AIControllerTestScene : Node
 
     /// <summary>AI should prefer to attack if it thinks it can defeat an enemy, even if there is an injured ally in range.</summary>
     [Test]
-    public void TestPreferKillOverSupport()
+    public void TestMovingPreferKillOverSupport()
     {
         Unit[] allies = [
             CreateUnit(new(3, 2), attack:[1], support:[1], stats:new() { Attack = 5, Healing = 5, Move = 1 }, behavior:new MoveBehavior()),
@@ -507,6 +507,21 @@ public partial class AIControllerTestScene : Node
             expectedDestinations: [new(3, 3)],
             expectedAction: "Attack",
             expectedTarget: enemy
+        );
+    }
+
+    /// <summary>AI should heal after an ally attacks with retaliation to maximize amount healed, even if ally is damaged beforehand.</summary>
+    [Test]
+    public void TestMovingSupportAfterAttack()
+    {
+        Unit attacker = CreateUnit(new(3, 2), attack:[1], stats:new() { Health = 10, Attack = 5, Defense = 0, Move = 3 }, hp:8, behavior:new MoveBehavior());
+        Unit healer = CreateUnit(new(5, 2), support:[1], stats:new() { Healing = 5, Move = 3 }, behavior:new MoveBehavior());
+        Unit enemy = CreateUnit(new(0, 2), attack:[1], stats:new() { Attack = 5, Defense = 0 });
+        RunTest([attacker, healer], [enemy],
+            expectedSelected:attacker,
+            expectedDestinations: [new(1, 2)],
+            expectedAction:"Attack",
+            expectedTarget:enemy
         );
     }
 }
