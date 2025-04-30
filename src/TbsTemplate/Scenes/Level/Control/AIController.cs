@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Godot;
 using TbsTemplate.Data;
 using TbsTemplate.Extensions;
-using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level.Control.Behavior;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
@@ -158,7 +157,7 @@ public partial class AIController : ArmyController
     private StringName _action = null;
     private Unit _target = null;
 
-    private (VirtualGrid, Vector2I) ChooseBestMove(VirtualUnit target, IList<VirtualUnit> remaining, VirtualGrid grid)
+    private (VirtualGrid, Vector2I, StringName) ChooseBestMove(VirtualUnit target, IList<VirtualUnit> remaining, VirtualGrid grid)
     {
         IEnumerable<Vector2I> destinations;
         if (target.Faction.AlliedTo(remaining[0].Faction) && remaining[0].Original.Behavior.Actions(remaining[0], grid).TryGetValue("Support", out IEnumerable<Vector2I> supportable) && supportable.Contains(target.Cell))
@@ -168,12 +167,7 @@ public partial class AIController : ArmyController
         else
             destinations = [];
         if (!destinations.Any())
-        {
-            if (remaining.Count > 1)
-                return ChooseBestMove(target, [.. remaining.Skip(1)], grid);
-            else
-                return (grid, remaining[0].Cell);
-        }
+            return (grid, remaining[0].Cell, "End");
 
         VirtualGrid? bestGrid = null;
         GridValue bestGridValue = new();
@@ -212,7 +206,7 @@ public partial class AIController : ArmyController
             currentGrid = currentGrid with { Occupants = currentGrid.Occupants.SetItem(actor.Cell, actor).SetItem(temp.Cell, temp) };
 
             if (remaining.Count > 1)
-                (currentGrid, _) = ChooseBestMove(temp, [.. remaining.Skip(1)], currentGrid);
+                (currentGrid, _, _) = ChooseBestMove(temp, [.. remaining.Skip(1)], currentGrid);
 
             GridValue currentGridValue = new(Army.Faction, currentGrid);
             if (bestGrid is null)
@@ -233,7 +227,7 @@ public partial class AIController : ArmyController
                 }
             }
         }
-        return (bestGrid.Value, move);
+        return (bestGrid.Value, move, target.Faction.AlliedTo(remaining[0].Faction) ? "Support" : "Attack");
     }
 
     public override Grid Grid { get => _grid; set => _grid = value; }
@@ -262,33 +256,36 @@ public partial class AIController : ArmyController
 
             foreach (IList<VirtualUnit> permutation in actors.Permutations())
             {
-                (VirtualGrid currentGrid, Vector2I move) = ChooseBestMove(potentialTarget, permutation, grid);
+                (VirtualGrid currentGrid, Vector2I move, StringName currentAction) = ChooseBestMove(potentialTarget, permutation, grid);
                 GridValue currentGridValue = new(Army.Faction, currentGrid);
                 MoveValue currentMoveValue = new(grid, permutation[0], move);
 
-                if (bestGrid is null)
+                if (currentAction != "End")
                 {
-                    bestGrid = currentGrid;
-                    selected = permutation[0];
-                    destination = move;
-                    action = potentialTarget.Faction.AlliedTo(permutation[0].Faction) ? "Support" : "Attack";
-                    target = potentialTarget;
-
-                    bestGridValue = currentGridValue;
-                    bestMoveValue = currentMoveValue;
-                }
-                else
-                {
-                    if (currentGridValue > bestGridValue || (currentGridValue == bestGridValue && currentMoveValue < bestMoveValue))
+                    if (bestGrid is null)
                     {
                         bestGrid = currentGrid;
                         selected = permutation[0];
                         destination = move;
-                        action = potentialTarget.Faction.AlliedTo(permutation[0].Faction) ? "Support" : "Attack";
+                        action = currentAction;
                         target = potentialTarget;
 
                         bestGridValue = currentGridValue;
                         bestMoveValue = currentMoveValue;
+                    }
+                    else
+                    {
+                        if (currentGridValue > bestGridValue || (currentGridValue == bestGridValue && currentMoveValue < bestMoveValue))
+                        {
+                            bestGrid = currentGrid;
+                            selected = permutation[0];
+                            destination = move;
+                            action = currentAction;
+                            target = potentialTarget;
+
+                            bestGridValue = currentGridValue;
+                            bestMoveValue = currentMoveValue;
+                        }
                     }
                 }
             }
