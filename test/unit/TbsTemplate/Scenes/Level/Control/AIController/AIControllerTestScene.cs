@@ -476,6 +476,23 @@ public partial class AIControllerTestScene : Node
         );
     }
 
+    /// <summary>AI should prefer to heal injured allies it can reach over attacking enemies it can reach.</summary>
+    [Test]
+    public void TestStandingPreferSupportOverAttack()
+    {
+        Unit[] allies = [
+            CreateUnit(new(3, 2), attack:[2, 4], support:[1, 2], stats:new() { Attack = 5, Healing = 5 }, behavior:new StandBehavior() { AttackInRange = true, SupportInRange = true }),
+            CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:1),
+        ];
+        Unit enemy = CreateUnit(new(3, 4), stats:new() { Health = 10, Defense = 0 }, hp:10);
+        RunTest(allies, [enemy],
+            expectedSelected: allies[0],
+            expectedDestinations: [allies[0].Cell],
+            expectedAction: "Support",
+            expectedTarget: allies[1]
+        );
+    }
+
     /// <summary>AI should prefer to attack enemies it can reach if there allies in reach but all of them are uninjured.</summary>
     [Test]
     public void TestMovingPreferAttackWhenAlliesUninjured()
@@ -495,6 +512,23 @@ public partial class AIControllerTestScene : Node
 
     /// <summary>AI should prefer to attack if it thinks it can defeat an enemy, even if there is an injured ally in range.</summary>
     [Test]
+    public void TestStandingPreferKillOverSupport()
+    {
+        Unit[] allies = [
+            CreateUnit(new(3, 2), attack:[1, 2], support:[1, 2], stats:new() { Attack = 5, Healing = 5 }, behavior:new StandBehavior() { AttackInRange = true, SupportInRange = true }),
+            CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:1),
+        ];
+        Unit enemy = CreateUnit(new(3, 4), stats:new() { Health = 10, Defense = 0 }, hp:5);
+        RunTest(allies, [enemy],
+            expectedSelected: allies[0],
+            expectedDestinations: [allies[0].Cell],
+            expectedAction: "Attack",
+            expectedTarget: enemy
+        );
+    }
+
+    /// <summary>AI should prefer to attack if it thinks it can defeat an enemy, even if there is an injured ally in range.</summary>
+    [Test]
     public void TestMovingPreferKillOverSupport()
     {
         Unit[] allies = [
@@ -507,6 +541,21 @@ public partial class AIControllerTestScene : Node
             expectedDestinations: [new(3, 3)],
             expectedAction: "Attack",
             expectedTarget: enemy
+        );
+    }
+
+    /// <summary>AI should heal after an ally attacks with retaliation to maximize amount healed, even if ally is damaged beforehand.</summary>
+    [Test]
+    public void TestStandingSupportAfterAttack()
+    {
+        Unit attacker = CreateUnit(new(3, 2), attack:[3], stats:new() { Health = 10, Attack = 5, Defense = 0 }, hp:8, behavior:new StandBehavior() { AttackInRange = true, SupportInRange = true });
+        Unit healer = CreateUnit(new(5, 2), support:[2], stats:new() { Healing = 5 }, behavior:new StandBehavior() { AttackInRange = true, SupportInRange = true });
+        Unit enemy = CreateUnit(new(0, 2), attack:[1], stats:new() { Attack = 5, Defense = 0 });
+        RunTest([attacker, healer], [enemy],
+            expectedSelected:attacker,
+            expectedDestinations: [attacker.Cell],
+            expectedAction:"Attack",
+            expectedTarget:enemy
         );
     }
 
