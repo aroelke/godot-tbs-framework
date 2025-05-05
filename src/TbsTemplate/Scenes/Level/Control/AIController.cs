@@ -81,19 +81,19 @@ public partial class AIController : ArmyController
             if (diff != 0)
                 return diff;
 
+            // Lower ally health difference is greater
+            float hp = other.AllyHealthDifference - AllyHealthDifference;
+            if (hp != 0)
+                return (int)(hp*10);
+
             // Lower least health among units with different heatlh values is greater
             foreach ((VirtualUnit me, VirtualUnit you) in _enemies.Zip(other._enemies))
                 if (me.ExpectedHealth != you.ExpectedHealth)
                     return (int)((you.ExpectedHealth - me.ExpectedHealth)*10);
 
             // Higher enemy health difference is greater
-            float hp = EnemyHealthDifference - other.EnemyHealthDifference;
+            hp = EnemyHealthDifference - other.EnemyHealthDifference;
             if (diff != 0)
-                return (int)(hp*10);
-
-            // Lower ally health difference is greater
-            hp = other.AllyHealthDifference - AllyHealthDifference;
-            if (hp != 0)
                 return (int)(hp*10);
 
             return 0;
