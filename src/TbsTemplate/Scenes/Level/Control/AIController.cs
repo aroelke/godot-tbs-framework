@@ -164,80 +164,96 @@ public partial class AIController : ArmyController
     private StringName _action = null;
     private Unit _target = null;
 
-    private (VirtualGrid, Vector2I, StringName) ChooseBestMove(VirtualUnit target, IList<VirtualUnit> remaining, VirtualGrid grid)
+    private (VirtualGrid, Vector2I, StringName, VirtualUnit?) ChooseBestMove(IList<VirtualUnit> remaining, VirtualGrid grid)
     {
         if (remaining[0].Health <= 0)
-            return (grid, remaining[0].Cell, "End");
+            return (grid, remaining[0].Cell, "End", null);
 
-        IEnumerable<Vector2I> destinations;
-        if (target.Faction.AlliedTo(remaining[0].Faction) && remaining[0].Original.Behavior.Actions(remaining[0], grid).TryGetValue("Support", out IEnumerable<Vector2I> supportable) && supportable.Contains(target.Cell))
-            destinations = remaining[0].SupportableCells(grid, [target.Cell]).Where((c) => remaining[0].Original.Behavior.Destinations(remaining[0], grid).Contains(c));
-        else if (!target.Faction.AlliedTo(remaining[0].Faction) && remaining[0].Original.Behavior.Actions(remaining[0], grid).TryGetValue("Attack", out IEnumerable<Vector2I> attackable) && attackable.Contains(target.Cell))
-            destinations = remaining[0].AttackableCells(grid, [target.Cell]).Where((c) => remaining[0].Original.Behavior.Destinations(remaining[0], grid).Contains(c));
-        else
-            destinations = [];
+        IEnumerable<Vector2I> destinations = remaining[0].Original.Behavior.Destinations(remaining[0], grid);
         if (!destinations.Any())
-            return (grid, remaining[0].Cell, "End");
+            return (grid, remaining[0].Cell, "End", null);
+        
+        Dictionary<StringName, IEnumerable<Vector2I>> actions = remaining[0].Original.Behavior.Actions(remaining[0], grid);
+        if (actions.Count == 0)
+            return (grid, remaining[0].Cell, "End", null);
 
         VirtualGrid? bestGrid = null;
         GridValue bestGridValue = new();
-        Vector2I move = -Vector2I.One;
+        Vector2I bestMove = -Vector2I.One;
         MoveValue bestMoveValue = new();
-        foreach (Vector2I destination in destinations)
+        StringName bestAction = null;
+        VirtualUnit? bestTarget = null;
+        foreach ((StringName action, IEnumerable<Vector2I> targetCells) in actions)
         {
-            VirtualUnit temp = target;
-
-            // move remaining[0] clone to destination
-            MoveValue currentMoveValue = new(grid, remaining[0], destination);
-            VirtualUnit actor = remaining[0] with { Cell = destination };
-            VirtualGrid currentGrid = grid with { Occupants = grid.Occupants.Remove(remaining[0].Cell).SetItem(destination, actor) };
-
-            if (actor.Faction.AlliedTo(temp.Faction))
+            foreach (IUnit target in targetCells.Select((c) => grid.GetOccupantUnits()[c]))
             {
-                // heal target clone with remaining[0] clone
-                temp = temp with { ExpectedHealth = Math.Min(temp.ExpectedHealth + actor.Stats.Healing, temp.Stats.Health) };
-            }
-            else
-            {
-                // attack target clone with remaining[0] clone
-                static float ExpectedDamage(VirtualUnit a, VirtualUnit b) => Math.Max(0f, a.Original.Stats.Accuracy - b.Original.Stats.Evasion)/100f*(a.Original.Stats.Attack - b.Original.Stats.Defense);
-                temp = temp with { ExpectedHealth = temp.ExpectedHealth - ExpectedDamage(actor, temp) };
-                if (temp.ExpectedHealth > 0)
+                IEnumerable<Vector2I> sources;
+                if (action == "Attack")
+                    sources = remaining[0].AttackableCells(grid, [target.Cell]).Where(destinations.Contains);
+                else if (action == "Support")
+                    sources = remaining[0].SupportableCells(grid, [target.Cell]).Where(destinations.Contains);
+                else
+                    sources = [];
+
+                foreach (Vector2I destination in sources)
                 {
-                    bool retaliate = temp.AttackableCells(currentGrid, [temp.Cell]).Contains(actor.Cell);
-                    if (retaliate)
-                        actor = actor with { ExpectedHealth = actor.ExpectedHealth - ExpectedDamage(temp, actor) };
-                    if (actor.ExpectedHealth > 0 && actor.Original.Stats.Agility > temp.Original.Stats.Agility)
+                    VirtualUnit actor = remaining[0] with { Cell = destination };
+                    VirtualUnit temp  = (VirtualUnit)target;
+                    VirtualGrid currentGrid = grid with { Occupants = grid.Occupants.Remove(remaining[0].Cell).SetItem(destination, actor) };
+                    MoveValue currentMoveValue = new(grid, remaining[0], destination);
+
+                    if (actor.Faction.AlliedTo(target.Faction))
+                    {
+                        // heal target clone with remaining[0] clone
+                        temp = temp with { ExpectedHealth = Math.Min(temp.ExpectedHealth + actor.Stats.Healing, temp.Stats.Health) };
+                    }
+                    else
+                    {
+                        // attack target clone with remaining[0] clone
+                        static float ExpectedDamage(VirtualUnit a, VirtualUnit b) => Math.Max(0f, a.Original.Stats.Accuracy - b.Original.Stats.Evasion)/100f*(a.Original.Stats.Attack - b.Original.Stats.Defense);
                         temp = temp with { ExpectedHealth = temp.ExpectedHealth - ExpectedDamage(actor, temp) };
-                    else if (temp.ExpectedHealth > 0 && retaliate && temp.Original.Stats.Agility > actor.Original.Stats.Agility)
-                        actor = actor with { ExpectedHealth = actor.ExpectedHealth - ExpectedDamage(temp, actor) };
-                }
-            }
-            currentGrid = currentGrid with { Occupants = currentGrid.Occupants.SetItem(actor.Cell, actor).SetItem(temp.Cell, temp) };
+                        if (temp.ExpectedHealth > 0)
+                        {
+                            bool retaliate = temp.AttackableCells(currentGrid, [temp.Cell]).Contains(actor.Cell);
+                            if (retaliate)
+                                actor = actor with { ExpectedHealth = actor.ExpectedHealth - ExpectedDamage(temp, actor) };
+                            if (actor.ExpectedHealth > 0 && actor.Original.Stats.Agility > temp.Original.Stats.Agility)
+                                temp = temp with { ExpectedHealth = temp.ExpectedHealth - ExpectedDamage(actor, temp) };
+                            else if (temp.ExpectedHealth > 0 && retaliate && temp.Original.Stats.Agility > actor.Original.Stats.Agility)
+                                actor = actor with { ExpectedHealth = actor.ExpectedHealth - ExpectedDamage(temp, actor) };
+                        }
+                    }
+                    currentGrid = currentGrid with { Occupants = currentGrid.Occupants.SetItem(actor.Cell, actor).SetItem(temp.Cell, temp) };
 
-            if (remaining.Count > 1)
-                (currentGrid, _, _) = ChooseBestMove(temp, [.. remaining.Skip(1)], currentGrid);
-
-            GridValue currentGridValue = new(Army.Faction, currentGrid);
-            if (bestGrid is null)
-            {
-                bestGrid = currentGrid;
-                bestGridValue = currentGridValue;
-                move = destination;
-                bestMoveValue = currentMoveValue;
-            }
-            else
-            {
-                if (currentGridValue > bestGridValue || (currentGridValue == bestGridValue && currentMoveValue < bestMoveValue))
-                {
-                    bestGrid = currentGrid;
-                    bestGridValue = currentGridValue;
-                    move = destination;
-                    bestMoveValue = currentMoveValue;
+                    if (remaining.Count > 1)
+                        (currentGrid, _, _, _) = ChooseBestMove([.. remaining.Skip(1)], currentGrid);
+                    
+                    GridValue currentGridValue = new(Army.Faction, currentGrid);
+                    if (bestGrid is null)
+                    {
+                        bestGrid = currentGrid;
+                        bestGridValue = currentGridValue;
+                        bestMove = destination;
+                        bestMoveValue = currentMoveValue;
+                        bestAction = action;
+                        bestTarget = (VirtualUnit)target;
+                    }
+                    else
+                    {
+                        if (currentGridValue > bestGridValue || (currentGridValue == bestGridValue && currentMoveValue < bestMoveValue))
+                        {
+                            bestGrid = currentGrid;
+                            bestGridValue = currentGridValue;
+                            bestMove = destination;
+                            bestMoveValue = currentMoveValue;
+                            bestAction = action;
+                            bestTarget = (VirtualUnit)target;
+                        }
+                    }
                 }
             }
         }
-        return (bestGrid.Value, move, target.Faction.AlliedTo(remaining[0].Faction) ? "Support" : "Attack");
+        return (bestGrid.Value, bestMove, bestAction, bestTarget);
     }
 
     public override Grid Grid { get => _grid; set => _grid = value; }
@@ -260,42 +276,38 @@ public partial class AIController : ArmyController
         VirtualGrid? bestGrid = null;
         GridValue bestGridValue = new();
         MoveValue bestMoveValue = new();
-        foreach (VirtualUnit potentialTarget in grid.GetOccupantUnits().Values.OfType<VirtualUnit>())
+
+        foreach (IList<VirtualUnit> permutation in available.Permutations())
         {
-            IEnumerable<VirtualUnit> actors = available.Where((u) => u.Original.Behavior.Actions(u, grid).Any((e) => e.Value.Any()));
+            (VirtualGrid currentGrid, Vector2I move, StringName currentAction, VirtualUnit? currentTarget) = ChooseBestMove(permutation, grid);
+            GridValue currentGridValue = new(Army.Faction, currentGrid);
+            MoveValue currentMoveValue = new(grid, permutation[0], move);
 
-            foreach (IList<VirtualUnit> permutation in actors.Permutations())
+            if (currentAction != "End")
             {
-                (VirtualGrid currentGrid, Vector2I move, StringName currentAction) = ChooseBestMove(potentialTarget, permutation, grid);
-                GridValue currentGridValue = new(Army.Faction, currentGrid);
-                MoveValue currentMoveValue = new(grid, permutation[0], move);
-
-                if (currentAction != "End")
+                if (bestGrid is null)
                 {
-                    if (bestGrid is null)
+                    bestGrid = currentGrid;
+                    selected = permutation[0];
+                    destination = move;
+                    action = currentAction;
+                    target = currentTarget;
+
+                    bestGridValue = currentGridValue;
+                    bestMoveValue = currentMoveValue;
+                }
+                else
+                {
+                    if (currentGridValue > bestGridValue || (currentGridValue == bestGridValue && currentMoveValue < bestMoveValue))
                     {
                         bestGrid = currentGrid;
                         selected = permutation[0];
                         destination = move;
                         action = currentAction;
-                        target = potentialTarget;
+                        target = currentTarget;
 
                         bestGridValue = currentGridValue;
                         bestMoveValue = currentMoveValue;
-                    }
-                    else
-                    {
-                        if (currentGridValue > bestGridValue || (currentGridValue == bestGridValue && currentMoveValue < bestMoveValue))
-                        {
-                            bestGrid = currentGrid;
-                            selected = permutation[0];
-                            destination = move;
-                            action = currentAction;
-                            target = potentialTarget;
-
-                            bestGridValue = currentGridValue;
-                            bestMoveValue = currentMoveValue;
-                        }
                     }
                 }
             }
