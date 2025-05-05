@@ -45,7 +45,7 @@ public interface IUnit
     /// The set of all cells that are exactly within <paramref name="ranges"/> distance from at least one element of
     /// <paramref name="sources"/>.
     /// </returns>
-    protected static IEnumerable<Vector2I> GetCellsInRange(IGrid grid, IEnumerable<Vector2I> sources, IEnumerable<int> ranges) => [.. sources.SelectMany((c) => ranges.SelectMany((r) => grid.GetCellsAtDistance(c, r)))];
+    protected static IEnumerable<Vector2I> GetCellsInRange(IGrid grid, IEnumerable<Vector2I> sources, IEnumerable<int> ranges) => sources.SelectMany((c) => ranges.SelectMany((r) => grid.GetCellsAtDistance(c, r))).ToHashSet();
 
     /// <summary>Stats this unit has that determine its movement range and combat performance.</summary>
     public Stats Stats { get; }
