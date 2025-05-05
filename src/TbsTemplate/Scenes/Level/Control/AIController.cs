@@ -194,6 +194,8 @@ public partial class AIController : ArmyController
                     sources = remaining[0].SupportableCells(grid, [target.Cell]).Where(destinations.Contains);
                 else
                     sources = [];
+                if (!sources.Any())
+                    throw new InvalidOperationException($"No sources to perform {action} from");
 
                 foreach (Vector2I destination in sources)
                 {
