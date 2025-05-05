@@ -573,4 +573,25 @@ public partial class AIControllerTestScene : Node
             expectedTarget:enemy
         );
     }
+
+    /*********
+     * OTHER *
+     *********/
+
+    /// <summary>AI should not try to act with a defeated unit (mostly only applies mid-simulation of turn).</summary>
+    [Test]
+    public void TestDontSelectDefeatedAlly()
+    {
+        Unit[] allies = [
+            CreateUnit(new(2, 2), attack:[1], stats:new() { Health = 5, Attack = 5 }, hp:0, behavior:new StandBehavior() { AttackInRange = true }),
+            CreateUnit(new(4, 2), attack:[1], stats:new() { Health = 5, Attack = 5 }, hp:5, behavior:new StandBehavior() { AttackInRange = true })
+        ];
+        Unit enemy = CreateUnit(new(3, 2), attack:[1], stats:new() { Attack = 5 });
+        RunTest(allies, [enemy],
+            expectedSelected:allies[1],
+            expectedDestinations: [allies[1].Cell],
+            expectedAction:"Attack",
+            expectedTarget:enemy
+        );
+    }
 }
