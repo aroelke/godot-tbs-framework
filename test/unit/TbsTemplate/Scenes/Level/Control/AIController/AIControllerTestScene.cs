@@ -90,7 +90,7 @@ public partial class AIControllerTestScene : Node
                 if (target is not null)
                     error += $" {PrintUnit(target)}";
 
-                Assert.IsTrue(expected.Any((p) => selected == p.Key && p.Value.Contains(destination)), $"{run}: Wrong unit selected: {error}");
+                Assert.IsTrue(expected.Any((p) => selected == p.Key && p.Value.Contains(destination)), $"{run}: Wrong unit/destination selected: {error}");
                 Assert.AreEqual<StringName>(action, expectedAction, $"{run}: Wrong action: {error}");
                 if (expectedTarget is null)
                     Assert.IsNull(target, $"{run}: Unexpected target: {error}");
@@ -550,7 +550,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit attacker = CreateUnit(new(3, 2), attack:[3], stats:new() { Health = 10, Attack = 5, Defense = 0 }, hp:8, behavior:new StandBehavior() { AttackInRange = true, SupportInRange = true });
         Unit healer = CreateUnit(new(5, 2), support:[2], stats:new() { Healing = 5 }, behavior:new StandBehavior() { AttackInRange = true, SupportInRange = true });
-        Unit enemy = CreateUnit(new(0, 2), attack:[1], stats:new() { Attack = 5, Defense = 0 });
+        Unit enemy = CreateUnit(new(0, 2), attack:[3], stats:new() { Attack = 5, Defense = 0 });
         RunTest([attacker, healer], [enemy],
             expectedSelected:attacker,
             expectedDestinations: [attacker.Cell],
