@@ -59,6 +59,8 @@ public partial class AIController : ArmyController
         private readonly IOrderedEnumerable<VirtualUnit> _enemies = Grid.Occupants.Values.Where((u) => !Source.AlliedTo(u.Original.Army.Faction)).OrderBy(static (u) => u.ExpectedHealth);
         private readonly IEnumerable<VirtualUnit> _allies = Grid.Occupants.Values.Where((u) => Source.AlliedTo(u.Original.Army.Faction));
 
+        public int DeadEnemies => _enemies.Where(static (u) => u.ExpectedHealth <= 0).Count();
+
         public int DeadAllies => _allies.Where(static (u) => u.ExpectedHealth <= 0).Count();
 
         /// <summary>Difference between enemy units' current and maximum health, summed over all enemy units. Higher is better.</summary>
@@ -69,8 +71,13 @@ public partial class AIController : ArmyController
 
         public readonly int CompareTo(GridValue other)
         {
+            // More dead enemies is greater
+            int diff = DeadEnemies - other.DeadEnemies;
+            if (diff != 0)
+                return diff;
+
             // Less dead allies is greater
-            int diff = other.DeadAllies - DeadAllies;
+            diff = other.DeadAllies - DeadAllies;
             if (diff != 0)
                 return diff;
 
