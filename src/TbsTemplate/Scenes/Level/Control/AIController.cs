@@ -279,7 +279,7 @@ public partial class AIController : ArmyController
         GridValue bestGridValue = new();
         MoveValue bestMoveValue = new();
 
-        foreach (IList<VirtualUnit> permutation in available.Permutations())
+        foreach (IList<VirtualUnit> permutation in available.Where((u) => u.Original.Behavior.Actions(u, grid).Count != 0).Permutations())
         {
             (VirtualGrid currentGrid, Vector2I move, StringName currentAction, VirtualUnit? currentTarget) = ChooseBestMove(permutation, grid);
             GridValue currentGridValue = new(Army.Faction, currentGrid);
