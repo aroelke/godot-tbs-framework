@@ -159,6 +159,9 @@ public partial class AIController : ArmyController
 
     private (VirtualGrid, Vector2I, StringName) ChooseBestMove(VirtualUnit target, IList<VirtualUnit> remaining, VirtualGrid grid)
     {
+        if (remaining[0].Health <= 0)
+            return (grid, remaining[0].Cell, "End");
+
         IEnumerable<Vector2I> destinations;
         if (target.Faction.AlliedTo(remaining[0].Faction) && remaining[0].Original.Behavior.Actions(remaining[0], grid).TryGetValue("Support", out IEnumerable<Vector2I> supportable) && supportable.Contains(target.Cell))
             destinations = remaining[0].SupportableCells(grid, [target.Cell]).Where((c) => remaining[0].Original.Behavior.Destinations(remaining[0], grid).Contains(c));
