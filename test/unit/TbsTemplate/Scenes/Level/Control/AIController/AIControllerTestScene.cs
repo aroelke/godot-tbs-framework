@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Formats.Tar;
 using System.Linq;
 using GD_NET_ScOUT;
 using Godot;
@@ -340,9 +339,9 @@ public partial class AIControllerTestScene : Node
         }
     }
 
-    /// <summary>AI should not block other allies from attacking when making ordering decisions.</summary>
+    /// <summary>AI should not block other allies from attacking when making ordering decisions to attack the same enemy.</summary>
     [Test]
-    public void TestAttackDontBlockAllies()
+    public void TestAttackDontBlockAlliesAttackingSameEnemy()
     {
         Unit[] allies = [
             CreateUnit(new(0, 2), attack:[1, 2], stats:new() { Move = 4 }, behavior:new MoveBehavior()),
@@ -353,6 +352,26 @@ public partial class AIControllerTestScene : Node
             expected: new() {{ allies[0], new HashSet<Vector2I>() { new(4, 2) }}, { allies[1], new HashSet<Vector2I>() { new(5, 2) }}},
             expectedAction: "Attack",
             expectedTarget: enemy
+        );
+    }
+
+    /// <summary>AI should not block other allies from attacking when making ordering decisions to divide attacks among multiple enemies.</summary>
+    [Test]
+    public void TestAttackDontBlockAlliesAttackingOtherEnemy()
+    {
+        Unit[] allies = [
+            CreateUnit(new(0, 2), attack:[1], stats:new() { Attack = 10, Move = 1 }, behavior:new MoveBehavior()),
+            CreateUnit(new(1, 2), attack:[2], stats:new() { Attack = 5,  Move = 4 }, behavior:new MoveBehavior())
+        ];
+        Unit[] enemies = [
+            CreateUnit(new(2, 2), stats:new() { Health = 10, Attack = 0, Defense = 5 }),
+            CreateUnit(new(3, 2), stats:new() { Health = 10, Attack = 0, Defense = 0 })
+        ];
+        RunTest(allies, enemies,
+            expectedSelected: allies[1],
+            expectedDestinations: [new(2, 1), new(2, 4)],
+            expectedAction: "Attack",
+            expectedTarget: enemies[1]
         );
     }
 
