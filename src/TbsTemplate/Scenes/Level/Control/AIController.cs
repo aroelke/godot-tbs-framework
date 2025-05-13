@@ -164,22 +164,18 @@ public partial class AIController : ArmyController
     private StringName _action = null;
     private Unit _target = null;
 
-    private (VirtualGrid, Vector2I, StringName, VirtualUnit?) ChooseBestMove(IList<VirtualUnit> remaining, VirtualGrid grid, IEnumerable<Vector2I> restriction=null)
+    private (VirtualGrid, Vector2I, StringName, VirtualUnit?) ChooseBestMove(IList<VirtualUnit> remaining, VirtualGrid grid)
     {
-        restriction ??= [];
-
         if (remaining[0].Health <= 0)
             return (grid, remaining[0].Cell, "End", null);
 
         IEnumerable<Vector2I> destinations = remaining[0].Original.Behavior.Destinations(remaining[0], grid);
         if (!destinations.Any())
             return (grid, remaining[0].Cell, "End", null);
-
+        
         Dictionary<StringName, IEnumerable<Vector2I>> actions = remaining[0].Original.Behavior.Actions(remaining[0], grid);
-        if (!actions.Any((e) => !restriction.Any() || restriction.Any((c) => e.Value.Contains(c))))
+        if (actions.Count == 0)
             return (grid, remaining[0].Cell, "End", null);
-
-        Dictionary<Vector2I, VirtualUnit> occupants = grid.GetOccupantUnits().ToDictionary((e) => e.Key, (e) => (VirtualUnit)e.Value);
 
         VirtualGrid? bestGrid = null;
         GridValue bestGridValue = new();
@@ -189,7 +185,7 @@ public partial class AIController : ArmyController
         VirtualUnit? bestTarget = null;
         foreach ((StringName action, IEnumerable<Vector2I> targetCells) in actions)
         {
-            foreach (VirtualUnit target in targetCells.Where((c) => !restriction.Any() || restriction.Contains(c)).Select((c) => occupants[c]))
+            foreach (IUnit target in targetCells.Select((c) => grid.GetOccupantUnits()[c]))
             {
                 IEnumerable<Vector2I> sources;
                 if (action == "Attack")
@@ -204,7 +200,7 @@ public partial class AIController : ArmyController
                 foreach (Vector2I destination in sources)
                 {
                     VirtualUnit actor = remaining[0] with { Cell = destination };
-                    VirtualUnit temp  = target;
+                    VirtualUnit temp  = (VirtualUnit)target;
                     VirtualGrid currentGrid = grid with { Occupants = grid.Occupants.Remove(remaining[0].Cell).SetItem(destination, actor) };
                     MoveValue currentMoveValue = new(grid, remaining[0], destination);
 
@@ -231,13 +227,8 @@ public partial class AIController : ArmyController
                     }
                     currentGrid = currentGrid with { Occupants = currentGrid.Occupants.SetItem(actor.Cell, actor).SetItem(temp.Cell, temp) };
 
-                    IList<VirtualUnit> valid = [.. action != "Attack" ? remaining.Skip(1) : remaining.Skip(1).Where((u) => {
-                        bool canAttackSameTarget = u.Original.Behavior.Actions(u, currentGrid).TryGetValue("Attack", out IEnumerable<Vector2I> attackable) && attackable.Contains(target.Cell);
-                        bool canSupportMe = u.Original.Behavior.Actions(u, currentGrid).TryGetValue("Support", out IEnumerable<Vector2I> supportable) && supportable.Contains(actor.Cell);
-                        return canAttackSameTarget || canSupportMe;
-                    })];
-                    if (valid.Any())
-                        (currentGrid, _, _, _) = ChooseBestMove(valid, currentGrid, action != "Attack" ? [] : [target.Cell, actor.Cell]);
+                    if (remaining.Count > 1)
+                        (currentGrid, _, _, _) = ChooseBestMove([.. remaining.Skip(1)], currentGrid);
                     
                     GridValue currentGridValue = new(Army.Faction, currentGrid);
                     if (bestGrid is null)
@@ -247,7 +238,7 @@ public partial class AIController : ArmyController
                         bestMove = destination;
                         bestMoveValue = currentMoveValue;
                         bestAction = action;
-                        bestTarget = target;
+                        bestTarget = (VirtualUnit)target;
                     }
                     else
                     {
@@ -258,7 +249,7 @@ public partial class AIController : ArmyController
                             bestMove = destination;
                             bestMoveValue = currentMoveValue;
                             bestAction = action;
-                            bestTarget = target;
+                            bestTarget = (VirtualUnit)target;
                         }
                     }
                 }
