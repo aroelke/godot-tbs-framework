@@ -440,6 +440,26 @@ public partial class AIControllerTestScene : Node
         );
     }
 
+    /// <summary>AI should divide attacks in such a way as to maximize kills when one of its allies can kill multiple enemies and one can't.</summary>
+    [Test]
+    public void TestAttackChooseCorrectKill()
+    {
+        Unit[] allies = [
+            CreateUnit(new(2, 1), attack:[1, 2], stats:new() { Attack = 10, Move = 2 }, behavior:new MoveBehavior()),
+            CreateUnit(new(2, 3), attack:[1, 2], stats:new() { Attack = 5,  Move = 2 }, behavior:new MoveBehavior())
+        ];
+        Unit[] enemies = [
+            CreateUnit(new(4, 1), stats:new() { Health = 10, Defense = 0 }),
+            CreateUnit(new(4, 3), stats:new() { Health = 5,  Defense = 0 })
+        ];
+        RunTest(allies, enemies,
+            expectedSelected: allies[1],
+            expectedDestinations: [allies[1].Cell],
+            expectedAction: "Attack",
+            expectedTarget: enemies[1]
+        );
+    }
+
     /***********
      * SUPPORT *
      ***********/
