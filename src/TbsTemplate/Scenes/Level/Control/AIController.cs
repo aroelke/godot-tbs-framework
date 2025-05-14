@@ -270,47 +270,95 @@ public partial class AIController : ArmyController
 
     private (VirtualUnit selected, Vector2I destination, StringName action, VirtualUnit? target) ComputeAction(IEnumerable<VirtualUnit> available, VirtualGrid grid)
     {
-        VirtualUnit? selected = null;
-        Vector2I destination = -Vector2I.One;
-        StringName action = null;
-        VirtualUnit? target = null;
-
-        VirtualGrid? bestGrid = null;
-        GridValue bestGridValue = new();
-        MoveValue bestMoveValue = new();
-
-        foreach (IList<VirtualUnit> permutation in available.Where((u) => u.Original.Behavior.Actions(u, grid).Count != 0).Permutations())
+        (VirtualUnit? selected, Vector2I destination, StringName action, VirtualUnit? target, GridValue gridValue, MoveValue moveValue) ComputeActionTask(IEnumerable<IList<VirtualUnit>> permutations)
         {
-            (VirtualGrid currentGrid, Vector2I move, StringName currentAction, VirtualUnit? currentTarget) = ChooseBestMove(permutation, grid);
-            GridValue currentGridValue = new(Army.Faction, currentGrid);
-            MoveValue currentMoveValue = new(grid, permutation[0], move);
+            VirtualUnit? selected = null;
+            Vector2I destination = -Vector2I.One;
+            StringName action = "End";
+            VirtualUnit? target = null;
 
-            if (currentAction != "End")
+            VirtualGrid? bestGrid = null;
+            GridValue bestGridValue = new();
+            MoveValue bestMoveValue = new();
+
+            foreach (IList<VirtualUnit> permutation in permutations)
             {
-                if (bestGrid is null)
-                {
-                    bestGrid = currentGrid;
-                    selected = permutation[0];
-                    destination = move;
-                    action = currentAction;
-                    target = currentTarget;
+                (VirtualGrid currentGrid, Vector2I move, StringName currentAction, VirtualUnit? currentTarget) = ChooseBestMove(permutation, grid);
+                GridValue currentGridValue = new(Army.Faction, currentGrid);
+                MoveValue currentMoveValue = new(grid, permutation[0], move);
 
-                    bestGridValue = currentGridValue;
-                    bestMoveValue = currentMoveValue;
-                }
-                else
+                if (currentAction != "End")
                 {
-                    if (currentGridValue > bestGridValue || (currentGridValue == bestGridValue && currentMoveValue < bestMoveValue))
+                    if (bestGrid is null)
                     {
-                        bestGrid = currentGrid;
                         selected = permutation[0];
                         destination = move;
                         action = currentAction;
                         target = currentTarget;
 
+                        bestGrid = currentGrid;
                         bestGridValue = currentGridValue;
                         bestMoveValue = currentMoveValue;
                     }
+                    else
+                    {
+                        if (currentGridValue > bestGridValue || (currentGridValue == bestGridValue && currentMoveValue < bestMoveValue))
+                        {
+                            selected = permutation[0];
+                            destination = move;
+                            action = currentAction;
+                            target = currentTarget;
+
+                            bestGrid = currentGrid;
+                            bestGridValue = currentGridValue;
+                            bestMoveValue = currentMoveValue;
+                        }
+                    }
+                }
+            }
+
+            return (selected, destination, action, target, bestGridValue, bestMoveValue);
+        }
+
+        const int NUM_THREADS = 4;
+        IEnumerable<IList<VirtualUnit>> permutations = available.Where((u) => u.Original.Behavior.Actions(u, grid).Count != 0).Permutations();
+        Task<(VirtualUnit? selected, Vector2I destination, StringName action, VirtualUnit? target, GridValue gridValue, MoveValue moveValue)>[] tasks = new Task<(VirtualUnit? selected, Vector2I destination, StringName action, VirtualUnit? target, GridValue gridValue, MoveValue moveValue)>[NUM_THREADS];
+        int size = (int)Math.Ceiling((double)permutations.Count()/NUM_THREADS);
+        for (int i = 0; i < NUM_THREADS; i++)
+        {
+            IEnumerable<IList<VirtualUnit>> slice = [.. permutations.Skip(size*i).Take(Math.Min(size, permutations.Count() - size*i))];
+            tasks[i] = Task.Run(() => ComputeActionTask(slice));
+        }
+        Task<(VirtualUnit? selected, Vector2I destination, StringName action, VirtualUnit? target, GridValue gridValue, MoveValue moveValue)[]> results = Task.WhenAll(tasks);
+        results.Wait();
+
+        VirtualUnit? selected = null;
+        Vector2I destination = -Vector2I.One;
+        StringName action = null;
+        VirtualUnit? target = null;
+        GridValue bestGridValue = new();
+        MoveValue bestMoveValue = new();
+        foreach ((VirtualUnit? currentSelected, Vector2I currentDestination, StringName currentAction, VirtualUnit? currentTarget, GridValue currentGridValue, MoveValue currentMoveValue) in results.Result)
+        {
+            if (currentAction != "End")
+            {
+                if (selected is null)
+                {
+                    selected = currentSelected;
+                    destination = currentDestination;
+                    action = currentAction;
+                    target = currentTarget;
+                    bestGridValue = currentGridValue;
+                    bestMoveValue = currentMoveValue;
+                }
+                else if (currentGridValue > bestGridValue || (currentGridValue == bestGridValue && currentMoveValue < bestMoveValue))
+                {
+                    selected = currentSelected;
+                    destination = currentDestination;
+                    action = currentAction;
+                    target = currentTarget;
+                    bestGridValue = currentGridValue;
+                    bestMoveValue = currentMoveValue;
                 }
             }
         }
