@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Godot;
 using TbsTemplate.Data;
@@ -16,6 +18,8 @@ namespace TbsTemplate.Scenes.Level.Control;
 /// <summary>Automatically controls units based on their <see cref="UnitBehavior"/>s and the state of the level.</summary>
 public partial class AIController : ArmyController
 {
+    private const int NumThreads = 4;
+
     private readonly record struct VirtualGrid(Vector2I Size, Terrain[][] Terrain, IImmutableDictionary<Vector2I, VirtualUnit> Occupants) : IGrid
     {
         public VirtualGrid(Vector2I size, Terrain terrain, IImmutableDictionary<Vector2I, VirtualUnit> occupants) : this(size, [.. Enumerable.Repeat(Enumerable.Repeat(terrain, size.X).ToArray(), size.Y)], occupants) {}
@@ -140,31 +144,17 @@ public partial class AIController : ArmyController
         public override int GetHashCode() => HashCode.Combine(Distance, Cost);
     }
 
-    private static Grid DuplicateGrid(Grid grid)
-    {
-        Grid copy = grid.Duplicate((int)(DuplicateFlags.Scripts | DuplicateFlags.UseInstantiation)) as Grid;
-        foreach ((Vector2I cell, GridNode occupant) in grid.Occupants)
-        {
-            if (occupant is Unit o)
-            {
-                GridNode clone = o.Duplicate((int)(DuplicateFlags.Scripts | DuplicateFlags.UseInstantiation)) as GridNode;
-                clone.Grid = copy;
-                if (clone is Unit u)
-                    u.Army = o.Army;
-                copy.Occupants[cell] = clone;
-            }
-        }
+    private static readonly IEnumerable<Thread> Workers = new Thread[NumThreads].Select(_ => new Thread(MoveEvaluationTask) { IsBackground = true });
+    private static readonly BlockingCollection<(IList<VirtualUnit>, VirtualGrid)> Tasks = [];
+    private static readonly BlockingCollection<(VirtualUnit, VirtualGrid, Vector2I, StringName, VirtualUnit?)> Results = [];
 
-        return copy;
+    static AIController()
+    {
+        foreach (Thread worker in Workers)
+            worker.Start();
     }
 
-    private Grid _grid = null;
-    private Unit _selected = null;
-    private Vector2I _destination = -Vector2I.One;
-    private StringName _action = null;
-    private Unit _target = null;
-
-    private (VirtualGrid, Vector2I, StringName, VirtualUnit?) ChooseBestMove(IList<VirtualUnit> remaining, VirtualGrid grid)
+    private static (VirtualGrid, Vector2I, StringName, VirtualUnit?) ChooseBestMove(IList<VirtualUnit> remaining, VirtualGrid grid)
     {
         if (remaining[0].Health <= 0)
             return (grid, remaining[0].Cell, "End", null);
@@ -230,7 +220,7 @@ public partial class AIController : ArmyController
                     if (remaining.Count > 1)
                         (currentGrid, _, _, _) = ChooseBestMove([.. remaining.Skip(1)], currentGrid);
                     
-                    GridValue currentGridValue = new(Army.Faction, currentGrid);
+                    GridValue currentGridValue = new(remaining[0].Faction, currentGrid);
                     if (bestGrid is null)
                     {
                         bestGrid = currentGrid;
@@ -258,6 +248,44 @@ public partial class AIController : ArmyController
         return (bestGrid.Value, bestMove, bestAction, bestTarget);
     }
 
+    private static void MoveEvaluationTask()
+    {
+        try
+        {
+            while (true)
+            {
+                (IList<VirtualUnit> permutation, VirtualGrid grid) = Tasks.Take();
+                (VirtualGrid next, Vector2I move, StringName action, VirtualUnit? target) = ChooseBestMove(permutation, grid);
+                Results.Add((permutation[0], next, move, action, target));
+            }
+        }
+        catch (OperationCanceledException) {}
+    }
+
+    private static Grid DuplicateGrid(Grid grid)
+    {
+        Grid copy = grid.Duplicate((int)(DuplicateFlags.Scripts | DuplicateFlags.UseInstantiation)) as Grid;
+        foreach ((Vector2I cell, GridNode occupant) in grid.Occupants)
+        {
+            if (occupant is Unit o)
+            {
+                GridNode clone = o.Duplicate((int)(DuplicateFlags.Scripts | DuplicateFlags.UseInstantiation)) as GridNode;
+                clone.Grid = copy;
+                if (clone is Unit u)
+                    u.Army = o.Army;
+                copy.Occupants[cell] = clone;
+            }
+        }
+
+        return copy;
+    }
+
+    private Grid _grid = null;
+    private Unit _selected = null;
+    private Vector2I _destination = -Vector2I.One;
+    private StringName _action = null;
+    private Unit _target = null;
+
     public override Grid Grid { get => _grid; set => _grid = value; }
 
     public override void InitializeTurn()
@@ -270,67 +298,10 @@ public partial class AIController : ArmyController
 
     private (VirtualUnit selected, Vector2I destination, StringName action, VirtualUnit? target) ComputeAction(IEnumerable<VirtualUnit> available, VirtualGrid grid)
     {
-        (VirtualUnit? selected, Vector2I destination, StringName action, VirtualUnit? target, GridValue gridValue, MoveValue moveValue) ComputeActionTask(IEnumerable<IList<VirtualUnit>> permutations)
-        {
-            VirtualUnit? selected = null;
-            Vector2I destination = -Vector2I.One;
-            StringName action = "End";
-            VirtualUnit? target = null;
-
-            VirtualGrid? bestGrid = null;
-            GridValue bestGridValue = new();
-            MoveValue bestMoveValue = new();
-
-            foreach (IList<VirtualUnit> permutation in permutations)
-            {
-                (VirtualGrid currentGrid, Vector2I move, StringName currentAction, VirtualUnit? currentTarget) = ChooseBestMove(permutation, grid);
-                GridValue currentGridValue = new(Army.Faction, currentGrid);
-                MoveValue currentMoveValue = new(grid, permutation[0], move);
-
-                if (currentAction != "End")
-                {
-                    if (bestGrid is null)
-                    {
-                        selected = permutation[0];
-                        destination = move;
-                        action = currentAction;
-                        target = currentTarget;
-
-                        bestGrid = currentGrid;
-                        bestGridValue = currentGridValue;
-                        bestMoveValue = currentMoveValue;
-                    }
-                    else
-                    {
-                        if (currentGridValue > bestGridValue || (currentGridValue == bestGridValue && currentMoveValue < bestMoveValue))
-                        {
-                            selected = permutation[0];
-                            destination = move;
-                            action = currentAction;
-                            target = currentTarget;
-
-                            bestGrid = currentGrid;
-                            bestGridValue = currentGridValue;
-                            bestMoveValue = currentMoveValue;
-                        }
-                    }
-                }
-            }
-
-            return (selected, destination, action, target, bestGridValue, bestMoveValue);
-        }
-
-        const int NUM_THREADS = 4;
         IEnumerable<IList<VirtualUnit>> permutations = available.Where((u) => u.Original.Behavior.Actions(u, grid).Count != 0).Permutations();
-        Task<(VirtualUnit? selected, Vector2I destination, StringName action, VirtualUnit? target, GridValue gridValue, MoveValue moveValue)>[] tasks = new Task<(VirtualUnit? selected, Vector2I destination, StringName action, VirtualUnit? target, GridValue gridValue, MoveValue moveValue)>[NUM_THREADS];
-        int size = (int)Math.Ceiling((double)permutations.Count()/NUM_THREADS);
-        for (int i = 0; i < NUM_THREADS; i++)
-        {
-            IEnumerable<IList<VirtualUnit>> slice = [.. permutations.Skip(size*i).Take(Math.Min(size, permutations.Count() - size*i))];
-            tasks[i] = Task.Run(() => ComputeActionTask(slice));
-        }
-        Task<(VirtualUnit? selected, Vector2I destination, StringName action, VirtualUnit? target, GridValue gridValue, MoveValue moveValue)[]> results = Task.WhenAll(tasks);
-        results.Wait();
+        foreach (IList<VirtualUnit> permutation in permutations)
+            Tasks.Add((permutation, grid));
+        while (Tasks.Count > 0 || Results.Count < permutations.Count());
 
         VirtualUnit? selected = null;
         Vector2I destination = -Vector2I.One;
@@ -338,8 +309,12 @@ public partial class AIController : ArmyController
         VirtualUnit? target = null;
         GridValue bestGridValue = new();
         MoveValue bestMoveValue = new();
-        foreach ((VirtualUnit? currentSelected, Vector2I currentDestination, StringName currentAction, VirtualUnit? currentTarget, GridValue currentGridValue, MoveValue currentMoveValue) in results.Result)
+        while (Results.Count > 0)
         {
+            (VirtualUnit currentSelected, VirtualGrid currentGrid, Vector2I currentDestination, StringName currentAction, VirtualUnit? currentTarget) = Results.Take();
+            GridValue currentGridValue = new(Army.Faction, currentGrid);
+            MoveValue currentMoveValue = new(grid, currentSelected, currentDestination);
+
             if (currentAction != "End")
             {
                 if (selected is null)
