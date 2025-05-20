@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -178,9 +177,6 @@ public partial class AIController : ArmyController
         }
     }
 
-    private static readonly BlockingCollection<VirtualAction> Tasks = [];
-    private static readonly BlockingCollection<VirtualAction> Results = [];
-
     private static VirtualAction EvaluateAction(VirtualAction action)
     {
         IEnumerable<Vector2I> destinations = action.Actor.Original.Behavior.Destinations(action.Actor, action.Initial);
@@ -237,18 +233,6 @@ public partial class AIController : ArmyController
         return best.Value;
     }
 
-    private static void MoveEvaluationTask()
-    {
-        try
-        {
-            while (Tasks.Count > 0)
-            {
-                Results.Add(EvaluateAction(Tasks.Take()));
-            }
-        }
-        catch (OperationCanceledException) {}
-    }
-
     private Grid _grid = null;
     private Unit _selected = null;
     private Vector2I _destination = -Vector2I.One;
@@ -272,26 +256,19 @@ public partial class AIController : ArmyController
         StringName action = null;
         VirtualUnit? target = null;
 
-        IEnumerable<VirtualAction> actions = grid.GetAvailableActions(Army.Faction);
-        if (actions.Any())
+        VirtualAction[] actions = [.. grid.GetAvailableActions(Army.Faction)];
+        if (actions.Length != 0)
         {
-            foreach (VirtualAction a in actions)
-                Tasks.Add(a);
-            for (int i = 0; i < NumThreads; i++)
-                Task.Run(MoveEvaluationTask);
-            while (Tasks.Count > 0 || Results.Count < actions.Count()) ;
-
-            VirtualAction? best = null;
-            while (Results.Count > 0)
-            {
-                VirtualAction result = Results.Take();
-                if (best is null || result > best)
-                    best = result;
-            }
-            selected = best.Value.Actor;
-            destination = best.Value.Destination;
-            action = best.Value.Action;
-            target = grid.Occupants[best.Value.Target];
+            VirtualAction result = Task.WhenAll([.. actions.Select(static (a) => Task.Run(() => EvaluateAction(a)))]).Result.Max();
+/*
+            VirtualAction[] results = new VirtualAction[actions.Length];
+            while (!Parallel.For(0, actions.Length, new() { MaxDegreeOfParallelism = System.Environment.ProcessorCount }, (i) => results[i] = EvaluateAction(actions[i])).IsCompleted);
+            VirtualAction result = results.Max();
+*/
+            selected = result.Actor;
+            destination = result.Destination;
+            action = result.Action;
+            target = grid.Occupants[result.Target];
         }
         else
         {
