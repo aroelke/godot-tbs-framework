@@ -1,9 +1,9 @@
 using System;
-using System.Collections.Concurrent;
+//using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Threading;
+//using System.Threading;
 using System.Threading.Tasks;
 using Godot;
 using TbsTemplate.Data;
@@ -18,7 +18,7 @@ namespace TbsTemplate.Scenes.Level.Control;
 /// <summary>Automatically controls units based on their <see cref="UnitBehavior"/>s and the state of the level.</summary>
 public partial class AIController : ArmyController
 {
-    private const int NumThreads = 4;
+//    private const int NumThreads = 4;
 
     private readonly record struct VirtualGrid(Vector2I Size, Terrain[][] Terrain, IImmutableDictionary<Vector2I, VirtualUnit> Occupants) : IGrid
     {
@@ -178,7 +178,7 @@ public partial class AIController : ArmyController
                 return -MoveValue.CompareTo(other.MoveValue);
         }
     }
-
+/*
     private static readonly IEnumerable<Thread> Workers = new Thread[NumThreads].Select(_ => new Thread(MoveEvaluationTask) { IsBackground = true });
     private static readonly BlockingCollection<VirtualAction> Tasks = [];
     private static readonly BlockingCollection<VirtualAction> Results = [];
@@ -188,7 +188,7 @@ public partial class AIController : ArmyController
         foreach (Thread worker in Workers)
             worker.Start();
     }
-
+*/
     private static VirtualAction EvaluateAction(VirtualAction action)
     {
         IEnumerable<Vector2I> destinations = action.Actor.Original.Behavior.Destinations(action.Actor, action.Initial);
@@ -244,7 +244,7 @@ public partial class AIController : ArmyController
         }
         return best.Value;
     }
-
+/*
     private static void MoveEvaluationTask()
     {
         try
@@ -256,7 +256,7 @@ public partial class AIController : ArmyController
         }
         catch (OperationCanceledException) {}
     }
-
+*/
     private Grid _grid = null;
     private Unit _selected = null;
     private Vector2I _destination = -Vector2I.One;
@@ -277,10 +277,10 @@ public partial class AIController : ArmyController
     {
         IEnumerable<VirtualAction> actions = grid.GetAvailableActions(Army.Faction);
 /*
-                foreach (VirtualAction a in actions)
-                    Tasks.Add(a);
-                while (Tasks.Count > 0 || Results.Count < actions.Count());
-        */
+        foreach (VirtualAction a in actions)
+            Tasks.Add(a);
+        while (Tasks.Count > 0 || Results.Count < actions.Count());
+*/
 
         VirtualUnit? selected = null;
         Vector2I destination = -Vector2I.One;
