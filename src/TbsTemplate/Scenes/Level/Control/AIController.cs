@@ -1,9 +1,8 @@
 using System;
-//using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-//using System.Threading;
 using System.Threading.Tasks;
 using Godot;
 using TbsTemplate.Data;
@@ -18,7 +17,7 @@ namespace TbsTemplate.Scenes.Level.Control;
 /// <summary>Automatically controls units based on their <see cref="UnitBehavior"/>s and the state of the level.</summary>
 public partial class AIController : ArmyController
 {
-//    private const int NumThreads = 4;
+    private const int NumThreads = 4;
 
     private readonly record struct VirtualGrid(Vector2I Size, Terrain[][] Terrain, IImmutableDictionary<Vector2I, VirtualUnit> Occupants) : IGrid
     {
@@ -178,17 +177,10 @@ public partial class AIController : ArmyController
                 return -MoveValue.CompareTo(other.MoveValue);
         }
     }
-/*
-    private static readonly IEnumerable<Thread> Workers = new Thread[NumThreads].Select(_ => new Thread(MoveEvaluationTask) { IsBackground = true });
+
     private static readonly BlockingCollection<VirtualAction> Tasks = [];
     private static readonly BlockingCollection<VirtualAction> Results = [];
 
-    static AIController()
-    {
-        foreach (Thread worker in Workers)
-            worker.Start();
-    }
-*/
     private static VirtualAction EvaluateAction(VirtualAction action)
     {
         IEnumerable<Vector2I> destinations = action.Actor.Original.Behavior.Destinations(action.Actor, action.Initial);
@@ -244,19 +236,19 @@ public partial class AIController : ArmyController
         }
         return best.Value;
     }
-/*
+
     private static void MoveEvaluationTask()
     {
         try
         {
-            while (true)
+            while (Tasks.Count > 0)
             {
                 Results.Add(EvaluateAction(Tasks.Take()));
             }
         }
         catch (OperationCanceledException) {}
     }
-*/
+
     private Grid _grid = null;
     private Unit _selected = null;
     private Vector2I _destination = -Vector2I.One;
@@ -275,25 +267,31 @@ public partial class AIController : ArmyController
 
     private (VirtualUnit selected, Vector2I destination, StringName action, VirtualUnit? target) ComputeAction(IEnumerable<VirtualUnit> available, VirtualGrid grid)
     {
-        IEnumerable<VirtualAction> actions = grid.GetAvailableActions(Army.Faction);
-/*
-        foreach (VirtualAction a in actions)
-            Tasks.Add(a);
-        while (Tasks.Count > 0 || Results.Count < actions.Count());
-*/
-
         VirtualUnit? selected = null;
         Vector2I destination = -Vector2I.One;
         StringName action = null;
         VirtualUnit? target = null;
+
+        IEnumerable<VirtualAction> actions = grid.GetAvailableActions(Army.Faction);
         if (actions.Any())
         {
-            IEnumerable<VirtualAction> results = actions.Select(EvaluateAction);
-            VirtualAction result = results.Max();
-            selected = result.Actor;
-            destination = result.Destination;
-            action = result.Action;
-            target = grid.Occupants[result.Target];
+            foreach (VirtualAction a in actions)
+                Tasks.Add(a);
+            for (int i = 0; i < NumThreads; i++)
+                Task.Run(MoveEvaluationTask);
+            while (Tasks.Count > 0 || Results.Count < actions.Count()) ;
+
+            VirtualAction? best = null;
+            while (Results.Count > 0)
+            {
+                VirtualAction result = Results.Take();
+                if (best is null || result > best)
+                    best = result;
+            }
+            selected = best.Value.Actor;
+            destination = best.Value.Destination;
+            action = best.Value.Action;
+            target = grid.Occupants[best.Value.Target];
         }
         else
         {
