@@ -177,8 +177,11 @@ public partial class AIController : ArmyController
         public override readonly string ToString() => $"Move {Actor.Faction.Name}@{Actor.Cell} to {Destination} and {Action} {Target}";
     }
 
-    private static VirtualAction EvaluateAction(VirtualAction action)
+    private static VirtualAction EvaluateAction(VirtualAction action, Dictionary<VirtualGrid, VirtualAction> decisions)
     {
+        if (decisions.TryGetValue(action.Initial, out VirtualAction decision))
+            return decision;
+
         HashSet<Vector2I> destinations = [.. action.Actor.Original.Behavior.Destinations(action.Actor, action.Initial)];
         if (action.Action == "Attack")
             destinations = [.. destinations.Intersect(action.Actor.AttackableCells(action.Initial, [action.Target]))];
@@ -197,7 +200,8 @@ public partial class AIController : ArmyController
         if (!destinations.Contains(action.Actor.Cell) || destinations.Count > 1)
             choices.Add(destinations.Where((c) => c != action.Actor.Cell).MinBy((c) => action.Actor.Cell.ManhattanDistanceTo(c)));
 
-        return choices.Select((c) => {
+        return decisions[action.Initial] = choices.Select((c) =>
+        {
             VirtualUnit actor = action.Actor with { Cell = c, Active = false };
             VirtualUnit target = action.Initial.Occupants[action.Target];
             VirtualGrid after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(c, actor) };
@@ -222,10 +226,12 @@ public partial class AIController : ArmyController
 
             IEnumerable<VirtualAction> further = after.GetAvailableActions(actor.Faction);
             if (further.Any())
-                result = result with { Result = further.Select(EvaluateAction).Max().Result };
+                result = result with { Result = further.Select((a) => EvaluateAction(a, decisions)).Max().Result };
             return result;
         }).Max();
     }
+
+    private static VirtualAction EvaluateAction(VirtualAction action) => EvaluateAction(action, []);
 
     private Grid _grid = null;
     private Unit _selected = null;
