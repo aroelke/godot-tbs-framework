@@ -16,8 +16,6 @@ namespace TbsTemplate.Scenes.Level.Control;
 /// <summary>Automatically controls units based on their <see cref="UnitBehavior"/>s and the state of the level.</summary>
 public partial class AIController : ArmyController
 {
-    private const int NumThreads = 4;
-
     private readonly record struct VirtualGrid(Vector2I Size, Terrain[][] Terrain, IImmutableDictionary<Vector2I, VirtualUnit> Occupants) : IGrid
     {
         public VirtualGrid(Vector2I size, Terrain terrain, IImmutableDictionary<Vector2I, VirtualUnit> occupants) : this(size, [.. Enumerable.Repeat(Enumerable.Repeat(terrain, size.X).ToArray(), size.Y)], occupants) {}
