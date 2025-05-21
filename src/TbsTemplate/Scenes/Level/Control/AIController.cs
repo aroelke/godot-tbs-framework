@@ -46,7 +46,7 @@ public partial class AIController : ArmyController
 
     private readonly record struct VirtualUnit(Unit Original, Vector2I Cell, float ExpectedHealth, bool Active) : IUnit
     {
-        public VirtualUnit(Unit original) : this(original, original.Cell, original.Health.Value, true) {}
+        public VirtualUnit(Unit original) : this(original, original.Cell, original.Health.Value, original.Active) {}
 
         public Stats Stats => Original.Stats;
         public Faction Faction => Original.Faction;
