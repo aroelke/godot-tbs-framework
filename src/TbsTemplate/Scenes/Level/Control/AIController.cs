@@ -179,18 +179,19 @@ public partial class AIController : ArmyController
 
     private static VirtualAction EvaluateAction(VirtualAction action)
     {
-        IEnumerable<Vector2I> destinations = action.Actor.Original.Behavior.Destinations(action.Actor, action.Initial);
+        HashSet<Vector2I> destinations = [.. action.Actor.Original.Behavior.Destinations(action.Actor, action.Initial)];
         if (action.Action == "Attack")
-            destinations = destinations.Where(action.Actor.AttackableCells(action.Initial, [action.Target]).Contains);
+            destinations = [.. destinations.Intersect(action.Actor.AttackableCells(action.Initial, [action.Target]))];
         else if (action.Action == "Support")
-            destinations = destinations.Where(action.Actor.SupportableCells(action.Initial, [action.Target]).Contains);
+            destinations = [.. destinations.Intersect(action.Actor.SupportableCells(action.Initial, [action.Target]))];
         else
             throw new InvalidOperationException($"Unsupported action {action.Action}");
 
         VirtualUnit target = action.Initial.Occupants[action.Target];
-        HashSet<Vector2I> retaliatable = [.. destinations.Where(target.AttackableCells(action.Initial, [target.Cell]).Contains)];
+        IEnumerable<Vector2I> retaliatable = destinations.Intersect(target.AttackableCells(action.Initial, [target.Cell]));
         if (!destinations.All(retaliatable.Contains))
-            destinations = destinations.Where((c) => !retaliatable.Contains(c));
+            foreach (Vector2I cell in retaliatable)
+                destinations.Remove(cell);
         Vector2I destination = destinations.MaxBy((c) => {
             VirtualUnit temp = action.Actor with { Cell = c };
             VirtualGrid after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(c, temp) };
@@ -205,12 +206,11 @@ public partial class AIController : ArmyController
             target = target with { ExpectedHealth = target.ExpectedHealth - ExpectedDamage(actor, target) };
             if (target.ExpectedHealth > 0)
             {
-                bool retaliate = target.AttackableCells(after, [target.Cell]).Contains(actor.Cell);
-                if (retaliate)
+                if (retaliatable.Contains(actor.Cell))
                     actor = actor with { ExpectedHealth = actor.ExpectedHealth - ExpectedDamage(target, actor) };
                 if (actor.ExpectedHealth > 0 && actor.Original.Stats.Agility > target.Original.Stats.Agility)
                     target = target with { ExpectedHealth = target.ExpectedHealth - ExpectedDamage(actor, target) };
-                else if (target.ExpectedHealth > 0 && retaliate && target.Original.Stats.Agility > actor.Original.Stats.Agility)
+                else if (target.ExpectedHealth > 0 && retaliatable.Contains(actor.Cell) && target.Original.Stats.Agility > actor.Original.Stats.Agility)
                     actor = actor with { ExpectedHealth = actor.ExpectedHealth - ExpectedDamage(target, actor) };
             }
         }
