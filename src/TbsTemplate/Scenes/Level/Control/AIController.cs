@@ -190,8 +190,8 @@ public partial class AIController : ArmyController
             throw new InvalidOperationException($"Unsupported action {action.Action}");
 
         VirtualUnit target = action.Initial.Occupants[action.Target];
-        IEnumerable<Vector2I> retaliatable = destinations.Where(target.AttackableCells(action.Initial, [target.Cell]).Contains);
-        if (destinations.Any(retaliatable.Contains) && !destinations.All(retaliatable.Contains))
+        HashSet<Vector2I> retaliatable = [.. destinations.Where(target.AttackableCells(action.Initial, [target.Cell]).Contains)];
+        if (!destinations.All(retaliatable.Contains))
             destinations = destinations.Where((c) => !retaliatable.Contains(c));
         Vector2I destination = destinations.MaxBy((c) => {
             VirtualUnit temp = action.Actor with { Cell = c };
@@ -223,16 +223,7 @@ public partial class AIController : ArmyController
 
         IEnumerable<VirtualAction> further = after.GetAvailableActions(actor.Faction);
         if (further.Any())
-        {
-            VirtualAction? nextBest = null;
-            foreach (VirtualAction next in further)
-            {
-                VirtualAction nextResult = EvaluateAction(next);
-                if (nextBest is null || nextResult > nextBest)
-                    nextBest = nextResult;
-            }
-            result = result with { Result = nextBest.Value.Result };
-        }
+            result = result with { Result = further.Select(EvaluateAction).Max().Result };
         return result;
     }
 
