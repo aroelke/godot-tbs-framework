@@ -187,42 +187,44 @@ public partial class AIController : ArmyController
         else
             throw new InvalidOperationException($"Unsupported action {action.Action}");
 
-        VirtualUnit target = action.Initial.Occupants[action.Target];
-        IEnumerable<Vector2I> retaliatable = destinations.Intersect(target.AttackableCells(action.Initial, [target.Cell]));
+        IEnumerable<Vector2I> retaliatable = destinations.Intersect(action.Initial.Occupants[action.Target].AttackableCells(action.Initial, [action.Initial.Occupants[action.Target].Cell]));
         if (!destinations.All(retaliatable.Contains))
             foreach (Vector2I cell in retaliatable)
                 destinations.Remove(cell);
-        Vector2I destination = destinations.MaxBy((c) => {
-            VirtualUnit temp = action.Actor with { Cell = c };
-            VirtualGrid after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(c, temp) };
-            return after.GetAvailableActions(temp.Faction).Count();
-        });
+        List<Vector2I> choices = [];
+        if (destinations.Contains(action.Actor.Cell))
+            choices.Add(action.Actor.Cell);
+        if (!destinations.Contains(action.Actor.Cell) || destinations.Count > 1)
+            choices.Add(destinations.Where((c) => c != action.Actor.Cell).MinBy((c) => action.Actor.Cell.ManhattanDistanceTo(c)));
 
-        VirtualUnit actor = action.Actor with { Cell = destination, Active = false };
-        VirtualGrid after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(destination, actor) };
-        if (action.Action == "Attack")
-        {
-            static float ExpectedDamage(VirtualUnit a, VirtualUnit b) => Math.Max(0f, a.Original.Stats.Accuracy - b.Original.Stats.Evasion)/100f*(a.Original.Stats.Attack - b.Original.Stats.Defense);
-            target = target with { ExpectedHealth = target.ExpectedHealth - ExpectedDamage(actor, target) };
-            if (target.ExpectedHealth > 0)
+        return choices.Select((c) => {
+            VirtualUnit actor = action.Actor with { Cell = c, Active = false };
+            VirtualUnit target = action.Initial.Occupants[action.Target];
+            VirtualGrid after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(c, actor) };
+            if (action.Action == "Attack")
             {
-                if (retaliatable.Contains(actor.Cell))
-                    actor = actor with { ExpectedHealth = actor.ExpectedHealth - ExpectedDamage(target, actor) };
-                if (actor.ExpectedHealth > 0 && actor.Original.Stats.Agility > target.Original.Stats.Agility)
-                    target = target with { ExpectedHealth = target.ExpectedHealth - ExpectedDamage(actor, target) };
-                else if (target.ExpectedHealth > 0 && retaliatable.Contains(actor.Cell) && target.Original.Stats.Agility > actor.Original.Stats.Agility)
-                    actor = actor with { ExpectedHealth = actor.ExpectedHealth - ExpectedDamage(target, actor) };
+                static float ExpectedDamage(VirtualUnit a, VirtualUnit b) => Math.Max(0f, a.Original.Stats.Accuracy - b.Original.Stats.Evasion) / 100f * (a.Original.Stats.Attack - b.Original.Stats.Defense);
+                target = target with { ExpectedHealth = target.ExpectedHealth - ExpectedDamage(actor, target) };
+                if (target.ExpectedHealth > 0)
+                {
+                    if (retaliatable.Contains(actor.Cell))
+                        actor = actor with { ExpectedHealth = actor.ExpectedHealth - ExpectedDamage(target, actor) };
+                    if (actor.ExpectedHealth > 0 && actor.Original.Stats.Agility > target.Original.Stats.Agility)
+                        target = target with { ExpectedHealth = target.ExpectedHealth - ExpectedDamage(actor, target) };
+                    else if (target.ExpectedHealth > 0 && retaliatable.Contains(actor.Cell) && target.Original.Stats.Agility > actor.Original.Stats.Agility)
+                        actor = actor with { ExpectedHealth = actor.ExpectedHealth - ExpectedDamage(target, actor) };
+                }
             }
-        }
-        else if (action.Action == "Support")
-            target = target with { ExpectedHealth = Math.Min(target.Health + actor.Stats.Healing, target.Stats.Health) };
-        after = after with { Occupants = after.Occupants.SetItem(actor.Cell, actor).Remove(target.Cell).Add(target.Cell, target) };
-        VirtualAction result = action with { Result = after, Destination = destination };
+            else if (action.Action == "Support")
+                target = target with { ExpectedHealth = Math.Min(target.Health + actor.Stats.Healing, target.Stats.Health) };
+            after = after with { Occupants = after.Occupants.SetItem(actor.Cell, actor).Remove(target.Cell).Add(target.Cell, target) };
+            VirtualAction result = action with { Result = after, Destination = c };
 
-        IEnumerable<VirtualAction> further = after.GetAvailableActions(actor.Faction);
-        if (further.Any())
-            result = result with { Result = further.Select(EvaluateAction).Max().Result };
-        return result;
+            IEnumerable<VirtualAction> further = after.GetAvailableActions(actor.Faction);
+            if (further.Any())
+                result = result with { Result = further.Select(EvaluateAction).Max().Result };
+            return result;
+        }).Max();
     }
 
     private Grid _grid = null;
