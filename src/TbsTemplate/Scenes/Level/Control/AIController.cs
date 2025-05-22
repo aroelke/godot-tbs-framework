@@ -22,7 +22,7 @@ public partial class AIController : ArmyController
 
         public VirtualGrid(Grid grid) : this(
             grid.Size,
-            [.. Enumerable.Range(1, grid.Size.Y).Select((r) => Enumerable.Range(1, grid.Size.X).Select((c) => grid.GetTerrain(new(c, r))).ToArray())],
+            [.. Enumerable.Range(0, grid.Size.Y).Select((r) => Enumerable.Range(0, grid.Size.X).Select((c) => grid.GetTerrain(new(c, r))).ToArray())],
             grid.Occupants.Where((e) => e.Value is Unit).ToImmutableDictionary((e) => e.Key, (e) => new VirtualUnit(e.Value as Unit))
         ) {}
 
