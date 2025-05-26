@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using GD_NET_ScOUT;
 using Godot;
 using TbsTemplate.Data;
@@ -8,6 +10,7 @@ using TbsTemplate.Scenes.Level.Control.Behavior;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
+using TbsTemplate.UI.Controls.Action;
 
 namespace TbsTemplate.Scenes.Level.Control.Test;
 
@@ -22,6 +25,11 @@ public partial class AIControllerTestScene : Node
     /*********************
      * SETUP AND SUPPORT *
      *********************/
+
+    private readonly record struct AIAction(Unit Selected, Vector2I[] Destinations, StringName Action, Unit Target = null)
+    {
+        public override string ToString() => $"move {Selected.Army.Name}@{Selected.Cell} to {string.Join('/', Destinations)} and {Action} {(Target is null ? "" : $"{Target.Faction.Name}@{Target.Cell}")}";
+    }
 
     private string PrintUnit(Unit unit) => $"{unit.Army.Faction.Name}@{unit.Cell}";
 
@@ -60,41 +68,32 @@ public partial class AIControllerTestScene : Node
         _dut.InitializeTurn();
     }
 
-    /// <summary>Run a test to make sure the AI performs the right action for a given game state.</summary>
-    /// <param name="allies">Units in the AI's army.</param>
-    /// <param name="enemies">Units not in the AI's army.</param>
-    /// <param name="expected">Mapping of units the AI can choose onto the options for destination cell it should move the one it chooses.</param>
-    /// <param name="expectedAction">Action the AI should perform with its chosen unit.</param>
-    /// <param name="expectedTarget">Unit the AI should be targeting with its action.</param>
-    private void RunTest(IEnumerable<Unit> allies, IEnumerable<Unit> enemies, Dictionary<Unit, HashSet<Vector2I>> expected, string expectedAction, Unit expectedTarget=null)
+    private void RunTest(IEnumerable<Unit> allies, IEnumerable<Unit> enemies, params AIAction[] expected)
     {
         foreach (Unit ally in allies)
             _allies.AddChild(ally);
         foreach (Unit enemy in enemies)
             _enemies.AddChild(enemy);
-
+        
         try
         {
             void TestPermutation(IEnumerable<Unit> allyPermutation, IEnumerable<Unit> enemyPermutation)
             {
                 string run = $"[{string.Join(',', allyPermutation.Select(PrintUnit))}]";
-                    if (enemyPermutation.Any())
-                        run +=  $"& [{string.Join(',', enemyPermutation.Select(PrintUnit))}]";
+                if (enemyPermutation.Any())
+                    run += $"& [{string.Join(',', enemyPermutation.Select(PrintUnit))}]";
                 (Unit selected, Vector2I destination, StringName action, Unit target) = _dut.ComputeAction(allyPermutation, enemyPermutation, _dut.Grid);
+                AIAction result = new(selected, [destination], action, target);
 
-                string error = $"Expected to move {string.Join(" or ", expected.Select((e) => $"{PrintUnit(e.Key)} to [{string.Join('/', e.Value)}]"))} and {expectedAction}";
-                if (expectedTarget is not null)
-                    error += $" {PrintUnit(expectedTarget)}";
-                error += $" but moved {PrintUnit(selected)} to {destination} and {action}";
-                if (target is not null)
-                    error += $" {PrintUnit(target)}";
+                string error = $"Expected to {string.Join(" or ", expected)} but instead chose to {result}";
 
-                Assert.IsTrue(expected.Any((p) => selected == p.Key && p.Value.Contains(destination)), $"{run}: Wrong unit/destination selected: {error}");
-                Assert.AreEqual<StringName>(action, expectedAction, $"{run}: Wrong action: {error}");
-                if (expectedTarget is null)
+                Assert.IsTrue(expected.Any((a) => a.Selected == result.Selected), $"{run}: Wrong unit selected: {error}");
+                Assert.IsTrue(expected.Any((a) => a.Destinations.Contains(result.Destinations[0])), $"{run}: Wrong destination selected: {error}");
+                Assert.IsTrue(expected.Any((a) => a.Action == result.Action), $"{run}: Wrong action: {error}");
+                if (expected.All((a) => a.Target is null) && result.Target is not null)
                     Assert.IsNull(target, $"{run}: Unexpected target: {error}");
                 else
-                    Assert.AreSame(target, expectedTarget, $"{run}: Wrong target: {error}");
+                    Assert.IsTrue(expected.Any((a) => a.Target == result.Target), $"{run}: Wrong target: {error}");
             }
 
             foreach (IEnumerable<Unit> allyPermutation in allies.Permutations())
@@ -128,16 +127,6 @@ public partial class AIControllerTestScene : Node
         }
     }
 
-    /// <summary>Run a test to make sure the AI performs the right action for a given game state.</summary>
-    /// <param name="allies">Units in the AI's army.</param>
-    /// <param name="enemies">Units not in the AI's army.</param>
-    /// <param name="expectedSelected">Unit the AI should choose for its action.</param>
-    /// <param name="expectedDestinations">Options for cell the AI should move its unit to.</param>
-    /// <param name="expectedAction">Action the AI should perform with its chosen unit.</param>
-    /// <param name="expectedTarget">Unit the AI should be targeting with its action.</param>
-    private void RunTest(IEnumerable<Unit> allies, IEnumerable<Unit> enemies, Unit expectedSelected, HashSet<Vector2I> expectedDestinations, string expectedAction, Unit expectedTarget=null)
-        => RunTest(allies, enemies, new() {{ expectedSelected, expectedDestinations }}, expectedAction, expectedTarget);
-
     /*******
      * END *
      *******/
@@ -148,11 +137,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit[] allies = [CreateUnit(new(0, 1)), CreateUnit(new(1, 2)), CreateUnit(new(0, 3))];
         Unit[] enemies = [CreateUnit(new(6, 2))];
-        RunTest(allies, enemies,
-            expectedSelected:    allies[1],
-            expectedDestinations: [allies[1].Cell],
-            expectedAction:      "End"
-        );
+        RunTest(allies, enemies, [new(allies[1], [allies[1].Cell], "End")]);
     }
 
     /// <summary>When the behavior prevents movement, AI should not choose to attack if an enemy is reachable but not in range to attack.</summary>
@@ -161,11 +146,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit ally = CreateUnit(new(0, 2));
         Unit enemy = CreateUnit(new(3, 2));
-        RunTest([ally], [enemy],
-            expectedSelected:    ally,
-            expectedDestinations: [ally.Cell],
-            expectedAction:      "End"
-        );
+        RunTest([ally], [enemy], [new(ally, [ally.Cell], "End")]);
     }
 
     /// <summary>AI should be able to choose an action when there aren't enemies.  It also should keep the chosen unit in place even if that unit could move.</summary>
@@ -178,11 +159,7 @@ public partial class AIControllerTestScene : Node
             for (int j = 0; j < size.Y; j++)
             {
                 Unit ally = CreateUnit(new(i, j), behavior:new MoveBehavior());
-                RunTest([ally], [],
-                    expectedSelected:    ally,
-                    expectedDestinations: [ally.Cell],
-                    expectedAction:      "End"
-                );
+                RunTest([ally], [], [new(ally, [ally.Cell], "End")]);
             }
         }
     }
@@ -193,11 +170,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit ally = CreateUnit(new(0, 2), attack:[1], stats:new() { Move = 3 }, behavior:new MoveBehavior());
         Unit enemy = CreateUnit(new(5, 2));
-        RunTest([ally], [enemy],
-            expectedSelected:    ally,
-            expectedDestinations: [new(3, 2)],
-            expectedAction:      "End"
-        );
+        RunTest([ally], [enemy], [new(ally, [new(3, 2)], "End")]);
     }
 
     /**********
@@ -210,12 +183,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit[] allies = [CreateUnit(new(3, 2), attack:[1, 2], behavior:new StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), stats:new() { Health = 10 }, hp:5), CreateUnit(new(2, 2), stats:new() { Health = 10 }, hp:10)];
-        RunTest(allies, enemies,
-            expectedSelected:    allies[0],
-            expectedDestinations: [allies[0].Cell],
-            expectedAction:      "Attack",
-            expectedTarget:      enemies[0]
-        );
+        RunTest(allies, enemies, [new(allies[0], [allies[0].Cell], "Attack", enemies[0])]);
     }
 
     /// <summary>AI should choose to attack the enemy it can do more damage to when enemies have the same HP.</summary>
@@ -224,12 +192,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit[] allies = [CreateUnit(new(3, 2), attack:[1, 2], stats:new() { Attack = 5 }, behavior:new StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), stats:new() { Defense = 3 }), CreateUnit(new(2, 2), stats:new() { Defense = 0 })];
-        RunTest(allies, enemies,
-            expectedSelected:    allies[0],
-            expectedDestinations: [allies[0].Cell],
-            expectedAction:      "Attack",
-            expectedTarget:      enemies[1]
-        );
+        RunTest(allies, enemies, [new(allies[0], [allies[0].Cell], "Attack", enemies[1])]);
     }
 
     /// <summary>AI should choose to attack the enemy it can bring to the lowest HP regardless of current HP or damage.</summary>
@@ -238,12 +201,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit[] allies = [CreateUnit(new(3, 2), attack:[1, 2], stats:new() { Attack = 5 }, behavior:new StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), stats:new() { Health = 10, Defense = 3 }, hp:5), CreateUnit(new(2, 2), stats:new() { Health = 10, Defense = 0 }, hp:10)];
-        RunTest(allies, enemies,
-            expectedSelected:    allies[0],
-            expectedDestinations: [allies[0].Cell],
-            expectedAction:      "Attack",
-            expectedTarget:      enemies[0]
-        );
+        RunTest(allies, enemies, [new(allies[0], [allies[0].Cell], "Attack", enemies[0])]);
     }
 
     /// <summary>AI should choose the unit that can attack the enemy, even though it's further away.</summary>
@@ -255,12 +213,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(2, 4), attack:[3], behavior:new StandBehavior { AttackInRange = true })
         ];
         Unit[] enemies = [CreateUnit(new(3, 2))];
-        RunTest(allies, enemies,
-            expectedSelected:    allies[1],
-            expectedDestinations: [allies[1].Cell],
-            expectedAction:      "Attack",
-            expectedTarget:      enemies[0]
-        );
+        RunTest(allies, enemies, [new(allies[1], [allies[1].Cell], "Attack", enemies[0])]);
     }
 
     /// <summary>AI should choose the target it can kill with its units, even if one of its units can do more damage to a different one.</summary>
@@ -275,11 +228,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(1, 1), stats:new() { Defense = 0 }),
             CreateUnit(new(1, 2), stats:new() { Defense = 2 })
         ];
-        RunTest(allies, enemies,
-            expected:            allies.ToDictionary((u) => u, (u) => new HashSet<Vector2I>() { u.Cell }),
-            expectedAction:      "Attack",
-            expectedTarget:      enemies[1]
-        );
+        RunTest(allies, enemies, [.. allies.Select((u) => new AIAction(u, [u.Cell], "Attack", enemies[1]))]);
     }
 
     /// <summary>AI should choose the closest allowed destination when there are multiple options.</summary>
@@ -297,12 +246,7 @@ public partial class AIControllerTestScene : Node
                 {
                     Unit ally = CreateUnit(new(i, j), attack:[1], stats:new() { Move = 5 }, behavior:new MoveBehavior());
                     int closest = destinations.Select((c) => c.ManhattanDistanceTo(ally.Cell)).Min();
-                    RunTest([ally], [enemy],
-                        expectedSelected:    ally,
-                        expectedDestinations: [.. destinations.Where((c) => c.ManhattanDistanceTo(ally.Cell) == closest)],
-                        expectedAction:      "Attack",
-                        expectedTarget:      enemy
-                    );
+                    RunTest([ally], [enemy], [new(ally, [.. destinations.Where((c) => c.ManhattanDistanceTo(ally.Cell) == closest)], "Attack", enemy)]);
                 }
                 else
                 {
@@ -328,12 +272,7 @@ public partial class AIControllerTestScene : Node
                 {
                     Unit ally = CreateUnit(new(3, 2), attack:[1, 2], stats:new() { Move = 5 }, behavior:new MoveBehavior());
                     int closest = destinations.Select((c) => c.ManhattanDistanceTo(ally.Cell)).Min();
-                    RunTest([ally], [enemy],
-                        expectedSelected:    ally,
-                        expectedDestinations: [.. destinations.Where((c) => c.ManhattanDistanceTo(ally.Cell) == closest)],
-                        expectedAction:      "Attack",
-                        expectedTarget:      enemy
-                    );
+                    RunTest([ally], [enemy], [new(ally, [.. destinations.Where((c) => c.ManhattanDistanceTo(ally.Cell) == closest)], "Attack", enemy)]);
                 }
             }
         }
@@ -348,11 +287,10 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(1, 2), attack:[1, 2], stats:new() { Move = 4 }, behavior:new MoveBehavior())
         ];
         Unit enemy = CreateUnit(new(6, 2), stats:new() { Attack = 0 });
-        RunTest(allies, [enemy],
-            expected: new() {{ allies[0], new HashSet<Vector2I>() { new(4, 2) }}, { allies[1], new HashSet<Vector2I>() { new(5, 2) }}},
-            expectedAction: "Attack",
-            expectedTarget: enemy
-        );
+        RunTest(allies, [enemy], [
+            new(allies[0], [new(4, 2)], "Attack", enemy),
+            new(allies[1], [new(5, 2)], "Attack", enemy)
+        ]);
     }
 
     /// <summary>AI should not block other allies from attacking when making ordering decisions to divide attacks among multiple enemies.</summary>
@@ -367,12 +305,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(2, 2), stats:new() { Health = 10, Attack = 0, Defense = 5 }),
             CreateUnit(new(3, 2), stats:new() { Health = 10, Attack = 0, Defense = 0 })
         ];
-        RunTest(allies, enemies,
-            expectedSelected: allies[1],
-            expectedDestinations: [new(2, 1), new(2, 4)],
-            expectedAction: "Attack",
-            expectedTarget: enemies[1]
-        );
+        RunTest(allies, enemies, [new(allies[1], [new(2, 1), new(2, 4)], "Attack", enemies[1])]);
     }
 
     /// <summary>AI should attack from a space that its target can't retaliate from, even if it's not the furthest one.</summary>
@@ -381,12 +314,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit ally = CreateUnit(new(1, 2), attack:[1, 2], behavior:new MoveBehavior());
         Unit enemy = CreateUnit(new(5, 2), attack:[2]);
-        RunTest([ally], [enemy],
-            expectedSelected: ally,
-            expectedDestinations: [new(4, 2)],
-            expectedAction: "Attack",
-            expectedTarget: enemy
-        );
+        RunTest([ally], [enemy], [new(ally, [new(4, 2)], "Attack", enemy)]);
     }
 
     /// <summary>AI should attack in the order that reduces retaliation damage to its units.</summary>
@@ -398,12 +326,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(1, 2), attack:[1, 2], stats:new() { Attack = 5, Move = 4 }, behavior:new MoveBehavior())
         ];
         Unit enemy = CreateUnit(new(6, 2), attack:[1], stats:new() { Health = 10, Attack = 5, Defense = 0 }, hp:10);
-        RunTest(allies, [enemy],
-            expectedSelected: allies[0],
-            expectedDestinations: [new(4, 2)],
-            expectedAction: "Attack",
-            expectedTarget: enemy
-        );
+        RunTest(allies, [enemy], [new(allies[0], [new(4, 2)], "Attack", enemy)]);
     }
 
     /// <summary>AI should attack an enemy it can kill, even if it can do more damage to another enemy.</summary>
@@ -415,12 +338,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(3, 1), attack:[1], stats:new() { Health = 5,  Defense = 4 }, hp:1),
             CreateUnit(new(3, 3), attack:[1], stats:new() { Health = 10, Defense = 0 }, hp:6)
         ];
-        RunTest([ally], enemies,
-            expectedSelected: ally,
-            expectedDestinations: [ally.Cell],
-            expectedAction: "Attack",
-            expectedTarget: enemies[0]
-        );
+        RunTest([ally], enemies, [new(ally, [ally.Cell], "Attack", enemies[0])]);
     }
 
     /// <summary>AI should attack in the order that reduces the number of allies that die in retaliation regardless of damage dealt.</summary>
@@ -432,12 +350,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(1, 2), attack:[1, 2], stats:new() { Health = 10, Attack = 5, Defense = 3, Move = 4 }, hp:5, behavior:new MoveBehavior())
         ];
         Unit enemy = CreateUnit(new(6, 2), attack:[1, 2], stats:new() { Health = 10, Attack = 8, Defense = 0 }, hp:10);
-        RunTest(allies, [enemy],
-            expectedSelected: allies[0],
-            expectedDestinations: [new(4, 2)],
-            expectedAction: "Attack",
-            expectedTarget: enemy
-        );
+        RunTest(allies, [enemy], [new(allies[0], [new(4, 2)], "Attack", enemy)]);
     }
 
     /// <summary>AI should divide attacks in such a way as to maximize kills when one of its allies can kill multiple enemies and one can't.</summary>
@@ -452,12 +365,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(4, 1), stats:new() { Health = 10, Defense = 0 }),
             CreateUnit(new(4, 3), stats:new() { Health = 5,  Defense = 0 })
         ];
-        RunTest(allies, enemies,
-            expectedSelected: allies[1],
-            expectedDestinations: [allies[1].Cell],
-            expectedAction: "Attack",
-            expectedTarget: enemies[1]
-        );
+        RunTest(allies, enemies, [new(allies[1], [allies[1].Cell], "Attack", enemies[1])]);
     }
 
     /***********
@@ -473,12 +381,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(2, 2), stats:new() { Health = 5 },  hp:1),
             CreateUnit(new(3, 1), stats:new() { Health = 20 }, hp:5)
         ];
-        RunTest(allies, [],
-            expectedSelected: allies[0],
-            expectedDestinations: [allies[0].Cell],
-            expectedAction: "Support",
-            expectedTarget: allies[1]
-        );
+        RunTest(allies, [], [new(allies[0], [allies[0].Cell], "Support", allies[1])]);
     }
 
     /// <summary>AI should heal the ally with the lowest HP, even if it can heal a different ally by a greater amount.</summary>
@@ -490,12 +393,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:1),
             CreateUnit(new(3, 4), stats:new() { Health = 20 }, hp:5)
         ];
-        RunTest(allies, [],
-            expectedSelected: allies[0],
-            expectedDestinations: [new(3, 1)],
-            expectedAction: "Support",
-            expectedTarget: allies[1]
-        );
+        RunTest(allies, [], [new(allies[0], [new(3, 1)], "Support", allies[1])]);
     }
 
     /// <summary>AI should prefer to heal injured allies it can reach over attacking enemies it can reach.</summary>
@@ -507,12 +405,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:1),
         ];
         Unit enemy = CreateUnit(new(3, 4), stats:new() { Health = 10, Defense = 0 }, hp:10);
-        RunTest(allies, [enemy],
-            expectedSelected: allies[0],
-            expectedDestinations: [new(3, 1)],
-            expectedAction: "Support",
-            expectedTarget: allies[1]
-        );
+        RunTest(allies, [enemy], [new(allies[0], [new(3, 1)], "Support", allies[1])]);
     }
 
     /// <summary>AI should prefer to heal injured allies it can reach over attacking enemies it can reach.</summary>
@@ -524,12 +417,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:1),
         ];
         Unit enemy = CreateUnit(new(3, 4), stats:new() { Health = 10, Defense = 0 }, hp:10);
-        RunTest(allies, [enemy],
-            expectedSelected: allies[0],
-            expectedDestinations: [allies[0].Cell],
-            expectedAction: "Support",
-            expectedTarget: allies[1]
-        );
+        RunTest(allies, [enemy], [new(allies[0], [allies[0].Cell], "Support", allies[1])]);
     }
 
     /// <summary>AI should prefer to attack enemies it can reach if there allies in reach but all of them are uninjured.</summary>
@@ -541,12 +429,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:5),
         ];
         Unit enemy = CreateUnit(new(3, 4), stats:new() { Health = 10, Defense = 0 }, hp:10);
-        RunTest(allies, [enemy],
-            expectedSelected: allies[0],
-            expectedDestinations: [new(3, 3)],
-            expectedAction: "Attack",
-            expectedTarget: enemy
-        );
+        RunTest(allies, [enemy], [new(allies[0], [new(3, 3)], "Attack", enemy)]);
     }
 
     /// <summary>AI should prefer to attack if it thinks it can defeat an enemy, even if there is an injured ally in range.</summary>
@@ -558,12 +441,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:1),
         ];
         Unit enemy = CreateUnit(new(3, 4), stats:new() { Health = 10, Defense = 0 }, hp:5);
-        RunTest(allies, [enemy],
-            expectedSelected: allies[0],
-            expectedDestinations: [allies[0].Cell],
-            expectedAction: "Attack",
-            expectedTarget: enemy
-        );
+        RunTest(allies, [enemy], [new(allies[0], [allies[0].Cell], "Attack", enemy)]);
     }
 
     /// <summary>AI should prefer to attack if it thinks it can defeat an enemy, even if there is an injured ally in range.</summary>
@@ -575,12 +453,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:1),
         ];
         Unit enemy = CreateUnit(new(3, 4), stats:new() { Health = 10, Defense = 0 }, hp:5);
-        RunTest(allies, [enemy],
-            expectedSelected: allies[0],
-            expectedDestinations: [new(3, 3)],
-            expectedAction: "Attack",
-            expectedTarget: enemy
-        );
+        RunTest(allies, [enemy], [new(allies[0], [new(3, 3)], "Attack", enemy)]);
     }
 
     /// <summary>AI should heal after an ally attacks with retaliation to maximize amount healed, even if ally is damaged beforehand.</summary>
@@ -590,12 +463,7 @@ public partial class AIControllerTestScene : Node
         Unit attacker = CreateUnit(new(3, 2), attack:[3], stats:new() { Health = 10, Attack = 5, Defense = 0 }, hp:8, behavior:new StandBehavior() { AttackInRange = true, SupportInRange = true });
         Unit healer = CreateUnit(new(5, 2), support:[2], stats:new() { Healing = 5 }, behavior:new StandBehavior() { AttackInRange = true, SupportInRange = true });
         Unit enemy = CreateUnit(new(0, 2), attack:[3], stats:new() { Attack = 5, Defense = 0 });
-        RunTest([attacker, healer], [enemy],
-            expectedSelected:attacker,
-            expectedDestinations: [attacker.Cell],
-            expectedAction:"Attack",
-            expectedTarget:enemy
-        );
+        RunTest([attacker, healer], [enemy], [new(attacker, [attacker.Cell], "Attack", enemy)]);
     }
 
     /// <summary>AI should heal after an ally attacks with retaliation to maximize amount healed, even if ally is damaged beforehand.</summary>
@@ -605,12 +473,7 @@ public partial class AIControllerTestScene : Node
         Unit attacker = CreateUnit(new(3, 2), attack:[1], stats:new() { Health = 10, Attack = 5, Defense = 0, Move = 3 }, hp:8, behavior:new MoveBehavior());
         Unit healer = CreateUnit(new(5, 2), support:[1], stats:new() { Healing = 5, Move = 3 }, behavior:new MoveBehavior());
         Unit enemy = CreateUnit(new(0, 2), attack:[1], stats:new() { Attack = 5, Defense = 0 });
-        RunTest([attacker, healer], [enemy],
-            expectedSelected:attacker,
-            expectedDestinations: [new(1, 2)],
-            expectedAction:"Attack",
-            expectedTarget:enemy
-        );
+        RunTest([attacker, healer], [enemy], [new(attacker, [new(1, 2)], "Attack", enemy)]);
     }
 
     /*********
@@ -626,11 +489,6 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(4, 2), attack:[1], stats:new() { Health = 5, Attack = 5 }, hp:5, behavior:new StandBehavior() { AttackInRange = true })
         ];
         Unit enemy = CreateUnit(new(3, 2), attack:[1], stats:new() { Attack = 5 });
-        RunTest(allies, [enemy],
-            expectedSelected:allies[1],
-            expectedDestinations: [allies[1].Cell],
-            expectedAction:"Attack",
-            expectedTarget:enemy
-        );
+        RunTest(allies, [enemy], [new(allies[1], [allies[1].Cell], "Attack", enemy)]);
     }
 }
