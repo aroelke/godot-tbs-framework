@@ -365,7 +365,10 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(4, 1), stats:new() { Health = 10, Defense = 0 }),
             CreateUnit(new(4, 3), stats:new() { Health = 5,  Defense = 0 })
         ];
-        RunTest(allies, enemies, [new(allies[1], [allies[1].Cell], "Attack", enemies[1])]);
+        RunTest(allies, enemies, [
+            new(allies[0], [allies[0].Cell], "Attack", enemies[0]),
+            new(allies[1], [allies[1].Cell], "Attack", enemies[1])
+        ]);
     }
 
     /***********
