@@ -201,28 +201,27 @@ public partial class AIController : ArmyController
         if (!destinations.Contains(action.Actor.Cell) || destinations.Count > 1)
             choices.Add(destinations.Where((c) => c != action.Actor.Cell).MinBy((c) => action.Actor.Cell.ManhattanDistanceTo(c)));
 
-        return decisions[action.Initial] = choices.Select((c) =>
-        {
-            VirtualUnit actor = action.Actor with { Cell = c, Active = false };
-            VirtualUnit updated = target;
-            VirtualGrid after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(c, actor) };
+        return decisions[action.Initial] = choices.Select((c) => {
+            float targetHealth = target.ExpectedHealth, actorHealth = action.Actor.ExpectedHealth;
             if (action.Action == "Attack")
             {
                 static float ExpectedDamage(VirtualUnit a, VirtualUnit b) => Math.Max(0f, a.Original.Stats.Accuracy - b.Original.Stats.Evasion)/100f*(a.Original.Stats.Attack - b.Original.Stats.Defense);
-                updated = updated with { ExpectedHealth = updated.ExpectedHealth - ExpectedDamage(actor, updated) };
-                if (updated.ExpectedHealth > 0)
+                targetHealth -= ExpectedDamage(action.Actor, target);
+                if (targetHealth > 0)
                 {
-                    if (retaliatable.Contains(actor.Cell))
-                        actor = actor with { ExpectedHealth = actor.ExpectedHealth - ExpectedDamage(updated, actor) };
-                    if (actor.ExpectedHealth > 0 && actor.Original.Stats.Agility > updated.Original.Stats.Agility)
-                        updated = updated with { ExpectedHealth = updated.ExpectedHealth - ExpectedDamage(actor, updated) };
-                    else if (updated.ExpectedHealth > 0 && retaliatable.Contains(actor.Cell) && updated.Original.Stats.Agility > actor.Original.Stats.Agility)
-                        actor = actor with { ExpectedHealth = actor.ExpectedHealth - ExpectedDamage(updated, actor) };
+                    if (retaliatable.Contains(c))
+                        actorHealth -= ExpectedDamage(target, action.Actor);
+                    if (actorHealth > 0 && action.Actor.Original.Stats.Agility > target.Original.Stats.Agility)
+                        targetHealth -= ExpectedDamage(action.Actor, target);
+                    else if (targetHealth > 0 && retaliatable.Contains(c) && target.Original.Stats.Agility > action.Actor.Original.Stats.Agility)
+                        actorHealth -= ExpectedDamage(target, action.Actor);
                 }
             }
             else if (action.Action == "Support")
-                updated = updated with { ExpectedHealth = Math.Min(updated.Health + actor.Stats.Healing, updated.Stats.Health) };
-            after = after with { Occupants = after.Occupants.SetItem(actor.Cell, actor).Remove(updated.Cell).Add(updated.Cell, updated) };
+                targetHealth = Math.Min(targetHealth + action.Actor.Stats.Healing, target.Stats.Health);
+            VirtualUnit actor = action.Actor with { Cell = c, ExpectedHealth = actorHealth, Active = false };
+            VirtualUnit updated = target with { ExpectedHealth = targetHealth };
+            VirtualGrid after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(c, actor).Remove(target.Cell).Add(updated.Cell, updated) };
             VirtualAction result = action with { Result = after, Destination = c };
 
             IEnumerable<VirtualAction> further = after.GetAvailableActions(actor.Faction);
