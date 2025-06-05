@@ -177,7 +177,7 @@ public partial class AIController : ArmyController
         public override readonly string ToString() => $"Move {Actor.Faction.Name}@{Actor.Cell} to {Destination} and {Action} {Target}";
     }
 
-    private static VirtualAction EvaluateAction(VirtualAction action, Dictionary<VirtualGrid, VirtualAction> decisions)
+    private static VirtualAction EvaluateAction(VirtualAction action, Dictionary<VirtualGrid, VirtualAction> decisions, int left)
     {
         if (decisions.TryGetValue(action.Initial, out VirtualAction decision))
             return decision;
@@ -224,14 +224,18 @@ public partial class AIController : ArmyController
             VirtualGrid after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(c, actor).Remove(target.Cell).Add(updated.Cell, updated) };
             VirtualAction result = action with { Result = after, Destination = c };
 
-            IEnumerable<VirtualAction> further = after.GetAvailableActions(actor.Faction);
-            if (further.Any())
-                result = result with { Result = further.Select((a) => EvaluateAction(a, decisions)).Max().Result };
+            if (left == 0 || left > 1)
+            {
+                left = Math.Max(0, left - 1);
+                IEnumerable<VirtualAction> further = after.GetAvailableActions(actor.Faction);
+                if (further.Any())
+                    result = result with { Result = further.Select((a) => EvaluateAction(a, decisions, left)).Max().Result };
+            }
             return result;
         }).Max();
     }
 
-    private static VirtualAction EvaluateAction(VirtualAction action) => EvaluateAction(action, []);
+    private static VirtualAction EvaluateAction(VirtualAction action, int depth) => EvaluateAction(action, [], depth);
 
     private Grid _grid = null;
     private Unit _selected = null;
@@ -240,6 +244,8 @@ public partial class AIController : ArmyController
     private Unit _target = null;
 
     public override Grid Grid { get => _grid; set => _grid = value; }
+
+    [Export] public int MaxSearchDepth = 0;
 
     public override void InitializeTurn()
     {
@@ -259,7 +265,7 @@ public partial class AIController : ArmyController
         IEnumerable<VirtualAction> actions = grid.GetAvailableActions(Army.Faction);
         if (actions.Any())
         {
-            VirtualAction result = Task.WhenAll([.. actions.Select(static (a) => Task.Run(() => EvaluateAction(a)))]).Result.Max();
+            VirtualAction result = Task.WhenAll([.. actions.Select((a) => Task.Run(() => EvaluateAction(a, MaxSearchDepth)))]).Result.Max();
             selected = result.Actor;
             destination = result.Destination;
             action = result.Action;
