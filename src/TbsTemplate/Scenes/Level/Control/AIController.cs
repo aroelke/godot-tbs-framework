@@ -113,43 +113,6 @@ public partial class AIController : ArmyController
         public override int GetHashCode() => HashCode.Combine(Source, Grid);
     }
 
-    /// <summary>Acts as a "value" for a move of a unit on a grid which can be compared to other values to evaluate moves against each other.</summary>
-    /// <param name="Grid">Grid the unit is moving on</param>
-    /// <param name="Unit">Unit that's moving.</param>
-    /// <param name="Destination">Potential destination of the move.</param>
-    /// <param name="Grid">Grid on which the unit will move.</param>
-    private readonly record struct MoveValue(VirtualGrid Grid, VirtualUnit Unit, Vector2I Destination) : IEquatable<MoveValue>, IComparable<MoveValue>
-    {
-        public static bool operator>(MoveValue a, MoveValue b) => a.CompareTo(b) > 0;
-        public static bool operator<(MoveValue a, MoveValue b) => a.CompareTo(b) < 0;
-
-        /// <summary>Starting cell of the move.</summary>
-        public readonly Vector2I Source = Unit.Cell;
-
-        /// <summary>Manhattan distance from <see cref="Unit"/>'s cell to <see cref="Destination"/>. Lower is better.</summary>
-        public readonly int Distance = Unit.Cell.ManhattanDistanceTo(Destination);
-
-        /// <summary>Path cost from <see cref="Unit"/>'s cell to <see cref="Destination"/>. Lower is better.</summary>
-        public readonly int Cost = Path.Empty(Grid, Unit.TraversableCells(Grid)).Add(Unit.Cell).Add(Destination).Cost;
-
-        // Note that, unlike GridValue, a negative number means this is better
-        public readonly int CompareTo(MoveValue other)
-        {
-            int diff = Distance - other.Distance;
-            if (diff != 0)
-                return diff;
-            
-            diff = Cost - other.Cost;
-            if (diff != 0)
-                return diff;
-
-            return 0;
-        }
-
-        public bool Equals(MoveValue other) => CompareTo(other) == 0;
-        public override int GetHashCode() => HashCode.Combine(Distance, Cost);
-    }
-
     private record class VirtualAction(VirtualGrid Initial, VirtualUnit Actor, StringName Action, Vector2I Target, VirtualGrid Result, Vector2I Destination) : IEquatable<VirtualAction>, IComparable<VirtualAction>
     {
         public VirtualAction(VirtualGrid initial, VirtualUnit actor, StringName action, Vector2I target) : this(initial, actor, action, target, new(), -Vector2I.One) { }
@@ -158,11 +121,11 @@ public partial class AIController : ArmyController
         public static bool operator <(VirtualAction a, VirtualAction b) => a.CompareTo(b) < 0;
 
         private GridValue? _grid = null;
-        private MoveValue? _move = null;
+        private int? _cost = null;
 
         public GridValue GridValue => _grid ??= new(Actor.Faction, Result);
 
-        public MoveValue MoveValue => _move ??= new(Initial, Actor, Destination);
+        public int PathCost => _cost ??= Path.Empty(Initial, Actor.TraversableCells(Initial)).Add(Actor.Cell).Add(Destination).Cost;
 
         // Positive is better, like GridValue
         public int CompareTo(VirtualAction other)
@@ -171,7 +134,7 @@ public partial class AIController : ArmyController
             if (states != 0)
                 return states;
             else
-                return -MoveValue.CompareTo(other.MoveValue);
+                return other.PathCost - PathCost;
         }
 
         public override string ToString() => $"Move {Actor.Faction.Name}@{Actor.Cell} to {Destination} and {Action} {Target}";
