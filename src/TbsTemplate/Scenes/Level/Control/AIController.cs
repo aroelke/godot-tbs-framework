@@ -150,7 +150,7 @@ public partial class AIController : ArmyController
         public override int GetHashCode() => HashCode.Combine(Distance, Cost);
     }
 
-    private record struct VirtualAction(VirtualGrid Initial, VirtualUnit Actor, StringName Action, Vector2I Target, VirtualGrid Result, Vector2I Destination) : IEquatable<VirtualAction>, IComparable<VirtualAction>
+    private record class VirtualAction(VirtualGrid Initial, VirtualUnit Actor, StringName Action, Vector2I Target, VirtualGrid Result, Vector2I Destination) : IEquatable<VirtualAction>, IComparable<VirtualAction>
     {
         public VirtualAction(VirtualGrid initial, VirtualUnit actor, StringName action, Vector2I target) : this(initial, actor, action, target, new(), -Vector2I.One) { }
 
@@ -174,7 +174,7 @@ public partial class AIController : ArmyController
                 return -MoveValue.CompareTo(other.MoveValue);
         }
 
-        public override readonly string ToString() => $"Move {Actor.Faction.Name}@{Actor.Cell} to {Destination} and {Action} {Target}";
+        public override string ToString() => $"Move {Actor.Faction.Name}@{Actor.Cell} to {Destination} and {Action} {Target}";
     }
 
     private static VirtualAction EvaluateAction(VirtualAction action, Dictionary<VirtualGrid, VirtualAction> decisions, int left)
