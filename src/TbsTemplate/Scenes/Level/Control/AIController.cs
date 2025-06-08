@@ -235,26 +235,6 @@ public partial class AIController : ArmyController
         }).Max();
     }
 
-    private static VirtualAction EvaluateAction(VirtualAction action, int depth) => EvaluateAction(action, [], depth);
-
-    private Grid _grid = null;
-    private Unit _selected = null;
-    private Vector2I _destination = -Vector2I.One;
-    private StringName _action = null;
-    private Unit _target = null;
-
-    public override Grid Grid { get => _grid; set => _grid = value; }
-
-    [Export] public int MaxSearchDepth = 0;
-
-    public override void InitializeTurn()
-    {
-        _selected = null;
-        _destination = -Vector2I.One;
-        _action = null;
-        _target = null;
-    }
-
     private (VirtualUnit selected, Vector2I destination, StringName action, VirtualUnit? target) ComputeAction(IEnumerable<VirtualUnit> available, VirtualGrid grid)
     {
         VirtualUnit? selected = null;
@@ -286,6 +266,26 @@ public partial class AIController : ArmyController
         }
 
         return (selected.Value, destination, action, target);
+    }
+
+    private static VirtualAction EvaluateAction(VirtualAction action, int depth) => EvaluateAction(action, [], depth);
+
+    private Grid _grid = null;
+    private Unit _selected = null;
+    private Vector2I _destination = -Vector2I.One;
+    private StringName _action = null;
+    private Unit _target = null;
+
+    public override Grid Grid { get => _grid; set => _grid = value; }
+
+    [Export] public int MaxSearchDepth = 0;
+
+    public override void InitializeTurn()
+    {
+        _selected = null;
+        _destination = -Vector2I.One;
+        _action = null;
+        _target = null;
     }
 
     public (Unit selected, Vector2I destination, StringName action, Unit target) ComputeAction(IEnumerable<Unit> available, IEnumerable<Unit> enemies, Grid grid)
