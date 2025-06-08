@@ -113,19 +113,25 @@ public partial class AIController : ArmyController
         public override int GetHashCode() => HashCode.Combine(Source, Grid);
     }
 
-    private record class VirtualAction(VirtualGrid Initial, VirtualUnit Actor, StringName Action, Vector2I Target, VirtualGrid Result, Vector2I Destination) : IEquatable<VirtualAction>, IComparable<VirtualAction>
+    private record class VirtualAction(VirtualGrid Initial, VirtualUnit Actor, StringName Action, Vector2I Target) : IEquatable<VirtualAction>, IComparable<VirtualAction>
     {
-        public VirtualAction(VirtualGrid initial, VirtualUnit actor, StringName action, Vector2I target) : this(initial, actor, action, target, new(), -Vector2I.One) { }
-
         public static bool operator >(VirtualAction a, VirtualAction b) => a.CompareTo(b) > 0;
         public static bool operator <(VirtualAction a, VirtualAction b) => a.CompareTo(b) < 0;
 
         private GridValue? _grid = null;
-        private int? _cost = null;
+        private Vector2I _destination = -Vector2I.One;
+
+        public Vector2I Destination
+        {
+            get => _destination;
+            set => PathCost = Path.Empty(Initial, Actor.TraversableCells(Initial)).Add(Actor.Cell).Add(_destination = value).Cost;
+        }
+
+        public VirtualGrid Result;
 
         public GridValue GridValue => _grid ??= new(Actor.Faction, Result);
 
-        public int PathCost => _cost ??= Path.Empty(Initial, Actor.TraversableCells(Initial)).Add(Actor.Cell).Add(Destination).Cost;
+        public int PathCost = 0;
 
         // Positive is better, like GridValue
         public int CompareTo(VirtualAction other)
