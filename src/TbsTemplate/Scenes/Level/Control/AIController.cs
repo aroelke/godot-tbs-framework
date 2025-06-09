@@ -60,48 +60,11 @@ public partial class AIController : ArmyController
         public IEnumerable<Vector2I> SupportableCells(IGrid grid, IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(grid, sources, Original.SupportRange);
     }
 
-    /// <summary>Acts as a "value" for a grid which can be compared to other values and evaluate grids against each other.</summary>
-    /// <param name="Source">Faction evaluating the grid.</param>
-    /// <param name="Grid">Grid to be evaluated.</param>
-    private readonly record struct GridValue(Faction Source, VirtualGrid Grid) : IEquatable<GridValue>, IComparable<GridValue>
-    {
-        public static bool operator>(GridValue a, GridValue b) => a.CompareTo(b) > 0;
-        public static bool operator<(GridValue a, GridValue b) => a.CompareTo(b) < 0;
-
-        /// <summary>Enemy units of <see cref="Source"/>, sorted in increasing order of current health.</summary>
-        private readonly IOrderedEnumerable<VirtualUnit> _enemies = Grid.Occupants.Values.Where((u) => !Source.AlliedTo(u.Faction)).OrderBy(static (u) => u.ExpectedHealth);
-        private readonly IEnumerable<VirtualUnit> _allies = Grid.Occupants.Values.Where((u) => Source.AlliedTo(u.Faction));
-
-        public int DeadEnemies => _enemies.Where(static (u) => u.ExpectedHealth <= 0).Count();
-
-        public int DeadAllies => _allies.Where(static (u) => u.ExpectedHealth <= 0).Count();
-
-        /// <summary>Difference between enemy units' current and maximum health, summed over all enemy units. Higher is better.</summary>
-        public float EnemyHealthDifference => _enemies.Select(static (u) => u.Stats.Health - u.ExpectedHealth).Sum();
-
-        /// <summary>Difference between ally units' current and maximum health, summed over all allied units. Lower is better.</summary>
-        public float AllyHealthDifference => _allies.Select(static (u) => u.Stats.Health - u.ExpectedHealth).Sum();
-
-        public readonly int CompareTo(GridValue other)
-        {
-            // Lower least health among units with different heatlh values is greater
-            foreach ((VirtualUnit me, VirtualUnit you) in _enemies.Zip(other._enemies))
-                if (me.ExpectedHealth != you.ExpectedHealth)
-                    return (int)((you.ExpectedHealth - me.ExpectedHealth)*10);
-
-            return 0;
-        }
-
-        public bool Equals(GridValue other) => CompareTo(other) == 0;
-        public override int GetHashCode() => HashCode.Combine(Source, Grid);
-    }
-
     private class VirtualAction : IEquatable<VirtualAction>, IComparable<VirtualAction>
     {
         public static bool operator >(VirtualAction a, VirtualAction b) => a.CompareTo(b) > 0;
         public static bool operator <(VirtualAction a, VirtualAction b) => a.CompareTo(b) < 0;
 
-        private GridValue? _grid = null;
         private VirtualGrid _result;
         private IOrderedEnumerable<VirtualUnit> _enemies;
         private IEnumerable<VirtualUnit> _allies;
@@ -156,8 +119,6 @@ public partial class AIController : ArmyController
                 EnemyHealthDifference = _enemies.Sum(static (u) => u.Stats.Health - u.ExpectedHealth);
             }
         }
-
-        public GridValue GridValue => _grid ??= new(Actor.Faction, Result);
 
         public int DefeatedEnemies { get; private set; } = 0;
         public int DefeatedAllies { get; private set; } = 0;
