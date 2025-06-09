@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using Godot;
 using TbsTemplate.Data;
@@ -81,13 +82,8 @@ public partial class AIController : ArmyController
 
         public readonly int CompareTo(GridValue other)
         {
-            // More dead enemies is greater
-            int diff = DeadEnemies - other.DeadEnemies;
-            if (diff != 0)
-                return diff;
-
             // Less dead allies is greater
-            diff = other.DeadAllies - DeadAllies;
+            int diff = other.DeadAllies - DeadAllies;
             if (diff != 0)
                 return diff;
 
@@ -119,6 +115,8 @@ public partial class AIController : ArmyController
         public static bool operator <(VirtualAction a, VirtualAction b) => a.CompareTo(b) < 0;
 
         private GridValue? _grid = null;
+        private VirtualGrid _result;
+        private IOrderedEnumerable<VirtualUnit> _enemies;
         private Vector2I _destination = -Vector2I.One;
 
         public VirtualAction(VirtualGrid initial, VirtualUnit actor, StringName action, Vector2I target)
@@ -127,6 +125,9 @@ public partial class AIController : ArmyController
             Actor = actor;
             Action = action;
             Target = target;
+
+            Destination = Actor.Cell;
+            Result = Initial;
         }
 
         public VirtualAction(VirtualAction original, VirtualGrid? initial=null, VirtualUnit? actor=null, StringName action=null, Vector2I? target=null, Vector2I? destination=null, VirtualGrid? result=null) : this(
@@ -151,18 +152,35 @@ public partial class AIController : ArmyController
             set => PathCost = Path.Empty(Initial, Actor.TraversableCells(Initial)).Add(Actor.Cell).Add(_destination = value).Cost;
         }
 
-        public VirtualGrid Result;
+        public VirtualGrid Result
+        {
+            get => _result;
+            set
+            {
+                _result = value;
+
+                _enemies = _result.Occupants.Values.Where((u) => !Actor.Faction.AlliedTo(u.Faction)).OrderBy(static (u) => u.ExpectedHealth);
+
+                DefeatedEnemies = _enemies.Count(static (u) => u.Health <= 0);
+            }
+        }
 
         public GridValue GridValue => _grid ??= new(Actor.Faction, Result);
 
-        public int PathCost = 0;
+        public int DefeatedEnemies { get; private set; } = 0;
+        public int PathCost { get; private set; } = 0;
 
         public bool Equals(VirtualAction other) => other is not null && Initial == other.Initial && Actor == other.Actor && Action == other.Action && Target == other.Target && Destination == other.Destination;
         public override bool Equals(object obj) => Equals(obj as VirtualAction);
 
-        // Positive is better, like GridValue
+        // Positive is better
         public int CompareTo(VirtualAction other)
         {
+            int diff;
+
+            if ((diff = DefeatedEnemies - other.DefeatedEnemies) != 0)
+                return diff;
+
             int states = GridValue.CompareTo(other.GridValue);
             if (states != 0)
                 return states;
