@@ -113,13 +113,37 @@ public partial class AIController : ArmyController
         public override int GetHashCode() => HashCode.Combine(Source, Grid);
     }
 
-    private record class VirtualAction(VirtualGrid Initial, VirtualUnit Actor, StringName Action, Vector2I Target) : IEquatable<VirtualAction>, IComparable<VirtualAction>
+    private class VirtualAction : IEquatable<VirtualAction>, IComparable<VirtualAction>
     {
         public static bool operator >(VirtualAction a, VirtualAction b) => a.CompareTo(b) > 0;
         public static bool operator <(VirtualAction a, VirtualAction b) => a.CompareTo(b) < 0;
 
         private GridValue? _grid = null;
         private Vector2I _destination = -Vector2I.One;
+
+        public VirtualAction(VirtualGrid initial, VirtualUnit actor, StringName action, Vector2I target)
+        {
+            Initial = initial;
+            Actor = actor;
+            Action = action;
+            Target = target;
+        }
+
+        public VirtualAction(VirtualAction original, VirtualGrid? initial=null, VirtualUnit? actor=null, StringName action=null, Vector2I? target=null, Vector2I? destination=null, VirtualGrid? result=null) : this(
+            initial ?? original.Initial,
+            actor ?? original.Actor,
+            action ?? original.Action,
+            target ?? original.Target
+        )
+        {
+            Destination = destination ?? original.Destination;
+            Result = result ?? original.Result;
+        }
+
+        public VirtualGrid Initial { get; private set; }
+        public VirtualUnit Actor { get; private set; }
+        public StringName Action { get; private set; }
+        public Vector2I Target { get; private set; }
 
         public Vector2I Destination
         {
@@ -132,6 +156,8 @@ public partial class AIController : ArmyController
         public GridValue GridValue => _grid ??= new(Actor.Faction, Result);
 
         public int PathCost = 0;
+
+        public bool Equals(VirtualAction other) => Initial == other.Initial && Actor == other.Actor && Action == other.Action && Target == other.Target && Destination == other.Destination;
 
         // Positive is better, like GridValue
         public int CompareTo(VirtualAction other)
@@ -191,14 +217,14 @@ public partial class AIController : ArmyController
             VirtualUnit actor = action.Actor with { Cell = c, ExpectedHealth = actorHealth, Active = false };
             VirtualUnit updated = target with { ExpectedHealth = targetHealth };
             VirtualGrid after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(c, actor).Remove(target.Cell).Add(updated.Cell, updated) };
-            VirtualAction result = action with { Result = after, Destination = c };
+            VirtualAction result = new(action, destination:c, result:after);
 
             if (left == 0 || left > 1)
             {
                 left = Math.Max(0, left - 1);
                 IEnumerable<VirtualAction> further = after.GetAvailableActions(actor.Faction);
                 if (further.Any())
-                    result = result with { Result = further.Select((a) => EvaluateAction(a, decisions, left)).Max().Result };
+                    result = new(result, result:further.Select((a) => EvaluateAction(a, decisions, left)).Max().Result);
             }
             return result;
         }).Max();
