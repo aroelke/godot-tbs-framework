@@ -82,11 +82,6 @@ public partial class AIController : ArmyController
 
         public readonly int CompareTo(GridValue other)
         {
-            // Less dead allies is greater
-            int diff = other.DeadAllies - DeadAllies;
-            if (diff != 0)
-                return diff;
-
             // Lower ally health difference is greater
             float hp = other.AllyHealthDifference - AllyHealthDifference;
             if (hp != 0)
@@ -117,6 +112,7 @@ public partial class AIController : ArmyController
         private GridValue? _grid = null;
         private VirtualGrid _result;
         private IOrderedEnumerable<VirtualUnit> _enemies;
+        private IEnumerable<VirtualUnit> _allies;
         private Vector2I _destination = -Vector2I.One;
 
         public VirtualAction(VirtualGrid initial, VirtualUnit actor, StringName action, Vector2I target)
@@ -160,14 +156,17 @@ public partial class AIController : ArmyController
                 _result = value;
 
                 _enemies = _result.Occupants.Values.Where((u) => !Actor.Faction.AlliedTo(u.Faction)).OrderBy(static (u) => u.ExpectedHealth);
+                _allies = _result.Occupants.Values.Where((u) => Actor.Faction.AlliedTo(u.Faction));
 
-                DefeatedEnemies = _enemies.Count(static (u) => u.Health <= 0);
+                DefeatedEnemies = _enemies.Count(static (u) => u.ExpectedHealth <= 0);
+                DefeatedAllies = _allies.Count(static (u) => u.ExpectedHealth <= 0);
             }
         }
 
         public GridValue GridValue => _grid ??= new(Actor.Faction, Result);
 
         public int DefeatedEnemies { get; private set; } = 0;
+        public int DefeatedAllies { get; private set; } = 0;
         public int PathCost { get; private set; } = 0;
 
         public bool Equals(VirtualAction other) => other is not null && Initial == other.Initial && Actor == other.Actor && Action == other.Action && Target == other.Target && Destination == other.Destination;
@@ -179,6 +178,8 @@ public partial class AIController : ArmyController
             int diff;
 
             if ((diff = DefeatedEnemies - other.DefeatedEnemies) != 0)
+                return diff;
+            if ((diff = other.DefeatedAllies - DefeatedAllies) != 0)
                 return diff;
 
             int states = GridValue.CompareTo(other.GridValue);
