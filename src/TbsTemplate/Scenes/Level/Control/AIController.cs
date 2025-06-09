@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using Godot;
 using TbsTemplate.Data;
@@ -17,15 +16,18 @@ namespace TbsTemplate.Scenes.Level.Control;
 /// <summary>Automatically controls units based on their <see cref="UnitBehavior"/>s and the state of the level.</summary>
 public partial class AIController : ArmyController
 {
+    private const int HealthDiffPrecision = 10;
+
     private readonly record struct VirtualGrid(Vector2I Size, Terrain[][] Terrain, IImmutableDictionary<Vector2I, VirtualUnit> Occupants) : IGrid
     {
-        public VirtualGrid(Vector2I size, Terrain terrain, IImmutableDictionary<Vector2I, VirtualUnit> occupants) : this(size, [.. Enumerable.Repeat(Enumerable.Repeat(terrain, size.X).ToArray(), size.Y)], occupants) {}
+        public VirtualGrid(Vector2I size, Terrain terrain, IImmutableDictionary<Vector2I, VirtualUnit> occupants) : this(size, [.. Enumerable.Repeat(Enumerable.Repeat(terrain, size.X).ToArray(), size.Y)], occupants) { }
 
         public VirtualGrid(Grid grid) : this(
             grid.Size,
             [.. Enumerable.Range(0, grid.Size.Y).Select((r) => Enumerable.Range(0, grid.Size.X).Select((c) => grid.GetTerrain(new(c, r))).ToArray())],
             grid.Occupants.Where((e) => e.Value is Unit).ToImmutableDictionary((e) => e.Key, (e) => new VirtualUnit(e.Value as Unit))
-        ) {}
+        )
+        { }
 
         public IEnumerable<VirtualAction> GetAvailableActions(Faction faction)
         {
@@ -82,20 +84,10 @@ public partial class AIController : ArmyController
 
         public readonly int CompareTo(GridValue other)
         {
-            // Lower ally health difference is greater
-            float hp = other.AllyHealthDifference - AllyHealthDifference;
-            if (hp != 0)
-                return (int)(hp*10);
-
             // Lower least health among units with different heatlh values is greater
             foreach ((VirtualUnit me, VirtualUnit you) in _enemies.Zip(other._enemies))
                 if (me.ExpectedHealth != you.ExpectedHealth)
                     return (int)((you.ExpectedHealth - me.ExpectedHealth)*10);
-
-            // Higher enemy health difference is greater
-            hp = EnemyHealthDifference - other.EnemyHealthDifference;
-            if (hp != 0)
-                return (int)(hp*10);
 
             return 0;
         }
@@ -122,8 +114,8 @@ public partial class AIController : ArmyController
             Action = action;
             Target = target;
 
-            Destination = Actor.Cell;
-            Result = Initial;
+            _destination = Actor.Cell;
+            _result = Initial;
         }
 
         public VirtualAction(VirtualAction original, VirtualGrid? initial=null, VirtualUnit? actor=null, StringName action=null, Vector2I? target=null, Vector2I? destination=null, VirtualGrid? result=null) : this(
@@ -160,6 +152,8 @@ public partial class AIController : ArmyController
 
                 DefeatedEnemies = _enemies.Count(static (u) => u.ExpectedHealth <= 0);
                 DefeatedAllies = _allies.Count(static (u) => u.ExpectedHealth <= 0);
+                AllyHealthDifference = _allies.Sum(static (u) => u.Stats.Health - u.ExpectedHealth);
+                EnemyHealthDifference = _enemies.Sum(static (u) => u.Stats.Health - u.ExpectedHealth);
             }
         }
 
@@ -167,6 +161,8 @@ public partial class AIController : ArmyController
 
         public int DefeatedEnemies { get; private set; } = 0;
         public int DefeatedAllies { get; private set; } = 0;
+        public float AllyHealthDifference { get; private set; } = 0;
+        public float EnemyHealthDifference { get; private set; } = 0;
         public int PathCost { get; private set; } = 0;
 
         public bool Equals(VirtualAction other) => other is not null && Initial == other.Initial && Actor == other.Actor && Action == other.Action && Target == other.Target && Destination == other.Destination;
@@ -182,11 +178,15 @@ public partial class AIController : ArmyController
             if ((diff = other.DefeatedAllies - DefeatedAllies) != 0)
                 return diff;
 
-            int states = GridValue.CompareTo(other.GridValue);
-            if (states != 0)
-                return states;
-            else
-                return other.PathCost - PathCost;
+            if ((diff = (int)((other.AllyHealthDifference - AllyHealthDifference)*HealthDiffPrecision)) != 0)
+                return diff;
+            foreach ((VirtualUnit me, VirtualUnit you) in _enemies.Zip(other._enemies))
+                if (me.ExpectedHealth != you.ExpectedHealth)
+                    return (int)((you.ExpectedHealth - me.ExpectedHealth)*HealthDiffPrecision);
+            if ((diff = (int)((EnemyHealthDifference - other.EnemyHealthDifference) * HealthDiffPrecision)) != 0)
+                return diff;
+
+            return other.PathCost - PathCost;
         }
 
         public override string ToString() => $"Move {Actor.Faction.Name}@{Actor.Cell} to {Destination} and {Action} {Target}";
