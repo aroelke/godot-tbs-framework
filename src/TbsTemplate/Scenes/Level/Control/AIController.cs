@@ -157,7 +157,8 @@ public partial class AIController : ArmyController
 
         public int PathCost = 0;
 
-        public bool Equals(VirtualAction other) => Initial == other.Initial && Actor == other.Actor && Action == other.Action && Target == other.Target && Destination == other.Destination;
+        public bool Equals(VirtualAction other) => other is not null && Initial == other.Initial && Actor == other.Actor && Action == other.Action && Target == other.Target && Destination == other.Destination;
+        public override bool Equals(object obj) => Equals(obj as VirtualAction);
 
         // Positive is better, like GridValue
         public int CompareTo(VirtualAction other)
@@ -170,6 +171,7 @@ public partial class AIController : ArmyController
         }
 
         public override string ToString() => $"Move {Actor.Faction.Name}@{Actor.Cell} to {Destination} and {Action} {Target}";
+        public override int GetHashCode() => HashCode.Combine(Initial, Actor, Action, Target, Destination);
     }
 
     private static VirtualAction EvaluateAction(VirtualAction action, Dictionary<VirtualGrid, VirtualAction> decisions, int left)
