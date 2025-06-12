@@ -518,6 +518,17 @@ public partial class AIControllerTestScene : Node
         DisableActionRegion();
     }
 
+    /// <summary>AI should move to the closest special action space and perform it.</summary>
+    [Test]
+    public void TestMoveToSpecialAction()
+    {
+        Unit ally = CreateUnit(new(3, 2), stats:new() { Move = 4 }, behavior:new MoveBehavior());
+
+        EnableActionRegion();
+        RunTest([ally], [], new AIAction(ally, [new(0, 2)], _region.Action));
+        DisableActionRegion();
+    }
+
     /// <summary>AI should prefer the special action over attacking.</summary>
     [Test]
     public void TestStandingPreferSpecialActionOverAttack()
