@@ -530,6 +530,20 @@ public partial class AIControllerTestScene : Node
         DisableActionRegion();
     }
 
+    /// <summary>AI should prefer the special action over supporting.</summary>
+    [Test]
+    public void TestStandingPreferSpecialActionOverSupport()
+    {
+        Unit[] allies = [
+            CreateUnit(new(0, 2), support:[1], stats:new() { Healing = 5 }, behavior:new StandBehavior() {SupportInRange = true}),
+            CreateUnit(new(1, 2), stats:new() { Health = 5 }, hp:1)
+        ];
+
+        EnableActionRegion();
+        RunTest(allies, [], new AIAction(allies[0], [allies[0].Cell], _region.Action));
+        DisableActionRegion();
+    }
+
     /*********
      * OTHER *
      *********/
