@@ -496,23 +496,37 @@ public partial class AIControllerTestScene : Node
         AddChild(_region);
     }
 
+    /// <summary>AI should perform the special action it's standing on even if it can't move.</summary>
     [Test]
     public void TestStandingPerformSpecialAction()
     {
-        Unit ally = CreateUnit(new(0, 2), behavior: new StandBehavior());
+        Unit ally = CreateUnit(new(0, 2), behavior:new StandBehavior() { AttackInRange = false, SupportInRange = false });
 
         EnableActionRegion();
         RunTest([ally], [], new AIAction(ally, [ally.Cell], _region.Action));
         DisableActionRegion();
     }
 
+    /// <summary>AI should stay where it is and perform the special action if it's already standing there.</summary>
     [Test]
     public void TestMovingPerformSpecialAction()
     {
-        Unit ally = CreateUnit(new(0, 2), behavior: new MoveBehavior());
+        Unit ally = CreateUnit(new(0, 2), behavior:new MoveBehavior());
 
         EnableActionRegion();
         RunTest([ally], [], new AIAction(ally, [ally.Cell], _region.Action));
+        DisableActionRegion();
+    }
+
+    /// <summary>AI should prefer the special action over attacking.</summary>
+    [Test]
+    public void TestStandingPreferSpecialActionOverAttack()
+    {
+        Unit ally =  CreateUnit(new(0, 2), attack:[1], stats:new() { Attack = 5 }, behavior:new StandBehavior() {AttackInRange = true});
+        Unit enemy = CreateUnit(new(1, 2), attack:[], stats:new() { Health = 5, Defense = 0 });
+
+        EnableActionRegion();
+        RunTest([ally], [enemy], new AIAction(ally, [ally.Cell], _region.Action));
         DisableActionRegion();
     }
 
