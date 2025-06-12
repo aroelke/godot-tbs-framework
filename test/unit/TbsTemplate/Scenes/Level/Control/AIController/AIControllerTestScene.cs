@@ -567,6 +567,20 @@ public partial class AIControllerTestScene : Node
         DisableActionRegion();
     }
 
+    /// <summary>AI should move through allies to perform the special action even if it could support.</summary>
+    [Test]
+    public void TestMovingPreferSpecialActionOverSupport()
+    {
+        Unit[] allies = [
+            CreateUnit(new(2, 2), support:[1], stats:new() { Healing = 5, Move = 5 }, behavior:new MoveBehavior()),
+            CreateUnit(new(1, 2), stats:new() { Health = 5 }, hp:1)
+        ];
+
+        EnableActionRegion();
+        RunTest(allies, [], new AIAction(allies[0], [new(0, 2)], _region.Action));
+        DisableActionRegion();
+    }
+
     /*********
      * OTHER *
      *********/
