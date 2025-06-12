@@ -27,7 +27,7 @@ public partial class AIController : ArmyController
             [.. Enumerable.Range(0, grid.Size.Y).Select((r) => Enumerable.Range(0, grid.Size.X).Select((c) => grid.GetTerrain(new(c, r))).ToArray())],
             grid.Occupants.Where((e) => e.Value is Unit).ToImmutableDictionary((e) => e.Key, (e) => new VirtualUnit(e.Value as Unit))
         )
-        { }
+        {}
 
         public IEnumerable<VirtualAction> GetAvailableActions(Faction faction)
         {

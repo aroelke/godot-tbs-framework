@@ -1,10 +1,12 @@
-[gd_scene load_steps=11 format=4 uid="uid://cjrfaj5cfe0xy"]
+[gd_scene load_steps=13 format=4 uid="uid://cjrfaj5cfe0xy"]
 
 [ext_resource type="Script" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/AIControllerTestScene.cs" id="1_0ihwx"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsTemplate/Scenes/Level/Map/Grid.tscn" id="1_c3a26"]
 [ext_resource type="PackedScene" uid="uid://1ev2yxu31ow" path="res://src/TbsTemplate/Scenes/Level/Object/Group/Army.tscn" id="2_btmox"]
 [ext_resource type="TileSet" uid="uid://ca702fu7govjb" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/tileset.tres" id="2_chjjl"]
 [ext_resource type="Resource" uid="uid://c8b5eys4r78im" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/floor.tres" id="2_pya7d"]
+[ext_resource type="PackedScene" uid="uid://bntay230afwxo" path="res://src/TbsTemplate/Scenes/Level/Layers/SpecialActionRegion.tscn" id="6_6544e"]
+[ext_resource type="TileSet" uid="uid://c4e8rocxrxrxc" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/region.tres" id="7_4plxc"]
 [ext_resource type="PackedScene" uid="uid://b0cvutx2lj5uy" path="res://src/TbsTemplate/Scenes/Level/Object/Unit.tscn" id="7_biprk"]
 [ext_resource type="Resource" uid="uid://b0yiofceqexqd" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/AllyFaction.tres" id="7_vj6xc"]
 [ext_resource type="PackedScene" uid="uid://ca6g5c6dsaqjb" path="res://src/TbsTemplate/Scenes/Level/Control/AIController.tscn" id="8_82y75"]
@@ -22,6 +24,13 @@ DefaultTerrain = ExtResource("2_pya7d")
 [node name="TileMapLayer" type="TileMapLayer" parent="Grid"]
 tile_map_data = PackedByteArray("AAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAQAAAAAAAAAAAABAAQAAAAAAAAAAAACAAQAAAAAAAAAAAADAAQAAAAAAAAAAAAEAAQAAAAAAAAAAAAFAAQAAAAAAAAAAAAGAAQAAAAAAAAAAAAGAAMAAAAAAAAAAAAGAAIAAAAAAAAAAAAGAAEAAAAAAAAAAAAGAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAADAAAAAAAAAAAAAAACAAAAAAAAAAAAAAABAAAAAAAAAAAAAAABAAEAAAAAAAAAAAABAAIAAAAAAAAAAAABAAMAAAAAAAAAAAACAAMAAAAAAAAAAAADAAMAAAAAAAAAAAAEAAMAAAAAAAAAAAAFAAMAAAAAAAAAAAAFAAIAAAAAAAAAAAAFAAEAAAAAAAAAAAAEAAEAAAAAAAAAAAADAAEAAAAAAAAAAAACAAEAAAAAAAAAAAACAAIAAAAAAAAAAAADAAIAAAAAAAAAAAAEAAIAAAAAAAAAAAA=")
 tile_set = ExtResource("2_chjjl")
+
+[node name="Activate" parent="." node_paths=PackedStringArray("AllowedArmies") instance=ExtResource("6_6544e")]
+modulate = Color(0.5, 0.5, 0.5, 0.5)
+tile_map_data = PackedByteArray("AAAAAAEAAQAGAAQAAAAAAAIAAQAGAAUAAAAAAAMAAQAGAAYAAAA=")
+tile_set = ExtResource("7_4plxc")
+Action = &"Activate"
+AllowedArmies = [NodePath("../Army1")]
 
 [node name="Army1" parent="." instance=ExtResource("2_btmox")]
 Faction = ExtResource("7_vj6xc")
