@@ -541,6 +541,18 @@ public partial class AIControllerTestScene : Node
         DisableActionRegion();
     }
 
+    /// <summary>AI should move around enemies to perform the special action even if it could attack.</summary>
+    [Test]
+    public void TestMovingPreferSpecialActionOverAttack()
+    {
+        Unit ally =  CreateUnit(new(2, 2), attack:[1], stats:new() { Attack = 5, Move = 5 }, behavior:new MoveBehavior());
+        Unit enemy = CreateUnit(new(1, 2), attack:[], stats:new() { Health = 5, Defense = 0 });
+
+        EnableActionRegion();
+        RunTest([ally], [enemy], new AIAction(ally, [new(0, 1), new(0, 3)], _region.Action));
+        DisableActionRegion();
+    }
+
     /// <summary>AI should prefer the special action over supporting.</summary>
     [Test]
     public void TestStandingPreferSpecialActionOverSupport()
