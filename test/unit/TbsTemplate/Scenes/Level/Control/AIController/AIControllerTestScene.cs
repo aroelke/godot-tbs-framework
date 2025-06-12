@@ -1,16 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using GD_NET_ScOUT;
 using Godot;
 using TbsTemplate.Data;
 using TbsTemplate.Extensions;
 using TbsTemplate.Scenes.Level.Control.Behavior;
+using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
-using TbsTemplate.UI.Controls.Action;
 
 namespace TbsTemplate.Scenes.Level.Control.Test;
 
@@ -19,6 +18,7 @@ public partial class AIControllerTestScene : Node
 {
     private AIController _dut = null;
     private Army _allies = null, _enemies = null;
+    private SpecialActionRegion _region = null;
 
     [Export] public PackedScene UnitScene = null;
 
@@ -60,6 +60,7 @@ public partial class AIControllerTestScene : Node
         _dut = GetNode<AIController>("Army1/AIController");
         _allies = GetNode<Army>("Army1");
         _enemies = GetNode<Army>("Army2");
+        _region = GetNode<SpecialActionRegion>("Activate");
     }
 
     [BeforeEach]
@@ -477,6 +478,42 @@ public partial class AIControllerTestScene : Node
         Unit healer = CreateUnit(new(5, 2), support:[1], stats:new() { Healing = 5, Move = 3 }, behavior:new MoveBehavior());
         Unit enemy = CreateUnit(new(0, 2), attack:[1], stats:new() { Attack = 5, Defense = 0 });
         RunTest([attacker, healer], [enemy], [new(attacker, [new(1, 2)], "Attack", enemy)]);
+    }
+
+    /*******************
+     * SPECIAL ACTIONS *
+     *******************/
+
+    private void EnableActionRegion()
+    {
+        RemoveChild(_region);
+        GetNode<Grid>("Grid").AddChild(_region);
+    }
+
+    private void DisableActionRegion()
+    {
+        GetNode<Grid>("Grid").RemoveChild(_region);
+        AddChild(_region);
+    }
+
+    [Test]
+    public void TestStandingPerformSpecialAction()
+    {
+        Unit ally = CreateUnit(new(0, 2), behavior: new StandBehavior());
+
+        EnableActionRegion();
+        RunTest([ally], [], new AIAction(ally, [ally.Cell], _region.Action));
+        DisableActionRegion();
+    }
+
+    [Test]
+    public void TestMovingPerformSpecialAction()
+    {
+        Unit ally = CreateUnit(new(0, 2), behavior: new MoveBehavior());
+
+        EnableActionRegion();
+        RunTest([ally], [], new AIAction(ally, [ally.Cell], _region.Action));
+        DisableActionRegion();
     }
 
     /*********
