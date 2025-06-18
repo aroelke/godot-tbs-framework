@@ -5,6 +5,7 @@ using System.Linq;
 using GD_NET_ScOUT;
 using Godot;
 using TbsTemplate.Data;
+using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Map;
 
 namespace TbsTemplate.Scenes.Level.Object.Test;
@@ -20,6 +21,8 @@ public partial class IUnitTestScene : Node
         public Terrain GetTerrain(Vector2I cell) => Terrain.TryGetValue(cell, out Terrain terrain) ? terrain : new() { Cost = 1 };
         public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits() => Occupants.ToImmutableDictionary((e) => e.Key, (e) => (IUnit)e.Value);
         public bool IsTraversable(Vector2I cell, Faction faction) => !Occupants.TryGetValue(cell, out TestUnit occupant) || occupant.Faction.AlliedTo(faction);
+
+        public IEnumerable<ISpecialActionRegion> GetSpecialActionRegions() => throw new NotImplementedException();
     }
 
     private readonly record struct TestUnit(Stats Stats, Faction Faction, Vector2I Cell) : IUnit
@@ -33,9 +36,9 @@ public partial class IUnitTestScene : Node
         public IEnumerable<Vector2I> SupportableCells(IGrid grid, IEnumerable<Vector2I> sources) => throw new NotImplementedException();
     }
 
-    private TestGrid _grid = new(new(7, 7), [], []);
+    private readonly TestGrid _grid = new(new(7, 7), [], []);
 
-    private bool CollectionsEqual<T>(IEnumerable<T> a, IEnumerable<T> b) => a.Count() == b.Count() && a.ToHashSet().SetEquals(b);
+    private static bool CollectionsEqual<T>(IEnumerable<T> a, IEnumerable<T> b) => a.Count() == b.Count() && a.ToHashSet().SetEquals(b);
 
     [Export] public Faction[] AlliedFactions = [];
 

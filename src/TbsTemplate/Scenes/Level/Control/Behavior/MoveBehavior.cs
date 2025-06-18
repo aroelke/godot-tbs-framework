@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 
@@ -13,13 +14,21 @@ public partial class MoveBehavior : UnitBehavior
 
     public override Dictionary<StringName, IEnumerable<Vector2I>> Actions(IUnit unit, IGrid grid)
     {
+        IEnumerable<Vector2I> destinations = Destinations(unit, grid);
         Dictionary<StringName, IEnumerable<Vector2I>> actions = [];
 
-        IEnumerable<Vector2I> enemies = unit.AttackableCells(grid, Destinations(unit, grid)).Where((c) => grid.GetOccupantUnits().TryGetValue(c, out IUnit occupant) && !occupant.Faction.AlliedTo(unit.Faction));
+        foreach (ISpecialActionRegion region in grid.GetSpecialActionRegions())
+        {
+            IEnumerable<Vector2I> actionable = region.Cells.Intersect(destinations);
+            if (actionable.Any())
+                actions[region.Action] = actionable;
+        }
+
+        IEnumerable<Vector2I> enemies = unit.AttackableCells(grid, destinations).Where((c) => grid.GetOccupantUnits().TryGetValue(c, out IUnit occupant) && !occupant.Faction.AlliedTo(unit.Faction));
         if (enemies.Any())
             actions["Attack"] = enemies;
 
-        IEnumerable<Vector2I> allyCells = unit.SupportableCells(grid, Destinations(unit, grid)).Where((c) => c != unit.Cell && grid.GetOccupantUnits().TryGetValue(c, out IUnit occupant) && occupant.Faction.AlliedTo(unit.Faction));
+        IEnumerable<Vector2I> allyCells = unit.SupportableCells(grid, destinations).Where((c) => c != unit.Cell && grid.GetOccupantUnits().TryGetValue(c, out IUnit occupant) && occupant.Faction.AlliedTo(unit.Faction));
         if (allyCells.Any())
         {
             IEnumerable<IUnit> allies = allyCells.Select((c) => grid.GetOccupantUnits()[c]);

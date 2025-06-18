@@ -5,6 +5,7 @@ using System.Linq;
 using GD_NET_ScOUT;
 using Godot;
 using TbsTemplate.Data;
+using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Scenes.Level.Map.Test;
@@ -25,6 +26,7 @@ public partial class IGridTestScene : Node
         // Not used for testing
         public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits() => throw new NotImplementedException();
         public bool IsTraversable(Vector2I cell, Faction faction) => throw new NotImplementedException();
+        public IEnumerable<ISpecialActionRegion> GetSpecialActionRegions() => throw new NotImplementedException();
     }
 
     // "Contains" tests
@@ -34,7 +36,7 @@ public partial class IGridTestScene : Node
     [Test] public void TestGridDoesntContainSize() => Assert.IsFalse(new TestGrid(new(3, 5), []).Contains(new(3, 5)));
 
     // "GetCellsAtDistance" tests
-    private bool CollectionsEqual<T>(IEnumerable<T> a, IEnumerable<T> b) => a.Count() == b.Count() && a.ToHashSet().SetEquals(b);
+    private static bool CollectionsEqual<T>(IEnumerable<T> a, IEnumerable<T> b) => a.Count() == b.Count() && a.ToHashSet().SetEquals(b);
 
     [Test] public void TestGridGetCellsAtDistanceOneFromCenter()
     {

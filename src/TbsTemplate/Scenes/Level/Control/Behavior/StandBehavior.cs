@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 
@@ -22,6 +23,9 @@ public partial class StandBehavior : UnitBehavior
     {
         Dictionary<StringName, IEnumerable<Vector2I>> actions = [];
 
+        foreach (ISpecialActionRegion region in grid.GetSpecialActionRegions())
+            if (region.CanPerform(unit, unit.Cell))
+                actions[region.Action] = [unit.Cell];
         if (AttackInRange)
         {
             IEnumerable<Vector2I> attackable = unit.AttackableCells(grid, [unit.Cell]);

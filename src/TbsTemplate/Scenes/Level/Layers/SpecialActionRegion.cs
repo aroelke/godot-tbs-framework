@@ -11,7 +11,7 @@ namespace TbsTemplate.Scenes.Level.Layers;
 
 /// <summary>Map layer marking out a region where a unit can perform a special action such as capture or escape.</summary>
 [GlobalClass, Tool]
-public partial class SpecialActionRegion : TileMapLayer
+public partial class SpecialActionRegion : TileMapLayer, ISpecialActionRegion
 {
     private static readonly StringName TerrainSet = "Terrain Set";
     private static readonly StringName Terrain = "Terrain";
@@ -26,7 +26,7 @@ public partial class SpecialActionRegion : TileMapLayer
     [Signal] public delegate void SpecialActionPerformedEventHandler(StringName name, Unit performer, Vector2I cell);
 
     /// <summary>Short description of the action being performed for display in the UI (for example, in a <see cref="ContextMenu"/>).</summary>
-    [Export] public StringName Action = "";
+    [Export] public StringName Action { get; set; } = "";
 
     /// <summary>List of armies whose units are allowed to perform the action.</summary>
     [Export] public Army[] AllowedArmies = [];
@@ -43,15 +43,14 @@ public partial class SpecialActionRegion : TileMapLayer
     /// <summary>Set of units that have already performed the action. Updates before the performed signal is emitted.</summary>
     public ImmutableHashSet<Unit> Performed { get; private set; } = [];
 
+    public ISet<Vector2I> Cells => GetUsedCells().ToHashSet();
+
     /// <returns>A set containing all units that are allowed to perform the action in the region.</returns>
     public ImmutableHashSet<Unit> AllAllowedUnits() => AllowedUnits.ToImmutableHashSet().Union(AllowedArmies.SelectMany((a) => a.GetChildren().OfType<Unit>()));
 
     /// <summary>Check if a unit can perform the special action in a cell.</summary>
     /// <returns><c>true</c> if <paramref name="unit"/> is allowed to perform the action and <paramref name="cell"/> is in the region, and <c>false</c> otherwise.</returns>
-    public virtual bool HasSpecialAction(Unit unit, Vector2I cell) =>
-        (!SingleUse || !Performed.Contains(unit)) &&
-        (AllowedUnits.Contains(unit) || AllowedArmies.Any((a) => a.Faction.AlliedTo(unit))) &&
-        GetUsedCells().Contains(cell);
+    public virtual bool HasSpecialAction(Unit unit, Vector2I cell) => ((ISpecialActionRegion)this).CanPerform(unit, cell);
 
     /// <summary>Perform the special action. By default, this just emits a signal indicating the action is performed by a unit at a cell.</summary>
     /// <param name="performer">Unit performing the action.</param>
@@ -74,9 +73,11 @@ public partial class SpecialActionRegion : TileMapLayer
             throw new ArgumentException($"{performer.Name} cannot perform action {Action} in cell {cell}");
     }
 
+    public bool IsAllowed(IUnit unit) => unit is Unit u && (!SingleUse || !Performed.Contains(u)) && (AllowedUnits.Contains(u) || AllowedArmies.Any((a) => a.Faction.AlliedTo(u.Faction)));
+
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
     {
-        Godot.Collections.Array<Godot.Collections.Dictionary> properties = new(base._GetPropertyList() ?? []);
+        Godot.Collections.Array<Godot.Collections.Dictionary> properties = [.. base._GetPropertyList() ?? []];
 
         if (TileSet is not null && TileSet.GetTerrainSetsCount() > 0)
         {
@@ -146,7 +147,7 @@ public partial class SpecialActionRegion : TileMapLayer
 
     public override string[] _GetConfigurationWarnings()
     {
-        List<string> warnings = new(base._GetConfigurationWarnings() ?? []);
+        List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
 
         if (AllowedArmies.Length == 0 && AllowedUnits.Length == 0)
             warnings.Add("No units are allowed to perform the action. Action cannot be performed.");

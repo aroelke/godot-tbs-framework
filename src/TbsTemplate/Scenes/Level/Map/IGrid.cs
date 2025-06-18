@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Godot;
 using TbsTemplate.Data;
+using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Scenes.Level.Map;
@@ -66,4 +67,6 @@ public interface IGrid
     /// <returns>A mapping of grid cells occupied by units onto those units.</returns>
     /// <remarks><b>Note</b>: Returns an immutable dictionary to prevent attempts to update occupants through it.</remarks>
     public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits();
+
+    public IEnumerable<ISpecialActionRegion> GetSpecialActionRegions();
 }

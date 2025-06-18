@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -6,6 +5,7 @@ using Godot;
 using TbsTemplate.Data;
 using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Object;
+using TbsTemplate.Scenes.Level.Object.Group;
 
 namespace TbsTemplate.Scenes.Level.Map;
 
@@ -77,6 +77,7 @@ public partial class Grid : Node2D, IGrid
     public Terrain GetTerrain(Vector2I cell) => TerrainLayer?.GetCellTileData(cell)?.GetCustomData("terrain").As<Terrain>() ?? DefaultTerrain;
     public int PathCost(IEnumerable<Vector2I> path) => IGrid.PathCost(this, path);
     public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits() => Occupants.Where((e) => e.Value is Unit).ToImmutableDictionary((e) => e.Key, (e) => e.Value as IUnit);
+    public IEnumerable<ISpecialActionRegion> GetSpecialActionRegions() => SpecialActionRegions;
 
     public override string[] _GetConfigurationWarnings()
     {

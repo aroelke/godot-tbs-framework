@@ -7,6 +7,7 @@ using Godot;
 using TbsTemplate.Data;
 using TbsTemplate.Extensions;
 using TbsTemplate.Scenes.Level.Control.Behavior;
+using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
@@ -18,16 +19,25 @@ public partial class AIController : ArmyController
 {
     private const int HealthDiffPrecision = 10;
 
-    private readonly record struct VirtualGrid(Vector2I Size, Terrain[][] Terrain, IImmutableDictionary<Vector2I, VirtualUnit> Occupants) : IGrid
+    private readonly record struct VirtualSpecialActionRegion(SpecialActionRegion Original, StringName Action, ImmutableHashSet<Vector2I> Cells) : ISpecialActionRegion
     {
-        public VirtualGrid(Vector2I size, Terrain terrain, IImmutableDictionary<Vector2I, VirtualUnit> occupants) : this(size, [.. Enumerable.Repeat(Enumerable.Repeat(terrain, size.X).ToArray(), size.Y)], occupants) { }
+        ISet<Vector2I> ISpecialActionRegion.Cells => Cells;
+
+        public VirtualSpecialActionRegion(SpecialActionRegion original) : this(original, original.Action, [.. original.GetUsedCells()]) {}
+
+        public bool IsAllowed(IUnit unit) => unit is VirtualUnit u && Original.IsAllowed(u.Original);
+    }
+
+    private readonly record struct VirtualGrid(Vector2I Size, Terrain[][] Terrain, IImmutableDictionary<Vector2I, VirtualUnit> Occupants, IImmutableSet<VirtualSpecialActionRegion> Regions) : IGrid
+    {
+        public VirtualGrid(Vector2I size, Terrain terrain, IImmutableDictionary<Vector2I, VirtualUnit> occupants) : this(size, [.. Enumerable.Repeat(Enumerable.Repeat(terrain, size.X).ToArray(), size.Y)], occupants, []) {}
 
         public VirtualGrid(Grid grid) : this(
             grid.Size,
             [.. Enumerable.Range(0, grid.Size.Y).Select((r) => Enumerable.Range(0, grid.Size.X).Select((c) => grid.GetTerrain(new(c, r))).ToArray())],
-            grid.Occupants.Where((e) => e.Value is Unit).ToImmutableDictionary((e) => e.Key, (e) => new VirtualUnit(e.Value as Unit))
-        )
-        {}
+            grid.Occupants.Where((e) => e.Value is Unit).ToImmutableDictionary((e) => e.Key, (e) => new VirtualUnit(e.Value as Unit)),
+            [.. grid.SpecialActionRegions.Select((r) => new VirtualSpecialActionRegion(r))]
+        ) {}
 
         public IEnumerable<VirtualAction> GetAvailableActions(Faction faction)
         {
@@ -45,6 +55,7 @@ public partial class AIController : ArmyController
         public Terrain GetTerrain(Vector2I cell) => Terrain[cell.Y][cell.X];
         public int PathCost(IEnumerable<Vector2I> path) => IGrid.PathCost(this, path);
         public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits() => Occupants.ToImmutableDictionary((e) => e.Key, (e) => e.Value as IUnit);
+        public IEnumerable<ISpecialActionRegion> GetSpecialActionRegions() => [.. Regions];
     }
 
     private readonly record struct VirtualUnit(Unit Original, Vector2I Cell, float ExpectedHealth, bool Active) : IUnit
