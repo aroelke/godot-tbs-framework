@@ -101,6 +101,7 @@ public partial class AIController : ArmyController
         {
             Destination = destination ?? original.Destination;
             Result = result ?? original.Result;
+            SpecialActionsPerformed = original.SpecialActionsPerformed;
         }
 
         public VirtualGrid Initial { get; private set; }
@@ -131,6 +132,7 @@ public partial class AIController : ArmyController
             }
         }
 
+        public int SpecialActionsPerformed = 0;
         public int DefeatedEnemies { get; private set; } = 0;
         public int DefeatedAllies { get; private set; } = 0;
         public float AllyHealthDifference { get; private set; } = 0;
@@ -144,6 +146,9 @@ public partial class AIController : ArmyController
         public int CompareTo(VirtualAction other)
         {
             int diff;
+
+            if ((diff = SpecialActionsPerformed - other.SpecialActionsPerformed) != 0)
+                return diff;
 
             if ((diff = DefeatedEnemies - other.DefeatedEnemies) != 0)
                 return diff;
@@ -201,6 +206,7 @@ public partial class AIController : ArmyController
         return decisions[action.Initial] = choices.Select((c) => {
             VirtualUnit actor;
             VirtualGrid after;
+            bool special = false;
             if (action.Action == "Attack")
             {
                 float targetHealth = target.Value.ExpectedHealth, actorHealth = action.Actor.ExpectedHealth;
@@ -231,8 +237,11 @@ public partial class AIController : ArmyController
             {
                 actor = action.Actor with { Cell = c, Active = false };
                 after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(c, actor) };
+                special = true;
             }
-            VirtualAction result = new(action, destination: c, result: after);
+            VirtualAction result = new(action, destination:c, result:after);
+            if (special)
+                result.SpecialActionsPerformed++;
 
             if (left == 0 || left > 1)
             {

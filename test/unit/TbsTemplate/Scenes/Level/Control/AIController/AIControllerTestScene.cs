@@ -488,7 +488,6 @@ public partial class AIControllerTestScene : Node
     {
         RemoveChild(_region);
         GetNode<Grid>("Grid").AddChild(_region);
-        GD.Print(GetNode<Grid>("Grid").GetNode(new(_region.Name)));
 
         try
         {
@@ -498,7 +497,6 @@ public partial class AIControllerTestScene : Node
         {
             GetNode<Grid>("Grid").RemoveChild(_region);
             AddChild(_region);
-            GD.Print(GetNode<Grid>("Grid").GetNode(new(_region.Name)));
         }
     }
 
