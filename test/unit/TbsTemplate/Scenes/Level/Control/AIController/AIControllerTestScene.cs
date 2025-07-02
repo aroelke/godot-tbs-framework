@@ -26,9 +26,8 @@ public partial class AIControllerTestScene : Node
      * SETUP AND SUPPORT *
      *********************/
 
-    private readonly record struct AIAction(Unit Selected, Vector2I[] Destinations, StringName Action, Unit Target)
+    private readonly record struct AIAction(Unit Selected, Vector2I[] Destinations, StringName Action, Unit Target=null)
     {
-        public AIAction(Unit selected, Vector2I[] destinations, StringName action) : this(selected, destinations, action, selected) {}
         public override string ToString() => $"move {PrintUnit(Selected)} to {string.Join('/', Destinations)} and {Action} {(Target is null ? "" : $"{PrintUnit(Target)}")}";
     }
 

@@ -277,7 +277,7 @@ public partial class AIController : ArmyController
             }
             else
                 destination = selected.Value.Cell;
-            target = destination;
+            target = -Vector2I.One;
         }
 
         return (selected.Value, destination, action, target);
@@ -310,7 +310,7 @@ public partial class AIController : ArmyController
 
         (VirtualUnit selected, Vector2I destination, StringName action, Vector2I target) = ComputeAction(virtualAvailable, virtualGrid);
 
-        return (selected.Original, destination, action, virtualGrid.Occupants[target].Original);
+        return (selected.Original, destination, action, virtualGrid.Occupants.TryGetValue(target, out VirtualUnit occupant) ? occupant.Original : null);
     }
 
     public override async void SelectUnit()
@@ -323,7 +323,10 @@ public partial class AIController : ArmyController
 
         (VirtualUnit selected, _destination, _action, Vector2I target) = await Task.Run<(VirtualUnit, Vector2I, StringName, Vector2I)>(() => ComputeAction(available, grid));
         _selected = selected.Original;
-        _target = grid.Occupants[target].Original;
+        if (grid.Occupants.TryGetValue(target, out VirtualUnit occupant))
+            _target = occupant.Original;
+        else
+            _target = null;
 
         EmitSignal(SignalName.UnitSelected, _selected);
     }

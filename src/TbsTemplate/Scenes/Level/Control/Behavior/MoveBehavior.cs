@@ -21,7 +21,7 @@ public partial class MoveBehavior : UnitBehavior
         {
             IEnumerable<Vector2I> actionable = region.Cells.Intersect(destinations);
             if (actionable.Any())
-                actions[region.Action] = actionable;
+                actions[region.Action] = [-Vector2I.One];
         }
 
         IEnumerable<Vector2I> enemies = unit.AttackableCells(grid, destinations).Where((c) => grid.GetOccupantUnits().TryGetValue(c, out IUnit occupant) && !occupant.Faction.AlliedTo(unit.Faction));

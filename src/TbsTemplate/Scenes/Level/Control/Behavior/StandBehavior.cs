@@ -25,7 +25,7 @@ public partial class StandBehavior : UnitBehavior
 
         foreach (ISpecialActionRegion region in grid.GetSpecialActionRegions())
             if (region.CanPerform(unit, unit.Cell))
-                actions[region.Action] = [unit.Cell];
+                actions[region.Action] = [-Vector2I.One];
         if (AttackInRange)
         {
             IEnumerable<Vector2I> attackable = unit.AttackableCells(grid, [unit.Cell]);
