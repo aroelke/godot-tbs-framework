@@ -247,12 +247,12 @@ public partial class AIController : ArmyController
         }).Max();
     }
 
-    private (VirtualUnit selected, Vector2I destination, StringName action, VirtualUnit? target) ComputeAction(IEnumerable<VirtualUnit> available, VirtualGrid grid)
+    private (VirtualUnit selected, Vector2I destination, StringName action, Vector2I target) ComputeAction(IEnumerable<VirtualUnit> available, VirtualGrid grid)
     {
         VirtualUnit? selected = null;
         Vector2I destination = -Vector2I.One;
         StringName action = null;
-        VirtualUnit? target = null;
+        Vector2I target;
 
         IEnumerable<VirtualAction> actions = grid.GetAvailableActions(Army.Faction);
         if (actions.Any())
@@ -261,7 +261,7 @@ public partial class AIController : ArmyController
             selected = result.Actor;
             destination = result.Destination;
             action = result.Action;
-            target = grid.Occupants[result.Target];
+            target = result.Target;
         }
         else
         {
@@ -272,9 +272,14 @@ public partial class AIController : ArmyController
 
             IEnumerable<VirtualUnit> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Value.Cell));
             if (ordered.Any())
-                destination = selected.Value.Original.Behavior.Destinations(selected.Value, grid).OrderBy((c) => selected.Value.Original.Behavior.GetPath(selected.Value, grid, c).Cost).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
+            {
+                destination = selected.Value.Original.Behavior.Destinations(selected.Value, grid)
+                    .OrderBy((c) => selected.Value.Original.Behavior.GetPath(selected.Value, grid, c).Cost)
+                    .OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
+            }
             else
                 destination = selected.Value.Cell;
+            target = destination;
         }
 
         return (selected.Value, destination, action, target);
@@ -305,9 +310,9 @@ public partial class AIController : ArmyController
         VirtualGrid virtualGrid = new(grid);
         IEnumerable<VirtualUnit> virtualAvailable = available.Select((u) => new VirtualUnit(u));
 
-        (VirtualUnit selected, Vector2I destination, StringName action, VirtualUnit? target) = ComputeAction(virtualAvailable, virtualGrid);
+        (VirtualUnit selected, Vector2I destination, StringName action, Vector2I target) = ComputeAction(virtualAvailable, virtualGrid);
 
-        return (selected.Original, destination, action, target?.Original);
+        return (selected.Original, destination, action, virtualGrid.Occupants[target].Original);
     }
 
     public override async void SelectUnit()
@@ -318,9 +323,9 @@ public partial class AIController : ArmyController
         VirtualGrid grid = new(Grid);
         IEnumerable<VirtualUnit> available = [.. ((IEnumerable<Unit>)Army).Where(static (u) => u.Active).Select(static (u) => new VirtualUnit(u))];
 
-        (VirtualUnit selected, _destination, _action, VirtualUnit? target) = await Task.Run<(VirtualUnit, Vector2I, StringName, VirtualUnit?)>(() => ComputeAction(available, grid));
+        (VirtualUnit selected, _destination, _action, Vector2I target) = await Task.Run<(VirtualUnit, Vector2I, StringName, Vector2I)>(() => ComputeAction(available, grid));
         _selected = selected.Original;
-        _target = target?.Original;
+        _target = grid.Occupants[target].Original;
 
         EmitSignal(SignalName.UnitSelected, _selected);
     }

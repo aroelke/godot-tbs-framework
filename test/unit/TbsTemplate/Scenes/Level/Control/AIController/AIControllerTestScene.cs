@@ -26,12 +26,13 @@ public partial class AIControllerTestScene : Node
      * SETUP AND SUPPORT *
      *********************/
 
-    private readonly record struct AIAction(Unit Selected, Vector2I[] Destinations, StringName Action, Unit Target = null)
+    private readonly record struct AIAction(Unit Selected, Vector2I[] Destinations, StringName Action, Unit Target)
     {
-        public override string ToString() => $"move {Selected.Army.Name}@{Selected.Cell} to {string.Join('/', Destinations)} and {Action} {(Target is null ? "" : $"{Target.Faction.Name}@{Target.Cell}")}";
+        public AIAction(Unit selected, Vector2I[] destinations, StringName action) : this(selected, destinations, action, selected) {}
+        public override string ToString() => $"move {PrintUnit(Selected)} to {string.Join('/', Destinations)} and {Action} {(Target is null ? "" : $"{PrintUnit(Target)}")}";
     }
 
-    private string PrintUnit(Unit unit) => $"{unit.Army.Faction.Name}@{unit.Cell}";
+    private static string PrintUnit(Unit unit) => $"{unit.Faction.Name}@{unit.Cell}";
 
     private Unit CreateUnit(Vector2I cell, int[] attack=null, int[] support=null, Stats stats=null, int? hp = null, UnitBehavior behavior=null)
     {
