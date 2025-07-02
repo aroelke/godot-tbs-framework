@@ -167,8 +167,6 @@ public partial class AIController : ArmyController
 
     private static VirtualAction EvaluateAction(VirtualAction action, Dictionary<VirtualGrid, VirtualAction> decisions, int left)
     {
-        GD.Print($"Evaluating {action.Actor.Faction.Name}@{action.Actor.Cell} {action.Action} to {action.Target}");
-
         if (decisions.TryGetValue(action.Initial, out VirtualAction decision))
             return decision;
 

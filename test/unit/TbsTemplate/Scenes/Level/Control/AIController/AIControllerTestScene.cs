@@ -132,7 +132,7 @@ public partial class AIControllerTestScene : Node
     /*******
      * END *
      *******/
-/*
+
     /// <summary>AI should choose its unit closest to any enemy and no enemies are in range to attack.</summary>
     [Test]
     public void TestEndStandingNoEnemiesInRange()
@@ -178,7 +178,7 @@ public partial class AIControllerTestScene : Node
     /**********
      * ATTACK *
      **********/
-/*
+
     /// <summary>AI should choose to attack the enemy with the lower HP when it deals the same damage to all enemies.</summary>
     [Test]
     public void TestAttackStandingSingleAllyMultipleEnemiesSameDamage()
@@ -376,7 +376,7 @@ public partial class AIControllerTestScene : Node
     /***********
      * SUPPORT *
      ***********/
-/*
+
     /// <summary>AI should heal the ally with the lowest HP, even if it can heal a different ally by a greater amount.</summary>
     [Test]
     public void TestSupportStandingPreferLowestHP()
@@ -485,38 +485,38 @@ public partial class AIControllerTestScene : Node
      * SPECIAL ACTIONS *
      *******************/
 
-    private void EnableActionRegion()
+    private void RunActionRegionTest(Action test)
     {
         RemoveChild(_region);
         GetNode<Grid>("Grid").AddChild(_region);
-    }
+        GD.Print(GetNode<Grid>("Grid").GetNode(new(_region.Name)));
 
-    private void DisableActionRegion()
-    {
-        GetNode<Grid>("Grid").RemoveChild(_region);
-        AddChild(_region);
+        try
+        {
+            test();
+        }
+        finally
+        {
+            GetNode<Grid>("Grid").RemoveChild(_region);
+            AddChild(_region);
+            GD.Print(GetNode<Grid>("Grid").GetNode(new(_region.Name)));
+        }
     }
 
     /// <summary>AI should perform the special action it's standing on even if it can't move.</summary>
     [Test]
     public void TestStandingPerformSpecialAction()
     {
-        Unit ally = CreateUnit(new(0, 2), behavior:new StandBehavior() { AttackInRange = false, SupportInRange = false });
-
-        EnableActionRegion();
-        RunTest([ally], [], new AIAction(ally, [ally.Cell], _region.Action));
-        DisableActionRegion();
+        Unit ally = CreateUnit(new(0, 2), behavior: new StandBehavior() { AttackInRange = false, SupportInRange = false });
+        RunActionRegionTest(() => RunTest([ally], [], new AIAction(ally, [ally.Cell], _region.Action)));
     }
-/*
+
     /// <summary>AI should stay where it is and perform the special action if it's already standing there.</summary>
     [Test]
     public void TestMovingPerformSpecialAction()
     {
         Unit ally = CreateUnit(new(0, 2), behavior:new MoveBehavior());
-
-        EnableActionRegion();
-        RunTest([ally], [], new AIAction(ally, [ally.Cell], _region.Action));
-        DisableActionRegion();
+        RunActionRegionTest(() => RunTest([ally], [], new AIAction(ally, [ally.Cell], _region.Action)));
     }
 
     /// <summary>AI should move to the closest special action space and perform it.</summary>
@@ -524,10 +524,7 @@ public partial class AIControllerTestScene : Node
     public void TestMoveToSpecialAction()
     {
         Unit ally = CreateUnit(new(3, 2), stats:new() { Move = 4 }, behavior:new MoveBehavior());
-
-        EnableActionRegion();
-        RunTest([ally], [], new AIAction(ally, [new(0, 2)], _region.Action));
-        DisableActionRegion();
+        RunActionRegionTest(() => RunTest([ally], [], new AIAction(ally, [new(0, 2)], _region.Action)));
     }
 
     /// <summary>AI should prefer the special action over attacking.</summary>
@@ -536,10 +533,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit ally =  CreateUnit(new(0, 2), attack:[1], stats:new() { Attack = 5 }, behavior:new StandBehavior() {AttackInRange = true});
         Unit enemy = CreateUnit(new(1, 2), attack:[], stats:new() { Health = 5, Defense = 0 });
-
-        EnableActionRegion();
-        RunTest([ally], [enemy], new AIAction(ally, [ally.Cell], _region.Action));
-        DisableActionRegion();
+        RunActionRegionTest(() => RunTest([ally], [enemy], new AIAction(ally, [ally.Cell], _region.Action)));
     }
 
     /// <summary>AI should move around enemies to perform the special action even if it could attack.</summary>
@@ -548,10 +542,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit ally =  CreateUnit(new(2, 2), attack:[1], stats:new() { Attack = 5, Move = 5 }, behavior:new MoveBehavior());
         Unit enemy = CreateUnit(new(1, 2), attack:[], stats:new() { Health = 5, Defense = 0 });
-
-        EnableActionRegion();
-        RunTest([ally], [enemy], new AIAction(ally, [new(0, 1), new(0, 3)], _region.Action));
-        DisableActionRegion();
+        RunActionRegionTest(() => RunTest([ally], [enemy], new AIAction(ally, [new(0, 1), new(0, 3)], _region.Action)));
     }
 
     /// <summary>AI should prefer the special action over supporting.</summary>
@@ -563,9 +554,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(1, 2), stats:new() { Health = 5 }, hp:1)
         ];
 
-        EnableActionRegion();
-        RunTest(allies, [], new AIAction(allies[0], [allies[0].Cell], _region.Action));
-        DisableActionRegion();
+        RunActionRegionTest(() => RunTest(allies, [], new AIAction(allies[0], [allies[0].Cell], _region.Action)));
     }
 
     /// <summary>AI should move through allies to perform the special action even if it could support.</summary>
@@ -577,15 +566,13 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(1, 2), stats:new() { Health = 5 }, hp:1)
         ];
 
-        EnableActionRegion();
-        RunTest(allies, [], new AIAction(allies[0], [new(0, 2)], _region.Action));
-        DisableActionRegion();
+        RunActionRegionTest(() => RunTest(allies, [], new AIAction(allies[0], [new(0, 2)], _region.Action)));
     }
 
     /*********
      * OTHER *
      *********/
-/*
+
     /// <summary>AI should not try to act with a defeated unit (mostly only applies mid-simulation of turn).</summary>
     [Test]
     public void TestDontSelectDefeatedAlly()
@@ -597,5 +584,4 @@ public partial class AIControllerTestScene : Node
         Unit enemy = CreateUnit(new(3, 2), attack:[1], stats:new() { Attack = 5 });
         RunTest(allies, [enemy], [new(allies[1], [allies[1].Cell], "Attack", enemy)]);
     }
-*/
 }
