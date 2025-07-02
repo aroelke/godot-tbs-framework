@@ -6,7 +6,7 @@
 [ext_resource type="TileSet" uid="uid://ca702fu7govjb" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/tileset.tres" id="2_chjjl"]
 [ext_resource type="Resource" uid="uid://c8b5eys4r78im" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/floor.tres" id="2_pya7d"]
 [ext_resource type="PackedScene" uid="uid://bntay230afwxo" path="res://src/TbsTemplate/Scenes/Level/Layers/SpecialActionRegion.tscn" id="6_6544e"]
-[ext_resource type="TileSet" uid="uid://c4e8rocxrxrxc" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/region.tres" id="7_4plxc"]
+[ext_resource type="TileSet" uid="uid://1br68o2a83xi" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/region.tres" id="7_4plxc"]
 [ext_resource type="PackedScene" uid="uid://b0cvutx2lj5uy" path="res://src/TbsTemplate/Scenes/Level/Object/Unit.tscn" id="7_biprk"]
 [ext_resource type="Resource" uid="uid://b0yiofceqexqd" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/AllyFaction.tres" id="7_vj6xc"]
 [ext_resource type="PackedScene" uid="uid://ca6g5c6dsaqjb" path="res://src/TbsTemplate/Scenes/Level/Control/AIController.tscn" id="8_82y75"]

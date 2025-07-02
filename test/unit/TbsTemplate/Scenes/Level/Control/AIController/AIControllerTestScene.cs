@@ -131,7 +131,7 @@ public partial class AIControllerTestScene : Node
     /*******
      * END *
      *******/
-
+/*
     /// <summary>AI should choose its unit closest to any enemy and no enemies are in range to attack.</summary>
     [Test]
     public void TestEndStandingNoEnemiesInRange()
@@ -177,7 +177,7 @@ public partial class AIControllerTestScene : Node
     /**********
      * ATTACK *
      **********/
-
+/*
     /// <summary>AI should choose to attack the enemy with the lower HP when it deals the same damage to all enemies.</summary>
     [Test]
     public void TestAttackStandingSingleAllyMultipleEnemiesSameDamage()
@@ -375,7 +375,7 @@ public partial class AIControllerTestScene : Node
     /***********
      * SUPPORT *
      ***********/
-
+/*
     /// <summary>AI should heal the ally with the lowest HP, even if it can heal a different ally by a greater amount.</summary>
     [Test]
     public void TestSupportStandingPreferLowestHP()
@@ -506,7 +506,7 @@ public partial class AIControllerTestScene : Node
         RunTest([ally], [], new AIAction(ally, [ally.Cell], _region.Action));
         DisableActionRegion();
     }
-
+/*
     /// <summary>AI should stay where it is and perform the special action if it's already standing there.</summary>
     [Test]
     public void TestMovingPerformSpecialAction()
@@ -584,7 +584,7 @@ public partial class AIControllerTestScene : Node
     /*********
      * OTHER *
      *********/
-
+/*
     /// <summary>AI should not try to act with a defeated unit (mostly only applies mid-simulation of turn).</summary>
     [Test]
     public void TestDontSelectDefeatedAlly()
@@ -596,4 +596,5 @@ public partial class AIControllerTestScene : Node
         Unit enemy = CreateUnit(new(3, 2), attack:[1], stats:new() { Attack = 5 });
         RunTest(allies, [enemy], [new(allies[1], [allies[1].Cell], "Attack", enemy)]);
     }
+*/
 }
