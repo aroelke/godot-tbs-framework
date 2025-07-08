@@ -201,7 +201,7 @@ public partial class AIController : ArmyController
         if (destinations.Contains(action.Actor.Cell))
             choices.Add(action.Actor.Cell);
         if (!destinations.Contains(action.Actor.Cell) || destinations.Count > 1)
-            choices.Add(destinations.Where((c) => c != action.Actor.Cell).MinBy((c) => action.Actor.Cell.ManhattanDistanceTo(c)));
+            choices.Add(destinations.Where((c) => c != action.Actor.Cell).MinBy((c) => action.Initial.PathCost(action.Actor.Original.Behavior.GetPath(action.Actor, action.Initial, c))));
 
         return decisions[action.Initial] = choices.Select((c) => {
             VirtualUnit actor;
