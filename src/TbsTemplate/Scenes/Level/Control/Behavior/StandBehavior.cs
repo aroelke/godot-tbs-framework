@@ -40,7 +40,7 @@ public partial class StandBehavior : UnitBehavior
             if (targets.Any())
             {
                 int lowest = targets.Select((u) => u.Health).Min();
-                actions["Support"] = targets.Where((u) => u.Health == lowest).Select((u) => u.Cell);
+                actions[UnitActions.SupportAction] = targets.Where((u) => u.Health == lowest).Select((u) => u.Cell);
             }
         }
 

@@ -33,7 +33,7 @@ public partial class MoveBehavior : UnitBehavior
         {
             IEnumerable<IUnit> allies = allyCells.Select((c) => grid.GetOccupantUnits()[c]);
             int lowest = allies.Select((u) => u.Health).Min();
-            actions["Support"] = allies.Where((u) => u.Health == lowest).Select((u) => u.Cell);
+            actions[UnitActions.SupportAction] = allies.Where((u) => u.Health == lowest).Select((u) => u.Cell);
         }
 
         return actions;

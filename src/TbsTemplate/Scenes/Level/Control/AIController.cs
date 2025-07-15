@@ -184,7 +184,7 @@ public partial class AIController : ArmyController
             destinations = [.. destinations.Intersect(action.Actor.AttackableCells(action.Initial, [action.Target]))];
             retaliatable = destinations.Intersect(target.Value.AttackableCells(action.Initial, [target.Value.Cell]));
         }
-        else if (action.Action == "Support")
+        else if (action.Action == UnitActions.SupportAction)
         {
             target = action.Initial.Occupants[action.Target];
             destinations = [.. destinations.Intersect(action.Actor.SupportableCells(action.Initial, [action.Target]))];
@@ -225,7 +225,7 @@ public partial class AIController : ArmyController
                 VirtualUnit updated = target.Value with { ExpectedHealth = targetHealth };
                 after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(c, actor).Remove(target.Value.Cell).Add(updated.Cell, updated) };
             }
-            else if (action.Action == "Support")
+            else if (action.Action == UnitActions.SupportAction)
             {
                 float targetHealth = target.Value.ExpectedHealth, actorHealth = action.Actor.ExpectedHealth;
                 targetHealth = Math.Min(targetHealth + action.Actor.Stats.Healing, target.Value.Stats.Health);

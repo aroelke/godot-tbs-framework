@@ -385,7 +385,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(2, 2), stats:new() { Health = 5 },  hp:1),
             CreateUnit(new(3, 1), stats:new() { Health = 20 }, hp:5)
         ];
-        RunTest(allies, [], [new(allies[0], [allies[0].Cell], "Support", allies[1])]);
+        RunTest(allies, [], [new(allies[0], [allies[0].Cell], UnitActions.SupportAction, allies[1])]);
     }
 
     /// <summary>AI should heal the ally with the lowest HP, even if it can heal a different ally by a greater amount.</summary>
@@ -397,7 +397,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:1),
             CreateUnit(new(3, 4), stats:new() { Health = 20 }, hp:5)
         ];
-        RunTest(allies, [], [new(allies[0], [new(3, 1)], "Support", allies[1])]);
+        RunTest(allies, [], [new(allies[0], [new(3, 1)], UnitActions.SupportAction, allies[1])]);
     }
 
     /// <summary>AI should prefer to heal injured allies it can reach over attacking enemies it can reach.</summary>
@@ -409,7 +409,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:1),
         ];
         Unit enemy = CreateUnit(new(3, 4), stats:new() { Health = 10, Defense = 0 }, hp:10);
-        RunTest(allies, [enemy], [new(allies[0], [new(3, 1)], "Support", allies[1])]);
+        RunTest(allies, [enemy], [new(allies[0], [new(3, 1)], UnitActions.SupportAction, allies[1])]);
     }
 
     /// <summary>AI should prefer to heal injured allies it can reach over attacking enemies it can reach.</summary>
@@ -421,7 +421,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:1),
         ];
         Unit enemy = CreateUnit(new(3, 4), stats:new() { Health = 10, Defense = 0 }, hp:10);
-        RunTest(allies, [enemy], [new(allies[0], [allies[0].Cell], "Support", allies[1])]);
+        RunTest(allies, [enemy], [new(allies[0], [allies[0].Cell], UnitActions.SupportAction, allies[1])]);
     }
 
     /// <summary>AI should prefer to attack enemies it can reach if there allies in reach but all of them are uninjured.</summary>
