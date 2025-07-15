@@ -441,7 +441,7 @@ public partial class PlayerController : ArmyController
 
                 // Store the action command related to selecting the target as if it were the command state
                 if (_attackable.Contains(cell))
-                    _command = "Attack";
+                    _command = UnitActions.AttackAction;
                 else if (_supportable.Contains(cell))
                     _command = "Support";
 

@@ -184,7 +184,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit[] allies = [CreateUnit(new(3, 2), attack:[1, 2], behavior:new StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), stats:new() { Health = 10 }, hp:5), CreateUnit(new(2, 2), stats:new() { Health = 10 }, hp:10)];
-        RunTest(allies, enemies, [new(allies[0], [allies[0].Cell], "Attack", enemies[0])]);
+        RunTest(allies, enemies, [new(allies[0], [allies[0].Cell], UnitActions.AttackAction, enemies[0])]);
     }
 
     /// <summary>AI should choose to attack the enemy it can do more damage to when enemies have the same HP.</summary>
@@ -193,7 +193,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit[] allies = [CreateUnit(new(3, 2), attack:[1, 2], stats:new() { Attack = 5 }, behavior:new StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), stats:new() { Defense = 3 }), CreateUnit(new(2, 2), stats:new() { Defense = 0 })];
-        RunTest(allies, enemies, [new(allies[0], [allies[0].Cell], "Attack", enemies[1])]);
+        RunTest(allies, enemies, [new(allies[0], [allies[0].Cell], UnitActions.AttackAction, enemies[1])]);
     }
 
     /// <summary>AI should choose to attack the enemy it can bring to the lowest HP regardless of current HP or damage.</summary>
@@ -202,7 +202,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit[] allies = [CreateUnit(new(3, 2), attack:[1, 2], stats:new() { Attack = 5 }, behavior:new StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), stats:new() { Health = 10, Defense = 3 }, hp:5), CreateUnit(new(2, 2), stats:new() { Health = 10, Defense = 0 }, hp:10)];
-        RunTest(allies, enemies, [new(allies[0], [allies[0].Cell], "Attack", enemies[0])]);
+        RunTest(allies, enemies, [new(allies[0], [allies[0].Cell], UnitActions.AttackAction, enemies[0])]);
     }
 
     /// <summary>AI should choose the unit that can attack the enemy, even though it's further away.</summary>

@@ -31,7 +31,7 @@ public partial class StandBehavior : UnitBehavior
             IEnumerable<Vector2I> attackable = unit.AttackableCells(grid, [unit.Cell]);
             IEnumerable<IUnit> targets = grid.GetOccupantUnits().Where((e) => attackable.Contains(e.Key) && !unit.Faction.AlliedTo(e.Value.Faction)).Select((p) => p.Value);
             if (targets.Any())
-                actions["Attack"] = targets.Select((u) => u.Cell);
+                actions[UnitActions.AttackAction] = targets.Select((u) => u.Cell);
         }
         if (SupportInRange)
         {

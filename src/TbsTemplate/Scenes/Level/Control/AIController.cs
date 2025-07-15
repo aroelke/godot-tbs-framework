@@ -178,7 +178,7 @@ public partial class AIController : ArmyController
         VirtualUnit? target = null;
         IEnumerable<Vector2I> retaliatable = [];
         HashSet<Vector2I> destinations = [.. action.Actor.Original.Behavior.Destinations(action.Actor, action.Initial)];
-        if (action.Action == "Attack")
+        if (action.Action == UnitActions.AttackAction)
         {
             target = action.Initial.Occupants[action.Target];
             destinations = [.. destinations.Intersect(action.Actor.AttackableCells(action.Initial, [action.Target]))];
@@ -207,7 +207,7 @@ public partial class AIController : ArmyController
             VirtualUnit actor;
             VirtualGrid after;
             bool special = false;
-            if (action.Action == "Attack")
+            if (action.Action == UnitActions.AttackAction)
             {
                 float targetHealth = target.Value.ExpectedHealth, actorHealth = action.Actor.ExpectedHealth;
                 static float ExpectedDamage(VirtualUnit a, VirtualUnit b) => Math.Max(0f, a.Original.Stats.Accuracy - b.Original.Stats.Evasion) / 100f * (a.Original.Stats.Attack - b.Original.Stats.Defense);

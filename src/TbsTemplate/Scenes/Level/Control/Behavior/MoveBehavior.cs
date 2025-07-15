@@ -26,7 +26,7 @@ public partial class MoveBehavior : UnitBehavior
 
         IEnumerable<Vector2I> enemies = unit.AttackableCells(grid, destinations).Where((c) => grid.GetOccupantUnits().TryGetValue(c, out IUnit occupant) && !occupant.Faction.AlliedTo(unit.Faction));
         if (enemies.Any())
-            actions["Attack"] = enemies;
+            actions[UnitActions.AttackAction] = enemies;
 
         IEnumerable<Vector2I> allyCells = unit.SupportableCells(grid, destinations).Where((c) => c != unit.Cell && grid.GetOccupantUnits().TryGetValue(c, out IUnit occupant) && occupant.Faction.AlliedTo(unit.Faction));
         if (allyCells.Any())
