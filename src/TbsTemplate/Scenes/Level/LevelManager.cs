@@ -280,7 +280,7 @@ public partial class LevelManager : Node
                 }));
             }
         }
-        _options.Add(new("End", () => State.SendEvent(_events[SkipEvent])));
+        _options.Add(new(UnitActions.EndAction, () => State.SendEvent(_events[SkipEvent])));
         _options.Add(new("Cancel", () => State.SendEvent(_events[CancelEvent])));
 
         Callable.From<Unit, Godot.Collections.Array<StringName>, StringName>(_armies.Current.Controller.CommandUnit).CallDeferred(_selected, new Godot.Collections.Array<StringName>(_options.Select((o) => o.Name)), "Cancel");

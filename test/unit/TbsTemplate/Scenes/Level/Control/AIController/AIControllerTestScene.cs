@@ -138,7 +138,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit[] allies = [CreateUnit(new(0, 1)), CreateUnit(new(1, 2)), CreateUnit(new(0, 3))];
         Unit[] enemies = [CreateUnit(new(6, 2))];
-        RunTest(allies, enemies, [new(allies[1], [allies[1].Cell], "End")]);
+        RunTest(allies, enemies, [new(allies[1], [allies[1].Cell], UnitActions.EndAction)]);
     }
 
     /// <summary>When the behavior prevents movement, AI should not choose to attack if an enemy is reachable but not in range to attack.</summary>
@@ -147,7 +147,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit ally = CreateUnit(new(0, 2));
         Unit enemy = CreateUnit(new(3, 2));
-        RunTest([ally], [enemy], [new(ally, [ally.Cell], "End")]);
+        RunTest([ally], [enemy], [new(ally, [ally.Cell], UnitActions.EndAction)]);
     }
 
     /// <summary>AI should be able to choose an action when there aren't enemies.  It also should keep the chosen unit in place even if that unit could move.</summary>
@@ -160,7 +160,7 @@ public partial class AIControllerTestScene : Node
             for (int j = 0; j < size.Y; j++)
             {
                 Unit ally = CreateUnit(new(i, j), behavior:new MoveBehavior());
-                RunTest([ally], [], [new(ally, [ally.Cell], "End")]);
+                RunTest([ally], [], [new(ally, [ally.Cell], UnitActions.EndAction)]);
             }
         }
     }
@@ -171,7 +171,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit ally = CreateUnit(new(0, 2), attack:[1], stats:new() { Move = 3 }, behavior:new MoveBehavior());
         Unit enemy = CreateUnit(new(5, 2));
-        RunTest([ally], [enemy], [new(ally, [new(3, 2)], "End")]);
+        RunTest([ally], [enemy], [new(ally, [new(3, 2)], UnitActions.EndAction)]);
     }
 
     /**********

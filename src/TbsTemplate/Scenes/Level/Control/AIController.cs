@@ -189,7 +189,7 @@ public partial class AIController : ArmyController
             target = action.Initial.Occupants[action.Target];
             destinations = [.. destinations.Intersect(action.Actor.SupportableCells(action.Initial, [action.Target]))];
         }
-        else if (action.Action == "End")
+        else if (action.Action == UnitActions.EndAction)
             throw new InvalidOperationException($"End actions cannot be evaluated");
         else
             destinations = [.. destinations.Intersect(action.Initial.GetSpecialActionRegions().Where((r) => r.Action == action.Action).SelectMany((r) => r.Cells))];
@@ -275,7 +275,7 @@ public partial class AIController : ArmyController
             IEnumerable<VirtualUnit> enemies = grid.GetOccupantUnits().Values.Where((u) => !u.Faction.AlliedTo(Army.Faction)).OfType<VirtualUnit>();
 
             selected = enemies.Any() ? available.MinBy((u) => enemies.Select((e) => u.Cell.DistanceTo(e.Cell)).Min()) : available.First();
-            action = "End";
+            action = UnitActions.EndAction;
 
             IEnumerable<VirtualUnit> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Value.Cell));
             if (ordered.Any())
