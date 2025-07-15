@@ -1,16 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using GD_NET_ScOUT;
 using Godot;
 using TbsTemplate.Data;
 using TbsTemplate.Extensions;
 using TbsTemplate.Scenes.Level.Control.Behavior;
+using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
-using TbsTemplate.UI.Controls.Action;
 
 namespace TbsTemplate.Scenes.Level.Control.Test;
 
@@ -19,6 +18,7 @@ public partial class AIControllerTestScene : Node
 {
     private AIController _dut = null;
     private Army _allies = null, _enemies = null;
+    private SpecialActionRegion _region = null;
 
     [Export] public PackedScene UnitScene = null;
 
@@ -26,12 +26,12 @@ public partial class AIControllerTestScene : Node
      * SETUP AND SUPPORT *
      *********************/
 
-    private readonly record struct AIAction(Unit Selected, Vector2I[] Destinations, StringName Action, Unit Target = null)
+    private readonly record struct AIAction(Unit Selected, Vector2I[] Destinations, StringName Action, Unit Target=null)
     {
-        public override string ToString() => $"move {Selected.Army.Name}@{Selected.Cell} to {string.Join('/', Destinations)} and {Action} {(Target is null ? "" : $"{Target.Faction.Name}@{Target.Cell}")}";
+        public override string ToString() => $"move {PrintUnit(Selected)} to {string.Join('/', Destinations)} and {Action} {(Target is null ? "" : $"{PrintUnit(Target)}")}";
     }
 
-    private string PrintUnit(Unit unit) => $"{unit.Army.Faction.Name}@{unit.Cell}";
+    private static string PrintUnit(Unit unit) => $"{unit.Faction.Name}@{unit.Cell}";
 
     private Unit CreateUnit(Vector2I cell, int[] attack=null, int[] support=null, Stats stats=null, int? hp = null, UnitBehavior behavior=null)
     {
@@ -60,6 +60,7 @@ public partial class AIControllerTestScene : Node
         _dut = GetNode<AIController>("Army1/AIController");
         _allies = GetNode<Army>("Army1");
         _enemies = GetNode<Army>("Army2");
+        _region = GetNode<SpecialActionRegion>("Activate");
     }
 
     [BeforeEach]
@@ -477,6 +478,92 @@ public partial class AIControllerTestScene : Node
         Unit healer = CreateUnit(new(5, 2), support:[1], stats:new() { Healing = 5, Move = 3 }, behavior:new MoveBehavior());
         Unit enemy = CreateUnit(new(0, 2), attack:[1], stats:new() { Attack = 5, Defense = 0 });
         RunTest([attacker, healer], [enemy], [new(attacker, [new(1, 2)], "Attack", enemy)]);
+    }
+
+    /*******************
+     * SPECIAL ACTIONS *
+     *******************/
+
+    private void RunActionRegionTest(Action test)
+    {
+        RemoveChild(_region);
+        GetNode<Grid>("Grid").AddChild(_region);
+
+        try
+        {
+            test();
+        }
+        finally
+        {
+            GetNode<Grid>("Grid").RemoveChild(_region);
+            AddChild(_region);
+        }
+    }
+
+    /// <summary>AI should perform the special action it's standing on even if it can't move.</summary>
+    [Test]
+    public void TestStandingPerformSpecialAction()
+    {
+        Unit ally = CreateUnit(new(0, 2), behavior: new StandBehavior() { AttackInRange = false, SupportInRange = false });
+        RunActionRegionTest(() => RunTest([ally], [], new AIAction(ally, [ally.Cell], _region.Action)));
+    }
+
+    /// <summary>AI should stay where it is and perform the special action if it's already standing there.</summary>
+    [Test]
+    public void TestMovingPerformSpecialAction()
+    {
+        Unit ally = CreateUnit(new(0, 2), behavior:new MoveBehavior());
+        RunActionRegionTest(() => RunTest([ally], [], new AIAction(ally, [ally.Cell], _region.Action)));
+    }
+
+    /// <summary>AI should move to the closest special action space and perform it.</summary>
+    [Test]
+    public void TestMoveToSpecialAction()
+    {
+        Unit ally = CreateUnit(new(3, 2), stats:new() { Move = 4 }, behavior:new MoveBehavior());
+        RunActionRegionTest(() => RunTest([ally], [], new AIAction(ally, [new(0, 2)], _region.Action)));
+    }
+
+    /// <summary>AI should prefer the special action over attacking.</summary>
+    [Test]
+    public void TestStandingPreferSpecialActionOverAttack()
+    {
+        Unit ally =  CreateUnit(new(0, 2), attack:[1], stats:new() { Attack = 5 }, behavior:new StandBehavior() {AttackInRange = true});
+        Unit enemy = CreateUnit(new(1, 2), attack:[], stats:new() { Health = 5, Defense = 0 });
+        RunActionRegionTest(() => RunTest([ally], [enemy], new AIAction(ally, [ally.Cell], _region.Action)));
+    }
+
+    /// <summary>AI should move around enemies to perform the special action even if it could attack.</summary>
+    [Test]
+    public void TestMovingPreferSpecialActionOverAttack()
+    {
+        Unit ally =  CreateUnit(new(2, 2), attack:[1], stats:new() { Attack = 5, Move = 5 }, behavior:new MoveBehavior());
+        Unit enemy = CreateUnit(new(1, 2), attack:[], stats:new() { Health = 5, Defense = 0 });
+        RunActionRegionTest(() => RunTest([ally], [enemy], new AIAction(ally, [new(0, 1), new(0, 3)], _region.Action)));
+    }
+
+    /// <summary>AI should prefer the special action over supporting.</summary>
+    [Test]
+    public void TestStandingPreferSpecialActionOverSupport()
+    {
+        Unit[] allies = [
+            CreateUnit(new(0, 2), support:[1], stats:new() { Healing = 5 }, behavior:new StandBehavior() {SupportInRange = true}),
+            CreateUnit(new(1, 2), stats:new() { Health = 5 }, hp:1)
+        ];
+
+        RunActionRegionTest(() => RunTest(allies, [], new AIAction(allies[0], [allies[0].Cell], _region.Action)));
+    }
+
+    /// <summary>AI should move through allies to perform the special action even if it could support.</summary>
+    [Test]
+    public void TestMovingPreferSpecialActionOverSupport()
+    {
+        Unit[] allies = [
+            CreateUnit(new(2, 2), support:[1], stats:new() { Healing = 5, Move = 5 }, behavior:new MoveBehavior()),
+            CreateUnit(new(1, 2), stats:new() { Health = 5 }, hp:1)
+        ];
+
+        RunActionRegionTest(() => RunTest(allies, [], new AIAction(allies[0], [new(0, 2)], _region.Action)));
     }
 
     /*********
