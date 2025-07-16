@@ -32,6 +32,13 @@ tile_set = ExtResource("7_4plxc")
 Action = &"Activate"
 AllowedArmies = [NodePath("../Army1")]
 
+[node name="NoActivate" parent="." node_paths=PackedStringArray("AllowedArmies") instance=ExtResource("6_6544e")]
+modulate = Color(1, 1, 1, 0.5)
+tile_map_data = PackedByteArray("AAABAAEAAQAGAAQAAAABAAIAAQAGAAUAAAABAAMAAQAGAAYAAAA=")
+tile_set = ExtResource("7_4plxc")
+Action = &"NoActivate"
+AllowedArmies = [NodePath("../Army2")]
+
 [node name="Army1" parent="." instance=ExtResource("2_btmox")]
 Faction = ExtResource("7_vj6xc")
 

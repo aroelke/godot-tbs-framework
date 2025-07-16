@@ -566,6 +566,26 @@ public partial class AIControllerTestScene : Node
         RunActionRegionTest(() => RunTest(allies, [], new AIAction(allies[0], [new(0, 2)], _region.Action)));
     }
 
+    /// <summary>AI should only use special action regions it can use and ignore ones its enemy use.</summary>
+    [Test]
+    public void TestMovingIgnoreEnemySpecialActions()
+    {
+        TileMapLayer noActivate = GetNode<TileMapLayer>("NoActivate");
+        RemoveChild(noActivate);
+        GetNode<Grid>("Grid").AddChild(noActivate);
+
+        try
+        {
+            Unit ally = CreateUnit(new(3, 2), stats:new() { Move = 4 }, behavior:new MoveBehavior());
+            RunActionRegionTest(() => RunTest([ally], [], new AIAction(ally, [new(0, 2)], _region.Action)));
+        }
+        finally
+        {
+            GetNode<Grid>("Grid").RemoveChild(noActivate);
+            AddChild(noActivate);
+        }
+    }
+
     /*********
      * OTHER *
      *********/
