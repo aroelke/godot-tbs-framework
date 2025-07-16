@@ -441,9 +441,9 @@ public partial class PlayerController : ArmyController
 
                 // Store the action command related to selecting the target as if it were the command state
                 if (_attackable.Contains(cell))
-                    _command = "Attack";
+                    _command = UnitActions.AttackAction;
                 else if (_supportable.Contains(cell))
-                    _command = "Support";
+                    _command = UnitActions.SupportAction;
 
                 // If the end of the path isn't a cell that could act on the target, find the furthest one that can and add
                 // it to the path

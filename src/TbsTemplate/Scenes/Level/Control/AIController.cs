@@ -178,18 +178,18 @@ public partial class AIController : ArmyController
         VirtualUnit? target = null;
         IEnumerable<Vector2I> retaliatable = [];
         HashSet<Vector2I> destinations = [.. action.Actor.Original.Behavior.Destinations(action.Actor, action.Initial)];
-        if (action.Action == "Attack")
+        if (action.Action == UnitActions.AttackAction)
         {
             target = action.Initial.Occupants[action.Target];
             destinations = [.. destinations.Intersect(action.Actor.AttackableCells(action.Initial, [action.Target]))];
             retaliatable = destinations.Intersect(target.Value.AttackableCells(action.Initial, [target.Value.Cell]));
         }
-        else if (action.Action == "Support")
+        else if (action.Action == UnitActions.SupportAction)
         {
             target = action.Initial.Occupants[action.Target];
             destinations = [.. destinations.Intersect(action.Actor.SupportableCells(action.Initial, [action.Target]))];
         }
-        else if (action.Action == "End")
+        else if (action.Action == UnitActions.EndAction)
             throw new InvalidOperationException($"End actions cannot be evaluated");
         else
             destinations = [.. destinations.Intersect(action.Initial.GetSpecialActionRegions().Where((r) => r.Action == action.Action).SelectMany((r) => r.Cells))];
@@ -207,7 +207,7 @@ public partial class AIController : ArmyController
             VirtualUnit actor;
             VirtualGrid after;
             bool special = false;
-            if (action.Action == "Attack")
+            if (action.Action == UnitActions.AttackAction)
             {
                 float targetHealth = target.Value.ExpectedHealth, actorHealth = action.Actor.ExpectedHealth;
                 static float ExpectedDamage(VirtualUnit a, VirtualUnit b) => Math.Max(0f, a.Original.Stats.Accuracy - b.Original.Stats.Evasion) / 100f * (a.Original.Stats.Attack - b.Original.Stats.Defense);
@@ -225,7 +225,7 @@ public partial class AIController : ArmyController
                 VirtualUnit updated = target.Value with { ExpectedHealth = targetHealth };
                 after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(c, actor).Remove(target.Value.Cell).Add(updated.Cell, updated) };
             }
-            else if (action.Action == "Support")
+            else if (action.Action == UnitActions.SupportAction)
             {
                 float targetHealth = target.Value.ExpectedHealth, actorHealth = action.Actor.ExpectedHealth;
                 targetHealth = Math.Min(targetHealth + action.Actor.Stats.Healing, target.Value.Stats.Health);
@@ -275,7 +275,7 @@ public partial class AIController : ArmyController
             IEnumerable<VirtualUnit> enemies = grid.GetOccupantUnits().Values.Where((u) => !u.Faction.AlliedTo(Army.Faction)).OfType<VirtualUnit>();
 
             selected = enemies.Any() ? available.MinBy((u) => enemies.Select((e) => u.Cell.DistanceTo(e.Cell)).Min()) : available.First();
-            action = "End";
+            action = UnitActions.EndAction;
 
             IEnumerable<VirtualUnit> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Value.Cell));
             if (ordered.Any())

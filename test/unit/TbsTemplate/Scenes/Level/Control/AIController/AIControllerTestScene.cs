@@ -138,7 +138,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit[] allies = [CreateUnit(new(0, 1)), CreateUnit(new(1, 2)), CreateUnit(new(0, 3))];
         Unit[] enemies = [CreateUnit(new(6, 2))];
-        RunTest(allies, enemies, [new(allies[1], [allies[1].Cell], "End")]);
+        RunTest(allies, enemies, [new(allies[1], [allies[1].Cell], UnitActions.EndAction)]);
     }
 
     /// <summary>When the behavior prevents movement, AI should not choose to attack if an enemy is reachable but not in range to attack.</summary>
@@ -147,7 +147,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit ally = CreateUnit(new(0, 2));
         Unit enemy = CreateUnit(new(3, 2));
-        RunTest([ally], [enemy], [new(ally, [ally.Cell], "End")]);
+        RunTest([ally], [enemy], [new(ally, [ally.Cell], UnitActions.EndAction)]);
     }
 
     /// <summary>AI should be able to choose an action when there aren't enemies.  It also should keep the chosen unit in place even if that unit could move.</summary>
@@ -160,7 +160,7 @@ public partial class AIControllerTestScene : Node
             for (int j = 0; j < size.Y; j++)
             {
                 Unit ally = CreateUnit(new(i, j), behavior:new MoveBehavior());
-                RunTest([ally], [], [new(ally, [ally.Cell], "End")]);
+                RunTest([ally], [], [new(ally, [ally.Cell], UnitActions.EndAction)]);
             }
         }
     }
@@ -171,7 +171,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit ally = CreateUnit(new(0, 2), attack:[1], stats:new() { Move = 3 }, behavior:new MoveBehavior());
         Unit enemy = CreateUnit(new(5, 2));
-        RunTest([ally], [enemy], [new(ally, [new(3, 2)], "End")]);
+        RunTest([ally], [enemy], [new(ally, [new(3, 2)], UnitActions.EndAction)]);
     }
 
     /**********
@@ -184,7 +184,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit[] allies = [CreateUnit(new(3, 2), attack:[1, 2], behavior:new StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), stats:new() { Health = 10 }, hp:5), CreateUnit(new(2, 2), stats:new() { Health = 10 }, hp:10)];
-        RunTest(allies, enemies, [new(allies[0], [allies[0].Cell], "Attack", enemies[0])]);
+        RunTest(allies, enemies, [new(allies[0], [allies[0].Cell], UnitActions.AttackAction, enemies[0])]);
     }
 
     /// <summary>AI should choose to attack the enemy it can do more damage to when enemies have the same HP.</summary>
@@ -193,7 +193,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit[] allies = [CreateUnit(new(3, 2), attack:[1, 2], stats:new() { Attack = 5 }, behavior:new StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), stats:new() { Defense = 3 }), CreateUnit(new(2, 2), stats:new() { Defense = 0 })];
-        RunTest(allies, enemies, [new(allies[0], [allies[0].Cell], "Attack", enemies[1])]);
+        RunTest(allies, enemies, [new(allies[0], [allies[0].Cell], UnitActions.AttackAction, enemies[1])]);
     }
 
     /// <summary>AI should choose to attack the enemy it can bring to the lowest HP regardless of current HP or damage.</summary>
@@ -202,7 +202,7 @@ public partial class AIControllerTestScene : Node
     {
         Unit[] allies = [CreateUnit(new(3, 2), attack:[1, 2], stats:new() { Attack = 5 }, behavior:new StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), stats:new() { Health = 10, Defense = 3 }, hp:5), CreateUnit(new(2, 2), stats:new() { Health = 10, Defense = 0 }, hp:10)];
-        RunTest(allies, enemies, [new(allies[0], [allies[0].Cell], "Attack", enemies[0])]);
+        RunTest(allies, enemies, [new(allies[0], [allies[0].Cell], UnitActions.AttackAction, enemies[0])]);
     }
 
     /// <summary>AI should choose the unit that can attack the enemy, even though it's further away.</summary>
@@ -385,7 +385,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(2, 2), stats:new() { Health = 5 },  hp:1),
             CreateUnit(new(3, 1), stats:new() { Health = 20 }, hp:5)
         ];
-        RunTest(allies, [], [new(allies[0], [allies[0].Cell], "Support", allies[1])]);
+        RunTest(allies, [], [new(allies[0], [allies[0].Cell], UnitActions.SupportAction, allies[1])]);
     }
 
     /// <summary>AI should heal the ally with the lowest HP, even if it can heal a different ally by a greater amount.</summary>
@@ -397,7 +397,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:1),
             CreateUnit(new(3, 4), stats:new() { Health = 20 }, hp:5)
         ];
-        RunTest(allies, [], [new(allies[0], [new(3, 1)], "Support", allies[1])]);
+        RunTest(allies, [], [new(allies[0], [new(3, 1)], UnitActions.SupportAction, allies[1])]);
     }
 
     /// <summary>AI should prefer to heal injured allies it can reach over attacking enemies it can reach.</summary>
@@ -409,7 +409,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:1),
         ];
         Unit enemy = CreateUnit(new(3, 4), stats:new() { Health = 10, Defense = 0 }, hp:10);
-        RunTest(allies, [enemy], [new(allies[0], [new(3, 1)], "Support", allies[1])]);
+        RunTest(allies, [enemy], [new(allies[0], [new(3, 1)], UnitActions.SupportAction, allies[1])]);
     }
 
     /// <summary>AI should prefer to heal injured allies it can reach over attacking enemies it can reach.</summary>
@@ -421,7 +421,7 @@ public partial class AIControllerTestScene : Node
             CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:1),
         ];
         Unit enemy = CreateUnit(new(3, 4), stats:new() { Health = 10, Defense = 0 }, hp:10);
-        RunTest(allies, [enemy], [new(allies[0], [allies[0].Cell], "Support", allies[1])]);
+        RunTest(allies, [enemy], [new(allies[0], [allies[0].Cell], UnitActions.SupportAction, allies[1])]);
     }
 
     /// <summary>AI should prefer to attack enemies it can reach if there allies in reach but all of them are uninjured.</summary>
