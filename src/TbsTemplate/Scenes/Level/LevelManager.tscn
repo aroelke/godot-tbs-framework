@@ -17,7 +17,7 @@
 [ext_resource type="PackedScene" uid="uid://b7i65c130fgfs" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/EnterTreeReaction.tscn" id="29_o6hju"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -816729939
+seed = 822372419
 
 [sub_resource type="Resource" id="Resource_3lvnu"]
 script = ExtResource("27_kyhbc")
@@ -103,6 +103,10 @@ process_mode = 4
 [node name="ToMoving" parent="State/Root/Running/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"select"
 To = NodePath("../../UnitMoving")
+
+[node name="ToCommanding" parent="State/Root/Running/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+Event = &"skip"
+To = NodePath("../../UnitCommanding")
 
 [node name="ToIdle" parent="State/Root/Running/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"cancel"
