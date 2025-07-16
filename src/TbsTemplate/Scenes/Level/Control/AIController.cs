@@ -11,6 +11,7 @@ using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
+using TbsTemplate.UI.Controls.Action;
 
 namespace TbsTemplate.Scenes.Level.Control;
 
@@ -160,7 +161,7 @@ public partial class AIController : ArmyController
             foreach ((VirtualUnit me, VirtualUnit you) in _enemies.Zip(other._enemies))
                 if (me.ExpectedHealth != you.ExpectedHealth)
                     return (int)((you.ExpectedHealth - me.ExpectedHealth)*HealthDiffPrecision);
-            if ((diff = (int)((EnemyHealthDifference - other.EnemyHealthDifference) * HealthDiffPrecision)) != 0)
+            if ((diff = (int)((EnemyHealthDifference - other.EnemyHealthDifference)*HealthDiffPrecision)) != 0)
                 return diff;
 
             return other.PathCost - PathCost;
@@ -359,8 +360,15 @@ public partial class AIController : ArmyController
         EmitSignal(SignalName.TargetChosen, source, _target);
     }
 
-    public override void FinalizeAction() {}
+    public override void FinalizeAction() { }
 
     // Don't resume the cursor.  The player controller will be responsible for that.
-    public override void FinalizeTurn() {}
+    public override void FinalizeTurn() { }
+
+    public override void _Input(InputEvent @event)
+    {
+        base._Input(@event);
+        if (@event.IsActionPressed(InputActions.Cancel))
+            EmitSignal(SignalName.TurnFastForward);
+    }
 }
