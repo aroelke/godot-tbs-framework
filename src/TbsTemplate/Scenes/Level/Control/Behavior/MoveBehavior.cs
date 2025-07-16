@@ -19,7 +19,7 @@ public partial class MoveBehavior : UnitBehavior
 
         foreach (ISpecialActionRegion region in grid.GetSpecialActionRegions())
         {
-            IEnumerable<Vector2I> actionable = region.Cells.Intersect(destinations);
+            IEnumerable<Vector2I> actionable = region.Cells.Intersect(destinations).Where((c) => region.CanPerform(unit, c));
             if (actionable.Any())
                 actions[region.Action] = [-Vector2I.One];
         }
