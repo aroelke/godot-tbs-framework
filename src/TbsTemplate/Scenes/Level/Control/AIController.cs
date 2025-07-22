@@ -300,8 +300,11 @@ public partial class AIController : ArmyController
     private Vector2I _destination = -Vector2I.One;
     private StringName _action = null;
     private Unit _target = null;
+    private bool _skipRequested = true; // Initialize to true to prevent requesting outside of AI turn
 
     public override Grid Grid { get => _grid; set => _grid = value; }
+
+    [Export] public bool EnableTurnSkipping = true;
 
     [Export] public int MaxSearchDepth = 0;
 
@@ -311,6 +314,7 @@ public partial class AIController : ArmyController
         _destination = -Vector2I.One;
         _action = null;
         _target = null;
+        _skipRequested = !EnableTurnSkipping;
     }
 
     public (Unit selected, Vector2I destination, StringName action, Unit target) ComputeAction(IEnumerable<Unit> available, IEnumerable<Unit> enemies, Grid grid)
@@ -360,15 +364,19 @@ public partial class AIController : ArmyController
         EmitSignal(SignalName.TargetChosen, source, _target);
     }
 
-    public override void FinalizeAction() { }
+    public override void FinalizeAction() {}
 
     // Don't resume the cursor.  The player controller will be responsible for that.
-    public override void FinalizeTurn() { }
+    public override void FinalizeTurn() {}
 
     public override void _Input(InputEvent @event)
     {
         base._Input(@event);
-        if (@event.IsActionPressed(InputActions.Cancel))
+        if (!_skipRequested && @event.IsActionPressed(InputActions.Cancel))
+        {
+            _skipRequested = true;
+            GD.Print("Skip requested");
             EmitSignal(SignalName.TurnFastForward);
+        }
     }
 }
