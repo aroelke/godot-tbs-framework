@@ -375,7 +375,6 @@ public partial class AIController : ArmyController
         if (!_skipRequested && @event.IsActionPressed(InputActions.Cancel))
         {
             _skipRequested = true;
-            GD.Print("Skip requested");
             EmitSignal(SignalName.TurnFastForward);
         }
     }
