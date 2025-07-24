@@ -25,29 +25,20 @@ public partial class FadeToBlackTransition : SceneTransition
         }
     }
 
-    public override void TransitionOut()
+    private void Transition(float target, StringName signal)
     {
         Active = true;
         if (_tween.IsValid())
             _tween.Kill();
         _tween = CreateTween();
-        _tween.TweenProperty(Overlay, $"{ColorRect.PropertyName.Modulate}:a", 1, TransitionTime / 2).Finished += () => {
+        _tween.TweenProperty(Overlay, $"{ColorRect.PropertyName.Modulate}:a", target, TransitionTime/2).Finished += () => {
             Active = false;
-            EmitSignal(SignalName.TransitionedOut);
+            EmitSignal(signal);
         };
     }
 
-    public override void TransitionIn()
-    {
-        Active = true;
-        if (_tween.IsValid())
-            _tween.Kill();
-        _tween = CreateTween();
-        _tween.TweenProperty(Overlay, $"{ColorRect.PropertyName.Modulate}:a", 0, TransitionTime / 2).Finished += () => {
-            Active = false;
-            EmitSignal(SignalName.TransitionedIn);
-        };
-    }
+    public override void TransitionOut() => Transition(1, SignalName.TransitionedOut);
+    public override void TransitionIn() => Transition(0, SignalName.TransitionedIn);
 
     public override void _Ready()
     {
