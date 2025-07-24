@@ -15,6 +15,9 @@ public abstract partial class SceneTransition : Control
     /// <summary>Total time to complete the transition.</summary>
     [Export] public double TransitionTime = 0;
 
+    /// <summary>Whether or not the transition is currently running.</summary>
+    public bool Active { get; protected set; } = false;
+
     /// <summary>Play the part of the transition animation that enters the next scene (goes out of the current scene).</summary>
     public abstract void TransitionOut();
 

@@ -14,6 +14,7 @@ using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Combat;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level.Control;
+using TbsTemplate.Scenes.Transitions;
 
 namespace TbsTemplate.Scenes.Level;
 
@@ -234,14 +235,21 @@ public partial class LevelManager : Node
     /// <summary>Begin moving the selected <see cref="Unit"/> and then wait for it to finish moving.</summary>
     public void OnMovingEntered()
     {
+        Action FinishMoving(StringName @event) => () => {
+            if (SkipTurnTransition.Active)
+                SkipTurnTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => State.SendEvent(_events[@event]), (uint)ConnectFlags.OneShot);
+            else
+                State.SendEvent(_events[@event]);
+        };
+
         // Track the unit as it's moving
         _prevDeadzone = new(Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight);
         (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = Vector4.Zero;
         PushCameraFocus(_selected.MotionBox);
 
-        // Move the unit and delete the pathfinder as we don't need it anymore
+        // Move the unit
         Grid.Occupants.Remove(_selected.Cell);
-        _selected.Connect(Unit.SignalName.DoneMoving, _target is null ? () => State.SendEvent(_events[DoneEvent]) : () => State.SendEvent(_events[SkipEvent]), (uint)ConnectFlags.OneShot);
+        _selected.Connect(Unit.SignalName.DoneMoving, FinishMoving(_target is null ? DoneEvent : SkipEvent), (uint)ConnectFlags.OneShot);
         Grid.Occupants[_path[^1]] = _selected;
         _selected.MoveAlong(_path); // must be last in case it fires right away
     }
@@ -382,7 +390,7 @@ public partial class LevelManager : Node
     }
 #endregion
 #region End Action State
-    /// <summary>If a unit was selected, signal that its action has ended. Otherwise, just continue.</summary>
+    /// <summary>Signal that a unit's action has ended.</summary>
     public void OnEndActionEntered()
     {
         _armies.Current.Controller.FinalizeAction();
@@ -401,13 +409,18 @@ public partial class LevelManager : Node
     }
 #endregion
 #region End Turn State
-    /// <summary>After a delay, signal that the turn is ending and wait for a response.</summary>
-    public async void OnEndTurnEntered()
-    {
-        TurnAdvance.Start();
-        await ToSignal(TurnAdvance, Timer.SignalName.Timeout);
+    public void Turnover() => Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnEnded, t, a)).CallDeferred(Turn, _armies.Current);
 
-        Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnEnded, t, a)).CallDeferred(Turn, _armies.Current);
+    /// <summary>After a delay, signal that the turn is ending and wait for a response.</summary>
+    public void OnEndTurnEntered()
+    {
+        if (_ff)
+        {
+            SkipTurnTransition.Connect(SceneTransition.SignalName.TransitionedIn, () => TurnAdvance.Start(), (uint)ConnectFlags.OneShot);
+            SkipTurnTransition.TransitionIn();
+        }
+        else
+            TurnAdvance.Start();
     }
 
     /// <summary>Refresh all the units in the army whose turn just ended so they aren't gray anymore and are animated.</summary>
@@ -439,7 +452,11 @@ public partial class LevelManager : Node
 #region State Independent
     public void OnSelectionCanceled() => State.SendEvent(_events[CancelEvent]);
 
-    public void OnTurnFastForward() => _ff = true;
+    public void OnTurnFastForward()
+    {
+        SkipTurnTransition.TransitionOut();
+        SkipTurnTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => _ff = true, (uint)ConnectFlags.OneShot);
+    }
 
     /// <summary>Change the camera focus to a new object and save the previous one for reverting focus.</summary>
     /// <param name="target">New camera focus target. Use <c>null</c> to not focus on anything.</param>
