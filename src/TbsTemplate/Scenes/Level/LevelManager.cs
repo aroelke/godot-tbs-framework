@@ -454,8 +454,12 @@ public partial class LevelManager : Node
 
     public void OnTurnFastForward()
     {
-        SkipTurnTransition.TransitionOut();
-        SkipTurnTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => _ff = true, (uint)ConnectFlags.OneShot);
+        // Prevent duplicate turn-skip requests
+        if (!SkipTurnTransition.Active && !_ff)
+        {
+            SkipTurnTransition.TransitionOut();
+            SkipTurnTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => _ff = true, (uint)ConnectFlags.OneShot);
+        }
     }
 
     /// <summary>Change the camera focus to a new object and save the previous one for reverting focus.</summary>

@@ -300,7 +300,6 @@ public partial class AIController : ArmyController
     private Vector2I _destination = -Vector2I.One;
     private StringName _action = null;
     private Unit _target = null;
-    private bool _skipRequested = true; // Initialize to true to prevent requesting outside of AI turn
 
     public override Grid Grid { get => _grid; set => _grid = value; }
 
@@ -314,7 +313,6 @@ public partial class AIController : ArmyController
         _destination = -Vector2I.One;
         _action = null;
         _target = null;
-        _skipRequested = !EnableTurnSkipping;
     }
 
     public (Unit selected, Vector2I destination, StringName action, Unit target) ComputeAction(IEnumerable<Unit> available, IEnumerable<Unit> enemies, Grid grid)
@@ -372,10 +370,7 @@ public partial class AIController : ArmyController
     public override void _Input(InputEvent @event)
     {
         base._Input(@event);
-        if (!_skipRequested && @event.IsActionPressed(InputActions.Cancel))
-        {
-            _skipRequested = true;
+        if (EnableTurnSkipping && @event.IsActionPressed(InputActions.Cancel))
             EmitSignal(SignalName.TurnFastForward);
-        }
     }
 }
