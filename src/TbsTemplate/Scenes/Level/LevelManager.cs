@@ -370,11 +370,16 @@ public partial class LevelManager : Node
         else
             throw new NotSupportedException($"Unknown action {_command}");
 
-        if (_ff)
+        void SkipCombat()
         {
             ApplyCombatResults();
             State.SendEvent(_events[DoneEvent]);
         }
+
+        if (SkipTurnTransition.Active)
+            SkipTurnTransition.Connect(SceneTransition.SignalName.TransitionedOut, SkipCombat, (uint)ConnectFlags.OneShot);
+        else if (_ff)
+            SkipCombat();
         else
         {
             SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, _combatResults.ToImmutableList()), (uint)ConnectFlags.OneShot);
