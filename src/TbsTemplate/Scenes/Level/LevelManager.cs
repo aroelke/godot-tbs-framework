@@ -105,7 +105,10 @@ public partial class LevelManager : Node
         _armies.Current.Controller.SelectionCanceled += OnSelectionCanceled;
         _armies.Current.Controller.UnitSelected += _.State.Root.Running.Idle.OnUnitSelected.React;
         _armies.Current.Controller.TurnSkipped += _.State.Root.Running.Idle.OnTurnSkipped.React;
-        _armies.Current.Controller.TurnFastForward += OnTurnFastForward;
+        _armies.Current.Controller.TurnFastForward += _.State.Root.Running.Idle.OnFastForward.React;
+        _armies.Current.Controller.TurnFastForward += _.State.Root.Running.UnitSelected.OnFastForward.React;
+        _armies.Current.Controller.TurnFastForward += _.State.Root.Running.UnitMoving.OnFastForward.React;
+        _armies.Current.Controller.TurnFastForward += _.State.Root.Running.UnitCommanding.OnFastForward.React;
         _armies.Current.Controller.UnitCommanded += _.State.Root.Running.UnitSelected.OnUnitCommanded.React;
         _armies.Current.Controller.TargetChosen += _.State.Root.Running.UnitSelected.OnTargetChosen.React;
         _armies.Current.Controller.TargetCanceled += OnTargetingCanceled;
@@ -436,7 +439,10 @@ public partial class LevelManager : Node
         _armies.Current.Controller.SelectionCanceled -= OnSelectionCanceled;
         _armies.Current.Controller.UnitSelected -= _.State.Root.Running.Idle.OnUnitSelected.React;
         _armies.Current.Controller.TurnSkipped -= _.State.Root.Running.Idle.OnTurnSkipped.React;
-        _armies.Current.Controller.TurnFastForward -= OnTurnFastForward;
+        _armies.Current.Controller.TurnFastForward -= _.State.Root.Running.Idle.OnFastForward.React;
+        _armies.Current.Controller.TurnFastForward -= _.State.Root.Running.UnitSelected.OnFastForward.React;
+        _armies.Current.Controller.TurnFastForward -= _.State.Root.Running.UnitMoving.OnFastForward.React;
+        _armies.Current.Controller.TurnFastForward -= _.State.Root.Running.UnitCommanding.OnFastForward.React;
         _armies.Current.Controller.UnitCommanded -= _.State.Root.Running.UnitSelected.OnUnitCommanded.React;
         _armies.Current.Controller.TargetChosen -= _.State.Root.Running.UnitSelected.OnTargetChosen.React;
         _armies.Current.Controller.PathConfirmed -= _.State.Root.Running.UnitSelected.OnPathConfirmed.React;
@@ -459,7 +465,7 @@ public partial class LevelManager : Node
 
     public void OnTurnFastForward()
     {
-        // Prevent duplicate turn-skip requests
+        // Prevent duplicate turn-skip requests and turn skipping once combat starts
         if (!SkipTurnTransition.Active && !_ff)
         {
             SkipTurnTransition.TransitionOut();
