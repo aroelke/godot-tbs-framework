@@ -16,8 +16,11 @@ public abstract partial class ArmyController : Node
     /// <param name="unit">Selected unit.</param>
     [Signal] public delegate void UnitSelectedEventHandler(Unit unit);
 
-    /// <summary>Signals that a unit's action is being skipped.</summary>
+    /// <summary>Signals that an army's turn is being skipped (the rest of its actions are being forfeited).</summary>
     [Signal] public delegate void TurnSkippedEventHandler();
+
+    /// <summary>Fast-forward through the rest of the current army's turn. Intended for use by AI to reduce player downtime.</summary>
+    [Signal] public delegate void TurnFastForwardEventHandler();
 
     /// <summary>Signals that a path for a <see cref="Unit"/> to move on has been chosen.</summary>
     /// <param name="unit">Unit that will move along the path.</param>

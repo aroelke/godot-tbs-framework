@@ -1,4 +1,4 @@
-[gd_scene load_steps=43 format=4 uid="uid://bmfxux38ovtj2"]
+[gd_scene load_steps=46 format=4 uid="uid://bmfxux38ovtj2"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/LevelManager.tscn" id="1_h3e4w"]
 [ext_resource type="Script" path="res://demo/TestMap.cs" id="1_stn1b"]
@@ -33,28 +33,32 @@
 [ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://demo/assets/ui/Hints.tres" id="28_y0mi7"]
 [ext_resource type="PackedScene" uid="uid://h3yhm0thhl8m" path="res://src/TbsTemplate/Nodes/StateChart/StateChartInspector.tscn" id="31_7fruc"]
 
-[sub_resource type="Resource" id="Resource_3cv8i"]
-script = ExtResource("18_etfbt")
-AttackInRange = false
-
-[sub_resource type="Resource" id="Resource_8oweu"]
-script = ExtResource("18_etfbt")
-AttackInRange = false
-
-[sub_resource type="Resource" id="Resource_gb2l1"]
-script = ExtResource("18_etfbt")
-AttackInRange = false
-
-[sub_resource type="Resource" id="Resource_7jau6"]
-script = ExtResource("18_etfbt")
-AttackInRange = true
-
-[sub_resource type="Resource" id="Resource_a428m"]
+[sub_resource type="Resource" id="Resource_klmkp"]
 script = ExtResource("20_xb7xj")
 
-[sub_resource type="Resource" id="Resource_wu3ny"]
-script = ExtResource("18_etfbt")
-AttackInRange = true
+[sub_resource type="Resource" id="Resource_ajs33"]
+script = ExtResource("20_xb7xj")
+
+[sub_resource type="Resource" id="Resource_5e3h3"]
+script = ExtResource("20_xb7xj")
+
+[sub_resource type="Resource" id="Resource_kcql7"]
+script = ExtResource("20_xb7xj")
+
+[sub_resource type="Resource" id="Resource_gfynj"]
+script = ExtResource("20_xb7xj")
+
+[sub_resource type="Resource" id="Resource_e4ndp"]
+script = ExtResource("20_xb7xj")
+
+[sub_resource type="Resource" id="Resource_ownxt"]
+script = ExtResource("20_xb7xj")
+
+[sub_resource type="Resource" id="Resource_2r8xn"]
+script = ExtResource("20_xb7xj")
+
+[sub_resource type="Resource" id="Resource_f6u7p"]
+script = ExtResource("20_xb7xj")
 
 [sub_resource type="Resource" id="Resource_6fypd"]
 script = ExtResource("15_y2o8i")
@@ -70,6 +74,7 @@ Move = 0
 [sub_resource type="Resource" id="Resource_v4pm8"]
 script = ExtResource("18_etfbt")
 AttackInRange = false
+SupportInRange = true
 
 [sub_resource type="Resource" id="Resource_0pfh3"]
 script = ExtResource("15_y2o8i")
@@ -85,6 +90,7 @@ Move = 0
 [sub_resource type="Resource" id="Resource_on27k"]
 script = ExtResource("18_etfbt")
 AttackInRange = false
+SupportInRange = true
 
 [node name="TestMap" type="Node2D"]
 script = ExtResource("1_stn1b")
@@ -134,6 +140,27 @@ Faction = ExtResource("6_qur3m")
 [node name="PlayerController" parent="LevelManager/Player" instance=ExtResource("12_8av15")]
 ActionRangeTileSet = ExtResource("7_d17w6")
 
+[node name="Move" parent="LevelManager/Player/PlayerController/ActionLayers" index="0"]
+modulate = Color(0, 0, 1, 0.390625)
+tile_set = ExtResource("7_d17w6")
+
+[node name="Attack" parent="LevelManager/Player/PlayerController/ActionLayers" index="1"]
+modulate = Color(1, 0, 0, 0.390625)
+tile_set = ExtResource("7_d17w6")
+
+[node name="Support" parent="LevelManager/Player/PlayerController/ActionLayers" index="2"]
+modulate = Color(0, 1, 0, 0.390625)
+tile_set = ExtResource("7_d17w6")
+
+[node name="TraversableZone" parent="LevelManager/Player/PlayerController/ZoneLayers" index="0"]
+modulate = Color(0, 0.25, 0.5, 0.390625)
+
+[node name="LocalDangerZone" parent="LevelManager/Player/PlayerController/ZoneLayers" index="1"]
+modulate = Color(0.5, 0, 0.25, 0.390625)
+
+[node name="GlobalDangerZone" parent="LevelManager/Player/PlayerController/ZoneLayers" index="2"]
+modulate = Color(0, 0, 0, 0.390625)
+
 [node name="PlayerA" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(192, 160)
 Class = ExtResource("7_crsy2")
@@ -174,7 +201,6 @@ Size = Vector2(32, 32)
 Faction = ExtResource("10_k4gkn")
 
 [node name="AIController" parent="LevelManager/Enemy" instance=ExtResource("17_2a1se")]
-Decision = 1
 
 [node name="EnemyA" parent="LevelManager/Enemy" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(480, 64)
@@ -182,7 +208,7 @@ Class = ExtResource("7_crsy2")
 Stats = ExtResource("9_g2gda")
 AttackRange = PackedInt32Array(1)
 SupportRange = PackedInt32Array()
-Behavior = SubResource("Resource_3cv8i")
+Behavior = SubResource("Resource_klmkp")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(15, 2)
 Size = Vector2(32, 32)
@@ -193,7 +219,7 @@ Class = ExtResource("7_crsy2")
 Stats = ExtResource("9_g2gda")
 AttackRange = PackedInt32Array(1)
 SupportRange = PackedInt32Array()
-Behavior = SubResource("Resource_8oweu")
+Behavior = SubResource("Resource_ajs33")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(14, 3)
 Size = Vector2(32, 32)
@@ -204,7 +230,7 @@ Class = ExtResource("7_crsy2")
 Stats = ExtResource("9_g2gda")
 AttackRange = PackedInt32Array(1)
 SupportRange = PackedInt32Array()
-Behavior = SubResource("Resource_gb2l1")
+Behavior = SubResource("Resource_5e3h3")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(15, 11)
 Size = Vector2(32, 32)
@@ -215,7 +241,7 @@ Class = ExtResource("7_crsy2")
 Stats = ExtResource("9_g2gda")
 AttackRange = PackedInt32Array(1)
 SupportRange = PackedInt32Array()
-Behavior = SubResource("Resource_7jau6")
+Behavior = SubResource("Resource_kcql7")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(14, 12)
 Size = Vector2(32, 32)
@@ -226,7 +252,7 @@ Class = ExtResource("7_crsy2")
 Stats = ExtResource("9_g2gda")
 AttackRange = PackedInt32Array(1)
 SupportRange = PackedInt32Array()
-Behavior = SubResource("Resource_7jau6")
+Behavior = SubResource("Resource_gfynj")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(16, 3)
 Size = Vector2(32, 32)
@@ -237,7 +263,7 @@ Class = ExtResource("7_crsy2")
 Stats = ExtResource("9_g2gda")
 AttackRange = PackedInt32Array(1)
 SupportRange = PackedInt32Array()
-Behavior = SubResource("Resource_7jau6")
+Behavior = SubResource("Resource_e4ndp")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(16, 1)
 Size = Vector2(32, 32)
@@ -248,7 +274,7 @@ Class = ExtResource("7_crsy2")
 Stats = ExtResource("9_g2gda")
 AttackRange = PackedInt32Array(1)
 SupportRange = PackedInt32Array()
-Behavior = SubResource("Resource_7jau6")
+Behavior = SubResource("Resource_ownxt")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(15, 13)
 Size = Vector2(32, 32)
@@ -259,7 +285,7 @@ Class = ExtResource("7_crsy2")
 Stats = ExtResource("9_g2gda")
 AttackRange = PackedInt32Array(1)
 SupportRange = PackedInt32Array()
-Behavior = SubResource("Resource_a428m")
+Behavior = SubResource("Resource_2r8xn")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(11, 6)
 Size = Vector2(32, 32)
@@ -270,7 +296,7 @@ Class = ExtResource("7_crsy2")
 Stats = ExtResource("9_g2gda")
 AttackRange = PackedInt32Array(1)
 SupportRange = PackedInt32Array()
-Behavior = SubResource("Resource_wu3ny")
+Behavior = SubResource("Resource_f6u7p")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(11, 7)
 Size = Vector2(32, 32)

@@ -14,6 +14,7 @@ using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Combat;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level.Control;
+using TbsTemplate.Scenes.Transitions;
 
 namespace TbsTemplate.Scenes.Level;
 
@@ -54,6 +55,7 @@ public partial class LevelManager : Node
     private Vector2I? _initialCell = null;
     private readonly Stack<BoundedNode2D> _cameraHistory = [];
     private StringName _command = null;
+    private bool _ff = false;
 
     private Grid Grid = null;
 #endregion
@@ -100,15 +102,16 @@ public partial class LevelManager : Node
     /// <summary>Signal that a turn is about to begin.</summary>
     public void OnBeginTurnEntered()
     {
+        _armies.Current.Controller.TurnFastForward += _.State.Root.Running.Skippable.OnFastForward.React;
         _armies.Current.Controller.SelectionCanceled += OnSelectionCanceled;
-        _armies.Current.Controller.UnitSelected += _.State.Root.Running.Idle.OnUnitSelected.React;
-        _armies.Current.Controller.TurnSkipped += _.State.Root.Running.Idle.OnTurnSkipped.React;
-        _armies.Current.Controller.UnitCommanded += _.State.Root.Running.UnitSelected.OnUnitCommanded.React;
-        _armies.Current.Controller.TargetChosen += _.State.Root.Running.UnitSelected.OnTargetChosen.React;
+        _armies.Current.Controller.UnitSelected += _.State.Root.Running.Skippable.Idle.OnUnitSelected.React;
+        _armies.Current.Controller.TurnSkipped += _.State.Root.Running.Skippable.Idle.OnTurnSkipped.React;
+        _armies.Current.Controller.UnitCommanded += _.State.Root.Running.Skippable.UnitSelected.OnUnitCommanded.React;
+        _armies.Current.Controller.TargetChosen += _.State.Root.Running.Skippable.UnitSelected.OnTargetChosen.React;
         _armies.Current.Controller.TargetCanceled += OnTargetingCanceled;
-        _armies.Current.Controller.PathConfirmed += _.State.Root.Running.UnitSelected.OnPathConfirmed.React;
-        _armies.Current.Controller.UnitCommanded += _.State.Root.Running.UnitCommanding.OnUnitCommanded.React;
-        _armies.Current.Controller.TargetChosen += _.State.Root.Running.UnitTargeting.OnTargetChosen.React;
+        _armies.Current.Controller.PathConfirmed += _.State.Root.Running.Skippable.UnitSelected.OnPathConfirmed.React;
+        _armies.Current.Controller.UnitCommanded += _.State.Root.Running.Skippable.UnitCommanding.OnUnitCommanded.React;
+        _armies.Current.Controller.TargetChosen += _.State.Root.Running.Skippable.UnitTargeting.OnTargetChosen.React;
 
         _armies.Current.Controller.InitializeTurn();
         Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
@@ -197,9 +200,19 @@ public partial class LevelManager : Node
         if (Grid.Occupants.ContainsKey(path[^1]) && Grid.Occupants[path[^1]] != unit)
             throw new InvalidOperationException("The chosen path must not end on an occupied cell.");
 
-        _path = _path.SetTo(path);
         State.ExpressionProperties = State.ExpressionProperties.SetItem(TraversableProperty, true);
-        State.SendEvent(_events[SelectEvent]);
+        if (_ff)
+        {
+            Grid.Occupants.Remove(_selected.Cell);
+            _selected.Cell = path[^1];
+            Grid.Occupants[path[^1]] = _selected;
+            State.SendEvent(_events[SkipEvent]);
+        }
+        else
+        {
+            _path = _path.SetTo(path);
+            State.SendEvent(_events[SelectEvent]);
+        }
     }
 
     public void OnSelectedCanceled()
@@ -222,14 +235,21 @@ public partial class LevelManager : Node
     /// <summary>Begin moving the selected <see cref="Unit"/> and then wait for it to finish moving.</summary>
     public void OnMovingEntered()
     {
+        Action FinishMoving(StringName @event) => () => {
+            if (SkipTurnTransition.Active)
+                SkipTurnTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => State.SendEvent(_events[@event]), (uint)ConnectFlags.OneShot);
+            else
+                State.SendEvent(_events[@event]);
+        };
+
         // Track the unit as it's moving
         _prevDeadzone = new(Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight);
         (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = Vector4.Zero;
         PushCameraFocus(_selected.MotionBox);
 
-        // Move the unit and delete the pathfinder as we don't need it anymore
+        // Move the unit
         Grid.Occupants.Remove(_selected.Cell);
-        _selected.Connect(Unit.SignalName.DoneMoving, _target is null ? () => State.SendEvent(_events[DoneEvent]) : () => State.SendEvent(_events[SkipEvent]), (uint)ConnectFlags.OneShot);
+        _selected.Connect(Unit.SignalName.DoneMoving, FinishMoving(_target is null ? DoneEvent : SkipEvent), (uint)ConnectFlags.OneShot);
         Grid.Occupants[_path[^1]] = _selected;
         _selected.MoveAlong(_path); // must be last in case it fires right away
     }
@@ -332,6 +352,15 @@ public partial class LevelManager : Node
     public void OnTargetingCanceled(Unit source) => State.SendEvent(_events[CancelEvent]);
 #endregion
 #region In Combat
+    private void ApplyCombatResults()
+    {
+        foreach (CombatAction action in _combatResults)
+            if (action.Actor.Health.Value > 0 && action.Hit)
+                action.Target.Health.Value -= action.Damage;
+        _target = null;
+        _combatResults = null;
+    }
+
     public void OnCombatEntered()
     {
         if (_command == UnitActions.AttackAction)
@@ -340,23 +369,33 @@ public partial class LevelManager : Node
             _combatResults = [CombatCalculations.CreateSupportAction(_selected, _target)];
         else
             throw new NotSupportedException($"Unknown action {_command}");
-        SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, _combatResults.ToImmutableList()), (uint)ConnectFlags.OneShot);
-        SceneManager.CallScene(CombatScenePath);
+
+        void SkipCombat()
+        {
+            ApplyCombatResults();
+            State.SendEvent(_events[DoneEvent]);
+        }
+
+        if (SkipTurnTransition.Active)
+            SkipTurnTransition.Connect(SceneTransition.SignalName.TransitionedOut, SkipCombat, (uint)ConnectFlags.OneShot);
+        else if (_ff)
+            SkipCombat();
+        else
+        {
+            SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, _combatResults.ToImmutableList()), (uint)ConnectFlags.OneShot);
+            SceneManager.CallScene(CombatScenePath);
+        }
     }
 
     /// <summary>Update the map to reflect combat results when it's added back to the tree.</summary>
     public void OnCombatEnteredTree()
     {
-        foreach (CombatAction action in _combatResults)
-            if (action.Actor.Health.Value > 0 && action.Hit)
-                action.Target.Health.Value -= action.Damage;
-        _target = null;
-        _combatResults = null;
+        ApplyCombatResults();
         SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, () => State.SendEvent(_events[DoneEvent]), (uint)ConnectFlags.OneShot);
     }
 #endregion
 #region End Action State
-    /// <summary>If a unit was selected, signal that its action has ended. Otherwise, just continue.</summary>
+    /// <summary>Signal that a unit's action has ended.</summary>
     public void OnEndActionEntered()
     {
         _armies.Current.Controller.FinalizeAction();
@@ -375,26 +414,34 @@ public partial class LevelManager : Node
     }
 #endregion
 #region End Turn State
-    /// <summary>After a delay, signal that the turn is ending and wait for a response.</summary>
-    public async void OnEndTurnEntered()
-    {
-        TurnAdvance.Start();
-        await ToSignal(TurnAdvance, Timer.SignalName.Timeout);
+    public void Turnover() => Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnEnded, t, a)).CallDeferred(Turn, _armies.Current);
 
-        Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnEnded, t, a)).CallDeferred(Turn, _armies.Current);
+    /// <summary>After a delay, signal that the turn is ending and wait for a response.</summary>
+    public void OnEndTurnEntered()
+    {
+        if (_ff)
+        {
+            SkipTurnTransition.Connect(SceneTransition.SignalName.TransitionedIn, () => TurnAdvance.Start(), (uint)ConnectFlags.OneShot);
+            SkipTurnTransition.TransitionIn();
+        }
+        else
+            TurnAdvance.Start();
     }
 
     /// <summary>Refresh all the units in the army whose turn just ended so they aren't gray anymore and are animated.</summary>
     public void OnEndTurnExited()
     {
+        _ff = false;
+
+        _armies.Current.Controller.TurnFastForward -= _.State.Root.Running.Skippable.OnFastForward.React;
         _armies.Current.Controller.SelectionCanceled -= OnSelectionCanceled;
-        _armies.Current.Controller.UnitSelected -= _.State.Root.Running.Idle.OnUnitSelected.React;
-        _armies.Current.Controller.TurnSkipped -= _.State.Root.Running.Idle.OnTurnSkipped.React;
-        _armies.Current.Controller.UnitCommanded -= _.State.Root.Running.UnitSelected.OnUnitCommanded.React;
-        _armies.Current.Controller.TargetChosen -= _.State.Root.Running.UnitSelected.OnTargetChosen.React;
-        _armies.Current.Controller.PathConfirmed -= _.State.Root.Running.UnitSelected.OnPathConfirmed.React;
-        _armies.Current.Controller.UnitCommanded -= _.State.Root.Running.UnitCommanding.OnUnitCommanded.React;
-        _armies.Current.Controller.TargetChosen -= _.State.Root.Running.UnitTargeting.OnTargetChosen.React;
+        _armies.Current.Controller.UnitSelected -= _.State.Root.Running.Skippable.Idle.OnUnitSelected.React;
+        _armies.Current.Controller.TurnSkipped -= _.State.Root.Running.Skippable.Idle.OnTurnSkipped.React;
+        _armies.Current.Controller.UnitCommanded -= _.State.Root.Running.Skippable.UnitSelected.OnUnitCommanded.React;
+        _armies.Current.Controller.TargetChosen -= _.State.Root.Running.Skippable.UnitSelected.OnTargetChosen.React;
+        _armies.Current.Controller.PathConfirmed -= _.State.Root.Running.Skippable.UnitSelected.OnPathConfirmed.React;
+        _armies.Current.Controller.UnitCommanded -= _.State.Root.Running.Skippable.UnitCommanding.OnUnitCommanded.React;
+        _armies.Current.Controller.TargetChosen -= _.State.Root.Running.Skippable.UnitTargeting.OnTargetChosen.React;
         _armies.Current.Controller.FinalizeTurn();
 
         foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
@@ -409,6 +456,16 @@ public partial class LevelManager : Node
 #endregion
 #region State Independent
     public void OnSelectionCanceled() => State.SendEvent(_events[CancelEvent]);
+
+    public void OnTurnFastForward()
+    {
+        // Prevent duplicate turn-skip requests and turn skipping once combat starts
+        if (!SkipTurnTransition.Active && !_ff)
+        {
+            SkipTurnTransition.TransitionOut();
+            SkipTurnTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => _ff = true, (uint)ConnectFlags.OneShot);
+        }
+    }
 
     /// <summary>Change the camera focus to a new object and save the previous one for reverting focus.</summary>
     /// <param name="target">New camera focus target. Use <c>null</c> to not focus on anything.</param>
