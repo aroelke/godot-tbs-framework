@@ -18,7 +18,7 @@
 [ext_resource type="PackedScene" uid="uid://b7i65c130fgfs" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/EnterTreeReaction.tscn" id="29_o6hju"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -657474966
+seed = 1159395604
 
 [sub_resource type="Resource" id="Resource_3lvnu"]
 script = ExtResource("27_kyhbc")
@@ -72,104 +72,101 @@ InitialState = NodePath("Running")
 process_mode = 4
 InitialState = NodePath("BeginTurn")
 
-[node name="History" parent="State/Root/Running" node_paths=PackedStringArray("DefaultState") instance=ExtResource("18_n547p")]
-DefaultState = NodePath("../Idle")
-
 [node name="BeginTurn" parent="State/Root/Running" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
 [node name="ToIdle" parent="State/Root/Running/BeginTurn" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"done"
-To = NodePath("../../Idle")
+To = NodePath("../../Skippable/Idle")
 
-[node name="Idle" parent="State/Root/Running" instance=ExtResource("19_o30vs")]
+[node name="Skippable" parent="State/Root/Running" node_paths=PackedStringArray("InitialState") instance=ExtResource("18_k7m3y")]
+InitialState = NodePath("Idle")
+
+[node name="OnFastForward" parent="State/Root/Running/Skippable" instance=ExtResource("22_mocgv")]
+
+[node name="History" parent="State/Root/Running/Skippable" node_paths=PackedStringArray("DefaultState") instance=ExtResource("18_n547p")]
+DefaultState = NodePath("../Idle")
+
+[node name="Idle" parent="State/Root/Running/Skippable" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
-[node name="OnUnitSelected" parent="State/Root/Running/Idle" instance=ExtResource("21_sbtfw")]
+[node name="OnUnitSelected" parent="State/Root/Running/Skippable/Idle" instance=ExtResource("21_sbtfw")]
 
-[node name="OnTurnSkipped" parent="State/Root/Running/Idle" instance=ExtResource("22_mocgv")]
+[node name="OnTurnSkipped" parent="State/Root/Running/Skippable/Idle" instance=ExtResource("22_mocgv")]
 
-[node name="OnFastForward" parent="State/Root/Running/Idle" instance=ExtResource("22_mocgv")]
-
-[node name="ToSelected" parent="State/Root/Running/Idle" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+[node name="ToSelected" parent="State/Root/Running/Skippable/Idle" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"select"
 To = NodePath("../../UnitSelected")
 
-[node name="ToEndTurn" parent="State/Root/Running/Idle" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+[node name="ToEndTurn" parent="State/Root/Running/Skippable/Idle" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"skip"
-To = NodePath("../../EndTurn")
+To = NodePath("../../../EndTurn")
 
-[node name="UnitSelected" parent="State/Root/Running" instance=ExtResource("19_o30vs")]
+[node name="UnitSelected" parent="State/Root/Running/Skippable" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
-[node name="OnUnitCommanded" parent="State/Root/Running/UnitSelected" instance=ExtResource("27_7kdnf")]
+[node name="OnUnitCommanded" parent="State/Root/Running/Skippable/UnitSelected" instance=ExtResource("27_7kdnf")]
 
-[node name="OnTargetChosen" parent="State/Root/Running/UnitSelected" instance=ExtResource("28_5f3xe")]
+[node name="OnTargetChosen" parent="State/Root/Running/Skippable/UnitSelected" instance=ExtResource("28_5f3xe")]
 
-[node name="OnPathConfirmed" parent="State/Root/Running/UnitSelected" instance=ExtResource("22_h5tkx")]
+[node name="OnPathConfirmed" parent="State/Root/Running/Skippable/UnitSelected" instance=ExtResource("22_h5tkx")]
 
-[node name="OnFastForward" parent="State/Root/Running/UnitSelected" instance=ExtResource("22_mocgv")]
-
-[node name="ToMoving" parent="State/Root/Running/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+[node name="ToMoving" parent="State/Root/Running/Skippable/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"select"
 To = NodePath("../../UnitMoving")
 
-[node name="ToCommanding" parent="State/Root/Running/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+[node name="ToCommanding" parent="State/Root/Running/Skippable/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"skip"
 To = NodePath("../../UnitCommanding")
 
-[node name="ToIdle" parent="State/Root/Running/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+[node name="ToIdle" parent="State/Root/Running/Skippable/UnitSelected" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"cancel"
 To = NodePath("../../Idle")
 
-[node name="UnitMoving" parent="State/Root/Running" instance=ExtResource("19_o30vs")]
+[node name="UnitMoving" parent="State/Root/Running/Skippable" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
-[node name="OnFastForward" parent="State/Root/Running/UnitMoving" instance=ExtResource("22_mocgv")]
-
-[node name="ToCommanding" parent="State/Root/Running/UnitMoving" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+[node name="ToCommanding" parent="State/Root/Running/Skippable/UnitMoving" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"done"
 To = NodePath("../../UnitCommanding")
 
-[node name="ToCombat" parent="State/Root/Running/UnitMoving" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+[node name="ToCombat" parent="State/Root/Running/Skippable/UnitMoving" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"skip"
-To = NodePath("../../InCombat")
+To = NodePath("../../../InCombat")
 
-[node name="UnitCommanding" parent="State/Root/Running" instance=ExtResource("19_o30vs")]
+[node name="UnitCommanding" parent="State/Root/Running/Skippable" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
-[node name="OnUnitCommanded" parent="State/Root/Running/UnitCommanding" instance=ExtResource("27_7kdnf")]
+[node name="OnUnitCommanded" parent="State/Root/Running/Skippable/UnitCommanding" instance=ExtResource("27_7kdnf")]
 
-[node name="OnFastForward" parent="State/Root/Running/UnitCommanding" instance=ExtResource("22_mocgv")]
-
-[node name="ToTargeting" parent="State/Root/Running/UnitCommanding" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+[node name="ToTargeting" parent="State/Root/Running/Skippable/UnitCommanding" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"select"
 To = NodePath("../../UnitTargeting")
 
-[node name="ToSelected" parent="State/Root/Running/UnitCommanding" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+[node name="ToSelected" parent="State/Root/Running/Skippable/UnitCommanding" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"cancel"
 To = NodePath("../../UnitSelected")
 
-[node name="ToEndAction" parent="State/Root/Running/UnitCommanding" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+[node name="ToEndAction" parent="State/Root/Running/Skippable/UnitCommanding" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"skip"
-To = NodePath("../../EndAction")
+To = NodePath("../../../EndAction")
 
-[node name="UnitTargeting" parent="State/Root/Running" instance=ExtResource("19_o30vs")]
+[node name="UnitTargeting" parent="State/Root/Running/Skippable" instance=ExtResource("19_o30vs")]
 process_mode = 4
 
-[node name="OnTargetChosen" parent="State/Root/Running/UnitTargeting" instance=ExtResource("28_5f3xe")]
+[node name="OnTargetChosen" parent="State/Root/Running/Skippable/UnitTargeting" instance=ExtResource("28_5f3xe")]
 
-[node name="ToCommanding" parent="State/Root/Running/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+[node name="ToCommanding" parent="State/Root/Running/Skippable/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"cancel"
 To = NodePath("../../UnitCommanding")
 
-[node name="ToCombat" parent="State/Root/Running/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+[node name="ToCombat" parent="State/Root/Running/Skippable/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"done"
-To = NodePath("../../InCombat")
+To = NodePath("../../../InCombat")
 
-[node name="ToEndAction" parent="State/Root/Running/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+[node name="ToEndAction" parent="State/Root/Running/Skippable/UnitTargeting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"skip"
-To = NodePath("../../EndAction")
+To = NodePath("../../../EndAction")
 
 [node name="InCombat" parent="State/Root/Running" instance=ExtResource("19_o30vs")]
 process_mode = 4
@@ -190,7 +187,7 @@ Condition = SubResource("Resource_3lvnu")
 
 [node name="ToIdle" parent="State/Root/Running/EndAction" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"done"
-To = NodePath("../../Idle")
+To = NodePath("../../Skippable/Idle")
 
 [node name="EndTurn" parent="State/Root/Running" instance=ExtResource("19_o30vs")]
 
@@ -207,7 +204,7 @@ process_mode = 4
 
 [node name="ToActive" parent="State/Root/Waiting" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 Event = &"done"
-To = NodePath("../../Running/History")
+To = NodePath("../../Running/Skippable/History")
 
 [node name="TurnAdvance" type="Timer" parent="."]
 unique_name_in_owner = true
@@ -216,30 +213,27 @@ one_shot = true
 [connection signal="child_entered_tree" from="." to="." method="OnChildEnteredTree"]
 [connection signal="StateEntered" from="State/Root/Running/BeginTurn" to="." method="OnBeginTurnEntered"]
 [connection signal="StateExited" from="State/Root/Running/BeginTurn" to="." method="OnBeginTurnExited"]
-[connection signal="EventReceived" from="State/Root/Running/Idle" to="." method="OnIdleEventReceived"]
-[connection signal="StateEntered" from="State/Root/Running/Idle" to="." method="OnIdleEntered"]
-[connection signal="StateUpdated" from="State/Root/Running/Idle/OnUnitSelected" to="." method="OnIdleUnitSelected"]
-[connection signal="StateUpdated" from="State/Root/Running/Idle/OnTurnSkipped" to="." method="OnIdleTurnSkipped"]
-[connection signal="StateUpdated" from="State/Root/Running/Idle/OnFastForward" to="." method="OnTurnFastForward"]
-[connection signal="StateEntered" from="State/Root/Running/UnitSelected" to="." method="OnSelectedEntered"]
-[connection signal="StateExited" from="State/Root/Running/UnitSelected" to="." method="OnSelectedExited"]
-[connection signal="StateUpdated" from="State/Root/Running/UnitSelected/OnUnitCommanded" to="." method="OnSelectedUnitCommanded"]
-[connection signal="StateUpdated" from="State/Root/Running/UnitSelected/OnTargetChosen" to="." method="OnSelectedTargetChosen"]
-[connection signal="StateUpdated" from="State/Root/Running/UnitSelected/OnPathConfirmed" to="." method="OnSelectedPathConfirmed"]
-[connection signal="StateUpdated" from="State/Root/Running/UnitSelected/OnFastForward" to="." method="OnTurnFastForward"]
-[connection signal="Taken" from="State/Root/Running/UnitSelected/ToIdle" to="." method="OnSelectedCanceled"]
-[connection signal="EventReceived" from="State/Root/Running/UnitMoving" to="." method="OnMovingEventReceived"]
-[connection signal="StateEntered" from="State/Root/Running/UnitMoving" to="." method="OnMovingEntered"]
-[connection signal="StateExited" from="State/Root/Running/UnitMoving" to="." method="OnMovingExited"]
-[connection signal="StateUpdated" from="State/Root/Running/UnitMoving/OnFastForward" to="." method="OnTurnFastForward"]
-[connection signal="StateEntered" from="State/Root/Running/UnitCommanding" to="." method="OnCommandingEntered"]
-[connection signal="StateUpdated" from="State/Root/Running/UnitCommanding/OnUnitCommanded" to="." method="OnCommandingUnitCommanded"]
-[connection signal="StateUpdated" from="State/Root/Running/UnitCommanding/OnFastForward" to="." method="OnTurnFastForward"]
-[connection signal="Taken" from="State/Root/Running/UnitCommanding/ToSelected" to="." method="OnCommandingCanceled"]
-[connection signal="Taken" from="State/Root/Running/UnitCommanding/ToEndAction" to="." method="OnTurnEndCommand"]
-[connection signal="StateEntered" from="State/Root/Running/UnitTargeting" to="." method="OnTargetingEntered"]
-[connection signal="StateUpdated" from="State/Root/Running/UnitTargeting/OnTargetChosen" to="." method="OnTargetChosen"]
-[connection signal="Taken" from="State/Root/Running/UnitTargeting/ToCombat" to="." method="OnTargetingExited"]
+[connection signal="StateUpdated" from="State/Root/Running/Skippable/OnFastForward" to="." method="OnTurnFastForward"]
+[connection signal="EventReceived" from="State/Root/Running/Skippable/Idle" to="." method="OnIdleEventReceived"]
+[connection signal="StateEntered" from="State/Root/Running/Skippable/Idle" to="." method="OnIdleEntered"]
+[connection signal="StateUpdated" from="State/Root/Running/Skippable/Idle/OnUnitSelected" to="." method="OnIdleUnitSelected"]
+[connection signal="StateUpdated" from="State/Root/Running/Skippable/Idle/OnTurnSkipped" to="." method="OnIdleTurnSkipped"]
+[connection signal="StateEntered" from="State/Root/Running/Skippable/UnitSelected" to="." method="OnSelectedEntered"]
+[connection signal="StateExited" from="State/Root/Running/Skippable/UnitSelected" to="." method="OnSelectedExited"]
+[connection signal="StateUpdated" from="State/Root/Running/Skippable/UnitSelected/OnUnitCommanded" to="." method="OnSelectedUnitCommanded"]
+[connection signal="StateUpdated" from="State/Root/Running/Skippable/UnitSelected/OnTargetChosen" to="." method="OnSelectedTargetChosen"]
+[connection signal="StateUpdated" from="State/Root/Running/Skippable/UnitSelected/OnPathConfirmed" to="." method="OnSelectedPathConfirmed"]
+[connection signal="Taken" from="State/Root/Running/Skippable/UnitSelected/ToIdle" to="." method="OnSelectedCanceled"]
+[connection signal="EventReceived" from="State/Root/Running/Skippable/UnitMoving" to="." method="OnMovingEventReceived"]
+[connection signal="StateEntered" from="State/Root/Running/Skippable/UnitMoving" to="." method="OnMovingEntered"]
+[connection signal="StateExited" from="State/Root/Running/Skippable/UnitMoving" to="." method="OnMovingExited"]
+[connection signal="StateEntered" from="State/Root/Running/Skippable/UnitCommanding" to="." method="OnCommandingEntered"]
+[connection signal="StateUpdated" from="State/Root/Running/Skippable/UnitCommanding/OnUnitCommanded" to="." method="OnCommandingUnitCommanded"]
+[connection signal="Taken" from="State/Root/Running/Skippable/UnitCommanding/ToSelected" to="." method="OnCommandingCanceled"]
+[connection signal="Taken" from="State/Root/Running/Skippable/UnitCommanding/ToEndAction" to="." method="OnTurnEndCommand"]
+[connection signal="StateEntered" from="State/Root/Running/Skippable/UnitTargeting" to="." method="OnTargetingEntered"]
+[connection signal="StateUpdated" from="State/Root/Running/Skippable/UnitTargeting/OnTargetChosen" to="." method="OnTargetChosen"]
+[connection signal="Taken" from="State/Root/Running/Skippable/UnitTargeting/ToCombat" to="." method="OnTargetingExited"]
 [connection signal="StateEntered" from="State/Root/Running/InCombat" to="." method="OnCombatEntered"]
 [connection signal="StateEnteredTree" from="State/Root/Running/InCombat/OnEnteredTree" to="." method="OnCombatEnteredTree"]
 [connection signal="StateEntered" from="State/Root/Running/EndAction" to="." method="OnEndActionEntered"]

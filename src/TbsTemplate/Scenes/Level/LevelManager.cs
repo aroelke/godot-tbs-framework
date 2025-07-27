@@ -102,19 +102,16 @@ public partial class LevelManager : Node
     /// <summary>Signal that a turn is about to begin.</summary>
     public void OnBeginTurnEntered()
     {
+        _armies.Current.Controller.TurnFastForward += _.State.Root.Running.Skippable.OnFastForward.React;
         _armies.Current.Controller.SelectionCanceled += OnSelectionCanceled;
-        _armies.Current.Controller.UnitSelected += _.State.Root.Running.Idle.OnUnitSelected.React;
-        _armies.Current.Controller.TurnSkipped += _.State.Root.Running.Idle.OnTurnSkipped.React;
-        _armies.Current.Controller.TurnFastForward += _.State.Root.Running.Idle.OnFastForward.React;
-        _armies.Current.Controller.TurnFastForward += _.State.Root.Running.UnitSelected.OnFastForward.React;
-        _armies.Current.Controller.TurnFastForward += _.State.Root.Running.UnitMoving.OnFastForward.React;
-        _armies.Current.Controller.TurnFastForward += _.State.Root.Running.UnitCommanding.OnFastForward.React;
-        _armies.Current.Controller.UnitCommanded += _.State.Root.Running.UnitSelected.OnUnitCommanded.React;
-        _armies.Current.Controller.TargetChosen += _.State.Root.Running.UnitSelected.OnTargetChosen.React;
+        _armies.Current.Controller.UnitSelected += _.State.Root.Running.Skippable.Idle.OnUnitSelected.React;
+        _armies.Current.Controller.TurnSkipped += _.State.Root.Running.Skippable.Idle.OnTurnSkipped.React;
+        _armies.Current.Controller.UnitCommanded += _.State.Root.Running.Skippable.UnitSelected.OnUnitCommanded.React;
+        _armies.Current.Controller.TargetChosen += _.State.Root.Running.Skippable.UnitSelected.OnTargetChosen.React;
         _armies.Current.Controller.TargetCanceled += OnTargetingCanceled;
-        _armies.Current.Controller.PathConfirmed += _.State.Root.Running.UnitSelected.OnPathConfirmed.React;
-        _armies.Current.Controller.UnitCommanded += _.State.Root.Running.UnitCommanding.OnUnitCommanded.React;
-        _armies.Current.Controller.TargetChosen += _.State.Root.Running.UnitTargeting.OnTargetChosen.React;
+        _armies.Current.Controller.PathConfirmed += _.State.Root.Running.Skippable.UnitSelected.OnPathConfirmed.React;
+        _armies.Current.Controller.UnitCommanded += _.State.Root.Running.Skippable.UnitCommanding.OnUnitCommanded.React;
+        _armies.Current.Controller.TargetChosen += _.State.Root.Running.Skippable.UnitTargeting.OnTargetChosen.React;
 
         _armies.Current.Controller.InitializeTurn();
         Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
@@ -436,18 +433,15 @@ public partial class LevelManager : Node
     {
         _ff = false;
 
+        _armies.Current.Controller.TurnFastForward -= _.State.Root.Running.Skippable.OnFastForward.React;
         _armies.Current.Controller.SelectionCanceled -= OnSelectionCanceled;
-        _armies.Current.Controller.UnitSelected -= _.State.Root.Running.Idle.OnUnitSelected.React;
-        _armies.Current.Controller.TurnSkipped -= _.State.Root.Running.Idle.OnTurnSkipped.React;
-        _armies.Current.Controller.TurnFastForward -= _.State.Root.Running.Idle.OnFastForward.React;
-        _armies.Current.Controller.TurnFastForward -= _.State.Root.Running.UnitSelected.OnFastForward.React;
-        _armies.Current.Controller.TurnFastForward -= _.State.Root.Running.UnitMoving.OnFastForward.React;
-        _armies.Current.Controller.TurnFastForward -= _.State.Root.Running.UnitCommanding.OnFastForward.React;
-        _armies.Current.Controller.UnitCommanded -= _.State.Root.Running.UnitSelected.OnUnitCommanded.React;
-        _armies.Current.Controller.TargetChosen -= _.State.Root.Running.UnitSelected.OnTargetChosen.React;
-        _armies.Current.Controller.PathConfirmed -= _.State.Root.Running.UnitSelected.OnPathConfirmed.React;
-        _armies.Current.Controller.UnitCommanded -= _.State.Root.Running.UnitCommanding.OnUnitCommanded.React;
-        _armies.Current.Controller.TargetChosen -= _.State.Root.Running.UnitTargeting.OnTargetChosen.React;
+        _armies.Current.Controller.UnitSelected -= _.State.Root.Running.Skippable.Idle.OnUnitSelected.React;
+        _armies.Current.Controller.TurnSkipped -= _.State.Root.Running.Skippable.Idle.OnTurnSkipped.React;
+        _armies.Current.Controller.UnitCommanded -= _.State.Root.Running.Skippable.UnitSelected.OnUnitCommanded.React;
+        _armies.Current.Controller.TargetChosen -= _.State.Root.Running.Skippable.UnitSelected.OnTargetChosen.React;
+        _armies.Current.Controller.PathConfirmed -= _.State.Root.Running.Skippable.UnitSelected.OnPathConfirmed.React;
+        _armies.Current.Controller.UnitCommanded -= _.State.Root.Running.Skippable.UnitCommanding.OnUnitCommanded.React;
+        _armies.Current.Controller.TargetChosen -= _.State.Root.Running.Skippable.UnitTargeting.OnTargetChosen.React;
         _armies.Current.Controller.FinalizeTurn();
 
         foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
