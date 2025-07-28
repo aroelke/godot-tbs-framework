@@ -237,6 +237,8 @@ public partial class PlayerController : ArmyController
 
     public override void FinalizeTurn()
     {
+        base.FinalizeTurn();
+
         ZoneLayers.Visible = false;
         Cursor.Halt(hide:true);
         Pointer.StartWaiting(hide:true);

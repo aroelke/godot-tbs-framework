@@ -364,9 +364,6 @@ public partial class AIController : ArmyController
 
     public override void FinalizeAction() {}
 
-    // Don't resume the cursor.  The player controller will be responsible for that.
-    public override void FinalizeTurn() {}
-
     public override void _Input(InputEvent @event)
     {
         base._Input(@event);

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Godot;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
@@ -12,15 +14,15 @@ public abstract partial class ArmyController : Node
     /// <summary>Signals that a selection has been canceled.</summary>
     [Signal] public delegate void SelectionCanceledEventHandler();
 
-    /// <summary>Signals that a <see cref="Unit"/> has been chosen to act.</summary>
-    /// <param name="unit">Selected unit.</param>
-    [Signal] public delegate void UnitSelectedEventHandler(Unit unit);
-
     /// <summary>Signals that an army's turn is being skipped (the rest of its actions are being forfeited).</summary>
     [Signal] public delegate void TurnSkippedEventHandler();
 
     /// <summary>Fast-forward through the rest of the current army's turn. Intended for use by AI to reduce player downtime.</summary>
     [Signal] public delegate void TurnFastForwardEventHandler();
+
+    /// <summary>Signals that a <see cref="Unit"/> has been chosen to act.</summary>
+    /// <param name="unit">Selected unit.</param>
+    [Signal] public delegate void UnitSelectedEventHandler(Unit unit);
 
     /// <summary>Signals that a path for a <see cref="Unit"/> to move on has been chosen.</summary>
     /// <param name="unit">Unit that will move along the path.</param>
@@ -41,12 +43,36 @@ public abstract partial class ArmyController : Node
     [Signal] public delegate void TargetCanceledEventHandler(Unit source);
 
     private Army _army = null;
+    private readonly ImmutableDictionary<StringName, List<Callable>> _turnSignals;
 
     /// <summary>Army being controlled. Should be the direct parent of this controller.</summary>
     public Army Army => _army ??= GetParentOrNull<Army>();
 
+    public ArmyController()
+    {
+        Dictionary<StringName, List<Callable>> signals = [];
+        signals[SignalName.SelectionCanceled] = [];
+        signals[SignalName.TurnSkipped] = [];
+        signals[SignalName.TurnFastForward] = [];
+        signals[SignalName.UnitSelected] = [];
+        signals[SignalName.PathConfirmed] = [];
+        signals[SignalName.UnitCommanded] = [];
+        signals[SignalName.TargetChosen] = [];
+        signals[SignalName.TargetCanceled] = [];
+        _turnSignals = signals.ToImmutableDictionary();
+    }
+
     /// <summary>Grid that the army's units will be acting on.</summary>
     [Export] public abstract Grid Grid { get; set; }
+
+    /// <summary>Connect a signal only for the duration of the army's turn.</summary>
+    /// <param name="signal">Name of the signal to connect.</param>
+    /// <param name="callable">Function to perform when the signal is raised.</param>
+    public void ConnectTurnSignal(StringName signal, Callable callable)
+    {
+        Connect(signal, callable);
+        _turnSignals[signal].Add(callable);
+    }
 
     /// <summary>Perform any setup needed to begin the army's turn.</summary>
     public abstract void InitializeTurn();
@@ -72,8 +98,17 @@ public abstract partial class ArmyController : Node
     /// <summary>Clean up at the end of a unit's action and get ready for the next unit's action.</summary>
     public abstract void FinalizeAction();
 
-    /// <summary>Clean up at the end of an army's turn.</summary>
-    public abstract void FinalizeTurn();
+    /// <summary>Clean up at the end of an army's turn. Disconnects signals connected using <see cref="ConnectTurnSignal"/></summary>
+    /// <remarks><b>Note</b>: Make sure to call this from overriding functions, or the disconnection won't happen.</remarks>
+    public virtual void FinalizeTurn()
+    {
+        foreach ((StringName signal, List<Callable> callables) in _turnSignals)
+        {
+            foreach (Callable callable in callables)
+                Disconnect(signal, callable);
+            callables.Clear();
+        }
+    }
 
     public override string[] _GetConfigurationWarnings()
     {
