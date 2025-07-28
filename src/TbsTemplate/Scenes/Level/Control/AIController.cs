@@ -78,7 +78,7 @@ public partial class AIController : ArmyController
         public static bool operator <(VirtualAction a, VirtualAction b) => a.CompareTo(b) < 0;
 
         private VirtualGrid _result;
-        private readonly List<VirtualUnit> _enemies = [];
+        private List<VirtualUnit> _enemies = [];
         private readonly HashSet<VirtualUnit> _allies = [];
         private Vector2I _destination = -Vector2I.One;
 
@@ -140,6 +140,7 @@ public partial class AIController : ArmyController
                         EnemyHealthDifference += unit.Stats.Health - unit.ExpectedHealth;
                     }
                 }
+                _enemies = [.. _enemies.OrderBy(static (u) => u.ExpectedHealth)];
             }
         }
 
@@ -259,7 +260,7 @@ public partial class AIController : ArmyController
                 left = Math.Max(0, left - 1);
                 IEnumerable<VirtualAction> further = after.GetAvailableActions(actor.Faction);
                 if (further.Any())
-                    result = new(result, result: further.Select((a) => EvaluateAction(a, decisions, left)).Max().Result);
+                    result = new(result, result:further.Select((a) => EvaluateAction(a, decisions, left)).Max().Result);
             }
             return result;
         }).Max();
