@@ -140,7 +140,6 @@ public partial class AIController : ArmyController
                         EnemyHealthDifference += unit.Stats.Health - unit.ExpectedHealth;
                     }
                 }
-//                _enemies = [.. _enemies.OrderBy(static (u) => u.ExpectedHealth)];
             }
         }
 
