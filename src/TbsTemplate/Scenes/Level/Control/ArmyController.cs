@@ -68,7 +68,7 @@ public abstract partial class ArmyController : Node
     /// <summary>Connect a signal only for the duration of the army's turn.</summary>
     /// <param name="signal">Name of the signal to connect.</param>
     /// <param name="callable">Function to perform when the signal is raised.</param>
-    public void ConnectTurnSignal(StringName signal, Callable callable)
+    public void ConnectForTurn(StringName signal, Callable callable)
     {
         Connect(signal, callable);
         _turnSignals[signal].Add(callable);
@@ -98,7 +98,7 @@ public abstract partial class ArmyController : Node
     /// <summary>Clean up at the end of a unit's action and get ready for the next unit's action.</summary>
     public abstract void FinalizeAction();
 
-    /// <summary>Clean up at the end of an army's turn. Disconnects signals connected using <see cref="ConnectTurnSignal"/></summary>
+    /// <summary>Clean up at the end of an army's turn. Disconnects signals connected using <see cref="ConnectForTurn"/></summary>
     /// <remarks><b>Note</b>: Make sure to call this from overriding functions, or the disconnection won't happen.</remarks>
     public virtual void FinalizeTurn()
     {

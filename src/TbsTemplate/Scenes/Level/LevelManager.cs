@@ -102,16 +102,16 @@ public partial class LevelManager : Node
     /// <summary>Signal that a turn is about to begin.</summary>
     public void OnBeginTurnEntered()
     {
-        _armies.Current.Controller.ConnectTurnSignal(ArmyController.SignalName.SelectionCanceled, Callable.From(OnSelectionCanceled));
-        _armies.Current.Controller.ConnectTurnSignal(ArmyController.SignalName.TurnFastForward, Callable.From(_.State.Root.Running.Skippable.OnFastForward.React));
-        _armies.Current.Controller.ConnectTurnSignal(ArmyController.SignalName.TurnSkipped, Callable.From(_.State.Root.Running.Skippable.Idle.OnTurnSkipped.React));
-        _armies.Current.Controller.ConnectTurnSignal(ArmyController.SignalName.UnitSelected, Callable.From<Unit>(_.State.Root.Running.Skippable.Idle.OnUnitSelected.React));
-        _armies.Current.Controller.ConnectTurnSignal(ArmyController.SignalName.PathConfirmed, Callable.From<Unit, Godot.Collections.Array<Vector2I>>(_.State.Root.Running.Skippable.UnitSelected.OnPathConfirmed.React));
-        _armies.Current.Controller.ConnectTurnSignal(ArmyController.SignalName.UnitCommanded, Callable.From<Unit, StringName>(_.State.Root.Running.Skippable.UnitSelected.OnUnitCommanded.React));
-        _armies.Current.Controller.ConnectTurnSignal(ArmyController.SignalName.TargetChosen, Callable.From<Unit, Unit>(_.State.Root.Running.Skippable.UnitSelected.OnTargetChosen.React));
-        _armies.Current.Controller.ConnectTurnSignal(ArmyController.SignalName.TargetCanceled, Callable.From<Unit>(OnTargetingCanceled));
-        _armies.Current.Controller.ConnectTurnSignal(ArmyController.SignalName.UnitCommanded, Callable.From<Unit, StringName>(_.State.Root.Running.Skippable.UnitCommanding.OnUnitCommanded.React));
-        _armies.Current.Controller.ConnectTurnSignal(ArmyController.SignalName.TargetChosen, Callable.From<Unit, Unit>(_.State.Root.Running.Skippable.UnitTargeting.OnTargetChosen.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.SelectionCanceled, Callable.From(OnSelectionCanceled));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TurnFastForward, Callable.From(_.State.Root.Running.Skippable.OnFastForward.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TurnSkipped, Callable.From(_.State.Root.Running.Skippable.Idle.OnTurnSkipped.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitSelected, Callable.From<Unit>(_.State.Root.Running.Skippable.Idle.OnUnitSelected.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.PathConfirmed, Callable.From<Unit, Godot.Collections.Array<Vector2I>>(_.State.Root.Running.Skippable.UnitSelected.OnPathConfirmed.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Unit, StringName>(_.State.Root.Running.Skippable.UnitSelected.OnUnitCommanded.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Unit, Unit>(_.State.Root.Running.Skippable.UnitSelected.OnTargetChosen.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetCanceled, Callable.From<Unit>(OnTargetingCanceled));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Unit, StringName>(_.State.Root.Running.Skippable.UnitCommanding.OnUnitCommanded.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Unit, Unit>(_.State.Root.Running.Skippable.UnitTargeting.OnTargetChosen.React));
 
         _armies.Current.Controller.InitializeTurn();
         Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
