@@ -78,8 +78,8 @@ public partial class AIController : ArmyController
         public static bool operator <(VirtualAction a, VirtualAction b) => a.CompareTo(b) < 0;
 
         private VirtualGrid _result;
-        private IOrderedEnumerable<VirtualUnit> _enemies;
-        private IEnumerable<VirtualUnit> _allies;
+        private readonly List<VirtualUnit> _enemies = [];
+        private readonly HashSet<VirtualUnit> _allies = [];
         private Vector2I _destination = -Vector2I.One;
 
         public VirtualAction(VirtualGrid initial, VirtualUnit actor, StringName action, Vector2I target)
@@ -123,13 +123,23 @@ public partial class AIController : ArmyController
             {
                 _result = value;
 
-                _enemies = _result.Occupants.Values.Where((u) => !Actor.Faction.AlliedTo(u.Faction)).OrderBy(static (u) => u.ExpectedHealth);
-                _allies = _result.Occupants.Values.Where((u) => Actor.Faction.AlliedTo(u.Faction));
-
-                DefeatedEnemies = _enemies.Count(static (u) => u.ExpectedHealth <= 0);
-                DefeatedAllies = _allies.Count(static (u) => u.ExpectedHealth <= 0);
-                AllyHealthDifference = _allies.Sum(static (u) => u.Stats.Health - u.ExpectedHealth);
-                EnemyHealthDifference = _enemies.Sum(static (u) => u.Stats.Health - u.ExpectedHealth);
+                foreach ((_, VirtualUnit unit) in _result.Occupants)
+                {
+                    if (Actor.Faction.AlliedTo(unit.Faction))
+                    {
+                        _allies.Add(unit);
+                        if (unit.ExpectedHealth <= 0)
+                            DefeatedAllies++;
+                        AllyHealthDifference += unit.Stats.Health - unit.ExpectedHealth;
+                    }
+                    else
+                    {
+                        _enemies.Add(unit);
+                        if (unit.ExpectedHealth <= 0)
+                            DefeatedEnemies++;
+                        EnemyHealthDifference += unit.Stats.Health - unit.ExpectedHealth;
+                    }
+                }
             }
         }
 
