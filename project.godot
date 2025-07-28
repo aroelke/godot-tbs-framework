@@ -21,7 +21,7 @@ InputManager="*res://src/TbsTemplate/UI/Controls/Device/InputManager.tscn"
 DeviceManager="*res://src/TbsTemplate/UI/Controls/Device/DeviceManager.tscn"
 MusicController="*res://src/TbsTemplate/UI/MusicController.tscn"
 SceneManager="*res://src/TbsTemplate/Scenes/SceneManager.tscn"
-LevelEvents="*res://src/TbsTemplate/Scenes/Level/LevelEvents.tscn"
+LevelEvents="*res://src/TbsTemplate/Scenes/Level/Events/LevelEvents.tscn"
 SceneScout="*res://addons/GD_NET_ScOUT/SceneScout.cs"
 
 [display]

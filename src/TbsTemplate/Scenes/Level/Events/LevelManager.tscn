@@ -1,6 +1,6 @@
 [gd_scene load_steps=19 format=3 uid="uid://p5cw5rndfqun"]
 
-[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/LevelManager.cs" id="1_r2v0t"]
+[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://demo/assets/ui/Hints.tres" id="3_bmb6a"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DBrain.tscn" id="3_td8u6"]
 [ext_resource type="PackedScene" uid="uid://cl6fmcw1757sk" path="res://src/TbsTemplate/Scenes/Transitions/FadeToBlackTransition.tscn" id="4_mbevd"]

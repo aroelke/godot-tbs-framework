@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://njx21fx72vvx"]
 
-[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/LevelEvents.cs" id="1_g77sr"]
+[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Events/LevelEvents.cs" id="1_g77sr"]
 
 [node name="LevelEvents" type="Node"]
 script = ExtResource("1_g77sr")

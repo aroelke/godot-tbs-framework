@@ -1,6 +1,6 @@
 [gd_scene load_steps=46 format=4 uid="uid://bmfxux38ovtj2"]
 
-[ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/LevelManager.tscn" id="1_h3e4w"]
+[ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.tscn" id="1_h3e4w"]
 [ext_resource type="Script" path="res://demo/TestMap.cs" id="1_stn1b"]
 [ext_resource type="AudioStream" uid="uid://dlm0x8f7oe33c" path="res://demo/assets/raw/Legendary_JRPG_Battle_Music_Pack/Battle-Conflict_loop/Battle-Conflict_loop.ogg" id="2_d2oip"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsTemplate/Scenes/Level/Map/Grid.tscn" id="2_trttl"]
@@ -29,7 +29,7 @@
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Control/Behavior/MoveBehavior.cs" id="20_xb7xj"]
 [ext_resource type="PackedScene" uid="uid://b8dnpt7lcd2it" path="res://src/TbsTemplate/Scenes/Level/Objectives/OccupyObjective.tscn" id="22_axkl2"]
 [ext_resource type="PackedScene" uid="uid://blf1owsru7rvw" path="res://src/TbsTemplate/Scenes/Level/Objectives/ActionObjective.tscn" id="24_h6vny"]
-[ext_resource type="PackedScene" uid="uid://bi8p6x3pf3217" path="res://src/TbsTemplate/Scenes/Level/EventController.tscn" id="25_i6qxt"]
+[ext_resource type="PackedScene" uid="uid://bi8p6x3pf3217" path="res://src/TbsTemplate/Scenes/Level/Events/EventController.tscn" id="25_i6qxt"]
 [ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://demo/assets/ui/Hints.tres" id="28_y0mi7"]
 [ext_resource type="PackedScene" uid="uid://h3yhm0thhl8m" path="res://src/TbsTemplate/Nodes/StateChart/StateChartInspector.tscn" id="31_7fruc"]
 
