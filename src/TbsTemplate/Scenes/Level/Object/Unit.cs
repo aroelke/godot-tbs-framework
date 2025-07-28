@@ -9,6 +9,7 @@ using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Control.Behavior;
 using TbsTemplate.Scenes.Level.Object.Group;
+using TbsTemplate.Scenes.Level.Events;
 
 namespace TbsTemplate.Scenes.Level.Object;
 

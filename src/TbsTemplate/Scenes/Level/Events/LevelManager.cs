@@ -16,7 +16,7 @@ using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level.Control;
 using TbsTemplate.Scenes.Transitions;
 
-namespace TbsTemplate.Scenes.Level;
+namespace TbsTemplate.Scenes.Level.Events;
 
 /// <summary>
 /// Manages the setup of and objects inside a level and provides them information about it.  Is "global" in a way in that

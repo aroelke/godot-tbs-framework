@@ -6,7 +6,7 @@ using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 using TbsTemplate.Scenes.Level.Objectives;
 
-namespace TbsTemplate.Scenes.Level;
+namespace TbsTemplate.Scenes.Level.Events;
 
 /// <summary>
 /// Object controlling scriptable aspects of a level.  Interacts with the <see cref="LevelManager"/> to advance the state of the level and handles

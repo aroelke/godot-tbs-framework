@@ -2,6 +2,7 @@ using Godot;
 using TbsTemplate.Extensions;
 using TbsTemplate.Scenes;
 using TbsTemplate.Scenes.Level;
+using TbsTemplate.Scenes.Level.Events;
 using TbsTemplate.UI;
 
 public partial class TestMap : Node2D
