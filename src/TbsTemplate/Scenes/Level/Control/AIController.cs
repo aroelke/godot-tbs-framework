@@ -140,7 +140,7 @@ public partial class AIController : ArmyController
                         EnemyHealthDifference += unit.Stats.Health - unit.ExpectedHealth;
                     }
                 }
-                _enemies = [.. _enemies.OrderBy(static (u) => u.ExpectedHealth)];
+//                _enemies = [.. _enemies.OrderBy(static (u) => u.ExpectedHealth)];
             }
         }
 
@@ -169,7 +169,7 @@ public partial class AIController : ArmyController
 
             if ((diff = (int)((other.AllyHealthDifference - AllyHealthDifference)*HealthDiffPrecision)) != 0)
                 return diff;
-            foreach ((VirtualUnit me, VirtualUnit you) in _enemies.Zip(other._enemies))
+            foreach ((VirtualUnit me, VirtualUnit you) in _enemies.OrderBy(static (u) => u.ExpectedHealth).Zip(other._enemies.OrderBy(static (u) => u.ExpectedHealth)))
                 if (me.ExpectedHealth != you.ExpectedHealth)
                     return (int)((you.ExpectedHealth - me.ExpectedHealth)*HealthDiffPrecision);
             if ((diff = (int)((EnemyHealthDifference - other.EnemyHealthDifference)*HealthDiffPrecision)) != 0)
