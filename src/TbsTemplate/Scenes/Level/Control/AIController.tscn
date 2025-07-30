@@ -10,3 +10,6 @@ script = ExtResource("1_c0any")
 visible = false
 texture = ExtResource("2_pka1p")
 offset = Vector2(16, 16)
+
+[node name="IndicatorTimer" type="Timer" parent="."]
+one_shot = true

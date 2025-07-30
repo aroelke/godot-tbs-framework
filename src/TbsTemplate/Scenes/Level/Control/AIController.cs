@@ -311,7 +311,15 @@ public partial class AIController : ArmyController
     private StringName _action = null;
     private Unit _target = null;
 
+    private Sprite2D _pseudocursor = null;
+    private Sprite2D Pseudocursor => _pseudocursor ??= GetNode<Sprite2D>("Pseudocursor");
+
+    private Timer _indicator = null;
+    private Timer IndicatorTimer => _indicator ??= GetNode<Timer>("IndicatorTimer");
+
     public override Grid Grid { get => _grid; set => _grid = value; }
+
+    [Export] public float IndicationTime = 0.5f;
 
     [Export] public bool EnableTurnSkipping = true;
 
@@ -369,10 +377,15 @@ public partial class AIController : ArmyController
             throw new InvalidOperationException($"{source.Name}'s target has not been determined");
         if (!targets.Contains(_target.Cell))
             throw new InvalidOperationException($"{source.Name} can't target {_target}");
-        EmitSignal(SignalName.TargetChosen, source, _target);
+
+        Pseudocursor.Position = Grid.PositionOf(_target.Cell);
+        Pseudocursor.Visible = true;
+        IndicatorTimer.Connect(Timer.SignalName.Timeout, () => EmitSignal(SignalName.TargetChosen, source, _target), (uint)ConnectFlags.OneShot);
+        IndicatorTimer.WaitTime = IndicationTime;
+        IndicatorTimer.Start();
     }
 
-    public override void FinalizeAction() {}
+    public override void FinalizeAction() => Pseudocursor.Visible = false;
 
     public override void _Input(InputEvent @event)
     {
