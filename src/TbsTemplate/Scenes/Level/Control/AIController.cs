@@ -311,6 +311,7 @@ public partial class AIController : ArmyController
     private Vector2I _destination = -Vector2I.One;
     private StringName _action = null;
     private Unit _target = null;
+    private bool _ff = false;
 
     private Sprite2D _pseudocursor = null;
     private Sprite2D Pseudocursor => _pseudocursor ??= GetNode<Sprite2D>("Pseudocursor");
@@ -347,7 +348,11 @@ public partial class AIController : ArmyController
         return (selected.Original, destination, action, virtualGrid.Occupants.TryGetValue(target, out VirtualUnit occupant) ? occupant.Original : null);
     }
 
-    public override void FastForwardTurn() => FastForwardTransition.TransitionOut();
+    public override void FastForwardTurn()
+    {
+        FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => _ff = true, (uint)ConnectFlags.OneShot);
+        FastForwardTransition.TransitionOut();
+    }
 
     public override async void SelectUnit()
     {
@@ -391,7 +396,9 @@ public partial class AIController : ArmyController
         Pseudocursor.Position = Grid.PositionOf(_target.Cell);
         Pseudocursor.Visible = true;
 
-        if (FastForwardTransition.Active)
+        if (_ff)
+            EmitSignal(SignalName.TargetChosen, source, _target);
+        else if (FastForwardTransition.Active)
             FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => EmitSignal(SignalName.TargetChosen, source, _target), (uint)ConnectFlags.OneShot);
         else
         {
@@ -407,6 +414,7 @@ public partial class AIController : ArmyController
     {
         base.FinalizeTurn();
         FastForwardTransition.TransitionIn();
+        _ff = false;
     }
 
 
