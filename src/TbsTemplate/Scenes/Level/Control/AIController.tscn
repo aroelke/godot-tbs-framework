@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://ca6g5c6dsaqjb"]
+[gd_scene load_steps=4 format=3 uid="uid://ca6g5c6dsaqjb"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Control/AIController.cs" id="1_c0any"]
 [ext_resource type="Texture2D" uid="uid://dhxxyboxchr67" path="res://demo/assets/level/ui/cursor.png" id="2_pka1p"]
+[ext_resource type="PackedScene" uid="uid://cl6fmcw1757sk" path="res://src/TbsTemplate/Scenes/Transitions/FadeToBlackTransition.tscn" id="3_uciax"]
 
 [node name="AIController" type="Node"]
 script = ExtResource("1_c0any")
@@ -10,6 +11,11 @@ script = ExtResource("1_c0any")
 visible = false
 texture = ExtResource("2_pka1p")
 offset = Vector2(16, 16)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="FastForwardTransition" parent="CanvasLayer" instance=ExtResource("3_uciax")]
+visible = false
 
 [node name="IndicatorTimer" type="Timer" parent="."]
 one_shot = true

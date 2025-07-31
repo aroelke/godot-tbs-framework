@@ -235,13 +235,6 @@ public partial class LevelManager : Node
     /// <summary>Begin moving the selected <see cref="Unit"/> and then wait for it to finish moving.</summary>
     public void OnMovingEntered()
     {
-        Action FinishMoving(StringName @event) => () => {
-            if (SkipTurnTransition.Active)
-                SkipTurnTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => State.SendEvent(_events[@event]), (uint)ConnectFlags.OneShot);
-            else
-                State.SendEvent(_events[@event]);
-        };
-
         // Track the unit as it's moving
         _prevDeadzone = new(Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight);
         (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = Vector4.Zero;
@@ -249,7 +242,7 @@ public partial class LevelManager : Node
 
         // Move the unit
         Grid.Occupants.Remove(_selected.Cell);
-        _selected.Connect(Unit.SignalName.DoneMoving, FinishMoving(_target is null ? DoneEvent : SkipEvent), (uint)ConnectFlags.OneShot);
+        _selected.Connect(Unit.SignalName.DoneMoving, _target is null ? () => State.SendEvent(_events[DoneEvent]) : () => State.SendEvent(_events[SkipEvent]), (uint)ConnectFlags.OneShot);
         Grid.Occupants[_path[^1]] = _selected;
         _selected.MoveAlong(_path); // must be last in case it fires right away
     }
@@ -370,16 +363,11 @@ public partial class LevelManager : Node
         else
             throw new NotSupportedException($"Unknown action {_command}");
 
-        void SkipCombat()
+        if (_ff)
         {
             ApplyCombatResults();
             State.SendEvent(_events[DoneEvent]);
         }
-
-        if (SkipTurnTransition.Active)
-            SkipTurnTransition.Connect(SceneTransition.SignalName.TransitionedOut, SkipCombat, (uint)ConnectFlags.OneShot);
-        else if (_ff)
-            SkipCombat();
         else
         {
             SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, _combatResults.ToImmutableList()), (uint)ConnectFlags.OneShot);
@@ -417,16 +405,7 @@ public partial class LevelManager : Node
     public void Turnover() => Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnEnded, t, a)).CallDeferred(Turn, _armies.Current);
 
     /// <summary>After a delay, signal that the turn is ending and wait for a response.</summary>
-    public void OnEndTurnEntered()
-    {
-        if (_ff)
-        {
-            SkipTurnTransition.Connect(SceneTransition.SignalName.TransitionedIn, () => TurnAdvance.Start(), (uint)ConnectFlags.OneShot);
-            SkipTurnTransition.TransitionIn();
-        }
-        else
-            TurnAdvance.Start();
-    }
+    public void OnEndTurnEntered() => TurnAdvance.Start();
 
     /// <summary>Refresh all the units in the army whose turn just ended so they aren't gray anymore and are animated.</summary>
     public void OnEndTurnExited()
@@ -450,10 +429,10 @@ public partial class LevelManager : Node
     public void OnTurnFastForward()
     {
         // Prevent duplicate turn-skip requests and turn skipping once combat starts
-        if (!SkipTurnTransition.Active && !_ff)
+        if (!_ff)
         {
-            SkipTurnTransition.TransitionOut();
-            SkipTurnTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => _ff = true, (uint)ConnectFlags.OneShot);
+            _armies.Current.Controller.FastForwardTurn();
+            _ff = true;
         }
     }
 

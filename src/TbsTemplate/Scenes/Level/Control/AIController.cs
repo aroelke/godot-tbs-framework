@@ -11,6 +11,7 @@ using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
+using TbsTemplate.Scenes.Transitions;
 using TbsTemplate.UI.Controls.Action;
 
 namespace TbsTemplate.Scenes.Level.Control;
@@ -314,6 +315,9 @@ public partial class AIController : ArmyController
     private Sprite2D _pseudocursor = null;
     private Sprite2D Pseudocursor => _pseudocursor ??= GetNode<Sprite2D>("Pseudocursor");
 
+    private FadeToBlackTransition _fft = null;
+    private FadeToBlackTransition FastForwardTransition => _fft ??= GetNode<FadeToBlackTransition>("CanvasLayer/FastForwardTransition");
+
     private Timer _indicator = null;
     private Timer IndicatorTimer => _indicator ??= GetNode<Timer>("IndicatorTimer");
 
@@ -343,10 +347,7 @@ public partial class AIController : ArmyController
         return (selected.Original, destination, action, virtualGrid.Occupants.TryGetValue(target, out VirtualUnit occupant) ? occupant.Original : null);
     }
 
-    public override void FastForwardTurn()
-    {
-        throw new NotImplementedException();
-    }
+    public override void FastForwardTurn() => FastForwardTransition.TransitionOut();
 
     public override async void SelectUnit()
     {
@@ -368,7 +369,11 @@ public partial class AIController : ArmyController
 
     public override void MoveUnit(Unit unit)
     {
-        EmitSignal(SignalName.PathConfirmed, unit, new Godot.Collections.Array<Vector2I>(unit.Behavior.GetPath(unit, unit.Grid, _destination)));
+        void ConfirmMove() => EmitSignal(SignalName.PathConfirmed, unit, new Godot.Collections.Array<Vector2I>(unit.Behavior.GetPath(unit, unit.Grid, _destination)));
+        if (FastForwardTransition.Active)
+            FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, ConfirmMove, (uint)ConnectFlags.OneShot);
+        else
+            ConfirmMove();
     }
 
     public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)
@@ -385,12 +390,25 @@ public partial class AIController : ArmyController
 
         Pseudocursor.Position = Grid.PositionOf(_target.Cell);
         Pseudocursor.Visible = true;
-        IndicatorTimer.Connect(Timer.SignalName.Timeout, () => EmitSignal(SignalName.TargetChosen, source, _target), (uint)ConnectFlags.OneShot);
-        IndicatorTimer.WaitTime = IndicationTime;
-        IndicatorTimer.Start();
+
+        if (FastForwardTransition.Active)
+            FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => EmitSignal(SignalName.TargetChosen, source, _target), (uint)ConnectFlags.OneShot);
+        else
+        {
+            IndicatorTimer.Connect(Timer.SignalName.Timeout, () => EmitSignal(SignalName.TargetChosen, source, _target), (uint)ConnectFlags.OneShot);
+            IndicatorTimer.WaitTime = IndicationTime;
+            IndicatorTimer.Start();
+        }
     }
 
     public override void FinalizeAction() => Pseudocursor.Visible = false;
+
+    public override void FinalizeTurn()
+    {
+        base.FinalizeTurn();
+        FastForwardTransition.TransitionIn();
+    }
+
 
     public override void _Input(InputEvent @event)
     {
