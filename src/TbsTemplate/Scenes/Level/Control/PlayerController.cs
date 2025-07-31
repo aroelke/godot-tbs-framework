@@ -339,8 +339,10 @@ public partial class PlayerController : ArmyController
                     // Cursor is already halted
                     Pointer.StartWaiting(hide:true);
 
+                    foreach (Unit unit in (IEnumerable<Unit>)Army)
+                        unit.Finish();
                     State.SendEvent(_events[FinishEvent]);
-                    EmitSignal(SignalName.TurnSkipped);
+                    EmitSignal(SignalName.TurnFastForward);
                     SelectSound.Play();
                 }),
                 new("Quit Game", () => GetTree().Quit()),

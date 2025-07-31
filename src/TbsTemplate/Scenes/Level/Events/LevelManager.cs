@@ -139,8 +139,6 @@ public partial class LevelManager : Node
 
     public void OnIdleTurnSkipped()
     {
-        foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
-            unit.Finish();
         State.SendEvent(_events[SkipEvent]);
     }
 #endregion
@@ -428,9 +426,12 @@ public partial class LevelManager : Node
 
     public void OnTurnFastForward()
     {
-        // Prevent duplicate turn-skip requests and turn skipping once combat starts
-        if (!_ff)
+        // Reuse this signal for skipping to the end of the current army's turn, which should only happen for player-controlled armies
+        if (!((IEnumerable<Unit>)_armies.Current).Any((u) => u.Active))
+            State.SendEvent(_events[SkipEvent]);
+        else if (!_ff)
         {
+            // Reuse this signal for fast-forwarding through an army's turn, which should only happen for AI-controlled armies
             _armies.Current.Controller.FastForwardTurn();
             _ff = true;
         }
