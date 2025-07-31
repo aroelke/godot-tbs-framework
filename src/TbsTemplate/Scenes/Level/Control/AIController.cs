@@ -319,6 +319,9 @@ public partial class AIController : ArmyController
     private FadeToBlackTransition _fft = null;
     private FadeToBlackTransition FastForwardTransition => _fft ??= GetNode<FadeToBlackTransition>("CanvasLayer/FastForwardTransition");
 
+    private TextureProgressBar _progress = null;
+    private TextureProgressBar TurnProgress => _progress ??= GetNode<TextureProgressBar>("CanvasLayer/TurnProgress");
+
     private Timer _indicator = null;
     private Timer IndicatorTimer => _indicator ??= GetNode<Timer>("IndicatorTimer");
 
@@ -330,12 +333,20 @@ public partial class AIController : ArmyController
 
     [Export] public int MaxSearchDepth = 0;
 
+    private void UpdateTurnProgress()
+    {
+        
+    }
+
     public override void InitializeTurn()
     {
         _selected = null;
         _destination = -Vector2I.One;
         _action = null;
         _target = null;
+
+        TurnProgress.MaxValue = ((IEnumerable<Unit>)Army).Count();
+        TurnProgress.Value = 0;
     }
 
     public (Unit selected, Vector2I destination, StringName action, Unit target) ComputeAction(IEnumerable<Unit> available, IEnumerable<Unit> enemies, Grid grid)
@@ -350,7 +361,7 @@ public partial class AIController : ArmyController
 
     public override void FastForwardTurn()
     {
-        FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => _ff = true, (uint)ConnectFlags.OneShot);
+        FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => TurnProgress.Visible = _ff = true, (uint)ConnectFlags.OneShot);
         FastForwardTransition.TransitionOut();
     }
 
@@ -408,13 +419,18 @@ public partial class AIController : ArmyController
         }
     }
 
-    public override void FinalizeAction() => Pseudocursor.Visible = false;
+    public override void FinalizeAction()
+    {
+        Pseudocursor.Visible = false;
+        TurnProgress.MaxValue = ((IEnumerable<Unit>)Army).Count();
+        TurnProgress.Value = ((IEnumerable<Unit>)Army).Count((u) => !u.Active) + 1; // Add one to account for the unit that just finished
+    }
 
     public override void FinalizeTurn()
     {
         base.FinalizeTurn();
         FastForwardTransition.TransitionIn();
-        _ff = false;
+        TurnProgress.Visible = _ff = false;
     }
 
 
