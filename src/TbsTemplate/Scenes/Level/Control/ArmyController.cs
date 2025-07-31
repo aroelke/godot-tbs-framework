@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Godot;
@@ -14,10 +13,11 @@ public abstract partial class ArmyController : Node
     /// <summary>Signals that a selection has been canceled.</summary>
     [Signal] public delegate void SelectionCanceledEventHandler();
 
-    /// <summary>Signals that an army's turn is being skipped (the rest of its actions are being forfeited).</summary>
-    [Signal] public delegate void TurnSkippedEventHandler();
-
-    /// <summary>Fast-forward through the rest of the current army's turn. Intended for use by AI to reduce player downtime.</summary>
+    /// <summary>
+    /// <para>Fast-forward through the rest of the current army's turn.</para>
+    /// <para>For a player army, this can be called after deactivating all units to signal an early end of the turn.</para>
+    /// <para>For an AI army, this can be used to skip animating the AI's turn.</para>
+    /// </summary>
     [Signal] public delegate void TurnFastForwardEventHandler();
 
     /// <summary>Signals that a <see cref="Unit"/> has been chosen to act.</summary>
@@ -48,11 +48,10 @@ public abstract partial class ArmyController : Node
     /// <summary>Army being controlled. Should be the direct parent of this controller.</summary>
     public Army Army => _army ??= GetParentOrNull<Army>();
 
-    public ArmyController()
+    public ArmyController() : base()
     {
         Dictionary<StringName, List<Callable>> signals = [];
         signals[SignalName.SelectionCanceled] = [];
-        signals[SignalName.TurnSkipped] = [];
         signals[SignalName.TurnFastForward] = [];
         signals[SignalName.UnitSelected] = [];
         signals[SignalName.PathConfirmed] = [];
@@ -77,6 +76,9 @@ public abstract partial class ArmyController : Node
     /// <summary>Perform any setup needed to begin the army's turn.</summary>
     public abstract void InitializeTurn();
 
+    /// <summary>Skip through the rest of this army's turn.</summary>
+    public abstract void FastForwardTurn();
+
     /// <summary>Choose a unit in the army to select. Once the <see cref="Unit"/> has been selected, emit <c>UnitSelected</c>.</summary>
     public abstract void SelectUnit();
 
@@ -98,8 +100,10 @@ public abstract partial class ArmyController : Node
     /// <summary>Clean up at the end of a unit's action and get ready for the next unit's action.</summary>
     public abstract void FinalizeAction();
 
-    /// <summary>Clean up at the end of an army's turn. Disconnects signals connected using <see cref="ConnectForTurn"/></summary>
-    /// <remarks><b>Note</b>: Make sure to call this from overriding functions, or the disconnection won't happen.</remarks>
+    /// <summary>
+    /// <para>Clean up at the end of an army's turn. Disconnects signals connected using <see cref="ConnectForTurn"/>.</para>
+    /// <para><b>Note</b>: Make sure to call this from overriding functions, or the disconnection won't happen.</para>
+    /// </summary>
     public virtual void FinalizeTurn()
     {
         foreach ((StringName signal, List<Callable> callables) in _turnSignals)

@@ -11,6 +11,7 @@ using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
+using TbsTemplate.Scenes.Transitions;
 using TbsTemplate.UI.Controls.Action;
 
 namespace TbsTemplate.Scenes.Level.Control;
@@ -310,11 +311,29 @@ public partial class AIController : ArmyController
     private Vector2I _destination = -Vector2I.One;
     private StringName _action = null;
     private Unit _target = null;
+    private bool _ff = false;
+
+    private Sprite2D _pseudocursor = null;
+    private Sprite2D Pseudocursor => _pseudocursor ??= GetNode<Sprite2D>("Pseudocursor");
+
+    private FadeToBlackTransition _fft = null;
+    private FadeToBlackTransition FastForwardTransition => _fft ??= GetNode<FadeToBlackTransition>("CanvasLayer/FastForwardTransition");
+
+    private TextureProgressBar _progress = null;
+    private TextureProgressBar TurnProgress => _progress ??= GetNode<TextureProgressBar>("CanvasLayer/TurnProgress");
+
+    private Timer _indicator = null;
+    private Timer IndicatorTimer => _indicator ??= GetNode<Timer>("IndicatorTimer");
 
     public override Grid Grid { get => _grid; set => _grid = value; }
 
+    /// <summary>Time in seconds to hold the cursor over an indicated cell before acting on it.</summary>
+    [Export(PropertyHint.None, "suffix:s")] public float IndicationTime = 0.5f;
+
+    /// <summary>Whether or not this army's turn can be skipped.</summary>
     [Export] public bool EnableTurnSkipping = true;
 
+    /// <summary>Maximum number of levels in the action tree to search for the best action.</summary>
     [Export] public int MaxSearchDepth = 0;
 
     public override void InitializeTurn()
@@ -323,6 +342,9 @@ public partial class AIController : ArmyController
         _destination = -Vector2I.One;
         _action = null;
         _target = null;
+
+        TurnProgress.MaxValue = ((IEnumerable<Unit>)Army).Count();
+        TurnProgress.Value = 0;
     }
 
     public (Unit selected, Vector2I destination, StringName action, Unit target) ComputeAction(IEnumerable<Unit> available, IEnumerable<Unit> enemies, Grid grid)
@@ -333,6 +355,14 @@ public partial class AIController : ArmyController
         (VirtualUnit selected, Vector2I destination, StringName action, Vector2I target) = ComputeAction(virtualAvailable, virtualGrid);
 
         return (selected.Original, destination, action, virtualGrid.Occupants.TryGetValue(target, out VirtualUnit occupant) ? occupant.Original : null);
+    }
+
+    /// <inheritdoc/>
+    /// <remarks>Unit actions will still be calculated and the results updated. The screen will be blacked out while computing actions.</remarks>
+    public override void FastForwardTurn()
+    {
+        FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => TurnProgress.Visible = _ff = true, (uint)ConnectFlags.OneShot);
+        FastForwardTransition.TransitionOut();
     }
 
     public override async void SelectUnit()
@@ -355,7 +385,11 @@ public partial class AIController : ArmyController
 
     public override void MoveUnit(Unit unit)
     {
-        EmitSignal(SignalName.PathConfirmed, unit, new Godot.Collections.Array<Vector2I>(unit.Behavior.GetPath(unit, unit.Grid, _destination)));
+        void ConfirmMove() => EmitSignal(SignalName.PathConfirmed, unit, new Godot.Collections.Array<Vector2I>(unit.Behavior.GetPath(unit, unit.Grid, _destination)));
+        if (FastForwardTransition.Active)
+            FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, ConfirmMove, (uint)ConnectFlags.OneShot);
+        else
+            ConfirmMove();
     }
 
     public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)
@@ -369,10 +403,36 @@ public partial class AIController : ArmyController
             throw new InvalidOperationException($"{source.Name}'s target has not been determined");
         if (!targets.Contains(_target.Cell))
             throw new InvalidOperationException($"{source.Name} can't target {_target}");
-        EmitSignal(SignalName.TargetChosen, source, _target);
+
+        Pseudocursor.Position = Grid.PositionOf(_target.Cell);
+        Pseudocursor.Visible = true;
+
+        if (_ff)
+            EmitSignal(SignalName.TargetChosen, source, _target);
+        else if (FastForwardTransition.Active)
+            FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => EmitSignal(SignalName.TargetChosen, source, _target), (uint)ConnectFlags.OneShot);
+        else
+        {
+            IndicatorTimer.Connect(Timer.SignalName.Timeout, () => EmitSignal(SignalName.TargetChosen, source, _target), (uint)ConnectFlags.OneShot);
+            IndicatorTimer.WaitTime = IndicationTime;
+            IndicatorTimer.Start();
+        }
     }
 
-    public override void FinalizeAction() {}
+    public override void FinalizeAction()
+    {
+        Pseudocursor.Visible = false;
+        TurnProgress.MaxValue = ((IEnumerable<Unit>)Army).Count();
+        TurnProgress.Value = ((IEnumerable<Unit>)Army).Count((u) => !u.Active) + 1; // Add one to account for the unit that just finished
+    }
+
+    public override void FinalizeTurn()
+    {
+        base.FinalizeTurn();
+        FastForwardTransition.TransitionIn();
+        TurnProgress.Visible = _ff = false;
+    }
+
 
     public override void _Input(InputEvent @event)
     {

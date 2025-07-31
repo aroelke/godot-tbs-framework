@@ -267,6 +267,8 @@ public partial class PlayerController : ArmyController
         if (_tracked.Remove(defeated) || _showGlobalDangerZone)
             UpdateDangerZones();
     }
+
+    public override void FastForwardTurn() => throw new NotImplementedException("Fast forward doesn't make sense for the player controller yet");
 #endregion
 #region Active
     public void OnActiveInput(InputEvent @event)
@@ -337,8 +339,10 @@ public partial class PlayerController : ArmyController
                     // Cursor is already halted
                     Pointer.StartWaiting(hide:true);
 
+                    foreach (Unit unit in (IEnumerable<Unit>)Army)
+                        unit.Finish();
                     State.SendEvent(_events[FinishEvent]);
-                    EmitSignal(SignalName.TurnSkipped);
+                    EmitSignal(SignalName.TurnFastForward);
                     SelectSound.Play();
                 }),
                 new("Quit Game", () => GetTree().Quit()),
