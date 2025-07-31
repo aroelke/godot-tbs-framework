@@ -77,6 +77,8 @@ public abstract partial class ArmyController : Node
     /// <summary>Perform any setup needed to begin the army's turn.</summary>
     public abstract void InitializeTurn();
 
+    public abstract void FastForwardTurn();
+
     /// <summary>Choose a unit in the army to select. Once the <see cref="Unit"/> has been selected, emit <c>UnitSelected</c>.</summary>
     public abstract void SelectUnit();
 

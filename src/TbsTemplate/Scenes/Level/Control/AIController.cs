@@ -343,6 +343,11 @@ public partial class AIController : ArmyController
         return (selected.Original, destination, action, virtualGrid.Occupants.TryGetValue(target, out VirtualUnit occupant) ? occupant.Original : null);
     }
 
+    public override void FastForwardTurn()
+    {
+        throw new NotImplementedException();
+    }
+
     public override async void SelectUnit()
     {
         // Compute this outside the task because it calls Node.GetChildren(), which has to be called on the same thread as that node.
