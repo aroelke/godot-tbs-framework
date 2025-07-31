@@ -333,11 +333,6 @@ public partial class AIController : ArmyController
 
     [Export] public int MaxSearchDepth = 0;
 
-    private void UpdateTurnProgress()
-    {
-        
-    }
-
     public override void InitializeTurn()
     {
         _selected = null;
