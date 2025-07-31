@@ -327,10 +327,13 @@ public partial class AIController : ArmyController
 
     public override Grid Grid { get => _grid; set => _grid = value; }
 
-    [Export] public float IndicationTime = 0.5f;
+    /// <summary>Time in seconds to hold the cursor over an indicated cell before acting on it.</summary>
+    [Export(PropertyHint.None, "suffix:s")] public float IndicationTime = 0.5f;
 
+    /// <summary>Whether or not this army's turn can be skipped.</summary>
     [Export] public bool EnableTurnSkipping = true;
 
+    /// <summary>Maximum number of levels in the action tree to search for the best action.</summary>
     [Export] public int MaxSearchDepth = 0;
 
     public override void InitializeTurn()
@@ -354,6 +357,8 @@ public partial class AIController : ArmyController
         return (selected.Original, destination, action, virtualGrid.Occupants.TryGetValue(target, out VirtualUnit occupant) ? occupant.Original : null);
     }
 
+    /// <inheritdoc/>
+    /// <remarks>Unit actions will still be calculated and the results updated. The screen will be blacked out while computing actions.</remarks>
     public override void FastForwardTurn()
     {
         FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => TurnProgress.Visible = _ff = true, (uint)ConnectFlags.OneShot);
