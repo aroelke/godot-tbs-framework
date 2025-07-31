@@ -1,0 +1,16 @@
+[gd_resource type="TileSet" load_steps=4 format=3 uid="uid://ca702fu7govjb"]
+
+[ext_resource type="Resource" uid="uid://c8b5eys4r78im" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/floor.tres" id="1_8p521"]
+[ext_resource type="Texture2D" uid="uid://bnnyegc88m621" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/cell.png" id="1_ivyog"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_gl5mf"]
+texture = ExtResource("1_ivyog")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+0:0/0/custom_data_0 = ExtResource("1_8p521")
+
+[resource]
+tile_size = Vector2i(32, 32)
+custom_data_layer_0/name = "terrain"
+custom_data_layer_0/type = 24
+sources/0 = SubResource("TileSetAtlasSource_gl5mf")

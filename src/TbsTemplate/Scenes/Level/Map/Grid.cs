@@ -1,14 +1,17 @@
-using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Godot;
+using TbsTemplate.Data;
+using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Object;
+using TbsTemplate.Scenes.Level.Object.Group;
 
 namespace TbsTemplate.Scenes.Level.Map;
 
 /// <summary>Defines the grid dimensions and attributes and contains the locations of the objects and terrain within it.</summary>
 [Tool]
-public partial class Grid : Node2D
+public partial class Grid : Node2D, IGrid
 {
     /// <summary><see cref="TileMapLayer"/> containing ground tiles.</summary>
     [Export] public TileMapLayer GroundLayer = null;
@@ -22,16 +25,13 @@ public partial class Grid : Node2D
     /// <summary>Grid cell dimensions derived from the <see cref="TileSet"/>.  If there is no <see cref="TileSet"/>, the size is zero.</summary>
     public Vector2 CellSize => GroundLayer?.TileSet?.TileSize ?? Vector2.Zero;
 
-    /// <summary>Grid dimensions. Both elements should be positive.</summary>
     public Vector2I Size => GroundLayer?.GetUsedRect().End ?? Vector2I.Zero;
 
     /// <summary>Characters and objects occupying the grid.</summary>
     public readonly Dictionary<Vector2I, GridNode> Occupants = [];
 
-    /// <summary>Check if a cell offset is in the grid.</summary>
-    /// <param name="offset">offset to check.</param>
-    /// <returns><c>true</c> if the <paramref name="offset"/> is within the grid bounds, and <c>false</c> otherwise.</returns>
-    public bool Contains(Vector2I offset) => new Rect2I(Vector2I.Zero, Size).HasPoint(offset);
+    /// <summary>Regions in which units can perform special actions defined by the region.</summary>
+    public IEnumerable<SpecialActionRegion> SpecialActionRegions => GetChildren().OfType<SpecialActionRegion>();
 
     /// <summary>Find the cell offset closest to the given one inside the grid.</summary>
     /// <param name="cell">Cell offset to clamp.
@@ -53,14 +53,6 @@ public partial class Grid : Node2D
     /// <returns>The position of the upper-left corner of the cell containing the given <paramref name="position"/>.</returns>
     public Vector2 Snap(Vector2 position) => PositionOf(CellOf(position));
 
-    /// <returns>The terrain information for a cell, or <see cref="DefaultTerrain"/> if the terrain hasn't been set.</returns>
-    /// <exception cref="IndexOutOfRangeException">If the <paramref name="cell"/> is outside the grid.</exception>
-    public Terrain GetTerrain(Vector2I cell) => TerrainLayer?.GetCellTileData(cell)?.GetCustomData("terrain").As<Terrain>() ?? DefaultTerrain;
-
-    /// <param name="cell">Coordinates of the cell.</param>
-    /// <returns>A unique ID within this map of the given <paramref name="cell"/>.</returns>
-    public int CellId(Vector2I cell) => cell.X*Size.X + cell.Y;
-
     /// <param name="cell">Coordinates of the cell.</param>
     /// <returns>The bounding box of the cell.</returns>
     public Rect2 CellRect(Vector2I cell) => new(cell*CellSize, CellSize);
@@ -79,39 +71,17 @@ public partial class Grid : Node2D
         return enclosure;
     }
 
-    /// <summary>
-    /// Compute the total cost of a collection of cells. If the cells are a contiguous path, represents the total cost of moving along that
-    /// path.
-    /// </summary>
-    /// <param name="path">List of cells to sum up.</param>
-    /// <returns>The sum of the cost of each cell in the <paramref name="path"/>.</returns>
-    public int Cost(IEnumerable<Vector2I> path) => path.Select((c) => GetTerrain(c).Cost).Sum();
-
-    /// <summary>Find all the cells that are exactly a specified Manhattan distance away from a center cell.</summary>
-    /// <param name="cell">Cell at the center of the range.</param>
-    /// <param name="distance">Distance away from the center cell to search.</param>
-    /// <returns>A collection of cells that are on the grid and exactly the specified <paramref name="distance"/> away from the center <paramref name="cell"/>.</returns>
-    public IEnumerable<Vector2I> GetCellsAtRange(Vector2I cell, int distance)
-    {
-        HashSet<Vector2I> cells = [];
-        for (int i = 0; i < distance; i++)
-        {
-            Vector2I target;
-            if (Contains(target = cell + new Vector2I(-distance + i, -i)))
-                cells.Add(target);
-            if (Contains(target = cell + new Vector2I(i, -distance + i)))
-                cells.Add(target);
-            if (Contains(target = cell + new Vector2I(distance - i, i)))
-                cells.Add(target);
-            if (Contains(target = cell + new Vector2I(-i, distance - i)))
-                cells.Add(target);
-        }
-        return cells;
-    }
+    public bool Contains(Vector2I cell) => IGrid.Contains(this, cell);
+    public bool IsTraversable(Vector2I cell, Faction faction) => !Occupants.TryGetValue(cell, out GridNode occupant) || (occupant is Unit unit && unit.Faction.AlliedTo(faction));
+    public IEnumerable<Vector2I> GetCellsAtDistance(Vector2I cell, int distance) => IGrid.GetCellsAtDistance(this, cell, distance);
+    public Terrain GetTerrain(Vector2I cell) => TerrainLayer?.GetCellTileData(cell)?.GetCustomData("terrain").As<Terrain>() ?? DefaultTerrain;
+    public int PathCost(IEnumerable<Vector2I> path) => IGrid.PathCost(this, path);
+    public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits() => Occupants.Where((e) => e.Value is Unit).ToImmutableDictionary((e) => e.Key, (e) => e.Value as IUnit);
+    public IEnumerable<ISpecialActionRegion> GetSpecialActionRegions() => SpecialActionRegions;
 
     public override string[] _GetConfigurationWarnings()
     {
-        List<string> warnings = new(base._GetConfigurationWarnings() ?? []);
+        List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
 
         if (DefaultTerrain is null)
             warnings.Add("No default terrain set");

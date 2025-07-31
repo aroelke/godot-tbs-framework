@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TbsTemplate.MathExt;
 
 namespace TbsTemplate.Extensions;
 
@@ -24,6 +25,15 @@ public static class IEnumerableExtensions
     /// <typeparam name="T">Type of the elements of the collections.</typeparam>
     /// <returns>A collection containing all the constituent elements of the collections in <paramref name="collection"/>.</returns>
     public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> collection) => collection.SelectMany(static (t) => t);
+
+    /// <inheritdoc cref="Collections.Permutations{T}(IEnumerable{T}, int)"/>
+    public static IEnumerable<IList<T>> Permutations<T>(this IEnumerable<T> collection, int length) => Collections.Permutations(collection, length);
+
+    /// <inheritdoc cref="Collections.Permutations{T}(IEnumerable{T})"/>
+    public static IEnumerable<IList<T>> Permutations<T>(this IEnumerable<T> collection) => Collections.Permutations(collection, collection.Count());
+
+    /// <inheritdoc cref="Collections.Cross{T, U}(IEnumerable{T}, IEnumerable{U})"/>
+    public static IEnumerable<(T, U)> Cross<T, U>(this IEnumerable<T> a, IEnumerable<U> b) => Collections.Cross(a, b);
 
     /// <summary>Create a collection that cycles back to the first element after the last element is reached.</summary>
     /// <typeparam name="T">Type of the elements in <paramref name="collection"/></typeparam>

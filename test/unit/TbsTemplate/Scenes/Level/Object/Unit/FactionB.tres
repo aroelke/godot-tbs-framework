@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="Faction" load_steps=2 format=3 uid="uid://cpbxjv5iemfrt"]
+
+[ext_resource type="Script" path="res://src/TbsTemplate/Data/Faction.cs" id="1_tkndt"]
+
+[resource]
+script = ExtResource("1_tkndt")
+Name = &"B"
+Color = Color(1, 1, 1, 1)
+AllyPaths = PackedStringArray()

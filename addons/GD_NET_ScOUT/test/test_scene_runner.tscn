@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://1cc62ud6k6yh"]
+
+[ext_resource type="Script" path="res://addons/GD_NET_ScOUT/TestSceneRunner.cs" id="1_75uhv"]
+
+[node name="TestSceneRunner" type="Node2D"]
+script = ExtResource("1_75uhv")
+Scenes = []
+TestSceneDirectories = PackedStringArray("res://addons/GD_NET_ScOUT/test/scenes/")
+PrintReportToStdOut = false
+TestReportPath = "user://scout-report.xml"

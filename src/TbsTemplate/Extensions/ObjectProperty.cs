@@ -20,7 +20,7 @@ public readonly record struct ObjectProperty(StringName Name, Variant.Type Type,
     /// <param name="options">Values the property is restricted to.</param>
     public static ObjectProperty CreateEnumProperty<[MustBeVariant] T>(StringName name, IEnumerable<T> options) => new(
         name,
-        Variant.From(options.First()).VariantType,
+        Variant.From(options.FirstOrDefault()).VariantType,
         PropertyHint.Enum,
         string.Join(",", options.Select((o) => o.ToString()))
     );

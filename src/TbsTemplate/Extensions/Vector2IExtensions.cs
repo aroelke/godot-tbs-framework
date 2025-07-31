@@ -1,20 +1,18 @@
 using Godot;
+using TbsTemplate.Scenes.Level.Map;
 
 namespace TbsTemplate.Extensions;
 
 /// <summary>Extensions for <see cref="Vector2I"/>.</summary>
 public static class Vector2IExtensions
 {
-    // List of the four cardinal directions
-    public static readonly Vector2I[] Directions = [Vector2I.Up, Vector2I.Right, Vector2I.Down, Vector2I.Left];
-
     /// <summary>Determine if two cell coordinate pairs are adjacent.</summary>
     /// <param name="a">First pair for comparison.</param>
     /// <param name="b">Second pair for comparison.</param>
     /// <returns><c>true</c> if the two coordinate pairs are adjacent, and <c>false</c> otherwise.</returns>
     public static bool IsAdjacent(this Vector2I a, Vector2I b)
     {
-        foreach (Vector2I direction in Directions)
+        foreach (Vector2I direction in IGrid.Directions)
             if (b - a == direction || a - b == direction)
                 return true;
         return false;
@@ -34,7 +32,7 @@ public static class Vector2IExtensions
     /// The Manhattan distance (sum of the absolute values of the differences in coordinates) between <paramref name="a"/> and
     /// <paramref name="b"/>.
     /// </returns>
-    public static int DistanceTo(this Vector2I a, Vector2I b) => (b - a).Abs().Sum();
+    public static int ManhattanDistanceTo(this Vector2I a, Vector2I b) => (b - a).Abs().Sum();
 
     /// <summary>Find the parallel and perpendicular projections of a <see cref="Vector2I"/> onto another.</summary>
     /// <returns>

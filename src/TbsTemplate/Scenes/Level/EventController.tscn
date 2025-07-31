@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://bi8p6x3pf3217"]
-
-[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/EventController.cs" id="1_7py8l"]
-
-[node name="EventController" type="Node"]
-script = ExtResource("1_7py8l")

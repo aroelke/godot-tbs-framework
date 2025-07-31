@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsTemplate.Data;
+using TbsTemplate.Scenes.Level.Control;
 
 namespace TbsTemplate.Scenes.Level.Object.Group;
 
@@ -10,6 +11,9 @@ namespace TbsTemplate.Scenes.Level.Object.Group;
 [GlobalClass, Tool]
 public partial class Army : GridNodeGroup, IEnumerable<Unit>
 {
+    private ArmyController _controller = null;
+    public ArmyController Controller => _controller ??= GetChildren().OfType<ArmyController>().FirstOrDefault();
+
     [Export] public Faction Faction = null;
 
     /// <summary>Find the "previous" unit in the list, looping around to the end if needed.</summary>
@@ -61,7 +65,17 @@ public partial class Army : GridNodeGroup, IEnumerable<Unit>
     public void OnChildEnteredTree(Node child)
     {
         if (child is Unit unit)
-            unit.Faction = Faction;
+            unit.Army = this;
+    }
+
+    public override string[] _GetConfigurationWarnings()
+    {
+        List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
+
+        if (GetChildren().OfType<ArmyController>().Count() > 1)
+            warnings.Add("There are too many unit controllers.  Only the first one will be used.");
+
+        return [.. warnings];
     }
 
     public override void _Ready()
@@ -69,7 +83,7 @@ public partial class Army : GridNodeGroup, IEnumerable<Unit>
         base._Ready();
 
         foreach (Unit unit in (IEnumerable<Unit>)this)
-            unit.Faction = Faction;
+            unit.Army = this;
     }
 
     IEnumerator<Unit> IEnumerable<Unit>.GetEnumerator() => GetChildren().OfType<Unit>().GetEnumerator();

@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="godot-tbs-template"
-run/main_scene="res://test/TestMap.tscn"
+run/main_scene="res://demo/TestMap.tscn"
 config/features=PackedStringArray("4.3", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -21,14 +21,15 @@ InputManager="*res://src/TbsTemplate/UI/Controls/Device/InputManager.tscn"
 DeviceManager="*res://src/TbsTemplate/UI/Controls/Device/DeviceManager.tscn"
 MusicController="*res://src/TbsTemplate/UI/MusicController.tscn"
 SceneManager="*res://src/TbsTemplate/Scenes/SceneManager.tscn"
-LevelEvents="*res://src/TbsTemplate/Scenes/Level/LevelEvents.tscn"
+LevelEvents="*res://src/TbsTemplate/Scenes/Level/Events/LevelEvents.tscn"
+SceneScout="*res://addons/GD_NET_ScOUT/SceneScout.cs"
 
 [display]
 
 window/size/viewport_width=1280
 window/size/viewport_height=960
 window/stretch/mode="canvas_items"
-mouse_cursor/custom_image="res://test/assets/ui/mouse.png"
+mouse_cursor/custom_image="res://demo/assets/ui/mouse.png"
 
 [dotnet]
 
@@ -41,7 +42,7 @@ version_control/autoload_on_startup=true
 
 [editor_plugins]
 
-enabled=PackedStringArray()
+enabled=PackedStringArray("res://addons/GD_NET_ScOUT/plugin.cfg")
 
 [input]
 

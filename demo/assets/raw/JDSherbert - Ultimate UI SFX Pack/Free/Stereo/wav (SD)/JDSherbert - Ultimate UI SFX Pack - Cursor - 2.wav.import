@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://dt36n6as2bg0n"
+path="res://.godot/imported/JDSherbert - Ultimate UI SFX Pack - Cursor - 2.wav-e04d0d11379dd5236c55c8b2c0238c5d.sample"
+
+[deps]
+
+source_file="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Stereo/wav (SD)/JDSherbert - Ultimate UI SFX Pack - Cursor - 2.wav"
+dest_files=["res://.godot/imported/JDSherbert - Ultimate UI SFX Pack - Cursor - 2.wav-e04d0d11379dd5236c55c8b2c0238c5d.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

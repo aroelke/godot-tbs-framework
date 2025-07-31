@@ -1,0 +1,39 @@
+[gd_scene load_steps=6 format=3 uid="uid://ca6g5c6dsaqjb"]
+
+[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Control/AIController.cs" id="1_c0any"]
+[ext_resource type="Texture2D" uid="uid://dhxxyboxchr67" path="res://demo/assets/level/ui/cursor.png" id="2_pka1p"]
+[ext_resource type="PackedScene" uid="uid://cl6fmcw1757sk" path="res://src/TbsTemplate/Scenes/Transitions/FadeToBlackTransition.tscn" id="3_uciax"]
+[ext_resource type="Texture2D" uid="uid://5if38wokibin" path="res://demo/assets/raw/Pixel Health Bar/Bar/no health bar (3x).png" id="4_ypr3o"]
+[ext_resource type="Texture2D" uid="uid://b1rv5edu7ewx" path="res://demo/assets/raw/Pixel Health Bar/Health/health (3x).png" id="5_dp0yo"]
+
+[node name="AIController" type="Node"]
+script = ExtResource("1_c0any")
+
+[node name="Pseudocursor" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("2_pka1p")
+offset = Vector2(16, 16)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="FastForwardTransition" parent="CanvasLayer" instance=ExtResource("3_uciax")]
+visible = false
+
+[node name="TurnProgress" type="TextureProgressBar" parent="CanvasLayer"]
+visible = false
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -415.0
+offset_top = -81.0
+offset_right = -31.0
+offset_bottom = -33.0
+grow_horizontal = 0
+grow_vertical = 0
+texture_under = ExtResource("4_ypr3o")
+texture_progress = ExtResource("5_dp0yo")
+
+[node name="IndicatorTimer" type="Timer" parent="."]
+one_shot = true

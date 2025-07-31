@@ -1,9 +1,9 @@
 [gd_scene load_steps=5 format=3 uid="uid://cvch4ay3dx0wv"]
 
 [ext_resource type="Script" path="res://src/TbsTemplate/UI/Combat/ParticipantInfo.cs" id="1_ecooa"]
-[ext_resource type="Texture2D" uid="uid://blfcbg8bx2epd" path="res://test/assets/raw/Pixel Health Bar/Bar/no health bar (2x).png" id="2_3b0kp"]
+[ext_resource type="Texture2D" uid="uid://blfcbg8bx2epd" path="res://demo/assets/raw/Pixel Health Bar/Bar/no health bar (2x).png" id="2_3b0kp"]
 [ext_resource type="PackedScene" uid="uid://duggsftmu8x6l" path="res://src/TbsTemplate/Nodes/Components/HealthComponent.tscn" id="2_07iwx"]
-[ext_resource type="Texture2D" uid="uid://cuanvqgifu4u3" path="res://test/assets/raw/Pixel Health Bar/Health/health (2x).png" id="3_qcb3p"]
+[ext_resource type="Texture2D" uid="uid://cuanvqgifu4u3" path="res://demo/assets/raw/Pixel Health Bar/Health/health (2x).png" id="3_qcb3p"]
 
 [node name="ParticipantInfo" type="GridContainer"]
 columns = 3
