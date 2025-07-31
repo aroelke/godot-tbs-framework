@@ -13,10 +13,11 @@ public abstract partial class ArmyController : Node
     /// <summary>Signals that a selection has been canceled.</summary>
     [Signal] public delegate void SelectionCanceledEventHandler();
 
-    /// <summary>Signals that an army's turn is being skipped (the rest of its actions are being forfeited).</summary>
-    [Signal] public delegate void TurnSkippedEventHandler();
-
-    /// <summary>Fast-forward through the rest of the current army's turn. Intended for use by AI to reduce player downtime.</summary>
+    /// <summary>
+    /// <para>Fast-forward through the rest of the current army's turn.</para>
+    /// <para>For a player army, this can be called after deactivating all units to signal an early end of the turn.</para>
+    /// <para>For an AI army, this can be used to skip animating the AI's turn.</para>
+    /// </summary>
     [Signal] public delegate void TurnFastForwardEventHandler();
 
     /// <summary>Signals that a <see cref="Unit"/> has been chosen to act.</summary>
@@ -51,7 +52,6 @@ public abstract partial class ArmyController : Node
     {
         Dictionary<StringName, List<Callable>> signals = [];
         signals[SignalName.SelectionCanceled] = [];
-        signals[SignalName.TurnSkipped] = [];
         signals[SignalName.TurnFastForward] = [];
         signals[SignalName.UnitSelected] = [];
         signals[SignalName.PathConfirmed] = [];

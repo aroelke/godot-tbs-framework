@@ -104,7 +104,6 @@ public partial class LevelManager : Node
     {
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.SelectionCanceled, Callable.From(OnSelectionCanceled));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TurnFastForward, Callable.From(_.State.Root.Running.Skippable.OnFastForward.React));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TurnSkipped, Callable.From(_.State.Root.Running.Skippable.Idle.OnTurnSkipped.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitSelected, Callable.From<Unit>(_.State.Root.Running.Skippable.Idle.OnUnitSelected.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.PathConfirmed, Callable.From<Unit, Godot.Collections.Array<Vector2I>>(_.State.Root.Running.Skippable.UnitSelected.OnPathConfirmed.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Unit, StringName>(_.State.Root.Running.Skippable.UnitSelected.OnUnitCommanded.React));
@@ -135,11 +134,6 @@ public partial class LevelManager : Node
         State.ExpressionProperties = State.ExpressionProperties.SetItem(OccupiedProperty, ActiveAllyOccupied);
 
         State.SendEvent(_events[SelectEvent]);
-    }
-
-    public void OnIdleTurnSkipped()
-    {
-        State.SendEvent(_events[SkipEvent]);
     }
 #endregion
 #region Unit Selected State
