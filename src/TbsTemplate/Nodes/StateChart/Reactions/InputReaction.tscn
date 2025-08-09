@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://dhytcbhqvrpx0"]
 
-[ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/InputReaction.cs" id="1_vxvh0"]
+[ext_resource type="Script" uid="uid://cnbr5ltk74l5p" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/InputReaction.cs" id="1_vxvh0"]
 [ext_resource type="Resource" uid="uid://bw65e8e6vr1fl" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/UnCondition.tres" id="2_qxpp4"]
 
 [node name="InputReaction" type="Node"]

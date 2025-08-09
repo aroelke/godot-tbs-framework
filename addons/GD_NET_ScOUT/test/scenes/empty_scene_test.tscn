@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://brvkr54cm4obl"]
 
-[ext_resource type="Script" path="res://addons/GD_NET_ScOUT/test/EmptySceneTest.cs" id="1_2sf5g"]
+[ext_resource type="Script" uid="uid://gvi0qtqbmyok" path="res://addons/GD_NET_ScOUT/test/EmptySceneTest.cs" id="1_2sf5g"]
 
 [node name="EmptySceneTest" type="RichTextLabel"]
 anchors_preset = 15

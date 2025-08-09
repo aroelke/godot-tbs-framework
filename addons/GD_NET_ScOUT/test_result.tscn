@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dstbxq6v3bavo"]
 
-[ext_resource type="Script" path="res://addons/GD_NET_ScOUT/TestResult.cs" id="1_oamte"]
+[ext_resource type="Script" uid="uid://dcpghsj5wanj1" path="res://addons/GD_NET_ScOUT/TestResult.cs" id="1_oamte"]
 
 [node name="TestResult" type="VBoxContainer" node_paths=PackedStringArray("_typeNameLabel", "_methodList")]
 anchors_preset = 15

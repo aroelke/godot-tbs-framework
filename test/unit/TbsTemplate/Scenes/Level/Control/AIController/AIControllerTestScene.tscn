@@ -1,6 +1,6 @@
 [gd_scene load_steps=13 format=4 uid="uid://cjrfaj5cfe0xy"]
 
-[ext_resource type="Script" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/AIControllerTestScene.cs" id="1_0ihwx"]
+[ext_resource type="Script" uid="uid://c3r3biv2pwhtn" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/AIControllerTestScene.cs" id="1_0ihwx"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsTemplate/Scenes/Level/Map/Grid.tscn" id="1_c3a26"]
 [ext_resource type="PackedScene" uid="uid://1ev2yxu31ow" path="res://src/TbsTemplate/Scenes/Level/Object/Group/Army.tscn" id="2_btmox"]
 [ext_resource type="TileSet" uid="uid://ca702fu7govjb" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/tileset.tres" id="2_chjjl"]

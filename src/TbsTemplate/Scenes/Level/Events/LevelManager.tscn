@@ -1,6 +1,6 @@
 [gd_scene load_steps=18 format=3 uid="uid://p5cw5rndfqun"]
 
-[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.cs" id="1_r2v0t"]
+[ext_resource type="Script" uid="uid://coddgojipo1ni" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://demo/assets/ui/Hints.tres" id="3_bmb6a"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DBrain.tscn" id="3_td8u6"]
 [ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/TbsTemplate/Nodes/StateChart/Chart.tscn" id="17_sd0pe"]
@@ -12,7 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://hri0gp84mgng" path="res://src/TbsTemplate/Scenes/Level/Events/Reactions/PathReaction.tscn" id="22_h5tkx"]
 [ext_resource type="PackedScene" uid="uid://6l44mlff5sgr" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/ActionReaction.tscn" id="22_mocgv"]
 [ext_resource type="PackedScene" uid="uid://8kjm1k78c32w" path="res://src/TbsTemplate/Scenes/Level/Events/Reactions/CommandReaction.tscn" id="27_7kdnf"]
-[ext_resource type="Script" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/IntCondition.cs" id="27_kyhbc"]
+[ext_resource type="Script" uid="uid://bfgjgfuvyv5ul" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/IntCondition.cs" id="27_kyhbc"]
 [ext_resource type="PackedScene" uid="uid://bxjlkc4hevsxb" path="res://src/TbsTemplate/Scenes/Level/Events/Reactions/TargetReaction.tscn" id="28_5f3xe"]
 [ext_resource type="PackedScene" uid="uid://b7i65c130fgfs" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/EnterTreeReaction.tscn" id="29_o6hju"]
 

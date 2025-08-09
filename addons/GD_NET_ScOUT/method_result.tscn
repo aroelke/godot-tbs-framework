@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://d1f6c4yvl5r2c"]
 
-[ext_resource type="Script" path="res://addons/GD_NET_ScOUT/MethodResult.cs" id="1_pc067"]
+[ext_resource type="Script" uid="uid://bwr22jlj8guc6" path="res://addons/GD_NET_ScOUT/MethodResult.cs" id="1_pc067"]
 
 [node name="MethodResult" type="PanelContainer" node_paths=PackedStringArray("_methodName", "_result")]
 anchors_preset = 15

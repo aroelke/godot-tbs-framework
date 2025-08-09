@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://b8ksa4t2o4fvh"]
 
-[ext_resource type="Script" path="res://test/unit/TbsTemplate/Scenes/Level/Object/Unit/IUnitTestScene.cs" id="1_f40gk"]
+[ext_resource type="Script" uid="uid://blyfronnqe0is" path="res://test/unit/TbsTemplate/Scenes/Level/Object/Unit/IUnitTestScene.cs" id="1_f40gk"]
 [ext_resource type="Resource" uid="uid://lbmf8qctpfl7" path="res://test/unit/TbsTemplate/Scenes/Level/Object/Unit/FactionA1.tres" id="2_id7gs"]
 [ext_resource type="Resource" uid="uid://63amvar4n4d1" path="res://test/unit/TbsTemplate/Scenes/Level/Object/Unit/FactionA2.tres" id="3_4vv7y"]
 [ext_resource type="Resource" uid="uid://cpbxjv5iemfrt" path="res://test/unit/TbsTemplate/Scenes/Level/Object/Unit/FactionB.tres" id="4_65g1y"]

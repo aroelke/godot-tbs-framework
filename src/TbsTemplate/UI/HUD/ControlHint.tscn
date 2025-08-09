@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://btlhiv0dyhf7o"]
 
-[ext_resource type="Script" path="res://src/TbsTemplate/UI/HUD/ControlHint.cs" id="1_y8x7b"]
+[ext_resource type="Script" uid="uid://cxmmuyk5pj3jm" path="res://src/TbsTemplate/UI/HUD/ControlHint.cs" id="1_y8x7b"]
 [ext_resource type="Resource" uid="uid://37pcc5c7cogr" path="res://demo/assets/ui/icons/controls/mouse/MouseIconMap.tres" id="3_2hhue"]
 [ext_resource type="Resource" uid="uid://q61hgr3qsv4g" path="res://demo/assets/ui/icons/controls/keyboard/KeyIconMap.tres" id="4_qc41a"]
 [ext_resource type="Resource" uid="uid://c27jd22jjxlu4" path="res://demo/assets/ui/icons/controls/GamepadButtonIconMap.tres" id="5_olt2t"]

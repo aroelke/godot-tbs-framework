@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="GamepadAxisIconMap" load_steps=5 format=3 uid="uid://rlgg8mn3bshl"]
 
-[ext_resource type="Script" path="res://src/TbsTemplate/UI/Controls/Icons/GamepadAxisIconMap.cs" id="1_c6t22"]
+[ext_resource type="Script" uid="uid://crp15uavaq01u" path="res://src/TbsTemplate/UI/Controls/Icons/GamepadAxisIconMap.cs" id="1_c6t22"]
 [ext_resource type="Resource" uid="uid://cjhpklpgfx1y2" path="res://demo/assets/ui/icons/controls/playstation/PlaystationAxisIconMap.tres" id="1_isbus"]
-[ext_resource type="Script" path="res://src/TbsTemplate/UI/Controls/Icons/GamepadAxisIconMapElement.cs" id="2_t0i8k"]
+[ext_resource type="Script" uid="uid://jyojbc0pr5ag" path="res://src/TbsTemplate/UI/Controls/Icons/GamepadAxisIconMapElement.cs" id="2_t0i8k"]
 
 [sub_resource type="Resource" id="Resource_sdrep"]
 script = ExtResource("2_t0i8k")

@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://ce83kbl7xjwpr"]
 
-[ext_resource type="Script" path="res://addons/GD_NET_ScOUT/TestRunner.cs" id="1_dxr4g"]
-[ext_resource type="Script" path="res://addons/GD_NET_ScOUT/ShowHideButton.cs" id="2_rofdj"]
+[ext_resource type="Script" uid="uid://lwhtxo0t8agx" path="res://addons/GD_NET_ScOUT/TestRunner.cs" id="1_dxr4g"]
+[ext_resource type="Script" uid="uid://dy8jrqlrpxtut" path="res://addons/GD_NET_ScOUT/ShowHideButton.cs" id="2_rofdj"]
 
 [node name="TestRunner" type="ScrollContainer" node_paths=PackedStringArray("_showHideButton", "_loadTests", "_runTests", "_testList")]
 anchors_preset = 15

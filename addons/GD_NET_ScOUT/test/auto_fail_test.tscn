@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://bg40lydpjwtrp"]
 
-[ext_resource type="Script" path="res://addons/GD_NET_ScOUT/test/AutoFailTest.cs" id="1_ft4o6"]
+[ext_resource type="Script" uid="uid://cc5tp0qlrbsba" path="res://addons/GD_NET_ScOUT/test/AutoFailTest.cs" id="1_ft4o6"]
 [ext_resource type="PackedScene" uid="uid://ce83kbl7xjwpr" path="res://addons/GD_NET_ScOUT/test_runner.tscn" id="1_mggve"]
 
 [node name="AutoFailTest" type="Node2D"]

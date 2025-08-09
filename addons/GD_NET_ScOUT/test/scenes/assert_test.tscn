@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://c7bmkexex3tu3"]
 
-[ext_resource type="Script" path="res://addons/GD_NET_ScOUT/test/AssertTest.cs" id="1_h2rql"]
+[ext_resource type="Script" uid="uid://b7gixxymfpyfk" path="res://addons/GD_NET_ScOUT/test/AssertTest.cs" id="1_h2rql"]
 [ext_resource type="PackedScene" uid="uid://ce83kbl7xjwpr" path="res://addons/GD_NET_ScOUT/test_runner.tscn" id="2_7b574"]
 
 [node name="AssertTest" type="Node2D"]

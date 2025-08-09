@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://7wc21qvj7n3n"]
 
-[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Objectives/DefeatUnitObjective.cs" id="1_281em"]
+[ext_resource type="Script" uid="uid://bryqucey4xf2k" path="res://src/TbsTemplate/Scenes/Level/Objectives/DefeatUnitObjective.cs" id="1_281em"]
 
 [node name="DefeatUnitObjective" type="Node"]
 script = ExtResource("1_281em")

@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="IndividualGamepadAxisIconMap" load_steps=3 format=3 uid="uid://cjhpklpgfx1y2"]
 
 [ext_resource type="Texture2D" uid="uid://cgyr5p8sm8ypi" path="res://demo/assets/ui/icons/controls/playstation/left_stick.png" id="1_avpuo"]
-[ext_resource type="Script" path="res://src/TbsTemplate/UI/Controls/Icons/IndividualGamepadAxisIconMap.cs" id="1_l0u27"]
+[ext_resource type="Script" uid="uid://cy3o506j27an8" path="res://src/TbsTemplate/UI/Controls/Icons/IndividualGamepadAxisIconMap.cs" id="1_l0u27"]
 
 [resource]
 script = ExtResource("1_l0u27")

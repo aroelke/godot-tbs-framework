@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://dixhxpjk8n4y6"]
 
-[ext_resource type="Script" path="res://src/TbsTemplate/UI/Camera2DBrain.cs" id="1_oq6vh"]
+[ext_resource type="Script" uid="uid://bcsw02fjvu21c" path="res://src/TbsTemplate/UI/Camera2DBrain.cs" id="1_oq6vh"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_np3kc"]
 noise_type = 3

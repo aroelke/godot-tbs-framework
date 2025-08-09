@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://ihmt7i76chf0"]
 
-[ext_resource type="Script" path="res://addons/GD_NET_ScOUT/Dock.cs" id="1_qnpso"]
+[ext_resource type="Script" uid="uid://b37682noukwds" path="res://addons/GD_NET_ScOUT/Dock.cs" id="1_qnpso"]
 
 [node name="ScOUT" type="VBoxContainer" node_paths=PackedStringArray("_hideAllButton", "_dirContainer", "_addDirButton", "_addDirDialog", "_sceneFileContainer", "_addSceneFileButton", "_addSceneFilesDialog", "_verboseLoggingButton", "_printReportsButton", "_exportReportsButton", "_testReportPath", "_saveAsButton", "_saveAsDialog", "_setProjectSettingButton", "_messageLabel")]
 anchors_preset = 15
