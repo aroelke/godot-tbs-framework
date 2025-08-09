@@ -35,11 +35,6 @@ mouse_cursor/custom_image="res://demo/assets/ui/mouse.png"
 
 project/assembly_name="godot-tbs-template"
 
-[editor]
-
-version_control/plugin_name="GitPlugin"
-version_control/autoload_on_startup=true
-
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/GD_NET_ScOUT/plugin.cfg")
