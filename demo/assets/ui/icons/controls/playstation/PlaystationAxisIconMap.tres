@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="GamepadAxisIconMap" load_steps=3 format=3 uid="uid://c0rtxtyadqvjk"]
+
+[ext_resource type="Script" uid="uid://b1qk02c6ufcxj" path="res://src/TbsTemplate/UI/Controls/IconMaps/GamepadAxisIconMap.cs" id="1_15w1g"]
+[ext_resource type="Texture2D" uid="uid://cgyr5p8sm8ypi" path="res://demo/assets/ui/icons/controls/playstation/left_stick.png" id="1_avpuo"]
+
+[resource]
+script = ExtResource("1_15w1g")
+Icons = Dictionary[int, Texture2D]({})
+LeftAxis = ExtResource("1_avpuo")
+metadata/_custom_type_script = "uid://b1qk02c6ufcxj"

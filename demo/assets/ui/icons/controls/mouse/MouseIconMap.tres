@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MouseIconMap" load_steps=5 format=3 uid="uid://birj34ju4ee2y"]
+
+[ext_resource type="Texture2D" uid="uid://lepqc5fe8xw4" path="res://demo/assets/ui/icons/controls/mouse/left.png" id="1_28xcu"]
+[ext_resource type="Texture2D" uid="uid://xnouovy7cud3" path="res://demo/assets/ui/icons/controls/mouse/mouse.png" id="2_tm3ch"]
+[ext_resource type="Texture2D" uid="uid://bjl0n6oxm47w5" path="res://demo/assets/ui/icons/controls/mouse/right.png" id="3_lkfkt"]
+[ext_resource type="Script" uid="uid://bkty261dwvxic" path="res://src/TbsTemplate/UI/Controls/IconMaps/MouseIconMap.cs" id="4_vbt8a"]
+
+[resource]
+script = ExtResource("4_vbt8a")
+Motion = ExtResource("2_tm3ch")
+Icons = Dictionary[int, Texture2D]({
+1: ExtResource("1_28xcu"),
+2: ExtResource("3_lkfkt")
+})
+metadata/_custom_type_script = "uid://cm14n3kl8eoih"
