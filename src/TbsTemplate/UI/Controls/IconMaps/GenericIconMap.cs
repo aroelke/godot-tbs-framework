@@ -10,9 +10,9 @@ public abstract partial class GenericIconMap<[MustBeVariant] T> : IconMap, IRead
 {
     public abstract Godot.Collections.Dictionary<T, Texture2D> Icons { get; set; }
 
-    [Export] public Texture2D NoMappedActionIcon = null;
+    [Export] public virtual Texture2D NoMappedActionIcon { get; set; } = null;
 
-    [Export] public Texture2D NoMappedInputIcon = null;
+    [Export] public virtual Texture2D NoMappedInputIcon { get; set; } = null;
 
     public override IEnumerable<StringName> Keys => Icons.Keys.Select((k) => new StringName(Enum.GetName(k)));
     public override IEnumerable<Texture2D> Values => Icons.Values;
