@@ -9,14 +9,15 @@ namespace TbsTemplate.UI.Controls.IconMaps;
 
 public abstract partial class CompositeIconMap<[MustBeVariant] T, [MustBeVariant] M> : GenericIconMap<T>, IReadOnlyDictionary<string, M> where T : struct, Enum where M : GenericIconMap<T>
 {
-    private M CurrentIconMap => Engine.IsEditorHint() || !IconMaps.TryGetValue(DeviceManager.DeviceName, out M map) ? NoMappingMap : map;
+    protected M CurrentIconMap => Engine.IsEditorHint() || !IconMaps.TryGetValue(DeviceManager.DeviceName, out M map) ? NoMappingMap : map;
+    protected void WarnUseConstituents() => GD.PushWarning("Composite icon maps can't set icon mappings. Set icon mappings in the constituent individual maps.");
 
     public M this[string key] => IconMaps[key];
 
     public override Godot.Collections.Dictionary<T, Texture2D> Icons
     {
         get => CurrentIconMap?.Icons ?? [];
-        set => GD.PushWarning("Composite icon maps can't set icon mappings. Set icon mappings in the constituent individual maps.");
+        set => WarnUseConstituents();
     }
 
     public abstract Godot.Collections.Dictionary<string, M> IconMaps { get; set; }
@@ -30,13 +31,13 @@ public abstract partial class CompositeIconMap<[MustBeVariant] T, [MustBeVariant
     public override Texture2D NoMappedActionIcon
     {
         get => CurrentIconMap?.NoMappedActionIcon;
-        set => GD.PushWarning("Composite icon maps can't set icon mappings. Set icon mappings in the constituent individual maps.");
+        set => WarnUseConstituents();
     }
 
     public override Texture2D NoMappedInputIcon
     {
         get => CurrentIconMap?.NoMappedInputIcon;
-        set => GD.PushWarning("Composite icon maps can't set icon mappings. Set icon mappings in the constituent individual maps.");
+        set => WarnUseConstituents();
     }
 
     public override T GetInput(StringName action) => CurrentIconMap.GetInput(action);
