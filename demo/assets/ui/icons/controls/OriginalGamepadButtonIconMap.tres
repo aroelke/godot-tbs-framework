@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="GamepadButtonIconMap" load_steps=5 format=3 uid="uid://c27jd22jjxlu4"]
 
 [ext_resource type="Script" uid="uid://drdmmowo6k4bm" path="res://src/TbsTemplate/UI/Controls/Icons/GamepadButtonIconMap.cs" id="1_1k3n1"]
-[ext_resource type="Resource" uid="uid://ca444m32ts5x2" path="res://demo/assets/ui/icons/controls/playstation/PlaystationButtonIconMap.tres" id="1_eoch7"]
+[ext_resource type="Resource" uid="uid://ca444m32ts5x2" path="res://demo/assets/ui/icons/controls/playstation/OriginalPlaystationButtonIconMap.tres" id="1_eoch7"]
 [ext_resource type="Script" uid="uid://c4gdshpcxewx7" path="res://src/TbsTemplate/UI/Controls/Icons/GamepadButtonIconMapElement.cs" id="2_v3p0j"]
 
 [sub_resource type="Resource" id="Resource_whiry"]
