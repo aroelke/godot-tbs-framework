@@ -97,15 +97,6 @@ public partial class Chart : Node
     /// <summary>Whether or not events sent to the state chart should be validated against <see cref="Events"/>.</summary>
     [Export] public bool ValidateEvents { get; private set; } = true;
 
-    /// <summary>Create a property whose values can be an event defined for this state chart.</summary>
-    /// <param name="name">Name of the property.</param>
-    public ObjectProperty CreateEventProperty(StringName name) => new(
-        name,
-        Variant.Type.StringName,
-        PropertyHint.Enum,
-        string.Join<StringName>(',', Events)
-    );
-
     /// <summary>Send an event to the active <see cref="State"/>, which could trigger a <see cref="Transition"/>.</summary>
     /// <param name="event">Name of the event to send.</param>
     public void SendEvent(StringName @event)
