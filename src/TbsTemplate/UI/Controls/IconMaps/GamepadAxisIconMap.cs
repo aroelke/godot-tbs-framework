@@ -3,6 +3,7 @@ using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.UI.Controls.IconMaps;
 
+/// <summary>Maps gamepad axis inputs to icons for a particular type of gamepad.</summary>
 [GlobalClass, Tool]
 public partial class GamepadAxisIconMap : GenericIconMap<JoyAxis>, IGamepadAxisIconMap
 {

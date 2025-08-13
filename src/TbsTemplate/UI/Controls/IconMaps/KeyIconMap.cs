@@ -3,6 +3,7 @@ using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.UI.Controls.IconMaps;
 
+/// <summary>Maps keyboard key inputs to icons to display for them.</summary>
 [GlobalClass, Tool]
 public partial class KeyIconMap : GenericIconMap<Key>
 {

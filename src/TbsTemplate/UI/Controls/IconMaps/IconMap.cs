@@ -5,8 +5,12 @@ using Godot;
 
 namespace TbsTemplate.UI.Controls.IconMaps;
 
+/// <summary>Maps input action names to icons to display for them.</summary>
 public abstract partial class IconMap : Resource, IReadOnlyDictionary<StringName, Texture2D>
 {
+    /// <summary>Icon to use when there's no icon mapped to the input action.</summary>
+    [Export] public virtual Texture2D NoMappedActionIcon { get; set; } = null;
+
     public abstract IEnumerable<StringName> Keys { get; }
     public abstract IEnumerable<Texture2D> Values { get; }
     public abstract int Count { get; }

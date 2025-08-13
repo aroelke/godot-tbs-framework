@@ -2,6 +2,7 @@ using Godot;
 
 namespace TbsTemplate.UI.Controls.IconMaps;
 
+/// <summary>Maps gamepad axis inputs to icons for various types of gamepads.</summary>
 [GlobalClass, Tool]
 public partial class CompositeGamepadAxisIconMap : CompositeIconMap<JoyAxis, GamepadAxisIconMap>, IGamepadAxisIconMap
 {

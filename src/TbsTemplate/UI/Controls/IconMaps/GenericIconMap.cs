@@ -6,12 +6,14 @@ using Godot;
 
 namespace TbsTemplate.UI.Controls.IconMaps;
 
+/// <summary>Adds input enum mappings to display icons in addition to input action names.</summary>
+/// <typeparam name="T">Type of input enum being mapped to display icons.</typeparam>
 public abstract partial class GenericIconMap<[MustBeVariant] T> : IconMap, IReadOnlyDictionary<T, Texture2D> where T : struct, Enum
 {
+    /// <summary>Mapping from input values to icons.</summary>
     public abstract Godot.Collections.Dictionary<T, Texture2D> Icons { get; set; }
 
-    [Export] public virtual Texture2D NoMappedActionIcon { get; set; } = null;
-
+    /// <summary>Icon to use when there's no icon mapped to an input.</summary>
     [Export] public virtual Texture2D NoMappedInputIcon { get; set; } = null;
 
     public override IEnumerable<StringName> Keys => Icons.Keys.Select((k) => new StringName(Enum.GetName(k)));

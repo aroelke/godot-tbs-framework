@@ -3,6 +3,7 @@ using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.UI.Controls.IconMaps;
 
+/// <summary>Maps gamepad button inputs to icons for a particular type of gamepad.</summary>
 [GlobalClass, Tool]
 public partial class GamepadButtonIconMap : GenericIconMap<JoyButton>, IGamepadButtonIconMap
 {

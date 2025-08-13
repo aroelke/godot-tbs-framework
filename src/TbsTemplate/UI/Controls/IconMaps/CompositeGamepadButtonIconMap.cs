@@ -2,6 +2,7 @@ using Godot;
 
 namespace TbsTemplate.UI.Controls.IconMaps;
 
+/// <summary>Maps gamepad button inputs to icons for various types of gamepads.</summary>
 [GlobalClass, Tool]
 public partial class CompositeGamepadButtonIconMap : CompositeIconMap<JoyButton, GamepadButtonIconMap>, IGamepadButtonIconMap
 {
