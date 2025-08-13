@@ -1,7 +1,7 @@
 using Godot;
 using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI.Controls.Device;
-using TbsTemplate.UI.Controls.Icons;
+using TbsTemplate.UI.Controls.IconMaps;
 
 namespace TbsTemplate.UI.HUD;
 
@@ -31,17 +31,17 @@ public partial class GamepadCursorHintIcon : HBoxContainer
 
         AnalogIcon.Texture = InputManager.GetInputGamepadAxis(InputActions.AnalogMoveUp) switch
         {
-            JoyAxis.LeftX  | JoyAxis.LeftY  => AxisMap?.Left,
-            JoyAxis.RightX | JoyAxis.RightY => AxisMap?.Right,
+            JoyAxis.LeftX  | JoyAxis.LeftY  => AxisMap?.LeftAxis,
+            JoyAxis.RightX | JoyAxis.RightY => AxisMap?.RightAxis,
             _ => null
         };
     }
 
     /// <summary>Mapping of <see cref="JoyButton"/> on to icon to display.</summary>
-    [Export] public GamepadButtonIconMap ButtonMap = new();
+    [Export] public CompositeGamepadButtonIconMap ButtonMap = new();
 
     /// <summary>Mapping of <see cref="JoyAxis"/> onto icon to display.</summary>
-    [Export] public GamepadAxisIconMap AxisMap = new();
+    [Export] public CompositeGamepadAxisIconMap AxisMap = new();
 
     /// <summary>Whether to show the individual control icons or the unified one.</summary>
     public bool ShowIndividualIcons
