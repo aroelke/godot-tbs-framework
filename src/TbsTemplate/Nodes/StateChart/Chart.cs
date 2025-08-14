@@ -34,7 +34,7 @@ public partial class Chart : Node
     }
 
     private State _root = null;
-    private ImmutableDictionary<StringName, Variant> _properties = ImmutableDictionary<StringName, Variant>.Empty;
+    private readonly Dictionary<StringName, Variant> _properties = [];
     private readonly ConcurrentQueue<StringName> _eventQ = new();
     private readonly ConcurrentQueue<(Transition, State)> _transitionQ = new();
     private bool _transitionProcessingActive = false;
@@ -71,31 +71,17 @@ public partial class Chart : Node
         }
     }
 
-    /// <summary>
-    /// Dictionary of state chart properties and their values. Setting can cause a <see cref="Transition"/> if the update causes a
-    /// <see cref="Conditions.Condition"/> of a <see cref="Transition"/> from the active <see cref="State"/> to become true.
-    /// </summary>
-    public ImmutableDictionary<StringName, Variant> ExpressionProperties
-    {
-        get => _properties;
-        set
-        {
-            if (_properties != value)
-            {
-                EnsureReady();
-
-                _properties = value;
-                _propertyChangePending = true;
-                RunChanges();
-            }
-        }
-    }
-
     /// <summary>List of events available to the state chart.</summary>
     [Export] public StringName[] Events { get; private set; } = [];
 
+    [Export] public Godot.Collections.Dictionary<StringName, Variant> InitialExpressionProperties { get; private set; } = [];
+
     /// <summary>Whether or not events sent to the state chart should be validated against <see cref="Events"/>.</summary>
     [Export] public bool ValidateEvents { get; private set; } = true;
+
+    [Export] public bool ValidateExpressionNames { get; private set; } = true;
+
+    [Export] public bool ValidateExpressionTypes { get; private set; } = true;
 
     /// <summary>Send an event to the active <see cref="State"/>, which could trigger a <see cref="Transition"/>.</summary>
     /// <param name="event">Name of the event to send.</param>
@@ -110,6 +96,27 @@ public partial class Chart : Node
         else
             throw new ArgumentException($"State chart {Name} does not have an event {@event}");
     }
+
+    public void SetExpressionProperty(StringName name, Variant value)
+    {
+        if (ValidateExpressionNames && !_properties.ContainsKey(name))
+            throw new KeyNotFoundException(name);
+        else if (ValidateExpressionTypes && value.VariantType != _properties[name].VariantType)
+            throw new ArgumentException($"Variant type mismatch for expression property {name}: {value.VariantType} (expected {_properties[name].VariantType})");
+        else if (!_properties[name].ValueEquals(value))
+        {
+            EnsureReady();
+            _properties[name] = value;
+            _propertyChangePending = true;
+            RunChanges();
+        }
+    }
+
+    public void SetExpressionProperty<[MustBeVariant] T>(StringName name, T value) => SetExpressionProperty(name, Variant.From(value));
+
+    public Variant GetExpressionProperty(StringName name) => _properties[name];
+
+    public T GetExpressionProperty<[MustBeVariant] T>(StringName name) => GetExpressionProperty(name).As<T>();
 
     /// <summary>Execute a <see cref="Transition"/> from a state to its target.</summary>
     /// <param name="transition">Transition to run.</param>
@@ -129,9 +136,11 @@ public partial class Chart : Node
         }
     }
 
+    public IEnumerable<StringName> GetExpressionProperties() => _properties.Keys;
+
     public override string[] _GetConfigurationWarnings()
     {
-        List<string> warnings = new(base._GetConfigurationWarnings() ?? []);
+        List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
 
         if (GetChildCount() != 1 || GetChild(0) is not State)
             warnings.Add("A state chart must have exactly one child node that's a state.");
@@ -145,6 +154,9 @@ public partial class Chart : Node
 
         if (!Engine.IsEditorHint())
         {
+            foreach ((StringName name, Variant value) in InitialExpressionProperties)
+                _properties[name] = value;
+
             if (GetChildCount() != 1 || GetChild(0) is not State)
                 throw new Exception("A state chart must have exactly one child that's a state.");
             

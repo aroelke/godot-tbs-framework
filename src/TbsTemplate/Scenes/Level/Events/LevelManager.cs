@@ -34,7 +34,6 @@ public partial class LevelManager : Node
     private static readonly StringName DoneEvent   = "Done";
     // State chart conditions
     private readonly StringName OccupiedProperty    = "occupied";    // Current cell occupant (see below for options)
-    private readonly StringName TargetProperty      = "target";      // Current cell contains a potential target (for attack or support)
     private readonly StringName TraversableProperty = "traversable"; // Current cell is traversable
     private readonly StringName ActiveProperty      = "active";      // Number of remaining active units
     // State chart occupied values
@@ -131,7 +130,7 @@ public partial class LevelManager : Node
             throw new InvalidOperationException($"Cannot select inactive unit {unit.Name}");
 
         _selected = unit;
-        State.ExpressionProperties = State.ExpressionProperties.SetItem(OccupiedProperty, ActiveAllyOccupied);
+        State.SetExpressionProperty(OccupiedProperty, ActiveAllyOccupied);
 
         State.SendEvent(_events[SelectEvent]);
     }
@@ -192,7 +191,7 @@ public partial class LevelManager : Node
         if (Grid.Occupants.ContainsKey(path[^1]) && Grid.Occupants[path[^1]] != unit)
             throw new InvalidOperationException("The chosen path must not end on an occupied cell.");
 
-        State.ExpressionProperties = State.ExpressionProperties.SetItem(TraversableProperty, true);
+        State.SetExpressionProperty(TraversableProperty, true);
         if (_ff)
         {
             Grid.Occupants.Remove(_selected.Cell);
@@ -380,7 +379,7 @@ public partial class LevelManager : Node
     {
         _armies.Current.Controller.FinalizeAction();
         _selected.Finish();
-        State.ExpressionProperties = State.ExpressionProperties.SetItem(ActiveProperty, ((IEnumerable<Unit>)_armies.Current).Count((u) => u.Active));
+        State.SetExpressionProperty(ActiveProperty, ((IEnumerable<Unit>)_armies.Current).Count((u) => u.Active));
 
         Callable.From<Unit>((u) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, u)).CallDeferred(_selected);
     }

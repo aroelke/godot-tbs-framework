@@ -26,6 +26,9 @@ Done = &"done"
 [node name="ControlState" parent="." instance=ExtResource("7_xfrm4")]
 unique_name_in_owner = true
 Events = [&"wait", &"done"]
+InitialExpressionProperties = Dictionary[StringName, Variant]({
+&"mode": ""
+})
 
 [node name="Root" parent="ControlState" node_paths=PackedStringArray("InitialState") instance=ExtResource("8_pjkcf")]
 process_mode = 4
@@ -42,28 +45,28 @@ unique_name_in_owner = true
 process_mode = 4
 
 [node name="ToAnalog" parent="ControlState/Root/Active/DigitalState" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
-Event = &""
 To = NodePath("../../AnalogState")
 Condition = ExtResource("7_r0orh")
+Event = &""
 
 [node name="ToMouse" parent="ControlState/Root/Active/DigitalState" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
-Event = &""
 To = NodePath("../../MouseState")
 Condition = ExtResource("8_roach")
+Event = &""
 
 [node name="AnalogState" parent="ControlState/Root/Active" instance=ExtResource("10_fcy41")]
 unique_name_in_owner = true
 process_mode = 4
 
 [node name="ToDigital" parent="ControlState/Root/Active/AnalogState" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
-Event = &""
 To = NodePath("../../DigitalState")
 Condition = ExtResource("12_wvd4h")
+Event = &""
 
 [node name="ToMouse" parent="ControlState/Root/Active/AnalogState" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
-Event = &""
 To = NodePath("../../MouseState")
 Condition = ExtResource("8_roach")
+Event = &""
 
 [node name="OnUnhandledInput" parent="ControlState/Root/Active/AnalogState" instance=ExtResource("13_57sak")]
 
@@ -74,31 +77,31 @@ unique_name_in_owner = true
 process_mode = 4
 
 [node name="ToDigital" parent="ControlState/Root/Active/MouseState" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
-Event = &""
 To = NodePath("../../DigitalState")
 Condition = ExtResource("12_wvd4h")
+Event = &""
 
 [node name="ToAnalog" parent="ControlState/Root/Active/MouseState" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
-Event = &""
 To = NodePath("../../AnalogState")
 Condition = ExtResource("7_r0orh")
+Event = &""
 
 [node name="OnProcess" parent="ControlState/Root/Active/MouseState" instance=ExtResource("15_n3x6e")]
 
 [node name="OnPhysicsProcessReaction" parent="ControlState/Root/Active/MouseState" instance=ExtResource("16_qorhx")]
 
 [node name="ToWaiting" parent="ControlState/Root/Active" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
-Event = &"wait"
 To = NodePath("../../Waiting")
+Event = &"wait"
 
 [node name="Waiting" parent="ControlState/Root" instance=ExtResource("10_fcy41")]
 unique_name_in_owner = true
 process_mode = 4
 
 [node name="ToActive" parent="ControlState/Root/Waiting" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
-Event = &"done"
 To = NodePath("../../Active/History")
 Condition = SubResource("Resource_0s27s")
+Event = &"done"
 
 [node name="Canvas" type="CanvasLayer" parent="."]
 layer = 2

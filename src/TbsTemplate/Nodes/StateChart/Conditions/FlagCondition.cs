@@ -10,10 +10,5 @@ public partial class FlagCondition : Condition
     /// <summary><see cref="Chart"/> property to evaluate.</summary>
     [Export] public StringName Flag = "";
 
-    public override bool IsSatisfied(ChartNode source)
-    {
-        if (source.StateChart.ExpressionProperties[Flag].VariantType != Variant.Type.Bool)
-            throw new ArgumentException($"Condition value {source.StateChart.ExpressionProperties[Flag]} is not Boolean.");
-        return source.StateChart.ExpressionProperties[Flag].AsBool();
-    }
+    public override bool IsSatisfied(ChartNode source) => source.StateChart.GetExpressionProperty<bool>(Flag);
 }

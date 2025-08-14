@@ -158,11 +158,11 @@ modulate = Color(1, 1, 1, 0.392157)
 tile_map_data = PackedByteArray("AAASAAMAAgABAAUAAAA=")
 tile_set = ExtResource("7_d17w6")
 script = ExtResource("8_kin6v")
-"Terrain Set" = 0
-Terrain = "selection"
 Action = &"Capture"
 AllowedArmies = [NodePath("../../Player")]
 OneShot = true
+"Terrain Set" = 0
+Terrain = "selection"
 
 [node name="OccupantHighlighter" parent="LevelManager/Grid" instance=ExtResource("9_xbntu")]
 z_index = 100
@@ -495,7 +495,7 @@ offset_left = -494.0
 offset_top = -438.0
 grow_horizontal = 0
 grow_vertical = 0
-StateChart = NodePath("../../LevelManager/Player/PlayerController/State")
+StateChart = NodePath("../../LevelManager/Player/PlayerController/Pointer/ControlState")
 
 [connection signal="child_entered_tree" from="LevelManager/Player" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Enemy" to="LevelManager" method="OnChildEnteredGroup"]
@@ -504,3 +504,4 @@ StateChart = NodePath("../../LevelManager/Player/PlayerController/State")
 
 [editable path="LevelManager"]
 [editable path="LevelManager/Player/PlayerController"]
+[editable path="LevelManager/Player/PlayerController/Pointer"]
