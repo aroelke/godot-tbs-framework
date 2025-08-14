@@ -10,5 +10,5 @@ public partial class FlagCondition : Condition
     /// <summary><see cref="Chart"/> property to evaluate.</summary>
     [Export] public StringName Flag = "";
 
-    public override bool IsSatisfied(ChartNode source) => source.StateChart.GetExpressionProperty<bool>(Flag);
+    public override bool IsSatisfied(ChartNode source) => source.StateChart.GetVariable<bool>(Flag);
 }

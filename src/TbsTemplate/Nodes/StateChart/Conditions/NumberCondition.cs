@@ -36,5 +36,5 @@ public abstract partial class NumberCondition<[MustBeVariant] T> : Condition whe
     /// <summary>Value to compare with the property. Note that this is the first operand used in <see cref="Comparison"/></summary>
     public abstract T Value { get; set; }
 
-    public override bool IsSatisfied(ChartNode source) => Comparisons[Comparison](Value, source.StateChart.GetExpressionProperty(Number).As<T>());
+    public override bool IsSatisfied(ChartNode source) => Comparisons[Comparison](Value, source.StateChart.GetVariable(Number).As<T>());
 }

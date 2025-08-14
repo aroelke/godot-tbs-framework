@@ -160,7 +160,7 @@ public partial class Pointer : BoundedNode2D
 
     /// <summary>Update the state whenever input mode changes.</summary>
     /// <param name="mode">New input mode.</param>
-    public void OnInputModeChanged(InputMode mode) => ControlState.SetExpressionProperty(ModeProperty, Enum.GetName(mode));
+    public void OnInputModeChanged(InputMode mode) => ControlState.SetVariable(ModeProperty, Enum.GetName(mode));
 
     /// <summary>When entering an active state, enable the system mouse during mouse control.</summary>
     public void OnActiveEntered() => DeviceManager.EnableSystemMouse = true;
@@ -336,7 +336,7 @@ public partial class Pointer : BoundedNode2D
         {
             _positions = [Position, Position];
 
-            ControlState.SetExpressionProperty(ModeProperty, Enum.GetName(DeviceManager.Mode));
+            ControlState.SetVariable(ModeProperty, Enum.GetName(DeviceManager.Mode));
 
             _flyer = CreateTween();
             _flyer.Kill();

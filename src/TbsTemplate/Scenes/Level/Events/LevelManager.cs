@@ -179,7 +179,7 @@ public partial class LevelManager : Node
         if (Grid.Occupants.ContainsKey(path[^1]) && Grid.Occupants[path[^1]] != unit)
             throw new InvalidOperationException("The chosen path must not end on an occupied cell.");
 
-        State.SetExpressionProperty(TraversableProperty, true);
+        State.SetVariable(TraversableProperty, true);
         if (_ff)
         {
             Grid.Occupants.Remove(_selected.Cell);
@@ -367,7 +367,7 @@ public partial class LevelManager : Node
     {
         _armies.Current.Controller.FinalizeAction();
         _selected.Finish();
-        State.SetExpressionProperty(ActiveProperty, ((IEnumerable<Unit>)_armies.Current).Count((u) => u.Active));
+        State.SetVariable(ActiveProperty, ((IEnumerable<Unit>)_armies.Current).Count((u) => u.Active));
 
         Callable.From<Unit>((u) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, u)).CallDeferred(_selected);
     }

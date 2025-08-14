@@ -34,7 +34,7 @@ public partial class Chart : Node
     }
 
     private State _root = null;
-    private readonly Dictionary<StringName, Variant> _properties = [];
+    private readonly Dictionary<StringName, Variant> _variables = [];
     private readonly ConcurrentQueue<StringName> _eventQ = new();
     private readonly ConcurrentQueue<(Transition, State)> _transitionQ = new();
     private bool _transitionProcessingActive = false;
@@ -74,14 +74,24 @@ public partial class Chart : Node
     /// <summary>List of events available to the state chart.</summary>
     [Export] public StringName[] Events { get; private set; } = [];
 
-    [Export] public Godot.Collections.Dictionary<StringName, Variant> InitialExpressionProperties { get; private set; } = [];
+    /// <summary>Initial values of variables. Also used to set the type of each variable.</summary>
+    [Export] public Godot.Collections.Dictionary<StringName, Variant> InitialVariableValues { get; private set; } = [];
 
     /// <summary>Whether or not events sent to the state chart should be validated against <see cref="Events"/>.</summary>
     [Export] public bool ValidateEvents { get; private set; } = true;
 
-    [Export] public bool ValidateExpressionNames { get; private set; } = true;
+    /// <summary>
+    /// Whether or not to validate variable names when setting values. If true, <see cref="SetVariable"/> will throw an exception if a name is
+    /// used that's not in <see cref="InitialVariableValues"/>. If false, calling <see cref="SetVariable"/> with a new name will create a new
+    /// variable.
+    /// </summary>
+    [Export] public bool ValidateVariableNames { get; private set; } = true;
 
-    [Export] public bool ValidateExpressionTypes { get; private set; } = true;
+    /// <summary>
+    /// Whether or not to validate variable types when setting values. If true, <see cref="SetVariable"/> will throw an exception if the value
+    /// doesn't match the type of the value of the variable.
+    /// </summary>
+    [Export] public bool ValidateVariableTypes { get; private set; } = true;
 
     /// <summary>Send an event to the active <see cref="State"/>, which could trigger a <see cref="Transition"/>.</summary>
     /// <param name="event">Name of the event to send.</param>
@@ -97,26 +107,42 @@ public partial class Chart : Node
             throw new ArgumentException($"State chart {Name} does not have an event {@event}");
     }
 
-    public void SetExpressionProperty(StringName name, Variant value)
+    /// <summary>Set the value of a variable. Transitions and reactions are only performed if the new value is different than the old one.</summary>
+    /// <param name="name">Name of the variable to set.</param>
+    /// <param name="value">New value of the variable.</param>
+    /// <exception cref="KeyNotFoundException">If <see cref="ValidateVariableNames"/> is checked and <paramref name="name"/> doesn't match an existing variable name.</exception>
+    /// <exception cref="ArgumentException">If <see cref="ValidateVariableTypes"/> is checked and <paramref name="value"/> is the wrong type for the variable.</exception>
+    public void SetVariable(StringName name, Variant value)
     {
-        if (ValidateExpressionNames && !_properties.ContainsKey(name))
+        if (ValidateVariableNames && !_variables.ContainsKey(name))
             throw new KeyNotFoundException(name);
-        else if (ValidateExpressionTypes && value.VariantType != _properties[name].VariantType)
-            throw new ArgumentException($"Variant type mismatch for expression property {name}: {value.VariantType} (expected {_properties[name].VariantType})");
-        else if (!_properties[name].ValueEquals(value))
+        else if (ValidateVariableTypes && value.VariantType != _variables[name].VariantType)
+            throw new ArgumentException($"Variant type mismatch for expression property {name}: {value.VariantType} (expected {_variables[name].VariantType})");
+        else if (!_variables.TryGetValue(name, out Variant current) || !value.ValueEquals(current))
         {
             EnsureReady();
-            _properties[name] = value;
+            _variables[name] = value;
             _propertyChangePending = true;
             RunChanges();
         }
     }
 
-    public void SetExpressionProperty<[MustBeVariant] T>(StringName name, T value) => SetExpressionProperty(name, Variant.From(value));
+    /// <inheritdoc cref="SetVariable"/>
+    /// <typeparam name="T">Type of the variable being set.</typeparam>
+    public void SetVariable<[MustBeVariant] T>(StringName name, T value) => SetVariable(name, Variant.From(value));
 
-    public Variant GetExpressionProperty(StringName name) => _properties[name];
+    /// <summary>Get the value of a variable.</summary>
+    /// <param name="name">Name of the variable to get.</param>
+    /// <returns>The value of the variable, if such a variable is defined.</returns>
+    /// <exception cref="KeyNotFoundException">If <paramref name="name"/> doesn't match an existing variable name.</exception>
+    public Variant GetVariable(StringName name) => _variables[name];
 
-    public T GetExpressionProperty<[MustBeVariant] T>(StringName name) => GetExpressionProperty(name).As<T>();
+    /// <inheritdoc cref="GetVariable"/>
+    /// <typeparam name="T">Type of the variable.</typeparam>
+    public T GetVariable<[MustBeVariant] T>(StringName name) => GetVariable(name).As<T>();
+
+    /// <returns>The list of variable names in arbitrary order.</returns>
+    public IEnumerable<StringName> GetVariables() => _variables.Keys;
 
     /// <summary>Execute a <see cref="Transition"/> from a state to its target.</summary>
     /// <param name="transition">Transition to run.</param>
@@ -136,8 +162,6 @@ public partial class Chart : Node
         }
     }
 
-    public IEnumerable<StringName> GetExpressionProperties() => _properties.Keys;
-
     public override string[] _GetConfigurationWarnings()
     {
         List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
@@ -154,8 +178,8 @@ public partial class Chart : Node
 
         if (!Engine.IsEditorHint())
         {
-            foreach ((StringName name, Variant value) in InitialExpressionProperties)
-                _properties[name] = value;
+            foreach ((StringName name, Variant value) in InitialVariableValues)
+                _variables[name] = value;
 
             if (GetChildCount() != 1 || GetChild(0) is not State)
                 throw new Exception("A state chart must have exactly one child that's a state.");

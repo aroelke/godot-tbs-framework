@@ -17,5 +17,5 @@ public partial class StringCondition : Condition
     /// <summary>Value of the property that satisfies the condition.</summary>
     [Export] public string Value = "";
 
-    public override bool IsSatisfied(ChartNode source) => source.StateChart.GetExpressionProperty<string>(Property) == Value;
+    public override bool IsSatisfied(ChartNode source) => source.StateChart.GetVariable<string>(Property) == Value;
 }
