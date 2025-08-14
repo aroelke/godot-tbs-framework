@@ -1,15 +1,13 @@
-[gd_resource type="Resource" script_class="GamepadButtonIconMap" load_steps=5 format=3 uid="uid://c27jd22jjxlu4"]
+[gd_resource type="Resource" script_class="CompositeGamepadButtonIconMap" load_steps=4 format=3 uid="uid://bvjdkntd3y72l"]
 
-[ext_resource type="Script" path="res://src/TbsTemplate/UI/Controls/Icons/GamepadButtonIconMap.cs" id="1_1k3n1"]
-[ext_resource type="Resource" uid="uid://ca444m32ts5x2" path="res://demo/assets/ui/icons/controls/playstation/PlaystationButtonIconMap.tres" id="1_eoch7"]
-[ext_resource type="Script" path="res://src/TbsTemplate/UI/Controls/Icons/GamepadButtonIconMapElement.cs" id="2_v3p0j"]
-
-[sub_resource type="Resource" id="Resource_whiry"]
-script = ExtResource("2_v3p0j")
-GamepadName = "PS5 Controller"
-IconMap = ExtResource("1_eoch7")
+[ext_resource type="Resource" uid="uid://regd1sncx0rn" path="res://demo/assets/ui/icons/controls/playstation/PlaystationButtonIconMap.tres" id="1_eoch7"]
+[ext_resource type="Script" uid="uid://c1tquin6hbhk5" path="res://src/TbsTemplate/UI/Controls/IconMaps/GamepadButtonIconMap.cs" id="1_t8pid"]
+[ext_resource type="Script" uid="uid://c61eoe6d81ac8" path="res://src/TbsTemplate/UI/Controls/IconMaps/CompositeGamepadButtonIconMap.cs" id="2_eoapg"]
 
 [resource]
-script = ExtResource("1_1k3n1")
-IconMaps = [SubResource("Resource_whiry")]
-DefaultMap = ExtResource("1_eoch7")
+script = ExtResource("2_eoapg")
+IconMaps = Dictionary[String, ExtResource("1_t8pid")]({
+"PS5 Controller": ExtResource("1_eoch7")
+})
+NoMappingMap = ExtResource("1_eoch7")
+metadata/_custom_type_script = "uid://c61eoe6d81ac8"

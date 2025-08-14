@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://c11sm4jjy0flk"]
 
-[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/PauseManager.cs" id="1_ifjsa"]
+[ext_resource type="Script" uid="uid://sc7eb1uo7l0t" path="res://src/TbsTemplate/Scenes/PauseManager.cs" id="1_ifjsa"]
 
 [node name="PauseManager" type="Node"]
 process_mode = 3

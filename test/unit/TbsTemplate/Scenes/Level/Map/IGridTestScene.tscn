@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://b1rr4dukxgxxv"]
 
-[ext_resource type="Script" path="res://test/unit/TbsTemplate/Scenes/Level/Map/IGridTestScene.cs" id="1_lv5jr"]
+[ext_resource type="Script" uid="uid://dev7oeorn7ok6" path="res://test/unit/TbsTemplate/Scenes/Level/Map/IGridTestScene.cs" id="1_lv5jr"]
 [ext_resource type="PackedScene" uid="uid://ce83kbl7xjwpr" path="res://addons/GD_NET_ScOUT/test_runner.tscn" id="2_q16ja"]
 
 [node name="IGridTestScene" type="Node"]

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bi38gny50edyk"]
 
-[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Objectives/RouteObjective.cs" id="1_01gn4"]
+[ext_resource type="Script" uid="uid://5l3i01q783to" path="res://src/TbsTemplate/Scenes/Level/Objectives/RouteObjective.cs" id="1_01gn4"]
 
 [node name="RouteObjective" type="Node"]
 script = ExtResource("1_01gn4")

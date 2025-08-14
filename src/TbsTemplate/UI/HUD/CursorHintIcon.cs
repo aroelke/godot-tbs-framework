@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Godot;
 using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI.Controls.Device;
-using TbsTemplate.UI.Controls.Icons;
+using TbsTemplate.UI.Controls.IconMaps;
 
 namespace TbsTemplate.UI.HUD;
 
@@ -24,10 +24,10 @@ public partial class CursorHintIcon : HBoxContainer
     [Export] public KeyIconMap KeyMap = new();
 
     /// <summary>Mapping of <see cref="JoyButton"/> onto icon to display.</summary>
-    [Export] public GamepadButtonIconMap ButtonMap = new();
+    [Export] public CompositeGamepadButtonIconMap ButtonMap = new();
 
     /// <summary>Mapping of <see cref="JoyAxis"/> onto icon to display.</summary>
-    [Export] public GamepadAxisIconMap AxisMap = new();
+    [Export] public CompositeGamepadAxisIconMap AxisMap = new();
 
     /// <summary>Set the selected input device to show the icon for.</summary>
     public InputDevice SelectedDevice

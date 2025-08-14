@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="Terrain" load_steps=2 format=3 uid="uid://c8b5eys4r78im"]
 
-[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Map/Terrain.cs" id="1_o43hx"]
+[ext_resource type="Script" uid="uid://d23lpjno16iad" path="res://src/TbsTemplate/Scenes/Level/Map/Terrain.cs" id="1_o43hx"]
 
 [resource]
 script = ExtResource("1_o43hx")

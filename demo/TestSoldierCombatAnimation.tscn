@@ -1,7 +1,7 @@
 [gd_scene load_steps=14 format=3 uid="uid://d27657huq736q"]
 
-[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Combat/Animations/CombatAnimation.cs" id="1_og255"]
-[ext_resource type="Shader" path="res://src/TbsTemplate/Shaders/ColorOverlay.gdshader" id="3_eycx7"]
+[ext_resource type="Script" uid="uid://b4hg5hvnw2hdu" path="res://src/TbsTemplate/Scenes/Combat/Animations/CombatAnimation.cs" id="1_og255"]
+[ext_resource type="Shader" uid="uid://cn618tatsj5j8" path="res://src/TbsTemplate/Shaders/ColorOverlay.gdshader" id="3_eycx7"]
 [ext_resource type="Texture2D" uid="uid://ci35m6t46grfo" path="res://demo/assets/combat/unit/soldier.png" id="3_n278u"]
 
 [sub_resource type="Animation" id="Animation_5w4su"]
@@ -306,14 +306,14 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_wumuw"]
 _data = {
-"RESET": SubResource("Animation_5w4su"),
-"attack": SubResource("Animation_8q04x"),
-"attack_return": SubResource("Animation_87ktq"),
-"die": SubResource("Animation_0yfn1"),
-"dodge": SubResource("Animation_05hl7"),
-"dodge_return": SubResource("Animation_3b45e"),
-"support": SubResource("Animation_xu6tx"),
-"support_return": SubResource("Animation_25t38")
+&"RESET": SubResource("Animation_5w4su"),
+&"attack": SubResource("Animation_8q04x"),
+&"attack_return": SubResource("Animation_87ktq"),
+&"die": SubResource("Animation_0yfn1"),
+&"dodge": SubResource("Animation_05hl7"),
+&"dodge_return": SubResource("Animation_3b45e"),
+&"support": SubResource("Animation_xu6tx"),
+&"support_return": SubResource("Animation_25t38")
 }
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_q7lu0"]

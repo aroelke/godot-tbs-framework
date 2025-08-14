@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Godot;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.UI.Controls.Device;
-using TbsTemplate.UI.Controls.Icons;
+using TbsTemplate.UI.Controls.IconMaps;
 
 namespace TbsTemplate.UI.HUD;
 
@@ -15,12 +15,12 @@ public partial class ControlHint : HBoxContainer
     {
         { InputDevice.Mouse,    new MouseIconMap()         },
         { InputDevice.Keyboard, new KeyIconMap()           },
-        { InputDevice.Gamepad,  new GamepadButtonIconMap() }
+        { InputDevice.Gamepad,  new CompositeGamepadButtonIconMap() }
     };
 
     private void Update(InputDevice device, StringName action)
     {
-        if (Icon is not null)
+        if (Icon is not null && action is not null)
             Icon.Texture = _maps[device][action] ?? _maps[FallBackDevice][action];
     }
 
@@ -79,9 +79,9 @@ public partial class ControlHint : HBoxContainer
 
     /// <summary><see cref="JoyButton"/> map for the game pad input to the action.</summary>
     [ExportGroup("Action Maps")]
-    [Export] public GamepadButtonIconMap GamepadButtonIconMap
+    [Export] public CompositeGamepadButtonIconMap GamepadButtonIconMap
     {
-        get => _maps[InputDevice.Gamepad] as GamepadButtonIconMap;
+        get => _maps[InputDevice.Gamepad] as CompositeGamepadButtonIconMap;
         set
         {
             _maps[InputDevice.Gamepad] = value;

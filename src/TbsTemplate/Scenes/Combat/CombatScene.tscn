@@ -1,6 +1,6 @@
 [gd_scene load_steps=21 format=3 uid="uid://bn2dxlvq8lqj6"]
 
-[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Combat/CombatScene.cs" id="1_h22l5"]
+[ext_resource type="Script" uid="uid://cf24esk4c40yn" path="res://src/TbsTemplate/Scenes/Combat/CombatScene.cs" id="1_h22l5"]
 [ext_resource type="Texture2D" uid="uid://bbrmt3ob1fnsh" path="res://demo/assets/raw/Free-Summer-Pixel-Art-Backgrounds/PNG/summer 2/Summer2.png" id="2_hevui"]
 [ext_resource type="AudioStream" uid="uid://dwbgovwhlrhso" path="res://demo/assets/raw/Legendary_JRPG_Battle_Music_Pack/Encounter_loop/Encounter_loop.ogg" id="2_k4ewr"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DBrain.tscn" id="2_qyxbl"]

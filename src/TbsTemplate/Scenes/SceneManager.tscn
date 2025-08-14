@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://ccbvxrsxfciev"]
 
-[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/SceneManager.cs" id="1_4go82"]
+[ext_resource type="Script" uid="uid://c171ncs6tipye" path="res://src/TbsTemplate/Scenes/SceneManager.cs" id="1_4go82"]
 [ext_resource type="PackedScene" uid="uid://cl6fmcw1757sk" path="res://src/TbsTemplate/Scenes/Transitions/FadeToBlackTransition.tscn" id="3_oduw3"]
 
 [node name="SceneManager" type="Node"]

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bdxrle0amq3ew"]
 
-[ext_resource type="Script" path="res://src/TbsTemplate/Scenes/Level/Objectives/TimeObjective.cs" id="1_8lckm"]
+[ext_resource type="Script" uid="uid://pyb5q054fvr3" path="res://src/TbsTemplate/Scenes/Level/Objectives/TimeObjective.cs" id="1_8lckm"]
 
 [node name="TimeObjective" type="Node"]
 script = ExtResource("1_8lckm")

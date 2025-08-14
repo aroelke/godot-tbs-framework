@@ -1,22 +1,22 @@
 [gd_scene load_steps=10 format=3 uid="uid://cpswnx0irecoi"]
 
-[ext_resource type="Script" path="res://src/TbsTemplate/UI/HUD/GamepadCursorHintIcon.cs" id="1_247tv"]
-[ext_resource type="Resource" uid="uid://c27jd22jjxlu4" path="res://demo/assets/ui/icons/controls/GamepadButtonIconMap.tres" id="2_lslgt"]
-[ext_resource type="Resource" uid="uid://rlgg8mn3bshl" path="res://demo/assets/ui/icons/controls/GamepadAxisIconMap.tres" id="3_wxn4i"]
-[ext_resource type="Texture2D" uid="uid://b8opi1ojes3lf" path="res://demo/assets/ui/icons/controls/playstation/dpadup.png" id="9_t5aqx"]
-[ext_resource type="Texture2D" uid="uid://ddo2e8y4xxywf" path="res://demo/assets/ui/icons/controls/playstation/dpadleft.png" id="10_flnu6"]
-[ext_resource type="Texture2D" uid="uid://x210tjc0p8u6" path="res://demo/assets/ui/icons/controls/playstation/dpadright.png" id="11_rkmss"]
-[ext_resource type="Texture2D" uid="uid://rvicv7mk4e0b" path="res://demo/assets/ui/icons/controls/playstation/dpaddown.png" id="12_wanm3"]
-[ext_resource type="Texture2D" uid="uid://dwrg3c6m2yegj" path="res://demo/assets/ui/icons/controls/playstation/dpad.png" id="13_6l7cn"]
-[ext_resource type="Texture2D" uid="uid://cgyr5p8sm8ypi" path="res://demo/assets/ui/icons/controls/playstation/left_stick.png" id="14_d7nyy"]
+[ext_resource type="Script" uid="uid://11s5gtpuufgs" path="res://src/TbsTemplate/UI/HUD/GamepadCursorHintIcon.cs" id="1_247tv"]
+[ext_resource type="Resource" uid="uid://bvjdkntd3y72l" path="res://demo/assets/ui/icons/controls/GamepadButtonIconMap.tres" id="2_v4144"]
+[ext_resource type="Resource" uid="uid://dkyggntwdoslv" path="res://demo/assets/ui/icons/controls/GamepadAxisIconMap.tres" id="3_2sje5"]
+[ext_resource type="Texture2D" uid="uid://b8opi1ojes3lf" path="res://demo/assets/ui/icons/controls/playstation/dpadup.png" id="4_xb6vs"]
+[ext_resource type="Texture2D" uid="uid://ddo2e8y4xxywf" path="res://demo/assets/ui/icons/controls/playstation/dpadleft.png" id="5_m5ucw"]
+[ext_resource type="Texture2D" uid="uid://x210tjc0p8u6" path="res://demo/assets/ui/icons/controls/playstation/dpadright.png" id="6_fneeb"]
+[ext_resource type="Texture2D" uid="uid://rvicv7mk4e0b" path="res://demo/assets/ui/icons/controls/playstation/dpaddown.png" id="7_vtv1x"]
+[ext_resource type="Texture2D" uid="uid://dwrg3c6m2yegj" path="res://demo/assets/ui/icons/controls/playstation/dpad.png" id="8_gubvf"]
+[ext_resource type="Texture2D" uid="uid://cgyr5p8sm8ypi" path="res://demo/assets/ui/icons/controls/playstation/left_stick.png" id="9_fiyl8"]
 
 [node name="GamepadCursorHintIcon" type="HBoxContainer"]
 offset_right = 12.0
 offset_bottom = 8.0
 theme_override_constants/separation = 4
 script = ExtResource("1_247tv")
-ButtonMap = ExtResource("2_lslgt")
-AxisMap = ExtResource("3_wxn4i")
+ButtonMap = ExtResource("2_v4144")
+AxisMap = ExtResource("3_2sje5")
 
 [node name="IndividualIcons" type="GridContainer" parent="."]
 unique_name_in_owner = true
@@ -31,7 +31,7 @@ layout_mode = 2
 [node name="UpIcon" type="TextureRect" parent="IndividualIcons"]
 unique_name_in_owner = true
 layout_mode = 2
-texture = ExtResource("9_t5aqx")
+texture = ExtResource("4_xb6vs")
 stretch_mode = 3
 
 [node name="EmptyNE" type="TextureRect" parent="IndividualIcons"]
@@ -40,7 +40,7 @@ layout_mode = 2
 [node name="LeftIcon" type="TextureRect" parent="IndividualIcons"]
 unique_name_in_owner = true
 layout_mode = 2
-texture = ExtResource("10_flnu6")
+texture = ExtResource("5_m5ucw")
 stretch_mode = 3
 
 [node name="Empty" type="TextureRect" parent="IndividualIcons"]
@@ -49,7 +49,7 @@ layout_mode = 2
 [node name="RightIcon" type="TextureRect" parent="IndividualIcons"]
 unique_name_in_owner = true
 layout_mode = 2
-texture = ExtResource("11_rkmss")
+texture = ExtResource("6_fneeb")
 stretch_mode = 3
 
 [node name="EmptySW" type="TextureRect" parent="IndividualIcons"]
@@ -58,7 +58,7 @@ layout_mode = 2
 [node name="DownIcon" type="TextureRect" parent="IndividualIcons"]
 unique_name_in_owner = true
 layout_mode = 2
-texture = ExtResource("12_wanm3")
+texture = ExtResource("7_vtv1x")
 stretch_mode = 3
 
 [node name="EmptySE" type="TextureRect" parent="IndividualIcons"]
@@ -67,7 +67,7 @@ layout_mode = 2
 [node name="UnifiedIcon" type="TextureRect" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
-texture = ExtResource("13_6l7cn")
+texture = ExtResource("8_gubvf")
 stretch_mode = 3
 
 [node name="Slash" type="Label" parent="."]
@@ -77,5 +77,5 @@ text = "/"
 [node name="AnalogIcon" type="TextureRect" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
-texture = ExtResource("14_d7nyy")
+texture = ExtResource("9_fiyl8")
 stretch_mode = 3

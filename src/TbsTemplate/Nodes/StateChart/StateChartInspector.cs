@@ -258,16 +258,16 @@ public partial class StateChartInspector : MarginContainer
 
         CollectActiveStates(StateChart, root);
 
-        if (!StateChart.ExpressionProperties.IsEmpty)
+        if (StateChart.GetVariables().Any())
         {
-            ImmutableList<StringName> properties = StateChart.ExpressionProperties.Keys.ToImmutableList().Sort(static (a, b) => string.Compare(a, b));
+            ImmutableList<StringName> properties = StateChart.GetVariables().ToImmutableList().Sort(static (a, b) => string.Compare(a, b));
 
             TreeItem propertiesRoot = root.CreateChild();
             propertiesRoot.SetText(0, "< Expression properties >");
             foreach (StringName property in properties)
             {
                 TreeItem line = propertiesRoot.CreateChild();
-                line.SetText(0, $"{property} = {StateChart.ExpressionProperties[property]}");
+                line.SetText(0, $"{property} = {StateChart.GetVariable(property)}");
             }
         }
     }

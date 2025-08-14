@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dkposyo3j3jvf"]
 
-[ext_resource type="Script" path="res://src/TbsTemplate/UI/Controls/Device/DeviceManager.cs" id="1_hknwi"]
+[ext_resource type="Script" uid="uid://dtnsdux0u63vy" path="res://src/TbsTemplate/UI/Controls/Device/DeviceManager.cs" id="1_hknwi"]
 
 [node name="DeviceManager" type="Node"]
 script = ExtResource("1_hknwi")

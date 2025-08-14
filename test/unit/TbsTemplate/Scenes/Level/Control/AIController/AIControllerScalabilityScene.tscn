@@ -1,6 +1,6 @@
 [gd_scene load_steps=13 format=4 uid="uid://f7bwykec5mpj"]
 
-[ext_resource type="Script" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/AIControllerScalabilityScene.cs" id="1_b7iyb"]
+[ext_resource type="Script" uid="uid://dukcuyrb86ev7" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/AIControllerScalabilityScene.cs" id="1_b7iyb"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsTemplate/Scenes/Level/Map/Grid.tscn" id="1_unbo7"]
 [ext_resource type="Resource" uid="uid://c8b5eys4r78im" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/floor.tres" id="2_5euvq"]
 [ext_resource type="TileSet" uid="uid://ca702fu7govjb" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/tileset.tres" id="3_b7gro"]
