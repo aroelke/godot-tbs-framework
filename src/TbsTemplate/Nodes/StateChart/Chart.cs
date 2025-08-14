@@ -49,7 +49,7 @@ public partial class Chart : Node
             throw new Exception($"State chart {Name} has no root state.");
     }
 
-    private void RunChanges()
+    private void Update()
     {
         if (!_busy)
         {
@@ -101,7 +101,7 @@ public partial class Chart : Node
         {
             EnsureReady();
             _eventQ.Enqueue(@event);
-            RunChanges();
+            Update();
         }
         else
             throw new ArgumentException($"State chart {Name} does not have an event {@event}");
@@ -123,7 +123,7 @@ public partial class Chart : Node
             EnsureReady();
             _variables[name] = value;
             _propertyChangePending = true;
-            RunChanges();
+            Update();
         }
     }
 
