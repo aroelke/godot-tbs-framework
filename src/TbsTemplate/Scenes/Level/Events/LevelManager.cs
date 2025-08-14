@@ -14,7 +14,6 @@ using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Combat;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level.Control;
-using TbsTemplate.Scenes.Transitions;
 
 namespace TbsTemplate.Scenes.Level.Events;
 
@@ -33,17 +32,8 @@ public partial class LevelManager : Node
     private static readonly StringName WaitEvent   = "Wait";
     private static readonly StringName DoneEvent   = "Done";
     // State chart conditions
-    private readonly StringName OccupiedProperty    = "occupied";    // Current cell occupant (see below for options)
     private readonly StringName TraversableProperty = "traversable"; // Current cell is traversable
     private readonly StringName ActiveProperty      = "active";      // Number of remaining active units
-    // State chart occupied values
-    private const string NotOccupied          = "";         // Nothing in the cell
-    private const string SelectedOccuiped     = "selected"; // Cell occupied by the selected unit (if there is one)
-    private const string ActiveAllyOccupied   = "active";   // Cell occupied by an active unit in this turn's army
-    private const string InActiveAllyOccupied = "inactive"; // Cell occupied by an inactive unit in this turn's army
-    private const string FriendlyOccuipied    = "friendly"; // Cell occupied by unit in army allied to this turn's army
-    private const string EnemyOccupied        = "enemy";    // Cell occupied by unit in enemy army to this turn's army
-    private const string OtherOccupied        = "other";    // Cell occupied by something else
 #endregion
 #region Declarations
     private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, CancelEvent, SkipEvent, WaitEvent, DoneEvent], @default:"");
@@ -130,8 +120,6 @@ public partial class LevelManager : Node
             throw new InvalidOperationException($"Cannot select inactive unit {unit.Name}");
 
         _selected = unit;
-        State.SetExpressionProperty(OccupiedProperty, ActiveAllyOccupied);
-
         State.SendEvent(_events[SelectEvent]);
     }
 #endregion
