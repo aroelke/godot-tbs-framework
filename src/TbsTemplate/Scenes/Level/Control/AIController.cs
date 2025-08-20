@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Godot;
 using TbsTemplate.Data;
 using TbsTemplate.Extensions;
-using TbsTemplate.Scenes.Level.Control.Behavior;
+using TbsTemplate.Scenes.Level.Control.BehaviorResource;
 using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;

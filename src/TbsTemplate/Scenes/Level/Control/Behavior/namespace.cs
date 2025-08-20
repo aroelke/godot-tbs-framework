@@ -6,7 +6,7 @@ namespace TbsTemplate
         {
             namespace Control
             {
-                namespace Behavior
+                namespace BehaviorResource
                 {
                     /// <summary>Scripts for determining how individual units can move and act.</summary>
                     static internal class NamespaceDoc {}

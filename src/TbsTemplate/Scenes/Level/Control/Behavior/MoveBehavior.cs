@@ -5,7 +5,7 @@ using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 
-namespace TbsTemplate.Scenes.Level.Control.Behavior;
+namespace TbsTemplate.Scenes.Level.Control.BehaviorResource;
 
 [GlobalClass, Tool]
 public partial class MoveBehavior : UnitBehavior

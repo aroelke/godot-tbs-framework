@@ -7,7 +7,7 @@ using TbsTemplate.Data;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level.Map;
-using TbsTemplate.Scenes.Level.Control.Behavior;
+using TbsTemplate.Scenes.Level.Control.BehaviorResource;
 using TbsTemplate.Scenes.Level.Object.Group;
 using TbsTemplate.Scenes.Level.Events;
 
