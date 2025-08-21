@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://nt5vqytk4pr3"]
+
+[ext_resource type="Script" uid="uid://cgghxilpmuiig" path="res://src/TbsTemplate/Scenes/Level/Control/StandBehavior.cs" id="1_vfk7p"]
+
+[node name="StandBehavior" type="Node"]
+script = ExtResource("1_vfk7p")

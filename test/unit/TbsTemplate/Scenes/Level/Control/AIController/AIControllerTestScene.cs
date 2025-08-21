@@ -5,7 +5,6 @@ using GD_NET_ScOUT;
 using Godot;
 using TbsTemplate.Data;
 using TbsTemplate.Extensions;
-using TbsTemplate.Scenes.Level.Control.BehaviorResource;
 using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
@@ -33,7 +32,7 @@ public partial class AIControllerTestScene : Node
 
     private static string PrintUnit(Unit unit) => $"{unit.Faction.Name}@{unit.Cell}";
 
-    private Unit CreateUnit(Vector2I cell, int[] attack=null, int[] support=null, Stats stats=null, int? hp = null, UnitBehavior behavior=null)
+    private Unit CreateUnit(Vector2I cell, int[] attack=null, int[] support=null, Stats stats=null, int? hp = null, BehaviorResource.UnitBehavior behavior=null)
     {
         Unit unit = UnitScene.Instantiate<Unit>();
 
@@ -49,7 +48,7 @@ public partial class AIControllerTestScene : Node
         if (hp is not null)
             unit.Ready += () => unit.Health.Value = hp.Value; // Do in Ready handler because Unit inits its health to max
 
-        unit.Behavior = behavior ?? new StandBehavior();
+        unit.Behavior = behavior ?? new BehaviorResource.StandBehavior();
 
         return unit;
     }
@@ -159,7 +158,7 @@ public partial class AIControllerTestScene : Node
         {
             for (int j = 0; j < size.Y; j++)
             {
-                Unit ally = CreateUnit(new(i, j), behavior:new MoveBehavior());
+                Unit ally = CreateUnit(new(i, j), behavior:new BehaviorResource.MoveBehavior());
                 RunTest([ally], [], [new(ally, [ally.Cell], UnitActions.EndAction)]);
             }
         }
@@ -169,7 +168,7 @@ public partial class AIControllerTestScene : Node
     [Test]
     public void TestEndMovingSingleUnreachableEnemy()
     {
-        Unit ally = CreateUnit(new(0, 2), attack:[1], stats:new() { Move = 3 }, behavior:new MoveBehavior());
+        Unit ally = CreateUnit(new(0, 2), attack:[1], stats:new() { Move = 3 }, behavior:new BehaviorResource.MoveBehavior());
         Unit enemy = CreateUnit(new(5, 2));
         RunTest([ally], [enemy], [new(ally, [new(3, 2)], UnitActions.EndAction)]);
     }
@@ -182,7 +181,7 @@ public partial class AIControllerTestScene : Node
     [Test]
     public void TestAttackStandingSingleAllyMultipleEnemiesSameDamage()
     {
-        Unit[] allies = [CreateUnit(new(3, 2), attack:[1, 2], behavior:new StandBehavior() { AttackInRange = true })];
+        Unit[] allies = [CreateUnit(new(3, 2), attack:[1, 2], behavior:new BehaviorResource.StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), stats:new() { Health = 10 }, hp:5), CreateUnit(new(2, 2), stats:new() { Health = 10 }, hp:10)];
         RunTest(allies, enemies, [new(allies[0], [allies[0].Cell], UnitActions.AttackAction, enemies[0])]);
     }
@@ -191,7 +190,7 @@ public partial class AIControllerTestScene : Node
     [Test]
     public void TestAttackStandingSingleAllyMultipleEnemiesDifferentDamage()
     {
-        Unit[] allies = [CreateUnit(new(3, 2), attack:[1, 2], stats:new() { Attack = 5 }, behavior:new StandBehavior() { AttackInRange = true })];
+        Unit[] allies = [CreateUnit(new(3, 2), attack:[1, 2], stats:new() { Attack = 5 }, behavior:new BehaviorResource.StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), stats:new() { Defense = 3 }), CreateUnit(new(2, 2), stats:new() { Defense = 0 })];
         RunTest(allies, enemies, [new(allies[0], [allies[0].Cell], UnitActions.AttackAction, enemies[1])]);
     }
@@ -200,7 +199,7 @@ public partial class AIControllerTestScene : Node
     [Test]
     public void TestAttackStandingSingleAllyMultipleEnemiesDifferentEndHealth()
     {
-        Unit[] allies = [CreateUnit(new(3, 2), attack:[1, 2], stats:new() { Attack = 5 }, behavior:new StandBehavior() { AttackInRange = true })];
+        Unit[] allies = [CreateUnit(new(3, 2), attack:[1, 2], stats:new() { Attack = 5 }, behavior:new BehaviorResource.StandBehavior() { AttackInRange = true })];
         Unit[] enemies = [CreateUnit(new(2, 1), stats:new() { Health = 10, Defense = 3 }, hp:5), CreateUnit(new(2, 2), stats:new() { Health = 10, Defense = 0 }, hp:10)];
         RunTest(allies, enemies, [new(allies[0], [allies[0].Cell], UnitActions.AttackAction, enemies[0])]);
     }
@@ -210,8 +209,8 @@ public partial class AIControllerTestScene : Node
     public void TestAttackStandingMultipleAlliesSingleEnemyOnlyOneInRange()
     {
         Unit[] allies = [
-            CreateUnit(new(2, 1), attack:[1], behavior:new StandBehavior { AttackInRange = true }),
-            CreateUnit(new(2, 4), attack:[3], behavior:new StandBehavior { AttackInRange = true })
+            CreateUnit(new(2, 1), attack:[1], behavior:new BehaviorResource.StandBehavior { AttackInRange = true }),
+            CreateUnit(new(2, 4), attack:[3], behavior:new BehaviorResource.StandBehavior { AttackInRange = true })
         ];
         Unit[] enemies = [CreateUnit(new(3, 2))];
         RunTest(allies, enemies, [new(allies[1], [allies[1].Cell], "Attack", enemies[0])]);
@@ -222,8 +221,8 @@ public partial class AIControllerTestScene : Node
     public void TestAttackStandingMultipleAlliesMultipleEnemiesOneCanBeKilled()
     {
         Unit[] allies = [
-            CreateUnit(new(0, 1), attack:[1, 2], stats:new() { Attack = 7 }, behavior:new StandBehavior() { AttackInRange = true }),
-            CreateUnit(new(0, 2), attack:[1],    stats:new() { Attack = 7 }, behavior:new StandBehavior() { AttackInRange = true })
+            CreateUnit(new(0, 1), attack:[1, 2], stats:new() { Attack = 7 }, behavior:new BehaviorResource.StandBehavior() { AttackInRange = true }),
+            CreateUnit(new(0, 2), attack:[1],    stats:new() { Attack = 7 }, behavior:new BehaviorResource.StandBehavior() { AttackInRange = true })
         ];
         Unit[] enemies = [
             CreateUnit(new(1, 1), stats:new() { Defense = 0 }),
@@ -245,7 +244,7 @@ public partial class AIControllerTestScene : Node
                 Unit enemy = CreateUnit(new(4, 2));
                 if (new Vector2I(i, j) != enemy.Cell)
                 {
-                    Unit ally = CreateUnit(new(i, j), attack:[1], stats:new() { Move = 5 }, behavior:new MoveBehavior());
+                    Unit ally = CreateUnit(new(i, j), attack:[1], stats:new() { Move = 5 }, behavior:new BehaviorResource.MoveBehavior());
                     int closest = destinations.Select((c) => c.ManhattanDistanceTo(ally.Cell)).Min();
                     RunTest([ally], [enemy], [new(ally, [.. destinations.Where((c) => c.ManhattanDistanceTo(ally.Cell) == closest)], "Attack", enemy)]);
                 }
@@ -271,7 +270,7 @@ public partial class AIControllerTestScene : Node
                 Unit enemy = CreateUnit(new(4, 2), attack:[]);
                 if (new Vector2I(i, j) != enemy.Cell)
                 {
-                    Unit ally = CreateUnit(new(3, 2), attack:[1, 2], stats:new() { Move = 5 }, behavior:new MoveBehavior());
+                    Unit ally = CreateUnit(new(3, 2), attack:[1, 2], stats:new() { Move = 5 }, behavior:new BehaviorResource.MoveBehavior());
                     int closest = destinations.Select((c) => c.ManhattanDistanceTo(ally.Cell)).Min();
                     RunTest([ally], [enemy], [new(ally, [.. destinations.Where((c) => c.ManhattanDistanceTo(ally.Cell) == closest)], "Attack", enemy)]);
                 }
@@ -284,8 +283,8 @@ public partial class AIControllerTestScene : Node
     public void TestAttackDontBlockAlliesAttackingSameEnemy()
     {
         Unit[] allies = [
-            CreateUnit(new(0, 2), attack:[1, 2], stats:new() { Move = 4 }, behavior:new MoveBehavior()),
-            CreateUnit(new(1, 2), attack:[1, 2], stats:new() { Move = 4 }, behavior:new MoveBehavior())
+            CreateUnit(new(0, 2), attack:[1, 2], stats:new() { Move = 4 }, behavior:new BehaviorResource.MoveBehavior()),
+            CreateUnit(new(1, 2), attack:[1, 2], stats:new() { Move = 4 }, behavior:new BehaviorResource.MoveBehavior())
         ];
         Unit enemy = CreateUnit(new(6, 2), stats:new() { Attack = 0 });
         RunTest(allies, [enemy], [
@@ -299,8 +298,8 @@ public partial class AIControllerTestScene : Node
     public void TestAttackDontBlockAlliesAttackingOtherEnemy()
     {
         Unit[] allies = [
-            CreateUnit(new(0, 2), attack:[1], stats:new() { Attack = 10, Move = 1 }, behavior:new MoveBehavior()),
-            CreateUnit(new(1, 2), attack:[2], stats:new() { Attack = 5,  Move = 4 }, behavior:new MoveBehavior())
+            CreateUnit(new(0, 2), attack:[1], stats:new() { Attack = 10, Move = 1 }, behavior:new BehaviorResource.MoveBehavior()),
+            CreateUnit(new(1, 2), attack:[2], stats:new() { Attack = 5,  Move = 4 }, behavior:new BehaviorResource.MoveBehavior())
         ];
         Unit[] enemies = [
             CreateUnit(new(2, 2), stats:new() { Health = 10, Attack = 0, Defense = 5 }),
@@ -313,7 +312,7 @@ public partial class AIControllerTestScene : Node
     [Test]
     public void TestAttackMinimizeRetaliationDamageViaPositioning()
     {
-        Unit ally = CreateUnit(new(1, 2), attack:[1, 2], behavior:new MoveBehavior());
+        Unit ally = CreateUnit(new(1, 2), attack:[1, 2], behavior:new BehaviorResource.MoveBehavior());
         Unit enemy = CreateUnit(new(5, 2), attack:[2]);
         RunTest([ally], [enemy], [new(ally, [new(4, 2)], "Attack", enemy)]);
     }
@@ -323,8 +322,8 @@ public partial class AIControllerTestScene : Node
     public void TestAttackMinimizeRetaliationDamageViaDeath()
     {
         Unit[] allies = [
-            CreateUnit(new(0, 2), attack:[1, 2], stats:new() { Attack = 5, Move = 4 }, behavior:new MoveBehavior()),
-            CreateUnit(new(1, 2), attack:[1, 2], stats:new() { Attack = 5, Move = 4 }, behavior:new MoveBehavior())
+            CreateUnit(new(0, 2), attack:[1, 2], stats:new() { Attack = 5, Move = 4 }, behavior:new BehaviorResource.MoveBehavior()),
+            CreateUnit(new(1, 2), attack:[1, 2], stats:new() { Attack = 5, Move = 4 }, behavior:new BehaviorResource.MoveBehavior())
         ];
         Unit enemy = CreateUnit(new(6, 2), attack:[1], stats:new() { Health = 10, Attack = 5, Defense = 0 }, hp:10);
         RunTest(allies, [enemy], [new(allies[0], [new(4, 2)], "Attack", enemy)]);
@@ -334,7 +333,7 @@ public partial class AIControllerTestScene : Node
     [Test]
     public void TestAttackMaximizeEnemyDeaths()
     {
-        Unit ally = CreateUnit(new(2, 2), attack:[2], stats:new() { Health = 10, Attack = 5 }, behavior:new MoveBehavior());
+        Unit ally = CreateUnit(new(2, 2), attack:[2], stats:new() { Health = 10, Attack = 5 }, behavior:new BehaviorResource.MoveBehavior());
         Unit[] enemies = [
             CreateUnit(new(3, 1), attack:[1], stats:new() { Health = 5,  Defense = 4 }, hp:1),
             CreateUnit(new(3, 3), attack:[1], stats:new() { Health = 10, Defense = 0 }, hp:6)
@@ -347,8 +346,8 @@ public partial class AIControllerTestScene : Node
     public void TestAttackMinimizeAllyDeaths()
     {
         Unit[] allies = [
-            CreateUnit(new(0, 2), attack:[1, 2], stats:new() { Health = 10, Attack = 5, Defense = 0, Move = 4 }, hp:10, behavior:new MoveBehavior()),
-            CreateUnit(new(1, 2), attack:[1, 2], stats:new() { Health = 10, Attack = 5, Defense = 3, Move = 4 }, hp:5, behavior:new MoveBehavior())
+            CreateUnit(new(0, 2), attack:[1, 2], stats:new() { Health = 10, Attack = 5, Defense = 0, Move = 4 }, hp:10, behavior:new BehaviorResource.MoveBehavior()),
+            CreateUnit(new(1, 2), attack:[1, 2], stats:new() { Health = 10, Attack = 5, Defense = 3, Move = 4 }, hp:5, behavior:new BehaviorResource.MoveBehavior())
         ];
         Unit enemy = CreateUnit(new(6, 2), attack:[1, 2], stats:new() { Health = 10, Attack = 8, Defense = 0 }, hp:10);
         RunTest(allies, [enemy], [new(allies[0], [new(4, 2)], "Attack", enemy)]);
@@ -359,8 +358,8 @@ public partial class AIControllerTestScene : Node
     public void TestAttackChooseCorrectKill()
     {
         Unit[] allies = [
-            CreateUnit(new(2, 1), attack:[1, 2], stats:new() { Attack = 10, Move = 2 }, behavior:new MoveBehavior()),
-            CreateUnit(new(2, 3), attack:[1, 2], stats:new() { Attack = 5,  Move = 2 }, behavior:new MoveBehavior())
+            CreateUnit(new(2, 1), attack:[1, 2], stats:new() { Attack = 10, Move = 2 }, behavior:new BehaviorResource.MoveBehavior()),
+            CreateUnit(new(2, 3), attack:[1, 2], stats:new() { Attack = 5,  Move = 2 }, behavior:new BehaviorResource.MoveBehavior())
         ];
         Unit[] enemies = [
             CreateUnit(new(4, 1), stats:new() { Health = 10, Defense = 0 }),
@@ -381,7 +380,7 @@ public partial class AIControllerTestScene : Node
     public void TestSupportStandingPreferLowestHP()
     {
         Unit[] allies = [
-            CreateUnit(new(3, 2), support:[1], stats:new() { Healing = 5 }, behavior:new StandBehavior() { SupportInRange = true }),
+            CreateUnit(new(3, 2), support:[1], stats:new() { Healing = 5 }, behavior:new BehaviorResource.StandBehavior() { SupportInRange = true }),
             CreateUnit(new(2, 2), stats:new() { Health = 5 },  hp:1),
             CreateUnit(new(3, 1), stats:new() { Health = 20 }, hp:5)
         ];
@@ -393,7 +392,7 @@ public partial class AIControllerTestScene : Node
     public void TestSupportMovingPreferLowestHP()
     {
         Unit[] allies = [
-            CreateUnit(new(3, 2), support:[1], stats:new() { Healing = 5, Move = 1 }, behavior:new MoveBehavior()),
+            CreateUnit(new(3, 2), support:[1], stats:new() { Healing = 5, Move = 1 }, behavior:new BehaviorResource.MoveBehavior()),
             CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:1),
             CreateUnit(new(3, 4), stats:new() { Health = 20 }, hp:5)
         ];
@@ -405,7 +404,7 @@ public partial class AIControllerTestScene : Node
     public void TestMovingPreferSupportOverAttack()
     {
         Unit[] allies = [
-            CreateUnit(new(3, 2), attack:[1], support:[1], stats:new() { Attack = 5, Healing = 5, Move = 1 }, behavior:new MoveBehavior()),
+            CreateUnit(new(3, 2), attack:[1], support:[1], stats:new() { Attack = 5, Healing = 5, Move = 1 }, behavior:new BehaviorResource.MoveBehavior()),
             CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:1),
         ];
         Unit enemy = CreateUnit(new(3, 4), stats:new() { Health = 10, Defense = 0 }, hp:10);
@@ -417,7 +416,7 @@ public partial class AIControllerTestScene : Node
     public void TestStandingPreferSupportOverAttack()
     {
         Unit[] allies = [
-            CreateUnit(new(3, 2), attack:[2, 4], support:[1, 2], stats:new() { Attack = 5, Healing = 5 }, behavior:new StandBehavior() { AttackInRange = true, SupportInRange = true }),
+            CreateUnit(new(3, 2), attack:[2, 4], support:[1, 2], stats:new() { Attack = 5, Healing = 5 }, behavior:new BehaviorResource.StandBehavior() { AttackInRange = true, SupportInRange = true }),
             CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:1),
         ];
         Unit enemy = CreateUnit(new(3, 4), stats:new() { Health = 10, Defense = 0 }, hp:10);
@@ -429,7 +428,7 @@ public partial class AIControllerTestScene : Node
     public void TestMovingPreferAttackWhenAlliesUninjured()
     {
         Unit[] allies = [
-            CreateUnit(new(3, 2), attack:[1], support:[1], stats:new() { Attack = 5, Healing = 5, Move = 1 }, behavior:new MoveBehavior()),
+            CreateUnit(new(3, 2), attack:[1], support:[1], stats:new() { Attack = 5, Healing = 5, Move = 1 }, behavior:new BehaviorResource.MoveBehavior()),
             CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:5),
         ];
         Unit enemy = CreateUnit(new(3, 4), stats:new() { Health = 10, Defense = 0 }, hp:10);
@@ -441,7 +440,7 @@ public partial class AIControllerTestScene : Node
     public void TestStandingPreferKillOverSupport()
     {
         Unit[] allies = [
-            CreateUnit(new(3, 2), attack:[1, 2], support:[1, 2], stats:new() { Attack = 5, Healing = 5 }, behavior:new StandBehavior() { AttackInRange = true, SupportInRange = true }),
+            CreateUnit(new(3, 2), attack:[1, 2], support:[1, 2], stats:new() { Attack = 5, Healing = 5 }, behavior:new BehaviorResource.StandBehavior() { AttackInRange = true, SupportInRange = true }),
             CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:1),
         ];
         Unit enemy = CreateUnit(new(3, 4), stats:new() { Health = 10, Defense = 0 }, hp:5);
@@ -453,7 +452,7 @@ public partial class AIControllerTestScene : Node
     public void TestMovingPreferKillOverSupport()
     {
         Unit[] allies = [
-            CreateUnit(new(3, 2), attack:[1], support:[1], stats:new() { Attack = 5, Healing = 5, Move = 1 }, behavior:new MoveBehavior()),
+            CreateUnit(new(3, 2), attack:[1], support:[1], stats:new() { Attack = 5, Healing = 5, Move = 1 }, behavior:new BehaviorResource.MoveBehavior()),
             CreateUnit(new(3, 0), stats:new() { Health = 5 },  hp:1),
         ];
         Unit enemy = CreateUnit(new(3, 4), stats:new() { Health = 10, Defense = 0 }, hp:5);
@@ -464,8 +463,8 @@ public partial class AIControllerTestScene : Node
     [Test]
     public void TestStandingSupportAfterAttack()
     {
-        Unit attacker = CreateUnit(new(3, 2), attack:[3], stats:new() { Health = 10, Attack = 5, Defense = 0 }, hp:8, behavior:new StandBehavior() { AttackInRange = true, SupportInRange = true });
-        Unit healer = CreateUnit(new(5, 2), support:[2], stats:new() { Healing = 5 }, behavior:new StandBehavior() { AttackInRange = true, SupportInRange = true });
+        Unit attacker = CreateUnit(new(3, 2), attack:[3], stats:new() { Health = 10, Attack = 5, Defense = 0 }, hp:8, behavior:new BehaviorResource.StandBehavior() { AttackInRange = true, SupportInRange = true });
+        Unit healer = CreateUnit(new(5, 2), support:[2], stats:new() { Healing = 5 }, behavior:new BehaviorResource.StandBehavior() { AttackInRange = true, SupportInRange = true });
         Unit enemy = CreateUnit(new(0, 2), attack:[3], stats:new() { Attack = 5, Defense = 0 });
         RunTest([attacker, healer], [enemy], [new(attacker, [attacker.Cell], "Attack", enemy)]);
     }
@@ -474,8 +473,8 @@ public partial class AIControllerTestScene : Node
     [Test]
     public void TestMovingSupportAfterAttack()
     {
-        Unit attacker = CreateUnit(new(3, 2), attack:[1], stats:new() { Health = 10, Attack = 5, Defense = 0, Move = 3 }, hp:8, behavior:new MoveBehavior());
-        Unit healer = CreateUnit(new(5, 2), support:[1], stats:new() { Healing = 5, Move = 3 }, behavior:new MoveBehavior());
+        Unit attacker = CreateUnit(new(3, 2), attack:[1], stats:new() { Health = 10, Attack = 5, Defense = 0, Move = 3 }, hp:8, behavior:new BehaviorResource.MoveBehavior());
+        Unit healer = CreateUnit(new(5, 2), support:[1], stats:new() { Healing = 5, Move = 3 }, behavior:new BehaviorResource.MoveBehavior());
         Unit enemy = CreateUnit(new(0, 2), attack:[1], stats:new() { Attack = 5, Defense = 0 });
         RunTest([attacker, healer], [enemy], [new(attacker, [new(1, 2)], "Attack", enemy)]);
     }
@@ -504,7 +503,7 @@ public partial class AIControllerTestScene : Node
     [Test]
     public void TestStandingPerformSpecialAction()
     {
-        Unit ally = CreateUnit(new(0, 2), behavior: new StandBehavior() { AttackInRange = false, SupportInRange = false });
+        Unit ally = CreateUnit(new(0, 2), behavior: new BehaviorResource.StandBehavior() { AttackInRange = false, SupportInRange = false });
         RunActionRegionTest(() => RunTest([ally], [], new AIAction(ally, [ally.Cell], _region.Action)));
     }
 
@@ -512,7 +511,7 @@ public partial class AIControllerTestScene : Node
     [Test]
     public void TestMovingPerformSpecialAction()
     {
-        Unit ally = CreateUnit(new(0, 2), behavior:new MoveBehavior());
+        Unit ally = CreateUnit(new(0, 2), behavior:new BehaviorResource.MoveBehavior());
         RunActionRegionTest(() => RunTest([ally], [], new AIAction(ally, [ally.Cell], _region.Action)));
     }
 
@@ -520,7 +519,7 @@ public partial class AIControllerTestScene : Node
     [Test]
     public void TestMoveToSpecialAction()
     {
-        Unit ally = CreateUnit(new(3, 2), stats:new() { Move = 4 }, behavior:new MoveBehavior());
+        Unit ally = CreateUnit(new(3, 2), stats:new() { Move = 4 }, behavior:new BehaviorResource.MoveBehavior());
         RunActionRegionTest(() => RunTest([ally], [], new AIAction(ally, [new(0, 2)], _region.Action)));
     }
 
@@ -528,7 +527,7 @@ public partial class AIControllerTestScene : Node
     [Test]
     public void TestStandingPreferSpecialActionOverAttack()
     {
-        Unit ally =  CreateUnit(new(0, 2), attack:[1], stats:new() { Attack = 5 }, behavior:new StandBehavior() {AttackInRange = true});
+        Unit ally =  CreateUnit(new(0, 2), attack:[1], stats:new() { Attack = 5 }, behavior:new BehaviorResource.StandBehavior() {AttackInRange = true});
         Unit enemy = CreateUnit(new(1, 2), attack:[], stats:new() { Health = 5, Defense = 0 });
         RunActionRegionTest(() => RunTest([ally], [enemy], new AIAction(ally, [ally.Cell], _region.Action)));
     }
@@ -537,7 +536,7 @@ public partial class AIControllerTestScene : Node
     [Test]
     public void TestMovingPreferSpecialActionOverAttack()
     {
-        Unit ally =  CreateUnit(new(2, 2), attack:[1], stats:new() { Attack = 5, Move = 5 }, behavior:new MoveBehavior());
+        Unit ally =  CreateUnit(new(2, 2), attack:[1], stats:new() { Attack = 5, Move = 5 }, behavior:new BehaviorResource.MoveBehavior());
         Unit enemy = CreateUnit(new(1, 2), attack:[], stats:new() { Health = 5, Defense = 0 });
         RunActionRegionTest(() => RunTest([ally], [enemy], new AIAction(ally, [new(0, 1), new(0, 3)], _region.Action)));
     }
@@ -547,7 +546,7 @@ public partial class AIControllerTestScene : Node
     public void TestStandingPreferSpecialActionOverSupport()
     {
         Unit[] allies = [
-            CreateUnit(new(0, 2), support:[1], stats:new() { Healing = 5 }, behavior:new StandBehavior() {SupportInRange = true}),
+            CreateUnit(new(0, 2), support:[1], stats:new() { Healing = 5 }, behavior:new BehaviorResource.StandBehavior() {SupportInRange = true}),
             CreateUnit(new(1, 2), stats:new() { Health = 5 }, hp:1)
         ];
 
@@ -559,7 +558,7 @@ public partial class AIControllerTestScene : Node
     public void TestMovingPreferSpecialActionOverSupport()
     {
         Unit[] allies = [
-            CreateUnit(new(2, 2), support:[1], stats:new() { Healing = 5, Move = 5 }, behavior:new MoveBehavior()),
+            CreateUnit(new(2, 2), support:[1], stats:new() { Healing = 5, Move = 5 }, behavior:new BehaviorResource.MoveBehavior()),
             CreateUnit(new(1, 2), stats:new() { Health = 5 }, hp:1)
         ];
 
@@ -576,7 +575,7 @@ public partial class AIControllerTestScene : Node
 
         try
         {
-            Unit ally = CreateUnit(new(3, 2), stats:new() { Move = 4 }, behavior:new MoveBehavior());
+            Unit ally = CreateUnit(new(3, 2), stats:new() { Move = 4 }, behavior:new BehaviorResource.MoveBehavior());
             RunActionRegionTest(() => RunTest([ally], [], new AIAction(ally, [new(0, 2)], _region.Action)));
         }
         finally
@@ -595,8 +594,8 @@ public partial class AIControllerTestScene : Node
     public void TestDontSelectDefeatedAlly()
     {
         Unit[] allies = [
-            CreateUnit(new(2, 2), attack:[1], stats:new() { Health = 5, Attack = 5 }, hp:0, behavior:new StandBehavior() { AttackInRange = true }),
-            CreateUnit(new(4, 2), attack:[1], stats:new() { Health = 5, Attack = 5 }, hp:5, behavior:new StandBehavior() { AttackInRange = true })
+            CreateUnit(new(2, 2), attack:[1], stats:new() { Health = 5, Attack = 5 }, hp:0, behavior:new BehaviorResource.StandBehavior() { AttackInRange = true }),
+            CreateUnit(new(4, 2), attack:[1], stats:new() { Health = 5, Attack = 5 }, hp:5, behavior:new BehaviorResource.StandBehavior() { AttackInRange = true })
         ];
         Unit enemy = CreateUnit(new(3, 2), attack:[1], stats:new() { Attack = 5 });
         RunTest(allies, [enemy], [new(allies[1], [allies[1].Cell], "Attack", enemy)]);
