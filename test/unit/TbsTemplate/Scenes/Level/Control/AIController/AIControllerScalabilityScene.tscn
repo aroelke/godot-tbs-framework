@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=4 uid="uid://f7bwykec5mpj"]
+[gd_scene load_steps=14 format=4 uid="uid://f7bwykec5mpj"]
 
 [ext_resource type="Script" uid="uid://dukcuyrb86ev7" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/AIControllerScalabilityScene.cs" id="1_b7iyb"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsTemplate/Scenes/Level/Map/Grid.tscn" id="1_unbo7"]
@@ -10,77 +10,9 @@
 [ext_resource type="PackedScene" uid="uid://ce83kbl7xjwpr" path="res://addons/GD_NET_ScOUT/test_runner.tscn" id="8_31ehj"]
 [ext_resource type="PackedScene" uid="uid://b0cvutx2lj5uy" path="res://src/TbsTemplate/Scenes/Level/Object/Unit.tscn" id="8_bam4b"]
 [ext_resource type="Resource" uid="uid://d2b44k8huqbx" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/ScalabilityAllyStats.tres" id="10_5jjue"]
-[ext_resource type="Script" uid="uid://dhudcaecfnar6" path="res://src/TbsTemplate/Scenes/Level/Control/Behavior/MoveBehavior.cs" id="10_d6dp4"]
+[ext_resource type="PackedScene" uid="uid://djsdk3bbrh181" path="res://src/TbsTemplate/Scenes/Level/Control/MoveBehavior.tscn" id="10_d6dp4"]
 [ext_resource type="Resource" uid="uid://dyrvoi6hn2ecg" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/EnemyFaction.tres" id="11_tfesu"]
 [ext_resource type="Resource" uid="uid://qt0n5o3watpr" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/ScalabilityEnemyStats.tres" id="13_oqc7t"]
-
-[sub_resource type="Resource" id="Resource_xrpg4"]
-script = ExtResource("10_d6dp4")
-metadata/_custom_type_script = "uid://dhudcaecfnar6"
-
-[sub_resource type="Resource" id="Resource_d6dp4"]
-script = ExtResource("10_d6dp4")
-metadata/_custom_type_script = "uid://dhudcaecfnar6"
-
-[sub_resource type="Resource" id="Resource_fwmeq"]
-script = ExtResource("10_d6dp4")
-metadata/_custom_type_script = "uid://dhudcaecfnar6"
-
-[sub_resource type="Resource" id="Resource_45elx"]
-script = ExtResource("10_d6dp4")
-metadata/_custom_type_script = "uid://dhudcaecfnar6"
-
-[sub_resource type="Resource" id="Resource_nwhqd"]
-script = ExtResource("10_d6dp4")
-metadata/_custom_type_script = "uid://dhudcaecfnar6"
-
-[sub_resource type="Resource" id="Resource_2g41d"]
-script = ExtResource("10_d6dp4")
-metadata/_custom_type_script = "uid://dhudcaecfnar6"
-
-[sub_resource type="Resource" id="Resource_nbr05"]
-script = ExtResource("10_d6dp4")
-metadata/_custom_type_script = "uid://dhudcaecfnar6"
-
-[sub_resource type="Resource" id="Resource_yxhpa"]
-script = ExtResource("10_d6dp4")
-metadata/_custom_type_script = "uid://dhudcaecfnar6"
-
-[sub_resource type="Resource" id="Resource_tu5rc"]
-script = ExtResource("10_d6dp4")
-metadata/_custom_type_script = "uid://dhudcaecfnar6"
-
-[sub_resource type="Resource" id="Resource_cjjfu"]
-script = ExtResource("10_d6dp4")
-metadata/_custom_type_script = "uid://dhudcaecfnar6"
-
-[sub_resource type="Resource" id="Resource_118pm"]
-script = ExtResource("10_d6dp4")
-metadata/_custom_type_script = "uid://dhudcaecfnar6"
-
-[sub_resource type="Resource" id="Resource_ekg1u"]
-script = ExtResource("10_d6dp4")
-metadata/_custom_type_script = "uid://dhudcaecfnar6"
-
-[sub_resource type="Resource" id="Resource_823sd"]
-script = ExtResource("10_d6dp4")
-metadata/_custom_type_script = "uid://dhudcaecfnar6"
-
-[sub_resource type="Resource" id="Resource_b10ea"]
-script = ExtResource("10_d6dp4")
-metadata/_custom_type_script = "uid://dhudcaecfnar6"
-
-[sub_resource type="Resource" id="Resource_6o4mr"]
-script = ExtResource("10_d6dp4")
-metadata/_custom_type_script = "uid://dhudcaecfnar6"
-
-[sub_resource type="Resource" id="Resource_jrbn3"]
-script = ExtResource("10_d6dp4")
-metadata/_custom_type_script = "uid://dhudcaecfnar6"
-
-[sub_resource type="Resource" id="Resource_f5en2"]
-script = ExtResource("10_d6dp4")
-metadata/_custom_type_script = "uid://dhudcaecfnar6"
 
 [node name="AIControllerScalabilityScene" type="Node"]
 script = ExtResource("1_b7iyb")
@@ -102,138 +34,155 @@ Grid = NodePath("../../Grid")
 [node name="Ally0" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("8_bam4b")]
 position = Vector2(352, 608)
 Stats = ExtResource("10_5jjue")
-Behavior = SubResource("Resource_xrpg4")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(11, 19)
 Size = Vector2(32, 32)
 
+[node name="MoveBehavior" parent="Army1/Ally0" instance=ExtResource("10_d6dp4")]
+
 [node name="Ally1" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("8_bam4b")]
 position = Vector2(384, 608)
 Stats = ExtResource("10_5jjue")
-Behavior = SubResource("Resource_d6dp4")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(12, 19)
 Size = Vector2(32, 32)
 
+[node name="MoveBehavior" parent="Army1/Ally1" instance=ExtResource("10_d6dp4")]
+
 [node name="Ally2" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("8_bam4b")]
 position = Vector2(416, 608)
 Stats = ExtResource("10_5jjue")
-Behavior = SubResource("Resource_fwmeq")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(13, 19)
 Size = Vector2(32, 32)
 
+[node name="MoveBehavior" parent="Army1/Ally2" instance=ExtResource("10_d6dp4")]
+
 [node name="Ally3" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("8_bam4b")]
 position = Vector2(448, 608)
 Stats = ExtResource("10_5jjue")
-Behavior = SubResource("Resource_45elx")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(14, 19)
 Size = Vector2(32, 32)
 
+[node name="MoveBehavior" parent="Army1/Ally3" instance=ExtResource("10_d6dp4")]
+
 [node name="Ally4" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("8_bam4b")]
 position = Vector2(480, 448)
 Stats = ExtResource("10_5jjue")
-Behavior = SubResource("Resource_nwhqd")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(15, 14)
 Size = Vector2(32, 32)
 
+[node name="MoveBehavior" parent="Army1/Ally4" instance=ExtResource("10_d6dp4")]
+
 [node name="Ally5" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("8_bam4b")]
 position = Vector2(480, 384)
 Stats = ExtResource("10_5jjue")
-Behavior = SubResource("Resource_2g41d")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(15, 12)
 Size = Vector2(32, 32)
 
+[node name="MoveBehavior" parent="Army1/Ally5" instance=ExtResource("10_d6dp4")]
+
 [node name="Ally6" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("8_bam4b")]
 position = Vector2(448, 352)
 Stats = ExtResource("10_5jjue")
-Behavior = SubResource("Resource_nbr05")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(14, 11)
 Size = Vector2(32, 32)
 
+[node name="MoveBehavior" parent="Army1/Ally6" instance=ExtResource("10_d6dp4")]
+
 [node name="Ally7" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("8_bam4b")]
 position = Vector2(384, 352)
 Stats = ExtResource("10_5jjue")
-Behavior = SubResource("Resource_yxhpa")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(12, 11)
 Size = Vector2(32, 32)
 
+[node name="MoveBehavior" parent="Army1/Ally7" instance=ExtResource("10_d6dp4")]
+
 [node name="Ally8" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("8_bam4b")]
 position = Vector2(0, 32)
 Stats = ExtResource("10_5jjue")
-Behavior = SubResource("Resource_tu5rc")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(0, 1)
 Size = Vector2(32, 32)
 
+[node name="MoveBehavior" parent="Army1/Ally8" instance=ExtResource("10_d6dp4")]
+
 [node name="Ally9" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("8_bam4b")]
 position = Vector2(64, 32)
 Stats = ExtResource("10_5jjue")
-Behavior = SubResource("Resource_cjjfu")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(2, 1)
 Size = Vector2(32, 32)
 
+[node name="MoveBehavior" parent="Army1/Ally9" instance=ExtResource("10_d6dp4")]
+
 [node name="Ally10" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("8_bam4b")]
 position = Vector2(384, 288)
 Stats = ExtResource("10_5jjue")
-Behavior = SubResource("Resource_118pm")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(12, 9)
 Size = Vector2(32, 32)
 
+[node name="MoveBehavior" parent="Army1/Ally10" instance=ExtResource("10_d6dp4")]
+
 [node name="Ally11" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("8_bam4b")]
 position = Vector2(448, 288)
 Stats = ExtResource("10_5jjue")
-Behavior = SubResource("Resource_ekg1u")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(14, 9)
 Size = Vector2(32, 32)
 
+[node name="MoveBehavior" parent="Army1/Ally11" instance=ExtResource("10_d6dp4")]
+
 [node name="Ally12" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("8_bam4b")]
 position = Vector2(480, 256)
 Stats = ExtResource("10_5jjue")
-Behavior = SubResource("Resource_823sd")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(15, 8)
 Size = Vector2(32, 32)
 
+[node name="MoveBehavior" parent="Army1/Ally12" instance=ExtResource("10_d6dp4")]
+
 [node name="Ally13" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("8_bam4b")]
 position = Vector2(480, 192)
 Stats = ExtResource("10_5jjue")
-Behavior = SubResource("Resource_b10ea")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(15, 6)
 Size = Vector2(32, 32)
 
+[node name="MoveBehavior" parent="Army1/Ally13" instance=ExtResource("10_d6dp4")]
+
 [node name="Ally14" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("8_bam4b")]
 position = Vector2(0, 576)
 Stats = ExtResource("10_5jjue")
-Behavior = SubResource("Resource_6o4mr")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(0, 18)
 Size = Vector2(32, 32)
 
+[node name="MoveBehavior" parent="Army1/Ally14" instance=ExtResource("10_d6dp4")]
+
 [node name="Ally15" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("8_bam4b")]
 position = Vector2(64, 576)
 Stats = ExtResource("10_5jjue")
-Behavior = SubResource("Resource_jrbn3")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(2, 18)
 Size = Vector2(32, 32)
 
+[node name="MoveBehavior" parent="Army1/Ally15" instance=ExtResource("10_d6dp4")]
+
 [node name="Ally16" parent="Army1" node_paths=PackedStringArray("Grid") instance=ExtResource("8_bam4b")]
 position = Vector2(608, 320)
 Stats = ExtResource("10_5jjue")
-Behavior = SubResource("Resource_f5en2")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(19, 10)
 Size = Vector2(32, 32)
+
+[node name="MoveBehavior" parent="Army1/Ally16" instance=ExtResource("10_d6dp4")]
 
 [node name="Army2" parent="." instance=ExtResource("5_c8euv")]
 Faction = ExtResource("11_tfesu")

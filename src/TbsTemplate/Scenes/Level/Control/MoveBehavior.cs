@@ -7,6 +7,7 @@ using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Scenes.Level.Control;
 
+[Tool]
 public partial class MoveBehavior : Behavior
 {
     public override IEnumerable<Vector2I> Destinations(IUnit unit, IGrid grid) => unit.TraversableCells(grid).Where((c) => !grid.GetOccupantUnits().TryGetValue(c, out IUnit occupant) || c == unit.Cell);
@@ -31,8 +32,8 @@ public partial class MoveBehavior : Behavior
         if (allyCells.Any())
         {
             IEnumerable<IUnit> allies = allyCells.Select((c) => grid.GetOccupantUnits()[c]);
-            int lowest = allies.Select((u) => u.Health).Min();
-            actions[UnitActions.SupportAction] = allies.Where((u) => u.Health == lowest).Select((u) => u.Cell);
+            int lowest = allies.Select(static (u) => u.Health).Min();
+            actions[UnitActions.SupportAction] = allies.Where((u) => u.Health == lowest).Select(static (u) => u.Cell);
         }
 
         return actions;

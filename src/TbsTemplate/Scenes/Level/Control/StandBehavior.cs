@@ -7,6 +7,7 @@ using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Scenes.Level.Control;
 
+[Tool]
 public partial class StandBehavior : Behavior
 {
     /// <summary>Whether or not the unit should attack enemies in range.</summary>
@@ -27,17 +28,17 @@ public partial class StandBehavior : Behavior
         if (AttackInRange)
         {
             IEnumerable<Vector2I> attackable = unit.AttackableCells(grid, [unit.Cell]);
-            IEnumerable<IUnit> targets = grid.GetOccupantUnits().Where((e) => attackable.Contains(e.Key) && !unit.Faction.AlliedTo(e.Value.Faction)).Select((p) => p.Value);
+            IEnumerable<IUnit> targets = grid.GetOccupantUnits().Where((e) => attackable.Contains(e.Key) && !unit.Faction.AlliedTo(e.Value.Faction)).Select(static (p) => p.Value);
             if (targets.Any())
                 actions[UnitActions.AttackAction] = targets.Select((u) => u.Cell);
         }
         if (SupportInRange)
         {
             IEnumerable<Vector2I> supportable = unit.SupportableCells(grid, [unit.Cell]);
-            IEnumerable<IUnit> targets = grid.GetOccupantUnits().Where((e) => supportable.Contains(e.Key) && unit.Faction.AlliedTo(e.Value.Faction)).Select((p) => p.Value);
+            IEnumerable<IUnit> targets = grid.GetOccupantUnits().Where((e) => supportable.Contains(e.Key) && unit.Faction.AlliedTo(e.Value.Faction)).Select(static (p) => p.Value);
             if (targets.Any())
             {
-                int lowest = targets.Select((u) => u.Health).Min();
+                int lowest = targets.Select(static (u) => u.Health).Min();
                 actions[UnitActions.SupportAction] = targets.Where((u) => u.Health == lowest).Select((u) => u.Cell);
             }
         }

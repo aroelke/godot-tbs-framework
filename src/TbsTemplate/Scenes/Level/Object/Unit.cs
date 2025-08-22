@@ -7,9 +7,9 @@ using TbsTemplate.Data;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level.Map;
-using TbsTemplate.Scenes.Level.Control.BehaviorResource;
 using TbsTemplate.Scenes.Level.Object.Group;
 using TbsTemplate.Scenes.Level.Events;
+using TbsTemplate.Scenes.Level.Control;
 
 namespace TbsTemplate.Scenes.Level.Object;
 
@@ -39,6 +39,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     private Army _army = null;
     private Stats _stats = new();
     private Vector2I _target = Vector2I.Zero;
+    private Behavior _behavior = null;
 
     private StringName AnimationState => AnimationTree.Get("parameters/playback").As<AnimationNodeStateMachinePlayback>().GetCurrentNode();
 
@@ -96,10 +97,8 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     /// <summary>Factor to multiply <see cref="MoveSpeed"/> by while <see cref="MoveAccelerateAction"/> is held down.</summary>
     [Export] public double MoveAccelerationFactor = 2;
 
-    [ExportGroup("AI")]
-
-    ///<summary>Behavior defining the square to move to when AI controlled.</summary>
-    [Export] public UnitBehavior Behavior = null;
+    ///<summary>Behavior defining actions to take when AI controlled.</summary>
+    public Behavior Behavior => _behavior ??= GetChildren().OfType<Behavior>().FirstOrDefault();
 
     int IUnit.Health => Health.Value;
 
@@ -246,6 +245,18 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     {
         if (value == 0)
             LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.UnitDefeated, this);
+    }
+
+    public override string[] _GetConfigurationWarnings()
+    {
+        List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
+
+        if (!GetChildren().OfType<Behavior>().Any())
+            warnings.Add("This unit has no behavior. It may not be able to act.");
+        if (GetChildren().OfType<Behavior>().Count() > 1)
+            warnings.Add("More than one behavior is defined. Only the first one will be used.");
+
+        return [.. warnings];
     }
 
     public override void _Ready()
