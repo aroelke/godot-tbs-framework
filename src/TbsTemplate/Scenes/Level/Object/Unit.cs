@@ -39,7 +39,6 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     private Army _army = null;
     private Stats _stats = new();
     private Vector2I _target = Vector2I.Zero;
-    private Behavior _behavior = null;
 
     private StringName AnimationState => AnimationTree.Get("parameters/playback").As<AnimationNodeStateMachinePlayback>().GetCurrentNode();
 
@@ -98,7 +97,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     [Export] public double MoveAccelerationFactor = 2;
 
     ///<summary>Behavior defining actions to take when AI controlled.</summary>
-    public Behavior Behavior => _behavior ??= GetChildren().OfType<Behavior>().FirstOrDefault();
+    public Behavior Behavior { get; private set; }
 
     int IUnit.Health => Health.Value;
 
@@ -265,6 +264,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
 
         if (_army is not null)
             Sprite.Modulate = _army.Faction.Color;
+        Behavior = GetChildren().OfType<Behavior>().FirstOrDefault();
 
         if (!Engine.IsEditorHint())
         {
