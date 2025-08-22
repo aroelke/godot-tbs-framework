@@ -251,7 +251,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     {
         List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
 
-        if (!GetChildren().OfType<Behavior>().Any())
+        if (!GetChildren().OfType<Behavior>().Any() && (!GetParentOrNull<Army>()?.GetChildren().OfType<PlayerController>().Any() ?? false))
             warnings.Add("This unit has no behavior. It may not be able to act.");
         if (GetChildren().OfType<Behavior>().Count() > 1)
             warnings.Add("More than one behavior is defined. Only the first one will be used.");
