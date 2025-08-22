@@ -7,6 +7,7 @@ using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Scenes.Level.Control;
 
+/// <summary><see cref="Unit"/> behavior that prevents a unit from moving and can optionally prevent actions as well.</summary>
 [Tool]
 public partial class StandBehavior : Behavior
 {

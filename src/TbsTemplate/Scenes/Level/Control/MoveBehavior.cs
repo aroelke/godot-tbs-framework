@@ -7,6 +7,7 @@ using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Scenes.Level.Control;
 
+/// <summary><see cref="Unit"/> behavior that allows the unit to move around the grid to perform actions.</summary>
 [Tool]
 public partial class MoveBehavior : Behavior
 {
