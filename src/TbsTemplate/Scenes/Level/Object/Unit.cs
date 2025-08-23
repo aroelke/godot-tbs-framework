@@ -97,7 +97,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     [Export] public double MoveAccelerationFactor = 2;
 
     ///<summary>Behavior defining actions to take when AI controlled.</summary>
-    public Behavior Behavior { get; private set; }
+    public Behavior Behavior { get; private set; } = null;
 
     int IUnit.Health => Health.Value;
 
