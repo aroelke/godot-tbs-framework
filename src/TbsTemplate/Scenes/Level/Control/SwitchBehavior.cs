@@ -21,18 +21,10 @@ public partial class SwitchBehavior : Behavior
 
     public IEnumerable<SwitchCondition> Conditions { get; private set; } = [];
 
-    private void EvaluateConditions()
-    {
-        if (!CanRevert && _switched)
-            return;
-        
-        _switched = MeetAllConditions ? Conditions.All(static (c) => c.Satisfied()) : Conditions.Any(static (c) => c.Satisfied());
-    }
-
     public Behavior TargetBehavior()
     {
         if (CanRevert || !_switched)
-            _switched = MeetAllConditions ? Conditions.All(static (c) => c.Satisfied()) : Conditions.Any(static (c) => c.Satisfied());
+            _switched = MeetAllConditions ? Conditions.All(static (c) => c.Satisfied) : Conditions.Any(static (c) => c.Satisfied);
         return _switched ? Final : Initial;
     }
 

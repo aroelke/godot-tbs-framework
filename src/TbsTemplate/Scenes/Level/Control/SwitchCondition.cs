@@ -7,9 +7,33 @@ namespace TbsTemplate.Scenes.Level.Control;
 
 public abstract partial class SwitchCondition : Node
 {
+    [Signal] public delegate void BehaviorSwitchTriggeredEventHandler(bool satisfied);
+
+    [Signal] public delegate void SwitchConditionSatisfiedEventHandler();
+    
+    [Signal] public delegate void SwitchConditionUnsatisfiedEventHandler();
+
+    private bool _satisfied = false;
+
     [Export] public Unit[] ApplicableUnits = [];
 
     [Export] public Army[] ApplicableArmies = [];
+
+    public bool Satisfied
+    {
+        get => _satisfied;
+        protected set
+        {
+            if (_satisfied != value)
+            {
+                EmitSignal(SignalName.BehaviorSwitchTriggered, _satisfied = value);
+                if (_satisfied)
+                    EmitSignal(SignalName.SwitchConditionSatisfied);
+                else
+                    EmitSignal(SignalName.SwitchConditionUnsatisfied);
+            }
+        }
+    }
 
     public IEnumerable<Unit> GetApplicableUnits()
     {
@@ -19,7 +43,6 @@ public abstract partial class SwitchCondition : Node
         return applicable;
     }
 
-    public abstract bool Satisfied();
 
     public override string[] _GetConfigurationWarnings()
     {
