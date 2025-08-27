@@ -1,0 +1,14 @@
+[gd_scene load_steps=4 format=3 uid="uid://wkdtlupywehl"]
+
+[ext_resource type="Script" uid="uid://c7xycybxpj1dh" path="res://test/unit/TbsTemplate/Scenes/Level/Control/Behavior/ManualSwitchConditionTestScene.cs" id="1_mf0xg"]
+[ext_resource type="PackedScene" uid="uid://dmft6ksatnr3c" path="res://src/TbsTemplate/Scenes/Level/Control/ManualSwitchCondition.tscn" id="2_17nj5"]
+[ext_resource type="PackedScene" uid="uid://ce83kbl7xjwpr" path="res://addons/GD_NET_ScOUT/test_runner.tscn" id="3_17nj5"]
+
+[node name="ManualSwitchConditionTestScene" type="Node"]
+script = ExtResource("1_mf0xg")
+
+[node name="ManualSwitchCondition" parent="." instance=ExtResource("2_17nj5")]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="TestRunner" parent="CanvasLayer" instance=ExtResource("3_17nj5")]

@@ -7,6 +7,8 @@ namespace TbsTemplate.Scenes.Level.Control;
 
 public abstract partial class SwitchCondition : Node
 {
+    protected const string NoApplicableUnitsWarning = "This condition doesn't apply to any units and will never be satisfied.";
+
     [Signal] public delegate void BehaviorSwitchTriggeredEventHandler(bool satisfied);
 
     [Signal] public delegate void SwitchConditionSatisfiedEventHandler();
@@ -49,7 +51,7 @@ public abstract partial class SwitchCondition : Node
         List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
 
         if (ApplicableUnits.Length == 0 || ApplicableArmies.Length == 0)
-            warnings.Add("This condition doesn't apply to any units and will never be satisfied.");
+            warnings.Add(NoApplicableUnitsWarning);
 
         return [.. warnings];
     }
