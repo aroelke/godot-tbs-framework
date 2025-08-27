@@ -10,6 +10,13 @@ namespace TbsTemplate.Scenes.Level.Control.Test;
 [Test]
 public partial class SwitchConditionTestScene : Node
 {
+    private static void MoveUnit(Unit unit, Vector2I destination)
+    {
+        unit.Grid.Occupants.Remove(unit.Cell);
+        unit.Cell = destination;
+        unit.Grid.Occupants[destination] = unit;
+    }
+
     [Test]
     public void TestManualSwitchCondition()
     {
@@ -40,22 +47,45 @@ public partial class SwitchConditionTestScene : Node
     public void TestRegionSwitchConditionAnyUnitRightArmy()
     {
         RegionSwitchCondition dut = GetNode<RegionSwitchCondition>("RegionSwitchCondition");
-        Grid grid = GetNode<Grid>("Grid");
         Unit unit = GetNode<Unit>("AllyArmy/Unit");
+        MoveUnit(unit, Vector2I.Zero);
 
+        dut.Inside = true;
         dut.Reset();
         Assert.IsFalse(dut.Satisfied);
 
-        grid.Occupants.Remove(unit.Cell);
-        unit.Cell = new(3, 2);
-        grid.Occupants[unit.Cell] = unit;
+        MoveUnit(unit, new(3, 2));
         LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
         Assert.IsTrue(dut.Satisfied);
 
-        grid.Occupants.Remove(unit.Cell);
-        unit.Cell = Vector2I.Zero;
-        grid.Occupants[unit.Cell] = unit;
+        MoveUnit(unit, Vector2I.Zero);
         LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
         Assert.IsFalse(dut.Satisfied);
+    }
+
+    [Test]
+    public void TestRegionSwitchConditionInvertedAnyUnitRightArmy()
+    {
+        RegionSwitchCondition dut = GetNode<RegionSwitchCondition>("RegionSwitchCondition");
+        Unit unit = GetNode<Unit>("AllyArmy/Unit");
+        MoveUnit(unit, Vector2I.Zero);
+        Unit other = GetNode<Unit>("AllyArmy/Unit2");
+        MoveUnit(other, Vector2I.One);
+
+        dut.Inside = false;
+        dut.Reset();
+        Assert.IsFalse(dut.Satisfied);
+
+        MoveUnit(unit, new(3, 2));
+        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
+        Assert.IsTrue(dut.Satisfied);
+
+        MoveUnit(other, new(2, 2));
+        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, other);
+        Assert.IsFalse(dut.Satisfied);
+
+        MoveUnit(unit, Vector2I.Zero);
+        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
+        Assert.IsTrue(dut.Satisfied);
     }
 }

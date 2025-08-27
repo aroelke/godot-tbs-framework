@@ -38,9 +38,9 @@ Grid = NodePath("../../Grid")
 Size = Vector2(32, 32)
 
 [node name="Unit2" parent="AllyArmy" node_paths=PackedStringArray("Grid") instance=ExtResource("8_8hq61")]
-position = Vector2(0, 32)
+position = Vector2(32, 32)
 Grid = NodePath("../../Grid")
-Cell = Vector2i(0, 1)
+Cell = Vector2i(1, 1)
 Size = Vector2(32, 32)
 
 [node name="EnemyArmy" parent="." instance=ExtResource("2_4rpm1")]
