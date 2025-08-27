@@ -10,9 +10,9 @@
 [ext_resource type="PackedScene" uid="uid://bntay230afwxo" path="res://src/TbsTemplate/Scenes/Level/Layers/SpecialActionRegion.tscn" id="6_6544e"]
 [ext_resource type="TileSet" uid="uid://1br68o2a83xi" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/region.tres" id="7_4plxc"]
 [ext_resource type="PackedScene" uid="uid://b0cvutx2lj5uy" path="res://src/TbsTemplate/Scenes/Level/Object/Unit.tscn" id="7_biprk"]
-[ext_resource type="Resource" uid="uid://b0yiofceqexqd" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/AllyFaction.tres" id="7_vj6xc"]
+[ext_resource type="Resource" uid="uid://b0yiofceqexqd" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AllyFaction.tres" id="7_vj6xc"]
 [ext_resource type="PackedScene" uid="uid://ca6g5c6dsaqjb" path="res://src/TbsTemplate/Scenes/Level/Control/AIController.tscn" id="8_82y75"]
-[ext_resource type="Resource" uid="uid://dyrvoi6hn2ecg" path="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/EnemyFaction.tres" id="9_6cufk"]
+[ext_resource type="Resource" uid="uid://dyrvoi6hn2ecg" path="res://test/unit/TbsTemplate/Scenes/Level/Control/EnemyFaction.tres" id="9_6cufk"]
 [ext_resource type="PackedScene" uid="uid://ce83kbl7xjwpr" path="res://addons/GD_NET_ScOUT/test_runner.tscn" id="10_ve72a"]
 
 [node name="AIControllerTestScene" type="Node"]
