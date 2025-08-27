@@ -37,6 +37,8 @@ public abstract partial class SwitchCondition : Node
         }
     }
 
+    public void Reset() => Satisfied = false;
+
     public IEnumerable<Unit> GetApplicableUnits()
     {
         List<Unit> applicable = [.. ApplicableUnits];

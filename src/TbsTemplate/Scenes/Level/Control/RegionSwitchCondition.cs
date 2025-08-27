@@ -32,7 +32,7 @@ public partial class RegionSwitchCondition : SwitchCondition
     {
         List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
 
-        if (TriggerRegion is null)
+        if (TriggerRegion is null || TriggerRegion.GetUsedCells().Count == 0)
             warnings.Add("No trigger region is defined. Behavior switch will never occur.");
 
         return [.. warnings];
