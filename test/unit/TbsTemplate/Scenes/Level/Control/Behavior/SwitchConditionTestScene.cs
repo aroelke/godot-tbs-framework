@@ -51,11 +51,39 @@ public partial class SwitchConditionTestScene : Node
         MoveUnit(unit, Vector2I.Zero);
 
         dut.Inside = true;
+        dut.RequiresEveryone = false;
         dut.Reset();
         Assert.IsFalse(dut.Satisfied);
 
         MoveUnit(unit, new(3, 2));
         LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
+        Assert.IsTrue(dut.Satisfied);
+
+        MoveUnit(unit, Vector2I.Zero);
+        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
+        Assert.IsFalse(dut.Satisfied);
+    }
+
+    [Test]
+    public void TestRegionSwitchConditionAllUnitsRightArmy()
+    {
+        RegionSwitchCondition dut = GetNode<RegionSwitchCondition>("RegionSwitchCondition");
+        Unit unit = GetNode<Unit>("AllyArmy/Unit");
+        MoveUnit(unit, Vector2I.Zero);
+        Unit other = GetNode<Unit>("AllyArmy/Unit2");
+        MoveUnit(other, Vector2I.One);
+
+        dut.Inside = true;
+        dut.RequiresEveryone = true;
+        dut.Reset();
+        Assert.IsFalse(dut.Satisfied);
+
+        MoveUnit(unit, new(3, 2));
+        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
+        Assert.IsFalse(dut.Satisfied);
+
+        MoveUnit(other, new(2, 2));
+        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, other);
         Assert.IsTrue(dut.Satisfied);
 
         MoveUnit(unit, Vector2I.Zero);
@@ -73,6 +101,7 @@ public partial class SwitchConditionTestScene : Node
         MoveUnit(other, Vector2I.One);
 
         dut.Inside = false;
+        dut.RequiresEveryone = false;
         dut.Reset();
         Assert.IsFalse(dut.Satisfied);
 
