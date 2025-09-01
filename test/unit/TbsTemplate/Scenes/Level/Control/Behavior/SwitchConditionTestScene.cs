@@ -166,4 +166,17 @@ public partial class SwitchConditionTestScene : Node
         MoveUnit(enemy, new(0, 1));
         Assert.IsTrue(dut.Satisfied);
     }
+
+    [Test]
+    public void TestInRangeSwitchConditionAllyMoves()
+    {
+        InRangeSwitchCondition dut = GetNode<InRangeSwitchCondition>("InRangeSwitchCondition");
+        Unit unit = GetNode<Unit>("AllyArmy/Unit");
+        MoveUnit(unit, Vector2I.Zero);
+        dut.Reset();
+        Assert.IsFalse(dut.Satisfied);
+
+        MoveUnit(unit, new(6, 2));
+        Assert.IsTrue(dut.Satisfied);
+    }
 }
