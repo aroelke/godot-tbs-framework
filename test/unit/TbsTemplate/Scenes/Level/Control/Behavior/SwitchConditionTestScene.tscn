@@ -69,7 +69,9 @@ TriggerArmies = [NodePath("../AllyArmy")]
 TriggerRegion = NodePath("../Grid/Region")
 TriggerArmies = [NodePath("../AllyArmy")]
 
-[node name="InRangeSwitchCondition" parent="." instance=ExtResource("13_x2h2q")]
+[node name="InRangeSwitchCondition" parent="." node_paths=PackedStringArray("SourceUnits", "TriggerArmies") instance=ExtResource("13_x2h2q")]
+SourceUnits = [NodePath("../AllyArmy/Unit")]
+TriggerArmies = [NodePath("../EnemyArmy")]
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
