@@ -17,9 +17,9 @@ public abstract partial class SwitchCondition : Node
 
     private bool _satisfied = false;
 
-    [Export] public Unit[] ApplicableUnits = [];
+    [Export] public Unit[] TriggerUnits = [];
 
-    [Export] public Army[] ApplicableArmies = [];
+    [Export] public Army[] TriggerArmies = [];
 
     public bool Satisfied
     {
@@ -41,8 +41,8 @@ public abstract partial class SwitchCondition : Node
 
     public IEnumerable<Unit> GetApplicableUnits()
     {
-        List<Unit> applicable = [.. ApplicableUnits];
-        foreach (Army army in ApplicableArmies)
+        List<Unit> applicable = [.. TriggerUnits];
+        foreach (Army army in TriggerArmies)
             applicable.AddRange(army);
         return applicable;
     }
@@ -52,7 +52,7 @@ public abstract partial class SwitchCondition : Node
     {
         List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
 
-        if (ApplicableUnits.Length == 0 || ApplicableArmies.Length == 0)
+        if (TriggerUnits.Length == 0 && TriggerArmies.Length == 0)
             warnings.Add(NoApplicableUnitsWarning);
 
         return [.. warnings];

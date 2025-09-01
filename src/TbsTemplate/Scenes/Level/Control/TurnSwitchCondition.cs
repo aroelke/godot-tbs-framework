@@ -12,7 +12,7 @@ public partial class TurnSwitchCondition : SwitchCondition
 
     public void Update(int turn, Army army)
     {
-        if (ApplicableArmies.Contains(army))
+        if (TriggerArmies.Contains(army))
             Satisfied = turn >= TriggerTurn;
     }
 
@@ -33,7 +33,7 @@ public partial class TurnSwitchCondition : SwitchCondition
     public override void _ValidateProperty(Godot.Collections.Dictionary property)
     {
         base._ValidateProperty(property);
-        if (property["name"].AsStringName() == PropertyName.ApplicableUnits)
+        if (property["name"].AsStringName() == PropertyName.TriggerUnits)
             property["usage"] = (int)PropertyUsageFlags.NoEditor;
     }
 }

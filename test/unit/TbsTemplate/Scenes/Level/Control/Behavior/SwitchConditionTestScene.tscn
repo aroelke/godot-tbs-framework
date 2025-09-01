@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=4 uid="uid://wkdtlupywehl"]
+[gd_scene load_steps=15 format=4 uid="uid://wkdtlupywehl"]
 
 [ext_resource type="Script" uid="uid://c7xycybxpj1dh" path="res://test/unit/TbsTemplate/Scenes/Level/Control/Behavior/SwitchConditionTestScene.cs" id="1_k7qlk"]
 [ext_resource type="PackedScene" uid="uid://dmft6ksatnr3c" path="res://src/TbsTemplate/Scenes/Level/Control/ManualSwitchCondition.tscn" id="1_sbtjm"]
@@ -13,6 +13,7 @@
 [ext_resource type="TileSet" uid="uid://ca702fu7govjb" path="res://test/unit/TbsTemplate/Scenes/Level/Control/tileset.tres" id="4_vucke"]
 [ext_resource type="PackedScene" uid="uid://b0cvutx2lj5uy" path="res://src/TbsTemplate/Scenes/Level/Object/Unit.tscn" id="8_8hq61"]
 [ext_resource type="PackedScene" uid="uid://ca8cgmba15sab" path="res://src/TbsTemplate/Scenes/Level/Control/RegionSwitchCondition.tscn" id="11_vucke"]
+[ext_resource type="PackedScene" uid="uid://bbanldfbqkktf" path="res://src/TbsTemplate/Scenes/Level/Control/InRangeSwitchCondition.tscn" id="13_x2h2q"]
 
 [node name="SwitchConditionTestScene" type="Node"]
 script = ExtResource("1_k7qlk")
@@ -46,15 +47,29 @@ Size = Vector2(32, 32)
 [node name="EnemyArmy" parent="." instance=ExtResource("2_4rpm1")]
 Faction = ExtResource("4_n613g")
 
+[node name="Unit" parent="EnemyArmy" node_paths=PackedStringArray("Grid") instance=ExtResource("8_8hq61")]
+position = Vector2(192, 128)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(6, 4)
+Size = Vector2(32, 32)
+
+[node name="Unit2" parent="EnemyArmy" node_paths=PackedStringArray("Grid") instance=ExtResource("8_8hq61")]
+position = Vector2(160, 96)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(5, 3)
+Size = Vector2(32, 32)
+
 [node name="ManualSwitchCondition" parent="." instance=ExtResource("1_sbtjm")]
 
-[node name="TurnSwitchCondition" parent="." node_paths=PackedStringArray("ApplicableArmies") instance=ExtResource("3_5b61s")]
+[node name="TurnSwitchCondition" parent="." node_paths=PackedStringArray("TriggerArmies") instance=ExtResource("3_5b61s")]
 TriggerTurn = 5
-ApplicableArmies = [NodePath("../AllyArmy")]
+TriggerArmies = [NodePath("../AllyArmy")]
 
-[node name="RegionSwitchCondition" parent="." node_paths=PackedStringArray("TriggerRegion", "ApplicableArmies") instance=ExtResource("11_vucke")]
+[node name="RegionSwitchCondition" parent="." node_paths=PackedStringArray("TriggerRegion", "TriggerArmies") instance=ExtResource("11_vucke")]
 TriggerRegion = NodePath("../Grid/Region")
-ApplicableArmies = [NodePath("../AllyArmy")]
+TriggerArmies = [NodePath("../AllyArmy")]
+
+[node name="InRangeSwitchCondition" parent="." instance=ExtResource("13_x2h2q")]
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
