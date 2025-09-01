@@ -137,4 +137,20 @@ public partial class SwitchConditionTestScene : Node
         MoveUnit(other, Vector2I.One);
         Assert.IsTrue(dut.Satisfied);
     }
+
+    [Test]
+    public void TestRegionSwitchConditionWrongArmy()
+    {
+        RegionSwitchCondition dut = GetNode<RegionSwitchCondition>("RegionSwitchCondition");
+        Unit enemy = GetNode<Unit>("EnemyArmy/Unit");
+        MoveUnit(enemy, new(6, 4));
+
+        dut.Inside = true;
+        dut.RequiresEveryone = false;
+        dut.Reset();
+        Assert.IsFalse(dut.Satisfied);
+
+        MoveUnit(enemy, new(3, 2));
+        Assert.IsFalse(dut.Satisfied);
+    }
 }
