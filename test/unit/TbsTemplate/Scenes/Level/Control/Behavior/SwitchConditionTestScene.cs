@@ -117,4 +117,35 @@ public partial class SwitchConditionTestScene : Node
         LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
         Assert.IsTrue(dut.Satisfied);
     }
+
+    [Test]
+    public void TestRegionSwitchConditionInvertedAllUnitsRightArmy()
+    {
+        RegionSwitchCondition dut = GetNode<RegionSwitchCondition>("RegionSwitchCondition");
+        Unit unit = GetNode<Unit>("AllyArmy/Unit");
+        MoveUnit(unit, Vector2I.Zero);
+        Unit other = GetNode<Unit>("AllyArmy/Unit2");
+        MoveUnit(other, Vector2I.One);
+
+        dut.Inside = false;
+        dut.RequiresEveryone = true;
+        dut.Reset();
+        Assert.IsFalse(dut.Satisfied);
+
+        MoveUnit(unit, new(3, 2));
+        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
+        Assert.IsFalse(dut.Satisfied);
+
+        MoveUnit(other, new(2, 2));
+        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, other);
+        Assert.IsFalse(dut.Satisfied);
+
+        MoveUnit(unit, Vector2I.Zero);
+        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
+        Assert.IsFalse(dut.Satisfied);
+
+        MoveUnit(other, Vector2I.One);
+        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
+        Assert.IsTrue(dut.Satisfied);
+    }
 }
