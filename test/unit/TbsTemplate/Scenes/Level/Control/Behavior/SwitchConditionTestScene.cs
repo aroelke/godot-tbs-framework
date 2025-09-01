@@ -1,7 +1,6 @@
 using GD_NET_ScOUT;
 using Godot;
 using TbsTemplate.Scenes.Level.Events;
-using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 
@@ -15,12 +14,14 @@ public partial class SwitchConditionTestScene : Node
         unit.Grid.Occupants.Remove(unit.Cell);
         unit.Cell = destination;
         unit.Grid.Occupants[destination] = unit;
+        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
     }
 
     [Test]
     public void TestManualSwitchCondition()
     {
         ManualSwitchCondition dut = GetNode<ManualSwitchCondition>("ManualSwitchCondition");
+        dut.Reset();
         Assert.IsFalse(dut.Satisfied);
         dut.Trigger();
         Assert.IsTrue(dut.Satisfied);
@@ -56,11 +57,9 @@ public partial class SwitchConditionTestScene : Node
         Assert.IsFalse(dut.Satisfied);
 
         MoveUnit(unit, new(3, 2));
-        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
         Assert.IsTrue(dut.Satisfied);
 
         MoveUnit(unit, Vector2I.Zero);
-        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
         Assert.IsFalse(dut.Satisfied);
     }
 
@@ -79,15 +78,12 @@ public partial class SwitchConditionTestScene : Node
         Assert.IsFalse(dut.Satisfied);
 
         MoveUnit(unit, new(3, 2));
-        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
         Assert.IsFalse(dut.Satisfied);
 
         MoveUnit(other, new(2, 2));
-        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, other);
         Assert.IsTrue(dut.Satisfied);
 
         MoveUnit(unit, Vector2I.Zero);
-        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
         Assert.IsFalse(dut.Satisfied);
     }
 
@@ -106,15 +102,12 @@ public partial class SwitchConditionTestScene : Node
         Assert.IsFalse(dut.Satisfied);
 
         MoveUnit(unit, new(3, 2));
-        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
         Assert.IsTrue(dut.Satisfied);
 
         MoveUnit(other, new(2, 2));
-        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, other);
         Assert.IsFalse(dut.Satisfied);
 
         MoveUnit(unit, Vector2I.Zero);
-        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
         Assert.IsTrue(dut.Satisfied);
     }
 
@@ -133,19 +126,15 @@ public partial class SwitchConditionTestScene : Node
         Assert.IsFalse(dut.Satisfied);
 
         MoveUnit(unit, new(3, 2));
-        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
         Assert.IsFalse(dut.Satisfied);
 
         MoveUnit(other, new(2, 2));
-        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, other);
         Assert.IsFalse(dut.Satisfied);
 
         MoveUnit(unit, Vector2I.Zero);
-        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
         Assert.IsFalse(dut.Satisfied);
 
         MoveUnit(other, Vector2I.One);
-        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
         Assert.IsTrue(dut.Satisfied);
     }
 }
