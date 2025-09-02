@@ -6,6 +6,10 @@ namespace TbsTemplate.Scenes.Level.Control;
 
 public abstract partial class AreaSwitchCondition : SwitchCondition
 {
+    [Export] public bool Inside = true;
+
+    [Export] public bool RequiresEveryone = false;
+
     public abstract void Update(Unit unit);
 
     public override void _EnterTree()

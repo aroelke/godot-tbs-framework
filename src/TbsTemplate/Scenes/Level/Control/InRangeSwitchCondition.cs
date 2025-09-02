@@ -11,10 +11,6 @@ namespace TbsTemplate.Scenes.Level.Control;
 [Tool]
 public partial class InRangeSwitchCondition : AreaSwitchCondition
 {
-    [Export] public bool RequiresEveryone = false;
-
-    [Export] public bool Inside = true;
-
     [Export] public Unit[] SourceUnits = [];
 
     [Export] public Army[] SourceArmies = [];

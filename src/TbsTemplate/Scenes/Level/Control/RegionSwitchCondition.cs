@@ -11,10 +11,6 @@ public partial class RegionSwitchCondition : AreaSwitchCondition
 {
     [Export] public TileMapLayer TriggerRegion = null;
 
-    [Export] public bool Inside = true;
-
-    [Export] public bool RequiresEveryone = false;
-
     public override void Update(Unit unit)
     {
         if (TriggerRegion is null || !GetApplicableUnits().Any())
