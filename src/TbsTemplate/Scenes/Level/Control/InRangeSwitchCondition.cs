@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using TbsTemplate.Scenes.Level.Events;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 
@@ -15,18 +13,12 @@ public partial class InRangeSwitchCondition : AreaSwitchCondition
 
     [Export] public Army[] SourceArmies = [];
 
-    public override void Update(Unit unit)
+    public override HashSet<Vector2I> GetRegion()
     {
         List<Unit> sources = [.. SourceUnits];
         foreach (Army army in SourceArmies)
             sources.AddRange(army);
-
-        IEnumerable<Unit> applicable = GetApplicableUnits();
-        HashSet<Vector2I> region = [.. sources.SelectMany((u) => u.AttackableCells())];
-        Func<Func<Unit, bool>, bool> matcher = RequiresEveryone ? GetApplicableUnits().All : GetApplicableUnits().Any;
-        Func<Unit, bool> container = Inside ? (u) => region.Contains(u.Cell) : (u) => !region.Contains(u.Cell);
-
-        Satisfied = matcher(container);
+        return [.. sources.SelectMany((u) => u.AttackableCells())];
     }
 
     public override string[] _GetConfigurationWarnings()
