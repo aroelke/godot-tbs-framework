@@ -9,7 +9,7 @@ using TbsTemplate.Scenes.Level.Object.Group;
 namespace TbsTemplate.Scenes.Level.Control;
 
 [Tool]
-public partial class InRangeSwitchCondition : SwitchCondition
+public partial class InRangeSwitchCondition : AreaSwitchCondition
 {
     [Export] public bool RequiresEveryone = false;
 
@@ -19,7 +19,7 @@ public partial class InRangeSwitchCondition : SwitchCondition
 
     [Export] public Army[] SourceArmies = [];
 
-    public void Update(Unit unit)
+    public override void Update(Unit unit)
     {
         List<Unit> sources = [.. SourceUnits];
         foreach (Army army in SourceArmies)
@@ -41,19 +41,5 @@ public partial class InRangeSwitchCondition : SwitchCondition
             warnings.Add("No source units have been defined.  There will be no range for trigger units to enter and cause a behavior switch.");
 
         return [.. warnings];
-    }
-
-    public override void _EnterTree()
-    {
-        base._EnterTree();
-        if (!Engine.IsEditorHint())
-            LevelEvents.Singleton.ActionEnded += Update;
-    }
-
-    public override void _ExitTree()
-    {
-        base._ExitTree();
-        if (!Engine.IsEditorHint())
-            LevelEvents.Singleton.ActionEnded -= Update;
     }
 }

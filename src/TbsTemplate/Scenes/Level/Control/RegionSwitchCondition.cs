@@ -2,13 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using TbsTemplate.Scenes.Level.Events;
 using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Scenes.Level.Control;
 
 [Tool]
-public partial class RegionSwitchCondition : SwitchCondition
+public partial class RegionSwitchCondition : AreaSwitchCondition
 {
     [Export] public TileMapLayer TriggerRegion = null;
 
@@ -16,7 +15,7 @@ public partial class RegionSwitchCondition : SwitchCondition
 
     [Export] public bool RequiresEveryone = false;
 
-    public void Update(Unit unit)
+    public override void Update(Unit unit)
     {
         if (TriggerRegion is null || !GetApplicableUnits().Any())
             return;
@@ -36,19 +35,5 @@ public partial class RegionSwitchCondition : SwitchCondition
             warnings.Add("No trigger region is defined. Behavior switch will never occur.");
 
         return [.. warnings];
-    }
-
-    public override void _EnterTree()
-    {
-        base._EnterTree();
-        if (!Engine.IsEditorHint())
-            LevelEvents.Singleton.ActionEnded += Update;
-    }
-
-    public override void _ExitTree()
-    {
-        base._ExitTree();
-        if (!Engine.IsEditorHint())
-            LevelEvents.Singleton.ActionEnded -= Update;
     }
 }
