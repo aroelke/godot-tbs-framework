@@ -165,6 +165,9 @@ public partial class SwitchConditionTestScene : Node
 
         MoveUnit(enemy, new(0, 1));
         Assert.IsTrue(dut.Satisfied);
+
+        MoveUnit(enemy, new(6, 4));
+        Assert.IsFalse(dut.Satisfied);
     }
 
     [Test]
@@ -178,5 +181,8 @@ public partial class SwitchConditionTestScene : Node
 
         MoveUnit(unit, new(6, 2));
         Assert.IsTrue(dut.Satisfied);
+
+        MoveUnit(unit, Vector2I.Zero);
+        Assert.IsFalse(dut.Satisfied);
     }
 }
