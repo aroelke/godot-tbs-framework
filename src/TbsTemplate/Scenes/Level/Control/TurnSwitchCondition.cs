@@ -16,7 +16,7 @@ public partial class TurnSwitchCondition : SwitchCondition
 
     public void Update(int turn, Army army)
     {
-        if (army is null || army == TriggerArmy)
+        if (TriggerArmy is null || army == TriggerArmy)
             Satisfied = turn >= TriggerTurn;
     }
 
