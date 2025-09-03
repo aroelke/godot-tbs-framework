@@ -49,6 +49,9 @@ public partial class SwitchBehavior : Behavior
 
     public override IEnumerable<Vector2I> Destinations(IUnit unit, IGrid grid) => TargetBehavior()?.Destinations(unit, grid) ?? [];
 
+    /// <summary>Reset the state of the behavior. Mainly intended to be used for testing.</summary>
+    public void Reset() => _switched = false;
+
     public override string[] _GetConfigurationWarnings()
     {
         List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
