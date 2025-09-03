@@ -3,9 +3,11 @@ using Godot;
 
 namespace TbsTemplate.Scenes.Level.Control;
 
+/// <summary>Behavior switch condition that triggers for units in a specified region of the map.</summary>
 [Tool]
 public partial class RegionSwitchCondition : AreaSwitchCondition
 {
+    /// <summary>Region that defines switch triggering.</summary>
     [Export] public TileMapLayer TriggerRegion = null;
 
     public override HashSet<Vector2I> GetRegion()
