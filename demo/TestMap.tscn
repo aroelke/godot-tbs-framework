@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=4 uid="uid://bmfxux38ovtj2"]
+[gd_scene load_steps=38 format=4 uid="uid://bmfxux38ovtj2"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.tscn" id="1_h3e4w"]
 [ext_resource type="Script" uid="uid://cr1h1lebyon02" path="res://demo/TestMap.cs" id="1_stn1b"]
@@ -27,7 +27,10 @@
 [ext_resource type="PackedScene" uid="uid://bi38gny50edyk" path="res://src/TbsTemplate/Scenes/Level/Objectives/RouteObjective.tscn" id="20_1l8iw"]
 [ext_resource type="PackedScene" uid="uid://djsdk3bbrh181" path="res://src/TbsTemplate/Scenes/Level/Control/MoveBehavior.tscn" id="20_1vdvi"]
 [ext_resource type="PackedScene" uid="uid://7wc21qvj7n3n" path="res://src/TbsTemplate/Scenes/Level/Objectives/DefeatUnitObjective.tscn" id="20_6u8j8"]
+[ext_resource type="PackedScene" uid="uid://cseefrkj1yhgr" path="res://src/TbsTemplate/Scenes/Level/Control/SwitchBehavior.tscn" id="21_uo167"]
 [ext_resource type="PackedScene" uid="uid://b8dnpt7lcd2it" path="res://src/TbsTemplate/Scenes/Level/Objectives/OccupyObjective.tscn" id="22_axkl2"]
+[ext_resource type="PackedScene" uid="uid://bbanldfbqkktf" path="res://src/TbsTemplate/Scenes/Level/Control/InRangeSwitchCondition.tscn" id="22_ga18v"]
+[ext_resource type="PackedScene" uid="uid://sh1oy4xaqis2" path="res://src/TbsTemplate/Scenes/Level/Control/TurnSwitchCondition.tscn" id="22_tg5mw"]
 [ext_resource type="PackedScene" uid="uid://blf1owsru7rvw" path="res://src/TbsTemplate/Scenes/Level/Objectives/ActionObjective.tscn" id="24_h6vny"]
 [ext_resource type="PackedScene" uid="uid://bi8p6x3pf3217" path="res://src/TbsTemplate/Scenes/Level/Events/EventController.tscn" id="25_i6qxt"]
 [ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://demo/assets/ui/Hints.tres" id="28_y0mi7"]
@@ -285,9 +288,17 @@ Grid = NodePath("../../Grid")
 Cell = Vector2i(16, 2)
 Size = Vector2(32, 32)
 
-[node name="StandBehavior" parent="LevelManager/Enemy/GuardB" instance=ExtResource("19_obmv3")]
+[node name="SwitchBehavior" parent="LevelManager/Enemy/GuardB" instance=ExtResource("21_uo167")]
+
+[node name="InRangeSwitchCondition" parent="LevelManager/Enemy/GuardB/SwitchBehavior" node_paths=PackedStringArray("SourceUnits", "TriggerArmies") instance=ExtResource("22_ga18v")]
+SourceUnits = [NodePath("../..")]
+TriggerArmies = [NodePath("../../../../Player")]
+
+[node name="StandBehavior" parent="LevelManager/Enemy/GuardB/SwitchBehavior" instance=ExtResource("19_obmv3")]
 AttackInRange = true
 SupportInRange = false
+
+[node name="MoveBehavior" parent="LevelManager/Enemy/GuardB/SwitchBehavior" instance=ExtResource("20_1vdvi")]
 
 [node name="GuardC" parent="LevelManager/Enemy" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(512, 96)
@@ -299,9 +310,17 @@ Grid = NodePath("../../Grid")
 Cell = Vector2i(16, 3)
 Size = Vector2(32, 32)
 
-[node name="StandBehavior" parent="LevelManager/Enemy/GuardC" instance=ExtResource("19_obmv3")]
+[node name="SwitchBehavior" parent="LevelManager/Enemy/GuardC" instance=ExtResource("21_uo167")]
+
+[node name="InRangeSwitchCondition" parent="LevelManager/Enemy/GuardC/SwitchBehavior" node_paths=PackedStringArray("SourceUnits", "TriggerArmies") instance=ExtResource("22_ga18v")]
+SourceUnits = [NodePath("../..")]
+TriggerArmies = [NodePath("../../../../Player")]
+
+[node name="StandBehavior" parent="LevelManager/Enemy/GuardC/SwitchBehavior" instance=ExtResource("19_obmv3")]
 AttackInRange = true
 SupportInRange = false
+
+[node name="MoveBehavior" parent="LevelManager/Enemy/GuardC/SwitchBehavior" instance=ExtResource("20_1vdvi")]
 
 [node name="RoyalGuardA" parent="LevelManager/Enemy" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(544, 384)
@@ -353,7 +372,15 @@ SupportRange = PackedInt32Array()
 Grid = NodePath("../../Grid")
 Size = Vector2(32, 32)
 
-[node name="MoveBehavior" parent="LevelManager/Enemy/ReinforcementA" instance=ExtResource("20_1vdvi")]
+[node name="SwitchBehavior" parent="LevelManager/Enemy/ReinforcementA" instance=ExtResource("21_uo167")]
+
+[node name="TurnSwitchCondition" parent="LevelManager/Enemy/ReinforcementA/SwitchBehavior" instance=ExtResource("22_tg5mw")]
+TriggerTurn = 2
+
+[node name="StandBehavior" parent="LevelManager/Enemy/ReinforcementA/SwitchBehavior" instance=ExtResource("19_obmv3")]
+SupportInRange = false
+
+[node name="MoveBehavior" parent="LevelManager/Enemy/ReinforcementA/SwitchBehavior" instance=ExtResource("20_1vdvi")]
 
 [node name="ReinforcementB" parent="LevelManager/Enemy" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(64, 0)
@@ -365,7 +392,15 @@ Grid = NodePath("../../Grid")
 Cell = Vector2i(2, 0)
 Size = Vector2(32, 32)
 
-[node name="MoveBehavior" parent="LevelManager/Enemy/ReinforcementB" instance=ExtResource("20_1vdvi")]
+[node name="SwitchBehavior" parent="LevelManager/Enemy/ReinforcementB" instance=ExtResource("21_uo167")]
+
+[node name="TurnSwitchCondition" parent="LevelManager/Enemy/ReinforcementB/SwitchBehavior" instance=ExtResource("22_tg5mw")]
+TriggerTurn = 2
+
+[node name="StandBehavior" parent="LevelManager/Enemy/ReinforcementB/SwitchBehavior" instance=ExtResource("19_obmv3")]
+SupportInRange = false
+
+[node name="MoveBehavior" parent="LevelManager/Enemy/ReinforcementB/SwitchBehavior" instance=ExtResource("20_1vdvi")]
 
 [node name="OtherEnemy" parent="LevelManager" instance=ExtResource("4_xrn4s")]
 Faction = ExtResource("12_8r5wl")
