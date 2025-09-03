@@ -6,11 +6,14 @@ using TbsTemplate.Scenes.Level.Object.Group;
 
 namespace TbsTemplate.Scenes.Level.Control;
 
+/// <summary>Behavior switch condition that triggers based on units being in attack range of other units.</summary>
 [Tool]
 public partial class InRangeSwitchCondition : AreaSwitchCondition
 {
+    /// <summary>Set of units explicitly used to determine the attack range.</summary>
     [Export] public Unit[] SourceUnits = [];
 
+    /// <summary>Armies containing the units to use for determining attack range, even if they're created later.</summary>
     [Export] public Army[] SourceArmies = [];
 
     public override HashSet<Vector2I> GetRegion()
