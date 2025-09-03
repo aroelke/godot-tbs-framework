@@ -17,6 +17,14 @@ public partial class SwitchConditionTestScene : Node
         LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, unit);
     }
 
+    /**********
+     * MANUAL *
+     **********/
+
+    /// <summary>
+    /// Manual switch condition should toggle <see cref="SwitchCondition.Satisfied"/> when <see cref="ManualSwitchCondition.Trigger"/>
+    /// is called.
+    /// </summary>
     [Test]
     public void TestManualSwitchCondition()
     {
@@ -26,6 +34,10 @@ public partial class SwitchConditionTestScene : Node
         dut.Trigger();
         Assert.IsTrue(dut.Satisfied);
     }
+
+    /********
+     * TURN *
+     ********/
 
     private void TestTurnSwitchCondition(int turn, int target, Army army, bool expected)
     {
@@ -39,11 +51,20 @@ public partial class SwitchConditionTestScene : Node
         Assert.AreEqual(dut.Satisfied, expected);
     }
 
-    [Test] public void TestTurnSwitchConditionFirstTurn() => TestTurnSwitchCondition(1, 5, GetNode<Army>("AllyArmy"), false);
+    /// <summary>Turn switch condition should not be satisfied if its target turn hasn't been reached.</summary>
     [Test] public void TestTurnSwitchConditionBeforeTrigger() => TestTurnSwitchCondition(4, 5, GetNode<Army>("AllyArmy"), false);
+
+    /// <summary>Turn switch condition should be satisfied on its target turn.</summary>
     [Test] public void TestTurnSwitchConditionWrongArmy() => TestTurnSwitchCondition(5, 5, GetNode<Army>("EnemyArmy"), false);
+
+    /// <summary>Turn switch condition should not be satisfied on a non-triggering army's turn, even if it's the target turn.</summary>
     [Test] public void TestTurnSwitchConditionRightArmy() => TestTurnSwitchCondition(5, 5, GetNode<Army>("AllyArmy"), true);
 
+    /**********
+     * REGION *
+     **********/
+
+    /// <summary>Default region switch condition should be satisfied as long as an applicable unit is within the region.</summary>
     [Test]
     public void TestRegionSwitchConditionAnyUnitRightArmy()
     {
@@ -63,6 +84,7 @@ public partial class SwitchConditionTestScene : Node
         Assert.IsFalse(dut.Satisfied);
     }
 
+    /// <summary>If so configured, region switch condition should only be satisfied as long as all applicable units are within the region.</summary>
     [Test]
     public void TestRegionSwitchConditionAllUnitsRightArmy()
     {
@@ -87,6 +109,7 @@ public partial class SwitchConditionTestScene : Node
         Assert.IsFalse(dut.Satisfied);
     }
 
+    /// <summary>If so configured, region switch condition should be satisfied as long as any applicable units are outside the region.</summary>
     [Test]
     public void TestRegionSwitchConditionInvertedAnyUnitRightArmy()
     {
@@ -111,6 +134,7 @@ public partial class SwitchConditionTestScene : Node
         Assert.IsTrue(dut.Satisfied);
     }
 
+    /// <summary>If so configured, region switch condition should be satisfied as long as all applicable units are outside the region.</summary>
     [Test]
     public void TestRegionSwitchConditionInvertedAllUnitsRightArmy()
     {
@@ -138,6 +162,7 @@ public partial class SwitchConditionTestScene : Node
         Assert.IsTrue(dut.Satisfied);
     }
 
+    /// <summary>Moving a non-applicable unit into the region should not satisfy the condition.</summary>
     [Test]
     public void TestRegionSwitchConditionWrongArmy()
     {
@@ -154,6 +179,11 @@ public partial class SwitchConditionTestScene : Node
         Assert.IsFalse(dut.Satisfied);
     }
 
+    /************
+     * IN-RANGE *
+     ************/
+
+    /// <summary>An enemy moving into an applicable unit's range should satisfy the condition.</summary>
     [Test]
     public void TestInRangeSwitchConditionEnemyMoves()
     {
@@ -170,6 +200,10 @@ public partial class SwitchConditionTestScene : Node
         Assert.IsFalse(dut.Satisfied);
     }
 
+    /// <summary>
+    /// An applicable unit moving (and thus changing its attack range) such that an enemy is within its range should
+    /// satisfy the condition.
+    /// </summary>
     [Test]
     public void TestInRangeSwitchConditionAllyMoves()
     {
