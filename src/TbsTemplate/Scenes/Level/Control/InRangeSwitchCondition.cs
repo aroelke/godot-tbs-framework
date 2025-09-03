@@ -21,7 +21,7 @@ public partial class InRangeSwitchCondition : AreaSwitchCondition
         List<Unit> sources = [.. SourceUnits];
         foreach (Army army in SourceArmies)
             sources.AddRange(army);
-        return [.. sources.SelectMany((u) => u.AttackableCells())];
+        return [.. sources.SelectMany((u) => u.AttackableCells(u.TraversableCells()))];
     }
 
     public override string[] _GetConfigurationWarnings()
