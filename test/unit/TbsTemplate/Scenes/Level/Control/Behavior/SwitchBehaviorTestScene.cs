@@ -41,4 +41,40 @@ public partial class SwitchBehaviorTestScene : Node
         condition.Trigger();
         Assert.AreEqual(dut.TargetBehavior(), initial);
     }
+
+    [Test]
+    public void TestMeetAnySwitchBehavior()
+    {
+        SwitchBehavior dut = GetNode<SwitchBehavior>("MeetAnySwitchBehavior");
+        ManualSwitchCondition condition = dut.GetNode<ManualSwitchCondition>("ManualSwitchCondition");
+        ManualSwitchCondition condition2 = dut.GetNode<ManualSwitchCondition>("ManualSwitchCondition2");
+        (Behavior initial, Behavior final) = GetBehaviorOptions(dut);
+
+        dut.Reset();
+        condition.Reset();
+        condition2.Reset();
+        Assert.AreEqual(dut.TargetBehavior(), initial);
+
+        condition.Trigger();
+        Assert.AreEqual(dut.TargetBehavior(), final);
+    }
+
+    [Test]
+    public void TestMeetAllSwitchBehavior()
+    {
+        SwitchBehavior dut = GetNode<SwitchBehavior>("MeetAllSwitchBehavior");
+        ManualSwitchCondition condition = dut.GetNode<ManualSwitchCondition>("ManualSwitchCondition");
+        ManualSwitchCondition condition2 = dut.GetNode<ManualSwitchCondition>("ManualSwitchCondition2");
+        (Behavior initial, Behavior final) = GetBehaviorOptions(dut);
+
+        dut.Reset();
+        condition.Reset();
+        condition2.Reset();
+        Assert.AreEqual(dut.TargetBehavior(), initial);
+
+        condition.Trigger();
+        Assert.AreEqual(dut.TargetBehavior(), initial);
+        condition2.Trigger();
+        Assert.AreEqual(dut.TargetBehavior(), final);
+    }
 }

@@ -26,6 +26,16 @@ CanRevert = true
 
 [node name="BehaviorB" parent="RevertSwitchBehavior" instance=ExtResource("4_1bwdr")]
 
+[node name="MeetAnySwitchBehavior" parent="." instance=ExtResource("2_2r8p5")]
+
+[node name="ManualSwitchCondition" parent="MeetAnySwitchBehavior" instance=ExtResource("3_nx5ox")]
+
+[node name="ManualSwitchCondition2" parent="MeetAnySwitchBehavior" instance=ExtResource("3_nx5ox")]
+
+[node name="BehaviorA" parent="MeetAnySwitchBehavior" instance=ExtResource("4_1bwdr")]
+
+[node name="BehaviorB" parent="MeetAnySwitchBehavior" instance=ExtResource("4_1bwdr")]
+
 [node name="MeetAllSwitchBehavior" parent="." instance=ExtResource("2_2r8p5")]
 MeetAllConditions = true
 
