@@ -1,0 +1,52 @@
+[gd_scene load_steps=6 format=3 uid="uid://cf4ug3t61msxl"]
+
+[ext_resource type="Script" uid="uid://dotldaulubjoa" path="res://test/unit/TbsTemplate/Scenes/Level/Control/Behavior/SwitchBehaviorTestScene.cs" id="1_8jckf"]
+[ext_resource type="PackedScene" uid="uid://cseefrkj1yhgr" path="res://src/TbsTemplate/Scenes/Level/Control/SwitchBehavior.tscn" id="2_2r8p5"]
+[ext_resource type="PackedScene" uid="uid://dmft6ksatnr3c" path="res://src/TbsTemplate/Scenes/Level/Control/ManualSwitchCondition.tscn" id="3_nx5ox"]
+[ext_resource type="PackedScene" uid="uid://nt5vqytk4pr3" path="res://src/TbsTemplate/Scenes/Level/Control/StandBehavior.tscn" id="4_1bwdr"]
+[ext_resource type="PackedScene" uid="uid://ce83kbl7xjwpr" path="res://addons/GD_NET_ScOUT/test_runner.tscn" id="5_nx5ox"]
+
+[node name="SwitchBehaviorTestScene" type="Node"]
+script = ExtResource("1_8jckf")
+
+[node name="DefaultSwitchBehavior" parent="." instance=ExtResource("2_2r8p5")]
+
+[node name="ManualSwitchCondition" parent="DefaultSwitchBehavior" instance=ExtResource("3_nx5ox")]
+
+[node name="BehaviorA" parent="DefaultSwitchBehavior" instance=ExtResource("4_1bwdr")]
+
+[node name="BehaviorB" parent="DefaultSwitchBehavior" instance=ExtResource("4_1bwdr")]
+
+[node name="RevertSwitchBehavior" parent="." instance=ExtResource("2_2r8p5")]
+CanRevert = true
+
+[node name="ManualSwitchCondition" parent="RevertSwitchBehavior" instance=ExtResource("3_nx5ox")]
+
+[node name="BehaviorA" parent="RevertSwitchBehavior" instance=ExtResource("4_1bwdr")]
+
+[node name="BehaviorB" parent="RevertSwitchBehavior" instance=ExtResource("4_1bwdr")]
+
+[node name="MeetAnySwitchBehavior" parent="." instance=ExtResource("2_2r8p5")]
+
+[node name="ManualSwitchCondition" parent="MeetAnySwitchBehavior" instance=ExtResource("3_nx5ox")]
+
+[node name="ManualSwitchCondition2" parent="MeetAnySwitchBehavior" instance=ExtResource("3_nx5ox")]
+
+[node name="BehaviorA" parent="MeetAnySwitchBehavior" instance=ExtResource("4_1bwdr")]
+
+[node name="BehaviorB" parent="MeetAnySwitchBehavior" instance=ExtResource("4_1bwdr")]
+
+[node name="MeetAllSwitchBehavior" parent="." instance=ExtResource("2_2r8p5")]
+MeetAllConditions = true
+
+[node name="ManualSwitchCondition" parent="MeetAllSwitchBehavior" instance=ExtResource("3_nx5ox")]
+
+[node name="ManualSwitchCondition2" parent="MeetAllSwitchBehavior" instance=ExtResource("3_nx5ox")]
+
+[node name="BehaviorA" parent="MeetAllSwitchBehavior" instance=ExtResource("4_1bwdr")]
+
+[node name="BehaviorB" parent="MeetAllSwitchBehavior" instance=ExtResource("4_1bwdr")]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="TestRunner" parent="CanvasLayer" instance=ExtResource("5_nx5ox")]

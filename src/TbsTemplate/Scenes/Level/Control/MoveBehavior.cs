@@ -5,10 +5,11 @@ using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 
-namespace TbsTemplate.Scenes.Level.Control.Behavior;
+namespace TbsTemplate.Scenes.Level.Control;
 
-[GlobalClass, Tool]
-public partial class MoveBehavior : UnitBehavior
+/// <summary><see cref="Unit"/> behavior that allows the unit to move around the grid to perform actions.</summary>
+[Tool]
+public partial class MoveBehavior : Behavior
 {
     public override IEnumerable<Vector2I> Destinations(IUnit unit, IGrid grid) => unit.TraversableCells(grid).Where((c) => !grid.GetOccupantUnits().TryGetValue(c, out IUnit occupant) || c == unit.Cell);
 
@@ -32,8 +33,8 @@ public partial class MoveBehavior : UnitBehavior
         if (allyCells.Any())
         {
             IEnumerable<IUnit> allies = allyCells.Select((c) => grid.GetOccupantUnits()[c]);
-            int lowest = allies.Select((u) => u.Health).Min();
-            actions[UnitActions.SupportAction] = allies.Where((u) => u.Health == lowest).Select((u) => u.Cell);
+            int lowest = allies.Select(static (u) => u.Health).Min();
+            actions[UnitActions.SupportAction] = allies.Where((u) => u.Health == lowest).Select(static (u) => u.Cell);
         }
 
         return actions;

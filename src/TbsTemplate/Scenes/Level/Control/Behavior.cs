@@ -5,15 +5,12 @@ using Godot;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 
-namespace TbsTemplate.Scenes.Level.Control.Behavior;
+namespace TbsTemplate.Scenes.Level.Control;
 
-/// <summary>
-/// A <see cref="Unit"/> resource that provides information about how the AI uses it in a
-/// specific situation.
-/// </summary>
-[GlobalClass, Tool]
-public abstract partial class UnitBehavior : Resource
+/// <summary>A <see cref="Unit"/> component that provides information about how the AI uses it in a specific situation.</summary>
+public abstract partial class Behavior : Node
 {
+    
     /// <summary>Determine the cells a unit is allowed to end its movement on.</summary>
     /// <param name="unit">Unit that's moving.</param>
     /// <param name="grid">Grid the unit is moving on.</param>

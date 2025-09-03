@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://ca8cgmba15sab"]
+
+[ext_resource type="Script" uid="uid://0h0k25eim7es" path="res://src/TbsTemplate/Scenes/Level/Control/RegionSwitchCondition.cs" id="1_655la"]
+
+[node name="RegionSwitchCondition" type="Node"]
+script = ExtResource("1_655la")

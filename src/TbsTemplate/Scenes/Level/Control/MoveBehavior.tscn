@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://djsdk3bbrh181"]
+
+[ext_resource type="Script" uid="uid://coq2w1l3vv8ho" path="res://src/TbsTemplate/Scenes/Level/Control/MoveBehavior.cs" id="1_6lilw"]
+
+[node name="MoveBehavior" type="Node"]
+script = ExtResource("1_6lilw")

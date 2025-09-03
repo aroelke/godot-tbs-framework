@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b5pevthwpqh71"
-path="res://.godot/imported/region.png-a38e9c3919676a48f58c1133b3d81dbb.ctex"
+path="res://.godot/imported/region.png-42e7863eac3aade51c56895b84243c6c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://test/unit/TbsTemplate/Scenes/Level/Control/AIController/region.png"
-dest_files=["res://.godot/imported/region.png-a38e9c3919676a48f58c1133b3d81dbb.ctex"]
+source_file="res://test/unit/TbsTemplate/Scenes/Level/Control/region.png"
+dest_files=["res://.godot/imported/region.png-42e7863eac3aade51c56895b84243c6c.ctex"]
 
 [params]
 
