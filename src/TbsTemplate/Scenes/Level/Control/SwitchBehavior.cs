@@ -6,21 +6,38 @@ using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Scenes.Level.Control;
 
+/// <summary>
+/// <see cref="Unit"/> behavior that can switch between two other behaviors based on a <see cref="SwitchCondition"/>. Can be configured to only
+/// switch once, even if the condition becomes unsatisfied later, or switch back and forth based on the condition's satisfaction.
+/// </summary>
 [Tool]
 public partial class SwitchBehavior : Behavior
 {
     private bool _switched = false;
 
+    /// <summary>Whether or not the behavior can revert back to <see cref="Initial"/> after switching to <see cref="Final"/>.</summary>
     [Export] public bool CanRevert = false;
 
+    /// <summary>
+    /// If there are multiple <see cref="SwitchCondition"/> children of this node, <c>true</c> means a behavior switch occurs only if all of
+    /// those conditions are satisfied, and <c>false</c> means a switch occurs if any of them are satisfied.
+    /// </summary>
     [Export] public bool MeetAllConditions = false;
 
+    /// <summary>Behavior to use before the <see cref="SwitchCondition"/> is satisfied.</summary>
     public Behavior Initial { get; private set; } = null;
 
+    /// <summary>Behavior to use after the <see cref="SwitchCondition"/> is satisfied.</summary>
     public Behavior Final { get; private set; } = null;
 
+    /// <summary>Conditions used to determine if the behavior should switch.</summary>
     public IEnumerable<SwitchCondition> Conditions { get; private set; } = [];
 
+    /// <summary>Compute whether a behavior switch should occur.</summary>
+    /// <returns>
+    /// <see cref="Initial"/>, if a behavior switch has not occurred (or if it reverted), and <see cref="Final"/> if a switch
+    /// has occurred.
+    /// </returns>
     public Behavior TargetBehavior()
     {
         if (CanRevert || !_switched)
