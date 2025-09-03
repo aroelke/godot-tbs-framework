@@ -61,9 +61,9 @@ Size = Vector2(32, 32)
 
 [node name="ManualSwitchCondition" parent="." instance=ExtResource("1_sbtjm")]
 
-[node name="TurnSwitchCondition" parent="." node_paths=PackedStringArray("TriggerArmies") instance=ExtResource("3_5b61s")]
+[node name="TurnSwitchCondition" parent="." node_paths=PackedStringArray("TriggerArmy") instance=ExtResource("3_5b61s")]
 TriggerTurn = 5
-TriggerArmies = [NodePath("../AllyArmy")]
+TriggerArmy = NodePath("../AllyArmy")
 
 [node name="RegionSwitchCondition" parent="." node_paths=PackedStringArray("TriggerRegion", "TriggerArmies") instance=ExtResource("11_vucke")]
 TriggerRegion = NodePath("../Grid/Region")

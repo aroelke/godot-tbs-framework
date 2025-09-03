@@ -1,14 +1,9 @@
-using System.Collections.Generic;
 using Godot;
-using TbsTemplate.Scenes.Level.Object;
-using TbsTemplate.Scenes.Level.Object.Group;
 
 namespace TbsTemplate.Scenes.Level.Control;
 
 public abstract partial class SwitchCondition : Node
 {
-    protected const string NoApplicableUnitsWarning = "This condition doesn't apply to any units and will never be satisfied.";
-
     [Signal] public delegate void BehaviorSwitchTriggeredEventHandler(bool satisfied);
 
     [Signal] public delegate void SwitchConditionSatisfiedEventHandler();
@@ -16,10 +11,6 @@ public abstract partial class SwitchCondition : Node
     [Signal] public delegate void SwitchConditionUnsatisfiedEventHandler();
 
     private bool _satisfied = false;
-
-    [Export] public Unit[] TriggerUnits = [];
-
-    [Export] public Army[] TriggerArmies = [];
 
     public bool Satisfied
     {
@@ -38,23 +29,4 @@ public abstract partial class SwitchCondition : Node
     }
 
     public void Reset() => Satisfied = false;
-
-    public IEnumerable<Unit> GetApplicableUnits()
-    {
-        List<Unit> applicable = [.. TriggerUnits];
-        foreach (Army army in TriggerArmies)
-            applicable.AddRange(army);
-        return applicable;
-    }
-
-
-    public override string[] _GetConfigurationWarnings()
-    {
-        List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
-
-        if (TriggerUnits.Length == 0 && TriggerArmies.Length == 0)
-            warnings.Add(NoApplicableUnitsWarning);
-
-        return [.. warnings];
-    }
 }

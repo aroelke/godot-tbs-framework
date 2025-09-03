@@ -1,4 +1,3 @@
-using System.Linq;
 using Godot;
 using TbsTemplate.Scenes.Level.Events;
 using TbsTemplate.Scenes.Level.Object.Group;
@@ -10,9 +9,11 @@ public partial class TurnSwitchCondition : SwitchCondition
 {
     [Export(PropertyHint.Expression, "1,10,or_greater")] public int TriggerTurn = 1;
 
+    [Export] public Army TriggerArmy = null;
+
     public void Update(int turn, Army army)
     {
-        if (TriggerArmies.Contains(army))
+        if (army is null || army == TriggerArmy)
             Satisfied = turn >= TriggerTurn;
     }
 
@@ -28,12 +29,5 @@ public partial class TurnSwitchCondition : SwitchCondition
         base._ExitTree();
         if (!Engine.IsEditorHint())
             LevelEvents.Singleton.TurnBegan -= Update;
-    }
-
-    public override void _ValidateProperty(Godot.Collections.Dictionary property)
-    {
-        base._ValidateProperty(property);
-        if (property["name"].AsStringName() == PropertyName.TriggerUnits)
-            property["usage"] = (int)PropertyUsageFlags.NoEditor;
     }
 }
