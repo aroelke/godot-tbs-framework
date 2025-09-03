@@ -8,19 +8,33 @@ using TbsTemplate.Scenes.Level.Object.Group;
 
 namespace TbsTemplate.Scenes.Level.Control;
 
+/// <summary>Behavior switching condition that triggers based on a unit from a set of units entering an area of the map.</summary>
+/// <remarks>
+/// Note that this condition is not checked continuously; it only updates via the <see cref="Update"/> function, which
+/// is automatically called every time a unit finishes its action.
+/// </remarks>
 public abstract partial class AreaSwitchCondition : SwitchCondition
 {
+    /// <summary>Set of units that can explicitly trigger the condition.</summary>
     [Export] public Unit[] TriggerUnits = [];
 
+    /// <summary>Set of armies whose units can trigger the condition, even if they enter the map later.</summary>
     [Export] public Army[] TriggerArmies = [];
 
+    /// <summary>
+    /// <para><c>true</c>: Condition triggers if units are in the area.</para>
+    /// <para><c>false</c>: Condition triggers if units are not in the area.</para>
+    /// </summary>
     [Export] public bool Inside = true;
 
+    /// <summary>Whether or not all trigger units have to be in or out of the area to satisfy the condition.</summary>
     [Export] public bool RequiresEveryone = false;
 
+    /// <returns>The set of cells that defines the trigger region.</returns>
     public abstract HashSet<Vector2I> GetRegion();
 
-    public IEnumerable<Unit> GetApplicableUnits()
+    /// <returns>The set of all existing units that can trigger the condition.</returns>
+    public IEnumerable<Unit> GetTriggerUnits()
     {
         List<Unit> applicable = [.. TriggerUnits];
         foreach (Army army in TriggerArmies)
@@ -28,14 +42,19 @@ public abstract partial class AreaSwitchCondition : SwitchCondition
         return applicable;
     }
 
+    /// <summary>
+    /// When a unit finishes its action, check if the condition is satisfied and then update its <see cref="Satisfied"/>
+    /// property accordingly.
+    /// </summary>
+    /// <param name="unit">Unit that finished moving.</param>
     public void Update(Unit unit)
     {
-        if (!GetApplicableUnits().Any())
+        if (!GetTriggerUnits().Any())
             return;
 
         HashSet<Vector2I> region = GetRegion();
-        IEnumerable<Unit> applicable = GetApplicableUnits();
-        Func<Func<Unit, bool>, bool> matcher = RequiresEveryone ? GetApplicableUnits().All : GetApplicableUnits().Any;
+        IEnumerable<Unit> applicable = GetTriggerUnits();
+        Func<Func<Unit, bool>, bool> matcher = RequiresEveryone ? GetTriggerUnits().All : GetTriggerUnits().Any;
         Func<Unit, bool> container = Inside ? (u) => region.Contains(u.Cell) : (u) => !region.Contains(u.Cell);
 
         Satisfied = matcher(container);
