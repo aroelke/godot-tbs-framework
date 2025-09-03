@@ -8,6 +8,7 @@ public partial class SwitchBehaviorTestScene : Node
 {
     private static (Behavior initial, Behavior final) GetBehaviorOptions(SwitchBehavior dut) => (dut.GetNode<Behavior>("BehaviorA"), dut.GetNode<Behavior>("BehaviorB"));
 
+    /// <summary>Switch behavior should stay switched if it can't revert even if its condition stops being satisfied.</summary>
     [Test]
     public void TestDefaultSwitchBehaviorLatches()
     {
@@ -25,6 +26,7 @@ public partial class SwitchBehaviorTestScene : Node
         Assert.AreEqual(dut.TargetBehavior(), final);
     }
 
+    /// <summary>Switch behavior should be switched as long as its condition is satisfied, reverting to the original behavior if it's not.</summary>
     [Test]
     public void TestRevertSwitchBehaviorReverts()
     {
@@ -42,6 +44,7 @@ public partial class SwitchBehaviorTestScene : Node
         Assert.AreEqual(dut.TargetBehavior(), initial);
     }
 
+    /// <summary>If there are multiple switch conditions, satisfying any of them should cause a behavior switch.</summary>
     [Test]
     public void TestMeetAnySwitchBehavior()
     {
@@ -59,6 +62,7 @@ public partial class SwitchBehaviorTestScene : Node
         Assert.AreEqual(dut.TargetBehavior(), final);
     }
 
+    /// <summary>If so configured and there are multiple switch conditions, only satisfying all of them at once should cause a behavior switch.</summary>
     [Test]
     public void TestMeetAllSwitchBehavior()
     {
