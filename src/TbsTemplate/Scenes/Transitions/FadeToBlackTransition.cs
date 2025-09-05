@@ -3,11 +3,13 @@ using Godot;
 namespace TbsTemplate.Scenes.Transitions;
 
 /// <summary>Simple scene transition that fades to a color and then back into the next scene.</summary>
-[SceneTree]
 public partial class FadeToBlackTransition : SceneTransition
 {
     private Color _color = Colors.Black;
     private Tween _tween = null;
+    private ColorRect _overlay = null;
+
+    private ColorRect Overlay => _overlay ??= GetNode<ColorRect>("Overlay");
 
     /// <summary>Color to fade to. Does not have to be black, despite the class name.</summary>
     /// <remarks>Make sure the color isn't fully transparent, or no fading will happen!</remarks>
@@ -31,7 +33,7 @@ public partial class FadeToBlackTransition : SceneTransition
         if (_tween.IsValid())
             _tween.Kill();
         _tween = CreateTween();
-        _tween.TweenProperty(Overlay, $"{ColorRect.PropertyName.Modulate}:a", target, TransitionTime/2).Finished += () => {
+        _tween.TweenProperty(Overlay, $"{PropertyName.Modulate}:a", target, TransitionTime/2).Finished += () => {
             Active = false;
             EmitSignal(signal);
         };
