@@ -11,7 +11,7 @@ namespace TbsTemplate.UI;
 /// <summary>
 /// "Brain" controlling the <see cref="Camera2D"/>. Given a target, it will follow it and smoothly move the camera to continue tracking it.
 /// </summary>
-[Icon("res://icons/Camera2DBrain.svg"), SceneTree, Tool]
+[Icon("res://icons/Camera2DBrain.svg"), Tool]
 public partial class Camera2DBrain : Node2D
 {
     /// <summary>Signal that the camera has reached its target and stopped moving.</summary>
@@ -95,6 +95,8 @@ public partial class Camera2DBrain : Node2D
         }
     }
 
+    private Camera2D _camera = null;
+
     private Rect2I _limits = new(-1000000, -1000000, 2000000, 2000000);
 
     private Vector2 _targetPreviousPosition = Vector2.Zero;
@@ -107,6 +109,8 @@ public partial class Camera2DBrain : Node2D
 
     private float _noiseY = 0;
     private double _trauma = 0;
+
+    private Camera2D Camera => _camera ??= GetNode<Camera2D>("Camera");
 
     /// <summary>Clamp a zoom vector to ensure the <see cref="Camera2D"/> doesn't zoom out too far to be able to see outside its limits.</summary>
     /// <param name="zoom">Zoom vector to clamp.</param>

@@ -4,7 +4,7 @@
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_np3kc"]
 noise_type = 3
-seed = 1115058595
+seed = -1015921276
 fractal_type = 3
 
 [node name="Camera2DBrain" type="Node2D"]
@@ -14,7 +14,6 @@ script = ExtResource("1_oq6vh")
 ShakeNoise = SubResource("FastNoiseLite_np3kc")
 
 [node name="Camera" type="Camera2D" parent="."]
-unique_name_in_owner = true
 limit_left = -1000000
 limit_top = -1000000
 limit_right = 1000000
