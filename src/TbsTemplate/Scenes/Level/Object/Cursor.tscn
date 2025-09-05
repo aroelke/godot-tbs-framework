@@ -9,14 +9,12 @@
 script = ExtResource("2_ysrq3")
 
 [node name="MoveController" parent="." instance=ExtResource("3_xkmwu")]
-unique_name_in_owner = true
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("1_erpak")
 offset = Vector2(16, 16)
 
 [node name="MoveSound" type="AudioStreamPlayer" parent="."]
-unique_name_in_owner = true
 stream = ExtResource("14_7nv3s")
 
 [connection signal="CellChanged" from="." to="." method="OnCellChanged"]

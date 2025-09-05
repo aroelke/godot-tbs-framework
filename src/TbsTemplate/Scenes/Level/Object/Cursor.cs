@@ -3,13 +3,14 @@ using System.Collections.Immutable;
 using System.Linq;
 using Godot;
 using TbsTemplate.Extensions;
+using TbsTemplate.Nodes.Components;
 using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.Scenes.Level.Object;
 
 /// <summary>Cursor on the <see cref="Map.Grid"/> used for highlighting a cell and selecting things in it.</summary>
-[SceneTree, Tool]
+[Tool]
 public partial class Cursor : GridNode
 {
     /// <summary>Emitted when the cursor moves to a new location.</summary>
@@ -43,6 +44,7 @@ public partial class Cursor : GridNode
         return 0;
     });
 
+    private readonly NodeCache _cache = null;
     private Vector2I _previous = Vector2I.Zero;
     private ImmutableHashSet<Vector2I> _hard = [];
     private bool _halted = false;
@@ -50,6 +52,9 @@ public partial class Cursor : GridNode
 
     /// <summary>Whether or not the cursor should wrap to the other side if a direction is pressed toward the edge it's on.</summary>
     [Export] public bool Wrap = false;
+
+    private MoveController MoveController => _cache.GetNode<MoveController>("MoveController");
+    private AudioStreamPlayer MoveSound => _cache.GetNode<AudioStreamPlayer>("MoveSound");
 
     /// <summary>"Soft zone" that breaks cursor continuous movement and skips to the edge of.</summary>
     public HashSet<Vector2I> SoftRestriction = [];
@@ -74,6 +79,8 @@ public partial class Cursor : GridNode
                 MoveController.EnableAnalog = false;
         }
     }
+
+    public Cursor() : base() { _cache = new(this); }
 
     /// <summary>Disable cursor movement.</summary>
     /// <param name="visible">Whether or not to hide the cursor while it's halted.</param>
