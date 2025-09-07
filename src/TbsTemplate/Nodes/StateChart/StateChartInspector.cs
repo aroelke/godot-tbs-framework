@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
+using TbsTemplate.Nodes.Components;
 using TbsTemplate.Nodes.StateChart.States;
 
 namespace TbsTemplate.Nodes.StateChart;
@@ -10,7 +11,7 @@ namespace TbsTemplate.Nodes.StateChart;
 /// UI element that displays the current <see cref="State"/> and <see cref="State"/>, <see cref="Transition"/>, and event history of a
 /// <see cref="Chart"/>.
 /// </summary>
-[Icon("res://icons/statechart/StateChartInspector.svg"), SceneTree]
+[Icon("res://icons/statechart/StateChartInspector.svg")]
 public partial class StateChartInspector : MarginContainer
 {
     /// <summary>Stores the <see cref="Chart"/> history and converts <see cref="State"/> changes, <see cref="Transition"/>s, and events into strings.</summary>
@@ -48,9 +49,17 @@ public partial class StateChartInspector : MarginContainer
         }
     }
 
+    private readonly NodeCache _cache = null;
     private readonly Dictionary<State, (State.StateEnteredEventHandler, State.StateExitedEventHandler)> _connectedStates = [];
     private readonly Dictionary<Transition, Transition.TakenEventHandler> _connectedTransitions = [];
     private History _history = null;
+
+    private Tree     Tree                      => _cache.GetNode<Tree>("%Tree");
+    private TextEdit HistoryEdit               => _cache.GetNode<TextEdit>("%HistoryEdit");
+    private Button   CopyToClipboardButton     => _cache.GetNode<Button>("%CopyToClipboardButton");
+    private CheckBox IgnoreEventsCheckBox      => _cache.GetNode<CheckBox>("%IgnoreEventsCheckBox");
+    private CheckBox IgnoreStateCheckBox       => _cache.GetNode<CheckBox>("%IgnoreStateCheckBox");
+    private CheckBox IgnoreTransitionsCheckBox => _cache.GetNode<CheckBox>("%IgnoreTransitionsCheckBox");
 
     /// <summary>
     /// Connect all of the <see cref="Chart.EventReceived"/> <see cref="State.StateEntered"/>, <see cref="State.StateExited"/>, and <see cref="Transition.Taken"/>
@@ -156,6 +165,8 @@ public partial class StateChartInspector : MarginContainer
 
     /// <summary>Don't show <see cref="State"/> in the <see cref="Chart"/> in the history.</summary>
     [Export] public bool IgnoreTransitions = false;
+
+    public StateChartInspector() : base() { _cache = new(this); }
 
     /// <summary>Change the <see cref="Chart"/> to inspect in the UI.</summary>
     /// <param name="chart">New chart to watch.</param>
