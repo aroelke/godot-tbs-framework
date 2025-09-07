@@ -15,10 +15,6 @@ namespace TbsTemplate.UI.HUD;
 public partial class GamepadCursorHintIcon : HBoxContainer
 {
     private readonly NodeCache _cache = null;
-    private GridContainer _individual = null;
-    private TextureRect _upIcon = null, _leftIcon = null, _downIcon = null, _rightIcon = null;
-    private TextureRect _unified = null;
-    private TextureRect _analog = null;
 
     private GridContainer IndividualIcons => _cache.GetNode<GridContainer>("%IndividualIcons");
     private TextureRect   UpIcon          => _cache.GetNode<TextureRect>("%UpIcon");
