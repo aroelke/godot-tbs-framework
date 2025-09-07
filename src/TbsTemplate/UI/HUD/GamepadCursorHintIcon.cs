@@ -1,4 +1,5 @@
 using Godot;
+using TbsTemplate.Nodes.Components;
 using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI.Controls.Device;
 using TbsTemplate.UI.Controls.IconMaps;
@@ -10,15 +11,24 @@ namespace TbsTemplate.UI.HUD;
 /// Switches between showing four buttons in a diamond pattern and showing a single directional pad depending on if all the actions
 /// are mapped to the pad in the right way.
 /// </summary>
-[Icon("res://icons/UIIcon.svg"), SceneTree, Tool]
+[Icon("res://icons/UIIcon.svg"), Tool]
 public partial class GamepadCursorHintIcon : HBoxContainer
 {
-    private Texture2D GetButtonIcon(JoyButton b) => ButtonMap is not null && ButtonMap.ContainsKey(b) ? ButtonMap[b] : null;
-
+    private readonly NodeCache _cache = null;
     private GridContainer _individual = null;
     private TextureRect _upIcon = null, _leftIcon = null, _downIcon = null, _rightIcon = null;
     private TextureRect _unified = null;
     private TextureRect _analog = null;
+
+    private GridContainer IndividualIcons => _cache.GetNode<GridContainer>("%IndividualIcons");
+    private TextureRect   UpIcon          => _cache.GetNode<TextureRect>("%UpIcon");
+    private TextureRect   LeftIcon        => _cache.GetNode<TextureRect>("%LeftIcon");
+    private TextureRect   RightIcon       => _cache.GetNode<TextureRect>("%RightIcon");
+    private TextureRect   DownIcon        => _cache.GetNode<TextureRect>("%DownIcon");
+    private TextureRect   UnifiedIcon     => _cache.GetNode<TextureRect>("%UnifiedIcon");
+    private TextureRect   AnalogIcon      => _cache.GetNode<TextureRect>("%AnalogIcon");
+
+    private Texture2D GetButtonIcon(JoyButton b) => ButtonMap is not null && ButtonMap.ContainsKey(b) ? ButtonMap[b] : null;
 
     private void Update()
     {
@@ -56,6 +66,8 @@ public partial class GamepadCursorHintIcon : HBoxContainer
             }
         }
     }
+
+    public GamepadCursorHintIcon() : base() { _cache = new(this); }
 
     public override void _Ready()
     {
