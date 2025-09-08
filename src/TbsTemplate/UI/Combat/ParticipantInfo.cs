@@ -6,12 +6,21 @@ using TbsTemplate.Nodes.Components;
 namespace TbsTemplate.UI.Combat;
 
 /// <summary>Combat UI element that displays constant information about a character participating in combat.</summary>
-[SceneTree, Tool]
+[Tool]
 public partial class ParticipantInfo : GridContainer, IHasHealth
 {
+    private readonly NodeCache _cache = null;
     private int _maxHealth = 10, _currentHealth = 10;
     private int[] _damage = [0];
     private int _hit = 0;
+
+    private HealthComponent    HealthComponent => _cache.GetNode<HealthComponent>("HealthComponent");
+    private Label              HealthLabel     => _cache.GetNode<Label>("HealthLabel");
+    private Label              DamageTitle     => _cache.GetNode<Label>("DamageTitle");
+    private Label              DamageLabel     => _cache.GetNode<Label>("DamageLabel");
+    private TextureProgressBar HealthBar       => _cache.GetNode<TextureProgressBar>("HealthBar");
+    private Label              HitChanceTitle  => _cache.GetNode<Label>("HitChanceTitle");
+    private Label              HitChanceLabel  => _cache.GetNode<Label>("HitChanceLabel");
 
     /// <summary>Amount of damage each action will deal. Use a negative number to indicate healing. Use an empty array to hide, e.g. for buffing.</summary>
     /// <exception cref="ArgumentException">If a damage sequence contains both positive (damage) and negative (healing) values.</exception>
@@ -97,6 +106,8 @@ public partial class ParticipantInfo : GridContainer, IHasHealth
             }
         }
     }
+
+    public ParticipantInfo() : base() { _cache = new(this); }
 
     public void OnHealthChanged(int value)
     {
