@@ -26,7 +26,7 @@ length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Path/PathFollow/Sprite:frame_coords")
+tracks/0/path = NodePath("Path/Follow/Sprite:frame_coords")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -38,7 +38,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Path/PathFollow/Sprite:flip_h")
+tracks/1/path = NodePath("Path/Follow/Sprite:flip_h")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -54,7 +54,7 @@ length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Path/PathFollow/Sprite:frame_coords")
+tracks/0/path = NodePath("Path/Follow/Sprite:frame_coords")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -66,7 +66,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Path/PathFollow/Sprite:flip_h")
+tracks/1/path = NodePath("Path/Follow/Sprite:flip_h")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -84,7 +84,7 @@ step = 0.05
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Path/PathFollow/Sprite:frame_coords")
+tracks/0/path = NodePath("Path/Follow/Sprite:frame_coords")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -96,7 +96,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Path/PathFollow/Sprite:flip_h")
+tracks/1/path = NodePath("Path/Follow/Sprite:flip_h")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -113,7 +113,7 @@ loop_mode = 1
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Path/PathFollow/Sprite:frame_coords")
+tracks/0/path = NodePath("Path/Follow/Sprite:frame_coords")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -125,7 +125,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Path/PathFollow/Sprite:flip_h")
+tracks/1/path = NodePath("Path/Follow/Sprite:flip_h")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -142,7 +142,7 @@ loop_mode = 1
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Path/PathFollow/Sprite:frame_coords")
+tracks/0/path = NodePath("Path/Follow/Sprite:frame_coords")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -154,7 +154,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Path/PathFollow/Sprite:flip_h")
+tracks/1/path = NodePath("Path/Follow/Sprite:flip_h")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -171,7 +171,7 @@ loop_mode = 1
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Path/PathFollow/Sprite:frame_coords")
+tracks/0/path = NodePath("Path/Follow/Sprite:frame_coords")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -183,7 +183,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Path/PathFollow/Sprite:flip_h")
+tracks/1/path = NodePath("Path/Follow/Sprite:flip_h")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -200,7 +200,7 @@ loop_mode = 1
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Path/PathFollow/Sprite:frame_coords")
+tracks/0/path = NodePath("Path/Follow/Sprite:frame_coords")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -212,7 +212,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Path/PathFollow/Sprite:flip_h")
+tracks/1/path = NodePath("Path/Follow/Sprite:flip_h")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -249,7 +249,7 @@ loop_mode = 1
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Path/PathFollow/Sprite:frame_coords")
+tracks/0/path = NodePath("Path/Follow/Sprite:frame_coords")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -261,7 +261,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Path/PathFollow/Sprite:flip_h")
+tracks/1/path = NodePath("Path/Follow/Sprite:flip_h")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -391,23 +391,19 @@ script = ExtResource("1_crlbh")
 Stats = SubResource("Resource_gr881")
 
 [node name="Health" parent="." instance=ExtResource("6_jxbfo")]
-unique_name_in_owner = true
 Maximum = 10
 Value = 10
 
 [node name="Accelerate" parent="." instance=ExtResource("9_cy0he")]
-unique_name_in_owner = true
 
 [node name="Path" type="Path2D" parent="."]
-unique_name_in_owner = true
 
-[node name="PathFollow" type="PathFollow2D" parent="Path"]
-unique_name_in_owner = true
+[node name="Follow" type="PathFollow2D" parent="Path"]
 rotates = false
 cubic_interp = false
 loop = false
 
-[node name="Sprite" type="Sprite2D" parent="Path/PathFollow"]
+[node name="Sprite" type="Sprite2D" parent="Path/Follow"]
 unique_name_in_owner = true
 texture = ExtResource("2_ipnjg")
 offset = Vector2(16, 0)
@@ -415,12 +411,11 @@ hframes = 5
 vframes = 4
 frame = 5
 
-[node name="MotionBox" type="Node2D" parent="Path/PathFollow"]
-unique_name_in_owner = true
+[node name="MotionBox" type="Node2D" parent="Path/Follow"]
 script = ExtResource("3_pmja0")
 DebugColor = Color(0, 0, 0, 0)
 
-[node name="Control" type="Control" parent="Path/PathFollow"]
+[node name="Control" type="Control" parent="Path/Follow"]
 layout_mode = 3
 anchors_preset = 0
 offset_left = 4.0
@@ -429,7 +424,7 @@ offset_right = 28.0
 offset_bottom = 29.0
 mouse_filter = 2
 
-[node name="TextureProgressBar" type="TextureProgressBar" parent="Path/PathFollow/Control"]
+[node name="TextureProgressBar" type="TextureProgressBar" parent="Path/Follow/Control"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -446,14 +441,12 @@ texture_progress = ExtResource("8_m6b0i")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
-"": SubResource("AnimationLibrary_txw1y")
+&"": SubResource("AnimationLibrary_txw1y")
 }
 autoplay = "RESET"
 
 [node name="AnimationTree" type="AnimationTree" parent="."]
-unique_name_in_owner = true
 active = false
-root_node = NodePath("%AnimationTree/..")
 tree_root = SubResource("AnimationNodeStateMachine_2xttf")
 anim_player = NodePath("../AnimationPlayer")
 parameters/conditions/done = false
@@ -466,6 +459,6 @@ parameters/Moving/Walking/blend_position = Vector2(0, 0)
 [node name="StepSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("4_bt2yt")
 
-[connection signal="MaximumChanged" from="Health" to="Path/PathFollow/Control/TextureProgressBar" method="set_max"]
+[connection signal="MaximumChanged" from="Health" to="Path/Follow/Control/TextureProgressBar" method="set_max"]
 [connection signal="ValueChanged" from="Health" to="." method="OnHealthChanged"]
-[connection signal="ValueChanged" from="Health" to="Path/PathFollow/Control/TextureProgressBar" method="set_value"]
+[connection signal="ValueChanged" from="Health" to="Path/Follow/Control/TextureProgressBar" method="set_value"]

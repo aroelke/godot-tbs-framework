@@ -10,6 +10,7 @@ using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object.Group;
 using TbsTemplate.Scenes.Level.Events;
 using TbsTemplate.Scenes.Level.Control;
+using TbsTemplate.Nodes;
 
 namespace TbsTemplate.Scenes.Level.Object;
 
@@ -17,9 +18,12 @@ namespace TbsTemplate.Scenes.Level.Object;
 /// A unit that moves around the map.  Mostly is just a visual representation of what's where and an interface for the player to
 /// interact.
 /// </summary>
-[GlobalClass, SceneTree, Tool]
+[GlobalClass, Tool]
 public partial class Unit : GridNode, IUnit, IHasHealth
 {
+    /// <summary>Signal that the unit is done moving along its path.</summary>
+    [Signal] public delegate void DoneMovingEventHandler();
+
     // AnimationTree parameters
     private static readonly StringName Idle = "parameters/conditions/idle";
     private static readonly StringName Selected = "parameters/conditions/selected";
@@ -33,13 +37,16 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     private static readonly StringName MovingState = "Moving";
     private static readonly StringName DoneState = "Done";
 
-    /// <summary>Signal that the unit is done moving along its path.</summary>
-    [Signal] public delegate void DoneMovingEventHandler();
-
+    private readonly NodeCache _cache = null;
     private Army _army = null;
     private Stats _stats = new();
     private Vector2I _target = Vector2I.Zero;
 
+    private FastForwardComponent Accelerate => _cache.GetNode<FastForwardComponent>("Accelerate");
+    private Sprite2D Sprite => _cache.GetNode<Sprite2D>("%Sprite");
+    private Path2D Path => _cache.GetNode<Path2D>("Path");
+    private PathFollow2D PathFollow => _cache.GetNode<PathFollow2D>("Path/Follow");
+    private AnimationTree AnimationTree => _cache.GetNode<AnimationTree>("AnimationTree");
     private StringName AnimationState => AnimationTree.Get("parameters/playback").As<AnimationNodeStateMachinePlayback>().GetCurrentNode();
 
     private void CheckInvalidState(string operation, params StringName[] illegal)
@@ -99,6 +106,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     ///<summary>Behavior defining actions to take when AI controlled.</summary>
     public Behavior Behavior { get; private set; } = null;
 
+    public HealthComponent Health => _cache.GetNodeOrNull<HealthComponent>("Health");
     int IUnit.Health => Health.Value;
 
     /// <summary>Army to which this unit belongs, which determines its alliances and gives access to its compatriots.</summary>
@@ -120,6 +128,11 @@ public partial class Unit : GridNode, IUnit, IHasHealth
 
     /// <summary>Whether or not the unit has completed its turn.</summary>
     public bool Active => !AnimationTree.Get(Done).AsBool();
+
+    /// <summary>Box defining the unit's current position and size, in pixels on the battlefield, including during movement.</summary>
+    public BoundedNode2D MotionBox => _cache.GetNode<BoundedNode2D>("Path/Follow/MotionBox");
+
+    public Unit() : base() { _cache = new(this); }
 
     public IEnumerable<Vector2I> TraversableCells(IGrid grid) => IUnit.TraversableCells(this, grid);
 
