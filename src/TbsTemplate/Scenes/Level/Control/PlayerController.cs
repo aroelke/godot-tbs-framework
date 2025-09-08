@@ -45,26 +45,26 @@ public partial class PlayerController : ArmyController
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path;
 
-    private ActionLayers ActionLayers      => _cache.GetNode<ActionLayers>("ActionLayers");
-    private TileMapLayer MoveLayer           => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Move");
-    private TileMapLayer AttackLayer         => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Attack");
-    private TileMapLayer SupportLayer        => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Support");
-    private ActionLayers ZoneLayers => _cache.GetNode<ActionLayers>("ZoneLayers");
-    private TileMapLayer AllyTraversableZone => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/TraversableZone");
-    private TileMapLayer LocalDangerZone     => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/LocalDangerZone");
-    private TileMapLayer GlobalDangerZone    => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/GlobalDangerZone");
-    private PathLayer PathLayer => _cache.GetNode<PathLayer>("PathLayer");
-    private Cursor     Cursor              => _cache.GetNode<Cursor>("Cursor");
-    private Pointer    Pointer             => _cache.GetNode<Pointer>("Pointer");
-    private CanvasLayer UserInterface => _cache.GetNode<CanvasLayer>("UserInterface");
-    private Godot.Control HUD => _cache.GetNode<Godot.Control>("UserInterface/HUD");
-    private ControlHint CancelHint => _cache.GetNode<ControlHint>("%CancelHint");
-    private AudioStreamPlayer SelectSound => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/SelectSound");
-    private AudioStreamPlayer CancelSound => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/CancelSound");
-    private AudioStreamPlayer ErrorSound => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/ErrorSound");
-    private AudioStreamPlayer ZoneOnSound => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/ZoneOnSound");
-    private AudioStreamPlayer ZoneOffSound => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/ZoneOffSound");
-    private Chart State => _cache.GetNode<Chart>("State");
+    private ActionLayers      ActionLayers        => _cache.GetNode<ActionLayers>("ActionLayers");
+    private TileMapLayer      MoveLayer           => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Move");
+    private TileMapLayer      AttackLayer         => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Attack");
+    private TileMapLayer      SupportLayer        => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Support");
+    private ActionLayers      ZoneLayers          => _cache.GetNode<ActionLayers>("ZoneLayers");
+    private TileMapLayer      AllyTraversableZone => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/TraversableZone");
+    private TileMapLayer      LocalDangerZone     => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/LocalDangerZone");
+    private TileMapLayer      GlobalDangerZone    => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/GlobalDangerZone");
+    private PathLayer         PathLayer           => _cache.GetNode<PathLayer>("PathLayer");
+    private Cursor            Cursor              => _cache.GetNode<Cursor>("Cursor");
+    private Pointer           Pointer             => _cache.GetNode<Pointer>("Pointer");
+    private CanvasLayer       UserInterface       => _cache.GetNode<CanvasLayer>("UserInterface");
+    private Godot.Control     HUD                 => _cache.GetNode<Godot.Control>("UserInterface/HUD");
+    private ControlHint       CancelHint          => _cache.GetNode<ControlHint>("%CancelHint");
+    private AudioStreamPlayer SelectSound         => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/SelectSound");
+    private AudioStreamPlayer CancelSound         => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/CancelSound");
+    private AudioStreamPlayer ErrorSound          => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/ErrorSound");
+    private AudioStreamPlayer ZoneOnSound         => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/ZoneOnSound");
+    private AudioStreamPlayer ZoneOffSound        => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/ZoneOffSound");
+    private Chart             State               => _cache.GetNode<Chart>("State");
 
     public override Grid Grid
     {
