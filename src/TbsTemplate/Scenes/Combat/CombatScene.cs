@@ -18,7 +18,53 @@ namespace TbsTemplate.Scenes.Combat;
 [SceneTree]
 public partial class CombatScene : Node
 {
+    private const string ScenePath = "res://src/TbsTemplate/Scenes/Combat/CombatScene.tscn";
+    private static PackedScene Scene = null;
+
     [Signal] public delegate void TimeExpiredEventHandler();
+
+    /// <summary>Create and set up a combat scene.</summary>
+    /// <param name="left">Unit on the left side of the screen.</param>
+    /// <param name="right">Unit on the right side of the screen.</param>
+    /// <param name="actions">List of actions that will be performed each turn in combat. The length of the list determines the number of turns.</param>
+    /// <exception cref="ArgumentException">If any <see cref="CombatAction"/> contains an _animations[action.Actor] who isn't participating in this combat.</exception>
+    public static CombatScene Instantiate(Unit left, Unit right, IImmutableList<CombatAction> actions)
+    {
+        foreach (CombatAction action in actions)
+            if (action.Actor != left && action.Actor != right)
+                throw new ArgumentException($"CombatAction {action.Actor.Name} is not a participant in combat");
+
+        CombatScene scene = (Scene ??= GD.Load<PackedScene>(ScenePath)).Instantiate<CombatScene>();
+
+        scene._actions = actions;
+
+        scene._animations[left] = left.Class.CombatAnimations.Instantiate<CombatAnimation>();
+        scene._animations[left].Modulate = left.Army.Faction.Color;
+        scene._animations[left].Position = scene.LeftPosition;
+        scene._animations[left].Left = true;
+        scene._animations[left].StepTaken += () => scene.StepSound.Play();
+        scene._infos[left] = scene.LeftInfo;
+        scene.LeftInfo.Health = left.Health;
+        scene.LeftInfo.Damage = [.. scene._actions.Where((a) => a.Actor == left).Select(static (a) => a.Damage)];
+        scene.LeftInfo.HitChance = scene._actions.Any((a) => a.Actor == left) ? Math.Min(CombatCalculations.HitChance(left, right), 100) : -1;
+        scene.LeftInfo.TransitionDuration = scene.HitDelay;
+
+        scene._animations[right] = right.Class.CombatAnimations.Instantiate<CombatAnimation>();
+        scene._animations[right].Modulate = right.Army.Faction.Color;
+        scene._animations[right].Position = scene.RightPosition;
+        scene._animations[right].Left = false;
+        scene._animations[right].StepTaken += () => scene.StepSound.Play();
+        scene._infos[right] = scene.RightInfo;
+        scene.RightInfo.Health = right.Health;
+        scene.RightInfo.Damage = [.. scene._actions.Where((a) => a.Actor == right).Select(static (a) => a.Damage)];
+        scene.RightInfo.HitChance = scene._actions.Any((a) => a.Actor == right) ? Math.Min(CombatCalculations.HitChance(right, left), 100) : -1;
+        scene.RightInfo.TransitionDuration = scene.HitDelay;
+
+        foreach ((var _, CombatAnimation animation) in scene._animations)
+            scene.AddChild(animation);
+        
+        return scene;
+    }
 
     private readonly Dictionary<Unit, CombatAnimation> _animations = [];
     private readonly Dictionary<Unit, ParticipantInfo> _infos = [];
@@ -71,7 +117,6 @@ public partial class CombatScene : Node
     /// <param name="right">Unit on the right side of the screen.</param>
     /// <param name="actions">List of actions that will be performed each turn in combat. The length of the list determines the number of turns.</param>
     /// <exception cref="ArgumentException">If any <see cref="CombatAction"/> contains an _animations[action.Actor] who isn't participating in this combat.</exception>
-    [OnInstantiate]
     public void Initialize(Unit left, Unit right, IImmutableList<CombatAction> actions)
     {
         foreach (CombatAction action in actions)
