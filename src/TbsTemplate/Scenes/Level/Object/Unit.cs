@@ -42,12 +42,12 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     private Stats _stats = new();
     private Vector2I _target = Vector2I.Zero;
 
-    private FastForwardComponent Accelerate => _cache.GetNode<FastForwardComponent>("Accelerate");
-    private Sprite2D Sprite => _cache.GetNode<Sprite2D>("%Sprite");
-    private Path2D Path => _cache.GetNode<Path2D>("Path");
-    private PathFollow2D PathFollow => _cache.GetNode<PathFollow2D>("Path/Follow");
-    private AnimationTree AnimationTree => _cache.GetNode<AnimationTree>("AnimationTree");
-    private StringName AnimationState => AnimationTree.Get("parameters/playback").As<AnimationNodeStateMachinePlayback>().GetCurrentNode();
+    private FastForwardComponent Accelerate     => _cache.GetNode<FastForwardComponent>("Accelerate");
+    private Sprite2D             Sprite         => _cache.GetNode<Sprite2D>("%Sprite");
+    private Path2D               Path           => _cache.GetNode<Path2D>("Path");
+    private PathFollow2D         PathFollow     => _cache.GetNode<PathFollow2D>("Path/Follow");
+    private AnimationTree        AnimationTree  => _cache.GetNode<AnimationTree>("AnimationTree");
+    private StringName           AnimationState => AnimationTree.Get("parameters/playback").As<AnimationNodeStateMachinePlayback>().GetCurrentNode();
 
     private void CheckInvalidState(string operation, params StringName[] illegal)
     {
