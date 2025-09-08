@@ -24,7 +24,6 @@ Wait = &"wait"
 Done = &"done"
 
 [node name="ControlState" parent="." instance=ExtResource("7_xfrm4")]
-unique_name_in_owner = true
 Events = [&"wait", &"done"]
 InitialVariableValues = Dictionary[StringName, Variant]({
 &"mode": ""
@@ -95,7 +94,6 @@ To = NodePath("../../Waiting")
 Event = &"wait"
 
 [node name="Waiting" parent="ControlState/Root" instance=ExtResource("10_fcy41")]
-unique_name_in_owner = true
 process_mode = 4
 
 [node name="ToActive" parent="ControlState/Root/Waiting" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
