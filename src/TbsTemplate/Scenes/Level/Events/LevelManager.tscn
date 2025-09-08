@@ -17,7 +17,7 @@
 [ext_resource type="PackedScene" uid="uid://b7i65c130fgfs" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/EnterTreeReaction.tscn" id="29_o6hju"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -191717665
+seed = -1179197095
 
 [sub_resource type="Resource" id="Resource_3lvnu"]
 script = ExtResource("27_kyhbc")
@@ -35,7 +35,6 @@ Wait = &"wait"
 Done = &"done"
 
 [node name="Camera" parent="." instance=ExtResource("3_td8u6")]
-unique_name_in_owner = true
 Limits = Rect2i(0, 0, 1000000, 1000000)
 Zoom = Vector2(2, 2)
 ShakeDecay = 0.8
@@ -44,10 +43,8 @@ ShakeMaxRoll = 0.0
 ShakeNoise = SubResource("FastNoiseLite_spp7l")
 
 [node name="UserInterface" type="CanvasLayer" parent="."]
-unique_name_in_owner = true
 
 [node name="TurnLabel" type="Label" parent="UserInterface"]
-unique_name_in_owner = true
 offset_right = 213.0
 offset_bottom = 45.0
 theme = ExtResource("3_bmb6a")
@@ -55,7 +52,6 @@ theme_override_font_sizes/font_size = 32
 text = "Turn 1: Player"
 
 [node name="State" parent="." instance=ExtResource("17_sd0pe")]
-unique_name_in_owner = true
 Events = [&"select", &"cancel", &"skip", &"wait", &"done"]
 InitialVariableValues = Dictionary[StringName, Variant]({
 &"active": 0,
@@ -203,7 +199,6 @@ To = NodePath("../../Running/Skippable/History")
 Event = &"done"
 
 [node name="TurnAdvance" type="Timer" parent="."]
-unique_name_in_owner = true
 one_shot = true
 
 [connection signal="child_entered_tree" from="." to="." method="OnChildEnteredTree"]
