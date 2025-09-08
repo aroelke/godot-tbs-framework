@@ -10,7 +10,7 @@ using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.UI;
 using TbsTemplate.UI.Combat;
-using TbsTemplate.UI.Controls.Action;
+using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.Scenes.Combat;
 
@@ -221,7 +221,7 @@ public partial class CombatScene : Node
     public override void _Input(InputEvent @event)
     {
         base._Input(@event);
-        if (@event.IsActionPressed(InputActions.Cancel))
+        if (@event.IsActionPressed(InputManager.Cancel))
             End();
     }
 

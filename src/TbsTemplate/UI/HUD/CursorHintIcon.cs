@@ -83,10 +83,10 @@ public partial class CursorHintIcon : HBoxContainer
         base._Process(delta);
         if (Engine.IsEditorHint())
         {
-            UpKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputActions.DigitalMoveUp));
-            LeftKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputActions.DigitalMoveLeft));
-            DownKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputActions.DigitalMoveDown));
-            RightKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputActions.DigitalMoveRight));
+            UpKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputManager.DigitalMoveUp));
+            LeftKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputManager.DigitalMoveLeft));
+            DownKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputManager.DigitalMoveDown));
+            RightKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputManager.DigitalMoveRight));
             MouseIcon.Texture = MouseMap.Motion;
 
             GamepadIcon.ButtonMap = ButtonMap;

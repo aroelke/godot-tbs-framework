@@ -4,7 +4,7 @@ using System.Linq;
 using System;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes;
-using TbsTemplate.UI.Controls.Action;
+using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.UI;
 
@@ -422,9 +422,9 @@ public partial class Camera2DBrain : Node2D
     {
         base._Input(@event);
 
-        if (@event.IsActionPressed(InputActions.DigitalZoomIn))
+        if (@event.IsActionPressed(InputManager.DigitalZoomIn))
             ZoomTarget += Vector2.One*ZoomFactorDigital;
-        if (@event.IsActionPressed(InputActions.DigitalZoomOut))
+        if (@event.IsActionPressed(InputManager.DigitalZoomOut))
             ZoomTarget -= Vector2.One*ZoomFactorDigital;
     }
 
@@ -462,7 +462,7 @@ public partial class Camera2DBrain : Node2D
 
                 _targetPreviousPosition = Target.GlobalPosition;
 
-                float zoom = Input.GetAxis(InputActions.AnalogZoomIn, InputActions.AnalogZoomOut);
+                float zoom = Input.GetAxis(InputManager.AnalogZoomIn, InputManager.AnalogZoomOut);
                 if (zoom != 0)
                     Zoom += Vector2.One*(float)(ZoomFactorAnalog*zoom*delta);
             }

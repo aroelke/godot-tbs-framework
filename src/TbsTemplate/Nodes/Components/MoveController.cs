@@ -1,6 +1,6 @@
 using System;
 using Godot;
-using TbsTemplate.UI.Controls.Action;
+using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.Nodes.Components;
 
@@ -36,14 +36,14 @@ public partial class MoveController : Node
     private Vector2I GetDirection()
     {
         Vector2I direction = new(
-            Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveRight)) - Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveLeft)),
-            Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveDown)) - Convert.ToInt32(Input.IsActionPressed(InputActions.DigitalMoveUp))
+            Convert.ToInt32(Input.IsActionPressed(InputManager.DigitalMoveRight)) - Convert.ToInt32(Input.IsActionPressed(InputManager.DigitalMoveLeft)),
+            Convert.ToInt32(Input.IsActionPressed(InputManager.DigitalMoveDown)) - Convert.ToInt32(Input.IsActionPressed(InputManager.DigitalMoveUp))
         );
         if (EnableAnalog)
         {
             direction += new Vector2I(
-                Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveRight)) - Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveLeft)),
-                Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveDown)) - Convert.ToInt32(IsActionPressed(InputActions.AnalogMoveUp))
+                Convert.ToInt32(IsActionPressed(InputManager.AnalogMoveRight)) - Convert.ToInt32(IsActionPressed(InputManager.AnalogMoveLeft)),
+                Convert.ToInt32(IsActionPressed(InputManager.AnalogMoveDown)) - Convert.ToInt32(IsActionPressed(InputManager.AnalogMoveUp))
             );
         }
         return direction.Clamp(-Vector2I.One, Vector2I.One);

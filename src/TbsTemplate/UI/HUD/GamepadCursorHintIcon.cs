@@ -28,14 +28,14 @@ public partial class GamepadCursorHintIcon : HBoxContainer
 
     private void Update()
     {
-        UpIcon.Texture    = GetButtonIcon(InputManager.GetInputGamepadButton(InputActions.DigitalMoveUp));
-        LeftIcon.Texture  = GetButtonIcon(InputManager.GetInputGamepadButton(InputActions.DigitalMoveLeft));
-        DownIcon.Texture  = GetButtonIcon(InputManager.GetInputGamepadButton(InputActions.DigitalMoveDown));
-        RightIcon.Texture = GetButtonIcon(InputManager.GetInputGamepadButton(InputActions.DigitalMoveRight));
+        UpIcon.Texture    = GetButtonIcon(InputManager.GetInputGamepadButton(InputManager.DigitalMoveUp));
+        LeftIcon.Texture  = GetButtonIcon(InputManager.GetInputGamepadButton(InputManager.DigitalMoveLeft));
+        DownIcon.Texture  = GetButtonIcon(InputManager.GetInputGamepadButton(InputManager.DigitalMoveDown));
+        RightIcon.Texture = GetButtonIcon(InputManager.GetInputGamepadButton(InputManager.DigitalMoveRight));
 
         UnifiedIcon.Texture = ButtonMap.Dpad;
 
-        AnalogIcon.Texture = InputManager.GetInputGamepadAxis(InputActions.AnalogMoveUp) switch
+        AnalogIcon.Texture = InputManager.GetInputGamepadAxis(InputManager.AnalogMoveUp) switch
         {
             JoyAxis.LeftX  | JoyAxis.LeftY  => AxisMap?.LeftAxis,
             JoyAxis.RightX | JoyAxis.RightY => AxisMap?.RightAxis,
@@ -79,10 +79,10 @@ public partial class GamepadCursorHintIcon : HBoxContainer
             Update();
         else
         {
-            ShowIndividualIcons = !(InputManager.GetInputGamepadButton(InputActions.DigitalMoveUp)    == JoyButton.DpadUp   &&
-                                    InputManager.GetInputGamepadButton(InputActions.DigitalMoveLeft)  == JoyButton.DpadLeft &&
-                                    InputManager.GetInputGamepadButton(InputActions.DigitalMoveDown)  == JoyButton.DpadDown &&
-                                    InputManager.GetInputGamepadButton(InputActions.DigitalMoveRight) == JoyButton.DpadRight);
+            ShowIndividualIcons = !(InputManager.GetInputGamepadButton(InputManager.DigitalMoveUp)    == JoyButton.DpadUp   &&
+                                    InputManager.GetInputGamepadButton(InputManager.DigitalMoveLeft)  == JoyButton.DpadLeft &&
+                                    InputManager.GetInputGamepadButton(InputManager.DigitalMoveDown)  == JoyButton.DpadDown &&
+                                    InputManager.GetInputGamepadButton(InputManager.DigitalMoveRight) == JoyButton.DpadRight);
         }
     }
 }

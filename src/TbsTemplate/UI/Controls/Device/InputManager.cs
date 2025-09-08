@@ -18,6 +18,31 @@ public partial class InputManager : Node2D
     /// <summary>Last known position the mouse was on the screen if it's off the screen, or <c>null</c> if it's on the screen.</summary>
     private static Vector2? _lastKnownPointerPosition = Vector2.Zero;
 
+    // Input action name constants
+    public static readonly StringName DigitalMoveUp    = "digital_move_up";
+    public static readonly StringName DigitalMoveLeft  = "digital_move_left";
+    public static readonly StringName DigitalMoveDown  = "digital_move_down";
+    public static readonly StringName DigitalMoveRight = "digital_move_right";
+    public static readonly StringName AnalogMoveUp     = "analog_move_up";
+    public static readonly StringName AnalogMoveLeft   = "analog_move_left";
+    public static readonly StringName AnalogMoveDown   = "analog_move_down";
+    public static readonly StringName AnalogMoveRight  = "analog_move_right";
+    public static readonly StringName Accelerate       = "accelerate";
+    public static readonly StringName Select           = "select";
+    public static readonly StringName Cancel           = "cancel";
+    public static readonly StringName Previous         = "previous";
+    public static readonly StringName Next             = "next";
+    public static readonly StringName ToggleDangerZone = "toggle_danger_zone";
+    public static readonly StringName FastForward      = "fast_forward";
+    public static readonly StringName DigitalZoomIn    = "digital_zoom_in";
+    public static readonly StringName DigitalZoomOut   = "digital_zoom_out";
+    public static readonly StringName AnalogZoomIn     = "analog_zoom_in";
+    public static readonly StringName AnalogZoomOut    = "analog_zoom_out";
+    public static readonly StringName Pause            = "pause";
+    public static readonly StringName UiAccept         = "ui_accept";
+    public static readonly StringName UiHome           = "ui_home";
+    public static readonly StringName UiEnd            = "ui_end";
+
     /// <summary>Reference to the autoloaded <c>InputManager</c> node so its signals can be connected.</summary>
     public static InputManager Singleton => AutoloadNodes.GetNode<InputManager>("InputManager");
 
@@ -31,7 +56,7 @@ public partial class InputManager : Node2D
     public static Vector2 GetMousePosition() => _lastKnownPointerPosition ?? Singleton.GetViewport().GetMousePosition();
 
     /// <returns>The list of input actions.</returns>
-    public static StringName[] GetInputActions()
+    public static StringName[] GetInputManager()
     {
         return ProjectSettings.Singleton.GetPropertyList().Select(static (p) => p["name"].As<string>().Split("/")).Where(static (p) => p[0] == "input").Select(static (i) => new StringName(i[1])).ToArray();
     }

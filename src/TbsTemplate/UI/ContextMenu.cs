@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata;
 using Godot;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes.Components;
-using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.UI;
@@ -137,7 +135,7 @@ public partial class ContextMenu : PanelContainer
             _focus = _hovered == NothingSelected ? (_selected == NothingSelected ? 0 : _selected) : _hovered;
             foreach ((var _, Button item) in _items)
                 item.MouseFilter = MouseFilterEnum.Ignore;
-            if (Input.IsActionPressed(InputActions.UiAccept))
+            if (Input.IsActionPressed(InputManager.UiAccept))
             {
                 GrabFocus(_focus);
                 _focus = NothingSelected;
@@ -210,18 +208,18 @@ public partial class ContextMenu : PanelContainer
     {
         base._Input(@event);
 
-        if (@event.IsActionPressed(InputActions.UiHome))
+        if (@event.IsActionPressed(InputManager.UiHome))
         {
             GrabFocus(0);
             GetViewport().SetInputAsHandled();
         }
-        if (@event.IsActionPressed(InputActions.UiEnd))
+        if (@event.IsActionPressed(InputManager.UiEnd))
         {
             GrabFocus(_options.Length - 1);
             GetViewport().SetInputAsHandled();
         }
 
-        if (@event.IsActionPressed(InputActions.Cancel))
+        if (@event.IsActionPressed(InputManager.Cancel))
         {
             EmitSignal(SignalName.MenuCanceled);
             GetViewport().SetInputAsHandled();

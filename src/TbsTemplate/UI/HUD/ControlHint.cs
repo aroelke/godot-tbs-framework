@@ -101,7 +101,7 @@ public partial class ControlHint : HBoxContainer
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
     {
         Godot.Collections.Array<Godot.Collections.Dictionary> properties = base._GetPropertyList() ?? [];
-        properties.AddRange(_properties.GetPropertyList(InputManager.GetInputActions()));
+        properties.AddRange(_properties.GetPropertyList(InputManager.GetInputManager()));
         return properties;
     }
 

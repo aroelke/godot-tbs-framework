@@ -189,9 +189,9 @@ public partial class Pointer : BoundedNode2D
     /// <param name="event">Input event describing the input.</param>
     public void OnAnalogStateUnhandledInput(InputEvent @event)
     {
-        if (@event.IsActionPressed(InputActions.Accelerate))
+        if (@event.IsActionPressed(InputManager.Accelerate))
             _accelerate = true;
-        if (@event.IsActionReleased(InputActions.Accelerate))
+        if (@event.IsActionReleased(InputManager.Accelerate))
             _accelerate = false;
     }
 
@@ -201,7 +201,7 @@ public partial class Pointer : BoundedNode2D
     {
         if (_tracking)
         {
-            Vector2 direction = Input.GetVector(InputActions.AnalogMoveLeft, InputActions.AnalogMoveRight, InputActions.AnalogMoveUp, InputActions.AnalogMoveDown);
+            Vector2 direction = Input.GetVector(InputManager.AnalogMoveLeft, InputManager.AnalogMoveRight, InputManager.AnalogMoveUp, InputManager.AnalogMoveDown);
             if (direction != Vector2.Zero)
             {
                 double speed = _accelerate ? (Speed*Acceleration) : Speed;

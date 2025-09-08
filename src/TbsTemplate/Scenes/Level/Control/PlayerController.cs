@@ -293,13 +293,13 @@ public partial class PlayerController : ArmyController
 #region Active
     public void OnActiveInput(InputEvent @event)
     {
-        if (@event.IsActionPressed(InputActions.Cancel))
+        if (@event.IsActionPressed(InputManager.Cancel))
         {
             State.SendEvent(_events[CancelEvent]);
             EmitSignal(SignalName.SelectionCanceled);
         }
 
-        if (@event.IsActionPressed(InputActions.ToggleDangerZone))
+        if (@event.IsActionPressed(InputManager.ToggleDangerZone))
         {
             if (Cursor.Grid.Occupants.TryGetValue(Cursor.Cell, out GridNode node) && node is Unit unit)
             {
@@ -377,13 +377,13 @@ public partial class PlayerController : ArmyController
 
     public void OnSelectInput(InputEvent @event)
     {
-        if (@event.IsActionPressed(InputActions.Previous) || @event.IsActionPressed(InputActions.Next))
+        if (@event.IsActionPressed(InputManager.Previous) || @event.IsActionPressed(InputManager.Next))
         {
             if (Cursor.Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit hovered)
             {
-                if (@event.IsActionPressed(InputActions.Previous) && hovered.Army.Previous(hovered) is Unit prev)
+                if (@event.IsActionPressed(InputManager.Previous) && hovered.Army.Previous(hovered) is Unit prev)
                     Cursor.Cell = prev.Cell;
-                if (@event.IsActionPressed(InputActions.Next) && hovered.Army.Next(hovered) is Unit next)
+                if (@event.IsActionPressed(InputManager.Next) && hovered.Army.Next(hovered) is Unit next)
                     Cursor.Cell = next.Cell;
             }
             else
@@ -396,7 +396,7 @@ public partial class PlayerController : ArmyController
             }
         }
 
-        if (@event.IsActionPressed(InputActions.Cancel) && Cursor.Grid.Occupants.TryGetValue(Cursor.Cell, out GridNode node) && node is Unit untrack)
+        if (@event.IsActionPressed(InputManager.Cancel) && Cursor.Grid.Occupants.TryGetValue(Cursor.Cell, out GridNode node) && node is Unit untrack)
         {
             if (_tracked.Remove(untrack))
             {
@@ -610,9 +610,9 @@ public partial class PlayerController : ArmyController
     public void OnTargetInput(InputEvent @event)
     {
         int next = 0;
-        if (@event.IsActionPressed(InputActions.Previous))
+        if (@event.IsActionPressed(InputManager.Previous))
             next = -1;
-        else if (@event.IsActionPressed(InputActions.Next))
+        else if (@event.IsActionPressed(InputManager.Next))
             next = 1;
 
         if (next != 0)

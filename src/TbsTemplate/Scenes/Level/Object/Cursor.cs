@@ -277,12 +277,12 @@ public partial class Cursor : GridNode
 
         if (!_halted)
         {
-            if (@event.IsActionPressed(InputActions.Select))
+            if (@event.IsActionPressed(InputManager.Select))
                 EmitSignal(SignalName.CellSelected, Grid.CellOf(Position));
             
-            if (@event.IsActionPressed(InputActions.Accelerate))
+            if (@event.IsActionPressed(InputManager.Accelerate))
                 _skip = true;
-            else if (@event.IsActionReleased(InputActions.Accelerate))
+            else if (@event.IsActionReleased(InputManager.Accelerate))
                 _skip = false;
         }
     }
