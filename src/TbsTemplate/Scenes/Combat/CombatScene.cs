@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Godot;
 using TbsTemplate.Extensions;
+using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Combat.Animations;
 using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.Scenes.Level.Object;
@@ -14,16 +15,15 @@ using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.Scenes.Combat;
 
-/// <summary>Scene used to display the results of combat in a cut scene.</summary>
-[SceneTree]
+/// <summary>Scene used to display the results of combat in a cut </summary>
 public partial class CombatScene : Node
 {
-    private const string ScenePath = "res://src/TbsTemplate/Scenes/Combat/CombatScene.tscn";
+    private const string ScenePath = "res://src/TbsTemplate/Scenes/Combat/Combattscn";
     private static PackedScene Scene = null;
 
     [Signal] public delegate void TimeExpiredEventHandler();
 
-    /// <summary>Create and set up a combat scene.</summary>
+    /// <summary>Create and set up a combat </summary>
     /// <param name="left">Unit on the left side of the screen.</param>
     /// <param name="right">Unit on the right side of the screen.</param>
     /// <param name="actions">List of actions that will be performed each turn in combat. The length of the list determines the number of turns.</param>
@@ -35,42 +35,26 @@ public partial class CombatScene : Node
                 throw new ArgumentException($"CombatAction {action.Actor.Name} is not a participant in combat");
 
         CombatScene scene = (Scene ??= GD.Load<PackedScene>(ScenePath)).Instantiate<CombatScene>();
-
-        scene._actions = actions;
-
-        scene._animations[left] = left.Class.CombatAnimations.Instantiate<CombatAnimation>();
-        scene._animations[left].Modulate = left.Army.Faction.Color;
-        scene._animations[left].Position = scene.LeftPosition;
-        scene._animations[left].Left = true;
-        scene._animations[left].StepTaken += () => scene.StepSound.Play();
-        scene._infos[left] = scene.LeftInfo;
-        scene.LeftInfo.Health = left.Health;
-        scene.LeftInfo.Damage = [.. scene._actions.Where((a) => a.Actor == left).Select(static (a) => a.Damage)];
-        scene.LeftInfo.HitChance = scene._actions.Any((a) => a.Actor == left) ? Math.Min(CombatCalculations.HitChance(left, right), 100) : -1;
-        scene.LeftInfo.TransitionDuration = scene.HitDelay;
-
-        scene._animations[right] = right.Class.CombatAnimations.Instantiate<CombatAnimation>();
-        scene._animations[right].Modulate = right.Army.Faction.Color;
-        scene._animations[right].Position = scene.RightPosition;
-        scene._animations[right].Left = false;
-        scene._animations[right].StepTaken += () => scene.StepSound.Play();
-        scene._infos[right] = scene.RightInfo;
-        scene.RightInfo.Health = right.Health;
-        scene.RightInfo.Damage = [.. scene._actions.Where((a) => a.Actor == right).Select(static (a) => a.Damage)];
-        scene.RightInfo.HitChance = scene._actions.Any((a) => a.Actor == right) ? Math.Min(CombatCalculations.HitChance(right, left), 100) : -1;
-        scene.RightInfo.TransitionDuration = scene.HitDelay;
-
-        foreach ((var _, CombatAnimation animation) in scene._animations)
-            scene.AddChild(animation);
-        
+        scene.Initialize(left, right, actions);
         return scene;
     }
 
+    private readonly NodeCache _cache = null;
     private readonly Dictionary<Unit, CombatAnimation> _animations = [];
     private readonly Dictionary<Unit, ParticipantInfo> _infos = [];
     private IImmutableList<CombatAction> _actions = null;
     private double _remaining = 0;
     private bool _canceled = false;
+
+    private FastForwardComponent FastForward     => _cache.GetNode<FastForwardComponent>("FastForward");
+    private Camera2DBrain        Camera          => _cache.GetNode<Camera2DBrain>("Camera");
+    private AudioStreamPlayer    StepSound       => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/StepSound");
+    private AudioStreamPlayer    HitSound        => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/HitSound");
+    private AudioStreamPlayer    MissSound       => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/MissSound");
+    private AudioStreamPlayer    BlockSound      => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/BlockSound");
+    private AudioStreamPlayer    DeathSound      => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/DeathSound");
+    private GpuParticles2D       HitSparks       => _cache.GetNode<GpuParticles2D>("EffectLibrary/HitSparks");
+    private Timer                TransitionDelay => _cache.GetNode<Timer>("TransitionDelay");
 
     /// <summary>Wait for all actors in an action to complete their current animation, if they are acting.</summary>
     /// <param name="action">Action whose actors could be acting.</param>
@@ -88,7 +72,7 @@ public partial class CombatScene : Node
         await ToSignal(this, SignalName.TimeExpired);
     }
 
-    /// <summary>Background music to play during the combat scene.</summary>
+    /// <summary>Background music to play during the combat </summary>
     [Export] public AudioStream BackgroundMusic = null;
 
     /// <summary>Position to display the left unit's sprite.</summary>
@@ -112,7 +96,13 @@ public partial class CombatScene : Node
     /// <summary>Amount of camera shake trauma for a normal hit.</summary>
     [Export] public double CameraShakeHitTrauma = 0.2;
 
-    /// <summary>Set up the combat scene.</summary>
+    public ParticipantInfo LeftInfo => _cache.GetNode<ParticipantInfo>("%LeftInfo");
+
+    public ParticipantInfo RightInfo => _cache.GetNode<ParticipantInfo>("%RightInfo");
+
+    public CombatScene() : base() { _cache = new(this); }
+
+    /// <summary>Set up the combat </summary>
     /// <param name="left">Unit on the left side of the screen.</param>
     /// <param name="right">Unit on the right side of the screen.</param>
     /// <param name="actions">List of actions that will be performed each turn in combat. The length of the list determines the number of turns.</param>
@@ -132,7 +122,7 @@ public partial class CombatScene : Node
         _animations[left].StepTaken += () => StepSound.Play();
         _infos[left] = LeftInfo;
         LeftInfo.Health = left.Health;
-        LeftInfo.Damage = _actions.Where((a) => a.Actor == left).Select(static (a) => a.Damage).ToArray();
+        LeftInfo.Damage = [.. _actions.Where((a) => a.Actor == left).Select(static (a) => a.Damage)];
         LeftInfo.HitChance = _actions.Any((a) => a.Actor == left) ? Math.Min(CombatCalculations.HitChance(left, right), 100) : -1;
         LeftInfo.TransitionDuration = HitDelay;
 
@@ -143,7 +133,7 @@ public partial class CombatScene : Node
         _animations[right].StepTaken += () => StepSound.Play();
         _infos[right] = RightInfo;
         RightInfo.Health = right.Health;
-        RightInfo.Damage = _actions.Where((a) => a.Actor == right).Select(static (a) => a.Damage).ToArray();
+        RightInfo.Damage = [.. _actions.Where((a) => a.Actor == right).Select(static (a) => a.Damage)];
         RightInfo.HitChance = _actions.Any((a) => a.Actor == right) ? Math.Min(CombatCalculations.HitChance(right, left), 100) : -1;
         RightInfo.TransitionDuration = HitDelay;
 
