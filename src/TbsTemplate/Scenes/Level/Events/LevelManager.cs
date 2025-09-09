@@ -16,6 +16,7 @@ using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level.Control;
 using TbsTemplate.Nodes.StateChart;
 using TbsTemplate.Nodes.StateChart.Reactions;
+using TbsTemplate.Scenes.Level.Events.Reactions;
 
 namespace TbsTemplate.Scenes.Level.Events;
 
