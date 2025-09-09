@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsTemplate.Extensions;
-using TbsTemplate.UI.Controls.Action;
+using TbsTemplate.Nodes.Components;
 using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.UI;
@@ -18,7 +18,7 @@ public readonly record struct ContextMenuOption(StringName Name, Action Action);
 /// individually if needed.  Either way, automatically frees itself once a button is clicked.  Menu can also be canceled without selecting an
 /// item.  Not meant to be reused and options list is not meant to be modified (even though the individual options can be).
 /// </summary>
-[SceneTree, Tool]
+[Tool]
 public partial class ContextMenu : PanelContainer
 {
     /// <summary>Signals that one of the items has been selected.</summary>
@@ -35,13 +35,35 @@ public partial class ContextMenu : PanelContainer
     [Signal] public delegate void MenuClosedEventHandler();
 
     private const int NothingSelected = -1;
+    private const string ScenePath = "res://src/TbsTemplate/UI/ContextMenu.tscn";
+    private static PackedScene Scene = null;
 
+    /// <summary>Set up a context menu with a set of options mapped to actions.</summary>
+    /// <param name="options">List of options to show and their actions.</param>
+    public static ContextMenu Instantiate(IEnumerable<ContextMenuOption> options)
+    {
+        ContextMenu menu = (Scene ??= GD.Load<PackedScene>(ScenePath)).Instantiate<ContextMenu>();
+
+        menu.Options = [.. options.Select((o) => o.Name)];
+        // Do this with the ready signal to make sure the menu has been initialized (ready is emitted after _Ready is called)
+        menu.Connect(SignalName.Ready, () => {
+            foreach ((StringName name, Action action) in options)
+                menu._items[name].Pressed += action;
+        }, (uint)ConnectFlags.OneShot);
+
+        return menu;
+    }
+
+    private readonly NodeCache _cache = null;
     private StringName[] _options = [];
     private readonly Dictionary<StringName, Button> _items = [];
     private int _selected = NothingSelected;
     private int _hovered = NothingSelected;
     private int _focus = NothingSelected;
     private bool _suppress = false;
+
+    private GridContainer Items => _cache.GetNode<GridContainer>("Items");
+    private AudioStreamPlayer HighlightSound => _cache.GetNode<AudioStreamPlayer>("HighlightSound");
 
     private void UpdateItems()
     {
@@ -82,17 +104,7 @@ public partial class ContextMenu : PanelContainer
     /// <summary>sWhich item to default focusing on when grabbing focus with nothing specified.</summary>
     [Export] public int DefaultFocus = 0;
 
-    /// <summary>Set up a context menu with a set of options mapped to actions.</summary>
-    /// <param name="options">List of options to show and their actions.</param>
-    [OnInstantiate]
-    public void Initialize(IEnumerable<ContextMenuOption> options)
-    {
-        Options = [.. options.Select((o) => o.Name)];
-        this.Connect(SignalName.Ready, () => {
-            foreach ((StringName name, Action action) in options)
-                _items[name].Pressed += action;
-        }, (uint)ConnectFlags.OneShot);
-    }
+    public ContextMenu() : base() { _cache = new(this); }
 
     /// <inheritdoc cref="Control.GrabFocus"/>
     /// <param name="option">Option corresponding to the button to focus on.</param>
@@ -123,7 +135,7 @@ public partial class ContextMenu : PanelContainer
             _focus = _hovered == NothingSelected ? (_selected == NothingSelected ? 0 : _selected) : _hovered;
             foreach ((var _, Button item) in _items)
                 item.MouseFilter = MouseFilterEnum.Ignore;
-            if (Input.IsActionPressed(InputActions.UiAccept))
+            if (Input.IsActionPressed(InputManager.UiAccept))
             {
                 GrabFocus(_focus);
                 _focus = NothingSelected;
@@ -196,18 +208,18 @@ public partial class ContextMenu : PanelContainer
     {
         base._Input(@event);
 
-        if (@event.IsActionPressed(InputActions.UiHome))
+        if (@event.IsActionPressed(InputManager.UiHome))
         {
             GrabFocus(0);
             GetViewport().SetInputAsHandled();
         }
-        if (@event.IsActionPressed(InputActions.UiEnd))
+        if (@event.IsActionPressed(InputManager.UiEnd))
         {
             GrabFocus(_options.Length - 1);
             GetViewport().SetInputAsHandled();
         }
 
-        if (@event.IsActionPressed(InputActions.Cancel))
+        if (@event.IsActionPressed(InputManager.Cancel))
         {
             EmitSignal(SignalName.MenuCanceled);
             GetViewport().SetInputAsHandled();

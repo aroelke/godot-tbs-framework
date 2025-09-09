@@ -7,9 +7,11 @@ using TbsTemplate.UI.Controls.IconMaps;
 namespace TbsTemplate.UI.HUD;
 
 /// <summary>Icon and label showing the input for an action that doesn't have an analog or mouse option.</summary>
-[Icon("res://icons/UIIcon.svg"), SceneTree, Tool]
+[Icon("res://icons/UIIcon.svg"), Tool]
 public partial class ControlHint : HBoxContainer
 {
+    private readonly NodeCache _cache = null;
+    private readonly DynamicEnumProperties<StringName> _properties = new(["Action"], @default:"");
     private InputDevice _selected = default;
     private readonly Dictionary<InputDevice, IconMap> _maps = new()
     {
@@ -18,13 +20,14 @@ public partial class ControlHint : HBoxContainer
         { InputDevice.Gamepad,  new CompositeGamepadButtonIconMap() }
     };
 
+    private TextureRect Icon => _cache.GetNodeOrNull<TextureRect>("Icon");
+    private Label Label => _cache.GetNodeOrNull<Label>("Label");
+
     private void Update(InputDevice device, StringName action)
     {
         if (Icon is not null && action is not null)
             Icon.Texture = _maps[device][action] ?? _maps[FallBackDevice][action];
     }
-
-    private readonly DynamicEnumProperties<StringName> _properties = new(["Action"], @default:"");
 
     [Export] public string Description
     {
@@ -89,6 +92,8 @@ public partial class ControlHint : HBoxContainer
         }
     }
 
+    public ControlHint() : base() { _cache = new(this); }
+
     /// <summary>When the input device changes, also update the icon.</summary>
     /// <param name="device">New device being used for input.</param>
     public void OnInputDeviceChanged(InputDevice device, string name) => SelectedDevice = device;
@@ -96,7 +101,7 @@ public partial class ControlHint : HBoxContainer
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
     {
         Godot.Collections.Array<Godot.Collections.Dictionary> properties = base._GetPropertyList() ?? [];
-        properties.AddRange(_properties.GetPropertyList(InputManager.GetInputActions()));
+        properties.AddRange(_properties.GetPropertyList(InputManager.GetInputManager()));
         return properties;
     }
 

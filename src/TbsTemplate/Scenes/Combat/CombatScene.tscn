@@ -42,7 +42,6 @@ BackgroundMusic = ExtResource("2_k4ewr")
 [node name="PauseManager" parent="." instance=ExtResource("4_kbq0h")]
 
 [node name="FastForward" parent="." instance=ExtResource("5_h0qjn")]
-unique_name_in_owner = true
 
 [node name="Background" type="Sprite2D" parent="."]
 position = Vector2(-73, -48)
@@ -51,7 +50,6 @@ texture = ExtResource("2_hevui")
 centered = false
 
 [node name="Camera" parent="." instance=ExtResource("2_qyxbl")]
-unique_name_in_owner = true
 Limits = Rect2i(0, 0, 2000000, 2000000)
 Zoom = Vector2(8, 8)
 ZoomMax = Vector2(8, 8)
@@ -59,33 +57,26 @@ ZoomMax = Vector2(8, 8)
 [node name="SoundLibrary" type="Node" parent="."]
 
 [node name="StepSound" type="AudioStreamPlayer" parent="SoundLibrary"]
-unique_name_in_owner = true
 stream = ExtResource("9_b60f8")
 volume_db = 10.0
 
 [node name="HitSound" type="AudioStreamPlayer" parent="SoundLibrary"]
-unique_name_in_owner = true
 stream = ExtResource("3_djjqq")
 
 [node name="MissSound" type="AudioStreamPlayer" parent="SoundLibrary"]
-unique_name_in_owner = true
 stream = ExtResource("4_3j5b2")
 
 [node name="BlockSound" type="AudioStreamPlayer" parent="SoundLibrary"]
-unique_name_in_owner = true
 stream = ExtResource("6_27q0q")
 
 [node name="DeathSound" type="AudioStreamPlayer" parent="SoundLibrary"]
-unique_name_in_owner = true
 stream = ExtResource("6_owx48")
 
 [node name="EffectLibrary" type="Node" parent="."]
 
 [node name="HitSparks" type="GPUParticles2D" parent="EffectLibrary"]
-unique_name_in_owner = true
 emitting = false
 amount = 48
-process_material = SubResource("ParticleProcessMaterial_w5sv2")
 texture = ExtResource("7_5me5v")
 lifetime = 0.5
 one_shot = true
@@ -93,9 +84,9 @@ speed_scale = 2.0
 explosiveness = 1.0
 fixed_fps = 60
 interpolate = false
+process_material = SubResource("ParticleProcessMaterial_w5sv2")
 
 [node name="TransitionDelay" type="Timer" parent="."]
-unique_name_in_owner = true
 wait_time = 0.9
 one_shot = true
 
@@ -169,13 +160,13 @@ theme = ExtResource("17_6cq6n")
 
 [node name="SkipHint" parent="CanvasLayer/Hints" instance=ExtResource("17_ru8y2")]
 layout_mode = 2
-Action = &"cancel"
 Description = "Skip"
+Action = &"cancel"
 
 [node name="PauseHint" parent="CanvasLayer/Hints" instance=ExtResource("17_ru8y2")]
 layout_mode = 2
-Action = &"pause"
 Description = "Pause"
+Action = &"pause"
 
 [node name="PauseOverlay" type="Panel" parent="CanvasLayer"]
 visible = false

@@ -1,5 +1,5 @@
 using Godot;
-using TbsTemplate.UI.Controls.Action;
+using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.Scenes;
 
@@ -19,7 +19,7 @@ public partial class PauseManager : Node
     {
         base._Input(@event);
 
-        if (@event.IsActionPressed(InputActions.Pause))
+        if (@event.IsActionPressed(InputManager.Pause))
         {
             Paused = !Paused;
             if (UseEnginePause)

@@ -2,6 +2,8 @@ using Godot;
 using TbsTemplate.Nodes.StateChart.Reactions;
 using TbsTemplate.Scenes.Level.Object;
 
+namespace TbsTemplate.Scenes.Level.Events.Reactions;
+
 /// <summary>State reaction to a unit choosing a target for an action.</summary>
 public partial class TargetReaction : Reaction2<Unit, Unit>
 {

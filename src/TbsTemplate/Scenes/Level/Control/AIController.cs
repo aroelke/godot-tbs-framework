@@ -11,7 +11,7 @@ using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 using TbsTemplate.Scenes.Transitions;
-using TbsTemplate.UI.Controls.Action;
+using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.Scenes.Level.Control;
 
@@ -436,7 +436,7 @@ public partial class AIController : ArmyController
     public override void _Input(InputEvent @event)
     {
         base._Input(@event);
-        if (EnableTurnSkipping && @event.IsActionPressed(InputActions.Cancel))
+        if (EnableTurnSkipping && @event.IsActionPressed(InputManager.Cancel))
             EmitSignal(SignalName.TurnFastForward);
     }
 }

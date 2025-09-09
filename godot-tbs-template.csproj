@@ -4,7 +4,4 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <RootNamespace>godottbstemplate</RootNamespace>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="GodotSharp.SourceGenerators" Version="2.4.0" />
-  </ItemGroup>
 </Project>

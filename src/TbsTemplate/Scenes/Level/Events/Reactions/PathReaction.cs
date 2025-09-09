@@ -2,7 +2,7 @@ using Godot;
 using TbsTemplate.Nodes.StateChart.Reactions;
 using TbsTemplate.Scenes.Level.Object;
 
-namespace TbsTemplate.Scenes.Level;
+namespace TbsTemplate.Scenes.Level.Events.Reactions;
 
 /// <summary>State reaction to an event involving an array of <see cref="Vector2I"/>s.</summary>
 public partial class PathReaction : Reaction2<Unit, Godot.Collections.Array<Vector2I>>

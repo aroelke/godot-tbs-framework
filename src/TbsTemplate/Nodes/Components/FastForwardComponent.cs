@@ -1,5 +1,5 @@
 using Godot;
-using TbsTemplate.UI.Controls.Action;
+using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.Nodes.Components;
 
@@ -18,7 +18,7 @@ public partial class FastForwardComponent : Node
     public override void _EnterTree()
     {
         base._EnterTree();
-        if (Input.IsActionPressed(InputActions.FastForward))
+        if (Input.IsActionPressed(InputManager.FastForward))
         {
             Active = true;
             EmitSignal(SignalName.Accelerate);
@@ -28,12 +28,12 @@ public partial class FastForwardComponent : Node
     public override void _Input(InputEvent @event)
     {
         base._Input(@event);
-        if (@event.IsActionPressed(InputActions.FastForward))
+        if (@event.IsActionPressed(InputManager.FastForward))
         {
             Active = true;
             EmitSignal(SignalName.Accelerate);
         }
-        else if (@event.IsActionReleased(InputActions.FastForward))
+        else if (@event.IsActionReleased(InputManager.FastForward))
         {
             Active = false;
             EmitSignal(SignalName.Decelerate);

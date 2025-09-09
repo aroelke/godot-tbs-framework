@@ -13,11 +13,9 @@ script = ExtResource("1_uyy67")
 EnableAnalog = true
 
 [node name="HighlightSound" type="AudioStreamPlayer" parent="."]
-unique_name_in_owner = true
 stream = ExtResource("3_hi5v1")
 
 [node name="Items" type="GridContainer" parent="."]
-unique_name_in_owner = true
 layout_mode = 2
 
 [connection signal="DirectionEchoed" from="MoveController" to="." method="OnDirectionPressed"]

@@ -5,18 +5,21 @@ using System.Linq;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes;
 using TbsTemplate.Nodes.Components;
+using TbsTemplate.Nodes.StateChart;
 using TbsTemplate.Scenes.Level.Events;
+using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 using TbsTemplate.UI;
 using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI.Controls.Device;
+using TbsTemplate.UI.HUD;
 
 namespace TbsTemplate.Scenes.Level.Control;
 
 /// <summary>Controls units based on player input.  Also includes UI elements to facilitate gameplay.</summary>
-[SceneTree, Tool]
+[Tool]
 public partial class PlayerController : ArmyController
 {
     private static readonly StringName SelectEvent  = "Select";
@@ -27,6 +30,7 @@ public partial class PlayerController : ArmyController
     private static readonly StringName CancelEvent  = "Cancel";
     private static readonly StringName WaitEvent    = "Wait";
 
+    private readonly NodeCache _cache = null;
     private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, PathEvent, CommandEvent, TargetEvent, FinishEvent, CancelEvent, WaitEvent]);
     private Grid _grid = null;
     private TileSet _tileset = null;
@@ -41,12 +45,26 @@ public partial class PlayerController : ArmyController
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path;
 
-    private StringName MoveLayer           => _.ActionLayers.Move.Name;
-    private StringName AttackLayer         => _.ActionLayers.Attack.Name;
-    private StringName SupportLayer        => _.ActionLayers.Support.Name;
-    private StringName AllyTraversableZone => _.ZoneLayers.TraversableZone.Name;
-    private StringName LocalDangerZone     => _.ZoneLayers.LocalDangerZone.Name;
-    private StringName GlobalDangerZone    => _.ZoneLayers.GlobalDangerZone.Name;
+    private ActionLayers      ActionLayers        => _cache.GetNode<ActionLayers>("ActionLayers");
+    private TileMapLayer      MoveLayer           => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Move");
+    private TileMapLayer      AttackLayer         => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Attack");
+    private TileMapLayer      SupportLayer        => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Support");
+    private ActionLayers      ZoneLayers          => _cache.GetNode<ActionLayers>("ZoneLayers");
+    private TileMapLayer      AllyTraversableZone => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/TraversableZone");
+    private TileMapLayer      LocalDangerZone     => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/LocalDangerZone");
+    private TileMapLayer      GlobalDangerZone    => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/GlobalDangerZone");
+    private PathLayer         PathLayer           => _cache.GetNode<PathLayer>("PathLayer");
+    private Cursor            Cursor              => _cache.GetNode<Cursor>("Cursor");
+    private Pointer           Pointer             => _cache.GetNode<Pointer>("Pointer");
+    private CanvasLayer       UserInterface       => _cache.GetNode<CanvasLayer>("UserInterface");
+    private Godot.Control     HUD                 => _cache.GetNode<Godot.Control>("UserInterface/HUD");
+    private ControlHint       CancelHint          => _cache.GetNode<ControlHint>("%CancelHint");
+    private AudioStreamPlayer SelectSound         => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/SelectSound");
+    private AudioStreamPlayer CancelSound         => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/CancelSound");
+    private AudioStreamPlayer ErrorSound          => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/ErrorSound");
+    private AudioStreamPlayer ZoneOnSound         => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/ZoneOnSound");
+    private AudioStreamPlayer ZoneOffSound        => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/ZoneOffSound");
+    private Chart             State               => _cache.GetNode<Chart>("State");
 
     public override Grid Grid
     {
@@ -63,6 +81,8 @@ public partial class PlayerController : ArmyController
             }
         }
     }
+
+    public PlayerController() : base() { _cache = new(this); }
 #region Exports
     private void UpdateActionRangeTileSet(TileSet ts)
     {
@@ -86,8 +106,8 @@ public partial class PlayerController : ArmyController
         set
         {
             _move = value;
-            if (_.ActionLayers?.Move is not null)
-                _.ActionLayers.Move.Modulate = _move;
+            if (MoveLayer is not null)
+                MoveLayer.Modulate = _move;
         }
     }
 
@@ -98,8 +118,8 @@ public partial class PlayerController : ArmyController
         set
         {
             _attack = value;
-            if (_.ActionLayers?.Attack is not null)
-                _.ActionLayers.Attack.Modulate = _attack;
+            if (AttackLayer is not null)
+                AttackLayer.Modulate = _attack;
         }
     }
 
@@ -110,8 +130,8 @@ public partial class PlayerController : ArmyController
         set
         {
             _support = value;
-            if (_.ActionLayers?.Support is not null)
-                _.ActionLayers.Support.Modulate = _support;
+            if (SupportLayer is not null)
+                SupportLayer.Modulate = _support;
         }
     }
 
@@ -128,8 +148,8 @@ public partial class PlayerController : ArmyController
         set
         {
             _ally = value;
-            if (_.ZoneLayers?.TraversableZone is not null)
-                _.ZoneLayers.TraversableZone.Modulate = _ally;
+            if (AllyTraversableZone is not null)
+                AllyTraversableZone.Modulate = _ally;
         }
     }
 
@@ -140,8 +160,8 @@ public partial class PlayerController : ArmyController
         set
         {
             _local = value;
-            if (_.ZoneLayers?.LocalDangerZone is not null)
-                _.ZoneLayers.LocalDangerZone.Modulate = _local;
+            if (LocalDangerZone is not null)
+                LocalDangerZone.Modulate = _local;
         }
     }
 
@@ -152,8 +172,8 @@ public partial class PlayerController : ArmyController
         set
         {
             _global = value;
-            if (_.ZoneLayers?.GlobalDangerZone is not null)
-                _.ZoneLayers.GlobalDangerZone.Modulate = _global;
+            if (GlobalDangerZone is not null)
+                GlobalDangerZone.Modulate = _global;
         }
     }
 #endregion
@@ -204,18 +224,18 @@ public partial class PlayerController : ArmyController
         IEnumerable<Unit> enemies = _tracked.Where((u) => !Army.Faction.AlliedTo(u));
 
         if (allies.Any())
-            ZoneLayers[AllyTraversableZone] = allies.SelectMany(static (u) => u.TraversableCells());
+            ZoneLayers[AllyTraversableZone.Name] = allies.SelectMany(static (u) => u.TraversableCells());
         else
-            ZoneLayers.Clear(AllyTraversableZone);
+            ZoneLayers.Clear(AllyTraversableZone.Name);
         if (enemies.Any())
-            ZoneLayers[LocalDangerZone] = enemies.SelectMany(static (u) => u.AttackableCells(u.TraversableCells()));
+            ZoneLayers[LocalDangerZone.Name] = enemies.SelectMany(static (u) => u.AttackableCells(u.TraversableCells()));
         else
-            ZoneLayers.Clear(LocalDangerZone);
+            ZoneLayers.Clear(LocalDangerZone.Name);
         
         if (_showGlobalDangerZone)
-            ZoneLayers[GlobalDangerZone] = Grid.Occupants.Values.OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u)).SelectMany(static (u) => u.AttackableCells(u.TraversableCells()));
+            ZoneLayers[GlobalDangerZone.Name] = Grid.Occupants.Values.OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u)).SelectMany(static (u) => u.AttackableCells(u.TraversableCells()));
         else
-            ZoneLayers.Clear(GlobalDangerZone);
+            ZoneLayers.Clear(GlobalDangerZone.Name);
     }
 
     /// <returns>The audio player that plays the "zone on" or "zone off" sound depending on <paramref name="on"/>.</returns>
@@ -273,13 +293,13 @@ public partial class PlayerController : ArmyController
 #region Active
     public void OnActiveInput(InputEvent @event)
     {
-        if (@event.IsActionPressed(InputActions.Cancel))
+        if (@event.IsActionPressed(InputManager.Cancel))
         {
             State.SendEvent(_events[CancelEvent]);
             EmitSignal(SignalName.SelectionCanceled);
         }
 
-        if (@event.IsActionPressed(InputActions.ToggleDangerZone))
+        if (@event.IsActionPressed(InputManager.ToggleDangerZone))
         {
             if (Cursor.Grid.Occupants.TryGetValue(Cursor.Cell, out GridNode node) && node is Unit unit)
             {
@@ -357,13 +377,13 @@ public partial class PlayerController : ArmyController
 
     public void OnSelectInput(InputEvent @event)
     {
-        if (@event.IsActionPressed(InputActions.Previous) || @event.IsActionPressed(InputActions.Next))
+        if (@event.IsActionPressed(InputManager.Previous) || @event.IsActionPressed(InputManager.Next))
         {
             if (Cursor.Grid.Occupants.GetValueOrDefault(Cursor.Cell) is Unit hovered)
             {
-                if (@event.IsActionPressed(InputActions.Previous) && hovered.Army.Previous(hovered) is Unit prev)
+                if (@event.IsActionPressed(InputManager.Previous) && hovered.Army.Previous(hovered) is Unit prev)
                     Cursor.Cell = prev.Cell;
-                if (@event.IsActionPressed(InputActions.Next) && hovered.Army.Next(hovered) is Unit next)
+                if (@event.IsActionPressed(InputManager.Next) && hovered.Army.Next(hovered) is Unit next)
                     Cursor.Cell = next.Cell;
             }
             else
@@ -376,7 +396,7 @@ public partial class PlayerController : ArmyController
             }
         }
 
-        if (@event.IsActionPressed(InputActions.Cancel) && Cursor.Grid.Occupants.TryGetValue(Cursor.Cell, out GridNode node) && node is Unit untrack)
+        if (@event.IsActionPressed(InputManager.Cancel) && Cursor.Grid.Occupants.TryGetValue(Cursor.Cell, out GridNode node) && node is Unit untrack)
         {
             if (_tracked.Remove(untrack))
             {
@@ -391,7 +411,7 @@ public partial class PlayerController : ArmyController
     public void OnSelectCursorCellEntered(Vector2I cell)
     {
         if (Grid.Occupants.GetValueOrDefault(cell) is Unit unit)
-            (ActionLayers[MoveLayer], ActionLayers[AttackLayer], ActionLayers[SupportLayer]) = unit.ActionRanges();
+            (ActionLayers[MoveLayer.Name], ActionLayers[AttackLayer.Name], ActionLayers[SupportLayer.Name]) = unit.ActionRanges();
     }
 
     public void OnSelectedPointerStopped(Vector2 position) => OnSelectCursorCellEntered(Grid.CellOf(position));
@@ -413,7 +433,7 @@ public partial class PlayerController : ArmyController
             State.SendEvent(_events[PathEvent]);
 
             _selected = unit;
-            (ActionLayers[MoveLayer], ActionLayers[AttackLayer], ActionLayers[SupportLayer]) = (_traversable, _attackable, _supportable) = _selected.ActionRanges();
+            (ActionLayers[MoveLayer.Name], ActionLayers[AttackLayer.Name], ActionLayers[SupportLayer.Name]) = (_traversable, _attackable, _supportable) = _selected.ActionRanges();
             Cursor.SoftRestriction = [.. _traversable];
             Cursor.Cell = _selected.Cell;
             UpdatePath(Path.Empty(Cursor.Grid, _traversable).Add(_selected.Cell));
@@ -525,9 +545,9 @@ public partial class PlayerController : ArmyController
 #region Command Selection
     public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)
     {
-        ActionLayers.Clear(MoveLayer);
-        ActionLayers[AttackLayer] = source.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(source) ?? false);
-        ActionLayers[SupportLayer] = source.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(source) ?? false);
+        ActionLayers.Clear(MoveLayer.Name);
+        ActionLayers[AttackLayer.Name] = source.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(source) ?? false);
+        ActionLayers[SupportLayer.Name] = source.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(source) ?? false);
 
         Callable.From(() => {
             State.SendEvent(_events[CommandEvent]);
@@ -590,9 +610,9 @@ public partial class PlayerController : ArmyController
     public void OnTargetInput(InputEvent @event)
     {
         int next = 0;
-        if (@event.IsActionPressed(InputActions.Previous))
+        if (@event.IsActionPressed(InputManager.Previous))
             next = -1;
-        else if (@event.IsActionPressed(InputActions.Next))
+        else if (@event.IsActionPressed(InputManager.Next))
             next = 1;
 
         if (next != 0)
@@ -627,12 +647,12 @@ public partial class PlayerController : ArmyController
         base._Ready();
 
         UpdateActionRangeTileSet(_tileset);
-        _.ActionLayers.Move.Modulate           = _move;
-        _.ActionLayers.Attack.Modulate         = _attack;
-        _.ActionLayers.Support.Modulate        = _support;
-        _.ZoneLayers.TraversableZone.Modulate  = _ally;
-        _.ZoneLayers.LocalDangerZone.Modulate  = _local;
-        _.ZoneLayers.GlobalDangerZone.Modulate = _global;
+        MoveLayer.Modulate           = _move;
+        AttackLayer.Modulate         = _attack;
+        SupportLayer.Modulate        = _support;
+        AllyTraversableZone.Modulate  = _ally;
+        LocalDangerZone.Modulate  = _local;
+        GlobalDangerZone.Modulate = _global;
 
         if (!Engine.IsEditorHint())
         {

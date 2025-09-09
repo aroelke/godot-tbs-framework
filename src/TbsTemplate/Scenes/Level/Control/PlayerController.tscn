@@ -34,53 +34,48 @@ Cancel = &"cancel"
 Wait = &"wait"
 
 [node name="ActionLayers" parent="." instance=ExtResource("15_fsxw4")]
-unique_name_in_owner = true
 
 [node name="Move" type="TileMapLayer" parent="ActionLayers"]
-modulate = Color(0, 0, 1, 0.392157)
+modulate = Color(0, 0, 1, 0.390625)
 use_parent_material = true
 navigation_enabled = false
 
 [node name="Attack" type="TileMapLayer" parent="ActionLayers"]
-modulate = Color(1, 0, 0, 0.392157)
+modulate = Color(1, 0, 0, 0.390625)
 use_parent_material = true
 navigation_enabled = false
 
 [node name="Support" type="TileMapLayer" parent="ActionLayers"]
-modulate = Color(0, 1, 0, 0.392157)
+modulate = Color(0, 1, 0, 0.390625)
 use_parent_material = true
 navigation_enabled = false
 
 [node name="ZoneLayers" parent="." instance=ExtResource("15_fsxw4")]
-unique_name_in_owner = true
 ShowUnion = true
 
 [node name="TraversableZone" type="TileMapLayer" parent="ZoneLayers"]
-modulate = Color(0, 0.247059, 0.498039, 0.392157)
+modulate = Color(0, 0.25, 0.5, 0.390625)
 use_parent_material = true
 tile_set = ExtResource("16_enq6j")
 navigation_enabled = false
 
 [node name="LocalDangerZone" type="TileMapLayer" parent="ZoneLayers"]
-modulate = Color(0.498039, 0, 0.247059, 0.392157)
+modulate = Color(0.5, 0, 0.25, 0.390625)
 use_parent_material = true
 tile_set = ExtResource("16_enq6j")
 navigation_enabled = false
 
 [node name="GlobalDangerZone" type="TileMapLayer" parent="ZoneLayers"]
-modulate = Color(0, 0, 0, 0.392157)
+modulate = Color(0, 0, 0, 0.390625)
 use_parent_material = true
 tile_set = ExtResource("16_enq6j")
 navigation_enabled = false
 
 [node name="Cursor" parent="." instance=ExtResource("2_rkggg")]
-unique_name_in_owner = true
 
 [node name="UserInterface" type="CanvasLayer" parent="."]
-unique_name_in_owner = true
 
 [node name="HUD" type="Control" parent="UserInterface"]
-unique_name_in_owner = true
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -88,6 +83,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+metadata/_edit_use_anchors_ = true
 
 [node name="Hints" type="HBoxContainer" parent="UserInterface/HUD"]
 layout_mode = 1
@@ -104,23 +100,20 @@ layout_mode = 2
 
 [node name="SelectHint" parent="UserInterface/HUD/Hints" instance=ExtResource("4_irypx")]
 layout_mode = 2
-Action = &"select"
 Description = "Select"
+Action = &"select"
 
 [node name="CancelHint" parent="UserInterface/HUD/Hints" instance=ExtResource("4_irypx")]
 unique_name_in_owner = true
 layout_mode = 2
-Action = &"cancel"
 Description = "Cancel"
+Action = &"cancel"
 
 [node name="Pointer" parent="." instance=ExtResource("3_nkaji")]
-unique_name_in_owner = true
 
 [node name="PathLayer" parent="." instance=ExtResource("6_p5qr4")]
-unique_name_in_owner = true
 
 [node name="State" parent="." instance=ExtResource("2_br7d1")]
-unique_name_in_owner = true
 Events = [&"select", &"path", &"command", &"target", &"finish", &"cancel", &"wait"]
 
 [node name="Root" parent="State" node_paths=PackedStringArray("InitialState") instance=ExtResource("3_w7lyn")]
@@ -131,20 +124,20 @@ InitialState = NodePath("Ready")
 process_mode = 4
 
 [node name="ToSelect" parent="State/Root/Ready" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"select"
 To = NodePath("../../Active/Select")
+Event = &"select"
 
 [node name="ToPath" parent="State/Root/Ready" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"path"
 To = NodePath("../../Active/Path")
+Event = &"path"
 
 [node name="ToCommand" parent="State/Root/Ready" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"command"
 To = NodePath("../../Active/Command")
+Event = &"command"
 
 [node name="ToTarget" parent="State/Root/Ready" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"target"
 To = NodePath("../../Active/Target")
+Event = &"target"
 
 [node name="Active" parent="State/Root" node_paths=PackedStringArray("InitialState") instance=ExtResource("3_w7lyn")]
 InitialState = NodePath("Select")
@@ -164,75 +157,70 @@ process_mode = 4
 [node name="OnPointerStopped" parent="State/Root/Active/Select" instance=ExtResource("16_5nli1")]
 
 [node name="ToReadyOnFinish" parent="State/Root/Active/Select" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"finish"
 To = NodePath("../../../Ready")
+Event = &"finish"
 
 [node name="Path" parent="State/Root/Active" instance=ExtResource("4_qwlr4")]
 
 [node name="ToReadyOnCancel" parent="State/Root/Active/Path" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"cancel"
 To = NodePath("../../../Ready")
+Event = &"cancel"
 
 [node name="ToReadyOnFinish" parent="State/Root/Active/Path" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"finish"
 To = NodePath("../../../Ready")
+Event = &"finish"
 
 [node name="Command" parent="State/Root/Active" instance=ExtResource("4_qwlr4")]
 
 [node name="OnProcess" parent="State/Root/Active/Command" instance=ExtResource("7_bii0f")]
 
 [node name="ToReadyOnCancel" parent="State/Root/Active/Command" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"cancel"
 To = NodePath("../../../Ready")
+Event = &"cancel"
 
 [node name="ToReadyOnFinish" parent="State/Root/Active/Command" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"finish"
 To = NodePath("../../../Ready")
+Event = &"finish"
 
 [node name="Target" parent="State/Root/Active" instance=ExtResource("4_qwlr4")]
 
 [node name="OnInput" parent="State/Root/Active/Target" instance=ExtResource("6_ntg8o")]
 
 [node name="ToReadyOnCancel" parent="State/Root/Active/Target" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"cancel"
 To = NodePath("../../../Ready")
+Event = &"cancel"
 
 [node name="ToReadyOnFinish" parent="State/Root/Active/Target" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"finish"
 To = NodePath("../../../Ready")
+Event = &"finish"
 
 [node name="OnInput" parent="State/Root/Active" instance=ExtResource("6_ntg8o")]
 
 [node name="ToWaiting" parent="State/Root/Active" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"wait"
 To = NodePath("../../Waiting")
+Event = &"wait"
 
 [node name="Waiting" parent="State/Root" instance=ExtResource("4_qwlr4")]
 
 [node name="ToActiveHistory" parent="State/Root/Waiting" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
-Event = &"finish"
 To = NodePath("../../Active/HistoryState")
+Event = &"finish"
 
 [node name="SoundLibrary" type="Node" parent="."]
 
 [node name="SelectSound" type="AudioStreamPlayer" parent="SoundLibrary"]
-unique_name_in_owner = true
 stream = ExtResource("6_0v5ht")
 
 [node name="CancelSound" type="AudioStreamPlayer" parent="SoundLibrary"]
-unique_name_in_owner = true
 stream = ExtResource("7_qn3tt")
 
 [node name="ErrorSound" type="AudioStreamPlayer" parent="SoundLibrary"]
-unique_name_in_owner = true
 stream = ExtResource("10_guidb")
 
 [node name="ZoneOnSound" type="AudioStreamPlayer" parent="SoundLibrary"]
-unique_name_in_owner = true
 stream = ExtResource("19_bkjgs")
 
 [node name="ZoneOffSound" type="AudioStreamPlayer" parent="SoundLibrary"]
-unique_name_in_owner = true
 stream = ExtResource("20_t4677")
 
 [connection signal="CellChanged" from="Cursor" to="State/Root/Active/Select/OnCursorCellChanged" method="React"]
@@ -253,8 +241,8 @@ stream = ExtResource("20_t4677")
 [connection signal="StateExited" from="State/Root/Active/Path" to="." method="OnPathExited"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnCancel"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnPathCanceled"]
-[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnPathFinished"]
+[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="StateEntered" from="State/Root/Active/Command" to="." method="OnCommandEntered"]
 [connection signal="StateProcess" from="State/Root/Active/Command/OnProcess" to="." method="OnCommandProcess"]
 [connection signal="Taken" from="State/Root/Active/Command/ToReadyOnCancel" to="." method="OnCancel"]
@@ -262,8 +250,8 @@ stream = ExtResource("20_t4677")
 [connection signal="StateEntered" from="State/Root/Active/Target" to="." method="OnTargetEntered"]
 [connection signal="StateExited" from="State/Root/Active/Target" to="." method="OnTargetExited"]
 [connection signal="StateInput" from="State/Root/Active/Target/OnInput" to="." method="OnTargetInput"]
-[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnCancel" to="." method="OnCancel"]
 [connection signal="Taken" from="State/Root/Active/Target/ToReadyOnCancel" to="." method="OnTargetCompleted"]
-[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnFinish" to="." method="OnFinish"]
+[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnCancel" to="." method="OnCancel"]
 [connection signal="Taken" from="State/Root/Active/Target/ToReadyOnFinish" to="." method="OnTargetCompleted"]
+[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="StateInput" from="State/Root/Active/OnInput" to="." method="OnActiveInput"]

@@ -4,6 +4,8 @@ using Godot;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes;
 using TbsTemplate.Nodes.Components;
+using TbsTemplate.Nodes.StateChart;
+using TbsTemplate.Nodes.StateChart.States;
 using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI.Controls.Device;
 
@@ -14,7 +16,7 @@ namespace TbsTemplate.UI;
 /// Is only visible during analog control; during digital control, it and the main mouse become invisible in favor of a
 /// cursor; during mouse control the system mouse is visible.
 /// </summary>
-[SceneTree, Tool]
+[Tool]
 public partial class Pointer : BoundedNode2D
 {
     /// <summary>Signals that the virtual pointer has moved in the canvas.</summary>
@@ -36,11 +38,18 @@ public partial class Pointer : BoundedNode2D
     private static readonly StringName DoneEvent = "Done";
     private static readonly StringName ModeProperty = "mode";
 
+    private readonly NodeCache _cache = null;
     private readonly DynamicEnumProperties<StringName> _events = new([WaitEvent, DoneEvent], @default:"");
     private Vector2[] _positions = [];
     private bool _accelerate = false;
     private bool _tracking = true;
     private Tween _flyer = null;
+
+    private Chart ControlState => _cache.GetNode<Chart>("ControlState");
+    private State DigitalState => _cache.GetNode<State>("%DigitalState");
+    private State AnalogState => _cache.GetNode<State>("%AnalogState");
+    private State MouseState => _cache.GetNode<State>("%MouseState");
+    private TextureRect Mouse => _cache.GetNode<TextureRect>("%Mouse");
 
     /// <summary>Move the pointer to a new location that's not bounded by <see cref="Bounds"/>, and update listeners that the move occurred.</summary>
     /// <param name="position">Position to warp to.</param>
@@ -103,6 +112,8 @@ public partial class Pointer : BoundedNode2D
     /// <inheritdoc cref="BoundedNode2D.Size"/>
     /// <remarks>The pointer is just a point, but it has to have a zero area so the camera can focus on it.</remarks>
     public override Vector2 Size { get => Vector2.Zero; set {}}
+
+    public Pointer() : base() { _cache = new(this); }
 
     /// <summary>Move the pointer to a new location immediately.</summary>
     /// <param name="target">Location to move to.</param>
@@ -178,9 +189,9 @@ public partial class Pointer : BoundedNode2D
     /// <param name="event">Input event describing the input.</param>
     public void OnAnalogStateUnhandledInput(InputEvent @event)
     {
-        if (@event.IsActionPressed(InputActions.Accelerate))
+        if (@event.IsActionPressed(InputManager.Accelerate))
             _accelerate = true;
-        if (@event.IsActionReleased(InputActions.Accelerate))
+        if (@event.IsActionReleased(InputManager.Accelerate))
             _accelerate = false;
     }
 
@@ -190,7 +201,7 @@ public partial class Pointer : BoundedNode2D
     {
         if (_tracking)
         {
-            Vector2 direction = Input.GetVector(InputActions.AnalogMoveLeft, InputActions.AnalogMoveRight, InputActions.AnalogMoveUp, InputActions.AnalogMoveDown);
+            Vector2 direction = Input.GetVector(InputManager.AnalogMoveLeft, InputManager.AnalogMoveRight, InputManager.AnalogMoveUp, InputManager.AnalogMoveDown);
             if (direction != Vector2.Zero)
             {
                 double speed = _accelerate ? (Speed*Acceleration) : Speed;

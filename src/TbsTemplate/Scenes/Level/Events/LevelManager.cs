@@ -14,6 +14,9 @@ using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Combat;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level.Control;
+using TbsTemplate.Nodes.StateChart;
+using TbsTemplate.Nodes.StateChart.Reactions;
+using TbsTemplate.Scenes.Level.Events.Reactions;
 
 namespace TbsTemplate.Scenes.Level.Events;
 
@@ -21,7 +24,7 @@ namespace TbsTemplate.Scenes.Level.Events;
 /// Manages the setup of and objects inside a level and provides them information about it.  Is "global" in a way in that
 /// all objects in the level may be able to see it and request information from it, but each level has its own manager.
 /// </summary>
-[SceneTree, Tool]
+[Tool]
 public partial class LevelManager : Node
 {
 #region Constants
@@ -36,6 +39,7 @@ public partial class LevelManager : Node
     private readonly StringName ActiveProperty      = "active";      // Number of remaining active units
 #endregion
 #region Declarations
+    private readonly NodeCache _cache = null;
     private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, CancelEvent, SkipEvent, WaitEvent, DoneEvent], @default:"");
 
     private Path _path = null;
@@ -47,6 +51,20 @@ public partial class LevelManager : Node
     private bool _ff = false;
 
     private Grid Grid = null;
+    private Camera2DBrain   Camera                            => _cache.GetNode<Camera2DBrain>("Camera");
+    private CanvasLayer     UserInterface                     => _cache.GetNode<CanvasLayer>("UserInterface");
+    private Label           TurnLabel                         => _cache.GetNode<Label>("UserInterface/TurnLabel");
+    private Chart           State                             => _cache.GetNode<Chart>("State");
+    private ActionReaction  OnSkipTurnReaction                => _cache.GetNode<ActionReaction>("State/Root/Running/Skippable/OnFastForward");
+    private UnitReaction    OnUnitSelectedReaction            => _cache.GetNode<UnitReaction>("State/Root/Running/Skippable/Idle/OnUnitSelected");
+    private PathReaction    OnPathConfirmedReaction           => _cache.GetNode<PathReaction>("State/Root/Running/Skippable/UnitSelected/OnPathConfirmed");
+    private CommandReaction OnSelectedUnitCommandedReaction   => _cache.GetNode<CommandReaction>("State/Root/Running/Skippable/UnitSelected/OnUnitCommanded");
+    private TargetReaction  OnSelectedTargetChosenReaction    => _cache.GetNode<TargetReaction>("State/Root/Running/Skippable/UnitSelected/OnTargetChosen");
+    private CommandReaction OnCommandingUnitCommandedReaction => _cache.GetNode<CommandReaction>("State/Root/Running/Skippable/UnitCommanding/OnUnitCommanded");
+    private TargetReaction  OnTargetingTargetChosenReaction   => _cache.GetNode<TargetReaction>("State/Root/Running/Skippable/UnitTargeting/OnTargetChosen");
+    private Timer           TurnAdvance                       => _cache.GetNode<Timer>("TurnAdvance");
+
+    public LevelManager() : base() { _cache = new(this); }
 #endregion
 #region Helper Properties and Methods
     private Vector2 MenuPosition(Rect2 rect, Vector2 size)
@@ -92,14 +110,14 @@ public partial class LevelManager : Node
     public void OnBeginTurnEntered()
     {
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.SelectionCanceled, Callable.From(OnSelectionCanceled));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TurnFastForward, Callable.From(_.State.Root.Running.Skippable.OnFastForward.React));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitSelected, Callable.From<Unit>(_.State.Root.Running.Skippable.Idle.OnUnitSelected.React));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.PathConfirmed, Callable.From<Unit, Godot.Collections.Array<Vector2I>>(_.State.Root.Running.Skippable.UnitSelected.OnPathConfirmed.React));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Unit, StringName>(_.State.Root.Running.Skippable.UnitSelected.OnUnitCommanded.React));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Unit, Unit>(_.State.Root.Running.Skippable.UnitSelected.OnTargetChosen.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TurnFastForward, Callable.From(OnSkipTurnReaction.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitSelected, Callable.From<Unit>(OnUnitSelectedReaction.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.PathConfirmed, Callable.From<Unit, Godot.Collections.Array<Vector2I>>(OnPathConfirmedReaction.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Unit, StringName>(OnSelectedUnitCommandedReaction.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Unit, Unit>(OnSelectedTargetChosenReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetCanceled, Callable.From<Unit>(OnTargetingCanceled));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Unit, StringName>(_.State.Root.Running.Skippable.UnitCommanding.OnUnitCommanded.React));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Unit, Unit>(_.State.Root.Running.Skippable.UnitTargeting.OnTargetChosen.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Unit, StringName>(OnCommandingUnitCommandedReaction.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Unit, Unit>(OnTargetingTargetChosenReaction.React));
 
         _armies.Current.Controller.InitializeTurn();
         Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);

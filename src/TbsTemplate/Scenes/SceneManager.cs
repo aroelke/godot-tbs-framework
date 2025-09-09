@@ -9,7 +9,6 @@ using TbsTemplate.UI;
 namespace TbsTemplate.Scenes;
 
 /// <summary>Global autoloaded scene manager used to change scenes and enter or exit combat.</summary>
-[SceneTree]
 public partial class SceneManager : Node
 {
     /// <summary>Signals that a transition to a new scene has begun.</summary>
@@ -52,6 +51,9 @@ public partial class SceneManager : Node
             throw new InvalidOperationException("Previous scene is null or freed");
         Singleton.DoBeginTransition(() => prev);
     }
+
+    private SceneTransition _fade = null;
+    private SceneTransition FadeToBlack => _fade ??= GetNode<SceneTransition>("%FadeToBlack");
 
     private async void DoSceneChange<T>(Task<T> task) where T : Node
     {
