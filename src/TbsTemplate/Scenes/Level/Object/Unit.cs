@@ -129,6 +129,9 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     /// <summary>Whether or not the unit has completed its turn.</summary>
     public bool Active => !AnimationTree.Get(Done).AsBool();
 
+    /// <summary>Whether or not the unit is currently moving along a path.</summary>
+    public bool IsMoving => AnimationTree.Get(Moving).AsBool();
+
     /// <summary>Box defining the unit's current position and size, in pixels on the battlefield, including during movement.</summary>
     public BoundedNode2D MotionBox => _cache.GetNode<BoundedNode2D>("Path/Follow/MotionBox");
 
@@ -248,7 +251,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     /// <exception cref="InvalidOperationException">If the unit is not moving.</exception>
     public void SkipMoving()
     {
-        if (!AnimationTree.Get(Moving).AsBool())
+        if (!IsMoving)
             throw new InvalidOperationException($"Unit {Name} isn't moving");
         PathFollow.ProgressRatio = 1;
     }

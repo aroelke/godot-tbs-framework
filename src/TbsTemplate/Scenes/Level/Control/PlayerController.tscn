@@ -109,6 +109,12 @@ layout_mode = 2
 Description = "Cancel"
 Action = &"cancel"
 
+[node name="SkipHint" parent="UserInterface/HUD/Hints" instance=ExtResource("4_irypx")]
+unique_name_in_owner = true
+layout_mode = 2
+Description = "Skip"
+Action = &"cancel"
+
 [node name="Pointer" parent="." instance=ExtResource("3_nkaji")]
 
 [node name="PathLayer" parent="." instance=ExtResource("6_p5qr4")]
@@ -122,6 +128,8 @@ InitialState = NodePath("Ready")
 
 [node name="Ready" parent="State/Root" instance=ExtResource("4_qwlr4")]
 process_mode = 4
+
+[node name="InputReaction" parent="State/Root/Ready" instance=ExtResource("6_ntg8o")]
 
 [node name="ToSelect" parent="State/Root/Ready" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
 To = NodePath("../../Active/Select")
@@ -230,6 +238,7 @@ stream = ExtResource("20_t4677")
 [connection signal="FlightStarted" from="Pointer" to="." method="OnPointerFlightStarted"]
 [connection signal="PointerMoved" from="Pointer" to="Cursor" method="OnPointerMoved"]
 [connection signal="PointerStopped" from="Pointer" to="State/Root/Active/Select/OnPointerStopped" method="React"]
+[connection signal="StateInput" from="State/Root/Ready/InputReaction" to="." method="OnReadyInput"]
 [connection signal="StateEntered" from="State/Root/Active/Select" to="." method="OnSelectEntered"]
 [connection signal="StateExited" from="State/Root/Active/Select" to="." method="OnSelectExited"]
 [connection signal="StateInput" from="State/Root/Active/Select/OnInput" to="." method="OnSelectInput"]
@@ -239,10 +248,10 @@ stream = ExtResource("20_t4677")
 [connection signal="Taken" from="State/Root/Active/Select/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="StateEntered" from="State/Root/Active/Path" to="." method="OnPathEntered"]
 [connection signal="StateExited" from="State/Root/Active/Path" to="." method="OnPathExited"]
-[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnCancel"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnPathCanceled"]
-[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnPathFinished"]
+[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnCancel"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnFinish"]
+[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnPathFinished"]
 [connection signal="StateEntered" from="State/Root/Active/Command" to="." method="OnCommandEntered"]
 [connection signal="StateProcess" from="State/Root/Active/Command/OnProcess" to="." method="OnCommandProcess"]
 [connection signal="Taken" from="State/Root/Active/Command/ToReadyOnCancel" to="." method="OnCancel"]
@@ -250,8 +259,8 @@ stream = ExtResource("20_t4677")
 [connection signal="StateEntered" from="State/Root/Active/Target" to="." method="OnTargetEntered"]
 [connection signal="StateExited" from="State/Root/Active/Target" to="." method="OnTargetExited"]
 [connection signal="StateInput" from="State/Root/Active/Target/OnInput" to="." method="OnTargetInput"]
-[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnCancel" to="." method="OnTargetCompleted"]
 [connection signal="Taken" from="State/Root/Active/Target/ToReadyOnCancel" to="." method="OnCancel"]
-[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnFinish" to="." method="OnTargetCompleted"]
+[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnCancel" to="." method="OnTargetCompleted"]
 [connection signal="Taken" from="State/Root/Active/Target/ToReadyOnFinish" to="." method="OnFinish"]
+[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnFinish" to="." method="OnTargetCompleted"]
 [connection signal="StateInput" from="State/Root/Active/OnInput" to="." method="OnActiveInput"]

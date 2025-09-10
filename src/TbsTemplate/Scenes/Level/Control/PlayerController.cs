@@ -59,6 +59,7 @@ public partial class PlayerController : ArmyController
     private CanvasLayer       UserInterface       => _cache.GetNode<CanvasLayer>("UserInterface");
     private Godot.Control     HUD                 => _cache.GetNode<Godot.Control>("UserInterface/HUD");
     private ControlHint       CancelHint          => _cache.GetNode<ControlHint>("%CancelHint");
+    private ControlHint       SkipHint            => _cache.GetNode<ControlHint>("%SkipHint");
     private AudioStreamPlayer SelectSound         => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/SelectSound");
     private AudioStreamPlayer CancelSound         => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/CancelSound");
     private AudioStreamPlayer ErrorSound          => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/ErrorSound");
@@ -290,6 +291,13 @@ public partial class PlayerController : ArmyController
 
     public override void FastForwardTurn() => throw new NotImplementedException("Fast forward doesn't make sense for the player controller yet");
 #endregion
+#region Ready
+    public void OnReadyInput(InputEvent @event)
+    {
+        if (@event.IsActionPressed(InputManager.Cancel) && (_selected?.IsMoving ?? false))
+            _selected.SkipMoving();
+    }
+#endregion
 #region Active
     public void OnActiveInput(InputEvent @event)
     {
@@ -319,6 +327,7 @@ public partial class PlayerController : ArmyController
         Cursor.Resume();
         Pointer.StopWaiting();
         CancelHint.Visible = false;
+        SkipHint.Visible = false;
 
         ActionLayers.Clear();
         ActionLayers.Modulate = ActionRangeHoverModulate;
@@ -498,11 +507,15 @@ public partial class PlayerController : ArmyController
         else if (!occupied || occupant == _selected)
         {
             State.SendEvent(_events[FinishEvent]);
+            SkipHint.Visible = true;
+            _selected.Connect(Unit.SignalName.DoneMoving, () => SkipHint.Visible = false, (uint)ConnectFlags.OneShot);
             EmitSignal(SignalName.PathConfirmed, _selected, new Godot.Collections.Array<Vector2I>(_path));
         }
         else if (occupied && occupant is Unit target && (_attackable.Contains(target.Cell) || _supportable.Contains(target.Cell)))
         {
             State.SendEvent(_events[FinishEvent]);
+            SkipHint.Visible = true;
+            _selected.Connect(Unit.SignalName.DoneMoving, () => SkipHint.Visible = false, (uint)ConnectFlags.OneShot);
             EmitSignal(SignalName.UnitCommanded, _selected, _command);
             EmitSignal(SignalName.TargetChosen, _selected, target);
             EmitSignal(SignalName.PathConfirmed, _selected, new Godot.Collections.Array<Vector2I>(_path));
