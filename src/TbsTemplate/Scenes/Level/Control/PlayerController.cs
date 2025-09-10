@@ -290,6 +290,13 @@ public partial class PlayerController : ArmyController
 
     public override void FastForwardTurn() => throw new NotImplementedException("Fast forward doesn't make sense for the player controller yet");
 #endregion
+#region Ready
+    public void OnReadyInput(InputEvent @event)
+    {
+        if (@event.IsActionPressed(InputManager.Cancel) && (_selected?.IsMoving ?? false))
+            _selected.SkipMoving();
+    }
+#endregion
 #region Active
     public void OnActiveInput(InputEvent @event)
     {
