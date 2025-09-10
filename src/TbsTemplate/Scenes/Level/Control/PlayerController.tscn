@@ -109,6 +109,12 @@ layout_mode = 2
 Description = "Cancel"
 Action = &"cancel"
 
+[node name="SkipHint" parent="UserInterface/HUD/Hints" instance=ExtResource("4_irypx")]
+unique_name_in_owner = true
+layout_mode = 2
+Description = "Skip"
+Action = &"cancel"
+
 [node name="Pointer" parent="." instance=ExtResource("3_nkaji")]
 
 [node name="PathLayer" parent="." instance=ExtResource("6_p5qr4")]
@@ -242,8 +248,8 @@ stream = ExtResource("20_t4677")
 [connection signal="Taken" from="State/Root/Active/Select/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="StateEntered" from="State/Root/Active/Path" to="." method="OnPathEntered"]
 [connection signal="StateExited" from="State/Root/Active/Path" to="." method="OnPathExited"]
-[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnCancel"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnPathCanceled"]
+[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnCancel"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnPathFinished"]
 [connection signal="StateEntered" from="State/Root/Active/Command" to="." method="OnCommandEntered"]
@@ -253,8 +259,8 @@ stream = ExtResource("20_t4677")
 [connection signal="StateEntered" from="State/Root/Active/Target" to="." method="OnTargetEntered"]
 [connection signal="StateExited" from="State/Root/Active/Target" to="." method="OnTargetExited"]
 [connection signal="StateInput" from="State/Root/Active/Target/OnInput" to="." method="OnTargetInput"]
-[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnCancel" to="." method="OnTargetCompleted"]
 [connection signal="Taken" from="State/Root/Active/Target/ToReadyOnCancel" to="." method="OnCancel"]
-[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnFinish" to="." method="OnTargetCompleted"]
+[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnCancel" to="." method="OnTargetCompleted"]
 [connection signal="Taken" from="State/Root/Active/Target/ToReadyOnFinish" to="." method="OnFinish"]
+[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnFinish" to="." method="OnTargetCompleted"]
 [connection signal="StateInput" from="State/Root/Active/OnInput" to="." method="OnActiveInput"]
