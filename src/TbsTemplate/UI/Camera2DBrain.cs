@@ -117,11 +117,11 @@ public partial class Camera2DBrain : Node2D
     /// <returns>
     /// The zoom vector with its components clamped to ensure the <see cref="Viewport"/> rect is inside the camera limits.
     /// </returns>
-    private Vector2 ClampZoom(Vector2 zoom)
+    public Vector2 ClampZoom(Vector2 zoom)
     {
-        Vector2 mins = GetScreenRect().Size/Limits.Size;
-        float min = Mathf.Min(mins.X, mins.Y);
-        return zoom.Clamp(new(Mathf.Max(min, ZoomMin.X), Mathf.Max(min, ZoomMin.Y)), ZoomMax);
+        Vector2 ratios = GetScreenRect().Size/Limits.Size;
+        float limit = Mathf.Max(ratios.X, ratios.Y);
+        return zoom.Clamp(new(Mathf.Max(limit, ZoomMin.X), Mathf.Max(limit, ZoomMin.Y)), ZoomMax);
     }
 
     /// Compute the world projection of the zone with the given margins.
