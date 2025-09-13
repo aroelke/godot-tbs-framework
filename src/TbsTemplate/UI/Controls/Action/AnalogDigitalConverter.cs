@@ -28,7 +28,7 @@ public partial class AnalogDigitalConverter : Node
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
     {
         Godot.Collections.Array<Godot.Collections.Dictionary> properties = base._GetPropertyList() ?? [];
-        properties.AddRange(_actions.GetPropertyList(InputManager.GetInputManager()));
+        properties.AddRange(_actions.GetPropertyList(InputManager.GetInputActions()));
         return properties;
     }
 

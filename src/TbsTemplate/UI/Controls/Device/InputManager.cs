@@ -56,7 +56,7 @@ public partial class InputManager : Node2D
     public static Vector2 GetMousePosition() => _lastKnownPointerPosition ?? Singleton.GetViewport().GetMousePosition();
 
     /// <returns>The list of input actions.</returns>
-    public static StringName[] GetInputManager()
+    public static StringName[] GetInputActions()
     {
         return ProjectSettings.Singleton.GetPropertyList().Select(static (p) => p["name"].As<string>().Split("/")).Where(static (p) => p[0] == "input").Select(static (i) => new StringName(i[1])).ToArray();
     }

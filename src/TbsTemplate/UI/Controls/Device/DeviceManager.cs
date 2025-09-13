@@ -105,7 +105,7 @@ public partial class DeviceManager : Node
             GamepadDigitalModeActivatorsProperty,
             Variant.Type.Array,
             PropertyHint.TypeString,
-            $"{(int)Variant.Type.StringName}/{(int)PropertyHint.Enum}:{string.Join(",", InputManager.GetInputManager().Select(static (i) => i.ToString()))}"
+            $"{(int)Variant.Type.StringName}/{(int)PropertyHint.Enum}:{string.Join(",", InputManager.GetInputActions().Select(static (i) => i.ToString()))}"
         ));
         return properties;
     }
