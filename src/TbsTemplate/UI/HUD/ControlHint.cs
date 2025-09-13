@@ -117,7 +117,7 @@ public partial class ControlHint : HBoxContainer
 
     public override bool _Set(StringName property, Variant value)
     {
-        if (value.VariantType == Variant.Type.StringName && property == PropertyName.Action)
+        if (property == PropertyName.Action)
         {
             Update(SelectedDevice, Action = value.AsStringName());
             return true;
