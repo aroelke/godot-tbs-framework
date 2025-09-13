@@ -60,7 +60,7 @@ public partial class AnalogDigitalConverter : Node
     public override Variant _PropertyGetRevert(StringName property)
     {
         if (property == PropertyName.AnalogAction ||  property == PropertyName.DigitalAction)
-            return "";
+            return new StringName("");
         else
             return base._PropertyGetRevert(property);
     }

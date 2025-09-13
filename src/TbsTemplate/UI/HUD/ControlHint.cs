@@ -129,7 +129,7 @@ public partial class ControlHint : HBoxContainer
     public override Variant _PropertyGetRevert(StringName property)
     {
         if (property == PropertyName.Action)
-            return "";
+            return new StringName("");
         else
             return base._PropertyGetRevert(property);
     }
