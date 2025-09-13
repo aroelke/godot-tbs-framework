@@ -17,7 +17,7 @@
 [ext_resource type="PackedScene" uid="uid://b7i65c130fgfs" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/EnterTreeReaction.tscn" id="29_o6hju"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -1179197095
+seed = -1015202984
 
 [sub_resource type="Resource" id="Resource_3lvnu"]
 script = ExtResource("27_kyhbc")
@@ -28,11 +28,6 @@ Number = &"active"
 [node name="LevelManager" type="Node"]
 script = ExtResource("1_r2v0t")
 CombatScenePath = "res://src/TbsTemplate/Scenes/Combat/CombatScene.tscn"
-Select = &"select"
-Cancel = &"cancel"
-Skip = &"skip"
-Wait = &"wait"
-Done = &"done"
 
 [node name="Camera" parent="." instance=ExtResource("3_td8u6")]
 Limits = Rect2i(0, 0, 1000000, 1000000)
@@ -74,6 +69,7 @@ To = NodePath("../../Skippable/Idle")
 Event = &"done"
 
 [node name="Skippable" parent="State/Root/Running" node_paths=PackedStringArray("InitialState") instance=ExtResource("18_k7m3y")]
+process_mode = 4
 InitialState = NodePath("Idle")
 
 [node name="OnFastForward" parent="State/Root/Running/Skippable" instance=ExtResource("22_mocgv")]
@@ -182,6 +178,7 @@ To = NodePath("../../Skippable/Idle")
 Event = &"done"
 
 [node name="EndTurn" parent="State/Root/Running" instance=ExtResource("19_o30vs")]
+process_mode = 4
 
 [node name="ToBeginTurn" parent="State/Root/Running/EndTurn" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../BeginTurn")

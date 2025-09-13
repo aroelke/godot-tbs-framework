@@ -29,18 +29,17 @@ public partial class LevelManager : Node
 {
 #region Constants
     // State chart events
-    private static readonly StringName SelectEvent = "Select";
-    private static readonly StringName CancelEvent = "Cancel";
-    private static readonly StringName SkipEvent   = "Skip";
-    private static readonly StringName WaitEvent   = "Wait";
-    private static readonly StringName DoneEvent   = "Done";
+    private static readonly StringName SelectEvent = "select";
+    private static readonly StringName CancelEvent = "cancel";
+    private static readonly StringName SkipEvent   = "skip";
+    private static readonly StringName WaitEvent   = "wait";
+    private static readonly StringName DoneEvent   = "done";
     // State chart conditions
     private readonly StringName TraversableProperty = "traversable"; // Current cell is traversable
     private readonly StringName ActiveProperty      = "active";      // Number of remaining active units
 #endregion
 #region Declarations
     private readonly NodeCache _cache = null;
-    private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, CancelEvent, SkipEvent, WaitEvent, DoneEvent], @default:"");
 
     private Path _path = null;
     private Unit _selected = null, _target = null;
@@ -138,7 +137,7 @@ public partial class LevelManager : Node
             throw new InvalidOperationException($"Cannot select inactive unit {unit.Name}");
 
         _selected = unit;
-        State.SendEvent(_events[SelectEvent]);
+        State.SendEvent(SelectEvent);
     }
 #endregion
 #region Unit Selected State
@@ -203,12 +202,12 @@ public partial class LevelManager : Node
             Grid.Occupants.Remove(_selected.Cell);
             _selected.Cell = path[^1];
             Grid.Occupants[path[^1]] = _selected;
-            State.SendEvent(_events[SkipEvent]);
+            State.SendEvent(SkipEvent);
         }
         else
         {
             _path = _path.SetTo(path);
-            State.SendEvent(_events[SelectEvent]);
+            State.SendEvent(SelectEvent);
         }
     }
 
@@ -239,7 +238,7 @@ public partial class LevelManager : Node
 
         // Move the unit
         Grid.Occupants.Remove(_selected.Cell);
-        _selected.Connect(Unit.SignalName.DoneMoving, _target is null ? () => State.SendEvent(_events[DoneEvent]) : () => State.SendEvent(_events[SkipEvent]), (uint)ConnectFlags.OneShot);
+        _selected.Connect(Unit.SignalName.DoneMoving, _target is null ? () => State.SendEvent(DoneEvent) : () => State.SendEvent(SkipEvent), (uint)ConnectFlags.OneShot);
         Grid.Occupants[_path[^1]] = _selected;
         _selected.MoveAlong(_path); // must be last in case it fires right away
     }
@@ -247,7 +246,7 @@ public partial class LevelManager : Node
     /// <summary>Press the cancel button during movement to skip to the end.</summary>
     public void OnMovingEventReceived(StringName @event)
     {
-        if (@event == _events[CancelEvent])
+        if (@event == CancelEvent)
             _selected.SkipMoving();
     }
 
@@ -274,7 +273,7 @@ public partial class LevelManager : Node
                 _options.Add(new(name, () => {
                     _targets = range;
                     _command = name;
-                    State.SendEvent(_events[SelectEvent]);
+                    State.SendEvent(SelectEvent);
                 }));
             }
         }
@@ -286,12 +285,12 @@ public partial class LevelManager : Node
             {
                 _options.Add(new(region.Name, () => {
                     region.PerformSpecialAction(_selected, _selected.Cell);
-                    State.SendEvent(_events[SkipEvent]);
+                    State.SendEvent(SkipEvent);
                 }));
             }
         }
-        _options.Add(new(UnitActions.EndAction, () => State.SendEvent(_events[SkipEvent])));
-        _options.Add(new("Cancel", () => State.SendEvent(_events[CancelEvent])));
+        _options.Add(new(UnitActions.EndAction, () => State.SendEvent(SkipEvent)));
+        _options.Add(new("Cancel", () => State.SendEvent(CancelEvent)));
 
         Callable.From<Unit, Godot.Collections.Array<StringName>, StringName>(_armies.Current.Controller.CommandUnit).CallDeferred(_selected, new Godot.Collections.Array<StringName>(_options.Select((o) => o.Name)), "Cancel");
     }
@@ -336,10 +335,10 @@ public partial class LevelManager : Node
         if ((_command == UnitActions.AttackAction && target.Army.Faction.AlliedTo(_selected)) || (_command == UnitActions.SupportAction && !target.Army.Faction.AlliedTo(_selected)))
             throw new ArgumentException($"{_selected.Name} cannot {_command} {target.Name}");
         _target = target;
-        State.SendEvent(_events[DoneEvent]);
+        State.SendEvent(DoneEvent);
     }
 
-    public void OnTargetingCanceled(Unit source) => State.SendEvent(_events[CancelEvent]);
+    public void OnTargetingCanceled(Unit source) => State.SendEvent(CancelEvent);
 #endregion
 #region In Combat
     private void ApplyCombatResults()
@@ -363,7 +362,7 @@ public partial class LevelManager : Node
         if (_ff)
         {
             ApplyCombatResults();
-            State.SendEvent(_events[DoneEvent]);
+            State.SendEvent(DoneEvent);
         }
         else
         {
@@ -376,7 +375,7 @@ public partial class LevelManager : Node
     public void OnCombatEnteredTree()
     {
         ApplyCombatResults();
-        SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, () => State.SendEvent(_events[DoneEvent]), (uint)ConnectFlags.OneShot);
+        SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, () => State.SendEvent(DoneEvent), (uint)ConnectFlags.OneShot);
     }
 #endregion
 #region End Action State
@@ -421,13 +420,13 @@ public partial class LevelManager : Node
     }
 #endregion
 #region State Independent
-    public void OnSelectionCanceled() => State.SendEvent(_events[CancelEvent]);
+    public void OnSelectionCanceled() => State.SendEvent(CancelEvent);
 
     public void OnTurnFastForward()
     {
         // Reuse this signal for skipping to the end of the current army's turn, which should only happen for player-controlled armies
         if (!((IEnumerable<Unit>)_armies.Current).Any((u) => u.Active))
-            State.SendEvent(_events[SkipEvent]);
+            State.SendEvent(SkipEvent);
         else if (!_ff)
         {
             // Reuse this signal for fast-forwarding through an army's turn, which should only happen for AI-controlled armies
@@ -448,13 +447,13 @@ public partial class LevelManager : Node
     public void PopCameraFocus() => Camera.Target = _cameraHistory.Pop();
 
     /// <summary>When an event is completed, go to the next state.</summary>
-    public void OnEventComplete() => State.SendEvent(_events[DoneEvent]);
+    public void OnEventComplete() => State.SendEvent(DoneEvent);
 
     /// <summary>When the pointer starts flying, we need to wait for it to finish. Also focus the camera on its target if there's something there.</summary>
     /// <param name="target">Position the pointer is going to fly to.</param>
     public void OnPointerFlightStarted(Vector2 target)
     {
-        State.SendEvent(_events[WaitEvent]);
+        State.SendEvent(WaitEvent);
         PushCameraFocus(Grid.Occupants.ContainsKey(Grid.CellOf(target)) ? Grid.Occupants[Grid.CellOf(target)] : Camera.Target);
     }
 
@@ -462,7 +461,7 @@ public partial class LevelManager : Node
     public void OnPointerFlightCompleted()
     {
         PopCameraFocus();
-        State.SendEvent(_events[DoneEvent]);
+        State.SendEvent(DoneEvent);
     }
 
     /// <summary>Automatically connect to a child <see cref="Army"/>'s <see cref="Node.SignalName.ChildEnteredTree"/> signal so new units in it can be automatically added to the grid.</summary>
@@ -543,45 +542,6 @@ public partial class LevelManager : Node
     }
 #endregion
 #region Editor
-    public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
-    {
-        Godot.Collections.Array<Godot.Collections.Dictionary> properties = base._GetPropertyList() ?? [];
-        properties.AddRange(_events.GetPropertyList(State.Events));
-        return properties;
-    }
-
-    public override Variant _Get(StringName property)
-    {
-        if (_events.TryGetPropertyValue(property, out StringName value))
-            return value;
-        else
-            return base._Get(property);
-    }
-
-    public override bool _Set(StringName property, Variant value)
-    {
-        if (value.VariantType == Variant.Type.StringName && _events.SetPropertyValue(property, value.AsStringName()))
-            return true;
-        else
-            return base._Set(property, value);
-    }
-
-    public override bool _PropertyCanRevert(StringName property)
-    {
-        if (_events.PropertyCanRevert(property, out bool revert))
-            return revert;
-        else
-            return base._PropertyCanRevert(property);
-    }
-
-    public override Variant _PropertyGetRevert(StringName property)
-    {
-        if (_events.TryPropertyGetRevert(property, out StringName revert))
-            return revert;
-        else
-            return base._PropertyGetRevert(property);
-    }
-
     public override string[] _GetConfigurationWarnings()
     {
         List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
@@ -600,17 +560,6 @@ public partial class LevelManager : Node
         // Make sure there's background music
         if (BackgroundMusic is null)
             warnings.Add("Background music hasn't been added. Whatever's playing will stop.");
-
-        if (_events[SelectEvent].IsEmpty)
-            warnings.Add("The \"select\" state chart event is not set. Units can't be selected.");
-        if (_events[CancelEvent].IsEmpty)
-            warnings.Add("The \"cancel\" state chart event is not set. Selections can't be canceled.");
-        if (_events[SkipEvent].IsEmpty)
-            warnings.Add("The \"skip\" state chart event is not set. Certain command shortcuts can't be made.");
-        if (_events[WaitEvent].IsEmpty)
-            warnings.Add("The \"wait\" state chart event is not set. The level won't block for processes.");
-        if (_events[DoneEvent].IsEmpty)
-            warnings.Add("The \"done\" state chart event is not set. The level won't block for processes.");
 
         return [.. warnings];
     }
