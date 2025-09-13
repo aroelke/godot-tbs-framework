@@ -25,13 +25,6 @@
 
 [node name="PlayerController" type="Node"]
 script = ExtResource("1_52vsu")
-Select = &"select"
-Path = &"path"
-Command = &"command"
-Target = &"target"
-Finish = &"finish"
-Cancel = &"cancel"
-Wait = &"wait"
 
 [node name="ActionLayers" parent="." instance=ExtResource("15_fsxw4")]
 
@@ -148,6 +141,7 @@ To = NodePath("../../Active/Target")
 Event = &"target"
 
 [node name="Active" parent="State/Root" node_paths=PackedStringArray("InitialState") instance=ExtResource("3_w7lyn")]
+process_mode = 4
 InitialState = NodePath("Select")
 
 [node name="HistoryState" parent="State/Root/Active" node_paths=PackedStringArray("DefaultState") instance=ExtResource("13_cu4ve")]
@@ -169,6 +163,7 @@ To = NodePath("../../../Ready")
 Event = &"finish"
 
 [node name="Path" parent="State/Root/Active" instance=ExtResource("4_qwlr4")]
+process_mode = 4
 
 [node name="ToReadyOnCancel" parent="State/Root/Active/Path" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
 To = NodePath("../../../Ready")
@@ -179,6 +174,7 @@ To = NodePath("../../../Ready")
 Event = &"finish"
 
 [node name="Command" parent="State/Root/Active" instance=ExtResource("4_qwlr4")]
+process_mode = 4
 
 [node name="OnProcess" parent="State/Root/Active/Command" instance=ExtResource("7_bii0f")]
 
@@ -191,6 +187,7 @@ To = NodePath("../../../Ready")
 Event = &"finish"
 
 [node name="Target" parent="State/Root/Active" instance=ExtResource("4_qwlr4")]
+process_mode = 4
 
 [node name="OnInput" parent="State/Root/Active/Target" instance=ExtResource("6_ntg8o")]
 
@@ -209,6 +206,7 @@ To = NodePath("../../Waiting")
 Event = &"wait"
 
 [node name="Waiting" parent="State/Root" instance=ExtResource("4_qwlr4")]
+process_mode = 4
 
 [node name="ToActiveHistory" parent="State/Root/Waiting" node_paths=PackedStringArray("To") instance=ExtResource("5_dwgw0")]
 To = NodePath("../../Active/HistoryState")
@@ -250,8 +248,8 @@ stream = ExtResource("20_t4677")
 [connection signal="StateExited" from="State/Root/Active/Path" to="." method="OnPathExited"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnPathCanceled"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnCancel"]
-[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnPathFinished"]
+[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="StateEntered" from="State/Root/Active/Command" to="." method="OnCommandEntered"]
 [connection signal="StateProcess" from="State/Root/Active/Command/OnProcess" to="." method="OnCommandProcess"]
 [connection signal="Taken" from="State/Root/Active/Command/ToReadyOnCancel" to="." method="OnCancel"]
@@ -259,8 +257,8 @@ stream = ExtResource("20_t4677")
 [connection signal="StateEntered" from="State/Root/Active/Target" to="." method="OnTargetEntered"]
 [connection signal="StateExited" from="State/Root/Active/Target" to="." method="OnTargetExited"]
 [connection signal="StateInput" from="State/Root/Active/Target/OnInput" to="." method="OnTargetInput"]
-[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnCancel" to="." method="OnCancel"]
 [connection signal="Taken" from="State/Root/Active/Target/ToReadyOnCancel" to="." method="OnTargetCompleted"]
-[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnFinish" to="." method="OnFinish"]
+[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnCancel" to="." method="OnCancel"]
 [connection signal="Taken" from="State/Root/Active/Target/ToReadyOnFinish" to="." method="OnTargetCompleted"]
+[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="StateInput" from="State/Root/Active/OnInput" to="." method="OnActiveInput"]

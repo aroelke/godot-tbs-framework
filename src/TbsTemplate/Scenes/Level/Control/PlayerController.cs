@@ -12,7 +12,6 @@ using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 using TbsTemplate.UI;
-using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI.Controls.Device;
 using TbsTemplate.UI.HUD;
 
@@ -22,16 +21,15 @@ namespace TbsTemplate.Scenes.Level.Control;
 [Tool]
 public partial class PlayerController : ArmyController
 {
-    private static readonly StringName SelectEvent  = "Select";
-    private static readonly StringName PathEvent    = "Path";
-    private static readonly StringName CommandEvent = "Command";
-    private static readonly StringName TargetEvent  = "Target";
-    private static readonly StringName FinishEvent  = "Finish";
-    private static readonly StringName CancelEvent  = "Cancel";
-    private static readonly StringName WaitEvent    = "Wait";
+    private static readonly StringName SelectEvent  = "select";
+    private static readonly StringName PathEvent    = "path";
+    private static readonly StringName CommandEvent = "command";
+    private static readonly StringName TargetEvent  = "target";
+    private static readonly StringName FinishEvent  = "finish";
+    private static readonly StringName CancelEvent  = "cancel";
+    private static readonly StringName WaitEvent    = "wait";
 
     private readonly NodeCache _cache = null;
-    private readonly DynamicEnumProperties<StringName> _events = new([SelectEvent, PathEvent, CommandEvent, TargetEvent, FinishEvent, CancelEvent, WaitEvent]);
     private Grid _grid = null;
     private TileSet _tileset = null;
     private Color _move    = Colors.Blue  with { A = 100f/256f };
@@ -273,13 +271,13 @@ public partial class PlayerController : ArmyController
 
     public void OnPointerFlightStarted(Vector2 target)
     {
-        State.SendEvent(_events[WaitEvent]);
+        State.SendEvent(WaitEvent);
         LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.FocusCamera, target);
     }
 
     public void OnPointerFlightCompleted()
     {
-        State.SendEvent(_events[FinishEvent]);
+        State.SendEvent(FinishEvent);
         LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.RevertCameraFocus);
     }
 
@@ -303,7 +301,7 @@ public partial class PlayerController : ArmyController
     {
         if (@event.IsActionPressed(InputManager.Cancel))
         {
-            State.SendEvent(_events[CancelEvent]);
+            State.SendEvent(CancelEvent);
             EmitSignal(SignalName.SelectionCanceled);
         }
 
@@ -333,7 +331,7 @@ public partial class PlayerController : ArmyController
         ActionLayers.Modulate = ActionRangeHoverModulate;
 
         OnSelectCursorCellEntered(Cursor.Cell = Grid.CellOf(Pointer.Position));
-        Callable.From(() => State.SendEvent(_events[SelectEvent])).CallDeferred();
+        Callable.From(() => State.SendEvent(SelectEvent)).CallDeferred();
     }
 
     private void ConfirmCursorSelection(Vector2I cell)
@@ -342,7 +340,7 @@ public partial class PlayerController : ArmyController
         {
             if (unit.Army.Faction == Army.Faction && unit.Active)
             {
-                State.SendEvent(_events[FinishEvent]);
+                State.SendEvent(FinishEvent);
                 EmitSignal(SignalName.UnitSelected, unit);
             }
             else if (unit.Army.Faction != Army.Faction)
@@ -370,7 +368,7 @@ public partial class PlayerController : ArmyController
 
                     foreach (Unit unit in (IEnumerable<Unit>)Army)
                         unit.Finish();
-                    State.SendEvent(_events[FinishEvent]);
+                    State.SendEvent(FinishEvent);
                     EmitSignal(SignalName.TurnFastForward);
                     SelectSound.Play();
                 }),
@@ -439,7 +437,7 @@ public partial class PlayerController : ArmyController
 
         _target = null;
         Callable.From(() => {
-            State.SendEvent(_events[PathEvent]);
+            State.SendEvent(PathEvent);
 
             _selected = unit;
             (ActionLayers[MoveLayer.Name], ActionLayers[AttackLayer.Name], ActionLayers[SupportLayer.Name]) = (_traversable, _attackable, _supportable) = _selected.ActionRanges();
@@ -501,19 +499,19 @@ public partial class PlayerController : ArmyController
         bool occupied = Cursor.Grid.Occupants.TryGetValue(cell, out GridNode occupant);
         if (!_traversable.Contains(cell) && !occupied)
         {
-            State.SendEvent(_events[CancelEvent]);
+            State.SendEvent(CancelEvent);
             EmitSignal(SignalName.SelectionCanceled);
         }
         else if (!occupied || occupant == _selected)
         {
-            State.SendEvent(_events[FinishEvent]);
+            State.SendEvent(FinishEvent);
             SkipHint.Visible = true;
             _selected.Connect(Unit.SignalName.DoneMoving, () => SkipHint.Visible = false, (uint)ConnectFlags.OneShot);
             EmitSignal(SignalName.PathConfirmed, _selected, new Godot.Collections.Array<Vector2I>(_path));
         }
         else if (occupied && occupant is Unit target && (_attackable.Contains(target.Cell) || _supportable.Contains(target.Cell)))
         {
-            State.SendEvent(_events[FinishEvent]);
+            State.SendEvent(FinishEvent);
             SkipHint.Visible = true;
             _selected.Connect(Unit.SignalName.DoneMoving, () => SkipHint.Visible = false, (uint)ConnectFlags.OneShot);
             EmitSignal(SignalName.UnitCommanded, _selected, _command);
@@ -563,12 +561,12 @@ public partial class PlayerController : ArmyController
         ActionLayers[SupportLayer.Name] = source.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(source) ?? false);
 
         Callable.From(() => {
-            State.SendEvent(_events[CommandEvent]);
+            State.SendEvent(CommandEvent);
 
             _selected = source;
             _menu = ShowMenu(Cursor.Grid.CellRect(source.Cell), commands.Select((c) => new ContextMenuOption() { Name = c, Action = () => {
                 ActionLayers.Keep(c);
-                State.SendEvent(_events[FinishEvent]);
+                State.SendEvent(FinishEvent);
                 EmitSignal(SignalName.UnitCommanded, source, c);
             }}));
             _menu.MenuCanceled += () => EmitSignal(SignalName.UnitCommanded, source, cancel);
@@ -593,7 +591,7 @@ public partial class PlayerController : ArmyController
         Cursor.Wrap = true;
 
         Callable.From(() => {
-            State.SendEvent(_events[TargetEvent]);
+            State.SendEvent(TargetEvent);
 
             _selected = source;
             Cursor.HardRestriction = [.. _targets=targets];
@@ -604,7 +602,7 @@ public partial class PlayerController : ArmyController
     {
         if (Cursor.Cell != Grid.CellOf(Pointer.Position))
         {
-            State.SendEvent(_events[CancelEvent]);
+            State.SendEvent(CancelEvent);
             EmitSignal(SignalName.TargetCanceled, _selected);
         }
         else if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit target)
@@ -613,7 +611,7 @@ public partial class PlayerController : ArmyController
             Pointer.StartWaiting(hide:false);
             CancelHint.Visible = false;
 
-            State.SendEvent(_events[FinishEvent]);
+            State.SendEvent(FinishEvent);
             EmitSignal(SignalName.TargetChosen, _selected, target);
         }
     }
@@ -674,46 +672,6 @@ public partial class PlayerController : ArmyController
             Callable.From(() => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.FocusCamera, Pointer)).CallDeferred();
             Cursor.Halt();
         }
-    }
-#endregion
-#region Properties
-    public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
-    {
-        Godot.Collections.Array<Godot.Collections.Dictionary> properties = base._GetPropertyList() ?? [];
-        properties.AddRange(_events.GetPropertyList(State.Events));
-        return properties;
-    }
-
-    public override Variant _Get(StringName property)
-    {
-        if (_events.TryGetPropertyValue(property, out StringName value))
-            return value;
-        else
-            return base._Get(property);
-    }
-
-    public override bool _Set(StringName property, Variant value)
-    {
-        if (value.VariantType == Variant.Type.StringName && _events.SetPropertyValue(property, value.AsStringName()))
-            return true;
-        else
-            return base._Set(property, value);
-    }
-
-    public override bool _PropertyCanRevert(StringName property)
-    {
-        if (_events.PropertyCanRevert(property, out bool revert))
-            return revert;
-        else
-            return base._PropertyCanRevert(property);
-    }
-
-    public override Variant _PropertyGetRevert(StringName property)
-    {
-        if (_events.TryPropertyGetRevert(property, out StringName revert))
-            return revert;
-        else
-            return base._PropertyGetRevert(property);
     }
 
     public override void _Process(double delta)

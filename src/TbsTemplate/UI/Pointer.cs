@@ -6,7 +6,6 @@ using TbsTemplate.Nodes;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.Nodes.StateChart;
 using TbsTemplate.Nodes.StateChart.States;
-using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.UI;
