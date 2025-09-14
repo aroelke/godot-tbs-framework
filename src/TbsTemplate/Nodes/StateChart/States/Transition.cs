@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsTemplate.Extensions;
-using TbsTemplate.Nodes.Components;
 using TbsTemplate.Nodes.StateChart.Conditions;
 
 namespace TbsTemplate.Nodes.StateChart.States;
@@ -15,15 +14,13 @@ public partial class Transition : ChartNode
     /// <summary>Signals the transition is taken, but before the active <see cref="State"/> is actually exited.</summary>
     [Signal] public delegate void TakenEventHandler();
 
-    private readonly DynamicEnumProperties<StringName> _event = new(["Event"], @default:"");
-
     /// <summary><see cref="State"/> to activate if the transition is taken.</summary>
     [Export] public State To = null;
 
     /// <summary>Condition guarding the transition. The transition will only be taken if the condition is satisfied.</summary>
     [Export] public Condition Condition = null;
 
-    public StringName Event => _event["Event"];
+    public StringName Event { get; private set; } = "";
 
     /// <summary>Whether or not the transition should wait for an event before triggering.</summary>
     public bool Automatic => Event.IsEmpty;
@@ -53,7 +50,7 @@ public partial class Transition : ChartNode
         Godot.Collections.Array<Godot.Collections.Dictionary> properties = base._GetPropertyList() ?? [];
 
         if (StateChart is not null)
-            properties.AddRange(_event.GetPropertyList(StateChart.Events));
+            properties.Add(ObjectProperty.CreateEnumProperty(PropertyName.Event, StateChart.Events));
         else
         {
             properties.Add(new ObjectProperty(
@@ -68,32 +65,29 @@ public partial class Transition : ChartNode
 
     public override Variant _Get(StringName property)
     {
-        if (_event.TryGetPropertyValue(property, out StringName value))
-            return value;
+        if (property == PropertyName.Event)
+            return Event;
         else
             return base._Get(property);
     }
 
     public override bool _Set(StringName property, Variant value)
     {
-        if (value.VariantType == Variant.Type.StringName && _event.SetPropertyValue(property, value.AsStringName()))
+        if (property == PropertyName.Event)
+        {
+            Event = value.AsStringName();
             return true;
+        }
         else
             return base._Set(property, value);
     }
 
-    public override bool _PropertyCanRevert(StringName property)
-    {
-        if (_event.PropertyCanRevert(property, out bool revert))
-            return revert;
-        else
-            return base._PropertyCanRevert(property);
-    }
+    public override bool _PropertyCanRevert(StringName property) => property == PropertyName.Event || base._PropertyCanRevert(property);
 
     public override Variant _PropertyGetRevert(StringName property)
     {
-        if (_event.TryPropertyGetRevert(property, out StringName revert))
-            return revert;
+        if (property == PropertyName.Event)
+            return new StringName("");
         else
             return base._PropertyGetRevert(property);
     }

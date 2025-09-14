@@ -6,7 +6,6 @@ using TbsTemplate.Nodes;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.Nodes.StateChart;
 using TbsTemplate.Nodes.StateChart.States;
-using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.UI;
@@ -34,12 +33,11 @@ public partial class Pointer : BoundedNode2D
     /// <summary>Signals that the pointer has finished moving to its target position.</summary>
     [Signal] public delegate void FlightCompletedEventHandler();
 
-    private static readonly StringName WaitEvent = "Wait";
-    private static readonly StringName DoneEvent = "Done";
+    private static readonly StringName WaitEvent = "wait";
+    private static readonly StringName DoneEvent = "done";
     private static readonly StringName ModeProperty = "mode";
 
     private readonly NodeCache _cache = null;
-    private readonly DynamicEnumProperties<StringName> _events = new([WaitEvent, DoneEvent], @default:"");
     private Vector2[] _positions = [];
     private bool _accelerate = false;
     private bool _tracking = true;
@@ -149,12 +147,12 @@ public partial class Pointer : BoundedNode2D
             target,
             duration
         ).Finished += () => {
-            ControlState.SendEvent(_events[DoneEvent]);
+            ControlState.SendEvent(DoneEvent);
             EmitSignal(SignalName.PointerMoved, Position);
             EmitSignal(SignalName.FlightCompleted);
         };
 
-        ControlState.SendEvent(_events[WaitEvent]);
+        ControlState.SendEvent(WaitEvent);
     }
 
     /// <summary>Disable input and wait for an event to complete.</summary>
@@ -162,12 +160,12 @@ public partial class Pointer : BoundedNode2D
     public void StartWaiting(bool hide=true)
     {
         DeviceManager.EnableSystemMouse = !hide;
-        ControlState.SendEvent(_events[WaitEvent]);
+        ControlState.SendEvent(WaitEvent);
         Mouse.Visible = false;
     }
 
     /// <summary>Re-enable input.</summary>
-    public void StopWaiting() => ControlState.SendEvent(_events[DoneEvent]);
+    public void StopWaiting() => ControlState.SendEvent(DoneEvent);
 
     /// <summary>Update the state whenever input mode changes.</summary>
     /// <param name="mode">New input mode.</param>
@@ -229,7 +227,7 @@ public partial class Pointer : BoundedNode2D
     {
         if (Position != ViewportToWorld(InputManager.GetMousePosition()))
         {
-            ControlState.SendEvent(_events[DoneEvent]);
+            ControlState.SendEvent(DoneEvent);
             Move(ViewportToWorld(InputManager.GetMousePosition()));
         }
     }
@@ -278,45 +276,6 @@ public partial class Pointer : BoundedNode2D
         }
     }
 
-    public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
-    {
-        Godot.Collections.Array<Godot.Collections.Dictionary> properties = base._GetPropertyList() ?? [];
-        properties.AddRange(_events.GetPropertyList(ControlState.Events));
-        return properties;
-    }
-
-    public override Variant _Get(StringName property)
-    {
-        if (_events.TryGetPropertyValue(property, out StringName value))
-            return value;
-        else
-            return base._Get(property);
-    }
-
-    public override bool _Set(StringName property, Variant value)
-    {
-        if (value.VariantType == Variant.Type.StringName && _events.SetPropertyValue(property, value.AsStringName()))
-            return true;
-        else
-            return base._Set(property, value);
-    }
-
-    public override bool _PropertyCanRevert(StringName property)
-    {
-        if (_events.PropertyCanRevert(property, out bool revert))
-            return revert;
-        else
-            return base._PropertyCanRevert(property);
-    }
-
-    public override Variant _PropertyGetRevert(StringName property)
-    {
-        if (_events.TryPropertyGetRevert(property, out StringName revert))
-            return revert;
-        else
-            return base._PropertyGetRevert(property);
-    }
-
     public override void _ValidateProperty(Godot.Collections.Dictionary property)
     {
         if (property["name"].As<StringName>() == PropertyName.Size)
@@ -330,11 +289,6 @@ public partial class Pointer : BoundedNode2D
 
         if (World is null)
             warnings.Add("The pointer won't be able to convert screen and world coordinates without knowing what the world is.");
-
-        if (_events[WaitEvent].IsEmpty)
-            warnings.Add("The \"wait\" state chart event is not set. The pointer will not respond to input.");
-        if (_events[DoneEvent].IsEmpty)
-            warnings.Add("The \"done\" state chart event is not set. The pointer cannot be paused.");
 
         return [.. warnings];
     }

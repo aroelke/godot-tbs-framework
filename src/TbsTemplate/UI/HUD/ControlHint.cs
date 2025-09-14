@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Godot;
+using TbsTemplate.Extensions;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.UI.Controls.Device;
 using TbsTemplate.UI.Controls.IconMaps;
@@ -11,17 +12,18 @@ namespace TbsTemplate.UI.HUD;
 public partial class ControlHint : HBoxContainer
 {
     private readonly NodeCache _cache = null;
-    private readonly DynamicEnumProperties<StringName> _properties = new(["Action"], @default:"");
     private InputDevice _selected = default;
     private readonly Dictionary<InputDevice, IconMap> _maps = new()
     {
-        { InputDevice.Mouse,    new MouseIconMap()         },
-        { InputDevice.Keyboard, new KeyIconMap()           },
+        { InputDevice.Mouse,    new MouseIconMap()                  },
+        { InputDevice.Keyboard, new KeyIconMap()                    },
         { InputDevice.Gamepad,  new CompositeGamepadButtonIconMap() }
     };
 
     private TextureRect Icon => _cache.GetNodeOrNull<TextureRect>("Icon");
     private Label Label => _cache.GetNodeOrNull<Label>("Label");
+
+    private StringName Action = null;
 
     private void Update(InputDevice device, StringName action)
     {
@@ -51,7 +53,7 @@ public partial class ControlHint : HBoxContainer
             if (_selected != value)
             {
                 _selected = value;
-                Update(_selected, _properties["Action"]);
+                Update(_selected, Action);
             }
         }
     }
@@ -64,7 +66,7 @@ public partial class ControlHint : HBoxContainer
         set
         {
             _maps[InputDevice.Mouse] = value;
-            Update(SelectedDevice, _properties["Action"]);
+            Update(SelectedDevice, Action);
         }
     }
 
@@ -76,7 +78,7 @@ public partial class ControlHint : HBoxContainer
         set
         {
             _maps[InputDevice.Keyboard] = value;
-            Update(SelectedDevice, _properties["Action"]);
+            Update(SelectedDevice, Action);
         }
     }
 
@@ -88,7 +90,7 @@ public partial class ControlHint : HBoxContainer
         set
         {
             _maps[InputDevice.Gamepad] = value;
-            Update(SelectedDevice, _properties["Action"]);
+            Update(SelectedDevice, Action);
         }
     }
 
@@ -101,23 +103,23 @@ public partial class ControlHint : HBoxContainer
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
     {
         Godot.Collections.Array<Godot.Collections.Dictionary> properties = base._GetPropertyList() ?? [];
-        properties.AddRange(_properties.GetPropertyList(InputManager.GetInputManager()));
+        properties.Add(ObjectProperty.CreateEnumProperty("Action", InputManager.GetInputActions()));
         return properties;
     }
 
     public override Variant _Get(StringName property)
     {
-        if (_properties.TryGetPropertyValue(property, out StringName value))
-            return value;
+        if (property == PropertyName.Action)
+            return Action;
         else
             return base._Get(property);
     }
 
     public override bool _Set(StringName property, Variant value)
     {
-        if (value.VariantType == Variant.Type.StringName && _properties.SetPropertyValue(property, value.AsStringName()))
+        if (property == PropertyName.Action)
         {
-            Update(SelectedDevice, _properties["Action"]);
+            Update(SelectedDevice, Action = value.AsStringName());
             return true;
         }
         else
@@ -126,19 +128,13 @@ public partial class ControlHint : HBoxContainer
 
     public override Variant _PropertyGetRevert(StringName property)
     {
-        if (_properties.TryPropertyGetRevert(property, out StringName revert))
-            return revert;
+        if (property == PropertyName.Action)
+            return new StringName("");
         else
             return base._PropertyGetRevert(property);
     }
 
-    public override bool _PropertyCanRevert(StringName property)
-    {
-        if (_properties.PropertyCanRevert(property, out bool revert))
-            return revert;
-        else
-            return base._PropertyCanRevert(property);
-    }
+    public override bool _PropertyCanRevert(StringName property) => property == PropertyName.Action || base._PropertyCanRevert(property);
 
     public override void _EnterTree()
     {
