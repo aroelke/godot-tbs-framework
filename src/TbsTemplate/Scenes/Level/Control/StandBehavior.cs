@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
 
@@ -19,19 +18,16 @@ public partial class StandBehavior : Behavior
 
     public override IEnumerable<Vector2I> Destinations(IUnit unit, IGrid grid) => [unit.Cell];
 
-    public override Dictionary<StringName, IEnumerable<Vector2I>> Actions(IUnit unit, IGrid grid)
+    public override IEnumerable<UnitAction> Actions(IUnit unit, IGrid grid)
     {
-        Dictionary<StringName, IEnumerable<Vector2I>> actions = [];
+        List<UnitAction> actions = [];
 
-        foreach (ISpecialActionRegion region in grid.GetSpecialActionRegions())
-            if (region.CanPerform(unit, unit.Cell))
-                actions[region.Action] = [-Vector2I.One];
+        actions.AddRange(grid.GetSpecialActionRegions().Where((r) => r.CanPerform(unit, unit.Cell)).Select((r) => new UnitAction(r.Action, [unit.Cell], unit.Cell, [unit.Cell])));
         if (AttackInRange)
         {
             IEnumerable<Vector2I> attackable = unit.AttackableCells(grid, [unit.Cell]);
             IEnumerable<IUnit> targets = grid.GetOccupantUnits().Where((e) => attackable.Contains(e.Key) && !unit.Faction.AlliedTo(e.Value.Faction)).Select(static (p) => p.Value);
-            if (targets.Any())
-                actions[UnitActions.AttackAction] = targets.Select((u) => u.Cell);
+            actions.AddRange(targets.Select((t) => new UnitAction(UnitAction.AttackAction, [unit.Cell], t.Cell, [unit.Cell])));
         }
         if (SupportInRange)
         {
@@ -40,7 +36,7 @@ public partial class StandBehavior : Behavior
             if (targets.Any())
             {
                 int lowest = targets.Select(static (u) => u.Health).Min();
-                actions[UnitActions.SupportAction] = targets.Where((u) => u.Health == lowest).Select((u) => u.Cell);
+                actions.AddRange(targets.Where((t) => t.Health == lowest).Select((t) => new UnitAction(UnitAction.SupportAction, [unit.Cell], t.Cell, [unit.Cell])));
             }
         }
 

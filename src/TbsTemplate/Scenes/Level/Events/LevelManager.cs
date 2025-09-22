@@ -277,8 +277,8 @@ public partial class LevelManager : Node
                 }));
             }
         }
-        AddActionOption(UnitActions.AttackAction, _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
-        AddActionOption(UnitActions.SupportAction, _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
+        AddActionOption(UnitAction.AttackAction, _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
+        AddActionOption(UnitAction.SupportAction, _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
         foreach (SpecialActionRegion region in Grid.SpecialActionRegions)
         {
             if (region.HasSpecialAction(_selected, _selected.Cell))
@@ -289,7 +289,7 @@ public partial class LevelManager : Node
                 }));
             }
         }
-        _options.Add(new(UnitActions.EndAction, () => State.SendEvent(SkipEvent)));
+        _options.Add(new(UnitAction.EndAction, () => State.SendEvent(SkipEvent)));
         _options.Add(new("Cancel", () => State.SendEvent(CancelEvent)));
 
         Callable.From<Unit, Godot.Collections.Array<StringName>, StringName>(_armies.Current.Controller.CommandUnit).CallDeferred(_selected, new Godot.Collections.Array<StringName>(_options.Select((o) => o.Name)), "Cancel");
@@ -332,7 +332,7 @@ public partial class LevelManager : Node
     {
         if (source != _selected)
             throw new InvalidOperationException($"Cannot choose target for unselected unit {source.Name} ({_selected.Name} is selected)");
-        if ((_command == UnitActions.AttackAction && target.Army.Faction.AlliedTo(_selected)) || (_command == UnitActions.SupportAction && !target.Army.Faction.AlliedTo(_selected)))
+        if ((_command == UnitAction.AttackAction && target.Army.Faction.AlliedTo(_selected)) || (_command == UnitAction.SupportAction && !target.Army.Faction.AlliedTo(_selected)))
             throw new ArgumentException($"{_selected.Name} cannot {_command} {target.Name}");
         _target = target;
         State.SendEvent(DoneEvent);
@@ -352,9 +352,9 @@ public partial class LevelManager : Node
 
     public void OnCombatEntered()
     {
-        if (_command == UnitActions.AttackAction)
+        if (_command == UnitAction.AttackAction)
             _combatResults = CombatCalculations.AttackResults(_selected, _target);
-        else if (_command == UnitActions.SupportAction)
+        else if (_command == UnitAction.SupportAction)
             _combatResults = [CombatCalculations.CreateSupportAction(_selected, _target)];
         else
             throw new NotSupportedException($"Unknown action {_command}");
