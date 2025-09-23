@@ -210,14 +210,9 @@ public partial class AIController : ArmyController
                 destinations = [.. safeCells];
         }
         else if (action.Action == UnitAction.SupportAction)
-        {
             target = action.Initial.Occupants[action.Target];
-            destinations = [.. destinations.Intersect(action.Actor.SupportableCells(action.Initial, [action.Target]))];
-        }
         else if (action.Action == UnitAction.EndAction)
             throw new InvalidOperationException($"End actions cannot be evaluated");
-        else
-            destinations = [.. destinations.Intersect(action.Initial.GetSpecialActionRegions().Where((r) => r.Action == action.Action).SelectMany((r) => r.Cells))];
 
         List<Vector2I> choices = [];
         if (destinations.Contains(action.Actor.Cell))
