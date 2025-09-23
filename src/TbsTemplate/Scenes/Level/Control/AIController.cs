@@ -200,12 +200,14 @@ public partial class AIController : ArmyController
     private static VirtualAction EvaluateAction(IEnumerable<VirtualAction> actions, VirtualAction action, Dictionary<VirtualGrid, VirtualAction> decisions, int left)
     {
         VirtualUnit? target = null;
-        IEnumerable<Vector2I> retaliatable = [];
         HashSet<Vector2I> destinations = [.. action.Sources];
+        bool safe = false;
         if (action.Action == UnitAction.AttackAction)
         {
             target = action.Initial.Occupants[action.Target];
-            retaliatable = destinations.Intersect(target.Value.AttackableCells(action.Initial, [target.Value.Cell]));
+            IEnumerable<Vector2I> safeCells = destinations.Where((c) => !target.Value.Original.AttackRange.Contains(c.ManhattanDistanceTo(target.Value.Cell)));
+            if (safe = safeCells.Any())
+                destinations = [.. safeCells];
         }
         else if (action.Action == UnitAction.SupportAction)
         {
@@ -217,9 +219,6 @@ public partial class AIController : ArmyController
         else
             destinations = [.. destinations.Intersect(action.Initial.GetSpecialActionRegions().Where((r) => r.Action == action.Action).SelectMany((r) => r.Cells))];
 
-        if (!destinations.All(retaliatable.Contains))
-            foreach (Vector2I cell in retaliatable)
-                destinations.Remove(cell);
         List<Vector2I> choices = [];
         if (destinations.Contains(action.Actor.Cell))
             choices.Add(action.Actor.Cell);
@@ -237,11 +236,11 @@ public partial class AIController : ArmyController
                 targetHealth -= ExpectedDamage(action.Actor, target.Value);
                 if (targetHealth > 0)
                 {
-                    if (retaliatable.Contains(c))
+                    if (!safe)
                         actorHealth -= ExpectedDamage(target.Value, action.Actor);
                     if (actorHealth > 0 && action.Actor.Original.Stats.Agility > target.Value.Original.Stats.Agility)
                         targetHealth -= ExpectedDamage(action.Actor, target.Value);
-                    else if (targetHealth > 0 && retaliatable.Contains(c) && target.Value.Original.Stats.Agility > action.Actor.Original.Stats.Agility)
+                    else if (targetHealth > 0 && !safe && target.Value.Original.Stats.Agility > action.Actor.Original.Stats.Agility)
                         actorHealth -= ExpectedDamage(target.Value, action.Actor);
                 }
                 actor = action.Actor with { Cell = c, ExpectedHealth = actorHealth, Active = false };
