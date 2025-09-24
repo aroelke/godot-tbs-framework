@@ -40,12 +40,12 @@ public partial class AIController : ArmyController
             [.. grid.SpecialActionRegions.Select((r) => new VirtualSpecialActionRegion(r))]
         ) {}
 
-        public IEnumerable<VirtualAction> GetAvailableActions(Faction faction)
+        public IEnumerable<VirtualAction> GetAvailableActions(Faction faction, int specials=0)
         {
             List<VirtualAction> actions = [];
             foreach (VirtualUnit unit in Occupants.Values.Where((u) => u.Faction == faction && u.Active && u.ExpectedHealth > 0))
                 foreach (UnitAction action in unit.Original.Behavior.Actions(unit, this))
-                        actions.Add(new(this, unit, action.Name, action.Source, action.Target, action.Traversable));
+                        actions.Add(new(this, unit, action.Name, action.Source, action.Target, action.Traversable, specials));
             return actions;
         }
 
@@ -81,7 +81,7 @@ public partial class AIController : ArmyController
         private readonly HashSet<VirtualUnit> _allies = [];
         private Vector2I _destination = -Vector2I.One;
 
-        public VirtualAction(VirtualGrid initial, VirtualUnit actor, StringName action, IEnumerable<Vector2I> sources, Vector2I target, IEnumerable<Vector2I> traversable)
+        public VirtualAction(VirtualGrid initial, VirtualUnit actor, StringName action, IEnumerable<Vector2I> sources, Vector2I target, IEnumerable<Vector2I> traversable, int specials)
         {
             Initial = initial;
             Actor = actor;
@@ -89,6 +89,7 @@ public partial class AIController : ArmyController
             Sources = sources;
             Target = target;
             Traversable = traversable;
+            SpecialActionsPerformed = specials;
 
             _destination = Actor.Cell;
             _result = Initial;
@@ -102,19 +103,20 @@ public partial class AIController : ArmyController
             Vector2I? target=null,
             IEnumerable<Vector2I> traversable=null,
             Vector2I? destination=null,
-            VirtualGrid? result=null
+            VirtualGrid? result=null,
+            int? specials=null
         ) : this(
             initial ?? original.Initial,
             actor ?? original.Actor,
             action ?? original.Action,
             sources ?? original.Sources,
             target ?? original.Target,
-            traversable ?? original.Traversable
+            traversable ?? original.Traversable,
+            specials ?? original.SpecialActionsPerformed
         )
         {
             Destination = destination ?? original.Destination;
             Result = result ?? original.Result;
-            SpecialActionsPerformed = original.SpecialActionsPerformed;
         }
 
         public VirtualGrid Initial { get; private set; }
@@ -197,7 +199,7 @@ public partial class AIController : ArmyController
         public override int GetHashCode() => HashCode.Combine(Initial, Actor, Action, Target, Destination);
     }
 
-    private static VirtualAction EvaluateAction(IEnumerable<VirtualAction> actions, VirtualAction action, Dictionary<VirtualGrid, VirtualAction> decisions, int left)
+    private static VirtualAction EvaluateAction(IEnumerable<VirtualAction> actions, VirtualAction action, Dictionary<VirtualGrid, VirtualAction> decisions, int remaining)
     {
         VirtualUnit? target = null;
         HashSet<Vector2I> destinations = [.. action.Sources];
@@ -260,14 +262,11 @@ public partial class AIController : ArmyController
             if (decisions.TryGetValue(after, out VirtualAction decision))
                 return decision;
 
-            VirtualAction result = new(action, destination:c, result:after);
-            if (special)
-                result.SpecialActionsPerformed++;
-
-            if (left == 0 || left > 1)
+            VirtualAction result;
+            if (remaining == 0 || remaining > 1)
             {
-                left = Math.Max(0, left - 1);
-                List<VirtualAction> further = [.. after.GetAvailableActions(actor.Faction).Where((a) => {
+                remaining = Math.Max(0, remaining - 1);
+                IEnumerable<VirtualAction> further = after.GetAvailableActions(actor.Faction, special ? action.SpecialActionsPerformed + 1 : action.SpecialActionsPerformed).Where((a) => {
                     if (!actions.Any(a.Equivalent))
                         return true;
                     if (action.Action != UnitAction.AttackAction || a.Action != UnitAction.AttackAction)
@@ -279,10 +278,14 @@ public partial class AIController : ArmyController
                     if (a.Target == action.Target)
                         return true;
                     return false;
-                })];
-                if (further.Count != 0)
-                    result = new(result, result:further.Select((a) => EvaluateAction(further, a, decisions, left)).Max().Result);
+                });
+                if (further.Any())
+                    result = new(action, destination:c, result:further.Select((a) => EvaluateAction(further, a, decisions, remaining)).Max().Result);
+                else
+                    result = new(action, destination:c, result:after, specials:special ? action.SpecialActionsPerformed + 1 : action.SpecialActionsPerformed);
             }
+            else
+                result = new(action, destination:c, result:after, specials:special ? action.SpecialActionsPerformed + 1 : action.SpecialActionsPerformed);
             return decisions[after] = result;
         }).Max();
     }
