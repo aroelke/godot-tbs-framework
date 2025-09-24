@@ -92,7 +92,7 @@ public partial class AIController : ArmyController
             SpecialActionsPerformed = specials;
 
             _destination = Actor.Cell;
-            _result = Initial;
+            Result = Initial;
         }
 
         public VirtualAction(VirtualAction original, 
@@ -156,6 +156,8 @@ public partial class AIController : ArmyController
                         EnemyHealthDifference += unit.Stats.Health - unit.ExpectedHealth;
                     }
                 }
+
+                _enemies.Sort((a, b) => (int)((a.ExpectedHealth - b.ExpectedHealth)*HealthDiffPrecision));
             }
         }
 
@@ -186,9 +188,12 @@ public partial class AIController : ArmyController
 
             if ((diff = (int)((other.AllyHealthDifference - AllyHealthDifference)*HealthDiffPrecision)) != 0)
                 return diff;
-            foreach ((VirtualUnit me, VirtualUnit you) in _enemies.OrderBy(static (u) => u.ExpectedHealth).Zip(other._enemies.OrderBy(static (u) => u.ExpectedHealth)))
-                if (me.ExpectedHealth != you.ExpectedHealth)
-                    return (int)((you.ExpectedHealth - me.ExpectedHealth)*HealthDiffPrecision);
+
+            int smaller = Math.Min(_enemies.Count, other._enemies.Count);
+            for (int i = 0; i < smaller; i++)
+                if (_enemies[i].ExpectedHealth != other._enemies[i].ExpectedHealth)
+                    return (int)((other._enemies[i].ExpectedHealth - _enemies[i].ExpectedHealth)*HealthDiffPrecision);
+
             if ((diff = (int)((EnemyHealthDifference - other.EnemyHealthDifference)*HealthDiffPrecision)) != 0)
                 return diff;
 
