@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
@@ -77,7 +78,7 @@ public partial class AIController : ArmyController
         public static bool operator <(VirtualAction a, VirtualAction b) => a.CompareTo(b) < 0;
 
         private VirtualGrid _result;
-        private List<VirtualUnit> _enemies = [];
+        private readonly List<VirtualUnit> _enemies = [];
         private readonly HashSet<VirtualUnit> _allies = [];
         private Vector2I _destination = -Vector2I.One;
 
@@ -139,6 +140,7 @@ public partial class AIController : ArmyController
             {
                 _result = value;
 
+                DefeatedAllies = DefeatedEnemies = 0;
                 foreach ((_, VirtualUnit unit) in _result.Occupants)
                 {
                     if (Actor.Faction.AlliedTo(unit.Faction))
@@ -168,9 +170,7 @@ public partial class AIController : ArmyController
         public float EnemyHealthDifference { get; private set; } = 0;
         public int PathCost { get; private set; } = 0;
 
-        public bool Equivalent(VirtualAction other) => other is not null && Initial == other.Initial && Actor == other.Actor && Action == other.Action && Target == other.Target;
-
-        public bool Equals(VirtualAction other) => Equivalent(other) && Destination == other.Destination;
+        public bool Equals(VirtualAction other) => other is not null && Initial == other.Initial && Actor == other.Actor && Action == other.Action && Target == other.Target && Destination == other.Destination;
         public override bool Equals(object obj) => Equals(obj as VirtualAction);
 
         // Positive is better
@@ -229,6 +229,7 @@ public partial class AIController : ArmyController
 
         return choices.Select((c) => {
             VirtualUnit actor;
+            VirtualUnit? updated = null;
             VirtualGrid after;
             bool special = false;
             if (action.Action == UnitAction.AttackAction)
@@ -246,16 +247,16 @@ public partial class AIController : ArmyController
                         actorHealth -= ExpectedDamage(target.Value, action.Actor);
                 }
                 actor = action.Actor with { Cell = c, ExpectedHealth = actorHealth, Active = false };
-                VirtualUnit updated = target.Value with { ExpectedHealth = targetHealth };
-                after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(c, actor).Remove(target.Value.Cell).Add(updated.Cell, updated) };
+                updated = target.Value with { ExpectedHealth = targetHealth };
+                after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(c, actor).Remove(target.Value.Cell).Add(updated.Value.Cell, updated.Value) };
             }
             else if (action.Action == UnitAction.SupportAction)
             {
                 float targetHealth = target.Value.ExpectedHealth, actorHealth = action.Actor.ExpectedHealth;
                 targetHealth = Math.Min(targetHealth + action.Actor.Stats.Healing, target.Value.Stats.Health);
                 actor = action.Actor with { Cell = c, ExpectedHealth = actorHealth, Active = false };
-                VirtualUnit updated = target.Value with { ExpectedHealth = targetHealth };
-                after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(c, actor).Remove(target.Value.Cell).Add(updated.Cell, updated) };
+                updated = target.Value with { ExpectedHealth = targetHealth };
+                after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(c, actor).Remove(target.Value.Cell).Add(updated.Value.Cell, updated.Value) };
             }
             else
             {
@@ -272,13 +273,13 @@ public partial class AIController : ArmyController
             {
                 remaining = Math.Max(0, remaining - 1);
                 IEnumerable<VirtualAction> further = after.GetAvailableActions(actor.Faction, special ? action.SpecialActionsPerformed + 1 : action.SpecialActionsPerformed).Where((a) => {
-                    if (!actions.Any(a.Equivalent))
+                    if (!actions.Any((b) => a.Actor == b.Actor && a.Target == b.Target))
                         return true;
                     if (action.Action != UnitAction.AttackAction || a.Action != UnitAction.AttackAction)
                         return true;
                     if (a.Initial.Occupants[a.Target].ExpectedHealth <= 0)
                         return false;
-                    if (target.Value.ExpectedHealth <= 0)
+                    if (updated.Value.ExpectedHealth <= 0)
                         return true;
                     if (a.Target == action.Target)
                         return true;
