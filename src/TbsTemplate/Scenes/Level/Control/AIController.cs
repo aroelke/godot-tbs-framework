@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
@@ -306,8 +305,14 @@ public partial class AIController : ArmyController
         List<VirtualAction> actions = [.. grid.GetAvailableActions(Army.Faction)];
         if (actions.Count != 0)
         {
-            Dictionary<VirtualGrid, VirtualAction> decisions = [];
-            VirtualAction result = actions.Select((a) => EvaluateAction(actions, a, decisions, MaxSearchDepth)).Max(); /* Task.WhenAll([.. actions.Select((a) => Task.Run(() => EvaluateAction(a, MaxSearchDepth)))]).Result.Max(); */
+            VirtualAction result;
+            if (EvaluateWithThreads)
+                result = Task.WhenAll([.. actions.Select((a) => Task.Run(() => EvaluateAction(actions, a, [], MaxSearchDepth)))]).Result.Max();
+            else
+            {
+                Dictionary<VirtualGrid, VirtualAction> decisions = [];
+                result = actions.Select((a) => EvaluateAction(actions, a, decisions, MaxSearchDepth)).Max(); /* Task.WhenAll([.. actions.Select((a) => Task.Run(() => EvaluateAction(a, MaxSearchDepth)))]).Result.Max(); */
+            }
             selected = result.Actor;
             destination = result.Destination;
             action = result.Action;
@@ -365,6 +370,10 @@ public partial class AIController : ArmyController
     /// <summary>Maximum number of levels in the action tree to search for the best action.</summary>
     /// <remarks><b>Warning</b>: Be careful of increasing this higher than 3, or even 2 in some cases, as it can significantly hurt performance.</remarks>
     [Export(PropertyHint.Range, "1,3,or_greater,or_less")] public int MaxSearchDepth = 0;
+
+    /// <summary>Performance option to evaluate moves using threads.</summary>
+    /// <remarks>Note: The exact number of threads is based on the C# <see cref="Task"/> pool.</remarks>
+    [Export] public bool EvaluateWithThreads = false;
 
     public override void InitializeTurn()
     {
