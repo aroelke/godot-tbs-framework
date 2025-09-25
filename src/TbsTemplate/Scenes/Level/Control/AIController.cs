@@ -363,7 +363,8 @@ public partial class AIController : ArmyController
     [Export] public bool EnableTurnSkipping = true;
 
     /// <summary>Maximum number of levels in the action tree to search for the best action.</summary>
-    [Export] public int MaxSearchDepth = 0;
+    /// <remarks><b>Warning</b>: Be careful of increasing this higher than 3, or even 2 in some cases, as it can significantly hurt performance.</remarks>
+    [Export(PropertyHint.Range, "1,3,or_greater,or_less")] public int MaxSearchDepth = 0;
 
     public override void InitializeTurn()
     {
