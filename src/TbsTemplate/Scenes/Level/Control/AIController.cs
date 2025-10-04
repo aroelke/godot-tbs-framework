@@ -274,7 +274,6 @@ public partial class AIController : ArmyController
             if (decisions.TryGetValue(after, out VirtualAction decision))
                 return decision;
 
-            VirtualAction result = null;
             IEnumerable<VirtualAction> further = after.GetAvailableActions(actor.Faction, special ? action.SpecialActionsPerformed + 1 : action.SpecialActionsPerformed);
             if (remaining == 0 || remaining > 1)
             {
@@ -292,11 +291,12 @@ public partial class AIController : ArmyController
                         return true;
                     return false;
                 });
-                if (further.Any())
-                    result = new(action, destination:c, result:reduced.Select((a) => EvaluateAction(reduced, a, decisions, remaining)).Max().Result);
+                if (reduced.Any())
+                    decisions[after] = new(action, destination:c, result:reduced.Select((a) => EvaluateAction(reduced, a, decisions, remaining)).Max().Result);
             }
-            result ??= new(action, destination:c, result:after, specials:special ? action.SpecialActionsPerformed + 1 : action.SpecialActionsPerformed, remaining:further.Count());
-            return decisions[after] = result;
+            if (!decisions.ContainsKey(after))
+                decisions[after] = new(action, destination:c, result:after, specials:special ? action.SpecialActionsPerformed + 1 : action.SpecialActionsPerformed, remaining:further.Count());
+            return decisions[after];
         }).Max();
     }
 
