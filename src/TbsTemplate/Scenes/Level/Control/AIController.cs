@@ -93,6 +93,7 @@ public partial class AIController : ArmyController
 
             _destination = Actor.Cell;
             Result = Initial;
+            RemainingActions = 0;
         }
 
         public VirtualAction(VirtualAction original, 
@@ -104,7 +105,8 @@ public partial class AIController : ArmyController
             IEnumerable<Vector2I> traversable=null,
             Vector2I? destination=null,
             VirtualGrid? result=null,
-            int? specials=null
+            int? specials=null,
+            int? remaining=null
         ) : this(
             initial ?? original.Initial,
             actor ?? original.Actor,
@@ -117,6 +119,7 @@ public partial class AIController : ArmyController
         {
             Destination = destination ?? original.Destination;
             Result = result ?? original.Result;
+            RemainingActions = remaining ?? original.RemainingActions;
         }
 
         public VirtualGrid Initial { get; private set; }
@@ -168,6 +171,7 @@ public partial class AIController : ArmyController
         public float AllyHealthDifference { get; private set; } = 0;
         public float EnemyHealthDifference { get; private set; } = 0;
         public int PathCost { get; private set; } = 0;
+        public int RemainingActions { get; private set; } = 0;
 
         public bool Equals(VirtualAction other) => other is not null && Initial == other.Initial && Actor == other.Actor && Action == other.Action && Target == other.Target && Destination == other.Destination;
         public override bool Equals(object obj) => Equals(obj as VirtualAction);
@@ -194,6 +198,9 @@ public partial class AIController : ArmyController
                     return (int)((other._enemies[i].ExpectedHealth - _enemies[i].ExpectedHealth)*HealthDiffPrecision);
 
             if ((diff = (int)((EnemyHealthDifference - other.EnemyHealthDifference)*HealthDiffPrecision)) != 0)
+                return diff;
+
+            if ((diff = RemainingActions - other.RemainingActions) != 0)
                 return diff;
 
             return other.PathCost - PathCost;
@@ -267,11 +274,11 @@ public partial class AIController : ArmyController
             if (decisions.TryGetValue(after, out VirtualAction decision))
                 return decision;
 
-            VirtualAction result;
+            IEnumerable<VirtualAction> further = after.GetAvailableActions(actor.Faction, special ? action.SpecialActionsPerformed + 1 : action.SpecialActionsPerformed);
             if (remaining == 0 || remaining > 1)
             {
                 remaining = Math.Max(0, remaining - 1);
-                IEnumerable<VirtualAction> further = after.GetAvailableActions(actor.Faction, special ? action.SpecialActionsPerformed + 1 : action.SpecialActionsPerformed).Where((a) => {
+                IEnumerable<VirtualAction> reduced = further.Where((a) => {
                     if (!actions.Any((b) => a.Actor == b.Actor && a.Target == b.Target))
                         return true;
                     if (action.Action != UnitAction.AttackAction || a.Action != UnitAction.AttackAction)
@@ -284,14 +291,12 @@ public partial class AIController : ArmyController
                         return true;
                     return false;
                 });
-                if (further.Any())
-                    result = new(action, destination:c, result:further.Select((a) => EvaluateAction(further, a, decisions, remaining)).Max().Result);
-                else
-                    result = new(action, destination:c, result:after, specials:special ? action.SpecialActionsPerformed + 1 : action.SpecialActionsPerformed);
+                if (reduced.Any())
+                    decisions[after] = new(action, destination:c, result:reduced.Select((a) => EvaluateAction(reduced, a, decisions, remaining)).Max().Result);
             }
-            else
-                result = new(action, destination:c, result:after, specials:special ? action.SpecialActionsPerformed + 1 : action.SpecialActionsPerformed);
-            return decisions[after] = result;
+            if (!decisions.ContainsKey(after))
+                decisions[after] = new(action, destination:c, result:after, specials:special ? action.SpecialActionsPerformed + 1 : action.SpecialActionsPerformed, remaining:further.Count());
+            return decisions[after];
         }).Max();
     }
 
