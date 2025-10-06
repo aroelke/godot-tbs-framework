@@ -271,6 +271,7 @@ public partial class AIController : ArmyController
                 special = true;
             }
 
+            // If this action results in a board state that was already explored, skip the rest of this branch and use that result
             if (decisions.TryGetValue(after, out VirtualAction decision))
                 return decision;
 
@@ -279,14 +280,19 @@ public partial class AIController : ArmyController
             {
                 remaining = Math.Max(0, remaining - 1);
                 IEnumerable<VirtualAction> reduced = further.Where((a) => {
+                    // Evaluate a if a was not present in the previous set of actions that were evaluated (the other ones will either reappear or be evaluated later)
                     if (!actions.Any((b) => a.Actor == b.Actor && a.Target == b.Target))
                         return true;
+                    // Evaluate a if a or this action was not an attack action
                     if (action.Action != UnitAction.AttackAction || a.Action != UnitAction.AttackAction)
                         return true;
+                    // Don't evaluate a if a's target is defeated
                     if (a.Initial.Occupants[a.Target].ExpectedHealth <= 0)
                         return false;
+                    // Evaluate a if this action defeated its target to see if more enemies can be defeated down this branch
                     if (updated.Value.ExpectedHealth <= 0)
                         return true;
+                    // Evaluate a if it has the same target as this action
                     if (a.Target == action.Target)
                         return true;
                     return false;
