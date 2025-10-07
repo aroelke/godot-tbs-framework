@@ -322,7 +322,7 @@ public partial class AIController : ArmyController
             else
             {
                 Dictionary<VirtualGrid, VirtualAction> decisions = [];
-                result = actions.Select((a) => EvaluateAction(actions, a, decisions, MaxSearchDepth)).Max(); /* Task.WhenAll([.. actions.Select((a) => Task.Run(() => EvaluateAction(a, MaxSearchDepth)))]).Result.Max(); */
+                result = actions.Select((a) => EvaluateAction(actions, a, decisions, MaxSearchDepth)).Max();
             }
             selected = result.Actor;
             destination = result.Destination;
