@@ -19,8 +19,8 @@ public abstract partial class Behavior : Node
     /// <summary>Determine the actions a unit is able to perform and which cell(s) those actions can be performed on.</summary>
     /// <param name="unit">Unit that could act.</param>
     /// <param name="grid">Grid on which the unit will act.</param>
-    /// <returns>A mapping of actions onto collections of grid cells they can be performed on. Actions that can't be performed aren't present.</returns>
-    public abstract Dictionary<StringName, IEnumerable<Vector2I>> Actions(IUnit unit, IGrid grid);
+    /// <returns>The set of actions that can be performed.</returns>
+    public abstract IEnumerable<UnitAction> Actions(IUnit unit, IGrid grid);
 
     /// <summary>Determine the path the unit will traverse between two cells.</summary>
     /// <param name="unit">Unit that will move along the path.</param>
