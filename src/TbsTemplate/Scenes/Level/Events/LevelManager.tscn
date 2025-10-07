@@ -1,7 +1,6 @@
-[gd_scene load_steps=18 format=3 uid="uid://p5cw5rndfqun"]
+[gd_scene load_steps=17 format=3 uid="uid://p5cw5rndfqun"]
 
 [ext_resource type="Script" uid="uid://coddgojipo1ni" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.cs" id="1_r2v0t"]
-[ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://demo/assets/ui/Hints.tres" id="3_bmb6a"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DBrain.tscn" id="3_td8u6"]
 [ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/TbsTemplate/Nodes/StateChart/Chart.tscn" id="17_sd0pe"]
 [ext_resource type="PackedScene" uid="uid://bykdjiak4bxvt" path="res://src/TbsTemplate/Nodes/StateChart/States/CompoundState.tscn" id="18_k7m3y"]
@@ -17,7 +16,7 @@
 [ext_resource type="PackedScene" uid="uid://b7i65c130fgfs" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/EnterTreeReaction.tscn" id="29_o6hju"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -1015202984
+seed = -612787710
 
 [sub_resource type="Resource" id="Resource_3lvnu"]
 script = ExtResource("27_kyhbc")
@@ -36,15 +35,6 @@ ShakeDecay = 0.8
 ShakeMaxOffset = Vector2(100, 75)
 ShakeMaxRoll = 0.0
 ShakeNoise = SubResource("FastNoiseLite_spp7l")
-
-[node name="UserInterface" type="CanvasLayer" parent="."]
-
-[node name="TurnLabel" type="Label" parent="UserInterface"]
-offset_right = 213.0
-offset_bottom = 45.0
-theme = ExtResource("3_bmb6a")
-theme_override_font_sizes/font_size = 32
-text = "Turn 1: Player"
 
 [node name="State" parent="." instance=ExtResource("17_sd0pe")]
 Events = [&"select", &"cancel", &"skip", &"wait", &"done"]
@@ -200,7 +190,6 @@ one_shot = true
 
 [connection signal="child_entered_tree" from="." to="." method="OnChildEnteredTree"]
 [connection signal="StateEntered" from="State/Root/Running/BeginTurn" to="." method="OnBeginTurnEntered"]
-[connection signal="StateExited" from="State/Root/Running/BeginTurn" to="." method="OnBeginTurnExited"]
 [connection signal="StateUpdated" from="State/Root/Running/Skippable/OnFastForward" to="." method="OnTurnFastForward"]
 [connection signal="EventReceived" from="State/Root/Running/Skippable/Idle" to="." method="OnIdleEventReceived"]
 [connection signal="StateEntered" from="State/Root/Running/Skippable/Idle" to="." method="OnIdleEntered"]

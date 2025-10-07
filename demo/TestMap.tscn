@@ -445,6 +445,13 @@ Turns = 5
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
+[node name="TurnLabel" type="Label" parent="CanvasLayer"]
+offset_right = 213.0
+offset_bottom = 45.0
+theme = ExtResource("28_y0mi7")
+theme_override_font_sizes/font_size = 32
+text = "Turn 1: Player"
+
 [node name="ObjectiveLabel" type="Label" parent="CanvasLayer"]
 offset_top = 39.0
 offset_right = 110.0
