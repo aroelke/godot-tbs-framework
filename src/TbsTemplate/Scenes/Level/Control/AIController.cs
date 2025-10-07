@@ -380,11 +380,11 @@ public partial class AIController : ArmyController
 
     /// <summary>Maximum number of levels in the action tree to search for the best action.</summary>
     /// <remarks><b>Warning</b>: Be careful of increasing this higher than 3, or even 2 in some cases, as it can significantly hurt performance.</remarks>
-    [Export(PropertyHint.Range, "1,3,or_greater,or_less")] public int MaxSearchDepth = 0;
+    [Export(PropertyHint.Range, "1,3,or_greater,or_less")] public int MaxSearchDepth = 3;
 
     /// <summary>Performance option to evaluate moves using threads.</summary>
     /// <remarks>Note: The exact number of threads is based on the C# <see cref="Task"/> pool.</remarks>
-    [Export] public bool EvaluateWithThreads = false;
+    [Export] public bool EvaluateWithThreads = true;
 
     public override void InitializeTurn()
     {
