@@ -253,7 +253,11 @@ public partial class PlayerController : ArmyController
         Pointer.StopWaiting();
     }
 
-    public override void FinalizeAction() => UpdateDangerZones();
+    public override void FinalizeAction()
+    {
+        UpdateDangerZones();
+        EmitSignal(SignalName.ProgressUpdated, ((IEnumerable<Unit>)Army).Count((u) => !u.Active) + 1, ((IEnumerable<Unit>)Army).Count((u) => u.Active) - 1); // Add one to account for the unit that just finished
+    }
 
     public override void FinalizeTurn()
     {

@@ -20,6 +20,10 @@ public partial class AIController : ArmyController
 {
     private const int HealthDiffPrecision = 10;
 
+    /// <summary>Signals that the fast-forward state has changed.</summary>
+    /// <param name="enable"><c>true</c> if fast-forwarding is in progress, and <c>false</c> otherwise.</param>
+    [Signal] public delegate void FastForwardStateChangedEventHandler(bool enable);
+
     private readonly record struct VirtualSpecialActionRegion(SpecialActionRegion Original, StringName Action, ImmutableHashSet<Vector2I> Cells) : ISpecialActionRegion
     {
         ISet<Vector2I> ISpecialActionRegion.Cells => Cells;
@@ -364,9 +368,6 @@ public partial class AIController : ArmyController
     private FadeToBlackTransition _fft = null;
     private FadeToBlackTransition FastForwardTransition => _fft ??= GetNode<FadeToBlackTransition>("CanvasLayer/FastForwardTransition");
 
-    private TextureProgressBar _progress = null;
-    private TextureProgressBar TurnProgress => _progress ??= GetNode<TextureProgressBar>("CanvasLayer/TurnProgress");
-
     private Timer _indicator = null;
     private Timer IndicatorTimer => _indicator ??= GetNode<Timer>("IndicatorTimer");
 
@@ -393,8 +394,7 @@ public partial class AIController : ArmyController
         _action = null;
         _target = null;
 
-        TurnProgress.MaxValue = ((IEnumerable<Unit>)Army).Count();
-        TurnProgress.Value = 0;
+        EmitSignal(SignalName.ProgressUpdated, 0, ((IEnumerable<Unit>)Army).Count());
     }
 
     public (Unit selected, Vector2I destination, StringName action, Unit target) ComputeAction(IEnumerable<Unit> available, IEnumerable<Unit> enemies, Grid grid)
@@ -411,7 +411,7 @@ public partial class AIController : ArmyController
     /// <remarks>Unit actions will still be calculated and the results updated. The screen will be blacked out while computing actions.</remarks>
     public override void FastForwardTurn()
     {
-        FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => TurnProgress.Visible = _ff = true, (uint)ConnectFlags.OneShot);
+        FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => EmitSignal(SignalName.FastForwardStateChanged, _ff = true), (uint)ConnectFlags.OneShot);
         FastForwardTransition.TransitionOut();
     }
 
@@ -472,15 +472,14 @@ public partial class AIController : ArmyController
     public override void FinalizeAction()
     {
         Pseudocursor.Visible = false;
-        TurnProgress.MaxValue = ((IEnumerable<Unit>)Army).Count();
-        TurnProgress.Value = ((IEnumerable<Unit>)Army).Count((u) => !u.Active) + 1; // Add one to account for the unit that just finished
+        EmitSignal(SignalName.ProgressUpdated, ((IEnumerable<Unit>)Army).Count((u) => !u.Active) + 1, ((IEnumerable<Unit>)Army).Count((u) => u.Active) - 1); // Add one to account for the unit that just finished
     }
 
     public override void FinalizeTurn()
     {
         base.FinalizeTurn();
         FastForwardTransition.TransitionIn();
-        TurnProgress.Visible = _ff = false;
+        EmitSignal(SignalName.FastForwardStateChanged, _ff = false);
     }
 
 

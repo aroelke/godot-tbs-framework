@@ -42,6 +42,11 @@ public abstract partial class ArmyController : Node
     /// <param name="source">Unit whose action was canceled.</param>
     [Signal] public delegate void TargetCanceledEventHandler(Unit source);
 
+    /// <summary>Signals that a unit's action has been finalized and the current army's turn has progressed.</summary>
+    /// <param name="completed">Number of units that have completed actions, including the one that just did.</param>
+    /// <param name="remaining">Number of units that can still act.</param>
+    [Signal] public delegate void ProgressUpdatedEventHandler(int completed, int remaining);
+
     private Army _army = null;
     private readonly ImmutableDictionary<StringName, List<Callable>> _turnSignals;
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=4 uid="uid://bmfxux38ovtj2"]
+[gd_scene load_steps=39 format=4 uid="uid://bmfxux38ovtj2"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.tscn" id="1_h3e4w"]
 [ext_resource type="Script" uid="uid://cr1h1lebyon02" path="res://demo/TestMap.cs" id="1_stn1b"]
@@ -34,6 +34,8 @@
 [ext_resource type="PackedScene" uid="uid://blf1owsru7rvw" path="res://src/TbsTemplate/Scenes/Level/Objectives/ActionObjective.tscn" id="24_h6vny"]
 [ext_resource type="PackedScene" uid="uid://bi8p6x3pf3217" path="res://src/TbsTemplate/Scenes/Level/Events/EventController.tscn" id="25_i6qxt"]
 [ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://demo/assets/ui/Hints.tres" id="28_y0mi7"]
+[ext_resource type="Texture2D" uid="uid://5if38wokibin" path="res://demo/assets/raw/Pixel Health Bar/Bar/no health bar (3x).png" id="35_ga18v"]
+[ext_resource type="Texture2D" uid="uid://b1rv5edu7ewx" path="res://demo/assets/raw/Pixel Health Bar/Health/health (3x).png" id="36_s8hgk"]
 
 [sub_resource type="Resource" id="Resource_6fypd"]
 script = ExtResource("15_y2o8i")
@@ -460,7 +462,29 @@ theme = ExtResource("28_y0mi7")
 text = "Success: None
 Failure: Never"
 
+[node name="TurnProgress" type="TextureProgressBar" parent="CanvasLayer"]
+visible = false
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -415.0
+offset_top = -81.0
+offset_right = -31.0
+offset_bottom = -33.0
+grow_horizontal = 0
+grow_vertical = 0
+texture_under = ExtResource("35_ga18v")
+texture_progress = ExtResource("36_s8hgk")
+
 [connection signal="child_entered_tree" from="LevelManager/Player" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Enemy" to="LevelManager" method="OnChildEnteredGroup"]
+[connection signal="FastForwardStateChanged" from="LevelManager/Enemy/AIController" to="." method="OnArmyControllerFastForwardStateChanged"]
+[connection signal="ProgressUpdated" from="LevelManager/Enemy/AIController" to="." method="OnArmyControllerProgressUpdated"]
 [connection signal="child_entered_tree" from="LevelManager/OtherEnemy" to="LevelManager" method="OnChildEnteredGroup"]
+[connection signal="FastForwardStateChanged" from="LevelManager/OtherEnemy/AIController" to="." method="OnArmyControllerFastForwardStateChanged"]
+[connection signal="ProgressUpdated" from="LevelManager/OtherEnemy/AIController" to="." method="OnArmyControllerProgressUpdated"]
 [connection signal="child_entered_tree" from="LevelManager/Ally" to="LevelManager" method="OnChildEnteredGroup"]
+[connection signal="FastForwardStateChanged" from="LevelManager/Ally/AIController" to="." method="OnArmyControllerFastForwardStateChanged"]
+[connection signal="ProgressUpdated" from="LevelManager/Ally/AIController" to="." method="OnArmyControllerProgressUpdated"]
