@@ -148,6 +148,13 @@ public partial class ControlHint : HBoxContainer
         }
     }
 
+    public override void _Ready()
+    {
+        base._Ready();
+        Update(SelectedDevice, Action);
+    }
+
+
     public override void _ExitTree()
     {
         base._ExitTree();
