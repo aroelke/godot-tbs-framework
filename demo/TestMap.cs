@@ -1,9 +1,12 @@
+using System.Linq;
 using Godot;
 using TbsTemplate.Extensions;
 using TbsTemplate.Scenes;
 using TbsTemplate.Scenes.Level.Events;
 using TbsTemplate.Scenes.Level.Object.Group;
 using TbsTemplate.UI;
+using TbsTemplate.UI.Controls.Device;
+using TbsTemplate.UI.HUD;
 
 public partial class TestMap : Node2D
 {
@@ -17,6 +20,16 @@ public partial class TestMap : Node2D
     {
         TurnLabel.AddThemeColorOverride("font_color", army.Faction.Color);
         TurnLabel.Text = $"Turn {turn}: {army.Faction.Name}";
+    }
+
+    public void OnEnabledInputActionsUpdated(StringName[] actions)
+    {
+        foreach (ControlHint hint in GetNode("CanvasLayer/HUD/Hints").GetChildren().OfType<ControlHint>())
+            hint.Visible = actions.Contains(hint.Get(ControlHint.PropertyName.Action).AsStringName());
+        GetNode<CanvasItem>("CanvasLayer/HUD/Hints/CursorHintIcon").Visible = actions.Intersect([
+            InputManager.DigitalMoveUp, InputManager.DigitalMoveLeft, InputManager.DigitalMoveDown, InputManager.DigitalMoveRight,
+            InputManager.AnalogMoveUp,  InputManager.AnalogMoveLeft,  InputManager.AnalogMoveDown,  InputManager.AnalogMoveRight
+        ]).Any();
     }
 
     public void OnArmyControllerFastForwardStateChanged(bool enable) => TurnProgress.Visible = enable;

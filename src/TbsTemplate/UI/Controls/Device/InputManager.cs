@@ -30,6 +30,7 @@ public partial class InputManager : Node2D
     public static readonly StringName Accelerate       = "accelerate";
     public static readonly StringName Select           = "select";
     public static readonly StringName Cancel           = "cancel";
+    public static readonly StringName Skip             = "skip";
     public static readonly StringName Previous         = "previous";
     public static readonly StringName Next             = "next";
     public static readonly StringName ToggleDangerZone = "toggle_danger_zone";

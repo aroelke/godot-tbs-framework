@@ -55,9 +55,6 @@ public partial class PlayerController : ArmyController
     private Cursor            Cursor              => _cache.GetNode<Cursor>("Cursor");
     private Pointer           Pointer             => _cache.GetNode<Pointer>("Pointer");
     private CanvasLayer       UserInterface       => _cache.GetNode<CanvasLayer>("UserInterface");
-    private Godot.Control     HUD                 => _cache.GetNode<Godot.Control>("UserInterface/HUD");
-    private ControlHint       CancelHint          => _cache.GetNode<ControlHint>("%CancelHint");
-    private ControlHint       SkipHint            => _cache.GetNode<ControlHint>("%SkipHint");
     private AudioStreamPlayer SelectSound         => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/SelectSound");
     private AudioStreamPlayer CancelSound         => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/CancelSound");
     private AudioStreamPlayer ErrorSound          => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/ErrorSound");
@@ -193,7 +190,6 @@ public partial class PlayerController : ArmyController
     {
         Cursor.Halt(hide:true);
         Pointer.StartWaiting(hide:false);
-        CancelHint.Visible = true;
 
         ContextMenu menu = ContextMenu.Instantiate(options);
         menu.Wrap = true;
@@ -243,7 +239,6 @@ public partial class PlayerController : ArmyController
 #region Initialization and Finalization
     public override void InitializeTurn()
     {
-        HUD.Visible = true;
         UpdateDangerZones();
         ZoneLayers.Visible = true;
 
@@ -257,6 +252,7 @@ public partial class PlayerController : ArmyController
     {
         UpdateDangerZones();
         EmitSignal(SignalName.ProgressUpdated, ((IEnumerable<Unit>)Army).Count((u) => !u.Active) + 1, ((IEnumerable<Unit>)Army).Count((u) => u.Active) - 1); // Add one to account for the unit that just finished
+        EmitSignal(SignalName.EnabledInputActionsUpdated, Array.Empty<StringName>());
     }
 
     public override void FinalizeTurn()
@@ -266,7 +262,6 @@ public partial class PlayerController : ArmyController
         ZoneLayers.Visible = false;
         Cursor.Halt(hide:true);
         Pointer.StartWaiting(hide:true);
-        HUD.Visible = false;
     }
 #endregion
 #region State Independent
@@ -328,9 +323,6 @@ public partial class PlayerController : ArmyController
     {
         Cursor.Resume();
         Pointer.StopWaiting();
-        CancelHint.Visible = false;
-        SkipHint.Visible = false;
-
         ActionLayers.Clear();
         ActionLayers.Modulate = ActionRangeHoverModulate;
 
@@ -365,6 +357,12 @@ public partial class PlayerController : ArmyController
             }
 
             SelectSound.Play();
+            EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {
+                InputManager.DigitalMoveUp, InputManager.DigitalMoveDown,
+                InputManager.AnalogMoveUp, InputManager.AnalogMoveDown,
+                InputManager.UiHome, InputManager.UiHome,
+                InputManager.Select, InputManager.UiAccept, InputManager.Cancel
+            });
             ContextMenu menu = ShowMenu(Cursor.Grid.CellRect(cell), [
                 new("End Turn", () => {
                     // Cursor is already halted
@@ -380,11 +378,28 @@ public partial class PlayerController : ArmyController
                 new("Cancel", Cancel)
             ]);
             menu.MenuCanceled += Cancel;
-            menu.MenuClosed += () => CancelHint.Visible = false;
+            menu.MenuClosed += () => EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {
+                InputManager.DigitalMoveUp, InputManager.DigitalMoveLeft, InputManager.DigitalMoveRight, InputManager.DigitalMoveDown,
+                InputManager.AnalogMoveUp, InputManager.AnalogMoveLeft, InputManager.AnalogMoveRight, InputManager.AnalogMoveDown,
+                InputManager.Previous, InputManager.Next,
+                InputManager.Select,
+                InputManager.ToggleDangerZone
+            });
         }
     }
 
-    public void OnSelectEntered() => Cursor.CellSelected += ConfirmCursorSelection;
+    public void OnSelectEntered()
+    {
+        Cursor.CellSelected += ConfirmCursorSelection;
+
+        EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {
+            InputManager.DigitalMoveUp, InputManager.DigitalMoveLeft, InputManager.DigitalMoveRight, InputManager.DigitalMoveDown,
+            InputManager.AnalogMoveUp, InputManager.AnalogMoveLeft, InputManager.AnalogMoveRight, InputManager.AnalogMoveDown,
+            InputManager.Previous, InputManager.Next,
+            InputManager.Select,
+            InputManager.ToggleDangerZone
+        });
+    }
 
     public void OnSelectInput(InputEvent @event)
     {
@@ -436,7 +451,6 @@ public partial class PlayerController : ArmyController
     {
         Cursor.Resume();
         Pointer.StopWaiting();
-        CancelHint.Visible = true;
         ActionLayers.Modulate = ActionRangeSelectModulate;
 
         _target = null;
@@ -509,15 +523,13 @@ public partial class PlayerController : ArmyController
         else if (!occupied || occupant == _selected)
         {
             State.SendEvent(FinishEvent);
-            SkipHint.Visible = true;
-            _selected.Connect(Unit.SignalName.DoneMoving, () => SkipHint.Visible = false, (uint)ConnectFlags.OneShot);
+            EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {InputManager.Skip, InputManager.Accelerate});
             EmitSignal(SignalName.PathConfirmed, _selected, new Godot.Collections.Array<Vector2I>(_path));
         }
         else if (occupied && occupant is Unit target && (_attackable.Contains(target.Cell) || _supportable.Contains(target.Cell)))
         {
             State.SendEvent(FinishEvent);
-            SkipHint.Visible = true;
-            _selected.Connect(Unit.SignalName.DoneMoving, () => SkipHint.Visible = false, (uint)ConnectFlags.OneShot);
+            EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {InputManager.Skip, InputManager.Accelerate});
             EmitSignal(SignalName.UnitCommanded, _selected, _command);
             EmitSignal(SignalName.TargetChosen, _selected, target);
             EmitSignal(SignalName.PathConfirmed, _selected, new Godot.Collections.Array<Vector2I>(_path));
@@ -538,6 +550,13 @@ public partial class PlayerController : ArmyController
     {
         Cursor.CellChanged += AddToPath;
         Cursor.CellSelected += ConfirmPathSelection;
+
+        EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {
+            InputManager.DigitalMoveUp, InputManager.DigitalMoveLeft, InputManager.DigitalMoveRight, InputManager.DigitalMoveDown,
+            InputManager.AnalogMoveUp, InputManager.AnalogMoveLeft, InputManager.AnalogMoveRight, InputManager.AnalogMoveDown,
+            InputManager.Select, InputManager.Cancel,
+            InputManager.ToggleDangerZone
+        });
     }
 
     public void OnPathCanceled() => CleanUpPath();
@@ -546,7 +565,6 @@ public partial class PlayerController : ArmyController
     {
         Cursor.Halt(hide:false);
         Pointer.StartWaiting(hide:false);
-        CancelHint.Visible = false;
         _selected.Connect(Unit.SignalName.DoneMoving, UpdateDangerZones, (uint)ConnectFlags.OneShot);
         CleanUpPath();
     }
@@ -578,7 +596,15 @@ public partial class PlayerController : ArmyController
         }).CallDeferred();
     }
 
-    public void OnCommandEntered() => CancelHint.Visible = true;
+    public void OnCommandEntered()
+    {
+        EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {
+            InputManager.DigitalMoveUp, InputManager.DigitalMoveDown,
+            InputManager.AnalogMoveUp, InputManager.AnalogMoveDown,
+            InputManager.UiHome, InputManager.UiHome,
+            InputManager.Select, InputManager.UiAccept, InputManager.Cancel
+        });
+    }
 
     public void OnCommandProcess(double delta) => _menu.Position = MenuPosition(Cursor.Grid.CellRect(_selected.Cell), _menu.Size);
 #endregion
@@ -589,7 +615,6 @@ public partial class PlayerController : ArmyController
     {
         Cursor.Resume();
         Pointer.StopWaiting();
-        CancelHint.Visible = true;
 
         Pointer.AnalogTracking = false;
         Cursor.Wrap = true;
@@ -613,14 +638,24 @@ public partial class PlayerController : ArmyController
         {
             Cursor.Halt(hide:false);
             Pointer.StartWaiting(hide:false);
-            CancelHint.Visible = false;
 
             State.SendEvent(FinishEvent);
             EmitSignal(SignalName.TargetChosen, _selected, target);
         }
     }
 
-    public void OnTargetEntered() => Cursor.CellSelected += ConfirmTargetSelection;
+    public void OnTargetEntered()
+    {
+        Cursor.CellSelected += ConfirmTargetSelection;
+
+        EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {
+            InputManager.DigitalMoveUp, InputManager.DigitalMoveLeft, InputManager.DigitalMoveRight, InputManager.DigitalMoveDown,
+            InputManager.AnalogMoveUp, InputManager.AnalogMoveLeft, InputManager.AnalogMoveRight, InputManager.AnalogMoveDown,
+            InputManager.Previous, InputManager.Next,
+            InputManager.Select, InputManager.Cancel,
+            InputManager.ToggleDangerZone
+        });
+    }
 
     public void OnTargetInput(InputEvent @event)
     {

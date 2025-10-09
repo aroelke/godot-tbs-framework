@@ -395,6 +395,7 @@ public partial class AIController : ArmyController
         _target = null;
 
         EmitSignal(SignalName.ProgressUpdated, 0, ((IEnumerable<Unit>)Army).Count());
+        EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {InputManager.Skip});
     }
 
     public (Unit selected, Vector2I destination, StringName action, Unit target) ComputeAction(IEnumerable<Unit> available, IEnumerable<Unit> enemies, Grid grid)
@@ -411,6 +412,7 @@ public partial class AIController : ArmyController
     /// <remarks>Unit actions will still be calculated and the results updated. The screen will be blacked out while computing actions.</remarks>
     public override void FastForwardTurn()
     {
+        EmitSignal(SignalName.EnabledInputActionsUpdated, Array.Empty<StringName>());
         FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => EmitSignal(SignalName.FastForwardStateChanged, _ff = true), (uint)ConnectFlags.OneShot);
         FastForwardTransition.TransitionOut();
     }
