@@ -373,6 +373,26 @@ public partial class AIController : ArmyController
 
     public override Grid Grid { get => _grid; set => _grid = value; }
 
+    [Export] public Texture2D CursorSprite
+    {
+        get => Pseudocursor?.Texture;
+        set
+        {
+            if (Pseudocursor is not null)
+                Pseudocursor.Texture = value;
+        }
+    }
+
+    [Export] public Vector2 CursorOffset
+    {
+        get => Pseudocursor?.Offset ?? Vector2.Zero;
+        set
+        {
+            if (Pseudocursor is not null)
+                Pseudocursor.Offset = value;
+        }
+    }
+
     /// <summary>Time in seconds to hold the cursor over an indicated cell before acting on it.</summary>
     [Export(PropertyHint.None, "suffix:s")] public float IndicationTime = 0.5f;
 
