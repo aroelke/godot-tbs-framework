@@ -90,6 +90,7 @@ public partial class PlayerController : ArmyController
             layer.TileSet = ts;
     }
 
+    /// <summary>Sprite to use for the grid cursor.</summary>
     [Export, ExportGroup("Control UI")] public Texture2D CursorSpriteTexture
     {
         get => CursorSprite?.Texture;
@@ -100,6 +101,7 @@ public partial class PlayerController : ArmyController
         }
     }
 
+    /// <summary>Offset of the sprite from the origin of the texture to use for positioning it within a cell.</summary>
     [Export(PropertyHint.None, "suffix:px"), ExportGroup("Control UI")] public Vector2 CursorSpriteOffset
     {
         get => CursorSprite?.Offset ?? Vector2.Zero;
@@ -110,6 +112,7 @@ public partial class PlayerController : ArmyController
         }
     }
 
+    /// <summary>Sprite to use for the analog (not mouse) pointer.</summary>
     [Export, ExportGroup("Control UI")] public Texture2D PointerSpriteTexture
     {
         get => PointerSprite?.Texture;
@@ -120,6 +123,7 @@ public partial class PlayerController : ArmyController
         }
     }
 
+    /// <summary>Offset of the analog pointer sprite from the origin of the texture.</summary>
     [Export(PropertyHint.None, "suffix:px"), ExportGroup("Control UI")] public Vector2 PointerSpriteOffset
     {
         get => PointerSprite?.Position ?? Vector2.Zero;

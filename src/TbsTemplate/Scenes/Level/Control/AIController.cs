@@ -373,6 +373,7 @@ public partial class AIController : ArmyController
 
     public override Grid Grid { get => _grid; set => _grid = value; }
 
+    /// <summary>Sprite to use for the pseudocursor.</summary>
     [Export] public Texture2D CursorSprite
     {
         get => Pseudocursor?.Texture;
@@ -383,6 +384,7 @@ public partial class AIController : ArmyController
         }
     }
 
+    /// <summary>Pseudocursor sprite offset from the origin of the texture to use for positioning it within a cell.</summary>
     [Export] public Vector2 CursorOffset
     {
         get => Pseudocursor?.Offset ?? Vector2.Zero;
