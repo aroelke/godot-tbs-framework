@@ -89,7 +89,7 @@ public partial class PlayerController : ArmyController
     }
 
     /// <summary>Tile set to use for displaying action ranges and danger zones.</summary>
-    [Export] public TileSet ActionRangeTileSet
+    [Export, ExportGroup("Action Ranges", "ActionRange")] public TileSet ActionRangeTileSet
     {
         get => _tileset;
         set => UpdateActionRangeTileSet(_tileset = value);
@@ -138,7 +138,7 @@ public partial class PlayerController : ArmyController
     [Export] public Color ActionRangeSelectModulate = Colors.White;
 
     /// <summary>Color to use for highlighting which cells a tracked set of allied units can move to.</summary>
-    [Export] public Color ZoneAllyTraversableColor
+    [Export, ExportGroup("Action Ranges")] public Color ZoneAllyTraversableColor
     {
         get => _ally;
         set
@@ -150,7 +150,7 @@ public partial class PlayerController : ArmyController
     }
 
     /// <summary>Color to use for highlighting which cells a tracked set of enemy units can attack.</summary>
-    [Export] public Color ZoneLocalDangerColor
+    [Export, ExportGroup("Action Ranges")] public Color ZoneLocalDangerColor
     {
         get => _local;
         set
@@ -162,7 +162,7 @@ public partial class PlayerController : ArmyController
     }
 
     /// <summary>Color to use for highlighting which cells any enemy unit can attack.</summary>
-    [Export] public Color ZoneGlobalDangerColor
+    [Export, ExportGroup("Action Ranges")] public Color ZoneGlobalDangerColor
     {
         get => _global;
         set
