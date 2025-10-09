@@ -161,7 +161,7 @@ theme = ExtResource("17_6cq6n")
 [node name="SkipHint" parent="CanvasLayer/Hints" instance=ExtResource("17_ru8y2")]
 layout_mode = 2
 Description = "Skip"
-Action = &"cancel"
+Action = &"skip"
 
 [node name="PauseHint" parent="CanvasLayer/Hints" instance=ExtResource("17_ru8y2")]
 layout_mode = 2
