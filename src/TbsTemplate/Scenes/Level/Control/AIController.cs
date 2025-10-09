@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Godot;
 using TbsTemplate.Data;
 using TbsTemplate.Extensions;
+using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
@@ -355,6 +356,7 @@ public partial class AIController : ArmyController
         return (selected.Value, destination, action, target);
     }
 
+    private readonly NodeCache _cache = null;
     private Grid _grid = null;
     private Unit _selected = null;
     private Vector2I _destination = -Vector2I.One;
@@ -362,14 +364,9 @@ public partial class AIController : ArmyController
     private Unit _target = null;
     private bool _ff = false;
 
-    private Sprite2D _pseudocursor = null;
-    private Sprite2D Pseudocursor => _pseudocursor ??= GetNode<Sprite2D>("Pseudocursor");
-
-    private FadeToBlackTransition _fft = null;
-    private FadeToBlackTransition FastForwardTransition => _fft ??= GetNode<FadeToBlackTransition>("CanvasLayer/FastForwardTransition");
-
-    private Timer _indicator = null;
-    private Timer IndicatorTimer => _indicator ??= GetNode<Timer>("IndicatorTimer");
+    private Sprite2D              Pseudocursor          => _cache.GetNode<Sprite2D>("Pseudocursor");
+    private FadeToBlackTransition FastForwardTransition => _cache.GetNode<FadeToBlackTransition>("CanvasLayer/FastForwardTransition");
+    private Timer                 IndicatorTimer        => _cache.GetNode<Timer>("IndicatorTimer");
 
     public override Grid Grid { get => _grid; set => _grid = value; }
 
@@ -408,6 +405,8 @@ public partial class AIController : ArmyController
     /// <summary>Performance option to evaluate moves using threads.</summary>
     /// <remarks>Note: The exact number of threads is based on the C# <see cref="Task"/> pool.</remarks>
     [Export] public bool EvaluateWithThreads = true;
+
+    public AIController() : base() { _cache = new(this); }
 
     public override void InitializeTurn()
     {
