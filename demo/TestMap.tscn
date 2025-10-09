@@ -1,4 +1,4 @@
-[gd_scene load_steps=41 format=4 uid="uid://bmfxux38ovtj2"]
+[gd_scene load_steps=43 format=4 uid="uid://bmfxux38ovtj2"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.tscn" id="1_h3e4w"]
 [ext_resource type="Script" uid="uid://cr1h1lebyon02" path="res://demo/TestMap.cs" id="1_stn1b"]
@@ -18,7 +18,9 @@
 [ext_resource type="Resource" uid="uid://dp74yifhop864" path="res://demo/factions/TestEnemyFaction1.tres" id="10_k4gkn"]
 [ext_resource type="PackedScene" uid="uid://drlrlusbfh208" path="res://src/TbsTemplate/Scenes/Level/Control/PlayerController.tscn" id="12_8av15"]
 [ext_resource type="Resource" uid="uid://cbi1a2igyxbt4" path="res://demo/factions/TestEnemyFaction2.tres" id="12_8r5wl"]
+[ext_resource type="Texture2D" uid="uid://dhxxyboxchr67" path="res://demo/assets/level/ui/cursor.png" id="13_ft20a"]
 [ext_resource type="Resource" uid="uid://cljpmwsb1nbjt" path="res://demo/factions/TestAllyFaction.tres" id="14_hmodb"]
+[ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://demo/assets/ui/mouse.png" id="14_xm3qp"]
 [ext_resource type="Script" uid="uid://cdy07gqijlx5a" path="res://src/TbsTemplate/Data/Stats.cs" id="15_y2o8i"]
 [ext_resource type="PackedScene" uid="uid://ca6g5c6dsaqjb" path="res://src/TbsTemplate/Scenes/Level/Control/AIController.tscn" id="17_2a1se"]
 [ext_resource type="PackedScene" uid="uid://bottrwv1ptmbg" path="res://src/TbsTemplate/Scenes/Level/Objectives/AnyObjective.tscn" id="17_atmq1"]
@@ -107,6 +109,9 @@ z_index = 100
 Faction = ExtResource("6_qur3m")
 
 [node name="PlayerController" parent="LevelManager/Player" instance=ExtResource("12_8av15")]
+CursorSpriteTexture = ExtResource("13_ft20a")
+CursorSpriteOffset = Vector2(16, 16)
+PointerSpriteTexture = ExtResource("14_xm3qp")
 ActionRangeTileSet = ExtResource("7_d17w6")
 
 [node name="PlayerA" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]

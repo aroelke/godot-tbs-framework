@@ -53,7 +53,9 @@ public partial class PlayerController : ArmyController
     private TileMapLayer      GlobalDangerZone    => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/GlobalDangerZone");
     private PathLayer         PathLayer           => _cache.GetNode<PathLayer>("PathLayer");
     private Cursor            Cursor              => _cache.GetNode<Cursor>("Cursor");
+    private Sprite2D          CursorSprite        => _cache.GetNodeOrNull<Sprite2D>("Cursor/Sprite");
     private Pointer           Pointer             => _cache.GetNode<Pointer>("Pointer");
+    private TextureRect       PointerSprite       => _cache.GetNodeOrNull<TextureRect>("Pointer/Canvas/Mouse");
     private CanvasLayer       UserInterface       => _cache.GetNode<CanvasLayer>("UserInterface");
     private AudioStreamPlayer SelectSound         => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/SelectSound");
     private AudioStreamPlayer CancelSound         => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/CancelSound");
@@ -86,6 +88,46 @@ public partial class PlayerController : ArmyController
             layer.TileSet = ts;
         foreach (TileMapLayer layer in ActionLayers.GetChildren().OfType<TileMapLayer>())
             layer.TileSet = ts;
+    }
+
+    [Export, ExportGroup("Control UI")] public Texture2D CursorSpriteTexture
+    {
+        get => CursorSprite?.Texture;
+        set
+        {
+            if (CursorSprite is not null)
+                CursorSprite.Texture = value;
+        }
+    }
+
+    [Export(PropertyHint.None, "suffix:px"), ExportGroup("Control UI")] public Vector2 CursorSpriteOffset
+    {
+        get => CursorSprite?.Offset ?? Vector2.Zero;
+        set
+        {
+            if (CursorSprite is not null)
+                CursorSprite.Offset = value;
+        }
+    }
+
+    [Export, ExportGroup("Control UI")] public Texture2D PointerSpriteTexture
+    {
+        get => PointerSprite?.Texture;
+        set
+        {
+            if (PointerSprite is not null)
+                PointerSprite.Texture = value;
+        }
+    }
+
+    [Export(PropertyHint.None, "suffix:px"), ExportGroup("Control UI")] public Vector2 PointerSpriteOffset
+    {
+        get => PointerSprite?.Position ?? Vector2.Zero;
+        set
+        {
+            if (PointerSprite is not null)
+                PointerSprite.Position = value;
+        }
     }
 
     /// <summary>Tile set to use for displaying action ranges and danger zones.</summary>
