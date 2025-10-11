@@ -52,7 +52,7 @@ public partial class PlayerController : ArmyController
     private TileMapLayer      LocalDangerZone     => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/LocalDangerZone");
     private TileMapLayer      GlobalDangerZone    => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/GlobalDangerZone");
     private PathLayer         PathLayer           => _cache.GetNode<PathLayer>("PathLayer");
-    private Cursor            Cursor              => _cache.GetNode<Cursor>("Cursor");
+    private Cursor            Cursor              => _cache.GetNodeOrNull<Cursor>("Cursor");
     private Sprite2D          CursorSprite        => _cache.GetNodeOrNull<Sprite2D>("Cursor/Sprite");
     private Pointer           Pointer             => _cache.GetNode<Pointer>("Pointer");
     private TextureRect       PointerSprite       => _cache.GetNodeOrNull<TextureRect>("Pointer/Canvas/Mouse");
@@ -215,6 +215,16 @@ public partial class PlayerController : ArmyController
             _global = value;
             if (GlobalDangerZone is not null)
                 GlobalDangerZone.Modulate = _global;
+        }
+    }
+
+    [Export, ExportGroup("Sounds")] public AudioStream CursorMoveSound
+    {
+        get => Cursor?.MoveSound;
+        set
+        {
+            if (Cursor is not null)
+                Cursor.MoveSound = value;
         }
     }
 
