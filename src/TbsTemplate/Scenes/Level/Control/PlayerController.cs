@@ -13,7 +13,6 @@ using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 using TbsTemplate.UI;
 using TbsTemplate.UI.Controls.Device;
-using TbsTemplate.UI.HUD;
 
 namespace TbsTemplate.Scenes.Level.Control;
 
@@ -43,6 +42,7 @@ public partial class PlayerController : ArmyController
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path;
 
+    private Chart             State               => _cache.GetNode<Chart>("State");
     private ActionLayers      ActionLayers        => _cache.GetNode<ActionLayers>("ActionLayers");
     private TileMapLayer      MoveLayer           => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Move");
     private TileMapLayer      AttackLayer         => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Attack");
@@ -57,12 +57,11 @@ public partial class PlayerController : ArmyController
     private Pointer           Pointer             => _cache.GetNode<Pointer>("Pointer");
     private TextureRect       PointerSprite       => _cache.GetNodeOrNull<TextureRect>("Pointer/Canvas/Mouse");
     private CanvasLayer       UserInterface       => _cache.GetNode<CanvasLayer>("UserInterface");
-    private AudioStreamPlayer SelectSound         => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/SelectSound");
-    private AudioStreamPlayer CancelSound         => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/CancelSound");
-    private AudioStreamPlayer ErrorSound          => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/ErrorSound");
-    private AudioStreamPlayer ZoneOnSound         => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/ZoneOnSound");
-    private AudioStreamPlayer ZoneOffSound        => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/ZoneOffSound");
-    private Chart             State               => _cache.GetNode<Chart>("State");
+    private AudioStreamPlayer SelectSoundPlayer   => _cache.GetNodeOrNull<AudioStreamPlayer>("SoundLibrary/SelectSound");
+    private AudioStreamPlayer CancelSoundPlayer   => _cache.GetNodeOrNull<AudioStreamPlayer>("SoundLibrary/CancelSound");
+    private AudioStreamPlayer ErrorSoundPlayer    => _cache.GetNodeOrNull<AudioStreamPlayer>("SoundLibrary/ErrorSound");
+    private AudioStreamPlayer ZoneOnSoundPlayer   => _cache.GetNodeOrNull<AudioStreamPlayer>("SoundLibrary/ZoneOnSound");
+    private AudioStreamPlayer ZoneOffSoundPlayer  => _cache.GetNodeOrNull<AudioStreamPlayer>("SoundLibrary/ZoneOffSound");
 
     public override Grid Grid
     {
@@ -218,6 +217,56 @@ public partial class PlayerController : ArmyController
                 GlobalDangerZone.Modulate = _global;
         }
     }
+
+    [Export, ExportGroup("Sounds")] public AudioStream SelectSound
+    {
+        get => SelectSoundPlayer?.Stream;
+        set
+        {
+            if (SelectSoundPlayer is not null)
+                SelectSoundPlayer.Stream = value;
+        }
+    }
+
+    [Export, ExportGroup("Sounds")] public AudioStream CancelSound
+    {
+        get => CancelSoundPlayer?.Stream;
+        set
+        {
+            if (CancelSoundPlayer is not null)
+                CancelSoundPlayer.Stream = value;
+        }
+    }
+
+    [Export, ExportGroup("Sounds")] public AudioStream ErrorSound
+    {
+        get => ErrorSoundPlayer?.Stream;
+        set
+        {
+            if (ErrorSoundPlayer is not null)
+                ErrorSoundPlayer.Stream = value;
+        }
+    }
+
+    [Export, ExportGroup("Sounds")] public AudioStream ZoneOnSound
+    {
+        get => ZoneOnSoundPlayer?.Stream;
+        set
+        {
+            if (ZoneOnSoundPlayer is not null)
+                ZoneOnSoundPlayer.Stream = value;
+        }
+    }
+
+    [Export, ExportGroup("Sounds")] public AudioStream ZoneOffSound
+    {
+        get => ZoneOffSoundPlayer?.Stream;
+        set
+        {
+            if (ZoneOffSoundPlayer is not null)
+                ZoneOffSoundPlayer.Stream = value;
+        }
+    }
 #endregion
 #region Menus
     private ContextMenu _menu = null;
@@ -280,7 +329,7 @@ public partial class PlayerController : ArmyController
     }
 
     /// <returns>The audio player that plays the "zone on" or "zone off" sound depending on <paramref name="on"/>.</returns>
-    private AudioStreamPlayer ZoneUpdateSound(bool on) => on ? ZoneOnSound : ZoneOffSound;
+    private AudioStreamPlayer ZoneUpdateSound(bool on) => on ? ZoneOnSoundPlayer : ZoneOffSoundPlayer;
 #endregion
 #region Initialization and Finalization
     public override void InitializeTurn()
@@ -311,8 +360,8 @@ public partial class PlayerController : ArmyController
     }
 #endregion
 #region State Independent
-    public void OnCancel() => CancelSound.Play();
-    public void OnFinish() => SelectSound.Play();
+    public void OnCancel() => CancelSoundPlayer.Play();
+    public void OnFinish() => SelectSoundPlayer.Play();
 
     public void OnPointerFlightStarted(Vector2 target)
     {
@@ -397,12 +446,12 @@ public partial class PlayerController : ArmyController
         {
             void Cancel()
             {
-                CancelSound.Play();
+                CancelSoundPlayer.Play();
                 Cursor.Resume();
                 Pointer.StopWaiting();
             }
 
-            SelectSound.Play();
+            SelectSoundPlayer.Play();
             EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {
                 InputManager.DigitalMoveUp, InputManager.DigitalMoveDown,
                 InputManager.AnalogMoveUp, InputManager.AnalogMoveDown,
@@ -418,7 +467,7 @@ public partial class PlayerController : ArmyController
                         unit.Finish();
                     State.SendEvent(FinishEvent);
                     EmitSignal(SignalName.TurnFastForward);
-                    SelectSound.Play();
+                    SelectSoundPlayer.Play();
                 }),
                 new("Quit Game", () => GetTree().Quit()),
                 new("Cancel", Cancel)
@@ -581,7 +630,7 @@ public partial class PlayerController : ArmyController
             EmitSignal(SignalName.PathConfirmed, _selected, new Godot.Collections.Array<Vector2I>(_path));
         }
         else
-            ErrorSound.Play();
+            ErrorSoundPlayer.Play();
     }
 
     private void CleanUpPath()
