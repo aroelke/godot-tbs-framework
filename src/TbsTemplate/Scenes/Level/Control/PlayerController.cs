@@ -283,6 +283,8 @@ public partial class PlayerController : ArmyController
                 ZoneOffSoundPlayer.Stream = value;
         }
     }
+
+    [Export, ExportGroup("Sounds")] public AudioStream MenuHighlightSound = null;
 #endregion
 #region Menus
     private ContextMenu _menu = null;
@@ -302,7 +304,7 @@ public partial class PlayerController : ArmyController
         Cursor.Halt(hide:true);
         Pointer.StartWaiting(hide:false);
 
-        ContextMenu menu = ContextMenu.Instantiate(options);
+        ContextMenu menu = ContextMenu.Instantiate(options, MenuHighlightSound);
         menu.Wrap = true;
         UserInterface.AddChild(menu);
         menu.Visible = false;

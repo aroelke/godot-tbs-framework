@@ -1,8 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://cxa8uah4pn4fg"]
+[gd_scene load_steps=3 format=3 uid="uid://cxa8uah4pn4fg"]
 
 [ext_resource type="Script" uid="uid://7ahuos6rwf71" path="res://src/TbsTemplate/UI/ContextMenu.cs" id="1_uyy67"]
 [ext_resource type="PackedScene" uid="uid://croni4vvkdn0a" path="res://src/TbsTemplate/Nodes/Components/MoveController.tscn" id="2_iqvij"]
-[ext_resource type="AudioStream" uid="uid://dupekispcuwj8" path="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Cursor - 5.wav" id="3_hi5v1"]
 
 [node name="ContextMenu" type="PanelContainer"]
 size_flags_horizontal = 3
@@ -13,7 +12,6 @@ script = ExtResource("1_uyy67")
 EnableAnalog = true
 
 [node name="HighlightSound" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("3_hi5v1")
 
 [node name="Items" type="GridContainer" parent="."]
 layout_mode = 2

@@ -125,6 +125,7 @@ CancelSound = ExtResource("16_v7xow")
 ErrorSound = ExtResource("17_gwpty")
 ZoneOnSound = ExtResource("18_05dee")
 ZoneOffSound = ExtResource("19_wtg14")
+MenuHighlightSound = ExtResource("15_wtg14")
 
 [node name="PlayerA" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(224, 256)

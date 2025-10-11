@@ -35,20 +35,25 @@ public partial class ContextMenu : PanelContainer
     [Signal] public delegate void MenuClosedEventHandler();
 
     private const int NothingSelected = -1;
-    private const string ScenePath = "res://src/TbsTemplate/UI/ContextMenu.tscn";
-    private static PackedScene Scene = null;
+    private const string DefaultScenePath = "res://src/TbsTemplate/UI/ContextMenu.tscn";
+    private static readonly PackedScene DefaultScene = null;
+
+    static ContextMenu() { DefaultScene = GD.Load<PackedScene>(DefaultScenePath); }
 
     /// <summary>Set up a context menu with a set of options mapped to actions.</summary>
     /// <param name="options">List of options to show and their actions.</param>
-    public static ContextMenu Instantiate(IEnumerable<ContextMenuOption> options)
+    /// <param name="highlight">Sound to play when a menu button gains focus.</param>
+    /// <param name="scene">Scene to use to instantiate the menu. Leave <c>null</c> to use a basic menu with the default theme.</scene>
+    public static ContextMenu Instantiate(IEnumerable<ContextMenuOption> options, AudioStream highlight, PackedScene scene=null)
     {
-        ContextMenu menu = (Scene ??= GD.Load<PackedScene>(ScenePath)).Instantiate<ContextMenu>();
+        ContextMenu menu = (scene ?? DefaultScene).Instantiate<ContextMenu>();
 
         menu.Options = [.. options.Select((o) => o.Name)];
         // Do this with the ready signal to make sure the menu has been initialized (ready is emitted after _Ready is called)
         menu.Connect(SignalName.Ready, () => {
             foreach ((StringName name, Action action) in options)
                 menu._items[name].Pressed += action;
+            menu.HighlightSound = highlight;
         }, (uint)ConnectFlags.OneShot);
 
         return menu;
@@ -63,7 +68,7 @@ public partial class ContextMenu : PanelContainer
     private bool _suppress = false;
 
     private GridContainer Items => _cache.GetNode<GridContainer>("Items");
-    private AudioStreamPlayer HighlightSound => _cache.GetNode<AudioStreamPlayer>("HighlightSound");
+    private AudioStreamPlayer HighlightSoundPlayer => _cache.GetNodeOrNull<AudioStreamPlayer>("HighlightSound");
 
     private void UpdateItems()
     {
@@ -80,6 +85,7 @@ public partial class ContextMenu : PanelContainer
     /// <param name="option">Name of the item to get.</param>
     public Button this[StringName option] => _items[option];
 
+    /// <summary>List of options to display in the menu.</summary>
     [Export] public StringName[] Options
     {
         get => _options;
@@ -92,6 +98,17 @@ public partial class ContextMenu : PanelContainer
                 if (Engine.IsEditorHint())
                     UpdateItems();
             }
+        }
+    }
+
+    /// <summary>Sound to play when a menu item gains focus.</summary>
+    [Export] public AudioStream HighlightSound
+    {
+        get => HighlightSoundPlayer?.Stream;
+        set
+        {
+            if (HighlightSoundPlayer is not null)
+                HighlightSoundPlayer.Stream = value;
         }
     }
 
@@ -187,7 +204,7 @@ public partial class ContextMenu : PanelContainer
                 _items[_options[index]].FocusEntered += () => {
                     _selected = index;
                     if (DeviceManager.Mode != InputMode.Mouse)
-                        HighlightSound.Play();
+                        HighlightSoundPlayer.Play();
                 };
                 _items[_options[index]].Pressed += () => {
                     EmitSignal(SignalName.ItemSelected, _options[index]);
@@ -197,7 +214,7 @@ public partial class ContextMenu : PanelContainer
 
                 _items[_options[index]].MouseEntered += () => {
                     _hovered = index;
-                    HighlightSound.Play();
+                    HighlightSoundPlayer.Play();
                 };
                 _items[_options[index]].MouseExited += () => _hovered = -1;
             }            
