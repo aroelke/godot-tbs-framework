@@ -56,6 +56,7 @@ public partial class Cursor : GridNode
     /// <summary>Whether or not the cursor should wrap to the other side if a direction is pressed toward the edge it's on.</summary>
     [Export] public bool Wrap = false;
 
+    /// <summary>Sound to play when the cursor moves to a new cell.</summary>
     [Export] public AudioStream MoveSound
     {
         get => MoveSoundPlayer?.Stream;

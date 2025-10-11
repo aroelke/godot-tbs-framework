@@ -218,6 +218,7 @@ public partial class PlayerController : ArmyController
         }
     }
 
+    /// <summary>Sound to play when the cursor moves to a new cell.</summary>
     [Export, ExportGroup("Sounds")] public AudioStream CursorMoveSound
     {
         get => Cursor?.MoveSound;
@@ -228,6 +229,7 @@ public partial class PlayerController : ArmyController
         }
     }
 
+    /// <summary>Sound to play when making a selection.</summary>
     [Export, ExportGroup("Sounds")] public AudioStream SelectSound
     {
         get => SelectSoundPlayer?.Stream;
@@ -238,6 +240,7 @@ public partial class PlayerController : ArmyController
         }
     }
 
+    /// <summary>Sound to play when cancelling a selection.</summary>
     [Export, ExportGroup("Sounds")] public AudioStream CancelSound
     {
         get => CancelSoundPlayer?.Stream;
@@ -248,6 +251,7 @@ public partial class PlayerController : ArmyController
         }
     }
 
+    /// <summary>Sound to play when an invalid selection is made.</summary>
     [Export, ExportGroup("Sounds")] public AudioStream ErrorSound
     {
         get => ErrorSoundPlayer?.Stream;
@@ -258,6 +262,7 @@ public partial class PlayerController : ArmyController
         }
     }
 
+    /// <summary>Sound to play when turning on a danger or movement zone.</summary>
     [Export, ExportGroup("Sounds")] public AudioStream ZoneOnSound
     {
         get => ZoneOnSoundPlayer?.Stream;
@@ -268,6 +273,7 @@ public partial class PlayerController : ArmyController
         }
     }
 
+    /// <summary>Sound to play when turning off a danger or movement zone.</summary>
     [Export, ExportGroup("Sounds")] public AudioStream ZoneOffSound
     {
         get => ZoneOffSoundPlayer?.Stream;
