@@ -18,7 +18,6 @@ public readonly record struct ContextMenuOption(StringName Name, Action Action);
 /// individually if needed.  Either way, automatically frees itself once a button is clicked.  Menu can also be canceled without selecting an
 /// item.  Not meant to be reused and options list is not meant to be modified (even though the individual options can be).
 /// </summary>
-[Tool]
 public partial class ContextMenu : PanelContainer
 {
     /// <summary>Signals that one of the items has been selected.</summary>
@@ -38,7 +37,11 @@ public partial class ContextMenu : PanelContainer
     private const string DefaultScenePath = "res://src/TbsTemplate/UI/ContextMenu.tscn";
     private static readonly PackedScene DefaultScene = null;
 
-    static ContextMenu() { DefaultScene = GD.Load<PackedScene>(DefaultScenePath); }
+    static ContextMenu()
+    {
+        if (!Engine.IsEditorHint())
+            DefaultScene = GD.Load<PackedScene>(DefaultScenePath);
+    }
 
     /// <summary>Set up a context menu with a set of options mapped to actions.</summary>
     /// <param name="options">List of options to show and their actions.</param>
@@ -48,7 +51,7 @@ public partial class ContextMenu : PanelContainer
     {
         ContextMenu menu = (scene ?? DefaultScene).Instantiate<ContextMenu>();
 
-        menu.Options = [.. options.Select((o) => o.Name)];
+        menu.Options = [.. options.Select(static (o) => o.Name)];
         // Do this with the ready signal to make sure the menu has been initialized (ready is emitted after _Ready is called)
         menu.Connect(SignalName.Ready, () => {
             foreach ((StringName name, Action action) in options)
