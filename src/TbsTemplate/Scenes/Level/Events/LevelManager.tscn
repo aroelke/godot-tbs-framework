@@ -16,7 +16,7 @@
 [ext_resource type="PackedScene" uid="uid://b7i65c130fgfs" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/EnterTreeReaction.tscn" id="29_o6hju"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = 439033673
+seed = 1155408103
 
 [sub_resource type="Resource" id="Resource_3lvnu"]
 script = ExtResource("27_kyhbc")
@@ -26,7 +26,6 @@ Number = &"active"
 
 [node name="LevelManager" type="Node"]
 script = ExtResource("1_r2v0t")
-CombatScenePath = "res://src/TbsTemplate/Scenes/Combat/CombatScene.tscn"
 
 [node name="Camera" parent="." instance=ExtResource("3_td8u6")]
 Limits = Rect2i(0, 0, 1000000, 1000000)

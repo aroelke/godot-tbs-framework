@@ -16,7 +16,7 @@ using TbsTemplate.UI.Controls.Device;
 namespace TbsTemplate.Scenes.Combat;
 
 /// <summary>Scene used to display the results of combat in a cut </summary>
-public partial class CombatScene : Node
+public partial class TestCombatScene : Node
 {
     private const string ScenePath = "res://src/TbsTemplate/Scenes/Combat/Combattscn";
     private static PackedScene Scene = null;
@@ -28,13 +28,13 @@ public partial class CombatScene : Node
     /// <param name="right">Unit on the right side of the screen.</param>
     /// <param name="actions">List of actions that will be performed each turn in combat. The length of the list determines the number of turns.</param>
     /// <exception cref="ArgumentException">If any <see cref="CombatAction"/> contains an _animations[action.Actor] who isn't participating in this combat.</exception>
-    public static CombatScene Instantiate(Unit left, Unit right, IImmutableList<CombatAction> actions)
+    public static TestCombatScene Instantiate(Unit left, Unit right, IImmutableList<CombatAction> actions)
     {
         foreach (CombatAction action in actions)
             if (action.Actor != left && action.Actor != right)
                 throw new ArgumentException($"CombatAction {action.Actor.Name} is not a participant in combat");
 
-        CombatScene scene = (Scene ??= GD.Load<PackedScene>(ScenePath)).Instantiate<CombatScene>();
+        TestCombatScene scene = (Scene ??= GD.Load<PackedScene>(ScenePath)).Instantiate<TestCombatScene>();
         scene.Initialize(left, right, actions);
         return scene;
     }
@@ -100,7 +100,7 @@ public partial class CombatScene : Node
 
     public ParticipantInfo RightInfo => _cache.GetNode<ParticipantInfo>("%RightInfo");
 
-    public CombatScene() : base() { _cache = new(this); }
+    public TestCombatScene() : base() { _cache = new(this); }
 
     /// <summary>Set up the combat </summary>
     /// <param name="left">Unit on the left side of the screen.</param>

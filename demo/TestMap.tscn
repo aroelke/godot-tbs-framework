@@ -74,6 +74,7 @@ script = ExtResource("1_stn1b")
 GameOverScreen = "res://demo/TestGameOver.tscn"
 
 [node name="LevelManager" parent="." node_paths=PackedStringArray("StartingArmy") instance=ExtResource("1_h3e4w")]
+CombatScenePath = "uid://bn2dxlvq8lqj6"
 BackgroundMusic = ExtResource("2_d2oip")
 StartingArmy = NodePath("Player")
 

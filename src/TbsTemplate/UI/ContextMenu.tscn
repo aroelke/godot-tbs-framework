@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://7ahuos6rwf71" path="res://src/TbsTemplate/UI/ContextMenu.cs" id="1_uyy67"]
 [ext_resource type="PackedScene" uid="uid://croni4vvkdn0a" path="res://src/TbsTemplate/Nodes/Components/MoveController.tscn" id="2_iqvij"]
 
-[node name="ContextMenu" type="PanelContainer"]
+[node name="TestContextMenu" type="PanelContainer"]
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("1_uyy67")
