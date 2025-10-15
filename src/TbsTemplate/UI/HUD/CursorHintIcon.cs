@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Godot;
 using TbsTemplate.Nodes.Components;
-using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI.Controls.Device;
 using TbsTemplate.UI.Controls.IconMaps;
 
@@ -28,16 +27,16 @@ public partial class CursorHintIcon : HBoxContainer
     private Texture2D GetKeyIcon(Key key) => KeyMap.ContainsKey(key) ? KeyMap[key] : null;
 
     /// <summary>Mapping of <see cref="MouseButton"/> onto icon to display.</summary>
-    [Export] public MouseIconMap MouseMap = new();
+    [Export] public MouseIconMap MouseMap = null;
 
     /// <summary>Mapping of <see cref="Key"/> onto icon to display.</summary>
-    [Export] public KeyIconMap KeyMap = new();
+    [Export] public KeyIconMap KeyMap = null;
 
     /// <summary>Mapping of <see cref="JoyButton"/> onto icon to display.</summary>
-    [Export] public CompositeGamepadButtonIconMap ButtonMap = new();
+    [Export] public CompositeGamepadButtonIconMap ButtonMap = null;
 
     /// <summary>Mapping of <see cref="JoyAxis"/> onto icon to display.</summary>
-    [Export] public CompositeGamepadAxisIconMap AxisMap = new();
+    [Export] public CompositeGamepadAxisIconMap AxisMap = null;
 
     /// <summary>Set the selected input device to show the icon for.</summary>
     public InputDevice SelectedDevice
@@ -70,9 +69,9 @@ public partial class CursorHintIcon : HBoxContainer
         {
             _icons = new()
             {
-                { InputDevice.Mouse, MouseIcon },
+                { InputDevice.Mouse,    MouseIcon    },
                 { InputDevice.Keyboard, KeyboardIcon },
-                { InputDevice.Gamepad, GamepadIcon }
+                { InputDevice.Gamepad,  GamepadIcon  }
             };
             SelectedDevice = DeviceManager.Device;
         }
@@ -83,9 +82,9 @@ public partial class CursorHintIcon : HBoxContainer
         base._Process(delta);
         if (Engine.IsEditorHint())
         {
-            UpKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputManager.DigitalMoveUp));
-            LeftKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputManager.DigitalMoveLeft));
-            DownKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputManager.DigitalMoveDown));
+            UpKeyIcon.Texture    = GetKeyIcon(InputManager.GetInputKeycode(InputManager.DigitalMoveUp));
+            LeftKeyIcon.Texture  = GetKeyIcon(InputManager.GetInputKeycode(InputManager.DigitalMoveLeft));
+            DownKeyIcon.Texture  = GetKeyIcon(InputManager.GetInputKeycode(InputManager.DigitalMoveDown));
             RightKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputManager.DigitalMoveRight));
             MouseIcon.Texture = MouseMap.Motion;
 
