@@ -13,7 +13,6 @@ using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Scenes.Level.Object.Group;
 using TbsTemplate.UI;
 using TbsTemplate.UI.Controls.Device;
-using TbsTemplate.UI.HUD;
 
 namespace TbsTemplate.Scenes.Level.Control;
 
@@ -43,6 +42,7 @@ public partial class PlayerController : ArmyController
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path;
 
+    private Chart             State               => _cache.GetNode<Chart>("State");
     private ActionLayers      ActionLayers        => _cache.GetNode<ActionLayers>("ActionLayers");
     private TileMapLayer      MoveLayer           => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Move");
     private TileMapLayer      AttackLayer         => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Attack");
@@ -52,18 +52,16 @@ public partial class PlayerController : ArmyController
     private TileMapLayer      LocalDangerZone     => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/LocalDangerZone");
     private TileMapLayer      GlobalDangerZone    => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/GlobalDangerZone");
     private PathLayer         PathLayer           => _cache.GetNode<PathLayer>("PathLayer");
-    private Cursor            Cursor              => _cache.GetNode<Cursor>("Cursor");
+    private Cursor            Cursor              => _cache.GetNodeOrNull<Cursor>("Cursor");
+    private Sprite2D          CursorSprite        => _cache.GetNodeOrNull<Sprite2D>("Cursor/Sprite");
     private Pointer           Pointer             => _cache.GetNode<Pointer>("Pointer");
+    private TextureRect       PointerSprite       => _cache.GetNodeOrNull<TextureRect>("Pointer/Canvas/Mouse");
     private CanvasLayer       UserInterface       => _cache.GetNode<CanvasLayer>("UserInterface");
-    private Godot.Control     HUD                 => _cache.GetNode<Godot.Control>("UserInterface/HUD");
-    private ControlHint       CancelHint          => _cache.GetNode<ControlHint>("%CancelHint");
-    private ControlHint       SkipHint            => _cache.GetNode<ControlHint>("%SkipHint");
-    private AudioStreamPlayer SelectSound         => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/SelectSound");
-    private AudioStreamPlayer CancelSound         => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/CancelSound");
-    private AudioStreamPlayer ErrorSound          => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/ErrorSound");
-    private AudioStreamPlayer ZoneOnSound         => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/ZoneOnSound");
-    private AudioStreamPlayer ZoneOffSound        => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/ZoneOffSound");
-    private Chart             State               => _cache.GetNode<Chart>("State");
+    private AudioStreamPlayer SelectSoundPlayer   => _cache.GetNodeOrNull<AudioStreamPlayer>("SoundLibrary/SelectSound");
+    private AudioStreamPlayer CancelSoundPlayer   => _cache.GetNodeOrNull<AudioStreamPlayer>("SoundLibrary/CancelSound");
+    private AudioStreamPlayer ErrorSoundPlayer    => _cache.GetNodeOrNull<AudioStreamPlayer>("SoundLibrary/ErrorSound");
+    private AudioStreamPlayer ZoneOnSoundPlayer   => _cache.GetNodeOrNull<AudioStreamPlayer>("SoundLibrary/ZoneOnSound");
+    private AudioStreamPlayer ZoneOffSoundPlayer  => _cache.GetNodeOrNull<AudioStreamPlayer>("SoundLibrary/ZoneOffSound");
 
     public override Grid Grid
     {
@@ -91,8 +89,52 @@ public partial class PlayerController : ArmyController
             layer.TileSet = ts;
     }
 
+    /// <summary>Sprite to use for the grid cursor.</summary>
+    [Export, ExportGroup("Control UI")] public Texture2D CursorSpriteTexture
+    {
+        get => CursorSprite?.Texture;
+        set
+        {
+            if (CursorSprite is not null)
+                CursorSprite.Texture = value;
+        }
+    }
+
+    /// <summary>Offset of the sprite from the origin of the texture to use for positioning it within a cell.</summary>
+    [Export(PropertyHint.None, "suffix:px"), ExportGroup("Control UI")] public Vector2 CursorSpriteOffset
+    {
+        get => CursorSprite?.Offset ?? Vector2.Zero;
+        set
+        {
+            if (CursorSprite is not null)
+                CursorSprite.Offset = value;
+        }
+    }
+
+    /// <summary>Sprite to use for the analog (not mouse) pointer.</summary>
+    [Export, ExportGroup("Control UI")] public Texture2D PointerSpriteTexture
+    {
+        get => PointerSprite?.Texture;
+        set
+        {
+            if (PointerSprite is not null)
+                PointerSprite.Texture = value;
+        }
+    }
+
+    /// <summary>Offset of the analog pointer sprite from the origin of the texture.</summary>
+    [Export(PropertyHint.None, "suffix:px"), ExportGroup("Control UI")] public Vector2 PointerSpriteOffset
+    {
+        get => PointerSprite?.Position ?? Vector2.Zero;
+        set
+        {
+            if (PointerSprite is not null)
+                PointerSprite.Position = value;
+        }
+    }
+
     /// <summary>Tile set to use for displaying action ranges and danger zones.</summary>
-    [Export] public TileSet ActionRangeTileSet
+    [Export, ExportGroup("Action Ranges", "ActionRange")] public TileSet ActionRangeTileSet
     {
         get => _tileset;
         set => UpdateActionRangeTileSet(_tileset = value);
@@ -141,7 +183,7 @@ public partial class PlayerController : ArmyController
     [Export] public Color ActionRangeSelectModulate = Colors.White;
 
     /// <summary>Color to use for highlighting which cells a tracked set of allied units can move to.</summary>
-    [Export] public Color ZoneAllyTraversableColor
+    [Export, ExportGroup("Action Ranges")] public Color ZoneAllyTraversableColor
     {
         get => _ally;
         set
@@ -153,7 +195,7 @@ public partial class PlayerController : ArmyController
     }
 
     /// <summary>Color to use for highlighting which cells a tracked set of enemy units can attack.</summary>
-    [Export] public Color ZoneLocalDangerColor
+    [Export, ExportGroup("Action Ranges")] public Color ZoneLocalDangerColor
     {
         get => _local;
         set
@@ -165,7 +207,7 @@ public partial class PlayerController : ArmyController
     }
 
     /// <summary>Color to use for highlighting which cells any enemy unit can attack.</summary>
-    [Export] public Color ZoneGlobalDangerColor
+    [Export, ExportGroup("Action Ranges")] public Color ZoneGlobalDangerColor
     {
         get => _global;
         set
@@ -175,6 +217,74 @@ public partial class PlayerController : ArmyController
                 GlobalDangerZone.Modulate = _global;
         }
     }
+
+    /// <summary>Sound to play when the cursor moves to a new cell.</summary>
+    [Export, ExportGroup("Sounds")] public AudioStream CursorMoveSound
+    {
+        get => Cursor?.MoveSound;
+        set
+        {
+            if (Cursor is not null)
+                Cursor.MoveSound = value;
+        }
+    }
+
+    /// <summary>Sound to play when making a selection.</summary>
+    [Export, ExportGroup("Sounds")] public AudioStream SelectSound
+    {
+        get => SelectSoundPlayer?.Stream;
+        set
+        {
+            if (SelectSoundPlayer is not null)
+                SelectSoundPlayer.Stream = value;
+        }
+    }
+
+    /// <summary>Sound to play when cancelling a selection.</summary>
+    [Export, ExportGroup("Sounds")] public AudioStream CancelSound
+    {
+        get => CancelSoundPlayer?.Stream;
+        set
+        {
+            if (CancelSoundPlayer is not null)
+                CancelSoundPlayer.Stream = value;
+        }
+    }
+
+    /// <summary>Sound to play when an invalid selection is made.</summary>
+    [Export, ExportGroup("Sounds")] public AudioStream ErrorSound
+    {
+        get => ErrorSoundPlayer?.Stream;
+        set
+        {
+            if (ErrorSoundPlayer is not null)
+                ErrorSoundPlayer.Stream = value;
+        }
+    }
+
+    /// <summary>Sound to play when turning on a danger or movement zone.</summary>
+    [Export, ExportGroup("Sounds")] public AudioStream ZoneOnSound
+    {
+        get => ZoneOnSoundPlayer?.Stream;
+        set
+        {
+            if (ZoneOnSoundPlayer is not null)
+                ZoneOnSoundPlayer.Stream = value;
+        }
+    }
+
+    /// <summary>Sound to play when turning off a danger or movement zone.</summary>
+    [Export, ExportGroup("Sounds")] public AudioStream ZoneOffSound
+    {
+        get => ZoneOffSoundPlayer?.Stream;
+        set
+        {
+            if (ZoneOffSoundPlayer is not null)
+                ZoneOffSoundPlayer.Stream = value;
+        }
+    }
+
+    [Export, ExportGroup("Sounds")] public AudioStream MenuHighlightSound = null;
 #endregion
 #region Menus
     private ContextMenu _menu = null;
@@ -193,9 +303,8 @@ public partial class PlayerController : ArmyController
     {
         Cursor.Halt(hide:true);
         Pointer.StartWaiting(hide:false);
-        CancelHint.Visible = true;
 
-        ContextMenu menu = ContextMenu.Instantiate(options);
+        ContextMenu menu = ContextMenu.Instantiate(options, MenuHighlightSound);
         menu.Wrap = true;
         UserInterface.AddChild(menu);
         menu.Visible = false;
@@ -238,12 +347,11 @@ public partial class PlayerController : ArmyController
     }
 
     /// <returns>The audio player that plays the "zone on" or "zone off" sound depending on <paramref name="on"/>.</returns>
-    private AudioStreamPlayer ZoneUpdateSound(bool on) => on ? ZoneOnSound : ZoneOffSound;
+    private AudioStreamPlayer ZoneUpdateSound(bool on) => on ? ZoneOnSoundPlayer : ZoneOffSoundPlayer;
 #endregion
 #region Initialization and Finalization
     public override void InitializeTurn()
     {
-        HUD.Visible = true;
         UpdateDangerZones();
         ZoneLayers.Visible = true;
 
@@ -253,7 +361,12 @@ public partial class PlayerController : ArmyController
         Pointer.StopWaiting();
     }
 
-    public override void FinalizeAction() => UpdateDangerZones();
+    public override void FinalizeAction()
+    {
+        UpdateDangerZones();
+        EmitSignal(SignalName.ProgressUpdated, ((IEnumerable<Unit>)Army).Count((u) => !u.Active) + 1, ((IEnumerable<Unit>)Army).Count((u) => u.Active) - 1); // Add one to account for the unit that just finished
+        EmitSignal(SignalName.EnabledInputActionsUpdated, Array.Empty<StringName>());
+    }
 
     public override void FinalizeTurn()
     {
@@ -262,12 +375,11 @@ public partial class PlayerController : ArmyController
         ZoneLayers.Visible = false;
         Cursor.Halt(hide:true);
         Pointer.StartWaiting(hide:true);
-        HUD.Visible = false;
     }
 #endregion
 #region State Independent
-    public void OnCancel() => CancelSound.Play();
-    public void OnFinish() => SelectSound.Play();
+    public void OnCancel() => CancelSoundPlayer.Play();
+    public void OnFinish() => SelectSoundPlayer.Play();
 
     public void OnPointerFlightStarted(Vector2 target)
     {
@@ -324,9 +436,6 @@ public partial class PlayerController : ArmyController
     {
         Cursor.Resume();
         Pointer.StopWaiting();
-        CancelHint.Visible = false;
-        SkipHint.Visible = false;
-
         ActionLayers.Clear();
         ActionLayers.Modulate = ActionRangeHoverModulate;
 
@@ -355,12 +464,18 @@ public partial class PlayerController : ArmyController
         {
             void Cancel()
             {
-                CancelSound.Play();
+                CancelSoundPlayer.Play();
                 Cursor.Resume();
                 Pointer.StopWaiting();
             }
 
-            SelectSound.Play();
+            SelectSoundPlayer.Play();
+            EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {
+                InputManager.DigitalMoveUp, InputManager.DigitalMoveDown,
+                InputManager.AnalogMoveUp, InputManager.AnalogMoveDown,
+                InputManager.UiHome, InputManager.UiHome,
+                InputManager.Select, InputManager.UiAccept, InputManager.Cancel
+            });
             ContextMenu menu = ShowMenu(Cursor.Grid.CellRect(cell), [
                 new("End Turn", () => {
                     // Cursor is already halted
@@ -370,17 +485,34 @@ public partial class PlayerController : ArmyController
                         unit.Finish();
                     State.SendEvent(FinishEvent);
                     EmitSignal(SignalName.TurnFastForward);
-                    SelectSound.Play();
+                    SelectSoundPlayer.Play();
                 }),
                 new("Quit Game", () => GetTree().Quit()),
                 new("Cancel", Cancel)
             ]);
             menu.MenuCanceled += Cancel;
-            menu.MenuClosed += () => CancelHint.Visible = false;
+            menu.MenuClosed += () => EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {
+                InputManager.DigitalMoveUp, InputManager.DigitalMoveLeft, InputManager.DigitalMoveRight, InputManager.DigitalMoveDown,
+                InputManager.AnalogMoveUp, InputManager.AnalogMoveLeft, InputManager.AnalogMoveRight, InputManager.AnalogMoveDown,
+                InputManager.Previous, InputManager.Next,
+                InputManager.Select,
+                InputManager.ToggleDangerZone
+            });
         }
     }
 
-    public void OnSelectEntered() => Cursor.CellSelected += ConfirmCursorSelection;
+    public void OnSelectEntered()
+    {
+        Cursor.CellSelected += ConfirmCursorSelection;
+
+        EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {
+            InputManager.DigitalMoveUp, InputManager.DigitalMoveLeft, InputManager.DigitalMoveRight, InputManager.DigitalMoveDown,
+            InputManager.AnalogMoveUp, InputManager.AnalogMoveLeft, InputManager.AnalogMoveRight, InputManager.AnalogMoveDown,
+            InputManager.Previous, InputManager.Next,
+            InputManager.Select,
+            InputManager.ToggleDangerZone
+        });
+    }
 
     public void OnSelectInput(InputEvent @event)
     {
@@ -432,7 +564,6 @@ public partial class PlayerController : ArmyController
     {
         Cursor.Resume();
         Pointer.StopWaiting();
-        CancelHint.Visible = true;
         ActionLayers.Modulate = ActionRangeSelectModulate;
 
         _target = null;
@@ -505,21 +636,19 @@ public partial class PlayerController : ArmyController
         else if (!occupied || occupant == _selected)
         {
             State.SendEvent(FinishEvent);
-            SkipHint.Visible = true;
-            _selected.Connect(Unit.SignalName.DoneMoving, () => SkipHint.Visible = false, (uint)ConnectFlags.OneShot);
+            EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {InputManager.Skip, InputManager.Accelerate});
             EmitSignal(SignalName.PathConfirmed, _selected, new Godot.Collections.Array<Vector2I>(_path));
         }
         else if (occupied && occupant is Unit target && (_attackable.Contains(target.Cell) || _supportable.Contains(target.Cell)))
         {
             State.SendEvent(FinishEvent);
-            SkipHint.Visible = true;
-            _selected.Connect(Unit.SignalName.DoneMoving, () => SkipHint.Visible = false, (uint)ConnectFlags.OneShot);
+            EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {InputManager.Skip, InputManager.Accelerate});
             EmitSignal(SignalName.UnitCommanded, _selected, _command);
             EmitSignal(SignalName.TargetChosen, _selected, target);
             EmitSignal(SignalName.PathConfirmed, _selected, new Godot.Collections.Array<Vector2I>(_path));
         }
         else
-            ErrorSound.Play();
+            ErrorSoundPlayer.Play();
     }
 
     private void CleanUpPath()
@@ -534,6 +663,13 @@ public partial class PlayerController : ArmyController
     {
         Cursor.CellChanged += AddToPath;
         Cursor.CellSelected += ConfirmPathSelection;
+
+        EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {
+            InputManager.DigitalMoveUp, InputManager.DigitalMoveLeft, InputManager.DigitalMoveRight, InputManager.DigitalMoveDown,
+            InputManager.AnalogMoveUp, InputManager.AnalogMoveLeft, InputManager.AnalogMoveRight, InputManager.AnalogMoveDown,
+            InputManager.Select, InputManager.Cancel,
+            InputManager.ToggleDangerZone
+        });
     }
 
     public void OnPathCanceled() => CleanUpPath();
@@ -542,7 +678,6 @@ public partial class PlayerController : ArmyController
     {
         Cursor.Halt(hide:false);
         Pointer.StartWaiting(hide:false);
-        CancelHint.Visible = false;
         _selected.Connect(Unit.SignalName.DoneMoving, UpdateDangerZones, (uint)ConnectFlags.OneShot);
         CleanUpPath();
     }
@@ -574,7 +709,15 @@ public partial class PlayerController : ArmyController
         }).CallDeferred();
     }
 
-    public void OnCommandEntered() => CancelHint.Visible = true;
+    public void OnCommandEntered()
+    {
+        EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {
+            InputManager.DigitalMoveUp, InputManager.DigitalMoveDown,
+            InputManager.AnalogMoveUp, InputManager.AnalogMoveDown,
+            InputManager.UiHome, InputManager.UiHome,
+            InputManager.Select, InputManager.UiAccept, InputManager.Cancel
+        });
+    }
 
     public void OnCommandProcess(double delta) => _menu.Position = MenuPosition(Cursor.Grid.CellRect(_selected.Cell), _menu.Size);
 #endregion
@@ -585,7 +728,6 @@ public partial class PlayerController : ArmyController
     {
         Cursor.Resume();
         Pointer.StopWaiting();
-        CancelHint.Visible = true;
 
         Pointer.AnalogTracking = false;
         Cursor.Wrap = true;
@@ -609,14 +751,24 @@ public partial class PlayerController : ArmyController
         {
             Cursor.Halt(hide:false);
             Pointer.StartWaiting(hide:false);
-            CancelHint.Visible = false;
 
             State.SendEvent(FinishEvent);
             EmitSignal(SignalName.TargetChosen, _selected, target);
         }
     }
 
-    public void OnTargetEntered() => Cursor.CellSelected += ConfirmTargetSelection;
+    public void OnTargetEntered()
+    {
+        Cursor.CellSelected += ConfirmTargetSelection;
+
+        EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {
+            InputManager.DigitalMoveUp, InputManager.DigitalMoveLeft, InputManager.DigitalMoveRight, InputManager.DigitalMoveDown,
+            InputManager.AnalogMoveUp, InputManager.AnalogMoveLeft, InputManager.AnalogMoveRight, InputManager.AnalogMoveDown,
+            InputManager.Previous, InputManager.Next,
+            InputManager.Select, InputManager.Cancel,
+            InputManager.ToggleDangerZone
+        });
+    }
 
     public void OnTargetInput(InputEvent @event)
     {

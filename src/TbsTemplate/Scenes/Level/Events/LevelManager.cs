@@ -52,7 +52,6 @@ public partial class LevelManager : Node
     private Grid Grid = null;
     private Camera2DBrain   Camera                            => _cache.GetNode<Camera2DBrain>("Camera");
     private CanvasLayer     UserInterface                     => _cache.GetNode<CanvasLayer>("UserInterface");
-    private Label           TurnLabel                         => _cache.GetNode<Label>("UserInterface/TurnLabel");
     private Chart           State                             => _cache.GetNode<Chart>("State");
     private ActionReaction  OnSkipTurnReaction                => _cache.GetNode<ActionReaction>("State/Root/Running/Skippable/OnFastForward");
     private UnitReaction    OnUnitSelectedReaction            => _cache.GetNode<UnitReaction>("State/Root/Running/Skippable/Idle/OnUnitSelected");
@@ -74,13 +73,6 @@ public partial class LevelManager : Node
             viewportCenter - viewportRect.Position.X < viewportRect.Size.X/2 ? viewportRect.Position.X - size.X : viewportRect.End.X,
             Mathf.Clamp(viewportRect.Position.Y - (size.Y - viewportRect.Size.Y)/2, 0, GetViewport().GetVisibleRect().Size.Y - size.Y)
         );
-    }
-
-    /// <summary>Update the UI turn counter for the current turn and change its color to match the army.</summary>
-    private void UpdateTurnCounter()
-    {
-        TurnLabel.AddThemeColorOverride("font_color", _armies.Current.Faction.Color);
-        TurnLabel.Text = $"Turn {Turn}: {_armies.Current.Faction.Name}";
     }
 #endregion
 #region Exports
@@ -121,9 +113,6 @@ public partial class LevelManager : Node
         _armies.Current.Controller.InitializeTurn();
         Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
     }
-
-    /// <summary>Perform any updates that the turn has begun that need to happen after upkeep.</summary>
-    public void OnBeginTurnExited() => UpdateTurnCounter();
 #endregion
 #region Idle State
     /// <summary>Update the UI when re-entering idle.</summary>

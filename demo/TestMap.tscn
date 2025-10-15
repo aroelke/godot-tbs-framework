@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=4 uid="uid://bmfxux38ovtj2"]
+[gd_scene load_steps=49 format=4 uid="uid://bmfxux38ovtj2"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.tscn" id="1_h3e4w"]
 [ext_resource type="Script" uid="uid://cr1h1lebyon02" path="res://demo/TestMap.cs" id="1_stn1b"]
@@ -18,12 +18,20 @@
 [ext_resource type="Resource" uid="uid://dp74yifhop864" path="res://demo/factions/TestEnemyFaction1.tres" id="10_k4gkn"]
 [ext_resource type="PackedScene" uid="uid://drlrlusbfh208" path="res://src/TbsTemplate/Scenes/Level/Control/PlayerController.tscn" id="12_8av15"]
 [ext_resource type="Resource" uid="uid://cbi1a2igyxbt4" path="res://demo/factions/TestEnemyFaction2.tres" id="12_8r5wl"]
+[ext_resource type="Texture2D" uid="uid://dhxxyboxchr67" path="res://demo/assets/level/ui/cursor.png" id="13_ft20a"]
 [ext_resource type="Resource" uid="uid://cljpmwsb1nbjt" path="res://demo/factions/TestAllyFaction.tres" id="14_hmodb"]
+[ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://demo/assets/ui/mouse.png" id="14_xm3qp"]
+[ext_resource type="AudioStream" uid="uid://bg4mbs7d25qaj" path="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Select - 1.wav" id="15_ueqnm"]
+[ext_resource type="AudioStream" uid="uid://dupekispcuwj8" path="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Cursor - 5.wav" id="15_wtg14"]
 [ext_resource type="Script" uid="uid://cdy07gqijlx5a" path="res://src/TbsTemplate/Data/Stats.cs" id="15_y2o8i"]
+[ext_resource type="AudioStream" uid="uid://b4dbo5h2e7ru4" path="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Cancel - 1.wav" id="16_v7xow"]
 [ext_resource type="PackedScene" uid="uid://ca6g5c6dsaqjb" path="res://src/TbsTemplate/Scenes/Level/Control/AIController.tscn" id="17_2a1se"]
 [ext_resource type="PackedScene" uid="uid://bottrwv1ptmbg" path="res://src/TbsTemplate/Scenes/Level/Objectives/AnyObjective.tscn" id="17_atmq1"]
+[ext_resource type="AudioStream" uid="uid://oyebi18i5hmn" path="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Error - 1.wav" id="17_gwpty"]
+[ext_resource type="AudioStream" uid="uid://dx4swhb5suesh" path="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Open - 1.wav" id="18_05dee"]
 [ext_resource type="PackedScene" uid="uid://nt5vqytk4pr3" path="res://src/TbsTemplate/Scenes/Level/Control/StandBehavior.tscn" id="19_obmv3"]
 [ext_resource type="PackedScene" uid="uid://bdxrle0amq3ew" path="res://src/TbsTemplate/Scenes/Level/Objectives/TimeObjective.tscn" id="19_rxp4c"]
+[ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="19_wtg14"]
 [ext_resource type="PackedScene" uid="uid://bi38gny50edyk" path="res://src/TbsTemplate/Scenes/Level/Objectives/RouteObjective.tscn" id="20_1l8iw"]
 [ext_resource type="PackedScene" uid="uid://djsdk3bbrh181" path="res://src/TbsTemplate/Scenes/Level/Control/MoveBehavior.tscn" id="20_1vdvi"]
 [ext_resource type="PackedScene" uid="uid://7wc21qvj7n3n" path="res://src/TbsTemplate/Scenes/Level/Objectives/DefeatUnitObjective.tscn" id="20_6u8j8"]
@@ -34,6 +42,10 @@
 [ext_resource type="PackedScene" uid="uid://blf1owsru7rvw" path="res://src/TbsTemplate/Scenes/Level/Objectives/ActionObjective.tscn" id="24_h6vny"]
 [ext_resource type="PackedScene" uid="uid://bi8p6x3pf3217" path="res://src/TbsTemplate/Scenes/Level/Events/EventController.tscn" id="25_i6qxt"]
 [ext_resource type="Theme" uid="uid://on6m2o4031fb" path="res://demo/assets/ui/Hints.tres" id="28_y0mi7"]
+[ext_resource type="Texture2D" uid="uid://5if38wokibin" path="res://demo/assets/raw/Pixel Health Bar/Bar/no health bar (3x).png" id="35_ga18v"]
+[ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/TbsTemplate/UI/HUD/CursorHintIcon.tscn" id="35_rm861"]
+[ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/TbsTemplate/UI/HUD/ControlHint.tscn" id="36_ft20a"]
+[ext_resource type="Texture2D" uid="uid://b1rv5edu7ewx" path="res://demo/assets/raw/Pixel Health Bar/Health/health (3x).png" id="36_s8hgk"]
 
 [sub_resource type="Resource" id="Resource_6fypd"]
 script = ExtResource("15_y2o8i")
@@ -62,6 +74,7 @@ script = ExtResource("1_stn1b")
 GameOverScreen = "res://demo/TestGameOver.tscn"
 
 [node name="LevelManager" parent="." node_paths=PackedStringArray("StartingArmy") instance=ExtResource("1_h3e4w")]
+CombatScenePath = "uid://bn2dxlvq8lqj6"
 BackgroundMusic = ExtResource("2_d2oip")
 StartingArmy = NodePath("Player")
 
@@ -103,7 +116,17 @@ z_index = 100
 Faction = ExtResource("6_qur3m")
 
 [node name="PlayerController" parent="LevelManager/Player" instance=ExtResource("12_8av15")]
+CursorSpriteTexture = ExtResource("13_ft20a")
+CursorSpriteOffset = Vector2(16, 16)
+PointerSpriteTexture = ExtResource("14_xm3qp")
 ActionRangeTileSet = ExtResource("7_d17w6")
+CursorMoveSound = ExtResource("15_wtg14")
+SelectSound = ExtResource("15_ueqnm")
+CancelSound = ExtResource("16_v7xow")
+ErrorSound = ExtResource("17_gwpty")
+ZoneOnSound = ExtResource("18_05dee")
+ZoneOffSound = ExtResource("19_wtg14")
+MenuHighlightSound = ExtResource("15_wtg14")
 
 [node name="PlayerA" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(224, 256)
@@ -145,6 +168,8 @@ Size = Vector2(32, 32)
 Faction = ExtResource("10_k4gkn")
 
 [node name="AIController" parent="LevelManager/Enemy" instance=ExtResource("17_2a1se")]
+CursorSprite = ExtResource("13_ft20a")
+CursorOffset = Vector2(16, 16)
 
 [node name="EnemyA" parent="LevelManager/Enemy" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(320, 416)
@@ -384,6 +409,8 @@ SupportInRange = false
 Faction = ExtResource("12_8r5wl")
 
 [node name="AIController" parent="LevelManager/OtherEnemy" instance=ExtResource("17_2a1se")]
+CursorSprite = ExtResource("13_ft20a")
+CursorOffset = Vector2(16, 16)
 
 [node name="OtherEnemyA" parent="LevelManager/OtherEnemy" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(576, 384)
@@ -402,6 +429,8 @@ SupportInRange = false
 Faction = ExtResource("14_hmodb")
 
 [node name="AIController" parent="LevelManager/Ally" instance=ExtResource("17_2a1se")]
+CursorSprite = ExtResource("13_ft20a")
+CursorOffset = Vector2(16, 16)
 
 [node name="AllyA" parent="LevelManager/Ally" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(32, 224)
@@ -445,6 +474,13 @@ Turns = 5
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
+[node name="TurnLabel" type="Label" parent="CanvasLayer"]
+offset_right = 213.0
+offset_bottom = 45.0
+theme = ExtResource("28_y0mi7")
+theme_override_font_sizes/font_size = 32
+text = "Turn 1: Player"
+
 [node name="ObjectiveLabel" type="Label" parent="CanvasLayer"]
 offset_top = 39.0
 offset_right = 110.0
@@ -453,7 +489,71 @@ theme = ExtResource("28_y0mi7")
 text = "Success: None
 Failure: Never"
 
+[node name="HUD" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="Hints" type="HBoxContainer" parent="CanvasLayer/HUD"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -40.0
+offset_right = 281.0
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="CursorHintIcon" parent="CanvasLayer/HUD/Hints" instance=ExtResource("35_rm861")]
+layout_mode = 2
+
+[node name="SelectHint" parent="CanvasLayer/HUD/Hints" instance=ExtResource("36_ft20a")]
+layout_mode = 2
+Description = "Select"
+Action = &"select"
+
+[node name="CancelHint" parent="CanvasLayer/HUD/Hints" instance=ExtResource("36_ft20a")]
+layout_mode = 2
+Description = "Cancel"
+Action = &"cancel"
+
+[node name="SkipHint" parent="CanvasLayer/HUD/Hints" instance=ExtResource("36_ft20a")]
+layout_mode = 2
+Description = "Skip"
+Action = &"skip"
+
+[node name="TurnProgress" type="TextureProgressBar" parent="CanvasLayer"]
+visible = false
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -415.0
+offset_top = -81.0
+offset_right = -31.0
+offset_bottom = -33.0
+grow_horizontal = 0
+grow_vertical = 0
+texture_under = ExtResource("35_ga18v")
+texture_progress = ExtResource("36_s8hgk")
+
 [connection signal="child_entered_tree" from="LevelManager/Player" to="LevelManager" method="OnChildEnteredGroup"]
+[connection signal="EnabledInputActionsUpdated" from="LevelManager/Player/PlayerController" to="." method="OnEnabledInputActionsUpdated"]
 [connection signal="child_entered_tree" from="LevelManager/Enemy" to="LevelManager" method="OnChildEnteredGroup"]
+[connection signal="EnabledInputActionsUpdated" from="LevelManager/Enemy/AIController" to="." method="_on_ai_controller_enabled_input_actions_updated"]
+[connection signal="FastForwardStateChanged" from="LevelManager/Enemy/AIController" to="." method="OnArmyControllerFastForwardStateChanged"]
+[connection signal="ProgressUpdated" from="LevelManager/Enemy/AIController" to="." method="OnArmyControllerProgressUpdated"]
 [connection signal="child_entered_tree" from="LevelManager/OtherEnemy" to="LevelManager" method="OnChildEnteredGroup"]
+[connection signal="EnabledInputActionsUpdated" from="LevelManager/OtherEnemy/AIController" to="." method="OnEnabledInputActionsUpdated"]
+[connection signal="FastForwardStateChanged" from="LevelManager/OtherEnemy/AIController" to="." method="OnArmyControllerFastForwardStateChanged"]
+[connection signal="ProgressUpdated" from="LevelManager/OtherEnemy/AIController" to="." method="OnArmyControllerProgressUpdated"]
 [connection signal="child_entered_tree" from="LevelManager/Ally" to="LevelManager" method="OnChildEnteredGroup"]
+[connection signal="EnabledInputActionsUpdated" from="LevelManager/Ally/AIController" to="." method="OnEnabledInputActionsUpdated"]
+[connection signal="FastForwardStateChanged" from="LevelManager/Ally/AIController" to="." method="OnArmyControllerFastForwardStateChanged"]
+[connection signal="ProgressUpdated" from="LevelManager/Ally/AIController" to="." method="OnArmyControllerProgressUpdated"]

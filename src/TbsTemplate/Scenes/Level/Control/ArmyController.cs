@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Godot;
@@ -10,6 +11,10 @@ namespace TbsTemplate.Scenes.Level.Control;
 /// <summary>Controller for determining which units act in a turn and how they act.</summary>
 public abstract partial class ArmyController : Node
 {
+    /// <summary>Signals that the set of usable inputs that this controller can react to has changed. Mostly useful for updating the UI.</summary>
+    /// <param name="actions"></param>
+    [Signal] public delegate void EnabledInputActionsUpdatedEventHandler(StringName[] actions);
+
     /// <summary>Signals that a selection has been canceled.</summary>
     [Signal] public delegate void SelectionCanceledEventHandler();
 
@@ -41,6 +46,11 @@ public abstract partial class ArmyController : Node
     /// <summary>Signals that targeting for a unit's action was canceled.</summary>
     /// <param name="source">Unit whose action was canceled.</param>
     [Signal] public delegate void TargetCanceledEventHandler(Unit source);
+
+    /// <summary>Signals that a unit's action has been finalized and the current army's turn has progressed.</summary>
+    /// <param name="completed">Number of units that have completed actions, including the one that just did.</param>
+    /// <param name="remaining">Number of units that can still act.</param>
+    [Signal] public delegate void ProgressUpdatedEventHandler(int completed, int remaining);
 
     private Army _army = null;
     private readonly ImmutableDictionary<StringName, List<Callable>> _turnSignals;
@@ -112,6 +122,8 @@ public abstract partial class ArmyController : Node
                 Disconnect(signal, callable);
             callables.Clear();
         }
+
+        EmitSignal(SignalName.EnabledInputActionsUpdated, Array.Empty<StringName>());
     }
 
     public override string[] _GetConfigurationWarnings()

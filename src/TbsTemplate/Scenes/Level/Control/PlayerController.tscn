@@ -1,27 +1,20 @@
-[gd_scene load_steps=23 format=3 uid="uid://drlrlusbfh208"]
+[gd_scene load_steps=16 format=3 uid="uid://drlrlusbfh208"]
 
 [ext_resource type="Script" uid="uid://cjva3220ryesk" path="res://src/TbsTemplate/Scenes/Level/Control/PlayerController.cs" id="1_52vsu"]
 [ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/TbsTemplate/Nodes/StateChart/Chart.tscn" id="2_br7d1"]
 [ext_resource type="PackedScene" uid="uid://bgcsg0l8mj2sn" path="res://src/TbsTemplate/Scenes/Level/Object/Cursor.tscn" id="2_rkggg"]
 [ext_resource type="PackedScene" uid="uid://bqrqq7jid7qp2" path="res://src/TbsTemplate/UI/Pointer.tscn" id="3_nkaji"]
-[ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/TbsTemplate/UI/HUD/CursorHintIcon.tscn" id="3_qlbkh"]
 [ext_resource type="PackedScene" uid="uid://bykdjiak4bxvt" path="res://src/TbsTemplate/Nodes/StateChart/States/CompoundState.tscn" id="3_w7lyn"]
-[ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/TbsTemplate/UI/HUD/ControlHint.tscn" id="4_irypx"]
 [ext_resource type="PackedScene" uid="uid://lrf5ywt1n230" path="res://src/TbsTemplate/Nodes/StateChart/States/AtomicState.tscn" id="4_qwlr4"]
 [ext_resource type="PackedScene" uid="uid://0b22cirxc7k2" path="res://src/TbsTemplate/Nodes/StateChart/States/Transition.tscn" id="5_dwgw0"]
-[ext_resource type="AudioStream" uid="uid://bg4mbs7d25qaj" path="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Select - 1.wav" id="6_0v5ht"]
 [ext_resource type="PackedScene" uid="uid://dhytcbhqvrpx0" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/InputReaction.tscn" id="6_ntg8o"]
 [ext_resource type="PackedScene" uid="uid://t41dn0l7cicc" path="res://src/TbsTemplate/Scenes/Level/Layers/PathLayer.tscn" id="6_p5qr4"]
 [ext_resource type="PackedScene" uid="uid://bajcy40oic1wf" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/ProcessReaction.tscn" id="7_bii0f"]
-[ext_resource type="AudioStream" uid="uid://b4dbo5h2e7ru4" path="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Cancel - 1.wav" id="7_qn3tt"]
-[ext_resource type="AudioStream" uid="uid://oyebi18i5hmn" path="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Error - 1.wav" id="10_guidb"]
 [ext_resource type="PackedScene" uid="uid://dnfp4qfxs85wh" path="res://src/TbsTemplate/Nodes/StateChart/States/HistoryState.tscn" id="13_cu4ve"]
 [ext_resource type="PackedScene" uid="uid://bolt0jtmhdfb8" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/Vector2IReaction.tscn" id="14_yh42t"]
 [ext_resource type="PackedScene" uid="uid://brgi7pl8xxduv" path="res://src/TbsTemplate/Scenes/Level/Layers/ActionLayers.tscn" id="15_fsxw4"]
 [ext_resource type="PackedScene" uid="uid://dtrul7dw5r6ly" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/Vector2Reaction.tscn" id="16_5nli1"]
 [ext_resource type="TileSet" uid="uid://cwhi2yq5gtey5" path="res://demo/assets/level/ui/Overlay.tres" id="16_enq6j"]
-[ext_resource type="AudioStream" uid="uid://dx4swhb5suesh" path="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Open - 1.wav" id="19_bkjgs"]
-[ext_resource type="AudioStream" uid="uid://fpepi63ytykk" path="res://demo/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Popup Close - 1.wav" id="20_t4677"]
 
 [node name="PlayerController" type="Node"]
 script = ExtResource("1_52vsu")
@@ -67,46 +60,6 @@ navigation_enabled = false
 [node name="Cursor" parent="." instance=ExtResource("2_rkggg")]
 
 [node name="UserInterface" type="CanvasLayer" parent="."]
-
-[node name="HUD" type="Control" parent="UserInterface"]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-metadata/_edit_use_anchors_ = true
-
-[node name="Hints" type="HBoxContainer" parent="UserInterface/HUD"]
-layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_top = -40.0
-offset_right = 281.0
-grow_vertical = 0
-mouse_filter = 2
-
-[node name="CursorHintIcon" parent="UserInterface/HUD/Hints" instance=ExtResource("3_qlbkh")]
-layout_mode = 2
-
-[node name="SelectHint" parent="UserInterface/HUD/Hints" instance=ExtResource("4_irypx")]
-layout_mode = 2
-Description = "Select"
-Action = &"select"
-
-[node name="CancelHint" parent="UserInterface/HUD/Hints" instance=ExtResource("4_irypx")]
-unique_name_in_owner = true
-layout_mode = 2
-Description = "Cancel"
-Action = &"cancel"
-
-[node name="SkipHint" parent="UserInterface/HUD/Hints" instance=ExtResource("4_irypx")]
-unique_name_in_owner = true
-layout_mode = 2
-Description = "Skip"
-Action = &"cancel"
 
 [node name="Pointer" parent="." instance=ExtResource("3_nkaji")]
 
@@ -215,19 +168,14 @@ Event = &"finish"
 [node name="SoundLibrary" type="Node" parent="."]
 
 [node name="SelectSound" type="AudioStreamPlayer" parent="SoundLibrary"]
-stream = ExtResource("6_0v5ht")
 
 [node name="CancelSound" type="AudioStreamPlayer" parent="SoundLibrary"]
-stream = ExtResource("7_qn3tt")
 
 [node name="ErrorSound" type="AudioStreamPlayer" parent="SoundLibrary"]
-stream = ExtResource("10_guidb")
 
 [node name="ZoneOnSound" type="AudioStreamPlayer" parent="SoundLibrary"]
-stream = ExtResource("19_bkjgs")
 
 [node name="ZoneOffSound" type="AudioStreamPlayer" parent="SoundLibrary"]
-stream = ExtResource("20_t4677")
 
 [connection signal="CellChanged" from="Cursor" to="State/Root/Active/Select/OnCursorCellChanged" method="React"]
 [connection signal="CellEntered" from="Cursor" to="State/Root/Active/Select/OnCursorCellEntered" method="React"]
@@ -246,8 +194,8 @@ stream = ExtResource("20_t4677")
 [connection signal="Taken" from="State/Root/Active/Select/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="StateEntered" from="State/Root/Active/Path" to="." method="OnPathEntered"]
 [connection signal="StateExited" from="State/Root/Active/Path" to="." method="OnPathExited"]
-[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnPathCanceled"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnCancel"]
+[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnPathCanceled"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnPathFinished"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="StateEntered" from="State/Root/Active/Command" to="." method="OnCommandEntered"]
@@ -257,8 +205,8 @@ stream = ExtResource("20_t4677")
 [connection signal="StateEntered" from="State/Root/Active/Target" to="." method="OnTargetEntered"]
 [connection signal="StateExited" from="State/Root/Active/Target" to="." method="OnTargetExited"]
 [connection signal="StateInput" from="State/Root/Active/Target/OnInput" to="." method="OnTargetInput"]
-[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnCancel" to="." method="OnTargetCompleted"]
 [connection signal="Taken" from="State/Root/Active/Target/ToReadyOnCancel" to="." method="OnCancel"]
+[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnCancel" to="." method="OnTargetCompleted"]
 [connection signal="Taken" from="State/Root/Active/Target/ToReadyOnFinish" to="." method="OnTargetCompleted"]
 [connection signal="Taken" from="State/Root/Active/Target/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="StateInput" from="State/Root/Active/OnInput" to="." method="OnActiveInput"]

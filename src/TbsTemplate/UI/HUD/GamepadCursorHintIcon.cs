@@ -44,10 +44,10 @@ public partial class GamepadCursorHintIcon : HBoxContainer
     }
 
     /// <summary>Mapping of <see cref="JoyButton"/> on to icon to display.</summary>
-    [Export] public CompositeGamepadButtonIconMap ButtonMap = new();
+    [Export] public CompositeGamepadButtonIconMap ButtonMap = null;
 
     /// <summary>Mapping of <see cref="JoyAxis"/> onto icon to display.</summary>
-    [Export] public CompositeGamepadAxisIconMap AxisMap = new();
+    [Export] public CompositeGamepadAxisIconMap AxisMap = null;
 
     /// <summary>Whether to show the individual control icons or the unified one.</summary>
     public bool ShowIndividualIcons

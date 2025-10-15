@@ -13,18 +13,6 @@ KeyMap = ExtResource("4_qc41a")
 GamepadButtonIconMap = ExtResource("5_olt2t")
 Action = &""
 
-[node name="Mouse" type="TextureRect" parent="."]
-layout_mode = 2
-stretch_mode = 3
-
-[node name="Keyboard" type="TextureRect" parent="."]
-layout_mode = 2
-stretch_mode = 3
-
-[node name="Gamepad" type="TextureRect" parent="."]
-layout_mode = 2
-stretch_mode = 3
-
 [node name="Icon" type="TextureRect" parent="."]
 layout_mode = 2
 stretch_mode = 3

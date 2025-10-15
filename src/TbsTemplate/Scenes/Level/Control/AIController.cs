@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Godot;
 using TbsTemplate.Data;
 using TbsTemplate.Extensions;
+using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object;
@@ -19,6 +20,10 @@ namespace TbsTemplate.Scenes.Level.Control;
 public partial class AIController : ArmyController
 {
     private const int HealthDiffPrecision = 10;
+
+    /// <summary>Signals that the fast-forward state has changed.</summary>
+    /// <param name="enable"><c>true</c> if fast-forwarding is in progress, and <c>false</c> otherwise.</param>
+    [Signal] public delegate void FastForwardStateChangedEventHandler(bool enable);
 
     private readonly record struct VirtualSpecialActionRegion(SpecialActionRegion Original, StringName Action, ImmutableHashSet<Vector2I> Cells) : ISpecialActionRegion
     {
@@ -351,6 +356,7 @@ public partial class AIController : ArmyController
         return (selected.Value, destination, action, target);
     }
 
+    private readonly NodeCache _cache = null;
     private Grid _grid = null;
     private Unit _selected = null;
     private Vector2I _destination = -Vector2I.One;
@@ -358,19 +364,33 @@ public partial class AIController : ArmyController
     private Unit _target = null;
     private bool _ff = false;
 
-    private Sprite2D _pseudocursor = null;
-    private Sprite2D Pseudocursor => _pseudocursor ??= GetNode<Sprite2D>("Pseudocursor");
-
-    private FadeToBlackTransition _fft = null;
-    private FadeToBlackTransition FastForwardTransition => _fft ??= GetNode<FadeToBlackTransition>("CanvasLayer/FastForwardTransition");
-
-    private TextureProgressBar _progress = null;
-    private TextureProgressBar TurnProgress => _progress ??= GetNode<TextureProgressBar>("CanvasLayer/TurnProgress");
-
-    private Timer _indicator = null;
-    private Timer IndicatorTimer => _indicator ??= GetNode<Timer>("IndicatorTimer");
+    private Sprite2D              Pseudocursor          => _cache.GetNode<Sprite2D>("Pseudocursor");
+    private FadeToBlackTransition FastForwardTransition => _cache.GetNode<FadeToBlackTransition>("CanvasLayer/FastForwardTransition");
+    private Timer                 IndicatorTimer        => _cache.GetNode<Timer>("IndicatorTimer");
 
     public override Grid Grid { get => _grid; set => _grid = value; }
+
+    /// <summary>Sprite to use for the pseudocursor.</summary>
+    [Export] public Texture2D CursorSprite
+    {
+        get => Pseudocursor?.Texture;
+        set
+        {
+            if (Pseudocursor is not null)
+                Pseudocursor.Texture = value;
+        }
+    }
+
+    /// <summary>Pseudocursor sprite offset from the origin of the texture to use for positioning it within a cell.</summary>
+    [Export] public Vector2 CursorOffset
+    {
+        get => Pseudocursor?.Offset ?? Vector2.Zero;
+        set
+        {
+            if (Pseudocursor is not null)
+                Pseudocursor.Offset = value;
+        }
+    }
 
     /// <summary>Time in seconds to hold the cursor over an indicated cell before acting on it.</summary>
     [Export(PropertyHint.None, "suffix:s")] public float IndicationTime = 0.5f;
@@ -386,6 +406,8 @@ public partial class AIController : ArmyController
     /// <remarks>Note: The exact number of threads is based on the C# <see cref="Task"/> pool.</remarks>
     [Export] public bool EvaluateWithThreads = true;
 
+    public AIController() : base() { _cache = new(this); }
+
     public override void InitializeTurn()
     {
         _selected = null;
@@ -393,8 +415,8 @@ public partial class AIController : ArmyController
         _action = null;
         _target = null;
 
-        TurnProgress.MaxValue = ((IEnumerable<Unit>)Army).Count();
-        TurnProgress.Value = 0;
+        EmitSignal(SignalName.ProgressUpdated, 0, ((IEnumerable<Unit>)Army).Count());
+        EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {InputManager.Skip});
     }
 
     public (Unit selected, Vector2I destination, StringName action, Unit target) ComputeAction(IEnumerable<Unit> available, IEnumerable<Unit> enemies, Grid grid)
@@ -411,7 +433,8 @@ public partial class AIController : ArmyController
     /// <remarks>Unit actions will still be calculated and the results updated. The screen will be blacked out while computing actions.</remarks>
     public override void FastForwardTurn()
     {
-        FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => TurnProgress.Visible = _ff = true, (uint)ConnectFlags.OneShot);
+        EmitSignal(SignalName.EnabledInputActionsUpdated, Array.Empty<StringName>());
+        FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => EmitSignal(SignalName.FastForwardStateChanged, _ff = true), (uint)ConnectFlags.OneShot);
         FastForwardTransition.TransitionOut();
     }
 
@@ -472,15 +495,14 @@ public partial class AIController : ArmyController
     public override void FinalizeAction()
     {
         Pseudocursor.Visible = false;
-        TurnProgress.MaxValue = ((IEnumerable<Unit>)Army).Count();
-        TurnProgress.Value = ((IEnumerable<Unit>)Army).Count((u) => !u.Active) + 1; // Add one to account for the unit that just finished
+        EmitSignal(SignalName.ProgressUpdated, ((IEnumerable<Unit>)Army).Count((u) => !u.Active) + 1, ((IEnumerable<Unit>)Army).Count((u) => u.Active) - 1); // Add one to account for the unit that just finished
     }
 
     public override void FinalizeTurn()
     {
         base.FinalizeTurn();
         FastForwardTransition.TransitionIn();
-        TurnProgress.Visible = _ff = false;
+        EmitSignal(SignalName.FastForwardStateChanged, _ff = false);
     }
 
 
