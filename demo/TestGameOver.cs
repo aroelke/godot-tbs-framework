@@ -1,6 +1,8 @@
 using Godot;
 using TbsTemplate.Scenes;
 
+namespace TbsTemplate.Demo;
+
 public partial class TestGameOver : Node
 {
     [Export] public bool win = true;

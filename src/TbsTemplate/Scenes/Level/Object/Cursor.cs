@@ -50,11 +50,22 @@ public partial class Cursor : GridNode
     private bool _halted = false;
     private bool _skip = false;
 
+    private MoveController    MoveController  => _cache.GetNode<MoveController>("MoveController");
+    private AudioStreamPlayer MoveSoundPlayer => _cache.GetNodeOrNull<AudioStreamPlayer>("MoveSound");
+
     /// <summary>Whether or not the cursor should wrap to the other side if a direction is pressed toward the edge it's on.</summary>
     [Export] public bool Wrap = false;
 
-    private MoveController MoveController => _cache.GetNode<MoveController>("MoveController");
-    private AudioStreamPlayer MoveSound => _cache.GetNode<AudioStreamPlayer>("MoveSound");
+    /// <summary>Sound to play when the cursor moves to a new cell.</summary>
+    [Export] public AudioStream MoveSound
+    {
+        get => MoveSoundPlayer?.Stream;
+        set
+        {
+            if (MoveSoundPlayer is not null)
+                MoveSoundPlayer.Stream = value;
+        }
+    }
 
     /// <summary>"Soft zone" that breaks cursor continuous movement and skips to the edge of.</summary>
     public HashSet<Vector2I> SoftRestriction = [];
@@ -198,7 +209,7 @@ public partial class Cursor : GridNode
     {
         if (!_halted)
         {
-            MoveSound.Play();
+            MoveSoundPlayer.Play();
             if (!MoveController.Active && (DeviceManager.Mode == InputMode.Digital || !HardRestriction.IsEmpty))
                 Callable.From<Vector2I>((c) => EmitSignal(SignalName.CellEntered, c)).CallDeferred(cell);
         }
