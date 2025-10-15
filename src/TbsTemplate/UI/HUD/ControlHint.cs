@@ -148,6 +148,14 @@ public partial class ControlHint : HBoxContainer
         }
     }
 
+    public override void _Ready()
+    {
+        base._Ready();
+        if (Engine.IsEditorHint() && Action is not null)
+            Update(SelectedDevice, Action);
+    }
+
+
     public override void _ExitTree()
     {
         base._ExitTree();
