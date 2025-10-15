@@ -8,6 +8,8 @@ using TbsTemplate.UI;
 using TbsTemplate.UI.Controls.Device;
 using TbsTemplate.UI.HUD;
 
+namespace TbsTemplate.Demo;
+
 public partial class TestMap : Node2D
 {
     public Label TurnLabel => GetNode<Label>("CanvasLayer/TurnLabel");

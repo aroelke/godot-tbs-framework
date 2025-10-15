@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Godot;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes.Components;
+using TbsTemplate.Scenes;
+using TbsTemplate.Scenes.Combat;
 using TbsTemplate.Scenes.Combat.Animations;
 using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.Scenes.Level.Object;
@@ -13,7 +15,7 @@ using TbsTemplate.UI;
 using TbsTemplate.UI.Combat;
 using TbsTemplate.UI.Controls.Device;
 
-namespace TbsTemplate.Scenes.Combat;
+namespace TbsTemplate.Demo;
 
 public partial class TestCombatScene : CombatScene
 {
