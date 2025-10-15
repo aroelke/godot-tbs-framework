@@ -15,8 +15,7 @@ using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.Scenes.Combat;
 
-/// <summary>Scene used to display the results of combat in a cut </summary>
-public partial class TestCombatScene : Node
+public partial class TestCombatScene : CombatScene
 {
     private const string ScenePath = "res://src/TbsTemplate/Scenes/Combat/Combattscn";
     private static PackedScene Scene = null;
@@ -102,12 +101,7 @@ public partial class TestCombatScene : Node
 
     public TestCombatScene() : base() { _cache = new(this); }
 
-    /// <summary>Set up the combat </summary>
-    /// <param name="left">Unit on the left side of the screen.</param>
-    /// <param name="right">Unit on the right side of the screen.</param>
-    /// <param name="actions">List of actions that will be performed each turn in combat. The length of the list determines the number of turns.</param>
-    /// <exception cref="ArgumentException">If any <see cref="CombatAction"/> contains an _animations[action.Actor] who isn't participating in this combat.</exception>
-    public void Initialize(Unit left, Unit right, IImmutableList<CombatAction> actions)
+    public override void Initialize(Unit left, Unit right, IImmutableList<CombatAction> actions)
     {
         foreach (CombatAction action in actions)
             if (action.Actor != left && action.Actor != right)

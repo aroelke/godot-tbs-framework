@@ -355,7 +355,7 @@ public partial class LevelManager : Node
         }
         else
         {
-            SceneManager.Singleton.Connect<TestCombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, _combatResults.ToImmutableList()), (uint)ConnectFlags.OneShot);
+            SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, _combatResults.ToImmutableList()), (uint)ConnectFlags.OneShot);
             SceneManager.CallScene(CombatScenePath);
         }
     }
