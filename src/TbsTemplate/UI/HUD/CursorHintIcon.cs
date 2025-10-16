@@ -14,6 +14,7 @@ namespace TbsTemplate.UI.HUD;
 public partial class CursorHintIcon : HBoxContainer
 {
     private readonly NodeCache _cache = null;
+    private InputDevice _selected = default;
     private Dictionary<InputDevice, Control> _icons = [];
 
     private TextureRect           MouseIcon    => _cache.GetNode<TextureRect>("%MouseIcon");
@@ -25,6 +26,12 @@ public partial class CursorHintIcon : HBoxContainer
     private GamepadCursorHintIcon GamepadIcon  => _cache.GetNode<GamepadCursorHintIcon>("%GamepadIcon");
 
     private Texture2D GetKeyIcon(Key key) => KeyMap.ContainsKey(key) ? KeyMap[key] : null;
+
+    private void Update(InputDevice device)
+    {
+        foreach ((InputDevice d, Control i) in _icons)
+            i.Visible = d == device;   
+    }
 
     /// <summary>Mapping of <see cref="MouseButton"/> onto icon to display.</summary>
     [Export] public MouseIconMap MouseMap = null;
@@ -41,10 +48,11 @@ public partial class CursorHintIcon : HBoxContainer
     /// <summary>Set the selected input device to show the icon for.</summary>
     public InputDevice SelectedDevice
     {
+        get => _selected;
         set
         {
-            foreach ((InputDevice device, Control icon) in _icons)
-                icon.Visible = device == value;
+            if (_selected != value)
+                Update(_selected = value);
         }
     }
 
@@ -57,8 +65,14 @@ public partial class CursorHintIcon : HBoxContainer
     public override void _EnterTree()
     {
         base._EnterTree();
-        if (!Engine.IsEditorHint())
+
+        if (Engine.IsEditorHint())
+            Update(SelectedDevice);
+        else
+        {
+            Update(DeviceManager.Device);
             DeviceManager.Singleton.InputDeviceChanged += OnInputDeviceChanged;
+        }
     }
 
     public override void _Ready()
@@ -96,6 +110,7 @@ public partial class CursorHintIcon : HBoxContainer
     public override void _ExitTree()
     {
         base._ExitTree();
+
         if (!Engine.IsEditorHint())
             DeviceManager.Singleton.InputDeviceChanged -= OnInputDeviceChanged;
     }
