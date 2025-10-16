@@ -133,7 +133,7 @@ public partial class TestCombatScene : CombatScene
         RightInfo.HitChance = _actions.Any((a) => a.Actor == right) ? Math.Min(CombatCalculations.HitChance(right, left), 100) : -1;
         RightInfo.TransitionDuration = HitDelay;
 
-        foreach ((var _, CombatAnimation animation) in _animations)
+        foreach ((_, CombatAnimation animation) in _animations)
             AddChild(animation);
     }
 
@@ -144,7 +144,7 @@ public partial class TestCombatScene : CombatScene
         foreach (CombatAction action in _actions)
         {
             // Reset all participants
-            foreach ((var _, CombatAnimation animation) in _animations)
+            foreach ((_, CombatAnimation animation) in _animations)
             {
                 animation.ZIndex = 0;
                 animation.PlayAnimation(CombatAnimation.IdleAnimation);
@@ -228,13 +228,13 @@ public partial class TestCombatScene : CombatScene
 
     public void OnAccelerate()
     {
-        foreach ((var _, CombatAnimation animation) in _animations)
+        foreach ((_, CombatAnimation animation) in _animations)
             animation.AnimationSpeedScale = AccelerationFactor;
     }
 
     public void OnDecelerate()
     {
-        foreach ((var _, CombatAnimation animation) in _animations)
+        foreach ((_, CombatAnimation animation) in _animations)
             animation.AnimationSpeedScale = 1;
     }
 

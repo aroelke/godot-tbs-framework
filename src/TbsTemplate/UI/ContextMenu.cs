@@ -143,7 +143,7 @@ public partial class ContextMenu : PanelContainer
         switch (mode)
         {
         case InputMode.Mouse:
-            foreach ((var _, Button item) in _items)
+            foreach ((_, Button item) in _items)
                 item.MouseFilter = MouseFilterEnum.Stop;
             if (_selected != NothingSelected)
             {
@@ -153,7 +153,7 @@ public partial class ContextMenu : PanelContainer
             break;
         default:
             _focus = _hovered == NothingSelected ? (_selected == NothingSelected ? 0 : _selected) : _hovered;
-            foreach ((var _, Button item) in _items)
+            foreach ((_, Button item) in _items)
                 item.MouseFilter = MouseFilterEnum.Ignore;
             if (Input.IsActionPressed(InputManager.UiAccept))
             {
