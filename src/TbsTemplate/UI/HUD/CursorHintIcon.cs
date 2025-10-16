@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Godot;
+using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.UI.Controls.Device;
 using TbsTemplate.UI.Controls.IconMaps;
@@ -7,7 +8,7 @@ using TbsTemplate.UI.Controls.IconMaps;
 namespace TbsTemplate.UI.HUD;
 
 /// <summary>
-/// Hint icon for showing the controls to move the <see cref="Level.Object.Cursor"/>/<see cref="Level.UI.Pointer"/>
+/// Hint icon for showing the controls to move the <see cref="Cursor"/>/<see cref="Pointer"/>
 /// for the current control scheme.
 /// </summary>
 [Icon("res://icons/UIIcon.svg"), Tool]
