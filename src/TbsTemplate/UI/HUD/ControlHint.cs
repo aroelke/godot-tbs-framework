@@ -144,7 +144,7 @@ public partial class ControlHint : HBoxContainer
             Update(SelectedDevice, Action);
         else
         {
-            Update(DeviceManager.Device, Action);
+            SelectedDevice = DeviceManager.Device;
             DeviceManager.Singleton.InputDeviceChanged += OnInputDeviceChanged;
         }
     }

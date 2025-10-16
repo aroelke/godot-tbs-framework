@@ -71,7 +71,7 @@ public partial class CursorHintIcon : HBoxContainer
             Update(SelectedDevice);
         else
         {
-            Update(DeviceManager.Device);
+            SelectedDevice = DeviceManager.Device;
             DeviceManager.Singleton.InputDeviceChanged += OnInputDeviceChanged;
         }
     }
@@ -89,6 +89,7 @@ public partial class CursorHintIcon : HBoxContainer
                 { InputDevice.Gamepad,  GamepadIcon  }
             };
             SelectedDevice = DeviceManager.Device;
+            Update(SelectedDevice);
         }
     }
 
