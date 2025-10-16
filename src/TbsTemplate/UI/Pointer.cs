@@ -320,6 +320,8 @@ public partial class Pointer : BoundedNode2D
 
         if (!Engine.IsEditorHint())
         {
+            if (IsNodeReady())
+                OnInputModeChanged(DeviceManager.Mode);
             DeviceManager.Singleton.InputModeChanged += OnInputModeChanged;
             InputManager.Singleton.MouseEntered += OnMouseEntered;
             InputManager.Singleton.MouseExited += OnMouseExited;

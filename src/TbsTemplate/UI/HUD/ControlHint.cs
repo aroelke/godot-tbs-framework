@@ -139,8 +139,9 @@ public partial class ControlHint : HBoxContainer
     public override void _EnterTree()
     {
         base._EnterTree();
+
         if (Engine.IsEditorHint())
-            SelectedDevice = InputDevice.Mouse;
+            Update(SelectedDevice, Action);
         else
         {
             SelectedDevice = DeviceManager.Device;
@@ -148,17 +149,10 @@ public partial class ControlHint : HBoxContainer
         }
     }
 
-    public override void _Ready()
-    {
-        base._Ready();
-        if (Engine.IsEditorHint() && Action is not null)
-            Update(SelectedDevice, Action);
-    }
-
-
     public override void _ExitTree()
     {
         base._ExitTree();
+
         if (!Engine.IsEditorHint())
             DeviceManager.Singleton.InputDeviceChanged -= OnInputDeviceChanged;
     }
