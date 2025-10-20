@@ -50,7 +50,7 @@ public partial class LevelManager : Node
     private bool _ff = false;
 
     private Grid Grid = null;
-    private Camera2DBrain   Camera                            => _cache.GetNode<Camera2DBrain>("Camera");
+    private Camera2DController   Camera                            => _cache.GetNode<Camera2DController>("Camera");
     private CanvasLayer     UserInterface                     => _cache.GetNode<CanvasLayer>("UserInterface");
     private Chart           State                             => _cache.GetNode<Chart>("State");
     private ActionReaction  OnSkipTurnReaction                => _cache.GetNode<ActionReaction>("State/Root/Running/Skippable/OnFastForward");
@@ -239,7 +239,7 @@ public partial class LevelManager : Node
             _selected.SkipMoving();
     }
 
-    /// <summary>When done moving, restore the <see cref="Camera2DBrain">camera</see> target (most likely to the cursor) and update danger zones.</summary>
+    /// <summary>When done moving, restore the <see cref="Camera2DController">camera</see> target (most likely to the cursor) and update danger zones.</summary>
     public void OnMovingExited()
     {
         (Camera.DeadZoneTop, Camera.DeadZoneLeft, Camera.DeadZoneBottom, Camera.DeadZoneRight) = _prevDeadzone;

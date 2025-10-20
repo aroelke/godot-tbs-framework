@@ -48,7 +48,7 @@ public partial class TestCombatScene : CombatScene
     private bool _canceled = false;
 
     private FastForwardComponent FastForward     => _cache.GetNode<FastForwardComponent>("FastForward");
-    private Camera2DBrain        Camera          => _cache.GetNode<Camera2DBrain>("Camera");
+    private Camera2DController        Camera          => _cache.GetNode<Camera2DController>("Camera");
     private AudioStreamPlayer    StepSound       => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/StepSound");
     private AudioStreamPlayer    HitSound        => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/HitSound");
     private AudioStreamPlayer    MissSound       => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/MissSound");

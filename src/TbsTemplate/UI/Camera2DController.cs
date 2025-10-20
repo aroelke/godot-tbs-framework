@@ -12,7 +12,7 @@ namespace TbsTemplate.UI;
 /// "Brain" controlling the <see cref="Camera2D"/>. Given a target, it will follow it and smoothly move the camera to continue tracking it.
 /// </summary>
 [Icon("res://icons/Camera2DBrain.svg"), Tool]
-public partial class Camera2DBrain : Node2D
+public partial class Camera2DController : Node2D
 {
     /// <summary>Signal that the camera has reached its target and stopped moving.</summary>
     [Signal] public delegate void ReachedTargetEventHandler();
