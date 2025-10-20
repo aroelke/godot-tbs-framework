@@ -1,6 +1,5 @@
 using Godot;
 using TbsTemplate.Nodes.Components;
-using TbsTemplate.UI.Controls.Action;
 using TbsTemplate.UI.Controls.Device;
 using TbsTemplate.UI.Controls.IconMaps;
 
@@ -11,7 +10,7 @@ namespace TbsTemplate.UI.HUD;
 /// Switches between showing four buttons in a diamond pattern and showing a single directional pad depending on if all the actions
 /// are mapped to the pad in the right way.
 /// </summary>
-[Icon("res://icons/UIIcon.svg"), Tool]
+[Icon("res://icons/ControlHint.svg"), Tool]
 public partial class GamepadCursorHintIcon : HBoxContainer
 {
     private readonly NodeCache _cache = null;
