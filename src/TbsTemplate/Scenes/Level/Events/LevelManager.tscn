@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://bykdjiak4bxvt" path="res://src/TbsTemplate/Nodes/StateChart/States/CompositeState.tscn" id="18_k7m3y"]
 [ext_resource type="PackedScene" uid="uid://dnfp4qfxs85wh" path="res://src/TbsTemplate/Nodes/StateChart/States/HistoryState.tscn" id="18_n547p"]
 [ext_resource type="PackedScene" uid="uid://lrf5ywt1n230" path="res://src/TbsTemplate/Nodes/StateChart/States/SimpleState.tscn" id="19_o30vs"]
-[ext_resource type="PackedScene" uid="uid://0b22cirxc7k2" path="res://src/TbsTemplate/Nodes/StateChart/States/Transition.tscn" id="20_p4yt1"]
+[ext_resource type="PackedScene" uid="uid://0b22cirxc7k2" path="res://src/TbsTemplate/Nodes/StateChart/States/StateTransition.tscn" id="20_p4yt1"]
 [ext_resource type="PackedScene" uid="uid://dxamaj2vnf0lt" path="res://src/TbsTemplate/Scenes/Level/Events/Reactions/UnitReaction.tscn" id="21_sbtfw"]
 [ext_resource type="PackedScene" uid="uid://hri0gp84mgng" path="res://src/TbsTemplate/Scenes/Level/Events/Reactions/PathReaction.tscn" id="22_h5tkx"]
 [ext_resource type="PackedScene" uid="uid://6l44mlff5sgr" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/ActionReaction.tscn" id="22_mocgv"]

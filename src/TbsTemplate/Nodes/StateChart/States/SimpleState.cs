@@ -8,7 +8,7 @@ namespace TbsTemplate.Nodes.StateCharts.States;
 [Icon("res://icons/statechart/AtomicState.svg"), Tool]
 public partial class SimpleState : State
 {
-    public override void HandleTransition(Transition transition, State from) => GetParent<State>().HandleTransition(transition, from);
+    public override void HandleTransition(StateTransition transition, State from) => GetParent<State>().HandleTransition(transition, from);
 
     public override string[] _GetConfigurationWarnings()
     {

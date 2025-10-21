@@ -65,7 +65,7 @@ public partial class CompositeState : State
         return base.ProcessTransitions(@event, property);
     }
 
-    public override void HandleTransition(Transition transition, State from)
+    public override void HandleTransition(StateTransition transition, State from)
     {
         if (transition.To == this)
         {

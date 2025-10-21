@@ -11,8 +11,8 @@ namespace TbsTemplate.Nodes.StateCharts;
 
 /// <summary>
 /// A state chart modeled after <see href="https://github.com/derkork/godot-statecharts"/>. Contains a hierarchy of <see cref="State"/>s that have
-/// zero or more <see cref="Transition"/>s to other states within the hierarchy and <see cref="Reactions.Reaction"/>s to specific events. While a
-/// <see cref="State"/> is active, it can receive events, which cause it to trigger <see cref="Transition"/>s to other <see cref="State"/>s or
+/// zero or more <see cref="StateTransition"/>s to other states within the hierarchy and <see cref="Reactions.Reaction"/>s to specific events. While a
+/// <see cref="State"/> is active, it can receive events, which cause it to trigger <see cref="StateTransition"/>s to other <see cref="State"/>s or
 /// emit signals.
 /// </summary>
 [Icon("res://icons/statechart/StateChart.svg"), Tool]
@@ -22,11 +22,11 @@ public partial class StateChart : Node
     /// <param name="event">Name of the received event.</param>
     [Signal] public delegate void EventReceivedEventHandler(StringName @event);
 
-    private static void DoRunTransition(Transition transition, State from)
+    private static void DoRunTransition(StateTransition transition, State from)
     {
         if (from.Active)
         {
-            transition.EmitSignal(Transition.SignalName.Taken);
+            transition.EmitSignal(StateTransition.SignalName.Taken);
             from.HandleTransition(transition, from);
         }
         else
@@ -36,7 +36,7 @@ public partial class StateChart : Node
     private State _root = null;
     private readonly Dictionary<StringName, Variant> _variables = [];
     private readonly ConcurrentQueue<StringName> _eventQ = new();
-    private readonly ConcurrentQueue<(Transition, State)> _transitionQ = new();
+    private readonly ConcurrentQueue<(StateTransition, State)> _transitionQ = new();
     private bool _transitionProcessingActive = false;
     private bool _propertyChangePending = false;
     private bool _busy = false;
@@ -93,7 +93,7 @@ public partial class StateChart : Node
     /// </summary>
     [Export] public bool ValidateVariableTypes { get; private set; } = true;
 
-    /// <summary>Send an event to the active <see cref="State"/>, which could trigger a <see cref="Transition"/>.</summary>
+    /// <summary>Send an event to the active <see cref="State"/>, which could trigger a <see cref="StateTransition"/>.</summary>
     /// <param name="event">Name of the event to send.</param>
     public void SendEvent(StringName @event)
     {
@@ -144,18 +144,18 @@ public partial class StateChart : Node
     /// <returns>The list of variable names in arbitrary order.</returns>
     public IEnumerable<StringName> GetVariables() => _variables.Keys;
 
-    /// <summary>Execute a <see cref="Transition"/> from a state to its target.</summary>
+    /// <summary>Execute a <see cref="StateTransition"/> from a state to its target.</summary>
     /// <param name="transition">Transition to run.</param>
     /// <param name="from">State to transition from.</param>
-    public void RunTransition(Transition transition, State from)
+    public void RunTransition(StateTransition transition, State from)
     {
         _transitionQ.Enqueue((transition, from));
         if (!_transitionProcessingActive)
         {
             _transitionProcessingActive = true;
-            while (_transitionQ.TryDequeue(out (Transition, State) next))
+            while (_transitionQ.TryDequeue(out (StateTransition, State) next))
             {
-                (Transition t, State s) = next;
+                (StateTransition t, State s) = next;
                 DoRunTransition(t, s);
             }
             _transitionProcessingActive = false;

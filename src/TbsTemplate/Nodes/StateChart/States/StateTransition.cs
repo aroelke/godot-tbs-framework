@@ -9,7 +9,7 @@ namespace TbsTemplate.Nodes.StateCharts.States;
 
 /// <summary>Transition between <see cref="State"/>s. </summary>
 [Icon("res://icons/statechart/Transition.svg"), Tool]
-public partial class Transition : ChartNode
+public partial class StateTransition : ChartNode
 {
     /// <summary>Signals the transition is taken, but before the active <see cref="State"/> is actually exited.</summary>
     [Signal] public delegate void TakenEventHandler();
