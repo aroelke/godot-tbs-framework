@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://bykdjiak4bxvt" path="res://src/TbsTemplate/Nodes/StateChart/States/CompoundState.tscn" id="8_pjkcf"]
 [ext_resource type="Resource" uid="uid://koe8v335eibs" path="res://src/TbsTemplate/UI/MouseCondition.tres" id="8_roach"]
 [ext_resource type="PackedScene" uid="uid://dnfp4qfxs85wh" path="res://src/TbsTemplate/Nodes/StateChart/States/HistoryState.tscn" id="9_c3q4a"]
-[ext_resource type="PackedScene" uid="uid://lrf5ywt1n230" path="res://src/TbsTemplate/Nodes/StateChart/States/AtomicState.tscn" id="10_fcy41"]
+[ext_resource type="PackedScene" uid="uid://lrf5ywt1n230" path="res://src/TbsTemplate/Nodes/StateChart/States/SimpleState.tscn" id="10_fcy41"]
 [ext_resource type="PackedScene" uid="uid://0b22cirxc7k2" path="res://src/TbsTemplate/Nodes/StateChart/States/Transition.tscn" id="11_uxn4c"]
 [ext_resource type="Resource" uid="uid://du2acyfbvywug" path="res://src/TbsTemplate/UI/DigitalCondition.tres" id="12_wvd4h"]
 [ext_resource type="PackedScene" uid="uid://djew2nxucmtwl" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/UnhandledInputReaction.tscn" id="13_57sak"]
