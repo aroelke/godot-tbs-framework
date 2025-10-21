@@ -17,7 +17,7 @@ using TbsTemplate.UI.Controls.Device;
 namespace TbsTemplate.Scenes.Level.Control;
 
 /// <summary>Controls units based on player input.  Also includes UI elements to facilitate gameplay.</summary>
-[Tool]
+[Icon("res://icons/PlayerController.svg"), Tool]
 public partial class PlayerController : ArmyController
 {
     private static readonly StringName SelectEvent  = "select";
