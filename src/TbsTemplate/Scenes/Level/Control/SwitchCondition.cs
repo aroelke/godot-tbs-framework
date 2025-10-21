@@ -6,6 +6,7 @@ namespace TbsTemplate.Scenes.Level.Control;
 /// Represents a condition under which an AI-controlled unit's <see cref="Behavior"/> switches from one type
 /// to another.
 /// </summary>
+[Icon("res://icons/SwitchCondition.svg"), Tool]
 public abstract partial class SwitchCondition : Node
 {
     /// <summary>Signals that a behavior switch has occurred.</summary>
