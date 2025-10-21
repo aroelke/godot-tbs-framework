@@ -5,7 +5,7 @@ using Godot;
 namespace TbsTemplate.Nodes.StateCharts.States;
 
 /// <summary>A <see cref="State"/> that can't have any sub-<see cref="State"/>s.</summary>
-[Icon("res://icons/statechart/AtomicState.svg"), Tool]
+[Icon("res://icons/statechart/SimpleState.svg"), Tool]
 public partial class SimpleState : State
 {
     public override void HandleTransition(StateTransition transition, State from) => GetParent<State>().HandleTransition(transition, from);

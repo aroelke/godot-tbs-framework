@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using Godot;
 
 namespace TbsTemplate.Nodes.StateCharts.Conditions;
@@ -8,8 +6,8 @@ namespace TbsTemplate.Nodes.StateCharts.Conditions;
 /// <see cref="StateChart"/> action condition that's satisfied based on the value of a string property. If it's exactly equal to the condition's value,
 /// the condition is satisfied.
 /// </summary>
-[GlobalClass, Icon("res://icons/statechart/StringCondition.svg"), Tool]
-public partial class StringCondition : Condition
+[GlobalClass, Tool]
+public partial class StringCondition : StateCondition
 {
     /// <summary>Name of the property to test.</summary>
     [Export] public StringName Property = "";

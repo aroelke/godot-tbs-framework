@@ -8,7 +8,7 @@ using TbsTemplate.Nodes.StateCharts.Conditions;
 namespace TbsTemplate.Nodes.StateCharts.States;
 
 /// <summary>Transition between <see cref="State"/>s. </summary>
-[Icon("res://icons/statechart/Transition.svg"), Tool]
+[Icon("res://icons/statechart/StateTransition.svg"), Tool]
 public partial class StateTransition : ChartNode
 {
     /// <summary>Signals the transition is taken, but before the active <see cref="State"/> is actually exited.</summary>
@@ -18,14 +18,14 @@ public partial class StateTransition : ChartNode
     [Export] public State To = null;
 
     /// <summary>Condition guarding the transition. The transition will only be taken if the condition is satisfied.</summary>
-    [Export] public Condition Condition = null;
+    [Export] public StateCondition Condition = null;
 
     public StringName Event { get; private set; } = "";
 
     /// <summary>Whether or not the transition should wait for an event before triggering.</summary>
     public bool Automatic => Event.IsEmpty;
 
-    /// <returns><c>true</c> if the <see cref="Conditions.Condition"/> is satisfied, and <c>false</c> otherwise.</returns>
+    /// <returns><c>true</c> if the <see cref="Conditions.StateCondition"/> is satisfied, and <c>false</c> otherwise.</returns>
     /// <exception cref="InvalidCastException">If this transition's parent isn't a <see cref="State"/></exception>
     public bool EvaluateCondition() => Condition.IsSatisfied(this);
 

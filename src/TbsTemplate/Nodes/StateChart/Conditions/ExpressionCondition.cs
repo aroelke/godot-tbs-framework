@@ -5,8 +5,8 @@ using Godot;
 namespace TbsTemplate.Nodes.StateCharts.Conditions;
 
 /// <summary><see cref="StateChart"/> action condition based on computing an expression (written in GDScript!) using <see cref="StateChart.GetVariable"/>.</summary>
-[GlobalClass, Icon("res://icons/statechart/ExpressionCondition.svg"), Tool]
-public partial class ExpressionCondition : Condition
+[GlobalClass, Tool]
+public partial class ExpressionCondition : StateCondition
 {
     /// <summary>Expression to evaluate.</summary>
     [Export(PropertyHint.Expression)] public string Expression = "";

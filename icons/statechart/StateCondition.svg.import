@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://caudiiku01m4q"
-path="res://.godot/imported/NumberCondition.svg-b7e0ea485a42ffab025e99b57121d8aa.ctex"
+uid="uid://cw1kpwg35770c"
+path="res://.godot/imported/StateCondition.svg-7809c5b7335d959677970fa49cd6806a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://icons/statechart/NumberCondition.svg"
-dest_files=["res://.godot/imported/NumberCondition.svg-b7e0ea485a42ffab025e99b57121d8aa.ctex"]
+source_file="res://icons/statechart/StateCondition.svg"
+dest_files=["res://.godot/imported/StateCondition.svg-7809c5b7335d959677970fa49cd6806a.ctex"]
 
 [params]
 
