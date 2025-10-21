@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dcjcy80eyuje"
-path="res://.godot/imported/Reaction.svg-6824bab68919234c04b454e37982593a.ctex"
+uid="uid://cvtdbcchxcvon"
+path="res://.godot/imported/Behavior.svg-df7ff59482ca3109bd2b133288168d29.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://icons/statechart/Reaction.svg"
-dest_files=["res://.godot/imported/Reaction.svg-6824bab68919234c04b454e37982593a.ctex"]
+source_file="res://icons/Behavior.svg"
+dest_files=["res://.godot/imported/Behavior.svg-df7ff59482ca3109bd2b133288168d29.ctex"]
 
 [params]
 
