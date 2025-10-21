@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c1axehl1v71ev"
-path="res://.godot/imported/CompoundState.svg-1a265c4b01c43e463b4e6454bada9cde.ctex"
+uid="uid://cvo0q3f2sgv8f"
+path="res://.godot/imported/CompositeState.svg-870f1967726603dac122437761878c8c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://icons/statechart/CompoundState.svg"
-dest_files=["res://.godot/imported/CompoundState.svg-1a265c4b01c43e463b4e6454bada9cde.ctex"]
+source_file="res://icons/statechart/CompositeState.svg"
+dest_files=["res://.godot/imported/CompositeState.svg-870f1967726603dac122437761878c8c.ctex"]
 
 [params]
 

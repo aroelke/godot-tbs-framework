@@ -6,8 +6,8 @@ using Godot;
 namespace TbsTemplate.Nodes.StateCharts.States;
 
 /// <summary>A <see cref="State"/> that can have one or more sub-<see cref="State"/>s.</summary>
-[Icon("res://icons/statechart/CompoundState.svg"), Tool]
-public partial class CompoundState : State
+[Icon("res://icons/statechart/CompositeState.svg"), Tool]
+public partial class CompositeState : State
 {
     /// <summary>Signals that one of this state's sub-states is being entered.</summary>
     [Signal] public delegate void ChildStateEnteredEventHandler();

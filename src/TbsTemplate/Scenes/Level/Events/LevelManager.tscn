@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://coddgojipo1ni" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.cs" id="1_r2v0t"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DController.tscn" id="3_td8u6"]
 [ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/TbsTemplate/Nodes/StateChart/StateChart.tscn" id="17_sd0pe"]
-[ext_resource type="PackedScene" uid="uid://bykdjiak4bxvt" path="res://src/TbsTemplate/Nodes/StateChart/States/CompoundState.tscn" id="18_k7m3y"]
+[ext_resource type="PackedScene" uid="uid://bykdjiak4bxvt" path="res://src/TbsTemplate/Nodes/StateChart/States/CompositeState.tscn" id="18_k7m3y"]
 [ext_resource type="PackedScene" uid="uid://dnfp4qfxs85wh" path="res://src/TbsTemplate/Nodes/StateChart/States/HistoryState.tscn" id="18_n547p"]
 [ext_resource type="PackedScene" uid="uid://lrf5ywt1n230" path="res://src/TbsTemplate/Nodes/StateChart/States/SimpleState.tscn" id="19_o30vs"]
 [ext_resource type="PackedScene" uid="uid://0b22cirxc7k2" path="res://src/TbsTemplate/Nodes/StateChart/States/Transition.tscn" id="20_p4yt1"]
