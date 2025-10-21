@@ -4,7 +4,6 @@ using Godot;
 namespace TbsTemplate.Nodes.StateChart;
 
 /// <summary>A component of a <see cref="Chart"/>.</summary>
-[GlobalClass, Icon("res://icons/statechart/ChartNode.svg"), Tool]
 public partial class ChartNode : Node
 {
     private Chart _chart = null;
