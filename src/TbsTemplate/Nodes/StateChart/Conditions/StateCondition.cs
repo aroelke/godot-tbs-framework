@@ -2,7 +2,7 @@ using Godot;
 
 namespace TbsTemplate.Nodes.StateCharts.Conditions;
 
-/// <summary>Condition guarding a state <see cref="Transition"/> or <see cref="Reactions.Reaction"/>.</summary>
+/// <summary>Condition guarding a state <see cref="Transition"/> or <see cref="Reactions.StateReaction"/>.</summary>
 [GlobalClass, Icon("res://icons/statechart/StateCondition.svg"), Tool]
 public abstract partial class StateCondition : Resource
 {

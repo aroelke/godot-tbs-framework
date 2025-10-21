@@ -5,7 +5,7 @@ using TbsTemplate.Scenes.Level.Object;
 namespace TbsTemplate.Scenes.Level.Events.Reactions;
 
 /// <summary>State reaction to a unit command.</summary>
-public partial class CommandReaction : Reaction2<Unit, StringName>
+public partial class CommandReaction : StateReaction2<Unit, StringName>
 {
     /// <summary>Signals that a unit has been given a command.</summary>
     /// <param name="unit">Unit being commanded.</param>

@@ -5,7 +5,7 @@ using TbsTemplate.Scenes.Level.Object;
 namespace TbsTemplate.Scenes.Level.Events.Reactions;
 
 /// <summary>State reaction to a unit choosing a target for an action.</summary>
-public partial class TargetReaction : Reaction2<Unit, Unit>
+public partial class TargetReaction : StateReaction2<Unit, Unit>
 {
     /// <summary>Signals that an action's target has been chosen.</summary>
     /// <param name="source">Unit performing the action.</param>

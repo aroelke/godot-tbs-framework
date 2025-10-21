@@ -5,7 +5,7 @@ using TbsTemplate.Scenes.Level.Object;
 namespace TbsTemplate.Scenes.Level.Events.Reactions;
 
 /// <summary>State reaction to an event involving an array of <see cref="Vector2I"/>s.</summary>
-public partial class PathReaction : Reaction2<Unit, Godot.Collections.Array<Vector2I>>
+public partial class PathReaction : StateReaction2<Unit, Godot.Collections.Array<Vector2I>>
 {
     /// <summary>Signals that the path event has occurred.</summary>
     /// <param name="unit">Unit to move along the path.</param>
