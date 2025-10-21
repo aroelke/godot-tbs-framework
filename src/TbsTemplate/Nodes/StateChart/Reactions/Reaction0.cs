@@ -1,6 +1,6 @@
 using Godot;
 
-namespace TbsTemplate.Nodes.StateChart.Reactions;
+namespace TbsTemplate.Nodes.StateCharts.Reactions;
 
 /// <summary>Reaction that has no parameters.</summary>
 /// <param name="signal">Name of the signal to emit when reacting.</param>

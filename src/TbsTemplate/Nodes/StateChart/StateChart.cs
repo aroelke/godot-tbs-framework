@@ -5,9 +5,9 @@ using System.Collections.Immutable;
 using System.Linq;
 using Godot;
 using TbsTemplate.Extensions;
-using TbsTemplate.Nodes.StateChart.States;
+using TbsTemplate.Nodes.StateCharts.States;
 
-namespace TbsTemplate.Nodes.StateChart;
+namespace TbsTemplate.Nodes.StateCharts;
 
 /// <summary>
 /// A state chart modeled after <see href="https://github.com/derkork/godot-statecharts"/>. Contains a hierarchy of <see cref="State"/>s that have
@@ -15,8 +15,8 @@ namespace TbsTemplate.Nodes.StateChart;
 /// <see cref="State"/> is active, it can receive events, which cause it to trigger <see cref="Transition"/>s to other <see cref="State"/>s or
 /// emit signals.
 /// </summary>
-[Icon("res://icons/statechart/Chart.svg"), Tool]
-public partial class Chart : Node
+[Icon("res://icons/statechart/StateChart.svg"), Tool]
+public partial class StateChart : Node
 {
     /// <summary>Signals that the state chart has received an event before any transitions are processed.</summary>
     /// <param name="event">Name of the received event.</param>

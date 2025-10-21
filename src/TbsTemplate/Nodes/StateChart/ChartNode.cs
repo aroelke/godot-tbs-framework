@@ -1,22 +1,22 @@
 using System.Collections.Generic;
 using Godot;
 
-namespace TbsTemplate.Nodes.StateChart;
+namespace TbsTemplate.Nodes.StateCharts;
 
-/// <summary>A component of a <see cref="Chart"/>.</summary>
+/// <summary>A component of a <see cref="StateChart"/>.</summary>
 public partial class ChartNode : Node
 {
-    private Chart _chart = null;
+    private StateChart _chart = null;
 
-    private Chart GetChart() => GetParent() switch
+    private StateChart GetChart() => GetParent() switch
     {
-        Chart chart => chart,
+        StateChart chart => chart,
         ChartNode node => node.GetChart(),
         _ => null
     };
 
     /// <summary>Chart containing the component.</summary>
-    public Chart StateChart => _chart ??= GetChart();
+    public StateChart StateChart => _chart ??= GetChart();
 
     public override string[] _GetConfigurationWarnings()
     {

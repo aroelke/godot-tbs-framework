@@ -1,9 +1,9 @@
 using System.Linq;
 using Godot;
 
-namespace TbsTemplate.Nodes.StateChart.Conditions;
+namespace TbsTemplate.Nodes.StateCharts.Conditions;
 
-/// <summary><see cref="Chart"/> action condition that is satisfied if all of a list of constituent conditions are satisfied, or if there aren't any.</summary>
+/// <summary><see cref="StateChart"/> action condition that is satisfied if all of a list of constituent conditions are satisfied, or if there aren't any.</summary>
 [GlobalClass, Icon("res://icons/statechart/AllCondition.svg"), Tool]
 public partial class AllCondition : Condition
 {

@@ -2,10 +2,10 @@ using System;
 using System.Linq;
 using Godot;
 
-namespace TbsTemplate.Nodes.StateChart.Conditions;
+namespace TbsTemplate.Nodes.StateCharts.Conditions;
 
 /// <summary>
-/// <see cref="Chart"/> action condition that's satisfied based on the value of a string property. If it's exactly equal to the condition's value,
+/// <see cref="StateChart"/> action condition that's satisfied based on the value of a string property. If it's exactly equal to the condition's value,
 /// the condition is satisfied.
 /// </summary>
 [GlobalClass, Icon("res://icons/statechart/StringCondition.svg"), Tool]

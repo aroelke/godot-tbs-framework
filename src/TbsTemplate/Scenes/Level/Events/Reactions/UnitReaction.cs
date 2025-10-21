@@ -1,5 +1,5 @@
 using Godot;
-using TbsTemplate.Nodes.StateChart.Reactions;
+using TbsTemplate.Nodes.StateCharts.Reactions;
 using TbsTemplate.Scenes.Level.Object;
 
 namespace TbsTemplate.Scenes.Level.Events.Reactions;

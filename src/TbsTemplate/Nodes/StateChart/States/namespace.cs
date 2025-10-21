@@ -2,7 +2,7 @@ namespace TbsTemplate
 {
     namespace Nodes
     {
-        namespace StateChart
+        namespace StateCharts
         {
             namespace States
             {

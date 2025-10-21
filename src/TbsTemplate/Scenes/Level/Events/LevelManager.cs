@@ -14,8 +14,8 @@ using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Combat;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level.Control;
-using TbsTemplate.Nodes.StateChart;
-using TbsTemplate.Nodes.StateChart.Reactions;
+using TbsTemplate.Nodes.StateCharts;
+using TbsTemplate.Nodes.StateCharts.Reactions;
 using TbsTemplate.Scenes.Level.Events.Reactions;
 
 namespace TbsTemplate.Scenes.Level.Events;
@@ -52,7 +52,7 @@ public partial class LevelManager : Node
     private Grid Grid = null;
     private Camera2DController   Camera                            => _cache.GetNode<Camera2DController>("Camera");
     private CanvasLayer     UserInterface                     => _cache.GetNode<CanvasLayer>("UserInterface");
-    private Chart           State                             => _cache.GetNode<Chart>("State");
+    private StateChart           State                             => _cache.GetNode<StateChart>("State");
     private ActionReaction  OnSkipTurnReaction                => _cache.GetNode<ActionReaction>("State/Root/Running/Skippable/OnFastForward");
     private UnitReaction    OnUnitSelectedReaction            => _cache.GetNode<UnitReaction>("State/Root/Running/Skippable/Idle/OnUnitSelected");
     private PathReaction    OnPathConfirmedReaction           => _cache.GetNode<PathReaction>("State/Root/Running/Skippable/UnitSelected/OnPathConfirmed");

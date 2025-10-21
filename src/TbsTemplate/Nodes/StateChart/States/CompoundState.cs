@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
-namespace TbsTemplate.Nodes.StateChart.States;
+namespace TbsTemplate.Nodes.StateCharts.States;
 
 /// <summary>A <see cref="State"/> that can have one or more sub-<see cref="State"/>s.</summary>
 [Icon("res://icons/statechart/CompoundState.svg"), Tool]

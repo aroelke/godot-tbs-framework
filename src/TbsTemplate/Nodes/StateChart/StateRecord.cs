@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using TbsTemplate.Nodes.StateChart.States;
+using TbsTemplate.Nodes.StateCharts.States;
 
-namespace TbsTemplate.Nodes.StateChart;
+namespace TbsTemplate.Nodes.StateCharts;
 
 /// <summary>
 /// Recursive mapping of a <see cref="State"/>'s active child <see cref="State"/>(s) onto their respective mappings. Used for saving and restoring states

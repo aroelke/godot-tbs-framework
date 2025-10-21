@@ -1,7 +1,7 @@
 using System;
 using Godot;
 
-namespace TbsTemplate.Nodes.StateChart.States;
+namespace TbsTemplate.Nodes.StateCharts.States;
 
 [Tool]
 public partial class HistoryState : State

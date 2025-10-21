@@ -1,6 +1,6 @@
 using Godot;
 
-namespace TbsTemplate.Nodes.StateChart.Reactions;
+namespace TbsTemplate.Nodes.StateCharts.Reactions;
 
 /// <summary>Allows a <see cref="State"/> to react to unhandled input events.</summary>
 public partial class UnhandledInputReaction : Reaction1<InputEvent>

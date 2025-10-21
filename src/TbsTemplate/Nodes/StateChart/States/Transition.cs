@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsTemplate.Extensions;
-using TbsTemplate.Nodes.StateChart.Conditions;
+using TbsTemplate.Nodes.StateCharts.Conditions;
 
-namespace TbsTemplate.Nodes.StateChart.States;
+namespace TbsTemplate.Nodes.StateCharts.States;
 
 /// <summary>Transition between <see cref="State"/>s. </summary>
 [Icon("res://icons/statechart/Transition.svg"), Tool]

@@ -5,7 +5,7 @@ using System.Linq;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes;
 using TbsTemplate.Nodes.Components;
-using TbsTemplate.Nodes.StateChart;
+using TbsTemplate.Nodes.StateCharts;
 using TbsTemplate.Scenes.Level.Events;
 using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Map;
@@ -42,7 +42,7 @@ public partial class PlayerController : ArmyController
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path;
 
-    private Chart             State               => _cache.GetNode<Chart>("State");
+    private StateChart             State               => _cache.GetNode<StateChart>("State");
     private ActionLayers      ActionLayers        => _cache.GetNode<ActionLayers>("ActionLayers");
     private TileMapLayer      MoveLayer           => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Move");
     private TileMapLayer      AttackLayer         => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Attack");
