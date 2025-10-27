@@ -3,6 +3,7 @@ using System.Linq;
 using Godot;
 using System;
 using TbsTemplate.Data;
+using TbsTemplate.Extensions;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Level.Map;
 using TbsTemplate.Scenes.Level.Object.Group;
@@ -254,6 +255,8 @@ public partial class Unit : GridNode, IUnit, IHasHealth
             _animations = Class.InstantiateMapAnimations(Faction);
             GetNode<PathFollow2D>("Path/Follow").AddChild(_animations);
             _animations.PlayIdle();
+            Health.Connect<int>(HealthComponent.SignalName.MaximumChanged, _animations.SetHealthMax);
+            Health.Connect<int>(HealthComponent.SignalName.ValueChanged, _animations.SetHealthValue);
 
             Path.Curve = new();
             MotionBox.Size = Size;

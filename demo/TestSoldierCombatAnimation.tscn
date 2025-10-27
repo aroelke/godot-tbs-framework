@@ -329,7 +329,7 @@ Size = Vector2(61, 51)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
-"": SubResource("AnimationLibrary_wumuw")
+&"": SubResource("AnimationLibrary_wumuw")
 }
 
 [node name="Sprite" type="Sprite2D" parent="."]

@@ -15,9 +15,10 @@ public partial class TestSoldierMapAnimations : UnitMapAnimations
     private static readonly StringName DoneAnimation     = "done";
 
     private readonly NodeCache _cache = null;
-    private AudioStreamPlayer StepSound => _cache.GetNode<AudioStreamPlayer>("StepSound");
-    private AnimationPlayer   Player    => _cache.GetNode<AnimationPlayer>("AnimationPlayer");
-    private Timer             StepTimer => _cache.GetNode<Timer>("StepTimer");
+    private TextureProgressBar HealthBar => _cache.GetNode<TextureProgressBar>("%Health");
+    private AudioStreamPlayer  StepSound => _cache.GetNode<AudioStreamPlayer>("StepSound");
+    private AnimationPlayer    Player    => _cache.GetNode<AnimationPlayer>("AnimationPlayer");
+    private Timer              StepTimer => _cache.GetNode<Timer>("StepTimer");
 
     private void StartAnimation(StringName animation)
     {
@@ -69,4 +70,7 @@ public partial class TestSoldierMapAnimations : UnitMapAnimations
             StepTimer.Start();
         }
     }
+
+    public override void SetHealthValue(int value) => HealthBar.Value = value;
+    public override void SetHealthMax(int value) => HealthBar.MaxValue = value;
 }

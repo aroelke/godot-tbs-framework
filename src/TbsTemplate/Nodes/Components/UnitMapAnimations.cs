@@ -18,4 +18,12 @@ public abstract partial class UnitMapAnimations : Node2D
 
     /// <summary>Begin the animation for when the unit has finished acting and is no longer available.</summary>
     public abstract void PlayDone();
+
+    /// <summary>Set the unit's maximum health value to indicate on the map.</summary>
+    /// <param name="value">New maximum health value.</param>
+    public abstract void SetHealthValue(int value);
+
+    /// <summary>Set the unit's current health value to indicate on the map.</summary>
+    /// <param name="value">New current health value.</param>
+    public abstract void SetHealthMax(int value);
 }

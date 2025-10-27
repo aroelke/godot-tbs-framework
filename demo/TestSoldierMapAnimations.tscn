@@ -1,8 +1,10 @@
-[gd_scene load_steps=13 format=3 uid="uid://v68i3shverth"]
+[gd_scene load_steps=15 format=3 uid="uid://v68i3shverth"]
 
 [ext_resource type="Script" uid="uid://b6sp6u8vtpbn2" path="res://demo/TestSoldierMapAnimations.cs" id="1_yuic6"]
 [ext_resource type="Texture2D" uid="uid://3oc7r54iby4a" path="res://demo/assets/level/unit/soldier.png" id="2_5aodu"]
 [ext_resource type="AudioStream" uid="uid://c5ud71mb4e0xa" path="res://demo/assets/raw/RPG_Essentials_Free/12_Player_Movement_SFX/03_Step_grass_03.wav" id="3_i6hku"]
+[ext_resource type="Texture2D" uid="uid://dlfoqw7i6jqba" path="res://demo/assets/raw/Pixel Health Bar/Bar/health bar (gray).png" id="3_lqf6y"]
+[ext_resource type="Texture2D" uid="uid://dvstcx8u7scs4" path="res://demo/assets/raw/Pixel Health Bar/Bar/health bar.png" id="4_i6tbl"]
 
 [sub_resource type="Animation" id="Animation_5aodu"]
 resource_name = "idle"
@@ -253,6 +255,31 @@ offset = Vector2(16, 0)
 hframes = 5
 vframes = 4
 frame = 5
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 4.0
+offset_top = 23.0
+offset_right = 28.0
+offset_bottom = 29.0
+mouse_filter = 2
+
+[node name="Health" type="TextureProgressBar" parent="Control"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+max_value = 10.0
+step = 0.01
+value = 10.0
+nine_patch_stretch = true
+texture_over = ExtResource("3_lqf6y")
+texture_progress = ExtResource("4_i6tbl")
 
 [node name="StepSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("3_i6hku")
