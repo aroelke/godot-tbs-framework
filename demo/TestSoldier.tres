@@ -12,4 +12,4 @@ CombatAnimationPath = "res://demo/TestSoldierCombatAnimation.tscn"
 CombatAnimationsPaths = Dictionary[ExtResource("1_r7jkb"), String]({})
 DefaultCombatAnimationsPath = ""
 MapAnimationsPaths = Dictionary[ExtResource("1_r7jkb"), String]({})
-DefaultMapAnimationsPath = ""
+DefaultMapAnimationsPath = "uid://v68i3shverth"

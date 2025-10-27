@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using Godot;
 using TbsTemplate.Extensions;
+using TbsTemplate.Nodes.Components;
 
 namespace TbsTemplate.Data;
 
@@ -163,25 +165,38 @@ public partial class Class : Resource
     /// <returns>The loaded animation scene.</returns>
     public PackedScene LoadCombatAnimations() => _combatAnimation ??= ResourceLoader.Load<PackedScene>(CombatAnimationPath);
 
+    public UnitMapAnimations InstantiateMapAnimations(Faction faction)
+    {
+        if (faction is not null && MapAnimationsPaths.TryGetValue(faction, out _))
+            return MapAnimationsScenes[faction].Instantiate<UnitMapAnimations>();
+        else
+        {
+            UnitMapAnimations animations = DefaultMapAnimationsScene.Instantiate<UnitMapAnimations>();
+            if (faction is not null)
+                animations.Modulate = faction.Color;
+            return animations;
+        }
+    }
+
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
     {
         Godot.Collections.Array<Godot.Collections.Dictionary> properties = [.. base._GetPropertyList() ?? []];
 
         properties.AddRange([
             new ObjectProperty(
-                PropertyName.CombatAnimationsPaths,
-                Variant.Type.Dictionary,
-                PropertyHint.TypeString,
-                $"{Variant.Type.Object:D}/{PropertyHint.ResourceType:D}:Faction;{Variant.Type.String:D}/{PropertyHint.File:D}:*.tscn"
-            ),
-            new ObjectProperty(PropertyName.DefaultCombatAnimationsPath, Variant.Type.String, PropertyHint.File, "*.tscn"),
-            new ObjectProperty(
                 PropertyName.MapAnimationsPaths,
                 Variant.Type.Dictionary,
                 PropertyHint.TypeString,
                 $"{Variant.Type.Object:D}/{PropertyHint.ResourceType:D}:Faction;{Variant.Type.String:D}/{PropertyHint.File:D}:*.tscn"
             ),
-            new ObjectProperty(PropertyName.DefaultMapAnimationsPath, Variant.Type.String, PropertyHint.File, "*.tscn")
+            new ObjectProperty(PropertyName.DefaultMapAnimationsPath, Variant.Type.String, PropertyHint.File, "*.tscn"),
+            new ObjectProperty(
+                PropertyName.CombatAnimationsPaths,
+                Variant.Type.Dictionary,
+                PropertyHint.TypeString,
+                $"{Variant.Type.Object:D}/{PropertyHint.ResourceType:D}:Faction;{Variant.Type.String:D}/{PropertyHint.File:D}:*.tscn"
+            ),
+            new ObjectProperty(PropertyName.DefaultCombatAnimationsPath, Variant.Type.String, PropertyHint.File, "*.tscn")
         ]);
 
         return properties;
