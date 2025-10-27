@@ -124,7 +124,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
         }
     }
 
-    public Faction Faction => Army.Faction;
+    public Faction Faction => Army?.Faction;
 
     /// <summary>Whether or not the unit has completed its turn.</summary>
     public bool Active => !AnimationTree.Get(Done).AsBool();
@@ -282,8 +282,25 @@ public partial class Unit : GridNode, IUnit, IHasHealth
             Sprite.Modulate = _army.Faction.Color;
         Behavior = GetChildren().OfType<Behavior>().FirstOrDefault();
 
-        if (!Engine.IsEditorHint())
+        Sprite2D sprite = GetNode<Sprite2D>("EditorSprite");
+        if (Engine.IsEditorHint())
         {
+            if (Faction is not null)
+            {
+                if (Class.EditorSprites.TryGetValue(Faction, out Texture2D texture))
+                    sprite.Texture = texture;
+                else
+                {
+                    sprite.Texture = Class.DefaultEditorSprite;
+                    sprite.Modulate = Faction.Color;
+                }
+            }
+        }
+        else
+        {
+            RemoveChild(sprite);
+            sprite.QueueFree();
+
             Path.Curve = new();
             MotionBox.Size = Size;
             AnimationTree.Active = true;
@@ -315,11 +332,6 @@ public partial class Unit : GridNode, IUnit, IHasHealth
                 SetProcess(false);
                 EmitSignal(SignalName.DoneMoving);
             }
-        }
-        else
-        {
-            if (_army is not null)
-                Sprite.Modulate = _army.Faction.Color;
         }
     }
 }

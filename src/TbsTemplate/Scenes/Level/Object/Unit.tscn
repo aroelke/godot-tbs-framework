@@ -390,6 +390,9 @@ z_index = 1
 script = ExtResource("1_crlbh")
 Stats = SubResource("Resource_gr881")
 
+[node name="EditorSprite" type="Sprite2D" parent="."]
+centered = false
+
 [node name="Health" parent="." instance=ExtResource("6_jxbfo")]
 Maximum = 10
 Value = 10
