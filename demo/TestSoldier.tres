@@ -1,7 +1,13 @@
-[gd_resource type="Resource" script_class="Class" load_steps=2 format=3 uid="uid://bqexj8hqh32xd"]
+[gd_resource type="Resource" script_class="Class" load_steps=3 format=3 uid="uid://bqexj8hqh32xd"]
 
 [ext_resource type="Script" uid="uid://hpaxa78srpai" path="res://src/TbsTemplate/Data/Class.cs" id="1_1e3k7"]
+[ext_resource type="Script" uid="uid://ddlp6kj6iah51" path="res://src/TbsTemplate/Data/Faction.cs" id="1_r7jkb"]
 
 [resource]
 script = ExtResource("1_1e3k7")
+EditorSprites = Dictionary[ExtResource("1_r7jkb"), Texture2D]({})
 CombatAnimationPath = "res://demo/TestSoldierCombatAnimation.tscn"
+CombatAnimationsPaths = Dictionary[ExtResource("1_r7jkb"), String]({})
+DefaultCombatAnimationsPath = ""
+MapAnimationsPaths = Dictionary[ExtResource("1_r7jkb"), String]({})
+DefaultMapAnimationsPath = ""
