@@ -1,13 +1,22 @@
-[gd_scene load_steps=5 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=13 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsTemplate/Scenes/Level/Map/Grid.tscn" id="2_oeidl"]
 [ext_resource type="Resource" uid="uid://420nufm5mgjd" path="res://demo/assets/terrain/plain.tres" id="3_akw2u"]
 [ext_resource type="TileSet" uid="uid://cqqq5romj5brh" path="res://demo/assets/map/tileset.tres" id="4_yu7ov"]
+[ext_resource type="PackedScene" uid="uid://1ev2yxu31ow" path="res://src/TbsTemplate/Scenes/Level/Object/Group/Army.tscn" id="5_oeidl"]
+[ext_resource type="Resource" uid="uid://broidqni4h8ak" path="res://demo/factions/DemoPlayerFaction.tres" id="6_akw2u"]
+[ext_resource type="PackedScene" uid="uid://drlrlusbfh208" path="res://src/TbsTemplate/Scenes/Level/Control/PlayerController.tscn" id="7_tajn8"]
+[ext_resource type="Resource" uid="uid://dxvcd01bu3ovj" path="res://demo/factions/DemoEnemyFaction1.tres" id="7_yu7ov"]
+[ext_resource type="Resource" uid="uid://0dcwfdljw4ug" path="res://demo/factions/DemoEnemyFaction2.tres" id="8_edc7l"]
+[ext_resource type="Texture2D" uid="uid://ybe0dod1kvqr" path="res://demo/assets/map/kenney_tiny-battle/cursor.png" id="8_s2xnc"]
+[ext_resource type="Texture2D" uid="uid://dplsgxw6yc37j" path="res://demo/assets/ui/kenney_cursor-pack/pointer_b_shaded_cropped.png" id="9_hkfkd"]
+[ext_resource type="PackedScene" uid="uid://ca6g5c6dsaqjb" path="res://src/TbsTemplate/Scenes/Level/Control/AIController.tscn" id="9_s2xnc"]
 
 [node name="TestMap" type="Node"]
 
-[node name="LevelManager" parent="." instance=ExtResource("1_3r8kd")]
+[node name="LevelManager" parent="." node_paths=PackedStringArray("StartingArmy") instance=ExtResource("1_3r8kd")]
+StartingArmy = NodePath("Player")
 
 [node name="Grid" parent="LevelManager" node_paths=PackedStringArray("GroundLayer", "TerrainLayer") instance=ExtResource("2_oeidl")]
 GroundLayer = NodePath("Ground")
@@ -25,3 +34,31 @@ tile_set = ExtResource("4_yu7ov")
 [node name="Objects" type="TileMapLayer" parent="LevelManager/Grid"]
 tile_map_data = PackedByteArray("AAASAAIAAAAKAAMAAAABAAYAAAAKAAIAAAA=")
 tile_set = ExtResource("4_yu7ov")
+
+[node name="Player" parent="LevelManager" instance=ExtResource("5_oeidl")]
+Faction = ExtResource("6_akw2u")
+
+[node name="PlayerController" parent="LevelManager/Player" instance=ExtResource("7_tajn8")]
+CursorSpriteTexture = ExtResource("8_s2xnc")
+CursorSpriteOffset = Vector2(8, 8)
+PointerSpriteTexture = ExtResource("9_hkfkd")
+
+[node name="Enemy1" parent="LevelManager" instance=ExtResource("5_oeidl")]
+Faction = ExtResource("7_yu7ov")
+
+[node name="AIController" parent="LevelManager/Enemy1" instance=ExtResource("9_s2xnc")]
+
+[node name="Enemy2" parent="LevelManager" instance=ExtResource("5_oeidl")]
+Faction = ExtResource("8_edc7l")
+
+[node name="AIController" parent="LevelManager/Enemy2" instance=ExtResource("9_s2xnc")]
+
+[node name="Ally" parent="LevelManager" instance=ExtResource("5_oeidl")]
+Faction = ExtResource("6_akw2u")
+
+[node name="AIController" parent="LevelManager/Ally" instance=ExtResource("9_s2xnc")]
+
+[connection signal="child_entered_tree" from="LevelManager/Player" to="LevelManager" method="OnChildEnteredGroup"]
+[connection signal="child_entered_tree" from="LevelManager/Enemy1" to="LevelManager" method="OnChildEnteredGroup"]
+[connection signal="child_entered_tree" from="LevelManager/Enemy2" to="LevelManager" method="OnChildEnteredGroup"]
+[connection signal="child_entered_tree" from="LevelManager/Ally" to="LevelManager" method="OnChildEnteredGroup"]
