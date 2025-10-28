@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="GamepadButtonIconMap" load_steps=12 format=3 uid="uid://regd1sncx0rn"]
+
+[ext_resource type="Texture2D" uid="uid://ctvir25bpi7e1" path="res://demo2/assets/ui/icons/controls/playstation/cross.png" id="1_y6dub"]
+[ext_resource type="Texture2D" uid="uid://cm1l7k8w18s36" path="res://demo2/assets/ui/icons/controls/playstation/circle.png" id="2_ej2ps"]
+[ext_resource type="Texture2D" uid="uid://dwrg3c6m2yegj" path="res://demo2/assets/ui/icons/controls/playstation/dpad.png" id="3_j32j4"]
+[ext_resource type="Texture2D" uid="uid://rvicv7mk4e0b" path="res://demo2/assets/ui/icons/controls/playstation/dpaddown.png" id="4_y06h3"]
+[ext_resource type="Texture2D" uid="uid://ddo2e8y4xxywf" path="res://demo2/assets/ui/icons/controls/playstation/dpadleft.png" id="5_b61v4"]
+[ext_resource type="Texture2D" uid="uid://x210tjc0p8u6" path="res://demo2/assets/ui/icons/controls/playstation/dpadright.png" id="6_6egw1"]
+[ext_resource type="Texture2D" uid="uid://b8opi1ojes3lf" path="res://demo2/assets/ui/icons/controls/playstation/dpadup.png" id="7_14col"]
+[ext_resource type="Texture2D" uid="uid://680tydejo7y" path="res://demo2/assets/ui/icons/controls/playstation/square.png" id="8_mue74"]
+[ext_resource type="Texture2D" uid="uid://bnhfvij8f2iga" path="res://demo2/assets/ui/icons/controls/playstation/triangle.png" id="9_bnll3"]
+[ext_resource type="Texture2D" uid="uid://cgehegx08c2gy" path="res://demo2/assets/ui/icons/controls/playstation/options.png" id="9_tv67r"]
+[ext_resource type="Script" uid="uid://c1tquin6hbhk5" path="res://src/TbsTemplate/UI/Controls/IconMaps/GamepadButtonIconMap.cs" id="11_xmysk"]
+
+[resource]
+script = ExtResource("11_xmysk")
+Icons = Dictionary[int, Texture2D]({
+0: ExtResource("1_y6dub"),
+1: ExtResource("2_ej2ps"),
+2: ExtResource("8_mue74"),
+3: ExtResource("9_bnll3"),
+6: ExtResource("9_tv67r"),
+11: ExtResource("7_14col"),
+12: ExtResource("4_y06h3"),
+13: ExtResource("5_b61v4"),
+14: ExtResource("6_6egw1")
+})
+Dpad = ExtResource("3_j32j4")
+metadata/_custom_type_script = "uid://drdmmowo6k4bm"

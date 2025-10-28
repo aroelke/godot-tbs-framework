@@ -14,7 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://bolt0jtmhdfb8" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/Vector2IReaction.tscn" id="14_yh42t"]
 [ext_resource type="PackedScene" uid="uid://brgi7pl8xxduv" path="res://src/TbsTemplate/Scenes/Level/Layers/ActionLayers.tscn" id="15_fsxw4"]
 [ext_resource type="PackedScene" uid="uid://dtrul7dw5r6ly" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/Vector2Reaction.tscn" id="16_5nli1"]
-[ext_resource type="TileSet" uid="uid://cwhi2yq5gtey5" path="res://demo/assets/level/ui/Overlay.tres" id="16_enq6j"]
+[ext_resource type="TileSet" uid="uid://cwhi2yq5gtey5" path="res://demo2/assets/level/ui/Overlay.tres" id="16_enq6j"]
 
 [node name="PlayerController" type="Node"]
 script = ExtResource("1_52vsu")
