@@ -3,7 +3,7 @@ using System.Linq;
 using Godot;
 using TbsTemplate.Nodes.Components;
 
-namespace TbsTemplate.UI.Combat;
+namespace TbsTemplate.Demo;
 
 /// <summary>Combat UI element that displays constant information about a character participating in combat.</summary>
 [Tool]
