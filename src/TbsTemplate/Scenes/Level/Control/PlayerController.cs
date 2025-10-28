@@ -355,7 +355,7 @@ public partial class PlayerController : ArmyController
         UpdateDangerZones();
         ZoneLayers.Visible = true;
 
-        Cursor.Cell = ((IEnumerable<Unit>)Army).First().Cell;
+        Cursor.Cell = ((IEnumerable<Unit>)Army).Any() ? ((IEnumerable<Unit>)Army).First().Cell : Vector2I.Zero;
 
         Cursor.Resume();
         Pointer.StopWaiting();
