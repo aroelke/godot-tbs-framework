@@ -1,6 +1,6 @@
 [gd_scene load_steps=14 format=3 uid="uid://d27657huq736q"]
 
-[ext_resource type="Script" uid="uid://b4hg5hvnw2hdu" path="res://src/TbsTemplate/Scenes/Combat/Animations/CombatAnimation.cs" id="1_og255"]
+[ext_resource type="Script" uid="uid://b4hg5hvnw2hdu" path="res://src/TbsTemplate/Nodes/Components/CombatAnimations.cs" id="1_og255"]
 [ext_resource type="Shader" uid="uid://cn618tatsj5j8" path="res://src/TbsTemplate/Shaders/ColorOverlay.gdshader" id="3_eycx7"]
 [ext_resource type="Texture2D" uid="uid://ci35m6t46grfo" path="res://demo/assets/combat/unit/soldier.png" id="3_n278u"]
 

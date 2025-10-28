@@ -1,12 +1,11 @@
 using System.Threading.Tasks;
 using Godot;
-using TbsTemplate.Nodes;
 
-namespace TbsTemplate.Scenes.Combat.Animations;
+namespace TbsTemplate.Nodes.Components;
 
 /// <summary>Collection of animations to play during combat for a class or character.</summary>
 [GlobalClass, Tool]
-public partial class CombatAnimation : BoundedNode2D
+public partial class CombatAnimations : BoundedNode2D
 {
     public static readonly StringName IdleAnimation = "RESET";
     public static readonly StringName AttackAnimation = "attack";

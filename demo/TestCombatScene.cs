@@ -8,7 +8,6 @@ using TbsTemplate.Extensions;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes;
 using TbsTemplate.Scenes.Combat;
-using TbsTemplate.Scenes.Combat.Animations;
 using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.UI;
@@ -40,7 +39,7 @@ public partial class TestCombatScene : CombatScene
     }
 
     private readonly NodeCache _cache = null;
-    private readonly Dictionary<Unit, CombatAnimation> _animations = [];
+    private readonly Dictionary<Unit, CombatAnimations> _animations = [];
     private readonly Dictionary<Unit, ParticipantInfo> _infos = [];
     private IImmutableList<CombatAction> _actions = null;
     private double _remaining = 0;
@@ -132,7 +131,7 @@ public partial class TestCombatScene : CombatScene
         RightInfo.HitChance = _actions.Any((a) => a.Actor == right) ? Math.Min(CombatCalculations.HitChance(right, left), 100) : -1;
         RightInfo.TransitionDuration = HitDelay;
 
-        foreach ((_, CombatAnimation animation) in _animations)
+        foreach ((_, CombatAnimations animation) in _animations)
             AddChild(animation);
     }
 
@@ -143,10 +142,10 @@ public partial class TestCombatScene : CombatScene
         foreach (CombatAction action in _actions)
         {
             // Reset all participants
-            foreach ((_, CombatAnimation animation) in _animations)
+            foreach ((_, CombatAnimations animation) in _animations)
             {
                 animation.ZIndex = 0;
-                animation.PlayAnimation(CombatAnimation.IdleAnimation);
+                animation.PlayAnimation(CombatAnimations.IdleAnimation);
             }
 
             switch (action.Type)
@@ -156,7 +155,7 @@ public partial class TestCombatScene : CombatScene
                 if (action.Hit)
                 {
                     _animations[action.Actor].ZIndex = 1;
-                    _animations[action.Actor].Connect(CombatAnimation.SignalName.AttackStrike, () => {
+                    _animations[action.Actor].Connect(CombatAnimations.SignalName.AttackStrike, () => {
                         if (action.Damage > 0)
                         {
                             HitSound.Play();
@@ -173,33 +172,33 @@ public partial class TestCombatScene : CombatScene
                 else
                 {
                     _animations[action.Target].ZIndex = 1;
-                    _animations[action.Actor].Connect(CombatAnimation.SignalName.AttackDodged, () => _animations[action.Target].PlayAnimation(CombatAnimation.DodgeAnimation), (uint)ConnectFlags.OneShot);
-                    _animations[action.Actor].Connect(CombatAnimation.SignalName.AttackStrike, () => MissSound.Play(), (uint)ConnectFlags.OneShot);
+                    _animations[action.Actor].Connect(CombatAnimations.SignalName.AttackDodged, () => _animations[action.Target].PlayAnimation(CombatAnimations.DodgeAnimation), (uint)ConnectFlags.OneShot);
+                    _animations[action.Actor].Connect(CombatAnimations.SignalName.AttackStrike, () => MissSound.Play(), (uint)ConnectFlags.OneShot);
                 }
 
                 // Play the animation sequence for the turn
-                _animations[action.Actor].PlayAnimation(CombatAnimation.AttackAnimation);
+                _animations[action.Actor].PlayAnimation(CombatAnimations.AttackAnimation);
                 await ActionCompleted(action);
                 await Delay(HitDelay);
-                _animations[action.Actor].PlayAnimation(CombatAnimation.AttackReturnAnimation);
+                _animations[action.Actor].PlayAnimation(CombatAnimations.AttackReturnAnimation);
                 if (!action.Hit)
-                    _animations[action.Target].PlayAnimation(CombatAnimation.DodgeReturnAnimation);
+                    _animations[action.Target].PlayAnimation(CombatAnimations.DodgeReturnAnimation);
                 await ActionCompleted(action);
 
                 // Clean up any triggers
                 if (action.Hit && _infos[action.Target].Health.Value == 0)
                 {
-                    _animations[action.Target].PlayAnimation(CombatAnimation.DieAnimation);
+                    _animations[action.Target].PlayAnimation(CombatAnimations.DieAnimation);
                     DeathSound.Play();
-                    await ToSignal(_animations[action.Target], CombatAnimation.SignalName.AnimationFinished);
+                    await ToSignal(_animations[action.Target], CombatAnimations.SignalName.AnimationFinished);
                 }
                 break;
             case CombatActionType.Support:
-                _animations[action.Actor].Connect(CombatAnimation.SignalName.SpellCast, () => _infos[action.Target].Health.Value -= action.Damage, (uint)ConnectFlags.OneShot);
-                _animations[action.Actor].PlayAnimation(CombatAnimation.SupportAnimation);
+                _animations[action.Actor].Connect(CombatAnimations.SignalName.SpellCast, () => _infos[action.Target].Health.Value -= action.Damage, (uint)ConnectFlags.OneShot);
+                _animations[action.Actor].PlayAnimation(CombatAnimations.SupportAnimation);
                 await ActionCompleted(action);
                 await Delay(HitDelay);
-                _animations[action.Actor].PlayAnimation(CombatAnimation.SupportReturnAnimation);
+                _animations[action.Actor].PlayAnimation(CombatAnimations.SupportReturnAnimation);
                 await ActionCompleted(action);
                 break;
             }
@@ -227,13 +226,13 @@ public partial class TestCombatScene : CombatScene
 
     public void OnAccelerate()
     {
-        foreach ((_, CombatAnimation animation) in _animations)
+        foreach ((_, CombatAnimations animation) in _animations)
             animation.AnimationSpeedScale = AccelerationFactor;
     }
 
     public void OnDecelerate()
     {
-        foreach ((_, CombatAnimation animation) in _animations)
+        foreach ((_, CombatAnimations animation) in _animations)
             animation.AnimationSpeedScale = 1;
     }
 

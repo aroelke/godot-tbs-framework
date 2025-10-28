@@ -2,11 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using Godot;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes.Components;
-using TbsTemplate.Scenes.Combat.Animations;
 
 namespace TbsTemplate.Data;
 
@@ -171,13 +169,13 @@ public partial class Class : Resource
         }
     }
 
-    public CombatAnimation InstantiateCombatAnimations(Faction faction)
+    public CombatAnimations InstantiateCombatAnimations(Faction faction)
     {
         if (faction is not null && CombatAnimationsPaths.ContainsKey(faction))
-            return CombatAnimationsScenes[faction].Instantiate<CombatAnimation>();
+            return CombatAnimationsScenes[faction].Instantiate<CombatAnimations>();
         else
         {
-            CombatAnimation animations = DefaultCombatAnimationsScene.Instantiate<CombatAnimation>();
+            CombatAnimations animations = DefaultCombatAnimationsScene.Instantiate<CombatAnimations>();
             if (faction is not null)
                 animations.Modulate = faction.Color;
             return animations;
