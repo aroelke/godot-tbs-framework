@@ -1,10 +1,10 @@
 [gd_resource type="TileSet" load_steps=26 format=3 uid="uid://dmybpcxxs4xxy"]
 
-[ext_resource type="Resource" uid="uid://bn6uq3ysywt60" path="res://demo2/terrain/plain.tres" id="1_3y2m5"]
-[ext_resource type="Resource" uid="uid://ryxx30gb4grd" path="res://demo2/terrain/bush.tres" id="2_1borx"]
-[ext_resource type="Resource" uid="uid://matpnfv7cs4l" path="res://demo2/terrain/mountain.tres" id="3_l44fa"]
-[ext_resource type="Resource" uid="uid://c3eyx8v6qrjdh" path="res://demo2/terrain/wall.tres" id="4_grpm0"]
-[ext_resource type="Texture2D" uid="uid://ct5iy7vuwoof3" path="res://demo2/assets/environment/tiles/objects.png" id="5_eb15k"]
+[ext_resource type="Resource" uid="uid://bn6uq3ysywt60" path="res://demo2/terrain/plain.tres" id="1_bbm3o"]
+[ext_resource type="Resource" uid="uid://ryxx30gb4grd" path="res://demo2/terrain/bush.tres" id="2_undt6"]
+[ext_resource type="Resource" uid="uid://c3eyx8v6qrjdh" path="res://demo2/terrain/wall.tres" id="3_ri5no"]
+[ext_resource type="Resource" uid="uid://matpnfv7cs4l" path="res://demo2/terrain/mountain.tres" id="4_dtl0d"]
+[ext_resource type="Texture2D" uid="uid://ct5iy7vuwoof3" path="res://demo2/assets/environment/tiles/objects.png" id="5_qttqi"]
 
 [sub_resource type="TileMapPattern" id="TileMapPattern_m8dcu"]
 tile_data = PackedInt32Array(0, 0, 2, 65536, 0, 3)
@@ -64,12 +64,12 @@ tile_data = PackedInt32Array(0, 65536, 6, 1, 131072, 6)
 tile_data = PackedInt32Array(0, 65536, 7, 1, 131072, 7)
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_5enfu"]
-texture = ExtResource("5_eb15k")
+texture = ExtResource("5_qttqi")
 texture_region_size = Vector2i(32, 32)
 0:0/0 = 0
-0:0/0/custom_data_0 = ExtResource("1_3y2m5")
+0:0/0/custom_data_0 = ExtResource("1_bbm3o")
 0:1/0 = 0
-0:1/0/custom_data_0 = ExtResource("2_1borx")
+0:1/0/custom_data_0 = ExtResource("2_undt6")
 1:1/0 = 0
 2:1/0 = 0
 3:1/0 = 0
@@ -94,9 +94,9 @@ texture_region_size = Vector2i(32, 32)
 6:3/0 = 0
 7:3/0 = 0
 0:4/0 = 0
-0:4/0/custom_data_0 = ExtResource("3_l44fa")
+0:4/0/custom_data_0 = ExtResource("4_dtl0d")
 1:4/0 = 0
-1:4/0/custom_data_0 = ExtResource("3_l44fa")
+1:4/0/custom_data_0 = ExtResource("4_dtl0d")
 2:4/0 = 0
 3:4/0 = 0
 4:4/0 = 0
@@ -104,9 +104,9 @@ texture_region_size = Vector2i(32, 32)
 6:4/0 = 0
 7:4/0 = 0
 0:5/0 = 0
-0:5/0/custom_data_0 = ExtResource("3_l44fa")
+0:5/0/custom_data_0 = ExtResource("4_dtl0d")
 1:5/0 = 0
-1:5/0/custom_data_0 = ExtResource("3_l44fa")
+1:5/0/custom_data_0 = ExtResource("4_dtl0d")
 2:5/0 = 0
 3:5/0 = 0
 4:5/0 = 0
@@ -117,9 +117,9 @@ texture_region_size = Vector2i(32, 32)
 1:6/0 = 0
 2:6/0 = 0
 3:6/0 = 0
-3:6/0/custom_data_0 = ExtResource("4_grpm0")
+3:6/0/custom_data_0 = ExtResource("3_ri5no")
 4:6/0 = 0
-4:6/0/custom_data_0 = ExtResource("4_grpm0")
+4:6/0/custom_data_0 = ExtResource("3_ri5no")
 5:6/0 = 0
 6:6/0 = 0
 7:6/0 = 0
@@ -127,9 +127,9 @@ texture_region_size = Vector2i(32, 32)
 1:7/0 = 0
 2:7/0 = 0
 3:7/0 = 0
-3:7/0/custom_data_0 = ExtResource("4_grpm0")
+3:7/0/custom_data_0 = ExtResource("3_ri5no")
 4:7/0 = 0
-4:7/0/custom_data_0 = ExtResource("4_grpm0")
+4:7/0/custom_data_0 = ExtResource("3_ri5no")
 5:7/0 = 0
 6:7/0 = 0
 0:8/0 = 0
@@ -139,7 +139,7 @@ texture_region_size = Vector2i(32, 32)
 4:8/0 = 0
 5:8/0 = 0
 6:8/0 = 0
-6:8/0/custom_data_0 = ExtResource("4_grpm0")
+6:8/0/custom_data_0 = ExtResource("3_ri5no")
 0:9/0 = 0
 1:9/0 = 0
 2:9/0 = 0
@@ -147,64 +147,64 @@ texture_region_size = Vector2i(32, 32)
 4:9/0 = 0
 5:9/0 = 0
 6:9/0 = 0
-6:9/0/custom_data_0 = ExtResource("4_grpm0")
+6:9/0/custom_data_0 = ExtResource("3_ri5no")
 0:10/0 = 0
 1:10/0 = 0
 2:10/0 = 0
 0:11/0 = 0
-0:11/0/custom_data_0 = ExtResource("4_grpm0")
+0:11/0/custom_data_0 = ExtResource("3_ri5no")
 1:11/0 = 0
-1:11/0/custom_data_0 = ExtResource("4_grpm0")
+1:11/0/custom_data_0 = ExtResource("3_ri5no")
 2:11/0 = 0
-2:11/0/custom_data_0 = ExtResource("4_grpm0")
+2:11/0/custom_data_0 = ExtResource("3_ri5no")
 3:11/0 = 0
-3:11/0/custom_data_0 = ExtResource("4_grpm0")
+3:11/0/custom_data_0 = ExtResource("3_ri5no")
 4:11/0 = 0
-4:11/0/custom_data_0 = ExtResource("4_grpm0")
+4:11/0/custom_data_0 = ExtResource("3_ri5no")
 5:11/0 = 0
-5:11/0/custom_data_0 = ExtResource("4_grpm0")
+5:11/0/custom_data_0 = ExtResource("3_ri5no")
 0:12/0 = 0
-0:12/0/custom_data_0 = ExtResource("4_grpm0")
+0:12/0/custom_data_0 = ExtResource("3_ri5no")
 1:12/0 = 0
-1:12/0/custom_data_0 = ExtResource("4_grpm0")
+1:12/0/custom_data_0 = ExtResource("3_ri5no")
 2:12/0 = 0
-2:12/0/custom_data_0 = ExtResource("4_grpm0")
+2:12/0/custom_data_0 = ExtResource("3_ri5no")
 3:12/0 = 0
-3:12/0/custom_data_0 = ExtResource("4_grpm0")
+3:12/0/custom_data_0 = ExtResource("3_ri5no")
 4:12/0 = 0
-4:12/0/custom_data_0 = ExtResource("4_grpm0")
+4:12/0/custom_data_0 = ExtResource("3_ri5no")
 5:12/0 = 0
-5:12/0/custom_data_0 = ExtResource("4_grpm0")
+5:12/0/custom_data_0 = ExtResource("3_ri5no")
 0:13/0 = 0
-0:13/0/custom_data_0 = ExtResource("4_grpm0")
+0:13/0/custom_data_0 = ExtResource("3_ri5no")
 1:13/0 = 0
-1:13/0/custom_data_0 = ExtResource("4_grpm0")
+1:13/0/custom_data_0 = ExtResource("3_ri5no")
 2:13/0 = 0
-2:13/0/custom_data_0 = ExtResource("4_grpm0")
+2:13/0/custom_data_0 = ExtResource("3_ri5no")
 3:13/0 = 0
-3:13/0/custom_data_0 = ExtResource("4_grpm0")
+3:13/0/custom_data_0 = ExtResource("3_ri5no")
 4:13/0 = 0
-4:13/0/custom_data_0 = ExtResource("4_grpm0")
+4:13/0/custom_data_0 = ExtResource("3_ri5no")
 5:13/0 = 0
-5:13/0/custom_data_0 = ExtResource("4_grpm0")
+5:13/0/custom_data_0 = ExtResource("3_ri5no")
 0:14/0 = 0
-0:14/0/custom_data_0 = ExtResource("4_grpm0")
+0:14/0/custom_data_0 = ExtResource("3_ri5no")
 1:14/0 = 0
-1:14/0/custom_data_0 = ExtResource("4_grpm0")
+1:14/0/custom_data_0 = ExtResource("3_ri5no")
 2:14/0 = 0
-2:14/0/custom_data_0 = ExtResource("4_grpm0")
+2:14/0/custom_data_0 = ExtResource("3_ri5no")
 0:15/0 = 0
-0:15/0/custom_data_0 = ExtResource("4_grpm0")
+0:15/0/custom_data_0 = ExtResource("3_ri5no")
 1:15/0 = 0
-1:15/0/custom_data_0 = ExtResource("4_grpm0")
+1:15/0/custom_data_0 = ExtResource("3_ri5no")
 2:15/0 = 0
-2:15/0/custom_data_0 = ExtResource("4_grpm0")
+2:15/0/custom_data_0 = ExtResource("3_ri5no")
 0:16/0 = 0
-0:16/0/custom_data_0 = ExtResource("4_grpm0")
+0:16/0/custom_data_0 = ExtResource("3_ri5no")
 1:16/0 = 0
-1:16/0/custom_data_0 = ExtResource("4_grpm0")
+1:16/0/custom_data_0 = ExtResource("3_ri5no")
 2:16/0 = 0
-2:16/0/custom_data_0 = ExtResource("4_grpm0")
+2:16/0/custom_data_0 = ExtResource("3_ri5no")
 
 [resource]
 tile_size = Vector2i(32, 32)
