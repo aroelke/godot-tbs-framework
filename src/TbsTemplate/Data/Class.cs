@@ -6,6 +6,7 @@ using System.IO;
 using Godot;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes.Components;
+using TbsTemplate.Scenes.Combat.Animations;
 
 namespace TbsTemplate.Data;
 
@@ -78,10 +79,6 @@ public partial class Class : Resource
     private PackedScene _defaultMapAnimations = null;
     private readonly Dictionary<Faction, PackedScene> _combatAnimations = [];
     private PackedScene _defaultCombatAnimations = null;
-    private PackedScene _combatAnimation = null;
-
-    /// <summary>Loaded (but not instantiated) combat animation scene for the class.</summary>
-    public PackedScene CombatAnimations => LoadCombatAnimations();
 
     /// <summary>Mapping of factions onto respective paths to scenes defining map animations for units of this class.</summary>
     public Godot.Collections.Dictionary<Faction, string> MapAnimationsPaths = [];
@@ -161,17 +158,26 @@ public partial class Class : Resource
     /// <returns>The loaded animation scene.</returns>
     public PackedScene LoadDefaultCombatAnimations() => _defaultCombatAnimations ??= ResourceLoader.Load<PackedScene>(DefaultCombatAnimationsPath);
 
-    /// <summary>Manually load the combat animation scene for control over when it gets loaded into memory.</summary>
-    /// <returns>The loaded animation scene.</returns>
-    public PackedScene LoadCombatAnimations() => _combatAnimation ??= ResourceLoader.Load<PackedScene>(CombatAnimationPath);
-
     public UnitMapAnimations InstantiateMapAnimations(Faction faction)
     {
-        if (faction is not null && MapAnimationsPaths.TryGetValue(faction, out _))
+        if (faction is not null && MapAnimationsPaths.ContainsKey(faction))
             return MapAnimationsScenes[faction].Instantiate<UnitMapAnimations>();
         else
         {
             UnitMapAnimations animations = DefaultMapAnimationsScene.Instantiate<UnitMapAnimations>();
+            if (faction is not null)
+                animations.Modulate = faction.Color;
+            return animations;
+        }
+    }
+
+    public CombatAnimation InstantiateCombatAnimations(Faction faction)
+    {
+        if (faction is not null && CombatAnimationsPaths.ContainsKey(faction))
+            return CombatAnimationsScenes[faction].Instantiate<CombatAnimation>();
+        else
+        {
+            CombatAnimation animations = DefaultCombatAnimationsScene.Instantiate<CombatAnimation>();
             if (faction is not null)
                 animations.Modulate = faction.Color;
             return animations;

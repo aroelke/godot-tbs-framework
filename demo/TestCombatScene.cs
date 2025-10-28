@@ -110,7 +110,7 @@ public partial class TestCombatScene : CombatScene
 
         _actions = actions;
 
-        _animations[left] = left.Class.CombatAnimations.Instantiate<CombatAnimation>();
+        _animations[left] = left.Class.InstantiateCombatAnimations(left.Faction);
         _animations[left].Modulate = left.Army.Faction.Color;
         _animations[left].Position = LeftPosition;
         _animations[left].Left = true;
@@ -121,7 +121,7 @@ public partial class TestCombatScene : CombatScene
         LeftInfo.HitChance = _actions.Any((a) => a.Actor == left) ? Math.Min(CombatCalculations.HitChance(left, right), 100) : -1;
         LeftInfo.TransitionDuration = HitDelay;
 
-        _animations[right] = right.Class.CombatAnimations.Instantiate<CombatAnimation>();
+        _animations[right] = right.Class.InstantiateCombatAnimations(right.Faction);
         _animations[right].Modulate = right.Army.Faction.Color;
         _animations[right].Position = RightPosition;
         _animations[right].Left = false;
