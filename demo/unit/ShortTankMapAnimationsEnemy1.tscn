@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://dqylbcg18lmcd"]
+
+[ext_resource type="PackedScene" uid="uid://dpgift876c6df" path="res://demo/unit/ShortTankMapAnimations.tscn" id="1_7sm55"]
+[ext_resource type="Texture2D" uid="uid://ciyeoinhy38ob" path="res://demo/assets/map/kenney_tiny-battle/short_tank_enemy1.png" id="2_mxbjj"]
+
+[node name="ShortTankMapAnimationsEnemy1" instance=ExtResource("1_7sm55")]
+
+[node name="Sprite" parent="." index="0"]
+texture = ExtResource("2_mxbjj")
