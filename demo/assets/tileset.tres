@@ -1,20 +1,19 @@
 [gd_resource type="TileSet" load_steps=6 format=3 uid="uid://cqqq5romj5brh"]
 
-[ext_resource type="Texture2D" uid="uid://d0f4tdif60fbg" path="res://demo/assets/map/kenney_tiny-battle/tilemap.png" id="1_ixjro"]
+[ext_resource type="Texture2D" uid="uid://bgqtmae6uy5c" path="res://demo/assets/map/kenney_tiny-battle/tilemap_packed.png" id="1_rabn2"]
 [ext_resource type="Resource" uid="uid://420nufm5mgjd" path="res://demo/assets/terrain/plain.tres" id="1_yo0ah"]
 [ext_resource type="Resource" uid="uid://c6aef0yi4n805" path="res://demo/assets/terrain/water.tres" id="2_7x24u"]
 [ext_resource type="Resource" uid="uid://djwg2blpa0kqq" path="res://demo/assets/terrain/wall.tres" id="3_fk7tx"]
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_yo0ah"]
-texture = ExtResource("1_ixjro")
-separation = Vector2i(1, 1)
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_d607n"]
+texture = ExtResource("1_rabn2")
 0:0/0 = 0
 0:0/0/custom_data_0 = ExtResource("1_yo0ah")
 1:0/0 = 0
-1:0/0/probability = 0.2
+1:0/0/probability = 0.3
 1:0/0/custom_data_0 = ExtResource("1_yo0ah")
 2:0/0 = 0
-2:0/0/probability = 0.075
+2:0/0/probability = 0.08
 2:0/0/custom_data_0 = ExtResource("1_yo0ah")
 3:0/0 = 0
 3:0/0/terrain_set = 0
@@ -431,4 +430,4 @@ terrain_set_0/terrain_0/name = "Water"
 terrain_set_0/terrain_0/color = Color(0.5, 0.34375, 0.25, 1)
 custom_data_layer_0/name = "terrain"
 custom_data_layer_0/type = 24
-sources/0 = SubResource("TileSetAtlasSource_yo0ah")
+sources/1 = SubResource("TileSetAtlasSource_d607n")
