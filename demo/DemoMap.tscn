@@ -14,7 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://ca6g5c6dsaqjb" path="res://src/TbsTemplate/Scenes/Level/Control/AIController.tscn" id="9_s2xnc"]
 [ext_resource type="PackedScene" uid="uid://cb1gfyilefvvj" path="res://demo/unit/ShortTank.tscn" id="10_1ger5"]
 
-[node name="TestMap" type="Node"]
+[node name="DemoMap" type="Node"]
 
 [node name="LevelManager" parent="." node_paths=PackedStringArray("StartingArmy") instance=ExtResource("1_3r8kd")]
 StartingArmy = NodePath("Player")
