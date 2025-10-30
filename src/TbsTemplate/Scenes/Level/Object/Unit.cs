@@ -25,13 +25,34 @@ public partial class Unit : GridNode, IUnit, IHasHealth
 
     private readonly NodeCache _cache = null;
     private UnitMapAnimations _animations = null;
+    private Class _class = null;
     private Army _army = null;
     private Stats _stats = new();
     private Vector2I _target = Vector2I.Zero;
 
+    private Sprite2D             EditorSprite   => _cache.GetNode<Sprite2D>("EditorSprite");
     private FastForwardComponent Accelerate     => _cache.GetNode<FastForwardComponent>("Accelerate");
     private Path2D               Path           => _cache.GetNode<Path2D>("Path");
     private PathFollow2D         PathFollow     => _cache.GetNode<PathFollow2D>("Path/Follow");
+
+    private void UpdateVisuals(Class @class, Faction faction)
+    {
+        if (Engine.IsEditorHint())
+        {
+            if (faction is not null && @class.EditorSprites.TryGetValue(faction, out Texture2D texture))
+                EditorSprite.Texture = texture;
+            else
+            {
+                EditorSprite.Texture = @class.DefaultEditorSprite;
+                EditorSprite.Modulate = faction?.Color ?? Colors.White;
+            }
+        }
+        else
+        {
+            _animations = @class.InstantiateMapAnimations(faction);
+            GetNode<PathFollow2D>("Path/Follow").AddChild(_animations);
+        }
+    }
 
     private (IEnumerable<Vector2I>, IEnumerable<Vector2I>, IEnumerable<Vector2I>) ExcludeOccupants(IEnumerable<Vector2I> move, IEnumerable<Vector2I> attack, IEnumerable<Vector2I> support)
     {
@@ -45,7 +66,19 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     }
 
     /// <summary>Class this unit belongs to, defining some of its stats and animations.</summary>
-    [Export] public Class Class = null;
+    [Export] public Class Class
+    {
+        get => _class;
+        set
+        {
+            if (_class != value)
+            {
+                _class = value;
+                if (_class is not null)
+                    UpdateVisuals(_class, Faction);
+            }
+        }
+    }
 
     [Export] public Stats Stats
     {
@@ -90,6 +123,8 @@ public partial class Unit : GridNode, IUnit, IHasHealth
             if (_army != value)
             {
                 _army = value;
+                if (_class is not null)
+                    UpdateVisuals(_class, Faction);
             }
         }
     }
@@ -171,7 +206,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     public void Refresh()
     {
         Active = true;
-        if (Faction is null || !Class.MapAnimationsPaths.ContainsKey(Faction))
+        if (Faction is null || !_class.MapAnimationsPaths.ContainsKey(Faction))
             _animations.Modulate = Faction?.Color ?? Colors.White;
         _animations.PlayIdle();
     }
@@ -234,26 +269,12 @@ public partial class Unit : GridNode, IUnit, IHasHealth
 
         Behavior = GetChildren().OfType<Behavior>().FirstOrDefault();
 
-        Sprite2D sprite = GetNode<Sprite2D>("EditorSprite");
-        if (Engine.IsEditorHint())
+        if (_class is not null)
+            UpdateVisuals(_class, Faction);
+        if (!Engine.IsEditorHint())
         {
-            if (Faction is not null)
-            {
-                if (Class.EditorSprites.TryGetValue(Faction, out Texture2D texture))
-                    sprite.Texture = texture;
-                else
-                {
-                    sprite.Texture = Class.DefaultEditorSprite;
-                    sprite.Modulate = Faction.Color;
-                }
-            }
-        }
-        else
-        {
-            RemoveChild(sprite);
-            sprite.QueueFree();
-            _animations = Class.InstantiateMapAnimations(Faction);
-            GetNode<PathFollow2D>("Path/Follow").AddChild(_animations);
+            RemoveChild(EditorSprite);
+            EditorSprite.QueueFree();
             _animations.PlayIdle();
             Health.Connect<int>(HealthComponent.SignalName.MaximumChanged, _animations.SetHealthMax);
             Health.Connect<int>(HealthComponent.SignalName.ValueChanged, _animations.SetHealthValue);
