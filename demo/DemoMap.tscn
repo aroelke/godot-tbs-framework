@@ -1,9 +1,9 @@
-[gd_scene load_steps=13 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=14 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsTemplate/Scenes/Level/Map/Grid.tscn" id="2_oeidl"]
 [ext_resource type="Resource" uid="uid://420nufm5mgjd" path="res://demo/assets/terrain/plain.tres" id="3_akw2u"]
-[ext_resource type="TileSet" uid="uid://cqqq5romj5brh" path="res://demo/assets/map/tileset.tres" id="4_yu7ov"]
+[ext_resource type="TileSet" uid="uid://cqqq5romj5brh" path="res://demo/assets/tileset.tres" id="4_yu7ov"]
 [ext_resource type="PackedScene" uid="uid://1ev2yxu31ow" path="res://src/TbsTemplate/Scenes/Level/Object/Group/Army.tscn" id="5_oeidl"]
 [ext_resource type="Resource" uid="uid://broidqni4h8ak" path="res://demo/factions/DemoPlayerFaction.tres" id="6_akw2u"]
 [ext_resource type="PackedScene" uid="uid://drlrlusbfh208" path="res://src/TbsTemplate/Scenes/Level/Control/PlayerController.tscn" id="7_tajn8"]
@@ -12,6 +12,7 @@
 [ext_resource type="Texture2D" uid="uid://ybe0dod1kvqr" path="res://demo/assets/map/kenney_tiny-battle/cursor.png" id="8_s2xnc"]
 [ext_resource type="Texture2D" uid="uid://dplsgxw6yc37j" path="res://demo/assets/ui/kenney_cursor-pack/pointer_b_shaded_cropped.png" id="9_hkfkd"]
 [ext_resource type="PackedScene" uid="uid://ca6g5c6dsaqjb" path="res://src/TbsTemplate/Scenes/Level/Control/AIController.tscn" id="9_s2xnc"]
+[ext_resource type="PackedScene" uid="uid://cb1gfyilefvvj" path="res://demo/unit/ShortTank.tscn" id="10_1ger5"]
 
 [node name="TestMap" type="Node"]
 
@@ -43,10 +44,38 @@ CursorSpriteTexture = ExtResource("8_s2xnc")
 CursorSpriteOffset = Vector2(8, 8)
 PointerSpriteTexture = ExtResource("9_hkfkd")
 
+[node name="PlayerA" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(96, 144)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(6, 9)
+Size = Vector2(16, 16)
+
+[node name="PlayerB" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(112, 128)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(7, 8)
+Size = Vector2(16, 16)
+
+[node name="PlayerC" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(128, 144)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(8, 9)
+Size = Vector2(16, 16)
+
+[node name="PlayerD" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(112, 160)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(7, 10)
+Size = Vector2(16, 16)
+
 [node name="Enemy1" parent="LevelManager" instance=ExtResource("5_oeidl")]
 Faction = ExtResource("7_yu7ov")
 
 [node name="AIController" parent="LevelManager/Enemy1" instance=ExtResource("9_s2xnc")]
+
+[node name="ReinforcementA" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+Grid = NodePath("../../Grid")
+Size = Vector2(16, 16)
 
 [node name="Enemy2" parent="LevelManager" instance=ExtResource("5_oeidl")]
 Faction = ExtResource("8_edc7l")
