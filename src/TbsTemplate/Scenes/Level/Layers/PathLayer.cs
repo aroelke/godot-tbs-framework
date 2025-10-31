@@ -38,6 +38,7 @@ public partial class PathLayer : TileMapLayer
             Clear();
             if (value.Count > 1)
             {
+                SetCellsTerrainPath([.. value], PathTerrainSet, PathTerrain);
                 Vector2I coordinates = (value[^1] - value[^2]) switch
                 {
                     Vector2I(0, >0) => DownArrowCoordinates,
@@ -47,10 +48,7 @@ public partial class PathLayer : TileMapLayer
                     _ => new(8, 0)
                 };
                 if (coordinates != -Vector2I.One)
-                {
-                    SetCellsTerrainPath([.. value], PathTerrainSet, PathTerrain);
                     SetCell(value[^1], sourceId:PathSourceId, atlasCoords:coordinates);
-                }
             }
         }
     }
