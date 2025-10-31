@@ -32,7 +32,7 @@ public partial class PlayerController : ArmyController
     private Grid _grid = null;
     private TileSet _overlayTiles = null;
     private TileSet _pathTiles = null;
-    private int _pathSource = -1;
+    private int _pathSource = -1, _pathTerrainSet = -1, _pathTerrain = -1;
     private Vector2I _pathUpArrow = -Vector2I.One, _pathRightArrow = -Vector2I.One, _pathDownArrow = -Vector2I.One, _pathLeftArrow = -Vector2I.One;
     private Color _move    = Colors.Blue  with { A = 100f/256f };
     private Color _attack  = Colors.Red   with { A = 100f/256f };
@@ -136,6 +136,7 @@ public partial class PlayerController : ArmyController
         }
     }
 
+    /// <summary>Tile set to use for drawing the path a unit will move along.</summary>
     [Export, ExportGroup("Control UI/Path")] public TileSet PathTileSet
     {
         get => _pathTiles;
@@ -149,6 +150,7 @@ public partial class PlayerController : ArmyController
         }
     }
 
+    /// <summary>Source ID of the tiles withing <see cref="PathTileSet"/> to use for drawing the path a unit will move along.</summary>
     [Export, ExportGroup("Control UI/Path")] public int PathTilesSourceId
     {
         get => _pathSource;
@@ -158,6 +160,34 @@ public partial class PlayerController : ArmyController
             {
                 _pathSource = value;
                 PathLayer.PathSourceId = _pathSource;
+            }
+        }
+    }
+
+    /// <summary>ID of the terrain set within <see cref="PathTileSet"/> to use for connecting the arrow of the path a unit will move along.</summary>
+    [Export, ExportGroup("Control UI/Path")] public int PathTerrainSet
+    {
+        get => _pathTerrainSet;
+        set
+        {
+            if (_pathTerrainSet != value)
+            {
+                _pathTerrainSet = value;
+                PathLayer.PathTerrainSet = _pathTerrainSet;
+            }
+        }
+    }
+
+    /// <summary>ID of the terrain within <see cref="PathTerrainSet"/> to use for connecting the arrow of the path a unit will move along.</summary>
+    [Export, ExportGroup("Control UI/Path")] public int PathTerrain
+    {
+        get => _pathTerrain;
+        set
+        {
+            if (_pathTerrain != value)
+            {
+                _pathTerrain = value;
+                PathLayer.PathTerrain = value;
             }
         }
     }
@@ -899,6 +929,8 @@ public partial class PlayerController : ArmyController
         LocalDangerZone.Modulate        = _local;
         GlobalDangerZone.Modulate       = _global;
         PathLayer.PathSourceId          = _pathSource;
+        PathLayer.PathTerrainSet        = _pathTerrainSet;
+        PathLayer.PathTerrain           = _pathTerrain;
         PathLayer.UpArrowCoordinates    = _pathUpArrow;
         PathLayer.RightArrowCoordinates = _pathRightArrow;
         PathLayer.DownArrowCoordinates  = _pathDownArrow;

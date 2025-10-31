@@ -10,6 +10,12 @@ public partial class PathLayer : TileMapLayer
     /// <summary>Source ID within the tile set containing the arrow tiles.</summary>
     [Export] public int PathSourceId = -1;
 
+    /// <summary>ID of the terrain set in the tile set to use for connecting path tiles.</summary>
+    [Export] public int PathTerrainSet = -1;
+
+    /// <summary>ID of the terrain within the terrain set of the tile set to use for connecting path tiles.</summary>
+    [Export] public int PathTerrain = -1;
+
     /// <summary>Tile set atlas coordinates of the up arrowhead.</summary>
     [Export] public Vector2I UpArrowCoordinates = -Vector2I.One;
 
@@ -42,7 +48,7 @@ public partial class PathLayer : TileMapLayer
                 };
                 if (coordinates != -Vector2I.One)
                 {
-                    SetCellsTerrainPath([.. value], 0, 0);
+                    SetCellsTerrainPath([.. value], PathTerrainSet, PathTerrain);
                     SetCell(value[^1], sourceId:PathSourceId, atlasCoords:coordinates);
                 }
             }
