@@ -85,7 +85,7 @@ public partial class PlayerController : ArmyController
     {
         foreach (TileMapLayer layer in ActionLayers.GetChildren().OfType<TileMapLayer>())
             layer.TileSet = ts;
-        foreach (TileMapLayer layer in ActionLayers.GetChildren().OfType<TileMapLayer>())
+        foreach (TileMapLayer layer in ZoneLayers.GetChildren().OfType<TileMapLayer>())
             layer.TileSet = ts;
     }
 

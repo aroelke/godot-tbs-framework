@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=16 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsTemplate/Scenes/Level/Map/Grid.tscn" id="2_oeidl"]
@@ -12,6 +12,7 @@
 [ext_resource type="Texture2D" uid="uid://ybe0dod1kvqr" path="res://demo/assets/map/kenney_tiny-battle/cursor.png" id="8_s2xnc"]
 [ext_resource type="Texture2D" uid="uid://dplsgxw6yc37j" path="res://demo/assets/ui/kenney_cursor-pack/pointer_b_shaded_cropped.png" id="9_hkfkd"]
 [ext_resource type="PackedScene" uid="uid://ca6g5c6dsaqjb" path="res://src/TbsTemplate/Scenes/Level/Control/AIController.tscn" id="9_s2xnc"]
+[ext_resource type="TileSet" uid="uid://bb7tjpm2de26x" path="res://demo/assets/map/overlay.tres" id="10_0kgrh"]
 [ext_resource type="PackedScene" uid="uid://cb1gfyilefvvj" path="res://demo/unit/ShortTank.tscn" id="10_1ger5"]
 [ext_resource type="PackedScene" uid="uid://bi8p6x3pf3217" path="res://src/TbsTemplate/Scenes/Level/Events/EventController.tscn" id="14_v4kti"]
 
@@ -44,6 +45,7 @@ Faction = ExtResource("6_akw2u")
 CursorSpriteTexture = ExtResource("8_s2xnc")
 CursorSpriteOffset = Vector2(8, 8)
 PointerSpriteTexture = ExtResource("9_hkfkd")
+ActionRangeTileSet = ExtResource("10_0kgrh")
 
 [node name="PlayerA" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(96, 144)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://drlrlusbfh208"]
+[gd_scene load_steps=15 format=3 uid="uid://drlrlusbfh208"]
 
 [ext_resource type="Script" uid="uid://cjva3220ryesk" path="res://src/TbsTemplate/Scenes/Level/Control/PlayerController.cs" id="1_52vsu"]
 [ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/TbsTemplate/Nodes/StateChart/StateChart.tscn" id="2_br7d1"]
@@ -14,7 +14,6 @@
 [ext_resource type="PackedScene" uid="uid://bolt0jtmhdfb8" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/Vector2IReaction.tscn" id="14_yh42t"]
 [ext_resource type="PackedScene" uid="uid://brgi7pl8xxduv" path="res://src/TbsTemplate/Scenes/Level/Layers/ActionLayers.tscn" id="15_fsxw4"]
 [ext_resource type="PackedScene" uid="uid://dtrul7dw5r6ly" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/Vector2Reaction.tscn" id="16_5nli1"]
-[ext_resource type="TileSet" uid="uid://cwhi2yq5gtey5" path="res://demo2/assets/level/ui/Overlay.tres" id="16_enq6j"]
 
 [node name="PlayerController" type="Node"]
 script = ExtResource("1_52vsu")
@@ -42,19 +41,16 @@ ShowUnion = true
 [node name="TraversableZone" type="TileMapLayer" parent="ZoneLayers"]
 modulate = Color(0, 0.25, 0.5, 0.390625)
 use_parent_material = true
-tile_set = ExtResource("16_enq6j")
 navigation_enabled = false
 
 [node name="LocalDangerZone" type="TileMapLayer" parent="ZoneLayers"]
 modulate = Color(0.5, 0, 0.25, 0.390625)
 use_parent_material = true
-tile_set = ExtResource("16_enq6j")
 navigation_enabled = false
 
 [node name="GlobalDangerZone" type="TileMapLayer" parent="ZoneLayers"]
 modulate = Color(0, 0, 0, 0.390625)
 use_parent_material = true
-tile_set = ExtResource("16_enq6j")
 navigation_enabled = false
 
 [node name="Cursor" parent="." instance=ExtResource("2_rkggg")]
@@ -188,10 +184,10 @@ Event = &"finish"
 [connection signal="Taken" from="State/Root/Active/Select/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="StateEntered" from="State/Root/Active/Path" to="." method="OnPathEntered"]
 [connection signal="StateExited" from="State/Root/Active/Path" to="." method="OnPathExited"]
-[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnCancel"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnPathCanceled"]
-[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnFinish"]
+[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnCancel"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnPathFinished"]
+[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="StateEntered" from="State/Root/Active/Command" to="." method="OnCommandEntered"]
 [connection signal="StateProcess" from="State/Root/Active/Command/OnProcess" to="." method="OnCommandProcess"]
 [connection signal="Taken" from="State/Root/Active/Command/ToReadyOnCancel" to="." method="OnCancel"]
@@ -199,8 +195,8 @@ Event = &"finish"
 [connection signal="StateEntered" from="State/Root/Active/Target" to="." method="OnTargetEntered"]
 [connection signal="StateExited" from="State/Root/Active/Target" to="." method="OnTargetExited"]
 [connection signal="StateInput" from="State/Root/Active/Target/OnInput" to="." method="OnTargetInput"]
-[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnCancel" to="." method="OnCancel"]
 [connection signal="Taken" from="State/Root/Active/Target/ToReadyOnCancel" to="." method="OnTargetCompleted"]
-[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnFinish" to="." method="OnFinish"]
+[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnCancel" to="." method="OnCancel"]
 [connection signal="Taken" from="State/Root/Active/Target/ToReadyOnFinish" to="." method="OnTargetCompleted"]
+[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="StateInput" from="State/Root/Active/OnInput" to="." method="OnActiveInput"]
