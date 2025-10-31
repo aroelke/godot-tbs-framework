@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=15 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsTemplate/Scenes/Level/Map/Grid.tscn" id="2_oeidl"]
@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://dplsgxw6yc37j" path="res://demo/assets/ui/kenney_cursor-pack/pointer_b_shaded_cropped.png" id="9_hkfkd"]
 [ext_resource type="PackedScene" uid="uid://ca6g5c6dsaqjb" path="res://src/TbsTemplate/Scenes/Level/Control/AIController.tscn" id="9_s2xnc"]
 [ext_resource type="PackedScene" uid="uid://cb1gfyilefvvj" path="res://demo/unit/ShortTank.tscn" id="10_1ger5"]
+[ext_resource type="PackedScene" uid="uid://bi8p6x3pf3217" path="res://src/TbsTemplate/Scenes/Level/Events/EventController.tscn" id="14_v4kti"]
 
 [node name="DemoMap" type="Node"]
 
@@ -86,6 +87,8 @@ Faction = ExtResource("8_edc7l")
 Faction = ExtResource("6_akw2u")
 
 [node name="AIController" parent="LevelManager/Ally" instance=ExtResource("9_s2xnc")]
+
+[node name="EventController" parent="." instance=ExtResource("14_v4kti")]
 
 [connection signal="child_entered_tree" from="LevelManager/Player" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Enemy1" to="LevelManager" method="OnChildEnteredGroup"]
