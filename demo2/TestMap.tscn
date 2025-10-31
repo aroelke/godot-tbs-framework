@@ -1,4 +1,4 @@
-[gd_scene load_steps=49 format=4 uid="uid://bmfxux38ovtj2"]
+[gd_scene load_steps=50 format=4 uid="uid://bmfxux38ovtj2"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.tscn" id="1_h3e4w"]
 [ext_resource type="Script" uid="uid://cr1h1lebyon02" path="res://demo2/TestMap.cs" id="1_stn1b"]
@@ -21,6 +21,7 @@
 [ext_resource type="Texture2D" uid="uid://dhxxyboxchr67" path="res://demo2/assets/level/ui/cursor.png" id="13_ft20a"]
 [ext_resource type="Resource" uid="uid://cljpmwsb1nbjt" path="res://demo2/factions/TestAllyFaction.tres" id="14_hmodb"]
 [ext_resource type="Texture2D" uid="uid://cxm1nnwu5sl6r" path="res://demo2/assets/ui/mouse.png" id="14_xm3qp"]
+[ext_resource type="TileSet" uid="uid://b784dfhc051bt" path="res://demo2/assets/level/ui/Path.tres" id="15_m3ubj"]
 [ext_resource type="AudioStream" uid="uid://bg4mbs7d25qaj" path="res://demo2/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Select - 1.wav" id="15_ueqnm"]
 [ext_resource type="AudioStream" uid="uid://dupekispcuwj8" path="res://demo2/assets/raw/JDSherbert - Ultimate UI SFX Pack/Free/Mono/wav (HD)/JDSherbert - Ultimate UI SFX Pack - Cursor - 5.wav" id="15_wtg14"]
 [ext_resource type="Script" uid="uid://cdy07gqijlx5a" path="res://src/TbsTemplate/Data/Stats.cs" id="15_y2o8i"]
@@ -119,6 +120,7 @@ Faction = ExtResource("6_qur3m")
 CursorSpriteTexture = ExtResource("13_ft20a")
 CursorSpriteOffset = Vector2(16, 16)
 PointerSpriteTexture = ExtResource("14_xm3qp")
+PathTileSet = ExtResource("15_m3ubj")
 ActionRangeTileSet = ExtResource("7_d17w6")
 CursorMoveSound = ExtResource("15_wtg14")
 SelectSound = ExtResource("15_ueqnm")

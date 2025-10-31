@@ -30,7 +30,8 @@ public partial class PlayerController : ArmyController
 
     private readonly NodeCache _cache = null;
     private Grid _grid = null;
-    private TileSet _tileset = null;
+    private TileSet _overlayTiles = null;
+    private TileSet _pathTiles = null;
     private Color _move    = Colors.Blue  with { A = 100f/256f };
     private Color _attack  = Colors.Red   with { A = 100f/256f };
     private Color _support = Colors.Green with { A = 100f/256f };
@@ -42,7 +43,7 @@ public partial class PlayerController : ArmyController
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path;
 
-    private StateChart             State               => _cache.GetNode<StateChart>("State");
+    private StateChart        State               => _cache.GetNode<StateChart>("State");
     private ActionLayers      ActionLayers        => _cache.GetNode<ActionLayers>("ActionLayers");
     private TileMapLayer      MoveLayer           => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Move");
     private TileMapLayer      AttackLayer         => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Attack");
@@ -133,11 +134,24 @@ public partial class PlayerController : ArmyController
         }
     }
 
+    [Export, ExportGroup("Control UI")] public TileSet PathTileSet
+    {
+        get => _pathTiles;
+        set
+        {
+            if (_pathTiles != value)
+            {
+                _pathTiles = value;
+                PathLayer.TileSet = _pathTiles;
+            }
+        }
+    }
+
     /// <summary>Tile set to use for displaying action ranges and danger zones.</summary>
     [Export, ExportGroup("Action Ranges", "ActionRange")] public TileSet ActionRangeTileSet
     {
-        get => _tileset;
-        set => UpdateActionRangeTileSet(_tileset = value);
+        get => _overlayTiles;
+        set => UpdateActionRangeTileSet(_overlayTiles = value);
     }
 
     /// <summary>Color to use for highlighting which cells a unit can move to.</summary>
@@ -809,13 +823,14 @@ public partial class PlayerController : ArmyController
     {
         base._Ready();
 
-        UpdateActionRangeTileSet(_tileset);
+        UpdateActionRangeTileSet(_overlayTiles);
+        PathLayer.TileSet            = _pathTiles;
         MoveLayer.Modulate           = _move;
         AttackLayer.Modulate         = _attack;
         SupportLayer.Modulate        = _support;
-        AllyTraversableZone.Modulate  = _ally;
-        LocalDangerZone.Modulate  = _local;
-        GlobalDangerZone.Modulate = _global;
+        AllyTraversableZone.Modulate = _ally;
+        LocalDangerZone.Modulate     = _local;
+        GlobalDangerZone.Modulate    = _global;
 
         if (!Engine.IsEditorHint())
         {

@@ -3,6 +3,7 @@ using Godot;
 
 namespace TbsTemplate.Scenes.Level.Layers;
 
+[Tool]
 public partial class PathLayer : TileMapLayer
 {
     // TileSet source ID for the path arrows and indices containing arrowheads.
@@ -23,7 +24,7 @@ public partial class PathLayer : TileMapLayer
             Clear();
             if (value.Count > 1)
             {
-                SetCellsTerrainPath(new(value), 0, 0);
+                SetCellsTerrainPath([.. value], 0, 0);
                 SetCell(value[^1], sourceId:PathSourceId, atlasCoords:(value[^1] - value[^2]) switch
                 {
                     Vector2I(0, >0) => DownArrow,
