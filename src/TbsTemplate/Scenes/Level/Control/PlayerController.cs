@@ -32,6 +32,8 @@ public partial class PlayerController : ArmyController
     private Grid _grid = null;
     private TileSet _overlayTiles = null;
     private TileSet _pathTiles = null;
+    private int _pathSource = -1;
+    private Vector2I _pathUpArrow = -Vector2I.One, _pathRightArrow = -Vector2I.One, _pathDownArrow = -Vector2I.One, _pathLeftArrow = -Vector2I.One;
     private Color _move    = Colors.Blue  with { A = 100f/256f };
     private Color _attack  = Colors.Red   with { A = 100f/256f };
     private Color _support = Colors.Green with { A = 100f/256f };
@@ -91,7 +93,7 @@ public partial class PlayerController : ArmyController
     }
 
     /// <summary>Sprite to use for the grid cursor.</summary>
-    [Export, ExportGroup("Control UI")] public Texture2D CursorSpriteTexture
+    [Export, ExportGroup("Control UI/Input")] public Texture2D CursorSpriteTexture
     {
         get => CursorSprite?.Texture;
         set
@@ -102,7 +104,7 @@ public partial class PlayerController : ArmyController
     }
 
     /// <summary>Offset of the sprite from the origin of the texture to use for positioning it within a cell.</summary>
-    [Export(PropertyHint.None, "suffix:px"), ExportGroup("Control UI")] public Vector2 CursorSpriteOffset
+    [Export(PropertyHint.None, "suffix:px"), ExportGroup("Control UI/Input")] public Vector2 CursorSpriteOffset
     {
         get => CursorSprite?.Offset ?? Vector2.Zero;
         set
@@ -113,7 +115,7 @@ public partial class PlayerController : ArmyController
     }
 
     /// <summary>Sprite to use for the analog (not mouse) pointer.</summary>
-    [Export, ExportGroup("Control UI")] public Texture2D PointerSpriteTexture
+    [Export, ExportGroup("Control UI/Input")] public Texture2D PointerSpriteTexture
     {
         get => PointerSprite?.Texture;
         set
@@ -124,7 +126,7 @@ public partial class PlayerController : ArmyController
     }
 
     /// <summary>Offset of the analog pointer sprite from the origin of the texture.</summary>
-    [Export(PropertyHint.None, "suffix:px"), ExportGroup("Control UI")] public Vector2 PointerSpriteOffset
+    [Export(PropertyHint.None, "suffix:px"), ExportGroup("Control UI/Input")] public Vector2 PointerSpriteOffset
     {
         get => PointerSprite?.Position ?? Vector2.Zero;
         set
@@ -134,7 +136,7 @@ public partial class PlayerController : ArmyController
         }
     }
 
-    [Export, ExportGroup("Control UI")] public TileSet PathTileSet
+    [Export, ExportGroup("Control UI/Path")] public TileSet PathTileSet
     {
         get => _pathTiles;
         set
@@ -143,6 +145,71 @@ public partial class PlayerController : ArmyController
             {
                 _pathTiles = value;
                 PathLayer.TileSet = _pathTiles;
+            }
+        }
+    }
+
+    [Export, ExportGroup("Control UI/Path")] public int PathTilesSourceId
+    {
+        get => _pathSource;
+        set
+        {
+            if (_pathSource != value)
+            {
+                _pathSource = value;
+                PathLayer.PathSourceId = _pathSource;
+            }
+        }
+    }
+
+    [Export, ExportGroup("Control UI/Path")] public Vector2I PathUpArrowCoordinates
+    {
+        get => _pathUpArrow;
+        set
+        {
+            if (_pathUpArrow != value)
+            {
+                _pathUpArrow = value;
+                PathLayer.UpArrowCoordinates = _pathUpArrow;
+            }
+        }
+    }
+
+    [Export, ExportGroup("Control UI/Path")] public Vector2I PathRightArrowCoordinates
+    {
+        get => _pathRightArrow;
+        set
+        {
+            if (_pathRightArrow != value)
+            {
+                _pathRightArrow = value;
+                PathLayer.RightArrowCoordinates = _pathRightArrow;
+            }
+        }
+    }
+
+    [Export, ExportGroup("Control UI/Path")] public Vector2I PathDownArrowCoordinates
+    {
+        get => _pathDownArrow;
+        set
+        {
+            if (_pathDownArrow != value)
+            {
+                _pathDownArrow = value;
+                PathLayer.DownArrowCoordinates = _pathDownArrow;
+            }
+        }
+    }
+
+    [Export, ExportGroup("Control UI/Path")] public Vector2I PathLeftArrowCoordinates
+    {
+        get => _pathLeftArrow;
+        set
+        {
+            if (_pathLeftArrow != value)
+            {
+                _pathLeftArrow = value;
+                PathLayer.LeftArrowCoordinates = _pathLeftArrow;
             }
         }
     }
@@ -824,13 +891,18 @@ public partial class PlayerController : ArmyController
         base._Ready();
 
         UpdateActionRangeTileSet(_overlayTiles);
-        PathLayer.TileSet            = _pathTiles;
-        MoveLayer.Modulate           = _move;
-        AttackLayer.Modulate         = _attack;
-        SupportLayer.Modulate        = _support;
-        AllyTraversableZone.Modulate = _ally;
-        LocalDangerZone.Modulate     = _local;
-        GlobalDangerZone.Modulate    = _global;
+        PathLayer.TileSet               = _pathTiles;
+        MoveLayer.Modulate              = _move;
+        AttackLayer.Modulate            = _attack;
+        SupportLayer.Modulate           = _support;
+        AllyTraversableZone.Modulate    = _ally;
+        LocalDangerZone.Modulate        = _local;
+        GlobalDangerZone.Modulate       = _global;
+        PathLayer.PathSourceId          = _pathSource;
+        PathLayer.UpArrowCoordinates    = _pathUpArrow;
+        PathLayer.RightArrowCoordinates = _pathRightArrow;
+        PathLayer.DownArrowCoordinates  = _pathDownArrow;
+        PathLayer.LeftArrowCoordinates  = _pathLeftArrow;
 
         if (!Engine.IsEditorHint())
         {

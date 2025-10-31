@@ -3,16 +3,24 @@ using Godot;
 
 namespace TbsTemplate.Scenes.Level.Layers;
 
+/// <summary>Special <see cref="TileMapLayer"/> designed to draw arrows for paths across a map.</summary>
 [Tool]
 public partial class PathLayer : TileMapLayer
 {
-    // TileSet source ID for the path arrows and indices containing arrowheads.
-    // XXX: DEPENDS STRONGLY ON TILESET ORGANIZATION
-    private const int PathSourceId = 3;
-    private static readonly Vector2I RightArrow = new(6, 0);
-    private static readonly Vector2I DownArrow = new(7, 0);
-    private static readonly Vector2I UpArrow = new(6, 1);
-    private static readonly Vector2I LeftArrow = new(7, 1);
+    /// <summary>Source ID within the tile set containing the arrow tiles.</summary>
+    [Export] public int PathSourceId = -1;
+
+    /// <summary>Tile set atlas coordinates of the up arrowhead.</summary>
+    [Export] public Vector2I UpArrowCoordinates = -Vector2I.One;
+
+    /// <summary>Tile set atlas coordinates of the right arrowhead.</summary>
+    [Export] public Vector2I RightArrowCoordinates = -Vector2I.One;
+
+    /// <summary>Tile set atlas coordinates of the down arrowhead.</summary>
+    [Export] public Vector2I DownArrowCoordinates = -Vector2I.One;
+
+    /// <summary>Tile set atlas coordinates of the left arrowhead.</summary>
+    [Export] public Vector2I LeftArrowCoordinates = -Vector2I.One;
 
     /// <summary>List of cells defining the path to draw.</summary>
     /// <remarks>Is not a <see cref="Map.Path"/> to decouple from <see cref="Map.Grid"/>.</remarks>
@@ -24,15 +32,19 @@ public partial class PathLayer : TileMapLayer
             Clear();
             if (value.Count > 1)
             {
-                SetCellsTerrainPath([.. value], 0, 0);
-                SetCell(value[^1], sourceId:PathSourceId, atlasCoords:(value[^1] - value[^2]) switch
+                Vector2I coordinates = (value[^1] - value[^2]) switch
                 {
-                    Vector2I(0, >0) => DownArrow,
-                    Vector2I(>0, 0) => RightArrow,
-                    Vector2I(0, <0) => UpArrow,
-                    Vector2I(<0, 0) => LeftArrow,
+                    Vector2I(0, >0) => DownArrowCoordinates,
+                    Vector2I(>0, 0) => RightArrowCoordinates,
+                    Vector2I(0, <0) => UpArrowCoordinates,
+                    Vector2I(<0, 0) => LeftArrowCoordinates,
                     _ => new(8, 0)
-                });
+                };
+                if (coordinates != -Vector2I.One)
+                {
+                    SetCellsTerrainPath([.. value], 0, 0);
+                    SetCell(value[^1], sourceId:PathSourceId, atlasCoords:coordinates);
+                }
             }
         }
     }
