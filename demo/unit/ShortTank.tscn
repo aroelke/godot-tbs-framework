@@ -8,6 +8,7 @@
 Class = ExtResource("2_t1d0q")
 AttackRange = PackedInt32Array(1)
 SupportRange = PackedInt32Array()
+MoveSpeed = 160.0
 
 [node name="EditorSprite" parent="." index="0"]
 texture = ExtResource("3_4qplf")
