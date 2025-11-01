@@ -145,13 +145,11 @@ public partial class PlayerController : ArmyController
         }
     }
 
-    [Export, ExportGroup("Control Interface/Path")] public Vector2I PathUpArrowCoordinates = -Vector2I.One;
-
-    [Export, ExportGroup("Control Interface/Path")] public Vector2I PathRightArrowCoordinates = -Vector2I.One;
-
-    [Export, ExportGroup("Control Interface/Path")] public Vector2I PathDownArrowCoordinates = -Vector2I.One;
-
-    [Export, ExportGroup("Control Interface/Path")] public Vector2I PathLeftArrowCoordinates = -Vector2I.One;
+    /// <summary>
+    /// Mapping of direction vectors onto the tile set atlas coordinates to use for their arrowheads in cases where path arrows have different
+    /// starts and ends. Leave empty if that's not the case.
+    /// </summary>
+    [Export, ExportGroup("Control Interface/Path")] public Godot.Collections.Dictionary<Vector2, Vector2I> PathArrowheadCoordinates = [];
 
     /// <summary>Tile set to use for displaying action ranges and danger zones.</summary>
     [Export, ExportGroup("Action Ranges", "ActionRange")] public TileSet ActionRangeTileSet
@@ -605,16 +603,11 @@ public partial class PlayerController : ArmyController
         if (_path.Count > 1)
         {
             PathLayer.SetCellsTerrainPath([.. _path], _pathTerrainSet, PathTerrain);
-            Vector2I coordinates = (_path[^1] - _path[^2]) switch
+            if (PathArrowheadCoordinates.Count != 0)
             {
-                Vector2I(0, >0) => PathDownArrowCoordinates,
-                Vector2I(>0, 0) => PathRightArrowCoordinates,
-                Vector2I(0, <0) => PathUpArrowCoordinates,
-                Vector2I(<0, 0) => PathLeftArrowCoordinates,
-                _ => new(8, 0)
-            };
-            if (coordinates != -Vector2I.One)
-                PathLayer.SetCell(_path[^1], sourceId:PathTilesSourceId, atlasCoords:coordinates);
+                Vector2I coords = PathArrowheadCoordinates.MaxBy((e) => e.Key.Normalized().Dot((_path[^1] - _path[^2]).Normalized())).Value;
+                PathLayer.SetCell(_path[^1], sourceId:PathTilesSourceId, atlasCoords:coords);
+            }
         }
     }
 
@@ -873,7 +866,7 @@ public partial class PlayerController : ArmyController
                     PathTerrainSetProperty,
                     Variant.Type.Int,
                     PropertyHint.Range,
-                    $"0,1,{_pathTiles.GetTerrainSetsCount() - 1}"
+                    $"0,{_pathTiles.GetTerrainSetsCount() - 1},1"
                 )
             ]);
             if (_pathTerrainSet > -1)
@@ -942,6 +935,13 @@ public partial class PlayerController : ArmyController
         if (property == PathTerrainSetProperty)
             return -1;
         return base._PropertyGetRevert(property);
+    }
+
+    public override void _ValidateProperty(Godot.Collections.Dictionary property)
+    {
+        if (property["name"].AsStringName() == PropertyName.PathArrowheadCoordinates && _pathTiles is null)
+            property["usage"] = Variant.From(PropertyUsageFlags.None);
+        base._ValidateProperty(property);
     }
 #endregion
 #region Engine Events
