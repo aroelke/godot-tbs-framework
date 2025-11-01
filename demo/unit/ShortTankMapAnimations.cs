@@ -18,24 +18,24 @@ public partial class ShortTankMapAnimations : UnitMapAnimations
         double angle = Math.Atan2(direction.Y, direction.X);
         switch (angle)
         {
-          case >  -3*Math.PI/4 and <  -Math.PI/4:
-            Sprite.Transform = Sprite.Transform.Rotated(-90).Translated(Vector2.Down*16);
+          case > -3*Math.PI/4 and < -Math.PI/4:
+            Sprite.Transform = new((float)(-Math.PI/2), Vector2.Down*16);
             Sprite.FlipH = false;
             break;
-          case >=   -Math.PI/4 and <   Math.PI/4:
-            Sprite.Transform = new();
+          case >= -Math.PI/4 and < Math.PI/4:
+            Sprite.Transform = new(0.0f, Vector2.Zero);
             Sprite.FlipH = false;
             break;
-          case >=    Math.PI/4 and < 3*Math.PI/4:
-            Sprite.Transform = Sprite.Transform.Rotated(-90).Translated(Vector2.Down*16);
+          case >= Math.PI/4 and < 3*Math.PI/4:
+            Sprite.Transform = new((float)(-Math.PI/2), Vector2.Down*16);
             Sprite.FlipH = true;
             break;
           default:
-            Sprite.Transform = new();
+            Sprite.Transform = new(0.0f, Vector2.Zero);
             Sprite.FlipH = true;
             break;
         };
-}
+    }
 
     public override void PlayDone() => PlayMove(Vector2I.Right);
     public override void PlayIdle() => PlayMove(Vector2I.Right);

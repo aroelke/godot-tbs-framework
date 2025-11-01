@@ -49,6 +49,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
         }
         else
         {
+            _animations?.QueueFree();
             _animations = @class.InstantiateMapAnimations(faction);
             GetNode<PathFollow2D>("Path/Follow").AddChild(_animations);
         }
