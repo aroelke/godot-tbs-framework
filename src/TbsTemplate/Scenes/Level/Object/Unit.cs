@@ -52,6 +52,11 @@ public partial class Unit : GridNode, IUnit, IHasHealth
             _animations?.QueueFree();
             _animations = @class.InstantiateMapAnimations(faction);
             GetNode<PathFollow2D>("Path/Follow").AddChild(_animations);
+
+            Health.Connect<int>(HealthComponent.SignalName.MaximumChanged, _animations.SetHealthMax);
+            Health.Connect(HealthComponent.SignalName.ValueChanged, new Callable(_animations, UnitMapAnimations.MethodName.SetHealthValue));
+            _animations.SetHealthMax(Health.Maximum);
+            _animations.SetHealthValue(Health.Value);
         }
     }
 
@@ -248,6 +253,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
 
     public void OnHealthChanged(int value)
     {
+        GD.Print($"{Name}: {value}");
         if (value == 0)
             LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.UnitDefeated, this);
     }
@@ -277,8 +283,6 @@ public partial class Unit : GridNode, IUnit, IHasHealth
             RemoveChild(EditorSprite);
             EditorSprite.QueueFree();
             _animations.PlayIdle();
-            Health.Connect<int>(HealthComponent.SignalName.MaximumChanged, _animations.SetHealthMax);
-            Health.Connect<int>(HealthComponent.SignalName.ValueChanged, _animations.SetHealthValue);
 
             Path.Curve = new();
             MotionBox.Size = Size;
