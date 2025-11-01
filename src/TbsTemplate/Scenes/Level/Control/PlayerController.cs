@@ -54,7 +54,7 @@ public partial class PlayerController : ArmyController
     private TileMapLayer      AllyTraversableZone => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/TraversableZone");
     private TileMapLayer      LocalDangerZone     => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/LocalDangerZone");
     private TileMapLayer      GlobalDangerZone    => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/GlobalDangerZone");
-    private PathLayer         PathLayer           => _cache.GetNode<PathLayer>("PathLayer");
+    private TileMapLayer      PathLayer           => _cache.GetNode<TileMapLayer>("PathLayer");
     private Cursor            Cursor              => _cache.GetNodeOrNull<Cursor>("Cursor");
     private Sprite2D          CursorSprite        => _cache.GetNodeOrNull<Sprite2D>("Cursor/Sprite");
     private Pointer           Pointer             => _cache.GetNode<Pointer>("Pointer");
@@ -93,7 +93,7 @@ public partial class PlayerController : ArmyController
     }
 
     /// <summary>Sprite to use for the grid cursor.</summary>
-    [Export, ExportGroup("Control UI/Input")] public Texture2D CursorSpriteTexture
+    [Export, ExportGroup("Control Interface/Input")] public Texture2D CursorSpriteTexture
     {
         get => CursorSprite?.Texture;
         set
@@ -104,7 +104,7 @@ public partial class PlayerController : ArmyController
     }
 
     /// <summary>Offset of the sprite from the origin of the texture to use for positioning it within a cell.</summary>
-    [Export(PropertyHint.None, "suffix:px"), ExportGroup("Control UI/Input")] public Vector2 CursorSpriteOffset
+    [Export(PropertyHint.None, "suffix:px"), ExportGroup("Control Interface/Input")] public Vector2 CursorSpriteOffset
     {
         get => CursorSprite?.Offset ?? Vector2.Zero;
         set
@@ -115,7 +115,7 @@ public partial class PlayerController : ArmyController
     }
 
     /// <summary>Sprite to use for the analog (not mouse) pointer.</summary>
-    [Export, ExportGroup("Control UI/Input")] public Texture2D PointerSpriteTexture
+    [Export, ExportGroup("Control Interface/Input")] public Texture2D PointerSpriteTexture
     {
         get => PointerSprite?.Texture;
         set
@@ -126,7 +126,7 @@ public partial class PlayerController : ArmyController
     }
 
     /// <summary>Offset of the analog pointer sprite from the origin of the texture.</summary>
-    [Export(PropertyHint.None, "suffix:px"), ExportGroup("Control UI/Input")] public Vector2 PointerSpriteOffset
+    [Export(PropertyHint.None, "suffix:px"), ExportGroup("Control Interface/Input")] public Vector2 PointerSpriteOffset
     {
         get => PointerSprite?.Position ?? Vector2.Zero;
         set
@@ -137,112 +137,24 @@ public partial class PlayerController : ArmyController
     }
 
     /// <summary>Tile set to use for drawing the path a unit will move along.</summary>
-    [Export, ExportGroup("Control UI/Path")] public TileSet PathTileSet
-    {
-        get => _pathTiles;
-        set
-        {
-            if (_pathTiles != value)
-            {
-                _pathTiles = value;
-                PathLayer.TileSet = _pathTiles;
-            }
-        }
-    }
+    [Export, ExportGroup("Control Interface/Path")] public TileSet PathTileSet = null;
 
     /// <summary>Source ID of the tiles withing <see cref="PathTileSet"/> to use for drawing the path a unit will move along.</summary>
-    [Export, ExportGroup("Control UI/Path")] public int PathTilesSourceId
-    {
-        get => _pathSource;
-        set
-        {
-            if (_pathSource != value)
-            {
-                _pathSource = value;
-                PathLayer.PathSourceId = _pathSource;
-            }
-        }
-    }
+    [Export, ExportGroup("Control Interface/Path")] public int PathTilesSourceId = -1;
 
     /// <summary>ID of the terrain set within <see cref="PathTileSet"/> to use for connecting the arrow of the path a unit will move along.</summary>
-    [Export, ExportGroup("Control UI/Path")] public int PathTerrainSet
-    {
-        get => _pathTerrainSet;
-        set
-        {
-            if (_pathTerrainSet != value)
-            {
-                _pathTerrainSet = value;
-                PathLayer.PathTerrainSet = _pathTerrainSet;
-            }
-        }
-    }
+    [Export, ExportGroup("Control Interface/Path")] public int PathTerrainSet = -1;
 
     /// <summary>ID of the terrain within <see cref="PathTerrainSet"/> to use for connecting the arrow of the path a unit will move along.</summary>
-    [Export, ExportGroup("Control UI/Path")] public int PathTerrain
-    {
-        get => _pathTerrain;
-        set
-        {
-            if (_pathTerrain != value)
-            {
-                _pathTerrain = value;
-                PathLayer.PathTerrain = value;
-            }
-        }
-    }
+    [Export, ExportGroup("Control Interface/Path")] public int PathTerrain = -1;
 
-    [Export, ExportGroup("Control UI/Path")] public Vector2I PathUpArrowCoordinates
-    {
-        get => _pathUpArrow;
-        set
-        {
-            if (_pathUpArrow != value)
-            {
-                _pathUpArrow = value;
-                PathLayer.UpArrowCoordinates = _pathUpArrow;
-            }
-        }
-    }
+    [Export, ExportGroup("Control Interface/Path")] public Vector2I PathUpArrowCoordinates = -Vector2I.One;
 
-    [Export, ExportGroup("Control UI/Path")] public Vector2I PathRightArrowCoordinates
-    {
-        get => _pathRightArrow;
-        set
-        {
-            if (_pathRightArrow != value)
-            {
-                _pathRightArrow = value;
-                PathLayer.RightArrowCoordinates = _pathRightArrow;
-            }
-        }
-    }
+    [Export, ExportGroup("Control Interface/Path")] public Vector2I PathRightArrowCoordinates = -Vector2I.One;
 
-    [Export, ExportGroup("Control UI/Path")] public Vector2I PathDownArrowCoordinates
-    {
-        get => _pathDownArrow;
-        set
-        {
-            if (_pathDownArrow != value)
-            {
-                _pathDownArrow = value;
-                PathLayer.DownArrowCoordinates = _pathDownArrow;
-            }
-        }
-    }
+    [Export, ExportGroup("Control Interface/Path")] public Vector2I PathDownArrowCoordinates = -Vector2I.One;
 
-    [Export, ExportGroup("Control UI/Path")] public Vector2I PathLeftArrowCoordinates
-    {
-        get => _pathLeftArrow;
-        set
-        {
-            if (_pathLeftArrow != value)
-            {
-                _pathLeftArrow = value;
-                PathLayer.LeftArrowCoordinates = _pathLeftArrow;
-            }
-        }
-    }
+    [Export, ExportGroup("Control Interface/Path")] public Vector2I PathLeftArrowCoordinates = -Vector2I.One;
 
     /// <summary>Tile set to use for displaying action ranges and danger zones.</summary>
     [Export, ExportGroup("Action Ranges", "ActionRange")] public TileSet ActionRangeTileSet
@@ -689,7 +601,25 @@ public partial class PlayerController : ArmyController
         }).CallDeferred();
     }
 
-    private void UpdatePath(Path path) => PathLayer.Path = [.. _path = path];
+    private void UpdatePath(Path path)
+    {
+        _path = path;
+        PathLayer.Clear();
+        if (_path.Count > 1)
+        {
+            PathLayer.SetCellsTerrainPath([.. _path], PathTerrainSet, PathTerrain);
+            Vector2I coordinates = (_path[^1] - _path[^2]) switch
+            {
+                Vector2I(0, >0) => PathDownArrowCoordinates,
+                Vector2I(>0, 0) => PathRightArrowCoordinates,
+                Vector2I(0, <0) => PathUpArrowCoordinates,
+                Vector2I(<0, 0) => PathLeftArrowCoordinates,
+                _ => new(8, 0)
+            };
+            if (coordinates != -Vector2I.One)
+                PathLayer.SetCell(_path[^1], sourceId:PathTilesSourceId, atlasCoords:coordinates);
+        }
+    }
 
     private void AddToPath(Vector2I cell)
     {
@@ -921,20 +851,13 @@ public partial class PlayerController : ArmyController
         base._Ready();
 
         UpdateActionRangeTileSet(_overlayTiles);
-        PathLayer.TileSet               = _pathTiles;
-        MoveLayer.Modulate              = _move;
-        AttackLayer.Modulate            = _attack;
-        SupportLayer.Modulate           = _support;
-        AllyTraversableZone.Modulate    = _ally;
-        LocalDangerZone.Modulate        = _local;
-        GlobalDangerZone.Modulate       = _global;
-        PathLayer.PathSourceId          = _pathSource;
-        PathLayer.PathTerrainSet        = _pathTerrainSet;
-        PathLayer.PathTerrain           = _pathTerrain;
-        PathLayer.UpArrowCoordinates    = _pathUpArrow;
-        PathLayer.RightArrowCoordinates = _pathRightArrow;
-        PathLayer.DownArrowCoordinates  = _pathDownArrow;
-        PathLayer.LeftArrowCoordinates  = _pathLeftArrow;
+        PathLayer.TileSet            = PathTileSet;
+        MoveLayer.Modulate           = _move;
+        AttackLayer.Modulate         = _attack;
+        SupportLayer.Modulate        = _support;
+        AllyTraversableZone.Modulate = _ally;
+        LocalDangerZone.Modulate     = _local;
+        GlobalDangerZone.Modulate    = _global;
 
         if (!Engine.IsEditorHint())
         {

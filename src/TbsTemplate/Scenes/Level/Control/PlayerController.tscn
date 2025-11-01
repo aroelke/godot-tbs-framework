@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://drlrlusbfh208"]
+[gd_scene load_steps=14 format=3 uid="uid://drlrlusbfh208"]
 
 [ext_resource type="Script" uid="uid://cjva3220ryesk" path="res://src/TbsTemplate/Scenes/Level/Control/PlayerController.cs" id="1_52vsu"]
 [ext_resource type="PackedScene" uid="uid://cr7p08c3td7gg" path="res://src/TbsTemplate/Nodes/StateChart/StateChart.tscn" id="2_br7d1"]
@@ -8,7 +8,6 @@
 [ext_resource type="PackedScene" uid="uid://lrf5ywt1n230" path="res://src/TbsTemplate/Nodes/StateChart/States/SimpleState.tscn" id="4_qwlr4"]
 [ext_resource type="PackedScene" uid="uid://0b22cirxc7k2" path="res://src/TbsTemplate/Nodes/StateChart/States/StateTransition.tscn" id="5_dwgw0"]
 [ext_resource type="PackedScene" uid="uid://dhytcbhqvrpx0" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/InputReaction.tscn" id="6_ntg8o"]
-[ext_resource type="PackedScene" uid="uid://t41dn0l7cicc" path="res://src/TbsTemplate/Scenes/Level/Layers/PathLayer.tscn" id="6_p5qr4"]
 [ext_resource type="PackedScene" uid="uid://bajcy40oic1wf" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/ProcessReaction.tscn" id="7_bii0f"]
 [ext_resource type="PackedScene" uid="uid://dnfp4qfxs85wh" path="res://src/TbsTemplate/Nodes/StateChart/States/HistoryState.tscn" id="13_cu4ve"]
 [ext_resource type="PackedScene" uid="uid://bolt0jtmhdfb8" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/Vector2IReaction.tscn" id="14_yh42t"]
@@ -59,7 +58,7 @@ navigation_enabled = false
 
 [node name="Pointer" parent="." instance=ExtResource("3_nkaji")]
 
-[node name="PathLayer" parent="." instance=ExtResource("6_p5qr4")]
+[node name="PathLayer" type="TileMapLayer" parent="."]
 
 [node name="State" parent="." instance=ExtResource("2_br7d1")]
 Events = [&"select", &"path", &"command", &"target", &"finish", &"cancel", &"wait"]
