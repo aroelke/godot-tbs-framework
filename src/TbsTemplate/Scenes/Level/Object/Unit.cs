@@ -253,7 +253,6 @@ public partial class Unit : GridNode, IUnit, IHasHealth
 
     public void OnHealthChanged(int value)
     {
-        GD.Print($"{Name}: {value}");
         if (value == 0)
             LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.UnitDefeated, this);
     }
