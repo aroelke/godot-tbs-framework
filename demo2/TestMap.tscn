@@ -120,10 +120,6 @@ Faction = ExtResource("6_qur3m")
 CursorSpriteTexture = ExtResource("13_ft20a")
 CursorSpriteOffset = Vector2(16, 16)
 PointerSpriteTexture = ExtResource("14_xm3qp")
-PathTileSet = ExtResource("15_m3ubj")
-PathTilesSourceId = 3
-PathTerrainSet = 0
-PathTerrain = 0
 PathUpArrowCoordinates = Vector2i(6, 1)
 PathRightArrowCoordinates = Vector2i(6, 0)
 PathDownArrowCoordinates = Vector2i(7, 0)
@@ -136,6 +132,10 @@ ErrorSound = ExtResource("17_gwpty")
 ZoneOnSound = ExtResource("18_05dee")
 ZoneOffSound = ExtResource("19_wtg14")
 MenuHighlightSound = ExtResource("15_wtg14")
+PathTileSet = ExtResource("15_m3ubj")
+PathTilesSourceId = 3
+PathTerrainSet = 0
+PathTerrain = 0
 
 [node name="PlayerA" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("5_ju5kl")]
 position = Vector2(224, 256)

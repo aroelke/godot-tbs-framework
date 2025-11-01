@@ -16,6 +16,7 @@
 
 [node name="PlayerController" type="Node"]
 script = ExtResource("1_52vsu")
+PathTileSet = null
 
 [node name="ActionLayers" parent="." instance=ExtResource("15_fsxw4")]
 

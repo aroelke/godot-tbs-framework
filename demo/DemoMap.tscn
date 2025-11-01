@@ -49,11 +49,11 @@ Faction = ExtResource("6_akw2u")
 CursorSpriteTexture = ExtResource("8_s2xnc")
 CursorSpriteOffset = Vector2(8, 8)
 PointerSpriteTexture = ExtResource("9_hkfkd")
+ActionRangeTileSet = ExtResource("10_0kgrh")
 PathTileSet = ExtResource("4_yu7ov")
 PathTilesSourceId = 1
 PathTerrainSet = 1
 PathTerrain = 0
-ActionRangeTileSet = ExtResource("10_0kgrh")
 
 [node name="PlayerA" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(96, 144)
