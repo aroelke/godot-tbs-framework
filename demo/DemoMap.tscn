@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=20 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsTemplate/Scenes/Level/Map/Grid.tscn" id="2_oeidl"]
@@ -14,7 +14,11 @@
 [ext_resource type="PackedScene" uid="uid://ca6g5c6dsaqjb" path="res://src/TbsTemplate/Scenes/Level/Control/AIController.tscn" id="9_s2xnc"]
 [ext_resource type="TileSet" uid="uid://bb7tjpm2de26x" path="res://demo/assets/map/overlay.tres" id="10_0kgrh"]
 [ext_resource type="PackedScene" uid="uid://cb1gfyilefvvj" path="res://demo/unit/ShortTank.tscn" id="10_1ger5"]
+[ext_resource type="PackedScene" uid="uid://cseefrkj1yhgr" path="res://src/TbsTemplate/Scenes/Level/Control/SwitchBehavior.tscn" id="14_d1c8n"]
 [ext_resource type="PackedScene" uid="uid://bi8p6x3pf3217" path="res://src/TbsTemplate/Scenes/Level/Events/EventController.tscn" id="14_v4kti"]
+[ext_resource type="PackedScene" uid="uid://sh1oy4xaqis2" path="res://src/TbsTemplate/Scenes/Level/Control/TurnSwitchCondition.tscn" id="15_ss7xl"]
+[ext_resource type="PackedScene" uid="uid://nt5vqytk4pr3" path="res://src/TbsTemplate/Scenes/Level/Control/StandBehavior.tscn" id="16_6hgq8"]
+[ext_resource type="PackedScene" uid="uid://djsdk3bbrh181" path="res://src/TbsTemplate/Scenes/Level/Control/MoveBehavior.tscn" id="17_e23bw"]
 
 [node name="DemoMap" type="Node"]
 
@@ -83,6 +87,16 @@ Faction = ExtResource("7_yu7ov")
 [node name="ReinforcementA" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 Grid = NodePath("../../Grid")
 Size = Vector2(16, 16)
+
+[node name="SwitchBehavior" parent="LevelManager/Enemy1/ReinforcementA" instance=ExtResource("14_d1c8n")]
+
+[node name="TurnSwitchCondition" parent="LevelManager/Enemy1/ReinforcementA/SwitchBehavior" instance=ExtResource("15_ss7xl")]
+TriggerTurn = 2
+
+[node name="StandBehavior" parent="LevelManager/Enemy1/ReinforcementA/SwitchBehavior" instance=ExtResource("16_6hgq8")]
+SupportInRange = false
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/ReinforcementA/SwitchBehavior" instance=ExtResource("17_e23bw")]
 
 [node name="Enemy2" parent="LevelManager" instance=ExtResource("5_oeidl")]
 Faction = ExtResource("8_edc7l")
