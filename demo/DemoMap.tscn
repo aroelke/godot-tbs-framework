@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=22 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsTemplate/Scenes/Level/Map/Grid.tscn" id="2_oeidl"]
@@ -19,6 +19,8 @@
 [ext_resource type="PackedScene" uid="uid://sh1oy4xaqis2" path="res://src/TbsTemplate/Scenes/Level/Control/TurnSwitchCondition.tscn" id="15_ss7xl"]
 [ext_resource type="PackedScene" uid="uid://nt5vqytk4pr3" path="res://src/TbsTemplate/Scenes/Level/Control/StandBehavior.tscn" id="16_6hgq8"]
 [ext_resource type="PackedScene" uid="uid://djsdk3bbrh181" path="res://src/TbsTemplate/Scenes/Level/Control/MoveBehavior.tscn" id="17_e23bw"]
+[ext_resource type="PackedScene" uid="uid://bbanldfbqkktf" path="res://src/TbsTemplate/Scenes/Level/Control/InRangeSwitchCondition.tscn" id="17_ss7xl"]
+[ext_resource type="Resource" uid="uid://chjjd5sn6y2jw" path="res://demo/factions/DemoAllyFaction.tres" id="20_6hgq8"]
 
 [node name="DemoMap" type="Node"]
 
@@ -84,6 +86,146 @@ Faction = ExtResource("7_yu7ov")
 
 [node name="AIController" parent="LevelManager/Enemy1" instance=ExtResource("9_s2xnc")]
 
+[node name="EnemyA" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(128, 208)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(8, 13)
+Size = Vector2(16, 16)
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyA" instance=ExtResource("17_e23bw")]
+
+[node name="EnemyB" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(144, 208)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(9, 13)
+Size = Vector2(16, 16)
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyB" instance=ExtResource("17_e23bw")]
+
+[node name="EnemyC" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(160, 208)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(10, 13)
+Size = Vector2(16, 16)
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyC" instance=ExtResource("17_e23bw")]
+
+[node name="EnemyD" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(176, 208)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(11, 13)
+Size = Vector2(16, 16)
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyD" instance=ExtResource("17_e23bw")]
+
+[node name="EnemyE" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(144, 80)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(9, 5)
+Size = Vector2(16, 16)
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyE" instance=ExtResource("17_e23bw")]
+
+[node name="EnemyF" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(176, 80)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(11, 5)
+Size = Vector2(16, 16)
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyF" instance=ExtResource("17_e23bw")]
+
+[node name="EnemyG" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(192, 96)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(12, 6)
+Size = Vector2(16, 16)
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyG" instance=ExtResource("17_e23bw")]
+
+[node name="EnemyH" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(192, 128)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(12, 8)
+Size = Vector2(16, 16)
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyH" instance=ExtResource("17_e23bw")]
+
+[node name="GuardA" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(288, 48)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(18, 3)
+Size = Vector2(16, 16)
+
+[node name="StandBehavior" parent="LevelManager/Enemy1/GuardA" instance=ExtResource("16_6hgq8")]
+AttackInRange = true
+SupportInRange = false
+
+[node name="GuardB" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(256, 32)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(16, 2)
+Size = Vector2(16, 16)
+
+[node name="SwitchBehavior" parent="LevelManager/Enemy1/GuardB" instance=ExtResource("14_d1c8n")]
+
+[node name="InRangeSwitchCondition" parent="LevelManager/Enemy1/GuardB/SwitchBehavior" node_paths=PackedStringArray("SourceUnits", "TriggerArmies") instance=ExtResource("17_ss7xl")]
+SourceUnits = [NodePath("../..")]
+TriggerArmies = [null]
+
+[node name="StandBehavior" parent="LevelManager/Enemy1/GuardB/SwitchBehavior" instance=ExtResource("16_6hgq8")]
+AttackInRange = true
+SupportInRange = false
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/GuardB/SwitchBehavior" instance=ExtResource("17_e23bw")]
+
+[node name="GuardC" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(256, 48)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(16, 3)
+Size = Vector2(16, 16)
+
+[node name="SwitchBehavior" parent="LevelManager/Enemy1/GuardC" instance=ExtResource("14_d1c8n")]
+
+[node name="InRangeSwitchCondition" parent="LevelManager/Enemy1/GuardC/SwitchBehavior" node_paths=PackedStringArray("SourceUnits", "TriggerArmies") instance=ExtResource("17_ss7xl")]
+SourceUnits = [NodePath("../..")]
+TriggerArmies = [null]
+
+[node name="StandBehavior" parent="LevelManager/Enemy1/GuardC/SwitchBehavior" instance=ExtResource("16_6hgq8")]
+AttackInRange = true
+SupportInRange = false
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/GuardC/SwitchBehavior" instance=ExtResource("17_e23bw")]
+
+[node name="RoyalGuardA" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(288, 192)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(18, 12)
+Size = Vector2(16, 16)
+
+[node name="StandBehavior" parent="LevelManager/Enemy1/RoyalGuardA" instance=ExtResource("16_6hgq8")]
+AttackInRange = true
+SupportInRange = false
+
+[node name="RoyalGuardB" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(272, 208)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(17, 13)
+Size = Vector2(16, 16)
+
+[node name="StandBehavior" parent="LevelManager/Enemy1/RoyalGuardB" instance=ExtResource("16_6hgq8")]
+AttackInRange = true
+SupportInRange = false
+
+[node name="RoyalGuardC" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(256, 192)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(16, 12)
+Size = Vector2(16, 16)
+
+[node name="StandBehavior" parent="LevelManager/Enemy1/RoyalGuardC" instance=ExtResource("16_6hgq8")]
+AttackInRange = true
+SupportInRange = false
+
 [node name="ReinforcementA" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 Grid = NodePath("../../Grid")
 Size = Vector2(16, 16)
@@ -94,19 +236,56 @@ Size = Vector2(16, 16)
 TriggerTurn = 2
 
 [node name="StandBehavior" parent="LevelManager/Enemy1/ReinforcementA/SwitchBehavior" instance=ExtResource("16_6hgq8")]
+AttackInRange = true
 SupportInRange = false
 
 [node name="MoveBehavior" parent="LevelManager/Enemy1/ReinforcementA/SwitchBehavior" instance=ExtResource("17_e23bw")]
+
+[node name="ReinforcementB" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(32, 0)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(2, 0)
+Size = Vector2(16, 16)
+
+[node name="SwitchBehavior" parent="LevelManager/Enemy1/ReinforcementB" instance=ExtResource("14_d1c8n")]
+
+[node name="TurnSwitchCondition" parent="LevelManager/Enemy1/ReinforcementB/SwitchBehavior" instance=ExtResource("15_ss7xl")]
+TriggerTurn = 2
+
+[node name="StandBehavior" parent="LevelManager/Enemy1/ReinforcementB/SwitchBehavior" instance=ExtResource("16_6hgq8")]
+AttackInRange = true
+SupportInRange = false
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/ReinforcementB/SwitchBehavior" instance=ExtResource("17_e23bw")]
 
 [node name="Enemy2" parent="LevelManager" instance=ExtResource("5_oeidl")]
 Faction = ExtResource("8_edc7l")
 
 [node name="AIController" parent="LevelManager/Enemy2" instance=ExtResource("9_s2xnc")]
 
+[node name="Boss" parent="LevelManager/Enemy2" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(272, 192)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(17, 12)
+Size = Vector2(16, 16)
+
+[node name="StandBehavior" parent="LevelManager/Enemy2/Boss" instance=ExtResource("16_6hgq8")]
+AttackInRange = true
+SupportInRange = false
+
 [node name="Ally" parent="LevelManager" instance=ExtResource("5_oeidl")]
-Faction = ExtResource("6_akw2u")
+Faction = ExtResource("20_6hgq8")
 
 [node name="AIController" parent="LevelManager/Ally" instance=ExtResource("9_s2xnc")]
+
+[node name="Ally" parent="LevelManager/Ally" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(16, 112)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(1, 7)
+Size = Vector2(16, 16)
+
+[node name="StandBehavior" parent="LevelManager/Ally/Ally" instance=ExtResource("16_6hgq8")]
+AttackInRange = true
 
 [node name="EventController" parent="." instance=ExtResource("14_v4kti")]
 
