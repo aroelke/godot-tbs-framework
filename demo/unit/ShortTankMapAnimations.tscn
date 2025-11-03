@@ -11,6 +11,11 @@ script = ExtResource("1_svdf5")
 texture = ExtResource("2_t2htl")
 offset = Vector2(8, 8)
 
+[node name="Inactive" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("2_t2htl")
+offset = Vector2(8, 8)
+
 [node name="Health" type="Sprite2D" parent="."]
 texture_filter = 1
 texture = ExtResource("3_cs64x")
