@@ -5,17 +5,8 @@ namespace TbsTemplate.Nodes.Components;
 
 /// <summary>Collection of animations to play during combat for a class or character.</summary>
 [GlobalClass, Tool]
-public partial class CombatAnimations : BoundedNode2D
+public abstract partial class CombatAnimations : BoundedNode2D
 {
-    public static readonly StringName IdleAnimation = "RESET";
-    public static readonly StringName AttackAnimation = "attack";
-    public static readonly StringName AttackReturnAnimation = "attack_return";
-    public static readonly StringName SupportAnimation = "support";
-    public static readonly StringName SupportReturnAnimation = "support_return";
-    public static readonly StringName DodgeAnimation = "dodge";
-    public static readonly StringName DodgeReturnAnimation = "dodge_return";
-    public static readonly StringName DieAnimation = "die";
-
     /// <summary>Signals that the current animation has completed.</summary>
     [Signal] public delegate void AnimationFinishedEventHandler();
 
@@ -34,104 +25,50 @@ public partial class CombatAnimations : BoundedNode2D
     /// <summary>Signals the frame at which the animation for a spell that is cast should begin.</summary>
     [Signal] public delegate void SpellCastEventHandler();
 
-    private bool _left = true;
-    private Vector2 _spriteOffset = Vector2.Zero;
-    private AnimationPlayer _animations = null;
-    private Sprite2D _sprite = null;
-
-    private void SetSpriteFacing(bool left)
-    {
-        if (left)
-            _sprite.Offset = _spriteOffset;
-        else
-        {
-            _spriteOffset = _sprite.Offset;
-            _sprite.Offset = ReflectionOffset;
-        }
-        _sprite.FlipH = !left;
-        _sprite.Position = _sprite.Position with { X = -_sprite.Position.X };
-    }
-
-    /// <summary>Whether or not the animation is on the left or right side of the screen (and facing toward the other side).</summary>
-    [Export] public bool Left {
-        get => _left;
-        set
-        {
-            if (_left != value)
-            {
-                _left = value;
-                if (_sprite is not null)
-                    SetSpriteFacing(_left);
-            }
-        }
-    }
-
-    /// <summary>Offset to set the sprite to when reflecting it (moving it to the right side of the screen and facing left).</summary>
-    [Export] public Vector2 ReflectionOffset = Vector2.Zero;
-
-    /// <summary>Position of the sprite of the animation relative to its initial position.</summary>
-    /// <remarks>Sets <see cref="Sprite2D.Position"/>, not <see cref="Sprite2D.Offset"/>.</remarks>
-    [Export] public Vector2 SpriteOffset
-    {
-        get => _sprite?.Position ?? Vector2.Zero;
-        set
-        {
-            if (_sprite is not null)
-                _sprite.Position = Left ? value : value with { X = -value.X };
-        }
-    }
-
-    /// <summary>Animation speed scaling ratio. Higher numbers mean faster animation, and negative numbers mean play animations backwards.</summary>
-    [Export] public float AnimationSpeedScale
-    {
-        get => _animations?.SpeedScale ?? 1;
-        set
-        {
-            if (_animations is not null)
-                _animations.SpeedScale = value;
-        }
-    }
-
-    /// <summary>Offset on the animation where contact is made with the target during an attack, for use with hit effects.</summary>
-    [Export] public Vector2 ContactOffset = new(0, 0);
-
-    /// <summary>Point on the animation where contact is made with the target during an attack, accounting for which way it's facing.</summary>
-    public Vector2 ContactPoint => Left ? ContactOffset : ContactOffset with { X = -ContactOffset.X };
-
-    /// <summary>Play a combat animation.</summary>
-    /// <param name="name">Name of the animation to play.</param>
-    public void PlayAnimation(StringName name) => _animations.Play(name);
+    /// <summary>Offset on the animation where an attack made by it will contact its target.</summary>
+    public abstract Vector2 ContactPoint { get; }
 
     /// <summary>
-    /// Forward the <see cref="AnimationPlayer"/>'s <see cref="AnimationMixer.SignalName.AnimationFinished"/> signal to any listeners. Also plays the\
-    /// idle animation when returning from an action.
+    /// Animation speed scale ratio. A value of 1 means normal speed, between 0 and 1 means slower, and higher than 1 means faster. Negative numbers
+    /// mean to play the animation backwards.
     /// </summary>
-    /// <param name="name">Name of the animation that completed.</param>
-    public void OnAnimationFinished(StringName name)
-    {
-        if (name == AttackReturnAnimation || name == DodgeReturnAnimation)
-            _animations.Play(IdleAnimation);
-        EmitSignal(SignalName.AnimationFinished);
-    }
+    public abstract float AnimationSpeedScale { get; set; }
 
-    /// <summary>If a non-idle animation is playing, wait for it to end.</summary>
-    public async Task ActionFinished()
-    {
-        if (_animations.CurrentAnimation != IdleAnimation && _animations.IsPlaying())
-            await ToSignal(_animations, AnimationPlayer.SignalName.AnimationFinished);
-    }
+    /// <summary>Set the direction the animation should be facing. The meaning of that is left to the implementation.</summary>
+    /// <param name="direction">Direction the animation should face.</param>
+    public abstract void SetFacing(Vector2 direction);
 
-    public override void _Ready()
-    {
-        base._Ready();
+    /// <summary>Play the idle animation.</summary>
+    public abstract void Idle();
 
-        _animations = GetNode<AnimationPlayer>("AnimationPlayer");
-        _sprite = GetNode<Sprite2D>("Sprite");
-        if (Left)
-            _spriteOffset = _sprite.Offset;
+    /// <summary>Play the animation to begin an attack up until the attack connects.</summary>
+    /// <param name="target">Target of the attack to help with motion.</param>
+    public abstract void BeginAttack(CombatAnimations target);
 
-        if (!Engine.IsEditorHint())
-            _sprite.Material = (Material)_sprite.Material.Duplicate();
-        SetSpriteFacing(Left);
-    }
+    /// <summary>Complete the attack animation and return to the idle pose.</summary>
+    public abstract void FinishAttack();
+
+    /// <summary>Play the animation used to indicate that a hit has been taken.</summary>
+    /// <param name="attacker">Attacker dealing the hit to help with motion.</param>
+    public abstract void TakeHit(CombatAnimations attacker);
+
+    /// <summary>Play the animation to begin a dodge of an incoming attack.</summary>
+    /// <param name="attacker">Attacker to help with motion.</param>
+    public abstract void BeginDodge(CombatAnimations attacker);
+
+    /// <summary>Complete the dodge animation and return to the idle pose.</summary>
+    public abstract void FinishDodge();
+
+    /// <summary>Play the animation to begin a support action up until the support effect begins.</summary>
+    /// <param name="target">Recipient of the support to help with motion.</param>
+    public abstract void BeginSupport(CombatAnimations target);
+
+    /// <summary>Play the animation to finish support and return to the idle pose.</summary>
+    public abstract void FinishSupport();
+
+    /// <summary>Play the death animation.</summary>
+    public abstract void Die();
+
+    /// <summary>Create a task that can be awaited until an action animation has completed.</summary>
+    public abstract Task ActionCompleted();
 }

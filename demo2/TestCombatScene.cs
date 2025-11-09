@@ -46,7 +46,7 @@ public partial class TestCombatScene : CombatScene
     private bool _canceled = false;
 
     private FastForwardComponent FastForward     => _cache.GetNode<FastForwardComponent>("FastForward");
-    private Camera2DController        Camera          => _cache.GetNode<Camera2DController>("Camera");
+    private Camera2DController   Camera          => _cache.GetNode<Camera2DController>("Camera");
     private AudioStreamPlayer    StepSound       => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/StepSound");
     private AudioStreamPlayer    HitSound        => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/HitSound");
     private AudioStreamPlayer    MissSound       => _cache.GetNode<AudioStreamPlayer>("SoundLibrary/MissSound");
@@ -59,8 +59,8 @@ public partial class TestCombatScene : CombatScene
     /// <param name="action">Action whose actors could be acting.</param>
     private async Task ActionCompleted(CombatAction action)
     {
-        await _animations[action.Actor].ActionFinished();
-        await _animations[action.Target].ActionFinished();
+        await _animations[action.Actor].ActionCompleted();
+        await _animations[action.Target].ActionCompleted();
     }
 
     /// <summary>Wait for a specified amount of time.</summary>
@@ -112,7 +112,7 @@ public partial class TestCombatScene : CombatScene
         _animations[left] = left.Class.InstantiateCombatAnimations(left.Faction);
         _animations[left].Modulate = left.Army.Faction.Color;
         _animations[left].Position = LeftPosition;
-        _animations[left].Left = true;
+        _animations[left].SetFacing(Vector2.Left);
         _animations[left].StepTaken += () => StepSound.Play();
         _infos[left] = LeftInfo;
         LeftInfo.Health = left.Health;
@@ -123,7 +123,7 @@ public partial class TestCombatScene : CombatScene
         _animations[right] = right.Class.InstantiateCombatAnimations(right.Faction);
         _animations[right].Modulate = right.Army.Faction.Color;
         _animations[right].Position = RightPosition;
-        _animations[right].Left = false;
+        _animations[right].SetFacing(Vector2.Right);
         _animations[right].StepTaken += () => StepSound.Play();
         _infos[right] = RightInfo;
         RightInfo.Health = right.Health;
@@ -145,7 +145,7 @@ public partial class TestCombatScene : CombatScene
             foreach ((_, CombatAnimations animation) in _animations)
             {
                 animation.ZIndex = 0;
-                animation.PlayAnimation(CombatAnimations.IdleAnimation);
+                animation.Idle();
             }
 
             switch (action.Type)
@@ -172,33 +172,33 @@ public partial class TestCombatScene : CombatScene
                 else
                 {
                     _animations[action.Target].ZIndex = 1;
-                    _animations[action.Actor].Connect(CombatAnimations.SignalName.AttackDodged, () => _animations[action.Target].PlayAnimation(CombatAnimations.DodgeAnimation), (uint)ConnectFlags.OneShot);
+                    _animations[action.Actor].Connect(CombatAnimations.SignalName.AttackDodged, () => _animations[action.Target].BeginDodge(_animations[action.Actor]), (uint)ConnectFlags.OneShot);
                     _animations[action.Actor].Connect(CombatAnimations.SignalName.AttackStrike, () => MissSound.Play(), (uint)ConnectFlags.OneShot);
                 }
 
                 // Play the animation sequence for the turn
-                _animations[action.Actor].PlayAnimation(CombatAnimations.AttackAnimation);
+                _animations[action.Actor].BeginAttack(_animations[action.Target]);
                 await ActionCompleted(action);
                 await Delay(HitDelay);
-                _animations[action.Actor].PlayAnimation(CombatAnimations.AttackReturnAnimation);
+                _animations[action.Actor].FinishAttack();
                 if (!action.Hit)
-                    _animations[action.Target].PlayAnimation(CombatAnimations.DodgeReturnAnimation);
+                    _animations[action.Target].FinishDodge();
                 await ActionCompleted(action);
 
                 // Clean up any triggers
                 if (action.Hit && _infos[action.Target].Health.Value == 0)
                 {
-                    _animations[action.Target].PlayAnimation(CombatAnimations.DieAnimation);
+                    _animations[action.Target].Die();
                     DeathSound.Play();
                     await ToSignal(_animations[action.Target], CombatAnimations.SignalName.AnimationFinished);
                 }
                 break;
             case CombatActionType.Support:
                 _animations[action.Actor].Connect(CombatAnimations.SignalName.SpellCast, () => _infos[action.Target].Health.Value -= action.Damage, (uint)ConnectFlags.OneShot);
-                _animations[action.Actor].PlayAnimation(CombatAnimations.SupportAnimation);
+                _animations[action.Actor].BeginSupport(_animations[action.Target]);
                 await ActionCompleted(action);
                 await Delay(HitDelay);
-                _animations[action.Actor].PlayAnimation(CombatAnimations.SupportReturnAnimation);
+                _animations[action.Actor].FinishSupport();
                 await ActionCompleted(action);
                 break;
             }
