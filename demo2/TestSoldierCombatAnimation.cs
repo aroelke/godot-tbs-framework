@@ -77,8 +77,9 @@ public partial class TestSoldierCombatAnimation : CombatAnimations
     /// <summary>Offset on the animation where contact is made with the target during an attack, for use with hit effects.</summary>
     [Export] public Vector2 ContactOffset = new(0, 0);
 
-    /// <summary>Point on the animation where contact is made with the target during an attack, accounting for which way it's facing.</summary>
     public override Vector2 ContactPoint => Left ? ContactOffset : ContactOffset with { X = -ContactOffset.X };
+    public override Rect2 BoundingBox => new();
+
     public override void SetFacing(Vector2 direction) => Left = direction == Vector2.Left;
     public override void Idle() => PlayAnimation(IdleAnimation);
     public override void BeginAttack(CombatAnimations target) => PlayAnimation(AttackAnimation);

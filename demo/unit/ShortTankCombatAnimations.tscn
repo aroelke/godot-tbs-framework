@@ -1,0 +1,105 @@
+[gd_scene load_steps=18 format=3 uid="uid://ds8tasupxnu0q"]
+
+[ext_resource type="Script" uid="uid://bdox6os0o4wea" path="res://demo/unit/ShortTankCombatAnimations.cs" id="1_ghh7o"]
+[ext_resource type="Texture2D" uid="uid://calc7axofl2tu" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tanks_turret3.png" id="2_bs5eo"]
+[ext_resource type="Texture2D" uid="uid://dy3dmy7fdwqkj" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tanks_tankTracks2.png" id="3_17jyc"]
+[ext_resource type="Texture2D" uid="uid://bqgunspjp36tt" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tanks_tankGrey_body2.png" id="4_bs5eo"]
+[ext_resource type="Texture2D" uid="uid://o8yopnm4sasr" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tank_bulletFly2.png" id="5_ha3kg"]
+[ext_resource type="Texture2D" uid="uid://wmrv4wcxaf1p" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tank_explosion10.png" id="6_ha3kg"]
+[ext_resource type="Texture2D" uid="uid://jylkauwo43on" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tank_explosion11.png" id="7_13214"]
+[ext_resource type="Texture2D" uid="uid://dtso5smobg7go" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tank_explosion12.png" id="8_vjaft"]
+[ext_resource type="Texture2D" uid="uid://bcyp1vkovh4fk" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tank_explosion9.png" id="9_yj57o"]
+[ext_resource type="Texture2D" uid="uid://vq3m0ejplyah" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tank_explosion1.png" id="10_13214"]
+[ext_resource type="Texture2D" uid="uid://bj1mjj8uc43r3" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tank_explosion5.png" id="11_nrqfm"]
+[ext_resource type="Texture2D" uid="uid://ccnnep7hyih1o" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tank_explosion6.png" id="12_c4dmf"]
+[ext_resource type="Texture2D" uid="uid://crcd7tkqsfi6" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tank_explosion8.png" id="15_a4e1b"]
+[ext_resource type="Script" uid="uid://xf7nwa5ddwrd" path="res://src/TbsTemplate/Nodes/BoundedNode2D.cs" id="15_s0jx3"]
+[ext_resource type="Texture2D" uid="uid://dy8ddhfx5fnxq" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tank_explosion7.png" id="16_stbg6"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_17jyc"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_ha3kg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_13214")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_vjaft")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_yj57o")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_13214")
+}],
+"loop": false,
+"name": &"default",
+"speed": 30.0
+}]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_13214"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("11_nrqfm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_c4dmf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_stbg6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_a4e1b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_13214")
+}],
+"loop": false,
+"name": &"default",
+"speed": 15.0
+}]
+
+[node name="ShortTankCombatAnimations" type="Node2D"]
+script = ExtResource("1_ghh7o")
+
+[node name="Cannon" type="Sprite2D" parent="."]
+position = Vector2(20, -30)
+texture = ExtResource("2_bs5eo")
+
+[node name="Treads" type="Sprite2D" parent="."]
+position = Vector2(0, 3)
+texture = ExtResource("3_17jyc")
+
+[node name="Body" type="Sprite2D" parent="."]
+position = Vector2(-1, -15)
+texture = ExtResource("4_bs5eo")
+
+[node name="Bullet" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(0, -30)
+texture = ExtResource("5_ha3kg")
+
+[node name="MuzzleFlash" type="AnimatedSprite2D" parent="."]
+visible = false
+position = Vector2(30, -30)
+sprite_frames = SubResource("SpriteFrames_17jyc")
+frame = 4
+frame_progress = 1.0
+
+[node name="HitExplosion" type="AnimatedSprite2D" parent="."]
+visible = false
+position = Vector2(30, -30)
+sprite_frames = SubResource("SpriteFrames_13214")
+
+[node name="BoundingBox" type="Node2D" parent="."]
+position = Vector2(-42, -39)
+script = ExtResource("15_s0jx3")
+Size = Vector2(82, 60)
+DrawBoundingBox = true
+metadata/_custom_type_script = "uid://xf7nwa5ddwrd"
+
+[connection signal="animation_finished" from="MuzzleFlash" to="." method="OnMuzzleFlashFinished"]
+[connection signal="animation_finished" from="HitExplosion" to="." method="OnHitExplosionFinished"]

@@ -5,7 +5,7 @@ namespace TbsTemplate.Nodes.Components;
 
 /// <summary>Collection of animations to play during combat for a class or character.</summary>
 [GlobalClass, Tool]
-public abstract partial class CombatAnimations : BoundedNode2D
+public abstract partial class CombatAnimations : Node2D
 {
     /// <summary>Signals that the current animation has completed.</summary>
     [Signal] public delegate void AnimationFinishedEventHandler();
@@ -16,7 +16,6 @@ public abstract partial class CombatAnimations : BoundedNode2D
     [Signal] public delegate void ShakeCameraEventHandler();
 
     /// <summary>Signals that the attack is about to land, so the opponent's dodge animation should begin now.</summary>
-    /// <remarks>Currently, all dodge animations are expected to be 0.1 seconds long, so this fires 0.1 seconds before the attack lands.</remarks>
     [Signal] public delegate void AttackDodgedEventHandler();
 
     /// <summary>Signals the frame in which the attack animation connects (or misses) with the opponent.</summary>
@@ -25,8 +24,11 @@ public abstract partial class CombatAnimations : BoundedNode2D
     /// <summary>Signals the frame at which the animation for a spell that is cast should begin.</summary>
     [Signal] public delegate void SpellCastEventHandler();
 
-    /// <summary>Offset on the animation where an attack made by it will contact its target.</summary>
+    /// <summary>Offset on the image where an attack made by it will contact its target.</summary>
     public abstract Vector2 ContactPoint { get; }
+
+    /// <summary>Box defining the edges of the image for help with positioning and motion.</summary>
+    public abstract Rect2 BoundingBox { get; }
 
     /// <summary>
     /// Animation speed scale ratio. A value of 1 means normal speed, between 0 and 1 means slower, and higher than 1 means faster. Negative numbers
