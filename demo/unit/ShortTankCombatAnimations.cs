@@ -16,7 +16,7 @@ public partial class ShortTankCombatAnimations : CombatAnimations
     private CombatAnimations _target = null;
     private Vector2 _explosion = Vector2.Zero;
 
-    public override Vector2 ContactPoint => throw new System.NotImplementedException();
+    public override Vector2 ContactPoint => throw new NotImplementedException();
     public override Rect2 BoundingBox => _cache.GetNode<BoundedNode2D>("BoundingBox").BoundingBox;
     public override float AnimationSpeedScale { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
 
@@ -33,7 +33,7 @@ public partial class ShortTankCombatAnimations : CombatAnimations
 
     public override void Idle() {}
 
-    public override void BeginAttack(CombatAnimations target)
+    public override async Task BeginAttack(CombatAnimations target)
     {
         float distance = Math.Abs(target.Position.X - Position.X);
         Vector2 initial = Bullet.Position;
@@ -43,23 +43,24 @@ public partial class ShortTankCombatAnimations : CombatAnimations
         MuzzleFlash.Play();
         MuzzleFlash.Visible = true;
         Bullet.Visible = true;
-        CreateTween()
-            .TweenProperty(Bullet, new(Sprite2D.PropertyName.Position), Bullet.Position + Vector2.Right*distance, distance/BulletSpeed)
-            .Finished += () => {
-                Bullet.Visible = false;
-                HitExplosion.Position = Bullet.Position;
-                Bullet.Position = initial;
-                EmitSignal(SignalName.AttackStrike);
-                EmitSignal(SignalName.AnimationFinished);
-            };
+        PropertyTweener animation = CreateTween().TweenProperty(Bullet, new(Sprite2D.PropertyName.Position), Bullet.Position + Vector2.Right*distance, distance/BulletSpeed);
+        animation.Finished += () => {
+            Bullet.Visible = false;
+            HitExplosion.Position = Bullet.Position;
+            Bullet.Position = initial;
+            EmitSignal(SignalName.AttackStrike);
+            EmitSignal(SignalName.AnimationFinished);
+        };
+        await ToSignal(animation, PropertyTweener.SignalName.Finished);
     }
 
     public void OnMuzzleFlashFinished() => MuzzleFlash.Visible = false;
 
-    public override void FinishAttack()
+    public override async Task FinishAttack()
     {
         HitExplosion.Visible = true;
         HitExplosion.Play();
+        await ToSignal(HitExplosion, AnimatedSprite2D.SignalName.AnimationFinished);
     }
 
     public void OnHitExplosionFinished()
@@ -69,26 +70,26 @@ public partial class ShortTankCombatAnimations : CombatAnimations
         EmitSignal(SignalName.AnimationFinished);
     }
 
-    public override void BeginDodge(CombatAnimations attacker) { throw new System.NotImplementedException(); }
+    public override Task BeginDodge(CombatAnimations attacker) { throw new System.NotImplementedException(); }
 
-    public override void BeginSupport(CombatAnimations target)
+    public override Task BeginSupport(CombatAnimations target)
     {
         throw new System.NotImplementedException();
     }
 
-    public override void FinishDodge()
+    public override Task FinishDodge()
     {
         throw new System.NotImplementedException();
     }
 
-    public override void FinishSupport()
+    public override Task FinishSupport()
     {
         throw new System.NotImplementedException();
     }
 
-    public override void TakeHit(CombatAnimations attacker) {}
+    public override Task TakeHit(CombatAnimations attacker) { return Task.CompletedTask; }
 
-    public override void Die()
+    public override Task Die()
     {
         throw new System.NotImplementedException();
     }

@@ -48,10 +48,8 @@ public partial class DemoCombatScene : CombatScene
             switch (action.Type)
             {
             case CombatActionType.Attack:
-                _animations[action.Actor].BeginAttack(_animations[action.Target]);
-                await _animations[action.Actor].ActionCompleted();
-                _animations[action.Actor].FinishAttack();
-                await _animations[action.Actor].ActionCompleted();
+                await _animations[action.Actor].BeginAttack(_animations[action.Target]);
+                await _animations[action.Actor].FinishAttack();
                 break;
             default:
                 break;

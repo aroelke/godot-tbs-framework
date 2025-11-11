@@ -45,31 +45,39 @@ public abstract partial class CombatAnimations : Node2D
 
     /// <summary>Play the animation to begin an attack up until the attack connects.</summary>
     /// <param name="target">Target of the attack to help with motion.</param>
-    public abstract void BeginAttack(CombatAnimations target);
+    /// <returns>A task that can be awaited until the animation is complete.</returns>
+    public abstract Task BeginAttack(CombatAnimations target);
 
     /// <summary>Complete the attack animation and return to the idle pose.</summary>
-    public abstract void FinishAttack();
+    /// <returns>A task that can be awaited until the animation is complete.</returns>
+    public abstract Task FinishAttack();
 
     /// <summary>Play the animation used to indicate that a hit has been taken.</summary>
     /// <param name="attacker">Attacker dealing the hit to help with motion.</param>
-    public abstract void TakeHit(CombatAnimations attacker);
+    /// <returns>A task that can be awaited until the animation is complete.</returns>
+    public abstract Task TakeHit(CombatAnimations attacker);
 
     /// <summary>Play the animation to begin a dodge of an incoming attack.</summary>
     /// <param name="attacker">Attacker to help with motion.</param>
-    public abstract void BeginDodge(CombatAnimations attacker);
+    /// <returns>A task that can be awaited until the animation is complete.</returns>
+    public abstract Task BeginDodge(CombatAnimations attacker);
 
     /// <summary>Complete the dodge animation and return to the idle pose.</summary>
-    public abstract void FinishDodge();
+    /// <returns>A task that can be awaited until the animation is complete.</returns>
+    public abstract Task FinishDodge();
 
     /// <summary>Play the animation to begin a support action up until the support effect begins.</summary>
     /// <param name="target">Recipient of the support to help with motion.</param>
-    public abstract void BeginSupport(CombatAnimations target);
+    /// <returns>A task that can be awaited until the animation is complete.</returns>
+    public abstract Task BeginSupport(CombatAnimations target);
 
     /// <summary>Play the animation to finish support and return to the idle pose.</summary>
-    public abstract void FinishSupport();
+    /// <returns>A task that can be awaited until the animation is complete.</returns>
+    public abstract Task FinishSupport();
 
     /// <summary>Play the death animation.</summary>
-    public abstract void Die();
+    /// <returns>A task that can be awaited until the animation is complete.</returns>
+    public abstract Task Die();
 
     /// <summary>Create a task that can be awaited until an action animation has completed.</summary>
     public abstract Task ActionCompleted();

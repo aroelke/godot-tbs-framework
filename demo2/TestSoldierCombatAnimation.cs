@@ -82,14 +82,14 @@ public partial class TestSoldierCombatAnimation : CombatAnimations
 
     public override void SetFacing(Vector2 direction) => Left = direction == Vector2.Left;
     public override void Idle() => PlayAnimation(IdleAnimation);
-    public override void BeginAttack(CombatAnimations target) => PlayAnimation(AttackAnimation);
-    public override void FinishAttack() => PlayAnimation(AttackReturnAnimation);
-    public override void TakeHit(CombatAnimations attacker) {}
-    public override void BeginDodge(CombatAnimations attacker) => PlayAnimation(DodgeAnimation);
-    public override void FinishDodge() => PlayAnimation(DodgeReturnAnimation);
-    public override void BeginSupport(CombatAnimations target) => PlayAnimation(SupportAnimation);
-    public override void FinishSupport() => PlayAnimation(SupportReturnAnimation);
-    public override void Die() => PlayAnimation(DieAnimation);
+    public override Task BeginAttack(CombatAnimations target) { PlayAnimation(AttackAnimation); return Task.CompletedTask; }
+    public override Task FinishAttack() { PlayAnimation(AttackReturnAnimation); return Task.CompletedTask; }
+    public override Task TakeHit(CombatAnimations attacker) { return Task.CompletedTask; }
+    public override Task BeginDodge(CombatAnimations attacker) { PlayAnimation(DodgeAnimation); return Task.CompletedTask; }
+    public override Task FinishDodge() { PlayAnimation(DodgeReturnAnimation); return Task.CompletedTask; }
+    public override Task BeginSupport(CombatAnimations target) { PlayAnimation(SupportAnimation); return Task.CompletedTask; }
+    public override Task FinishSupport() { PlayAnimation(SupportReturnAnimation); return Task.CompletedTask; }
+    public override Task Die() { PlayAnimation(DieAnimation); return Task.CompletedTask; }
 
     /// <summary>Play a combat animation.</summary>
     /// <param name="name">Name of the animation to play.</param>
