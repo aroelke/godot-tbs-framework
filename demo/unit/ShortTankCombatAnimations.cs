@@ -47,6 +47,7 @@ public partial class ShortTankCombatAnimations : CombatAnimations
             .TweenProperty(Bullet, new(Sprite2D.PropertyName.Position), Bullet.Position + Vector2.Right*distance, distance/BulletSpeed)
             .Finished += () => {
                 Bullet.Visible = false;
+                HitExplosion.Position = Bullet.Position;
                 Bullet.Position = initial;
                 EmitSignal(SignalName.AttackStrike);
                 EmitSignal(SignalName.AnimationFinished);
@@ -57,7 +58,6 @@ public partial class ShortTankCombatAnimations : CombatAnimations
 
     public override void FinishAttack()
     {
-        HitExplosion.Position = new(_target.Position.X - Position.X, HitExplosion.Position.Y);
         HitExplosion.Visible = true;
         HitExplosion.Play();
     }

@@ -44,11 +44,14 @@ public partial class DemoCombatScene : CombatScene
         {
             foreach ((_, CombatAnimations animation) in _animations)
                 animation.ZIndex = 0;
+            _animations[action.Actor].ZIndex = 1;
             
             switch (action.Type)
             {
             case CombatActionType.Attack:
                 _animations[action.Actor].BeginAttack(_animations[action.Target]);
+                await _animations[action.Actor].ActionCompleted();
+                _animations[action.Actor].FinishAttack();
                 await _animations[action.Actor].ActionCompleted();
                 break;
             default:
