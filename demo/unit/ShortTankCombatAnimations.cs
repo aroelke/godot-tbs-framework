@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Godot;
 using TbsTemplate.Nodes;
@@ -19,27 +20,28 @@ public partial class ShortTankCombatAnimations : CombatAnimations
     public override Rect2 BoundingBox => _cache.GetNode<BoundedNode2D>("BoundingBox").BoundingBox;
     public override float AnimationSpeedScale { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
 
-    [Export(PropertyHint.None, "suffix:px")] public float BulletSpeed = 300;
+    [Export(PropertyHint.None, "suffix:px")] public float BulletSpeed = 600;
 
     public ShortTankCombatAnimations() : base()  { _cache = new(this); }
 
     public override void SetFacing(Vector2 direction) => Transform = new(Transform.Rotation, new(direction == Vector2.Right ? 1 : -1, 1), Transform.Skew, Transform.Origin);
 
-    public override Task ActionCompleted()
+    public override async Task ActionCompleted()
     {
-        throw new System.NotImplementedException();
+        await ToSignal(this, SignalName.AnimationFinished);
     }
 
     public override void Idle() {}
 
     public override void BeginAttack(CombatAnimations target)
     {
-        float distance = target.Position.X - Position.X;
+        float distance = Math.Abs(target.Position.X - Position.X);
         Vector2 initial = Bullet.Position;
         _target = target;
         _explosion = HitExplosion.Position;
 
         MuzzleFlash.Play();
+        MuzzleFlash.Visible = true;
         Bullet.Visible = true;
         CreateTween()
             .TweenProperty(Bullet, new(Sprite2D.PropertyName.Position), Bullet.Position + Vector2.Right*distance, distance/BulletSpeed)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
 using Godot;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Combat;
@@ -37,7 +38,7 @@ public partial class DemoCombatScene : CombatScene
             AddChild(animation);
     }
 
-    public override void Start()
+    public override async void Start()
     {
         foreach (CombatAction action in _actions)
         {
@@ -47,6 +48,8 @@ public partial class DemoCombatScene : CombatScene
             switch (action.Type)
             {
             case CombatActionType.Attack:
+                _animations[action.Actor].BeginAttack(_animations[action.Target]);
+                await _animations[action.Actor].ActionCompleted();
                 break;
             default:
                 break;
