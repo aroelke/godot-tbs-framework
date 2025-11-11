@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using Godot;
+using TbsTemplate.Extensions;
 using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.Scenes.Level.Object;
 
@@ -14,4 +15,13 @@ public abstract partial class CombatScene : Node
     /// <param name="actions">List of actions that will be performed each turn in combat. The length of the list determines the number of turns.</param>
     /// <exception cref="ArgumentException">If any <see cref="CombatAction"/> contains a unit who isn't participating in this combat.</exception>
     public abstract void Initialize(Unit left, Unit right, IImmutableList<CombatAction> actions);
+
+    public abstract void Start();
+
+    public override void _Ready()
+    {
+        base._Ready();
+        if (!Engine.IsEditorHint())
+            SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, Start, (uint)ConnectFlags.OneShot);
+    }
 }

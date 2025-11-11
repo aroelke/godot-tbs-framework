@@ -30,5 +30,5 @@ ExtResource("9_yho85"): "uid://dglwficlf2psv"
 })
 DefaultMapAnimationsPath = "uid://dpgift876c6df"
 CombatAnimationsPaths = Dictionary[ExtResource("1_qva5q"), String]({})
-DefaultCombatAnimationsPath = ""
+DefaultCombatAnimationsPath = "uid://ds8tasupxnu0q"
 metadata/_custom_type_script = "uid://hpaxa78srpai"

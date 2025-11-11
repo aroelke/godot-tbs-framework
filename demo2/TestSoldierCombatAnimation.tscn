@@ -322,7 +322,7 @@ shader_parameter/overlay = Color(1, 1, 1, 0)
 
 [node name="TestSoldierCombatAnimation" type="Node2D"]
 script = ExtResource("1_4ixw4")
-SpriteOffset = Vector2(0, 0)
+AnimationSpeedScale = 1.0
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {

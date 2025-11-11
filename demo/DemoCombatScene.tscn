@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://didkiflqabwl4"]
+
+[ext_resource type="Script" uid="uid://b0772nvd2y455" path="res://demo/DemoCombatScene.cs" id="1_82dh7"]
+[ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DController.tscn" id="3_jlc87"]
+
+[node name="DemoCombatScene" type="Node"]
+script = ExtResource("1_82dh7")
+
+[node name="Camera2DController" parent="." instance=ExtResource("3_jlc87")]
+Limits = Rect2i(0, 0, 320, 240)
+Zoom = Vector2(2, 2)
+ZoomMin = Vector2(2, 2)
+ZoomMax = Vector2(2, 2)

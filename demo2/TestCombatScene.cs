@@ -136,7 +136,7 @@ public partial class TestCombatScene : CombatScene
     }
 
     /// <summary>Run the full combat animation.</summary>
-    public async void Start()
+    public override async void Start()
     {
         // Play the combat sequence
         foreach (CombatAction action in _actions)
@@ -242,7 +242,6 @@ public partial class TestCombatScene : CombatScene
         if (!Engine.IsEditorHint())
         {
             MusicController.Resume(BackgroundMusic);
-            MusicController.FadeIn(SceneManager.CurrentTransition.TransitionTime/2);
             SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, Start, (uint)ConnectFlags.OneShot);
         }
     }

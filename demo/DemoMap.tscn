@@ -25,6 +25,7 @@
 [node name="DemoMap" type="Node"]
 
 [node name="LevelManager" parent="." node_paths=PackedStringArray("StartingArmy") instance=ExtResource("1_3r8kd")]
+CombatScenePath = "uid://didkiflqabwl4"
 StartingArmy = NodePath("Player")
 
 [node name="Grid" parent="LevelManager" node_paths=PackedStringArray("GroundLayer", "TerrainLayer") instance=ExtResource("2_oeidl")]
