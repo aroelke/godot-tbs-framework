@@ -177,7 +177,7 @@ public partial class TestCombatScene : CombatScene
                 }
 
                 // Play the animation sequence for the turn
-                _animations[action.Actor].BeginAttack(_animations[action.Target]);
+                _animations[action.Actor].BeginAttack(_animations[action.Target], true);
                 await ActionCompleted(action);
                 await Delay(HitDelay);
                 _animations[action.Actor].FinishAttack();

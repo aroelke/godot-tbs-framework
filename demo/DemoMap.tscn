@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=24 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsTemplate/Scenes/Level/Map/Grid.tscn" id="2_oeidl"]
@@ -16,11 +16,23 @@
 [ext_resource type="PackedScene" uid="uid://cb1gfyilefvvj" path="res://demo/unit/ShortTank.tscn" id="10_1ger5"]
 [ext_resource type="PackedScene" uid="uid://cseefrkj1yhgr" path="res://src/TbsTemplate/Scenes/Level/Control/SwitchBehavior.tscn" id="14_d1c8n"]
 [ext_resource type="PackedScene" uid="uid://bi8p6x3pf3217" path="res://src/TbsTemplate/Scenes/Level/Events/EventController.tscn" id="14_v4kti"]
+[ext_resource type="Script" uid="uid://cdy07gqijlx5a" path="res://src/TbsTemplate/Data/Stats.cs" id="15_e23bw"]
 [ext_resource type="PackedScene" uid="uid://sh1oy4xaqis2" path="res://src/TbsTemplate/Scenes/Level/Control/TurnSwitchCondition.tscn" id="15_ss7xl"]
 [ext_resource type="PackedScene" uid="uid://nt5vqytk4pr3" path="res://src/TbsTemplate/Scenes/Level/Control/StandBehavior.tscn" id="16_6hgq8"]
 [ext_resource type="PackedScene" uid="uid://djsdk3bbrh181" path="res://src/TbsTemplate/Scenes/Level/Control/MoveBehavior.tscn" id="17_e23bw"]
 [ext_resource type="PackedScene" uid="uid://bbanldfbqkktf" path="res://src/TbsTemplate/Scenes/Level/Control/InRangeSwitchCondition.tscn" id="17_ss7xl"]
 [ext_resource type="Resource" uid="uid://chjjd5sn6y2jw" path="res://demo/factions/DemoAllyFaction.tres" id="20_6hgq8"]
+
+[sub_resource type="Resource" id="Resource_qidbu"]
+script = ExtResource("15_e23bw")
+Health = 10
+Attack = 1
+Defense = 0
+Healing = 0
+Accuracy = 0
+Evasion = 0
+Agility = 1
+Move = 5
 
 [node name="DemoMap" type="Node"]
 
@@ -121,6 +133,7 @@ Size = Vector2(16, 16)
 
 [node name="EnemyE" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(144, 80)
+Stats = SubResource("Resource_qidbu")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(9, 5)
 Size = Vector2(16, 16)

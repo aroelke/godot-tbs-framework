@@ -82,7 +82,7 @@ public partial class TestSoldierCombatAnimation : CombatAnimations
 
     public override void SetFacing(Vector2 direction) => Left = direction == Vector2.Left;
     public override void Idle() => PlayAnimation(IdleAnimation);
-    public override Task BeginAttack(CombatAnimations target) { PlayAnimation(AttackAnimation); return Task.CompletedTask; }
+    public override Task BeginAttack(CombatAnimations target, bool hit) { PlayAnimation(AttackAnimation); return Task.CompletedTask; }
     public override Task FinishAttack() { PlayAnimation(AttackReturnAnimation); return Task.CompletedTask; }
     public override Task TakeHit(CombatAnimations attacker) { return Task.CompletedTask; }
     public override Task BeginDodge(CombatAnimations attacker) { PlayAnimation(DodgeAnimation); return Task.CompletedTask; }

@@ -82,9 +82,12 @@ public partial class DemoCombatScene : CombatScene
             switch (action.Type)
             {
             case CombatActionType.Attack:
-                await _animations[action.Actor].BeginAttack(_animations[action.Target]);
-                _infos[action.Target].Health.Value -= action.Damage;
-                Camera.Trauma += CameraShakeHitTrauma;
+                await _animations[action.Actor].BeginAttack(_animations[action.Target], action.Hit);
+                if (action.Hit)
+                {
+                    _infos[action.Target].Health.Value -= action.Damage;
+                    Camera.Trauma += CameraShakeHitTrauma;
+                }
                 await Task.WhenAll(_animations[action.Actor].FinishAttack(), Delay(HitDelay));
                 break;
             default:

@@ -45,8 +45,9 @@ public abstract partial class CombatAnimations : Node2D
 
     /// <summary>Play the animation to begin an attack up until the attack connects.</summary>
     /// <param name="target">Target of the attack to help with motion.</param>
+    /// <param name="hit">Whether or not the attack will hit the target in case it affects the animation</param>
     /// <returns>A task that can be awaited until the animation is complete.</returns>
-    public abstract Task BeginAttack(CombatAnimations target);
+    public abstract Task BeginAttack(CombatAnimations target, bool hit);
 
     /// <summary>Complete the attack animation and return to the idle pose.</summary>
     /// <returns>A task that can be awaited until the animation is complete.</returns>

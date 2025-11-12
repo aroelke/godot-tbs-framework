@@ -15,12 +15,15 @@ public partial class ShortTankCombatAnimations : CombatAnimations
 
     private CombatAnimations _target = null;
     private Vector2 _explosion = Vector2.Zero;
+    private bool _hit = true;
 
     public override Vector2 ContactPoint => throw new NotImplementedException();
     public override Rect2 BoundingBox => _cache.GetNode<BoundedNode2D>("BoundingBox").BoundingBox;
     public override float AnimationSpeedScale { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
 
-    [Export(PropertyHint.None, "suffix:px")] public float BulletSpeed = 600;
+    [Export(PropertyHint.None, "suffix:px/s")] public float BulletSpeed = 600;
+
+    [Export(PropertyHint.None, "suffix:px")] public float OvershootDistance = 100;
 
     public ShortTankCombatAnimations() : base()  { _cache = new(this); }
 
@@ -33,21 +36,18 @@ public partial class ShortTankCombatAnimations : CombatAnimations
 
     public override void Idle() {}
 
-    public override async Task BeginAttack(CombatAnimations target)
+    public override async Task BeginAttack(CombatAnimations target, bool hit)
     {
         float distance = Math.Abs(target.Position.X - Position.X);
-        Vector2 initial = Bullet.Position;
         _target = target;
         _explosion = HitExplosion.Position;
+        _hit = hit;
 
         MuzzleFlash.Play();
         MuzzleFlash.Visible = true;
         Bullet.Visible = true;
         PropertyTweener animation = CreateTween().TweenProperty(Bullet, new(Sprite2D.PropertyName.Position), Bullet.Position + Vector2.Right*distance, distance/BulletSpeed);
         animation.Finished += () => {
-            Bullet.Visible = false;
-            HitExplosion.Position = Bullet.Position;
-            Bullet.Position = initial;
             EmitSignal(SignalName.AttackStrike);
             EmitSignal(SignalName.AnimationFinished);
         };
@@ -58,9 +58,25 @@ public partial class ShortTankCombatAnimations : CombatAnimations
 
     public override async Task FinishAttack()
     {
-        HitExplosion.Visible = true;
-        HitExplosion.Play();
-        await ToSignal(HitExplosion, AnimatedSprite2D.SignalName.AnimationFinished);
+        if (_hit)
+        {
+            Bullet.Visible = false;
+            HitExplosion.Position = Bullet.Position;
+            Bullet.Position = MuzzleFlash.Position;
+            HitExplosion.Visible = true;
+            HitExplosion.Play();
+            await ToSignal(HitExplosion, AnimatedSprite2D.SignalName.AnimationFinished);
+        }
+        else
+        {
+            PropertyTweener animation = CreateTween().TweenProperty(Bullet, new(Sprite2D.PropertyName.Position), Bullet.Position + Vector2.Right*OvershootDistance, OvershootDistance/BulletSpeed);
+            animation.Finished += () => {
+                Bullet.Visible = false;
+                Bullet.Position = MuzzleFlash.Position;
+                EmitSignal(SignalName.AnimationFinished);
+            };
+            await ToSignal(animation, PropertyTweener.SignalName.Finished);
+        }
     }
 
     public void OnHitExplosionFinished()
