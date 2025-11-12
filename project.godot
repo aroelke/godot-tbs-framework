@@ -29,7 +29,7 @@ SceneScout="*res://addons/GD_NET_ScOUT/SceneScout.cs"
 window/size/viewport_width=640
 window/size/viewport_height=480
 window/stretch/mode="canvas_items"
-mouse_cursor/custom_image="uid://dplsgxw6yc37j"
+mouse_cursor/custom_image="uid://nhobvcrsi3w1"
 
 [dotnet]
 

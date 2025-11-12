@@ -10,7 +10,7 @@
 [ext_resource type="Resource" uid="uid://dxvcd01bu3ovj" path="res://demo/factions/DemoEnemyFaction1.tres" id="7_yu7ov"]
 [ext_resource type="Resource" uid="uid://0dcwfdljw4ug" path="res://demo/factions/DemoEnemyFaction2.tres" id="8_edc7l"]
 [ext_resource type="Texture2D" uid="uid://ybe0dod1kvqr" path="res://demo/assets/map/kenney_tiny-battle/cursor.png" id="8_s2xnc"]
-[ext_resource type="Texture2D" uid="uid://dplsgxw6yc37j" path="res://demo/assets/ui/kenney_cursor-pack/pointer_b_shaded_cropped.png" id="9_hkfkd"]
+[ext_resource type="Texture2D" uid="uid://nhobvcrsi3w1" path="res://demo/assets/ui/kenney_ui-pack-space-expansion/PNG/Extra/Default/cursor_g.png" id="9_6hgq8"]
 [ext_resource type="PackedScene" uid="uid://ca6g5c6dsaqjb" path="res://src/TbsTemplate/Scenes/Level/Control/AIController.tscn" id="9_s2xnc"]
 [ext_resource type="TileSet" uid="uid://bb7tjpm2de26x" path="res://demo/assets/map/overlay.tres" id="10_0kgrh"]
 [ext_resource type="PackedScene" uid="uid://cb1gfyilefvvj" path="res://demo/unit/ShortTank.tscn" id="10_1ger5"]
@@ -51,7 +51,7 @@ Faction = ExtResource("6_akw2u")
 [node name="PlayerController" parent="LevelManager/Player" instance=ExtResource("7_tajn8")]
 CursorSpriteTexture = ExtResource("8_s2xnc")
 CursorSpriteOffset = Vector2(8, 8)
-PointerSpriteTexture = ExtResource("9_hkfkd")
+PointerSpriteTexture = ExtResource("9_6hgq8")
 ActionRangeTileSet = ExtResource("10_0kgrh")
 PathTileSet = ExtResource("4_yu7ov")
 PathTilesSourceId = 1
