@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://didkiflqabwl4"]
+[gd_scene load_steps=4 format=3 uid="uid://didkiflqabwl4"]
 
 [ext_resource type="Script" uid="uid://b0772nvd2y455" path="res://demo/DemoCombatScene.cs" id="1_82dh7"]
 [ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DController.tscn" id="3_jlc87"]
+[ext_resource type="PackedScene" uid="uid://c2flvqnfd3o1x" path="res://demo/CombatantData.tscn" id="3_r0ow0"]
 
 [node name="DemoCombatScene" type="Node"]
 script = ExtResource("1_82dh7")
@@ -22,3 +23,45 @@ uv = PackedVector2Array(485, -74, 257, -79, -102, 87, 210, 41, 210, 41, 484, -66
 color = Color(0.607843, 0.858824, 0.941176, 1)
 polygon = PackedVector2Array(0, 0, 320, 0, 320, 120, 0, 120)
 uv = PackedVector2Array(0, 0, 320, 0, 320, 120, 0, 120)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Panel" type="Panel" parent="CanvasLayer"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -83.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -3.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SpacerLeft" type="Control" parent="CanvasLayer/Panel/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.5
+
+[node name="LeftData" parent="CanvasLayer/Panel/HBoxContainer" instance=ExtResource("3_r0ow0")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="SpacerCenter" type="Control" parent="CanvasLayer/Panel/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RightData" parent="CanvasLayer/Panel/HBoxContainer" instance=ExtResource("3_r0ow0")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="SpacerRight" type="Control" parent="CanvasLayer/Panel/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.5

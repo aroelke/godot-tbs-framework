@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Godot;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Combat;
@@ -13,6 +14,9 @@ public partial class DemoCombatScene : CombatScene
 {
     private IImmutableList<CombatAction> _actions = null;
     private readonly Dictionary<Unit, CombatAnimations> _animations = [];
+    private readonly Dictionary<Unit, CombatantData> _infos = [];
+
+    [Export] public double HitDelay = 0.3;
 
     [Export] public Vector2 LeftPosition = new(48, 120);
 
@@ -28,10 +32,20 @@ public partial class DemoCombatScene : CombatScene
         _animations[left] = left.Class.InstantiateCombatAnimations(left.Faction);
         _animations[left].SetFacing(Vector2.Right);
         _animations[left].Position = LeftPosition;
+        _infos[left] = GetNode<CombatantData>("%LeftData");
+        _infos[left].Health = left.Health;
+        _infos[left].Damage = [.. _actions.Where((a) => a.Actor == left).Select(static (a) => a.Damage)];
+        _infos[left].HitChance = _actions.Any((a) => a.Actor == left) ? Math.Min(CombatCalculations.HitChance(left, right), 100) : -1;
+        _infos[left].TransitionDuration = HitDelay;
 
         _animations[right] = left.Class.InstantiateCombatAnimations(right.Faction);
         _animations[right].SetFacing(Vector2.Left);
         _animations[right].Position = RightPosition;
+        _infos[right] = GetNode<CombatantData>("%RightData");
+        _infos[right].Health = right.Health;
+        _infos[right].Damage = [.. _actions.Where((a) => a.Actor == right).Select(static (a) => a.Damage)];
+        _infos[right].HitChance = _actions.Any((a) => a.Actor == right) ? Math.Min(CombatCalculations.HitChance(right, left), 100) : -1;
+        _infos[right].TransitionDuration = HitDelay;
 
         foreach ((_, CombatAnimations animation) in _animations)
             AddChild(animation);
@@ -49,6 +63,7 @@ public partial class DemoCombatScene : CombatScene
             {
             case CombatActionType.Attack:
                 await _animations[action.Actor].BeginAttack(_animations[action.Target]);
+                _infos[action.Target].Health.Value -= action.Damage;
                 await _animations[action.Actor].FinishAttack();
                 break;
             default:
