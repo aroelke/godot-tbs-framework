@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading.Tasks;
 using Godot;
 using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Combat;
@@ -12,11 +13,22 @@ namespace TbsTemplate.Demo;
 
 public partial class DemoCombatScene : CombatScene
 {
+    [Signal] public delegate void TimeExpiredEventHandler();
+
     private IImmutableList<CombatAction> _actions = null;
     private readonly Dictionary<Unit, CombatAnimations> _animations = [];
     private readonly Dictionary<Unit, CombatantData> _infos = [];
+    private double _remaining = 0;
+
+    private async Task Delay(double seconds)
+    {
+        _remaining = seconds;
+        await ToSignal(this, SignalName.TimeExpired);
+    }
 
     [Export] public double HitDelay = 0.3;
+
+    [Export] public double TurnDelay = 0.2;
 
     [Export] public Vector2 LeftPosition = new(48, 120);
 
@@ -64,11 +76,24 @@ public partial class DemoCombatScene : CombatScene
             case CombatActionType.Attack:
                 await _animations[action.Actor].BeginAttack(_animations[action.Target]);
                 _infos[action.Target].Health.Value -= action.Damage;
-                await _animations[action.Actor].FinishAttack();
+                await Task.WhenAll(_animations[action.Actor].FinishAttack(), Delay(HitDelay));
                 break;
             default:
                 break;
             }
+
+            await Delay(TurnDelay);
+        }
+    }
+
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+        if (_remaining > 0)
+        {
+            _remaining -= delta;
+            if (_remaining <= 0)
+                EmitSignal(SignalName.TimeExpired);
         }
     }
 }
