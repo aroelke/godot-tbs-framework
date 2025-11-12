@@ -8,6 +8,7 @@ using TbsTemplate.Nodes.Components;
 using TbsTemplate.Scenes.Combat;
 using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.Scenes.Level.Object;
+using TbsTemplate.UI;
 
 namespace TbsTemplate.Demo;
 
@@ -15,10 +16,13 @@ public partial class DemoCombatScene : CombatScene
 {
     [Signal] public delegate void TimeExpiredEventHandler();
 
+    private readonly NodeCache _cache = null;
     private IImmutableList<CombatAction> _actions = null;
     private readonly Dictionary<Unit, CombatAnimations> _animations = [];
     private readonly Dictionary<Unit, CombatantData> _infos = [];
     private double _remaining = 0;
+
+    private Camera2DController Camera => _cache.GetNode<Camera2DController>("Camera");
 
     private async Task Delay(double seconds)
     {
@@ -33,6 +37,10 @@ public partial class DemoCombatScene : CombatScene
     [Export] public Vector2 LeftPosition = new(48, 120);
 
     [Export] public Vector2 RightPosition = new(272, 120);
+
+    [Export] public double CameraShakeHitTrauma = 0.2;
+
+    public DemoCombatScene() : base() { _cache = new(this); }
 
     public override void Initialize(Unit left, Unit right, IImmutableList<CombatAction> actions)
     {
@@ -76,6 +84,7 @@ public partial class DemoCombatScene : CombatScene
             case CombatActionType.Attack:
                 await _animations[action.Actor].BeginAttack(_animations[action.Target]);
                 _infos[action.Target].Health.Value -= action.Damage;
+                Camera.Trauma += CameraShakeHitTrauma;
                 await Task.WhenAll(_animations[action.Actor].FinishAttack(), Delay(HitDelay));
                 break;
             default:

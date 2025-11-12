@@ -7,7 +7,7 @@
 [node name="DemoCombatScene" type="Node"]
 script = ExtResource("1_82dh7")
 
-[node name="Camera2DController" parent="." instance=ExtResource("3_jlc87")]
+[node name="Camera" parent="." instance=ExtResource("3_jlc87")]
 Limits = Rect2i(0, 0, 320, 240)
 Zoom = Vector2(2, 2)
 ZoomMin = Vector2(2, 2)
@@ -16,12 +16,12 @@ ZoomMax = Vector2(2, 2)
 [node name="Foreground" type="Polygon2D" parent="."]
 position = Vector2(0, 120)
 color = Color(0.168627, 0.756863, 0.419608, 1)
-polygon = PackedVector2Array(0, 0, 320, 0, 320, 120, 0, 120)
+polygon = PackedVector2Array(-50, 0, 370, 0, 370, 170, -50, 170)
 uv = PackedVector2Array(485, -74, 257, -79, -102, 87, 210, 41, 210, 41, 484, -66, 484, -65, 484, -65, 484, -65, 484, -65, 484, -65, 484, -65)
 
 [node name="Background" type="Polygon2D" parent="."]
 color = Color(0.607843, 0.858824, 0.941176, 1)
-polygon = PackedVector2Array(0, 0, 320, 0, 320, 120, 0, 120)
+polygon = PackedVector2Array(-50, -50, 370, -50, 370, 120, -50, 120)
 uv = PackedVector2Array(0, 0, 320, 0, 320, 120, 0, 120)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
