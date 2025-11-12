@@ -4,7 +4,9 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
+using TbsTemplate.Extensions;
 using TbsTemplate.Nodes.Components;
+using TbsTemplate.Scenes;
 using TbsTemplate.Scenes.Combat;
 using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.Scenes.Level.Object;
@@ -22,7 +24,8 @@ public partial class DemoCombatScene : CombatScene
     private readonly Dictionary<Unit, CombatantData> _infos = [];
     private double _remaining = 0;
 
-    private Camera2DController Camera => _cache.GetNode<Camera2DController>("Camera");
+    private Camera2DController Camera          => _cache.GetNode<Camera2DController>("Camera");
+    private Timer              TransitionDelay => _cache.GetNode<Timer>("TransitionDelay");
 
     private async Task Delay(double seconds)
     {
@@ -96,6 +99,14 @@ public partial class DemoCombatScene : CombatScene
 
             await Delay(TurnDelay);
         }
+
+        TransitionDelay.Start();
+    }
+
+    public void End()
+    {
+        SceneManager.Singleton.Connect<Node>(SceneManager.SignalName.SceneLoaded, _ => QueueFree(), (uint)ConnectFlags.OneShot);
+        SceneManager.ReturnToPreviousScene();
     }
 
     public override void _Process(double delta)

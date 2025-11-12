@@ -67,3 +67,9 @@ size_flags_vertical = 4
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.5
+
+[node name="TransitionDelay" type="Timer" parent="."]
+wait_time = 0.9
+one_shot = true
+
+[connection signal="timeout" from="TransitionDelay" to="." method="End"]
