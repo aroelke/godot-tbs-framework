@@ -184,7 +184,7 @@ Size = Vector2(16, 16)
 
 [node name="InRangeSwitchCondition" parent="LevelManager/Enemy1/GuardB/SwitchBehavior" node_paths=PackedStringArray("SourceUnits", "TriggerArmies") instance=ExtResource("17_ss7xl")]
 SourceUnits = [NodePath("../..")]
-TriggerArmies = [null]
+TriggerArmies = [NodePath("../../../../Player")]
 
 [node name="StandBehavior" parent="LevelManager/Enemy1/GuardB/SwitchBehavior" instance=ExtResource("16_6hgq8")]
 AttackInRange = true
@@ -202,7 +202,7 @@ Size = Vector2(16, 16)
 
 [node name="InRangeSwitchCondition" parent="LevelManager/Enemy1/GuardC/SwitchBehavior" node_paths=PackedStringArray("SourceUnits", "TriggerArmies") instance=ExtResource("17_ss7xl")]
 SourceUnits = [NodePath("../..")]
-TriggerArmies = [null]
+TriggerArmies = [NodePath("../../../../Player")]
 
 [node name="StandBehavior" parent="LevelManager/Enemy1/GuardC/SwitchBehavior" instance=ExtResource("16_6hgq8")]
 AttackInRange = true
