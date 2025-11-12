@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://btyq7m0pi5iba"]
+
+[ext_resource type="PackedScene" uid="uid://ds8tasupxnu0q" path="res://demo/unit/ShortTankCombatAnimations.tscn" id="1_okftq"]
+[ext_resource type="Texture2D" uid="uid://bk4g6ee0mgckc" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tanks_tankDesert_body2.png" id="2_6j6vf"]
+
+[node name="ShortTankCombatAnimationsEnemy2" instance=ExtResource("1_okftq")]
+
+[node name="Body" parent="." index="2"]
+texture = ExtResource("2_6j6vf")
