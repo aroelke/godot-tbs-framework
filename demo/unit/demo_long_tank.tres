@@ -22,8 +22,13 @@ ExtResource("9_krsmh"): ExtResource("10_tpu0i")
 })
 DefaultEditorSprite = ExtResource("2_yuvx5")
 CombatAnimationPath = ""
-MapAnimationsPaths = Dictionary[ExtResource("1_6hy2a"), String]({})
-DefaultMapAnimationsPath = ""
+MapAnimationsPaths = Dictionary[ExtResource("1_6hy2a"), String]({
+ExtResource("3_pnx3k"): "uid://b1mqad8hrxcxd",
+ExtResource("5_lne3p"): "uid://bnfegcerrbgd1",
+ExtResource("7_ksa23"): "uid://cqrf4toryh15a",
+ExtResource("9_krsmh"): "uid://82p0rucxr2mp"
+})
+DefaultMapAnimationsPath = "uid://cikey3vro6fs7"
 CombatAnimationsPaths = Dictionary[ExtResource("1_6hy2a"), String]({})
 DefaultCombatAnimationsPath = ""
 metadata/_custom_type_script = "uid://hpaxa78srpai"
