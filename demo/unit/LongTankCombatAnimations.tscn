@@ -69,7 +69,7 @@ animations = [{
 script = ExtResource("1_ptwue")
 
 [node name="Treads" type="Sprite2D" parent="."]
-position = Vector2(0, 10)
+position = Vector2(0, 7)
 texture = ExtResource("2_46g3h")
 
 [node name="Cannon" type="Sprite2D" parent="."]

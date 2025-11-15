@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Godot;
 using TbsTemplate.Nodes.Components;
@@ -9,6 +8,7 @@ namespace TbsTemplate.Demo;
 public partial class LongTankCombatAnimations : CombatAnimations
 {
     private readonly NodeCache _cache = null;
+    private Sprite2D         Cannon       => _cache.GetNode<Sprite2D>("Cannon");
     private Sprite2D         Missile      => _cache.GetNode<Sprite2D>("Missile");
     private AnimatedSprite2D MuzzleFlash  => _cache.GetNode<AnimatedSprite2D>("MuzzleFlash");
     private AnimatedSprite2D HitExplosion => _cache.GetNode<AnimatedSprite2D>("HitExplosion");
@@ -25,6 +25,8 @@ public partial class LongTankCombatAnimations : CombatAnimations
     [Export(PropertyHint.None, "suffix:px/s")] public double MissileSpeed = 600;
 
     [Export(PropertyHint.None, "suffix:px/s/s")] public double Gravity = 750;
+
+    [Export(PropertyHint.None, "suffix:s")] public double CannonMoveTime = 0.75;
 
     public LongTankCombatAnimations() : base() { _cache = new(this); }
 
@@ -48,15 +50,22 @@ public partial class LongTankCombatAnimations : CombatAnimations
         Vector2 velocity = new((float)(MissileSpeed*Math.Cos(theta)), -(float)(MissileSpeed*Math.Sin(theta)));
         double duration = distance/velocity.X;
 
-        MuzzleFlash.Play();
-        MuzzleFlash.Visible = Missile.Visible = true;
-        void MoveMissile(double t) => Missile.Position = position + new Vector2((float)(velocity.X*t), (float)(Gravity*t*t/2 + velocity.Y*t));
-        MethodTweener animation = CreateTween().TweenMethod(Callable.From<double>(MoveMissile), 0f, duration, duration);
-        animation.Finished += () => {
-            EmitSignal(SignalName.AttackStrike);
-            EmitSignal(SignalName.AnimationFinished);
+        void MoveMissile(double t)
+        {
+            Missile.Position = position + new Vector2((float)(velocity.X*t), (float)(Gravity*t*t/2 + velocity.Y*t));
+            Missile.Transform = new((float)Math.Atan((Gravity*t + velocity.Y)/velocity.X), Missile.Transform.Origin);
+        }
+        CreateTween().TweenProperty(Cannon, new(Sprite2D.PropertyName.Rotation), -theta, CannonMoveTime).Finished += () => {
+            MuzzleFlash.Rotation = -theta;
+            MuzzleFlash.Play();
+            MuzzleFlash.Visible = Missile.Visible = true;
+            MethodTweener animation = CreateTween().TweenMethod(Callable.From<double>(MoveMissile), 0f, duration, duration);
+            animation.Finished += () => {
+                EmitSignal(SignalName.AttackStrike);
+                EmitSignal(SignalName.AnimationFinished);
+            };
         };
-        await ToSignal(animation, PropertyTweener.SignalName.Finished);
+        await ToSignal(this, SignalName.AnimationFinished);
     }
 
     public void OnMuzzleFlashFinished() => MuzzleFlash.Visible = false;
@@ -68,6 +77,9 @@ public partial class LongTankCombatAnimations : CombatAnimations
         Missile.Position = _missile;
         HitExplosion.Visible = true;
         HitExplosion.Play();
+
+        CreateTween().TweenProperty(Cannon, new(Sprite2D.PropertyName.Rotation), 0, CannonMoveTime);
+
         await ToSignal(HitExplosion, AnimatedSprite2D.SignalName.AnimationFinished);
     }
 
