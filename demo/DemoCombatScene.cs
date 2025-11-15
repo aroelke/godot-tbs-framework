@@ -61,7 +61,7 @@ public partial class DemoCombatScene : CombatScene
         _infos[left].HitChance = _actions.Any((a) => a.Actor == left) ? Math.Min(CombatCalculations.HitChance(left, right), 100) : -1;
         _infos[left].TransitionDuration = HitDelay;
 
-        _animations[right] = left.Class.InstantiateCombatAnimations(right.Faction);
+        _animations[right] = right.Class.InstantiateCombatAnimations(right.Faction);
         _animations[right].SetFacing(Vector2.Left);
         _animations[right].Position = RightPosition;
         _infos[right] = GetNode<CombatantData>("%RightData");

@@ -14,6 +14,7 @@ public partial class ShortTankCombatAnimations : CombatAnimations
     private AnimatedSprite2D HitExplosion => _cache.GetNode<AnimatedSprite2D>("HitExplosion");
 
     private CombatAnimations _target = null;
+    private Vector2 _bullet = Vector2.Zero;
     private Vector2 _explosion = Vector2.Zero;
     private bool _hit = true;
 
@@ -40,12 +41,12 @@ public partial class ShortTankCombatAnimations : CombatAnimations
     {
         float distance = Math.Abs(target.Position.X - Position.X);
         _target = target;
+        _bullet = Bullet.Position;
         _explosion = HitExplosion.Position;
         _hit = hit;
 
         MuzzleFlash.Play();
-        MuzzleFlash.Visible = true;
-        Bullet.Visible = true;
+        MuzzleFlash.Visible = Bullet.Visible = true;
         PropertyTweener animation = CreateTween().TweenProperty(Bullet, new(Sprite2D.PropertyName.Position), Bullet.Position + Vector2.Right*distance, distance/BulletSpeed);
         animation.Finished += () => {
             EmitSignal(SignalName.AttackStrike);
@@ -62,7 +63,7 @@ public partial class ShortTankCombatAnimations : CombatAnimations
         {
             Bullet.Visible = false;
             HitExplosion.Position = Bullet.Position;
-            Bullet.Position = MuzzleFlash.Position;
+            Bullet.Position = _bullet;
             HitExplosion.Visible = true;
             HitExplosion.Play();
             await ToSignal(HitExplosion, AnimatedSprite2D.SignalName.AnimationFinished);
@@ -86,27 +87,27 @@ public partial class ShortTankCombatAnimations : CombatAnimations
         EmitSignal(SignalName.AnimationFinished);
     }
 
-    public override Task BeginDodge(CombatAnimations attacker) { throw new System.NotImplementedException(); }
+    public override Task BeginDodge(CombatAnimations attacker) { throw new NotImplementedException(); }
 
     public override Task BeginSupport(CombatAnimations target)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public override Task FinishDodge()
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public override Task FinishSupport()
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public override Task TakeHit(CombatAnimations attacker) { return Task.CompletedTask; }
 
     public override Task Die()
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 }
