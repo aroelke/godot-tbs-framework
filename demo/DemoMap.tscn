@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=26 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsTemplate/Scenes/Level/Map/Grid.tscn" id="2_oeidl"]
@@ -23,6 +23,17 @@
 [ext_resource type="PackedScene" uid="uid://djsdk3bbrh181" path="res://src/TbsTemplate/Scenes/Level/Control/MoveBehavior.tscn" id="17_e23bw"]
 [ext_resource type="PackedScene" uid="uid://bbanldfbqkktf" path="res://src/TbsTemplate/Scenes/Level/Control/InRangeSwitchCondition.tscn" id="17_ss7xl"]
 [ext_resource type="Resource" uid="uid://chjjd5sn6y2jw" path="res://demo/factions/DemoAllyFaction.tres" id="20_6hgq8"]
+
+[sub_resource type="Resource" id="Resource_6w1sg"]
+script = ExtResource("15_e23bw")
+Health = 10
+Attack = 1
+Defense = 0
+Healing = 1
+Accuracy = 100
+Evasion = 0
+Agility = 1
+Move = 5
 
 [sub_resource type="Resource" id="Resource_qidbu"]
 script = ExtResource("15_e23bw")
@@ -74,6 +85,7 @@ PathTerrain = 0
 [node name="PlayerA" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(96, 144)
 Class = ExtResource("12_qidbu")
+SupportRange = PackedInt32Array(1)
 Grid = NodePath("../../Grid")
 Cell = Vector2i(6, 9)
 Size = Vector2(16, 16)
@@ -81,6 +93,7 @@ Size = Vector2(16, 16)
 [node name="PlayerB" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(112, 128)
 Class = ExtResource("12_qidbu")
+SupportRange = PackedInt32Array(1)
 Grid = NodePath("../../Grid")
 Cell = Vector2i(7, 8)
 Size = Vector2(16, 16)
@@ -88,6 +101,7 @@ Size = Vector2(16, 16)
 [node name="PlayerC" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(128, 144)
 Class = ExtResource("12_qidbu")
+SupportRange = PackedInt32Array(1)
 Grid = NodePath("../../Grid")
 Cell = Vector2i(8, 9)
 Size = Vector2(16, 16)
@@ -95,6 +109,8 @@ Size = Vector2(16, 16)
 [node name="PlayerD" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(112, 160)
 Class = ExtResource("12_qidbu")
+Stats = SubResource("Resource_6w1sg")
+SupportRange = PackedInt32Array(1)
 Grid = NodePath("../../Grid")
 Cell = Vector2i(7, 10)
 Size = Vector2(16, 16)

@@ -93,6 +93,12 @@ public partial class DemoCombatScene : CombatScene
                 }
                 await Task.WhenAll(_animations[action.Actor].FinishAttack(), Delay(HitDelay));
                 break;
+            case CombatActionType.Support:
+                await _animations[action.Actor].BeginSupport(_animations[action.Target]);
+                _infos[action.Target].Health.Value -= action.Damage;
+                await Delay(HitDelay);
+                await _animations[action.Actor].FinishSupport();
+                break;
             default:
                 break;
             }

@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://bwmdojktawhjy"]
+[gd_scene load_steps=20 format=3 uid="uid://bwmdojktawhjy"]
 
 [ext_resource type="Script" uid="uid://dm0rfqq5316r1" path="res://demo/unit/LongTankCombatAnimations.cs" id="1_ptwue"]
 [ext_resource type="Texture2D" uid="uid://dajswi5e828y2" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tanks_tankTracks1.png" id="2_46g3h"]
@@ -15,6 +15,8 @@
 [ext_resource type="Texture2D" uid="uid://dd0pingl14pj4" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tank_explosion2.png" id="13_uuiq3"]
 [ext_resource type="Texture2D" uid="uid://c436wwgovwdk1" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tank_explosion3.png" id="14_1yiva"]
 [ext_resource type="Texture2D" uid="uid://b24i4fdvbo46d" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tank_explosion4.png" id="15_hmmrj"]
+[ext_resource type="Texture2D" uid="uid://t0rrdisgsqlh" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tank_arrowEmpty.png" id="16_1yiva"]
+[ext_resource type="Script" uid="uid://xf7nwa5ddwrd" path="res://src/TbsTemplate/Nodes/BoundedNode2D.cs" id="17_hmmrj"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_uuiq3"]
 animations = [{
@@ -96,6 +98,23 @@ offset = Vector2(40, 0)
 visible = false
 position = Vector2(0, -30)
 sprite_frames = SubResource("SpriteFrames_5y0hm")
+
+[node name="HealBeam" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(0, -30)
+texture = ExtResource("16_1yiva")
+
+[node name="HealCircle" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(0, -30)
+texture = ExtResource("10_1xm4j")
+
+[node name="BoundingBox" type="Node2D" parent="."]
+position = Vector2(-42, -39)
+script = ExtResource("17_hmmrj")
+Size = Vector2(84, 64)
+DrawBoundingBox = true
+metadata/_custom_type_script = "uid://xf7nwa5ddwrd"
 
 [connection signal="animation_finished" from="MuzzleFlash" to="." method="OnMuzzleFlashFinished"]
 [connection signal="animation_finished" from="HitExplosion" to="." method="OnHitExplosionFinished"]

@@ -12,9 +12,12 @@ public partial class LongTankCombatAnimations : CombatAnimations
     private Sprite2D         Missile      => _cache.GetNode<Sprite2D>("Missile");
     private AnimatedSprite2D MuzzleFlash  => _cache.GetNode<AnimatedSprite2D>("MuzzleFlash");
     private AnimatedSprite2D HitExplosion => _cache.GetNode<AnimatedSprite2D>("HitExplosion");
+    private Sprite2D         HealBeam     => _cache.GetNode<Sprite2D>("HealBeam");
+    private Sprite2D         HealCircle   => _cache.GetNode<Sprite2D>("HealCircle");
 
     private Vector2 _missile = Vector2.Zero;
     private Vector2 _explosion = Vector2.Zero;
+    private Vector2 _beam = Vector2.Zero;
 
     public override Vector2 ContactPoint => throw new NotImplementedException();
 
@@ -27,6 +30,8 @@ public partial class LongTankCombatAnimations : CombatAnimations
     [Export(PropertyHint.None, "suffix:px/s/s")] public double Gravity = 750;
 
     [Export(PropertyHint.None, "suffix:s")] public double CannonMoveTime = 0.75;
+
+    [Export(PropertyHint.None, "suffix:s")] public double BeamTravelTime = 1.5;
 
     public LongTankCombatAnimations() : base() { _cache = new(this); }
 
@@ -105,14 +110,27 @@ public partial class LongTankCombatAnimations : CombatAnimations
         throw new NotImplementedException();
     }
 
-    public override Task BeginSupport(CombatAnimations target)
+    public override async Task BeginSupport(CombatAnimations target)
     {
-        throw new NotImplementedException();
+        _beam = HealBeam.Position;
+        HealBeam.Visible = true;
+        PropertyTweener animation = CreateTween()
+            .TweenProperty(HealBeam, new(Sprite2D.PropertyName.Position), new Vector2(target.Position.X - Position.X, HealBeam.Position.Y), BeamTravelTime)
+            .SetTrans(Tween.TransitionType.Quad).SetEase(Tween.EaseType.Out);
+        animation.Finished += () => {
+            HealCircle.Position = HealBeam.Position;
+            HealCircle.Visible = true;
+            HealBeam.Visible = false;
+            EmitSignal(SignalName.AnimationFinished);
+        };
+        await ToSignal(animation, PropertyTweener.SignalName.Finished);
     }
 
     public override Task FinishSupport()
     {
-        throw new NotImplementedException();
+        HealBeam.Position = HealCircle.Position = _beam;
+        HealCircle.Visible = false;
+        return Task.CompletedTask;
     }
 
     public override Task Die()
