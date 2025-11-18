@@ -103,9 +103,13 @@ public partial class DemoCombatScene : CombatScene
                 break;
             }
 
+            foreach ((_, CombatantData data) in _infos)
+                if (data.Health.Value <= 0)
+                     goto Done;
             await Delay(TurnDelay);
         }
 
+    Done:
         TransitionDelay.Start();
     }
 
