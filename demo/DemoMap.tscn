@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=27 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsTemplate/Scenes/Level/Map/Grid.tscn" id="2_oeidl"]
@@ -45,6 +45,18 @@ Accuracy = 0
 Evasion = 0
 Agility = 1
 Move = 5
+
+[sub_resource type="Resource" id="Resource_wvprl"]
+script = ExtResource("15_e23bw")
+Health = 10
+Attack = 1
+Defense = 0
+Healing = 0
+Accuracy = 100
+Evasion = 100
+Agility = 1
+Move = 5
+metadata/_custom_type_script = "uid://cdy07gqijlx5a"
 
 [node name="DemoMap" type="Node"]
 
@@ -179,6 +191,7 @@ Size = Vector2(16, 16)
 
 [node name="EnemyH" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(192, 128)
+Stats = SubResource("Resource_wvprl")
 Grid = NodePath("../../Grid")
 Cell = Vector2i(12, 8)
 Size = Vector2(16, 16)

@@ -15,9 +15,13 @@ public partial class LongTankCombatAnimations : CombatAnimations
     private Sprite2D         HealBeam     => _cache.GetNode<Sprite2D>("HealBeam");
     private Sprite2D         HealCircle   => _cache.GetNode<Sprite2D>("HealCircle");
 
+    private bool _hit = true;
+    private CombatAnimations _target = null;
     private Vector2 _missile = Vector2.Zero;
     private Vector2 _explosion = Vector2.Zero;
     private Vector2 _beam = Vector2.Zero;
+
+    private double ComputeLaunchAngle(double distance) => Math.Asin(Gravity*distance/(MissileSpeed*MissileSpeed))/2;
 
     public override Vector2 ContactPoint => throw new NotImplementedException();
 
@@ -46,11 +50,13 @@ public partial class LongTankCombatAnimations : CombatAnimations
 
     public async override Task BeginAttack(CombatAnimations target, bool hit)
     {
+        _hit = hit;
+        _target = target;
         _missile = Missile.Position;
         _explosion = HitExplosion.Position;
 
-        double distance = Math.Abs(target.Position.X - Position.X);
-        float theta = (float)Math.Asin(Gravity*distance/(MissileSpeed*MissileSpeed))/2;
+        double distance = Math.Abs(_target.Position.X - Position.X);
+        float theta = (float)ComputeLaunchAngle(distance);
         Vector2 position = Missile.Position;
         Vector2 velocity = new((float)(MissileSpeed*Math.Cos(theta)), -(float)(MissileSpeed*Math.Sin(theta)));
         double duration = distance/velocity.X;
@@ -77,15 +83,31 @@ public partial class LongTankCombatAnimations : CombatAnimations
 
     public override async Task FinishAttack()
     {
-        HitExplosion.Position = Missile.Position;
-        Missile.Visible = false;
-        Missile.Position = _missile;
-        HitExplosion.Visible = true;
-        HitExplosion.Play();
+        if (_hit)
+        {
+            HitExplosion.Position = Missile.Position;
+            Missile.Visible = false;
+            Missile.Position = _missile;
+            HitExplosion.Visible = true;
 
-        CreateTween().TweenProperty(Cannon, new(Sprite2D.PropertyName.Rotation), 0, CannonMoveTime);
+            HitExplosion.Play();
+            CreateTween().TweenProperty(Cannon, new(Sprite2D.PropertyName.Rotation), 0, CannonMoveTime);
+            await ToSignal(HitExplosion, AnimatedSprite2D.SignalName.AnimationFinished);
+        }
+        else
+        {
+            float theta = (float)ComputeLaunchAngle(Math.Abs(_target.Position.X - Position.X));
+            Vector2 velocity = new((float)(MissileSpeed*Math.Cos(theta)), (float)(MissileSpeed*Math.Sin(theta)));
+            const double duration = 0.5;
 
-        await ToSignal(HitExplosion, AnimatedSprite2D.SignalName.AnimationFinished);
+            PropertyTweener animation = CreateTween().TweenProperty(Missile, new(Sprite2D.PropertyName.Position), Missile.Position + velocity*(float)duration, duration);
+            animation.Finished += () => {
+                Missile.Visible = false;
+                Missile.Position = _missile;
+                EmitSignal(SignalName.AnimationFinished);
+            };
+            await ToSignal(animation, PropertyTweener.SignalName.Finished);
+        }
     }
 
     public void OnHitExplosionFinished()
