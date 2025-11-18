@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://vi8ghciaihpi"]
+
+[ext_resource type="PackedScene" uid="uid://bwmdojktawhjy" path="res://demo/unit/LongTankCombatAnimations.tscn" id="1_l5wat"]
+[ext_resource type="Texture2D" uid="uid://cxjvenwvct18s" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tanks_tankGreen_body1.png" id="2_fclo3"]
+
+[node name="LongTankCombatAnimationsAlly" instance=ExtResource("1_l5wat")]
+
+[node name="Body" parent="." index="2"]
+texture = ExtResource("2_fclo3")

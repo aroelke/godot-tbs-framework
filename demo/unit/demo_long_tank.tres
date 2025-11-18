@@ -29,6 +29,11 @@ ExtResource("7_ksa23"): "uid://cqrf4toryh15a",
 ExtResource("9_krsmh"): "uid://82p0rucxr2mp"
 })
 DefaultMapAnimationsPath = "uid://cikey3vro6fs7"
-CombatAnimationsPaths = Dictionary[ExtResource("1_6hy2a"), String]({})
+CombatAnimationsPaths = Dictionary[ExtResource("1_6hy2a"), String]({
+ExtResource("3_pnx3k"): "uid://0hg4eipcyuaf",
+ExtResource("5_lne3p"): "uid://nydw7n4u1if",
+ExtResource("7_ksa23"): "uid://0v2ud2ir2es4",
+ExtResource("9_krsmh"): "uid://vi8ghciaihpi"
+})
 DefaultCombatAnimationsPath = "uid://bwmdojktawhjy"
 metadata/_custom_type_script = "uid://hpaxa78srpai"
