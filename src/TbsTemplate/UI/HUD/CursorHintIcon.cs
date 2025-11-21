@@ -28,10 +28,22 @@ public partial class CursorHintIcon : HBoxContainer
 
     private Texture2D GetKeyIcon(Key key) => KeyMap.ContainsKey(key) ? KeyMap[key] : null;
 
-    private void Update(InputDevice device)
+    private void SelectDevice(InputDevice device)
     {
         foreach ((InputDevice d, Control i) in _icons)
             i.Visible = d == device;   
+    }
+
+    private void UpdateIcons()
+    {
+        UpKeyIcon.Texture    = GetKeyIcon(InputManager.GetInputKeycode(InputManager.DigitalMoveUp));
+        LeftKeyIcon.Texture  = GetKeyIcon(InputManager.GetInputKeycode(InputManager.DigitalMoveLeft));
+        DownKeyIcon.Texture  = GetKeyIcon(InputManager.GetInputKeycode(InputManager.DigitalMoveDown));
+        RightKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputManager.DigitalMoveRight));
+        MouseIcon.Texture = MouseMap.Motion;
+
+        GamepadIcon.ButtonMap = ButtonMap;
+        GamepadIcon.AxisMap = AxisMap;
     }
 
     /// <summary>Mapping of <see cref="MouseButton"/> onto icon to display.</summary>
@@ -50,11 +62,7 @@ public partial class CursorHintIcon : HBoxContainer
     public InputDevice SelectedDevice
     {
         get => _selected;
-        set
-        {
-            if (_selected != value)
-                Update(_selected = value);
-        }
+        set => SelectDevice(_selected = value);
     }
 
     public CursorHintIcon() : base() { _cache = new(this); }
@@ -68,7 +76,7 @@ public partial class CursorHintIcon : HBoxContainer
         base._EnterTree();
 
         if (Engine.IsEditorHint())
-            Update(SelectedDevice);
+            SelectDevice(SelectedDevice);
         else
         {
             SelectedDevice = DeviceManager.Device;
@@ -82,6 +90,7 @@ public partial class CursorHintIcon : HBoxContainer
 
         if (!Engine.IsEditorHint())
         {
+            UpdateIcons();
             _icons = new()
             {
                 { InputDevice.Mouse,    MouseIcon    },
@@ -89,7 +98,7 @@ public partial class CursorHintIcon : HBoxContainer
                 { InputDevice.Gamepad,  GamepadIcon  }
             };
             SelectedDevice = DeviceManager.Device;
-            Update(SelectedDevice);
+            SelectDevice(SelectedDevice);
         }
     }
 
@@ -97,16 +106,7 @@ public partial class CursorHintIcon : HBoxContainer
     {
         base._Process(delta);
         if (Engine.IsEditorHint())
-        {
-            UpKeyIcon.Texture    = GetKeyIcon(InputManager.GetInputKeycode(InputManager.DigitalMoveUp));
-            LeftKeyIcon.Texture  = GetKeyIcon(InputManager.GetInputKeycode(InputManager.DigitalMoveLeft));
-            DownKeyIcon.Texture  = GetKeyIcon(InputManager.GetInputKeycode(InputManager.DigitalMoveDown));
-            RightKeyIcon.Texture = GetKeyIcon(InputManager.GetInputKeycode(InputManager.DigitalMoveRight));
-            MouseIcon.Texture = MouseMap.Motion;
-
-            GamepadIcon.ButtonMap = ButtonMap;
-            GamepadIcon.AxisMap = AxisMap;
-        }
+            UpdateIcons();
     }
 
     public override void _ExitTree()
