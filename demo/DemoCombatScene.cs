@@ -11,6 +11,7 @@ using TbsTemplate.Scenes.Combat;
 using TbsTemplate.Scenes.Combat.Data;
 using TbsTemplate.Scenes.Level.Object;
 using TbsTemplate.UI;
+using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.Demo;
 
@@ -23,6 +24,7 @@ public partial class DemoCombatScene : CombatScene
     private readonly Dictionary<Unit, CombatAnimations> _animations = [];
     private readonly Dictionary<Unit, CombatantData> _infos = [];
     private double _remaining = 0;
+    private bool _canceled = false;
 
     private Camera2DController Camera          => _cache.GetNode<Camera2DController>("Camera");
     private Timer              TransitionDelay => _cache.GetNode<Timer>("TransitionDelay");
@@ -110,13 +112,26 @@ public partial class DemoCombatScene : CombatScene
         }
 
     Done:
-        TransitionDelay.Start();
+        if (!_canceled)
+            TransitionDelay.Start();
     }
 
     public void End()
     {
-        SceneManager.Singleton.Connect<Node>(SceneManager.SignalName.SceneLoaded, _ => QueueFree(), (uint)ConnectFlags.OneShot);
-        SceneManager.ReturnToPreviousScene();
+        if (!_canceled)
+        {
+            TransitionDelay.Stop();
+            _canceled = true;
+            SceneManager.Singleton.Connect<Node>(SceneManager.SignalName.SceneLoaded, _ => QueueFree(), (uint)ConnectFlags.OneShot);
+            SceneManager.ReturnToPreviousScene();
+        }
+    }
+
+    public override void _Input(InputEvent @event)
+    {
+        base._Input(@event);
+        if (@event.IsActionPressed(InputManager.Cancel))
+            End();
     }
 
     public override void _Process(double delta)
