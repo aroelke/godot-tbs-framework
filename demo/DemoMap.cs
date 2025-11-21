@@ -1,5 +1,8 @@
 using System.Linq;
 using Godot;
+using TbsTemplate.Extensions;
+using TbsTemplate.Scenes.Level.Events;
+using TbsTemplate.Scenes.Level.Object.Group;
 using TbsTemplate.UI.Controls.Device;
 using TbsTemplate.UI.HUD;
 
@@ -7,6 +10,13 @@ namespace TbsTemplate.Demo;
 
 public partial class DemoMap : Node
 {
+    public void OnTurnBegan(int turn, Army army)
+    {
+        Label label = GetNode<Label>("CanvasLayer/HUD/Status/TurnLabel");
+        label.AddThemeColorOverride("font_color", army.Faction.Color);
+        label.Text = $"Turn {turn}: {army.Faction.Name}";
+    }
+
     public void OnEnabledInputActionsUpdated(StringName[] actions)
     {
         foreach (ControlHint hint in GetNode("CanvasLayer/HUD/Hints").GetChildren().OfType<ControlHint>())
@@ -15,5 +25,12 @@ public partial class DemoMap : Node
             InputManager.DigitalMoveUp, InputManager.DigitalMoveLeft, InputManager.DigitalMoveDown, InputManager.DigitalMoveRight,
             InputManager.AnalogMoveUp,  InputManager.AnalogMoveLeft,  InputManager.AnalogMoveDown,  InputManager.AnalogMoveRight
         ]).Any();
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+        if (!Engine.IsEditorHint())
+            LevelEvents.Singleton.Connect<int, Army>(LevelEvents.SignalName.TurnBegan, OnTurnBegan);
     }
 }

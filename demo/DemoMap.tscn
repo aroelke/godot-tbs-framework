@@ -1,4 +1,4 @@
-[gd_scene load_steps=41 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=42 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="Script" uid="uid://c2joupgp3ohcx" path="res://demo/DemoMap.cs" id="1_npakb"]
@@ -35,6 +35,7 @@
 [ext_resource type="PackedScene" uid="uid://bi38gny50edyk" path="res://src/TbsTemplate/Scenes/Level/Objectives/RouteObjective.tscn" id="29_c7alg"]
 [ext_resource type="PackedScene" uid="uid://bdxrle0amq3ew" path="res://src/TbsTemplate/Scenes/Level/Objectives/TimeObjective.tscn" id="30_xri0l"]
 [ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/TbsTemplate/UI/HUD/CursorHintIcon.tscn" id="34_0sxdy"]
+[ext_resource type="Theme" uid="uid://by6euruicgqv" path="res://demo/assets/ui/ui.tres" id="35_dxofe"]
 [ext_resource type="Resource" uid="uid://cu80svtcky350" path="res://demo/assets/ui/icon_map_mouse.tres" id="35_mogvl"]
 [ext_resource type="Resource" uid="uid://scrs41kvnxyt" path="res://demo/assets/ui/icon_map_keyboard.tres" id="36_npakb"]
 [ext_resource type="Resource" uid="uid://bovrp7fmo4rn5" path="res://demo/assets/ui/icon_map_button.tres" id="37_dxofe"]
@@ -392,11 +393,35 @@ Turns = 5
 
 [node name="HUD" type="Control" parent="CanvasLayer"]
 layout_mode = 3
-anchors_preset = 2
-anchor_top = 1.0
+anchors_preset = 15
+anchor_right = 1.0
 anchor_bottom = 1.0
-grow_vertical = 0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
+theme = ExtResource("35_dxofe")
+
+[node name="Status" type="VBoxContainer" parent="CanvasLayer/HUD"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 23.0
+grow_horizontal = 2
+size_flags_horizontal = 0
+
+[node name="TurnLabel" type="Label" parent="CanvasLayer/HUD/Status"]
+layout_mode = 2
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 32
+text = "Turn 1: Player"
+
+[node name="SuccessLabel" type="Label" parent="CanvasLayer/HUD/Status"]
+layout_mode = 2
+text = "Success: Route Enemy, Capture, or Defeat Boss"
+
+[node name="FailureLabel" type="Label" parent="CanvasLayer/HUD/Status"]
+layout_mode = 2
+text = "Failure: All Player Units Defeated, Ally Defeated, or 5 Turns Pass"
 
 [node name="Hints" type="HBoxContainer" parent="CanvasLayer/HUD"]
 layout_mode = 1
@@ -404,7 +429,7 @@ anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_top = -42.0
-offset_right = 276.0
+offset_right = 504.0
 grow_vertical = 0
 
 [node name="CursorHint" parent="CanvasLayer/HUD/Hints" instance=ExtResource("34_0sxdy")]
