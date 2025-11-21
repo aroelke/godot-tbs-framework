@@ -28,4 +28,3 @@ Icons = Dictionary[int, Texture2D]({
 4194321: ExtResource("3_xkdj2"),
 4194322: ExtResource("1_8fecj")
 })
-metadata/_custom_type_script = "uid://bo4a5vlu0dm1n"
