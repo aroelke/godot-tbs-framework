@@ -140,9 +140,8 @@ public partial class ControlHint : HBoxContainer
     {
         base._EnterTree();
 
-        if (Engine.IsEditorHint())
-            Update(SelectedDevice, Action);
-        else
+        Update(SelectedDevice, Action);
+        if (!Engine.IsEditorHint())
         {
             SelectedDevice = DeviceManager.Device;
             DeviceManager.Singleton.InputDeviceChanged += OnInputDeviceChanged;

@@ -79,6 +79,7 @@ public partial class CursorHintIcon : HBoxContainer
             SelectDevice(SelectedDevice);
         else
         {
+            UpdateIcons();
             SelectedDevice = DeviceManager.Device;
             DeviceManager.Singleton.InputDeviceChanged += OnInputDeviceChanged;
         }
@@ -90,7 +91,6 @@ public partial class CursorHintIcon : HBoxContainer
 
         if (!Engine.IsEditorHint())
         {
-            UpdateIcons();
             _icons = new()
             {
                 { InputDevice.Mouse,    MouseIcon    },
