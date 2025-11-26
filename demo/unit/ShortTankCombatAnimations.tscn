@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://ds8tasupxnu0q"]
+[gd_scene load_steps=21 format=3 uid="uid://ds8tasupxnu0q"]
 
 [ext_resource type="Script" uid="uid://bdox6os0o4wea" path="res://demo/unit/ShortTankCombatAnimations.cs" id="1_ghh7o"]
 [ext_resource type="Texture2D" uid="uid://calc7axofl2tu" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tanks_turret3.png" id="2_bs5eo"]
@@ -14,7 +14,10 @@
 [ext_resource type="Texture2D" uid="uid://ccnnep7hyih1o" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tank_explosion6.png" id="12_c4dmf"]
 [ext_resource type="Texture2D" uid="uid://crcd7tkqsfi6" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tank_explosion8.png" id="15_a4e1b"]
 [ext_resource type="Script" uid="uid://xf7nwa5ddwrd" path="res://src/TbsTemplate/Nodes/BoundedNode2D.cs" id="15_s0jx3"]
+[ext_resource type="AudioStream" uid="uid://djegutvubsy13" path="res://demo/assets/combat/sounds/weapons/shoot5.wav" id="16_e8t2e"]
 [ext_resource type="Texture2D" uid="uid://dy8ddhfx5fnxq" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tank_explosion7.png" id="16_stbg6"]
+[ext_resource type="AudioStream" uid="uid://byawd1f1aatdq" path="res://demo/assets/combat/sounds/weapons/explosion.wav" id="17_ntw8k"]
+[ext_resource type="AudioStream" uid="uid://7tj682jd1cii" path="res://demo/assets/combat/sounds/abstract/woosh.wav" id="18_ntw8k"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_17jyc"]
 animations = [{
@@ -100,6 +103,15 @@ script = ExtResource("15_s0jx3")
 Size = Vector2(82, 60)
 DrawBoundingBox = true
 metadata/_custom_type_script = "uid://xf7nwa5ddwrd"
+
+[node name="ShootSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("16_e8t2e")
+
+[node name="HitSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("17_ntw8k")
+
+[node name="MissSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("18_ntw8k")
 
 [connection signal="animation_finished" from="MuzzleFlash" to="." method="OnMuzzleFlashFinished"]
 [connection signal="animation_finished" from="HitExplosion" to="." method="OnHitExplosionFinished"]

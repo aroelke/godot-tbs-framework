@@ -9,9 +9,12 @@ namespace TbsTemplate.Demo;
 public partial class ShortTankCombatAnimations : CombatAnimations
 {
     private readonly NodeCache _cache = null;
-    private Sprite2D         Bullet       => _cache.GetNode<Sprite2D>("Bullet");
-    private AnimatedSprite2D MuzzleFlash  => _cache.GetNode<AnimatedSprite2D>("MuzzleFlash");
-    private AnimatedSprite2D HitExplosion => _cache.GetNode<AnimatedSprite2D>("HitExplosion");
+    private Sprite2D          Bullet       => _cache.GetNode<Sprite2D>("Bullet");
+    private AnimatedSprite2D  MuzzleFlash  => _cache.GetNode<AnimatedSprite2D>("MuzzleFlash");
+    private AnimatedSprite2D  HitExplosion => _cache.GetNode<AnimatedSprite2D>("HitExplosion");
+    private AudioStreamPlayer ShootSound   => _cache.GetNode<AudioStreamPlayer>("ShootSound");
+    private AudioStreamPlayer HitSound     => _cache.GetNode<AudioStreamPlayer>("HitSound");
+    private AudioStreamPlayer MissSound    => _cache.GetNode<AudioStreamPlayer>("MissSound"); 
 
     private CombatAnimations _target = null;
     private Vector2 _bullet = Vector2.Zero;
@@ -46,6 +49,7 @@ public partial class ShortTankCombatAnimations : CombatAnimations
         _hit = hit;
 
         MuzzleFlash.Play();
+        ShootSound.Play();
         MuzzleFlash.Visible = Bullet.Visible = true;
         PropertyTweener animation = CreateTween().TweenProperty(Bullet, new(Sprite2D.PropertyName.Position), Bullet.Position + Vector2.Right*distance, distance/BulletSpeed);
         animation.Finished += () => {
@@ -66,10 +70,12 @@ public partial class ShortTankCombatAnimations : CombatAnimations
             Bullet.Position = _bullet;
             HitExplosion.Visible = true;
             HitExplosion.Play();
+            HitSound.Play();
             await ToSignal(HitExplosion, AnimatedSprite2D.SignalName.AnimationFinished);
         }
         else
         {
+            MissSound.Play();
             PropertyTweener animation = CreateTween().TweenProperty(Bullet, new(Sprite2D.PropertyName.Position), Bullet.Position + Vector2.Right*OvershootDistance, OvershootDistance/BulletSpeed);
             animation.Finished += () => {
                 Bullet.Visible = false;

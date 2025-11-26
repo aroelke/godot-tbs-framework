@@ -8,12 +8,15 @@ namespace TbsTemplate.Demo;
 public partial class LongTankCombatAnimations : CombatAnimations
 {
     private readonly NodeCache _cache = null;
-    private Sprite2D         Cannon       => _cache.GetNode<Sprite2D>("Cannon");
-    private Sprite2D         Missile      => _cache.GetNode<Sprite2D>("Missile");
-    private AnimatedSprite2D MuzzleFlash  => _cache.GetNode<AnimatedSprite2D>("MuzzleFlash");
-    private AnimatedSprite2D HitExplosion => _cache.GetNode<AnimatedSprite2D>("HitExplosion");
-    private Sprite2D         HealBeam     => _cache.GetNode<Sprite2D>("HealBeam");
-    private Sprite2D         HealCircle   => _cache.GetNode<Sprite2D>("HealCircle");
+    private Sprite2D          Cannon       => _cache.GetNode<Sprite2D>("Cannon");
+    private Sprite2D          Missile      => _cache.GetNode<Sprite2D>("Missile");
+    private AnimatedSprite2D  MuzzleFlash  => _cache.GetNode<AnimatedSprite2D>("MuzzleFlash");
+    private AnimatedSprite2D  HitExplosion => _cache.GetNode<AnimatedSprite2D>("HitExplosion");
+    private Sprite2D          HealBeam     => _cache.GetNode<Sprite2D>("HealBeam");
+    private Sprite2D          HealCircle   => _cache.GetNode<Sprite2D>("HealCircle");
+    private AudioStreamPlayer ShootSound   => _cache.GetNode<AudioStreamPlayer>("ShootSound");
+    private AudioStreamPlayer HitSound     => _cache.GetNode<AudioStreamPlayer>("HitSound");
+    private AudioStreamPlayer MissSound    => _cache.GetNode<AudioStreamPlayer>("MissSound"); 
 
     private bool _hit = true;
     private CombatAnimations _target = null;
@@ -24,9 +27,7 @@ public partial class LongTankCombatAnimations : CombatAnimations
     private double ComputeLaunchAngle(double distance) => Math.Asin(Gravity*distance/(MissileSpeed*MissileSpeed))/2;
 
     public override Vector2 ContactPoint => throw new NotImplementedException();
-
     public override Rect2 BoundingBox => throw new NotImplementedException();
-
     public override float AnimationSpeedScale { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
     [Export(PropertyHint.None, "suffix:px/s")] public double MissileSpeed = 600;
@@ -69,9 +70,11 @@ public partial class LongTankCombatAnimations : CombatAnimations
         CreateTween().TweenProperty(Cannon, new(Sprite2D.PropertyName.Rotation), -theta, CannonMoveTime).Finished += () => {
             MuzzleFlash.Rotation = -theta;
             MuzzleFlash.Play();
+            ShootSound.Play();
             MuzzleFlash.Visible = Missile.Visible = true;
             MethodTweener animation = CreateTween().TweenMethod(Callable.From<double>(MoveMissile), 0f, duration, duration);
             animation.Finished += () => {
+                CreateTween().TweenProperty(Cannon, new(Sprite2D.PropertyName.Rotation), 0, CannonMoveTime);
                 EmitSignal(SignalName.AttackStrike);
                 EmitSignal(SignalName.AnimationFinished);
             };
@@ -91,7 +94,7 @@ public partial class LongTankCombatAnimations : CombatAnimations
             HitExplosion.Visible = true;
 
             HitExplosion.Play();
-            CreateTween().TweenProperty(Cannon, new(Sprite2D.PropertyName.Rotation), 0, CannonMoveTime);
+            HitSound.Play();
             await ToSignal(HitExplosion, AnimatedSprite2D.SignalName.AnimationFinished);
         }
         else
@@ -100,6 +103,7 @@ public partial class LongTankCombatAnimations : CombatAnimations
             Vector2 velocity = new((float)(MissileSpeed*Math.Cos(theta)), (float)(MissileSpeed*Math.Sin(theta)));
             const double duration = 0.5;
 
+            MissSound.Play();
             PropertyTweener animation = CreateTween().TweenProperty(Missile, new(Sprite2D.PropertyName.Position), Missile.Position + velocity*(float)duration, duration);
             animation.Finished += () => {
                 Missile.Visible = false;
