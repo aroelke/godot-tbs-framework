@@ -14,7 +14,8 @@ public partial class ShortTankCombatAnimations : CombatAnimations
     private AnimatedSprite2D  HitExplosion => _cache.GetNode<AnimatedSprite2D>("HitExplosion");
     private AudioStreamPlayer ShootSound   => _cache.GetNode<AudioStreamPlayer>("ShootSound");
     private AudioStreamPlayer HitSound     => _cache.GetNode<AudioStreamPlayer>("HitSound");
-    private AudioStreamPlayer MissSound    => _cache.GetNode<AudioStreamPlayer>("MissSound"); 
+    private AudioStreamPlayer MissSound    => _cache.GetNode<AudioStreamPlayer>("MissSound");
+    private AudioStreamPlayer DeathSound   => _cache.GetNode<AudioStreamPlayer>("DeathSound");
 
     private CombatAnimations _target = null;
     private Vector2 _bullet = Vector2.Zero;
@@ -28,6 +29,8 @@ public partial class ShortTankCombatAnimations : CombatAnimations
     [Export(PropertyHint.None, "suffix:px/s")] public float BulletSpeed = 600;
 
     [Export(PropertyHint.None, "suffix:px")] public float OvershootDistance = 100;
+
+    [Export(PropertyHint.None, "suffix:s")] public double DeathTime = 0.5;
 
     public ShortTankCombatAnimations() : base()  { _cache = new(this); }
 
@@ -112,8 +115,10 @@ public partial class ShortTankCombatAnimations : CombatAnimations
 
     public override Task TakeHit(CombatAnimations attacker) { return Task.CompletedTask; }
 
-    public override Task Die()
+    public override async Task Die()
     {
-        throw new NotImplementedException();
+        DeathSound.Play();
+        PropertyTweener animation = CreateTween().TweenProperty(this, new(PropertyName.Modulate), Colors.Transparent, DeathTime);
+        await ToSignal(animation, PropertyTweener.SignalName.Finished);
     }
 }

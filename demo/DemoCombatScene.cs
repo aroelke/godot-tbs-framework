@@ -105,9 +105,15 @@ public partial class DemoCombatScene : CombatScene
                 break;
             }
 
-            foreach ((_, CombatantData data) in _infos)
+            foreach ((Unit unit, CombatantData data) in _infos)
+            {
                 if (data.Health.Value <= 0)
-                     goto Done;
+                {
+                    await Delay(HitDelay);
+                    await _animations[unit].Die();
+                    goto Done;
+                }
+            }
             await Delay(TurnDelay);
         }
 

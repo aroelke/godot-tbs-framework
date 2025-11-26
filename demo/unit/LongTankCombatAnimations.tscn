@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://bwmdojktawhjy"]
+[gd_scene load_steps=25 format=3 uid="uid://bwmdojktawhjy"]
 
 [ext_resource type="Script" uid="uid://dm0rfqq5316r1" path="res://demo/unit/LongTankCombatAnimations.cs" id="1_ptwue"]
 [ext_resource type="Texture2D" uid="uid://dajswi5e828y2" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tanks_tankTracks1.png" id="2_46g3h"]
@@ -21,6 +21,7 @@
 [ext_resource type="AudioStream" uid="uid://byawd1f1aatdq" path="res://demo/assets/combat/sounds/weapons/explosion.wav" id="19_7j1h5"]
 [ext_resource type="AudioStream" uid="uid://7tj682jd1cii" path="res://demo/assets/combat/sounds/abstract/woosh.wav" id="20_xr6ru"]
 [ext_resource type="AudioStream" uid="uid://o6mnkxwojrsj" path="res://demo/assets/combat/sounds/abstract/bell.wav" id="21_7j1h5"]
+[ext_resource type="AudioStream" uid="uid://cmoa4683y73tl" path="res://demo/assets/combat/sounds/abstract/perish.wav" id="22_xr6ru"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_uuiq3"]
 animations = [{
@@ -131,6 +132,9 @@ stream = ExtResource("20_xr6ru")
 
 [node name="HealSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("21_7j1h5")
+
+[node name="DeathSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("22_xr6ru")
 
 [connection signal="animation_finished" from="MuzzleFlash" to="." method="OnMuzzleFlashFinished"]
 [connection signal="animation_finished" from="HitExplosion" to="." method="OnHitExplosionFinished"]

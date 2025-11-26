@@ -18,6 +18,7 @@ public partial class LongTankCombatAnimations : CombatAnimations
     private AudioStreamPlayer HitSound     => _cache.GetNode<AudioStreamPlayer>("HitSound");
     private AudioStreamPlayer MissSound    => _cache.GetNode<AudioStreamPlayer>("MissSound");
     private AudioStreamPlayer HealSound    => _cache.GetNode<AudioStreamPlayer>("HealSound");
+    private AudioStreamPlayer DeathSound   => _cache.GetNode<AudioStreamPlayer>("DeathSound");
 
     private bool _hit = true;
     private CombatAnimations _target = null;
@@ -38,6 +39,8 @@ public partial class LongTankCombatAnimations : CombatAnimations
     [Export(PropertyHint.None, "suffix:s")] public double CannonMoveTime = 0.75;
 
     [Export(PropertyHint.None, "suffix:s")] public double BeamTravelTime = 1.5;
+
+    [Export(PropertyHint.None, "suffix:s")] public double DeathTime = 0.5;
 
     public LongTankCombatAnimations() : base() { _cache = new(this); }
 
@@ -162,8 +165,10 @@ public partial class LongTankCombatAnimations : CombatAnimations
         return Task.CompletedTask;
     }
 
-    public override Task Die()
+    public override async Task Die()
     {
-        throw new NotImplementedException();
+        DeathSound.Play();
+        PropertyTweener animation = CreateTween().TweenProperty(this, new(PropertyName.Modulate), Colors.Transparent, DeathTime);
+        await ToSignal(animation, PropertyTweener.SignalName.Finished);
     }
 }
