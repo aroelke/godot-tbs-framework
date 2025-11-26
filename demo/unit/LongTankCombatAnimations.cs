@@ -16,7 +16,8 @@ public partial class LongTankCombatAnimations : CombatAnimations
     private Sprite2D          HealCircle   => _cache.GetNode<Sprite2D>("HealCircle");
     private AudioStreamPlayer ShootSound   => _cache.GetNode<AudioStreamPlayer>("ShootSound");
     private AudioStreamPlayer HitSound     => _cache.GetNode<AudioStreamPlayer>("HitSound");
-    private AudioStreamPlayer MissSound    => _cache.GetNode<AudioStreamPlayer>("MissSound"); 
+    private AudioStreamPlayer MissSound    => _cache.GetNode<AudioStreamPlayer>("MissSound");
+    private AudioStreamPlayer HealSound    => _cache.GetNode<AudioStreamPlayer>("HealSound");
 
     private bool _hit = true;
     private CombatAnimations _target = null;
@@ -140,10 +141,12 @@ public partial class LongTankCombatAnimations : CombatAnimations
     {
         _beam = HealBeam.Position;
         HealBeam.Visible = true;
+        ShootSound.Play();
         PropertyTweener animation = CreateTween()
             .TweenProperty(HealBeam, new(Sprite2D.PropertyName.Position), new Vector2(target.Position.X - Position.X, HealBeam.Position.Y), BeamTravelTime)
             .SetTrans(Tween.TransitionType.Quad).SetEase(Tween.EaseType.Out);
         animation.Finished += () => {
+            HealSound.Play();
             HealCircle.Position = HealBeam.Position;
             HealCircle.Visible = true;
             HealBeam.Visible = false;
