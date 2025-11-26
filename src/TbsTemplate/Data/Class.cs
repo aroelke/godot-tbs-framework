@@ -129,9 +129,6 @@ public partial class Class : Resource
     /// </summary>
     [Export] public Texture2D DefaultEditorSprite = null;
 
-    /// <summary>Path to the scene containing combat animations for the class.</summary>
-    [Export(PropertyHint.File, "*.tscn")] public string CombatAnimationPath = "";
-
     public Class() : base()
     {
         MapAnimationsScenes = new PackedSceneMap(MapAnimationsPaths, _mapAnimations, LoadMapAnimations);
