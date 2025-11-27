@@ -213,7 +213,7 @@ public partial class TestCombatScene : CombatScene
             TransitionDelay.Start();
     }
 
-    public void End()
+    public override void End()
     {
         if (!_canceled)
         {

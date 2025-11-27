@@ -16,7 +16,11 @@ public abstract partial class CombatScene : Node
     /// <exception cref="ArgumentException">If any <see cref="CombatAction"/> contains a unit who isn't participating in this combat.</exception>
     public abstract void Initialize(Unit left, Unit right, IImmutableList<CombatAction> actions);
 
+    /// <summary>Begin the combat animation sequence.</summary>
     public abstract void Start();
+
+    /// <summary>Initiate the end of the combat. This can be used to trigger returning to the map that initiated the combat so the level can continue.</summary>
+    public abstract void End();
 
     public override void _Ready()
     {

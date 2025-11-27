@@ -15,6 +15,7 @@ using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.Demo;
 
+/// <summary>Example combat scene to display the results of two demo units engaging each other.</summary>
 public partial class DemoCombatScene : CombatScene
 {
     [Signal] public delegate void TimeExpiredEventHandler();
@@ -35,14 +36,19 @@ public partial class DemoCombatScene : CombatScene
         await ToSignal(this, SignalName.TimeExpired);
     }
 
-    [Export] public double HitDelay = 0.3;
+    /// <summary>Time, in seconds, after an attack connects to wait until beginning the next attack.</summary>
+    [Export(PropertyHint.None, "suffix:s")] public double HitDelay = 0.3;
 
-    [Export] public double TurnDelay = 0.2;
+    /// <summary>Time, in seconds, after a combat action has completed to wait until beginning the next one.</summary>
+    [Export(PropertyHint.None, "suffix:s")] public double TurnDelay = 0.2;
 
-    [Export] public Vector2 LeftPosition = new(48, 120);
+    /// <summary>Position of the combatant on the left side of the screen.</summary>
+    [Export(PropertyHint.None, "suffix:px")] public Vector2 LeftPosition = new(48, 120);
 
-    [Export] public Vector2 RightPosition = new(272, 120);
+    /// <summary>Position of the combatant on the right side of the screen.</summary>
+    [Export(PropertyHint.None, "suffix:px")] public Vector2 RightPosition = new(272, 120);
 
+    /// <summary>Magnitude of the camera shake when an attack connects.</summary>
     [Export] public double CameraShakeHitTrauma = 0.2;
 
     public DemoCombatScene() : base() { _cache = new(this); }
@@ -122,7 +128,7 @@ public partial class DemoCombatScene : CombatScene
             TransitionDelay.Start();
     }
 
-    public void End()
+    public override void End()
     {
         if (!_canceled)
         {
