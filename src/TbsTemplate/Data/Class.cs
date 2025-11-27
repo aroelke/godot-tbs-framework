@@ -153,6 +153,12 @@ public partial class Class : Resource
     /// <returns>The loaded animation scene.</returns>
     public PackedScene LoadDefaultCombatAnimations() => _defaultCombatAnimations ??= ResourceLoader.Load<PackedScene>(DefaultCombatAnimationsPath);
 
+    /// <summary>Create an instance of the map animations for a member of this class and of a particular faction.</summary>
+    /// <param name="faction">Faction to instantiate the map animations for.</param>
+    /// <returns>
+    /// The map animations for units of this class and <paramref name="faction"/>. If <paramref name="faction"/> does not have defined map animations,
+    /// return an instance of <see cref="DefaultMapAnimationsPath"/> instead.
+    /// </returns>
     public UnitMapAnimations InstantiateMapAnimations(Faction faction)
     {
         if (faction is not null && MapAnimationsPaths.ContainsKey(faction))
@@ -166,6 +172,11 @@ public partial class Class : Resource
         }
     }
 
+    /// <summary>Create an instance of the combat animations for a member of this class and of a particular faction.</summary>
+    /// <param name="faction">Faction to instantiate the combat animations for.</param>
+    /// <returns>
+    /// The combat animations for units of this class and <paramref name="faction"/>. If <paramref name="faction"/> does not have defined map animations,
+    /// return an instance of <see cref="DefaultCombatAnimationsPath"/> instead.</returns>
     public CombatAnimations InstantiateCombatAnimations(Faction faction)
     {
         if (faction is not null && CombatAnimationsPaths.ContainsKey(faction))
