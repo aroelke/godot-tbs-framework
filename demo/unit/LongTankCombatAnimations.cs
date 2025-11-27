@@ -5,6 +5,7 @@ using TbsTemplate.Nodes.Components;
 
 namespace TbsTemplate.Demo;
 
+/// <summary>Example demo class to use for player and boss units.</summary>
 public partial class LongTankCombatAnimations : CombatAnimations
 {
     private readonly NodeCache _cache = null;
@@ -32,14 +33,19 @@ public partial class LongTankCombatAnimations : CombatAnimations
     public override Rect2 BoundingBox => throw new NotImplementedException();
     public override float AnimationSpeedScale { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
+    /// <summary>Initial speed the projectile is fired at.</summary>
     [Export(PropertyHint.None, "suffix:px/s")] public double MissileSpeed = 600;
 
+    /// <summary>Rate the projectile's vertical speed changes over time.</summary>
     [Export(PropertyHint.None, "suffix:px/s/s")] public double Gravity = 750;
 
+    /// <summary>Time, in seconds, it takes for the cannon to move into firing position.</summary>
     [Export(PropertyHint.None, "suffix:s")] public double CannonMoveTime = 0.75;
 
+    /// <summary>Time, in seconds, it takes for the support beam to reach its target.</summary>
     [Export(PropertyHint.None, "suffix:s")] public double BeamTravelTime = 1.5;
 
+    /// <summary>Time, in seconds, the death animation takes.</summary>
     [Export(PropertyHint.None, "suffix:s")] public double DeathTime = 0.5;
 
     public LongTankCombatAnimations() : base() { _cache = new(this); }
@@ -48,8 +54,6 @@ public partial class LongTankCombatAnimations : CombatAnimations
     {
         throw new NotImplementedException();
     }
-
-    public override void Idle() {}
 
     public override void SetFacing(Vector2 direction) => Transform = new(Transform.Rotation, new(direction == Vector2.Right ? 1 : -1, 1), Transform.Skew, Transform.Origin);
 
@@ -125,21 +129,6 @@ public partial class LongTankCombatAnimations : CombatAnimations
         EmitSignal(SignalName.AnimationFinished);
     }
 
-    public override Task TakeHit(CombatAnimations attacker)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override Task BeginDodge(CombatAnimations attacker)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override Task FinishDodge()
-    {
-        throw new NotImplementedException();
-    }
-
     public override async Task BeginSupport(CombatAnimations target)
     {
         _beam = HealBeam.Position;
@@ -171,4 +160,11 @@ public partial class LongTankCombatAnimations : CombatAnimations
         PropertyTweener animation = CreateTween().TweenProperty(this, new(PropertyName.Modulate), Colors.Transparent, DeathTime);
         await ToSignal(animation, PropertyTweener.SignalName.Finished);
     }
+
+    public override void Idle() => throw new NotImplementedException();
+
+    // Tanks miss their shots rather than dodging and don't react to hits
+    public override Task BeginDodge(CombatAnimations attacker) => throw new NotImplementedException();
+    public override Task FinishDodge() => throw new NotImplementedException();
+    public override Task TakeHit(CombatAnimations attacker) => throw new NotImplementedException();
 }

@@ -6,6 +6,7 @@ using TbsTemplate.Nodes.Components;
 
 namespace TbsTemplate.Demo;
 
+/// <summary>Example demo class to use for most enemy units.</summary>
 public partial class ShortTankCombatAnimations : CombatAnimations
 {
     private readonly NodeCache _cache = null;
@@ -24,12 +25,15 @@ public partial class ShortTankCombatAnimations : CombatAnimations
 
     public override Vector2 ContactPoint => throw new NotImplementedException();
     public override Rect2 BoundingBox => _cache.GetNode<BoundedNode2D>("BoundingBox").BoundingBox;
-    public override float AnimationSpeedScale { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+    public override float AnimationSpeedScale { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
+    /// <summary>Speed the projectile travels across the screen when it's fired.</summary>
     [Export(PropertyHint.None, "suffix:px/s")] public float BulletSpeed = 600;
 
+    /// <summary>Distance to continue moving the projectile if the attack is a miss. Should cause it to end up off screen.</summary>
     [Export(PropertyHint.None, "suffix:px")] public float OvershootDistance = 100;
 
+    /// <summary>Time, in seconds, the death animation takes.</summary>
     [Export(PropertyHint.None, "suffix:s")] public double DeathTime = 0.5;
 
     public ShortTankCombatAnimations() : base()  { _cache = new(this); }
@@ -40,8 +44,6 @@ public partial class ShortTankCombatAnimations : CombatAnimations
     {
         await ToSignal(this, SignalName.AnimationFinished);
     }
-
-    public override void Idle() {}
 
     public override async Task BeginAttack(CombatAnimations target, bool hit)
     {
@@ -96,29 +98,21 @@ public partial class ShortTankCombatAnimations : CombatAnimations
         EmitSignal(SignalName.AnimationFinished);
     }
 
-    public override Task BeginDodge(CombatAnimations attacker) { throw new NotImplementedException(); }
-
-    public override Task BeginSupport(CombatAnimations target)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override Task FinishDodge()
-    {
-        throw new NotImplementedException();
-    }
-
-    public override Task FinishSupport()
-    {
-        throw new NotImplementedException();
-    }
-
-    public override Task TakeHit(CombatAnimations attacker) { return Task.CompletedTask; }
-
     public override async Task Die()
     {
         DeathSound.Play();
         PropertyTweener animation = CreateTween().TweenProperty(this, new(PropertyName.Modulate), Colors.Transparent, DeathTime);
         await ToSignal(animation, PropertyTweener.SignalName.Finished);
     }
+
+    public override void Idle() => throw new NotImplementedException();
+
+    // Tanks miss their shots rather than dodging and don't react to hits
+    public override Task BeginDodge(CombatAnimations attacker) => throw new NotImplementedException();
+    public override Task FinishDodge() => throw new NotImplementedException();
+    public override Task TakeHit(CombatAnimations attacker) => throw new NotImplementedException();
+
+    // This class can't support its allies
+    public override Task BeginSupport(CombatAnimations target) => throw new NotImplementedException();
+    public override Task FinishSupport() => throw new NotImplementedException();
 }
