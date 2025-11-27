@@ -15,7 +15,7 @@
 [ext_resource type="Texture2D" uid="uid://nhobvcrsi3w1" path="res://demo/assets/ui/kenney_ui-pack-space-expansion/PNG/Extra/Default/cursor_g.png" id="9_6hgq8"]
 [ext_resource type="PackedScene" uid="uid://ca6g5c6dsaqjb" path="res://src/TbsTemplate/Scenes/Level/Control/AIController.tscn" id="9_s2xnc"]
 [ext_resource type="TileSet" uid="uid://bb7tjpm2de26x" path="res://demo/assets/map/overlay.tres" id="10_0kgrh"]
-[ext_resource type="PackedScene" uid="uid://cb1gfyilefvvj" path="res://demo/unit/ShortTank.tscn" id="10_1ger5"]
+[ext_resource type="PackedScene" uid="uid://cb1gfyilefvvj" path="res://demo/unit/Tank.tscn" id="10_1ger5"]
 [ext_resource type="AudioStream" uid="uid://cw083osbudnfr" path="res://demo/assets/ui/kenney_interface-audio/Audio/tick_001.ogg" id="11_npakb"]
 [ext_resource type="Resource" uid="uid://8ni15si3ex81" path="res://demo/unit/demo_long_tank.tres" id="12_qidbu"]
 [ext_resource type="AudioStream" uid="uid://chh5seatf8dr3" path="res://demo/assets/ui/kenney_interface-audio/Audio/select_001.ogg" id="14_8l58o"]
