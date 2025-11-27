@@ -3,6 +3,7 @@ using TbsTemplate.Scenes;
 
 namespace TbsTemplate.Demo;
 
+/// <summary>Simple demo game over screen that notifies the player whether they won or lost.</summary>
 public partial class DemoGameOverScene : Node
 {
     [Export] public bool win = true;

@@ -6,6 +6,10 @@ using TbsTemplate.UI;
 
 namespace TbsTemplate.Demo;
 
+/// <summary>
+/// Demo implementation of an event controller.  Reacts to objective completion and sends the player to the game over screen
+/// when one is completed.
+/// </summary>
 public partial class DemoEventController : EventController
 {
     [Export(PropertyHint.File, "*.tscn")] public string GameOverScreen = null;

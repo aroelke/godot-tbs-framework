@@ -8,6 +8,7 @@ using TbsTemplate.UI.HUD;
 
 namespace TbsTemplate.Demo;
 
+/// <summary>Script for the demo map that controls events outside level progression, suc as UI updates.</summary>
 public partial class DemoMap : Node
 {
     public void OnTurnBegan(int turn, Army army)
