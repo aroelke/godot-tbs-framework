@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://buvt85v1fx4nt"]
 
 [ext_resource type="PackedScene" uid="uid://ds8tasupxnu0q" path="res://demo/unit/ShortTankCombatAnimations.tscn" id="1_i0ejn"]
-[ext_resource type="Texture2D" uid="uid://vunqefvuusmp" path="res://demo/assets/combat/kenney_tanks/PNG/Default size/tanks_tankGreen_body2.png" id="2_341l2"]
+[ext_resource type="Texture2D" uid="uid://vunqefvuusmp" path="res://demo/assets/combat/tanks/short_body_ally.png" id="2_341l2"]
 
 [node name="ShortTankCombatAnimationsAlly" instance=ExtResource("1_i0ejn")]
 
