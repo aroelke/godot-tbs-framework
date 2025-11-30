@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://brsk22ejart8y"
-path="res://.godot/imported/overlay.png-3b6df6e051cb2205f2ce97f904fa5c8c.ctex"
+uid="uid://ybe0dod1kvqr"
+path="res://.godot/imported/cursor.png-acc854eb7b11c9ba69be507af3b20e20.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://demo/assets/map/overlay.png"
-dest_files=["res://.godot/imported/overlay.png-3b6df6e051cb2205f2ce97f904fa5c8c.ctex"]
+source_file="res://demo/assets/map/tiles/cursor.png"
+dest_files=["res://.godot/imported/cursor.png-acc854eb7b11c9ba69be507af3b20e20.ctex"]
 
 [params]
 

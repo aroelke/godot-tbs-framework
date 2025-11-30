@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ybe0dod1kvqr"
-path="res://.godot/imported/cursor.png-6141dc202d8113a11b770a7a3434eb4b.ctex"
+uid="uid://brsk22ejart8y"
+path="res://.godot/imported/overlay.png-94e9fb3a6212d2eec4fac7102c56332f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://demo/assets/map/kenney_tiny-battle/cursor.png"
-dest_files=["res://.godot/imported/cursor.png-6141dc202d8113a11b770a7a3434eb4b.ctex"]
+source_file="res://demo/assets/map/overlay/overlay.png"
+dest_files=["res://.godot/imported/overlay.png-94e9fb3a6212d2eec4fac7102c56332f.ctex"]
 
 [params]
 

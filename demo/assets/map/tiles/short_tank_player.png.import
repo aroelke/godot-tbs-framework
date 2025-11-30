@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cqx4yjbljfr62"
-path="res://.godot/imported/short_tank_ally.png-fe1d04cd6c6880102de0028382062420.ctex"
+uid="uid://bbsohcyikx35l"
+path="res://.godot/imported/short_tank_player.png-236b1c00156289d33db609f387d8a308.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://demo/assets/map/kenney_tiny-battle/short_tank_ally.png"
-dest_files=["res://.godot/imported/short_tank_ally.png-fe1d04cd6c6880102de0028382062420.ctex"]
+source_file="res://demo/assets/map/tiles/short_tank_player.png"
+dest_files=["res://.godot/imported/short_tank_player.png-236b1c00156289d33db609f387d8a308.ctex"]
 
 [params]
 

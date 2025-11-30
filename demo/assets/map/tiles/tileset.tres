@@ -1,6 +1,6 @@
 [gd_resource type="TileSet" load_steps=6 format=3 uid="uid://cqqq5romj5brh"]
 
-[ext_resource type="Texture2D" uid="uid://bgqtmae6uy5c" path="res://demo/assets/map/kenney_tiny-battle/tilemap.png" id="1_rabn2"]
+[ext_resource type="Texture2D" uid="uid://bgqtmae6uy5c" path="res://demo/assets/map/tiles/tiles.png" id="1_rabn2"]
 [ext_resource type="Resource" uid="uid://420nufm5mgjd" path="res://demo/assets/terrain/plain.tres" id="1_yo0ah"]
 [ext_resource type="Resource" uid="uid://c6aef0yi4n805" path="res://demo/assets/terrain/water.tres" id="2_7x24u"]
 [ext_resource type="Resource" uid="uid://djwg2blpa0kqq" path="res://demo/assets/terrain/wall.tres" id="3_fk7tx"]

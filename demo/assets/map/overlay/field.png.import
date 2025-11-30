@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://blfnc0chn5wst"
-path="res://.godot/imported/long_tank_enemy2.png-c36f2d6c7deec229f033555b52d05909.ctex"
+uid="uid://d0slvd3ikfiac"
+path="res://.godot/imported/field.png-422080b5fea2294a400e0d0f367bc667.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://demo/assets/map/kenney_tiny-battle/long_tank_enemy2.png"
-dest_files=["res://.godot/imported/long_tank_enemy2.png-c36f2d6c7deec229f033555b52d05909.ctex"]
+source_file="res://demo/assets/map/overlay/field.png"
+dest_files=["res://.godot/imported/field.png-422080b5fea2294a400e0d0f367bc667.ctex"]
 
 [params]
 

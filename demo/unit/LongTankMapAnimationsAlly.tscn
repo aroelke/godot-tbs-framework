@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://82p0rucxr2mp"]
 
 [ext_resource type="PackedScene" uid="uid://cikey3vro6fs7" path="res://demo/unit/LongTankMapAnimations.tscn" id="1_y7uiv"]
-[ext_resource type="Texture2D" uid="uid://cwk8mkpaj2bf6" path="res://demo/assets/map/kenney_tiny-battle/long_tank_ally.png" id="2_myohm"]
+[ext_resource type="Texture2D" uid="uid://cwk8mkpaj2bf6" path="res://demo/assets/map/tiles/long_tank_ally.png" id="2_myohm"]
 
 [node name="LongTankMapAnimationsAlly" instance=ExtResource("1_y7uiv")]
 

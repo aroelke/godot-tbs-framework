@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d0slvd3ikfiac"
-path="res://.godot/imported/field.png-4e4c1c1d1e5428286a5e89cdb0112eb3.ctex"
+uid="uid://danuj6si5bj2r"
+path="res://.godot/imported/long_tank_default.png-4dfc2cf7523b217c0fc5a0b320597cc8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://demo/assets/map/field/field.png"
-dest_files=["res://.godot/imported/field.png-4e4c1c1d1e5428286a5e89cdb0112eb3.ctex"]
+source_file="res://demo/assets/map/tiles/long_tank_default.png"
+dest_files=["res://.godot/imported/long_tank_default.png-4dfc2cf7523b217c0fc5a0b320597cc8.ctex"]
 
 [params]
 

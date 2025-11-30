@@ -2,15 +2,15 @@
 
 [ext_resource type="Script" uid="uid://ddlp6kj6iah51" path="res://src/TbsTemplate/Data/Faction.cs" id="1_6hy2a"]
 [ext_resource type="Script" uid="uid://hpaxa78srpai" path="res://src/TbsTemplate/Data/Class.cs" id="2_cpej2"]
-[ext_resource type="Texture2D" uid="uid://danuj6si5bj2r" path="res://demo/assets/map/kenney_tiny-battle/long_tank_default.png" id="2_yuvx5"]
+[ext_resource type="Texture2D" uid="uid://danuj6si5bj2r" path="res://demo/assets/map/tiles/long_tank_default.png" id="2_yuvx5"]
 [ext_resource type="Resource" uid="uid://broidqni4h8ak" path="res://demo/factions/DemoPlayerFaction.tres" id="3_pnx3k"]
-[ext_resource type="Texture2D" uid="uid://ladmjmqhdq3b" path="res://demo/assets/map/kenney_tiny-battle/long_tank_player.png" id="4_xjiht"]
+[ext_resource type="Texture2D" uid="uid://ladmjmqhdq3b" path="res://demo/assets/map/tiles/long_tank_player.png" id="4_xjiht"]
 [ext_resource type="Resource" uid="uid://dxvcd01bu3ovj" path="res://demo/factions/DemoEnemyFaction1.tres" id="5_lne3p"]
-[ext_resource type="Texture2D" uid="uid://dgmskpik6hxq4" path="res://demo/assets/map/kenney_tiny-battle/long_tank_enemy1.png" id="6_jgkha"]
+[ext_resource type="Texture2D" uid="uid://dgmskpik6hxq4" path="res://demo/assets/map/tiles/long_tank_enemy1.png" id="6_jgkha"]
 [ext_resource type="Resource" uid="uid://0dcwfdljw4ug" path="res://demo/factions/DemoEnemyFaction2.tres" id="7_ksa23"]
-[ext_resource type="Texture2D" uid="uid://blfnc0chn5wst" path="res://demo/assets/map/kenney_tiny-battle/long_tank_enemy2.png" id="8_r6xs2"]
+[ext_resource type="Texture2D" uid="uid://blfnc0chn5wst" path="res://demo/assets/map/tiles/long_tank_enemy2.png" id="8_r6xs2"]
 [ext_resource type="Resource" uid="uid://chjjd5sn6y2jw" path="res://demo/factions/DemoAllyFaction.tres" id="9_krsmh"]
-[ext_resource type="Texture2D" uid="uid://cwk8mkpaj2bf6" path="res://demo/assets/map/kenney_tiny-battle/long_tank_ally.png" id="10_tpu0i"]
+[ext_resource type="Texture2D" uid="uid://cwk8mkpaj2bf6" path="res://demo/assets/map/tiles/long_tank_ally.png" id="10_tpu0i"]
 
 [resource]
 script = ExtResource("2_cpej2")
