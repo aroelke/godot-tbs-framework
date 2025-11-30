@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="KeyIconMap" load_steps=20 format=3 uid="uid://scrs41kvnxyt"]
+
+[ext_resource type="Script" uid="uid://chtdqcyrp0mii" path="res://src/TbsTemplate/UI/Controls/IconMaps/KeyIconMap.cs" id="1_hf3m4"]
+[ext_resource type="Texture2D" uid="uid://frtm52s4cm4" path="res://demo/assets/ui/input/icons/key_noaction.png" id="1_s1604"]
+[ext_resource type="Texture2D" uid="uid://drheuwwipts8d" path="res://demo/assets/ui/input/icons/key_w.png" id="1_vd3qw"]
+[ext_resource type="Texture2D" uid="uid://b8mda3k0abxn8" path="res://demo/assets/ui/input/icons/key_a.png" id="2_akcd0"]
+[ext_resource type="Texture2D" uid="uid://bwj5s0beqi5hr" path="res://demo/assets/ui/input/icons/key_noinput.png" id="2_vc7om"]
+[ext_resource type="Texture2D" uid="uid://bqyp6as60ew0r" path="res://demo/assets/ui/input/icons/key_s.png" id="3_v246s"]
+[ext_resource type="Texture2D" uid="uid://bg1wnnoygf0m1" path="res://demo/assets/ui/input/icons/key_d.png" id="4_ji5kt"]
+[ext_resource type="Texture2D" uid="uid://d03nu8rbco5bx" path="res://demo/assets/ui/input/icons/key_space.png" id="5_kb0jb"]
+[ext_resource type="Texture2D" uid="uid://cclkl4ekclylp" path="res://demo/assets/ui/input/icons/key_escape.png" id="6_yuebp"]
+[ext_resource type="Texture2D" uid="uid://do2wl1npkgbf4" path="res://demo/assets/ui/input/icons/key_tab.png" id="7_x5mrd"]
+[ext_resource type="Texture2D" uid="uid://mmnoky6lw86j" path="res://demo/assets/ui/input/icons/key_up.png" id="8_itisj"]
+[ext_resource type="Texture2D" uid="uid://5gtiicog7ttj" path="res://demo/assets/ui/input/icons/key_left.png" id="9_ehbn8"]
+[ext_resource type="Texture2D" uid="uid://gi55dmupm0ao" path="res://demo/assets/ui/input/icons/key_down.png" id="10_nglxf"]
+[ext_resource type="Texture2D" uid="uid://dd5d3nduksbkl" path="res://demo/assets/ui/input/icons/key_right.png" id="11_3oe58"]
+[ext_resource type="Texture2D" uid="uid://dmwhwpglvohfw" path="res://demo/assets/ui/input/icons/key_q.png" id="12_ji5kt"]
+[ext_resource type="Texture2D" uid="uid://i45bq3oox8xk" path="res://demo/assets/ui/input/icons/key_e.png" id="13_kb0jb"]
+[ext_resource type="Texture2D" uid="uid://ckjik5mac808y" path="res://demo/assets/ui/input/icons/key_c.png" id="14_yuebp"]
+[ext_resource type="Texture2D" uid="uid://niuaj03p1kbj" path="res://demo/assets/ui/input/icons/key_pageup.png" id="15_yuebp"]
+[ext_resource type="Texture2D" uid="uid://mupva7noghj7" path="res://demo/assets/ui/input/icons/key_pagedown.png" id="16_x5mrd"]
+
+[resource]
+script = ExtResource("1_hf3m4")
+Icons = Dictionary[int, Texture2D]({
+32: ExtResource("5_kb0jb"),
+65: ExtResource("2_akcd0"),
+67: ExtResource("14_yuebp"),
+68: ExtResource("4_ji5kt"),
+69: ExtResource("13_kb0jb"),
+81: ExtResource("12_ji5kt"),
+83: ExtResource("3_v246s"),
+87: ExtResource("1_vd3qw"),
+4194305: ExtResource("6_yuebp"),
+4194306: ExtResource("7_x5mrd"),
+4194319: ExtResource("9_ehbn8"),
+4194320: ExtResource("8_itisj"),
+4194321: ExtResource("11_3oe58"),
+4194322: ExtResource("10_nglxf"),
+4194323: ExtResource("15_yuebp"),
+4194324: ExtResource("16_x5mrd")
+})
+NoMappedInputIcon = ExtResource("2_vc7om")
+NoMappedActionIcon = ExtResource("1_s1604")
+metadata/_custom_type_script = "uid://chtdqcyrp0mii"

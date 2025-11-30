@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" uid="uid://cn7xy157fvpqb" path="res://demo/CombatantData.cs" id="1_18j1e"]
 [ext_resource type="PackedScene" uid="uid://duggsftmu8x6l" path="res://src/TbsTemplate/Nodes/Components/HealthComponent.tscn" id="2_xmdts"]
-[ext_resource type="Texture2D" uid="uid://cdpuyq5gvmkud" path="res://demo/assets/ui/kenney_ui-pack-space-expansion/PNG/Extra/Default/bar_shadow_round_large.png" id="3_18j1e"]
-[ext_resource type="Texture2D" uid="uid://dnxl406tsyrjn" path="res://demo/assets/ui/kenney_ui-pack-space-expansion/PNG/Red/Default/bar_round_large.png" id="4_xmdts"]
+[ext_resource type="Texture2D" uid="uid://cdpuyq5gvmkud" path="res://demo/assets/ui/combat/healthbar_back.png" id="3_18j1e"]
+[ext_resource type="Texture2D" uid="uid://dnxl406tsyrjn" path="res://demo/assets/ui/combat/healthbar_front.png" id="4_xmdts"]
 
 [node name="CombatantData" type="GridContainer"]
 columns = 3
