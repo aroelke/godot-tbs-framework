@@ -21,7 +21,6 @@ ExtResource("7_x7bst"): ExtResource("8_6vhnh"),
 ExtResource("9_yho85"): ExtResource("10_0j1yr")
 })
 DefaultEditorSprite = ExtResource("2_2ur8b")
-CombatAnimationPath = ""
 MapAnimationsPaths = Dictionary[ExtResource("1_qva5q"), String]({
 ExtResource("3_p1cre"): "uid://divs2cpnwtjku",
 ExtResource("5_5i0kp"): "uid://dqylbcg18lmcd",
