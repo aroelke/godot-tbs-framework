@@ -16,10 +16,18 @@ visible = false
 texture = ExtResource("2_q23r7")
 offset = Vector2(8, 8)
 
-[node name="Health" type="Sprite2D" parent="."]
+[node name="Health1" type="Sprite2D" parent="."]
 texture_filter = 1
 texture = ExtResource("3_q23r7")
 offset = Vector2(8, 8)
+hframes = 18
+vframes = 11
+frame = 180
+
+[node name="Health10" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("3_q23r7")
+offset = Vector2(2, 8)
 hframes = 18
 vframes = 11
 frame = 180

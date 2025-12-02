@@ -6,11 +6,15 @@ namespace TbsTemplate.Demo;
 
 public partial class LongTankMapAnimations : UnitMapAnimations
 {
+    private const int DigitRow = 10;
+    private static readonly Vector2I QuestionCoords = new(10, DigitRow);
+
     private readonly NodeCache _cache = null;
 
     private Sprite2D Sprite   => _cache.GetNode<Sprite2D>("Sprite");
     private Sprite2D Inactive => _cache.GetNode<Sprite2D>("Inactive");
-    private Sprite2D Health   => _cache.GetNode<Sprite2D>("Health");
+    private Sprite2D Health1  => _cache.GetNode<Sprite2D>("Health1");
+    private Sprite2D Health10 => _cache.GetNode<Sprite2D>("Health10");
 
     private void PlayAnimation(Vector2 direction, bool active)
     {
@@ -39,10 +43,21 @@ public partial class LongTankMapAnimations : UnitMapAnimations
 
     public LongTankMapAnimations() : base() { _cache = new(this); }
 
+    public override void SetHealthValue(int value)
+    {
+        Health10.Visible = value > 9;
+        if (value < 0 || value > 99)
+            Health10.FrameCoords = Health1.FrameCoords = QuestionCoords;
+        else
+        {
+            Health1.FrameCoords = new(value % 10, DigitRow);
+            Health10.FrameCoords = new(value/10, DigitRow);
+        }
+    }
+
     public override void PlayMove(Vector2 direction) => PlayAnimation(direction, true);
     public override void PlayDone() => PlayAnimation(Vector2.Right, false);
     public override void PlayIdle() => PlayAnimation(Vector2I.Right, true);
     public override void PlaySelected() => PlayAnimation(Vector2I.Right, true);
     public override void SetHealthMax(int value) {}
-    public override void SetHealthValue(int value) => Health.FrameCoords = new(value > 9 || value < 0 ? 10 : value, 10);
 }
