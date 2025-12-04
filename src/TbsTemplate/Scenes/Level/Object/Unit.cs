@@ -295,7 +295,12 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     {
         base._Process(delta);
 
-        if (!Engine.IsEditorHint())
+        if (Engine.IsEditorHint())
+        {
+            if (_class is not null && EditorSprite.Texture is null)
+                UpdateVisuals(_class, Faction);
+        }
+        else
         {
             Vector2 prev = PathFollow.Position;
             PathFollow.Progress += (float)(MoveSpeed*(Accelerate.Active ? MoveAccelerationFactor : 1)*delta);
