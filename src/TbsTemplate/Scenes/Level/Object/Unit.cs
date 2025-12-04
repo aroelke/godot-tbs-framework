@@ -27,7 +27,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     private UnitMapAnimations _animations = null;
     private Class _class = null;
     private Army _army = null;
-    private Stats _stats = new();
+    private Stats _stats = null;
     private Vector2I _target = Vector2I.Zero;
 
     private Sprite2D             EditorSprite   => _cache.GetNode<Sprite2D>("EditorSprite");
@@ -95,7 +95,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
             {
                 _stats = value;
                 if (Health is not null)
-                    Health.Maximum = _stats.Health;
+                    Health.Maximum = _stats?.Health ?? 0;
             }
         }
     }
