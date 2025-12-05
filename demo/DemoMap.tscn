@@ -380,6 +380,9 @@ Failure = NodePath("FailureObjective")
 
 [node name="SuccessObjective" parent="DemoEventController" instance=ExtResource("24_0hb45")]
 
+[node name="RouteObjective" parent="DemoEventController/SuccessObjective" node_paths=PackedStringArray("Target") instance=ExtResource("29_c7alg")]
+Target = NodePath("../../../LevelManager/Enemy1")
+
 [node name="DefeatUnitObjective" parent="DemoEventController/SuccessObjective" node_paths=PackedStringArray("Target") instance=ExtResource("25_qahj2")]
 Target = NodePath("../../../LevelManager/Enemy2/Boss")
 
