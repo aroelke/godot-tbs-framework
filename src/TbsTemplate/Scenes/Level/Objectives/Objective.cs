@@ -35,7 +35,10 @@ public abstract partial class Objective : Node
         {
             bool complete = Complete; // Ensures "Complete" is only evaluated once per process frame, since it's used thrice below
             if (complete != _complete)
+            {
+                GD.Print($"Completed objective {Description}");
                 EmitSignal(SignalName.StatusChanged, complete);
+            }
             _complete = complete;
         }
     }

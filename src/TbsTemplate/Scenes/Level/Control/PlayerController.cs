@@ -545,9 +545,9 @@ public partial class PlayerController : ArmyController
             }
             else
             {
-                IEnumerable<Unit> units = Army.GetChildren().OfType<Unit>().Where((u) => u.Active);
+                IEnumerable<Unit> units = Army.Units().Where((u) => u.Active);
                 if (!units.Any())
-                    units = Army.GetChildren().OfType<Unit>();
+                    units = Army.Units();
                 if (units.Any())
                     Cursor.Cell = units.OrderBy((u) => u.Cell.DistanceTo(Cursor.Cell)).First().Cell;
             }
