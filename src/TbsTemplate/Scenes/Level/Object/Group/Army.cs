@@ -14,7 +14,11 @@ public partial class Army : GridNodeGroup, IEnumerable<Unit>
     private ArmyController _controller = null;
     public ArmyController Controller => _controller ??= GetChildren().OfType<ArmyController>().FirstOrDefault();
 
+    /// <summary>Faction units in this army belong to.</summary>
     [Export] public Faction Faction = null;
+
+    /// <returns>The collection of units that belong to this army.</returns>
+    public IEnumerable<Unit> Units() => GetChildren().OfType<Unit>();
 
     /// <summary>Find the "previous" unit in the list, looping around to the end if needed.</summary>
     /// <remarks>"Previous" is arbitrarily defined by the order each unit was inserted into the <see cref="SceneTree"/>.</remarks>
@@ -25,7 +29,7 @@ public partial class Army : GridNodeGroup, IEnumerable<Unit>
     /// </returns>
     public Unit Previous(Unit unit)
     {
-        Unit[] units = GetChildren().OfType<Unit>().ToArray();
+        Unit[] units = [.. Units()];
         if (units.Length <= 1)
             return null;
 
@@ -47,7 +51,7 @@ public partial class Army : GridNodeGroup, IEnumerable<Unit>
     /// </returns>
     public Unit Next(Unit unit)
     {
-        Unit[] units = GetChildren().OfType<Unit>().ToArray();
+        Unit[] units = [.. Units()];
         if (units.Length <= 1)
             return null;
 
@@ -86,5 +90,5 @@ public partial class Army : GridNodeGroup, IEnumerable<Unit>
             unit.Army = this;
     }
 
-    IEnumerator<Unit> IEnumerable<Unit>.GetEnumerator() => GetChildren().OfType<Unit>().GetEnumerator();
+    IEnumerator<Unit> IEnumerable<Unit>.GetEnumerator() => Units().GetEnumerator();
 }

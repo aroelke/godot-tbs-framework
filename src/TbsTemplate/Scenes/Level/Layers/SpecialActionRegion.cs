@@ -46,7 +46,7 @@ public partial class SpecialActionRegion : TileMapLayer, ISpecialActionRegion
     public ISet<Vector2I> Cells => GetUsedCells().ToHashSet();
 
     /// <returns>A set containing all units that are allowed to perform the action in the region.</returns>
-    public ImmutableHashSet<Unit> AllAllowedUnits() => AllowedUnits.ToImmutableHashSet().Union(AllowedArmies.SelectMany((a) => a.GetChildren().OfType<Unit>()));
+    public ImmutableHashSet<Unit> AllAllowedUnits() => AllowedUnits.ToImmutableHashSet().Union(AllowedArmies.SelectMany((a) => a.Units()));
 
     /// <summary>Check if a unit can perform the special action in a cell.</summary>
     /// <returns><c>true</c> if <paramref name="unit"/> is allowed to perform the action and <paramref name="cell"/> is in the region, and <c>false</c> otherwise.</returns>
