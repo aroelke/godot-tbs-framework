@@ -1,0 +1,48 @@
+[gd_scene load_steps=5 format=3 uid="uid://c2flvqnfd3o1x"]
+
+[ext_resource type="Script" uid="uid://cn7xy157fvpqb" path="res://demo/CombatantData.cs" id="1_18j1e"]
+[ext_resource type="PackedScene" uid="uid://duggsftmu8x6l" path="res://src/TbsTemplate/Nodes/Components/HealthComponent.tscn" id="2_xmdts"]
+[ext_resource type="Texture2D" uid="uid://cdpuyq5gvmkud" path="res://demo/assets/ui/combat/healthbar_back.png" id="3_18j1e"]
+[ext_resource type="Texture2D" uid="uid://dnxl406tsyrjn" path="res://demo/assets/ui/combat/healthbar_front.png" id="4_xmdts"]
+
+[node name="CombatantData" type="GridContainer"]
+columns = 3
+script = ExtResource("1_18j1e")
+
+[node name="HealthComponent" parent="." instance=ExtResource("2_xmdts")]
+Maximum = 10
+Value = 10
+
+[node name="HealthLabel" type="Label" parent="."]
+layout_mode = 2
+text = "HP: 10"
+
+[node name="DamageTitle" type="Label" parent="."]
+layout_mode = 2
+text = "Damage:"
+horizontal_alignment = 2
+
+[node name="DamageLabel" type="Label" parent="."]
+layout_mode = 2
+text = "0"
+
+[node name="HealthBar" type="TextureProgressBar" parent="."]
+custom_minimum_size = Vector2(128, 0)
+layout_mode = 2
+size_flags_vertical = 4
+max_value = 10.0
+step = 0.01
+value = 10.0
+texture_under = ExtResource("3_18j1e")
+texture_progress = ExtResource("4_xmdts")
+
+[node name="HitChanceTitle" type="Label" parent="."]
+layout_mode = 2
+text = "Hit Chance:"
+horizontal_alignment = 2
+
+[node name="HitChanceLabel" type="Label" parent="."]
+layout_mode = 2
+text = "0%"
+
+[connection signal="ValueChanged" from="HealthComponent" to="." method="OnHealthChanged"]

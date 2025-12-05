@@ -1,14 +1,14 @@
 [gd_scene load_steps=10 format=3 uid="uid://cpswnx0irecoi"]
 
 [ext_resource type="Script" uid="uid://11s5gtpuufgs" path="res://src/TbsTemplate/UI/HUD/GamepadCursorHintIcon.cs" id="1_247tv"]
-[ext_resource type="Resource" uid="uid://bvjdkntd3y72l" path="res://demo/assets/ui/icons/controls/GamepadButtonIconMap.tres" id="2_v4144"]
-[ext_resource type="Resource" uid="uid://dkyggntwdoslv" path="res://demo/assets/ui/icons/controls/GamepadAxisIconMap.tres" id="3_2sje5"]
-[ext_resource type="Texture2D" uid="uid://b8opi1ojes3lf" path="res://demo/assets/ui/icons/controls/playstation/dpadup.png" id="4_xb6vs"]
-[ext_resource type="Texture2D" uid="uid://ddo2e8y4xxywf" path="res://demo/assets/ui/icons/controls/playstation/dpadleft.png" id="5_m5ucw"]
-[ext_resource type="Texture2D" uid="uid://x210tjc0p8u6" path="res://demo/assets/ui/icons/controls/playstation/dpadright.png" id="6_fneeb"]
-[ext_resource type="Texture2D" uid="uid://rvicv7mk4e0b" path="res://demo/assets/ui/icons/controls/playstation/dpaddown.png" id="7_vtv1x"]
-[ext_resource type="Texture2D" uid="uid://dwrg3c6m2yegj" path="res://demo/assets/ui/icons/controls/playstation/dpad.png" id="8_gubvf"]
-[ext_resource type="Texture2D" uid="uid://cgyr5p8sm8ypi" path="res://demo/assets/ui/icons/controls/playstation/left_stick.png" id="9_fiyl8"]
+[ext_resource type="Resource" uid="uid://bvjdkntd3y72l" path="res://demo2/assets/ui/icons/controls/GamepadButtonIconMap.tres" id="2_v4144"]
+[ext_resource type="Resource" uid="uid://dkyggntwdoslv" path="res://demo2/assets/ui/icons/controls/GamepadAxisIconMap.tres" id="3_2sje5"]
+[ext_resource type="Texture2D" uid="uid://b8opi1ojes3lf" path="res://demo2/assets/ui/icons/controls/playstation/dpadup.png" id="4_xb6vs"]
+[ext_resource type="Texture2D" uid="uid://ddo2e8y4xxywf" path="res://demo2/assets/ui/icons/controls/playstation/dpadleft.png" id="5_m5ucw"]
+[ext_resource type="Texture2D" uid="uid://x210tjc0p8u6" path="res://demo2/assets/ui/icons/controls/playstation/dpadright.png" id="6_fneeb"]
+[ext_resource type="Texture2D" uid="uid://rvicv7mk4e0b" path="res://demo2/assets/ui/icons/controls/playstation/dpaddown.png" id="7_vtv1x"]
+[ext_resource type="Texture2D" uid="uid://dwrg3c6m2yegj" path="res://demo2/assets/ui/icons/controls/playstation/dpad.png" id="8_gubvf"]
+[ext_resource type="Texture2D" uid="uid://cgyr5p8sm8ypi" path="res://demo2/assets/ui/icons/controls/playstation/left_stick.png" id="9_fiyl8"]
 
 [node name="GamepadCursorHintIcon" type="HBoxContainer"]
 offset_right = 12.0

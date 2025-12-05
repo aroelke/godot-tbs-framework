@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Stats" load_steps=2 format=3 uid="uid://bemo5afnyy4lq"]
+
+[ext_resource type="Script" uid="uid://cdy07gqijlx5a" path="res://src/TbsTemplate/Data/Stats.cs" id="1_a48f0"]
+
+[resource]
+script = ExtResource("1_a48f0")
+Health = 10
+Attack = 5
+Defense = 0
+Healing = 5
+Accuracy = 100
+Evasion = 25
+Agility = 2
+Move = 5
+metadata/_custom_type_script = "uid://cdy07gqijlx5a"

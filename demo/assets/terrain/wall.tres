@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="Terrain" load_steps=2 format=3 uid="uid://djwg2blpa0kqq"]
+
+[ext_resource type="Script" uid="uid://d23lpjno16iad" path="res://src/TbsTemplate/Scenes/Level/Map/Terrain.cs" id="1_hghtm"]
+
+[resource]
+resource_name = "wall"
+script = ExtResource("1_hghtm")
+Cost = 1000

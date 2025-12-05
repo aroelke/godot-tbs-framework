@@ -1,0 +1,483 @@
+[gd_scene load_steps=48 format=4 uid="uid://dq2q8b0axoftt"]
+
+[ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsTemplate/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
+[ext_resource type="Script" uid="uid://c2joupgp3ohcx" path="res://demo/DemoMap.cs" id="1_npakb"]
+[ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsTemplate/Scenes/Level/Map/Grid.tscn" id="2_oeidl"]
+[ext_resource type="Resource" uid="uid://420nufm5mgjd" path="res://demo/assets/terrain/plain.tres" id="3_akw2u"]
+[ext_resource type="TileSet" uid="uid://cqqq5romj5brh" path="res://demo/assets/map/tiles/tileset.tres" id="4_yu7ov"]
+[ext_resource type="PackedScene" uid="uid://1ev2yxu31ow" path="res://src/TbsTemplate/Scenes/Level/Object/Group/Army.tscn" id="5_oeidl"]
+[ext_resource type="Resource" uid="uid://broidqni4h8ak" path="res://demo/factions/DemoPlayerFaction.tres" id="6_akw2u"]
+[ext_resource type="PackedScene" uid="uid://bntay230afwxo" path="res://src/TbsTemplate/Scenes/Level/Layers/SpecialActionRegion.tscn" id="6_qahj2"]
+[ext_resource type="PackedScene" uid="uid://drlrlusbfh208" path="res://src/TbsTemplate/Scenes/Level/Control/PlayerController.tscn" id="7_tajn8"]
+[ext_resource type="Resource" uid="uid://dxvcd01bu3ovj" path="res://demo/factions/DemoEnemyFaction1.tres" id="7_yu7ov"]
+[ext_resource type="Resource" uid="uid://0dcwfdljw4ug" path="res://demo/factions/DemoEnemyFaction2.tres" id="8_edc7l"]
+[ext_resource type="Texture2D" uid="uid://ybe0dod1kvqr" path="res://demo/assets/map/tiles/cursor.png" id="8_s2xnc"]
+[ext_resource type="Texture2D" uid="uid://nhobvcrsi3w1" path="res://demo/assets/ui/input/cursor/cursor.png" id="9_6hgq8"]
+[ext_resource type="PackedScene" uid="uid://ca6g5c6dsaqjb" path="res://src/TbsTemplate/Scenes/Level/Control/AIController.tscn" id="9_s2xnc"]
+[ext_resource type="TileSet" uid="uid://bb7tjpm2de26x" path="res://demo/assets/map/overlay/overlay.tres" id="10_0kgrh"]
+[ext_resource type="PackedScene" uid="uid://cb1gfyilefvvj" path="res://demo/unit/Tank.tscn" id="10_1ger5"]
+[ext_resource type="AudioStream" uid="uid://cw083osbudnfr" path="res://demo/assets/ui/sounds/cursor_move.ogg" id="11_npakb"]
+[ext_resource type="Resource" uid="uid://8ni15si3ex81" path="res://demo/unit/demo_long_tank.tres" id="12_qidbu"]
+[ext_resource type="AudioStream" uid="uid://chh5seatf8dr3" path="res://demo/assets/ui/sounds/select.ogg" id="14_8l58o"]
+[ext_resource type="PackedScene" uid="uid://cseefrkj1yhgr" path="res://src/TbsTemplate/Scenes/Level/Control/SwitchBehavior.tscn" id="14_d1c8n"]
+[ext_resource type="Resource" uid="uid://bemo5afnyy4lq" path="res://demo/unit/stats_player.tres" id="14_xri0l"]
+[ext_resource type="AudioStream" uid="uid://dfj0anaew11iq" path="res://demo/assets/ui/sounds/cancel.ogg" id="15_1yav4"]
+[ext_resource type="PackedScene" uid="uid://sh1oy4xaqis2" path="res://src/TbsTemplate/Scenes/Level/Control/TurnSwitchCondition.tscn" id="15_ss7xl"]
+[ext_resource type="AudioStream" uid="uid://byd0f8wekfypg" path="res://demo/assets/ui/sounds/zone_on.ogg" id="16_2ofvg"]
+[ext_resource type="PackedScene" uid="uid://nt5vqytk4pr3" path="res://src/TbsTemplate/Scenes/Level/Control/StandBehavior.tscn" id="16_6hgq8"]
+[ext_resource type="AudioStream" uid="uid://bj1dfsj4g652j" path="res://demo/assets/ui/sounds/error.ogg" id="16_fv6cu"]
+[ext_resource type="Resource" uid="uid://b7pxcedeak8w6" path="res://demo/unit/stats_enemy.tres" id="17_co34n"]
+[ext_resource type="PackedScene" uid="uid://djsdk3bbrh181" path="res://src/TbsTemplate/Scenes/Level/Control/MoveBehavior.tscn" id="17_e23bw"]
+[ext_resource type="AudioStream" uid="uid://bsv4edb1voeu8" path="res://demo/assets/ui/sounds/zone_off.ogg" id="17_fv6cu"]
+[ext_resource type="PackedScene" uid="uid://bbanldfbqkktf" path="res://src/TbsTemplate/Scenes/Level/Control/InRangeSwitchCondition.tscn" id="17_ss7xl"]
+[ext_resource type="Resource" uid="uid://chjjd5sn6y2jw" path="res://demo/factions/DemoAllyFaction.tres" id="20_6hgq8"]
+[ext_resource type="PackedScene" uid="uid://bottrwv1ptmbg" path="res://src/TbsTemplate/Scenes/Level/Objectives/AnyObjective.tscn" id="24_0hb45"]
+[ext_resource type="PackedScene" uid="uid://ui4hxtcp2cgu" path="res://demo/DemoEventController.tscn" id="24_c7alg"]
+[ext_resource type="Resource" uid="uid://yakjvmifix2m" path="res://demo/unit/stats_boss.tres" id="24_co34n"]
+[ext_resource type="PackedScene" uid="uid://7wc21qvj7n3n" path="res://src/TbsTemplate/Scenes/Level/Objectives/DefeatUnitObjective.tscn" id="25_qahj2"]
+[ext_resource type="Resource" uid="uid://bm5bvc8s4vh6n" path="res://demo/unit/stats_ally.tres" id="26_3brue"]
+[ext_resource type="PackedScene" uid="uid://b8dnpt7lcd2it" path="res://src/TbsTemplate/Scenes/Level/Objectives/OccupyObjective.tscn" id="26_prinx"]
+[ext_resource type="PackedScene" uid="uid://blf1owsru7rvw" path="res://src/TbsTemplate/Scenes/Level/Objectives/ActionObjective.tscn" id="27_c7alg"]
+[ext_resource type="PackedScene" uid="uid://bi38gny50edyk" path="res://src/TbsTemplate/Scenes/Level/Objectives/RouteObjective.tscn" id="29_c7alg"]
+[ext_resource type="PackedScene" uid="uid://bdxrle0amq3ew" path="res://src/TbsTemplate/Scenes/Level/Objectives/TimeObjective.tscn" id="30_xri0l"]
+[ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/TbsTemplate/UI/HUD/CursorHintIcon.tscn" id="34_0sxdy"]
+[ext_resource type="Theme" uid="uid://by6euruicgqv" path="res://demo/assets/ui/ui.tres" id="35_dxofe"]
+[ext_resource type="Resource" uid="uid://cu80svtcky350" path="res://demo/assets/ui/input/icons/icon_map_mouse.tres" id="35_mogvl"]
+[ext_resource type="Resource" uid="uid://scrs41kvnxyt" path="res://demo/assets/ui/input/icons/icon_map_keyboard.tres" id="36_npakb"]
+[ext_resource type="Resource" uid="uid://bovrp7fmo4rn5" path="res://demo/assets/ui/input/icons/icon_map_button.tres" id="37_dxofe"]
+[ext_resource type="Resource" uid="uid://3nkmext8ildv" path="res://demo/assets/ui/input/icons/icon_map_axis.tres" id="38_v621i"]
+[ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/TbsTemplate/UI/HUD/ControlHint.tscn" id="39_mogvl"]
+
+[node name="DemoMap" type="Node"]
+script = ExtResource("1_npakb")
+
+[node name="LevelManager" parent="." node_paths=PackedStringArray("StartingArmy") instance=ExtResource("1_3r8kd")]
+CombatScenePath = "uid://didkiflqabwl4"
+StartingArmy = NodePath("Player")
+
+[node name="Grid" parent="LevelManager" node_paths=PackedStringArray("GroundLayer", "TerrainLayer") instance=ExtResource("2_oeidl")]
+GroundLayer = NodePath("Ground")
+TerrainLayer = NodePath("Terrain")
+DefaultTerrain = ExtResource("3_akw2u")
+
+[node name="Ground" type="TileMapLayer" parent="LevelManager/Grid"]
+tile_map_data = PackedByteArray("AAAAAAAAAQAAAAAAAAAAAAEAAQABAAAAAAAAAAIAAQAAAAAAAAAAAAMAAQABAAAAAAAAAAQAAQAAAAAAAAAAAAUAAQAAAAAAAAAAAAYAAQAAAAAAAAAAAAcAAQAAAAAAAAAAAAgAAQAAAAAAAAAAAAkAAQAAAAAAAAAAAAoAAQAAAAAAAAAAAAsAAQACAAAAAAAAAAwAAQAAAAAAAAAAAA0AAQAAAAAAAAAAAA4AAQAAAAAAAAABAAAAAQAAAAAAAAABAAEAAQAAAAAAAAABAAIAAQABAAAAAAABAAMAAQAAAAAAAAABAAQAAQAAAAAAAAABAAUAAQABAAAAAAABAAYAAQAAAAAAAAABAAcAAQAAAAAAAAABAAgAAQAAAAAAAAABAAkAAQABAAAAAAABAAoAAQAAAAAAAAABAAsAAQABAAAAAAABAAwAAQAAAAAAAAABAA0AAQABAAAAAAABAA4AAQAAAAAAAAACAAAAAQAAAAAAAAACAAEAAQABAAAAAAACAAIAAQABAAAAAAACAAMAAQAAAAAAAAACAAQAAQAAAAAAAAACAAUAAQAAAAAAAAACAAYAAQACAAAAAAACAAcAAQABAAAAAAACAAgAAQAAAAAAAAACAAkAAQACAAAAAAACAAoAAQACAAAAAAACAAsAAQAAAAAAAAACAAwAAQABAAAAAAACAA0AAQABAAAAAAACAA4AAQAAAAAAAAADAAAAAQAAAAAAAAADAAEAAQACAAAAAAADAAIAAQAAAAAAAAADAAMAAQABAAAAAAADAAQAAQAAAAAAAAADAAUAAQAAAAAAAAADAAYAAQAAAAAAAAADAAcAAQAAAAAAAAADAAgAAQAAAAAAAAADAAkAAQAAAAAAAAADAAoAAQAAAAAAAAADAAsAAQABAAAAAAADAAwAAQAAAAAAAAADAA0AAQACAAAAAAADAA4AAQABAAAAAAAEAAAAAQABAAAAAAAEAAEAAQAAAAAAAAAEAAIAAQAAAAAAAAAEAAMAAQABAAAAAAAEAAQAAQAAAAAAAAAEAAUAAQAAAAAAAAAEAAYAAQAAAAAAAAAEAAcAAQAAAAAAAAAEAAgAAQAAAAAAAAAEAAkAAQAAAAAAAAAEAAoAAQABAAAAAAAEAAsAAQABAAAAAAAEAAwAAQAAAAAAAAAEAA0AAQABAAAAAAAEAA4AAQABAAAAAAAFAAAAAQAAAAAAAAAFAAEAAQAAAAAAAAAFAAIAAQACAAAAAAAFAAMAAQAAAAAAAAAFAAQAAQAAAAAAAAAFAAUAAQABAAAAAAAFAAYAAQAAAAAAAAAFAAcAAQAAAAAAAAAFAAgAAQAAAAAAAAAFAAkAAQAAAAAAAAAFAAoAAQAAAAAAAAAFAAsAAQAAAAAAAAAFAAwAAQAAAAAAAAAFAA0AAQAAAAAAAAAFAA4AAQAAAAAAAAAGAAAAAQAAAAAAAAAGAAEAAQABAAAAAAAGAAIAAQAAAAAAAAAGAAMAAQAAAAAAAAAGAAQAAQABAAAAAAAGAAUAAQAAAAAAAAAGAAYAAQAAAAAAAAAGAAcAAQACAAAAAAAGAAgAAQAAAAAAAAAGAAkAAQAAAAAAAAAGAAoAAQABAAAAAAAGAAsAAQABAAAAAAAGAAwAAQAAAAAAAAAGAA0AAQAAAAAAAAAGAA4AAQAAAAAAAAAHAAAAAQABAAAAAAAHAAEAAQABAAAAAAAHAAIAAQACAAAAAAAHAAMAAQAAAAAAAAAHAAQAAQAAAAAAAAAHAAUAAQAAAAAAAAAHAAYAAQAAAAAAAAAHAAcAAQAAAAAAAAAHAAgAAQACAAAAAAAHAAkAAQACAAAAAAAHAAoAAQAAAAAAAAAHAAsAAQAAAAAAAAAHAAwAAQAAAAAAAAAHAA0AAQAAAAAAAAAHAA4AAQABAAAAAAAIAAAAAQAAAAAAAAAIAAEAAQAAAAAAAAAIAAIAAQAAAAAAAAAIAAMAAQAAAAAAAAAIAAQAAQAAAAAAAAAIAAUAAQAAAAAAAAAIAAYAAQAAAAAAAAAIAAcAAQABAAAAAAAIAAgAAQACAAAAAAAIAAkAAQABAAAAAAAIAAoAAQABAAAAAAAIAAsAAQAAAAAAAAAIAAwAAQAAAAAAAAAIAA0AAQAAAAAAAAAIAA4AAQAAAAAAAAAJAAAAAQACAAAAAAAJAAEAAQAAAAAAAAAJAAIAAQAAAAAAAAAJAAMAAQABAAAAAAAJAAQAAQAAAAAAAAAJAAUAAQABAAAAAAAJAAYAAQAAAAAAAAAJAAcAAQAAAAAAAAAJAAgAAQABAAAAAAAJAAkAAQABAAAAAAAJAAsAAQAAAAAAAAAJAAwAAQABAAAAAAAJAA0AAQAAAAAAAAAJAA4AAQAAAAAAAAAKAAAAAQAAAAAAAAAKAAEAAQAAAAAAAAAKAAIAAQAAAAAAAAAKAAMAAQAAAAAAAAAKAAQAAQAAAAAAAAAKAAUAAQAAAAAAAAAKAAYAAQACAAAAAAAKAAcAAQAAAAAAAAAKAAgAAQAAAAAAAAAKAAsAAQAAAAAAAAAKAAwAAQABAAAAAAAKAA0AAQAAAAAAAAAKAA4AAQAAAAAAAAALAAAAAQABAAAAAAALAAEAAQAAAAAAAAALAAIAAQAAAAAAAAALAAMAAQAAAAAAAAALAAQAAQACAAAAAAALAAUAAQAAAAAAAAALAAYAAQAAAAAAAAALAAcAAQAAAAAAAAALAAgAAQAAAAAAAAALAAoAAQABAAAAAAALAAsAAQAAAAAAAAALAAwAAQAAAAAAAAALAA0AAQAAAAAAAAALAA4AAQAAAAAAAAAMAAAAAQAAAAAAAAAMAAEAAQAAAAAAAAAMAAIAAQAAAAAAAAAMAAMAAQAAAAAAAAAMAAQAAQAAAAAAAAAMAAUAAQACAAAAAAAMAAYAAQAAAAAAAAAMAAkAAQAAAAAAAAAMAAoAAQAAAAAAAAAMAAsAAQAAAAAAAAAMAAwAAQAAAAAAAAAMAA0AAQAAAAAAAAAMAA4AAQABAAAAAAANAAAAAQABAAAAAAANAAEAAQABAAAAAAANAAIAAQABAAAAAAANAAMAAQABAAAAAAANAAQAAQAAAAAAAAANAAUAAQAAAAAAAAANAAgAAQAAAAAAAAANAAkAAQAAAAAAAAANAAoAAQAAAAAAAAANAAsAAQABAAAAAAANAAwAAQAAAAAAAAANAA0AAQAAAAAAAAANAA4AAQAAAAAAAAAOAAAAAQAAAAAAAAAOAAEAAQAAAAAAAAAOAAIAAQAAAAAAAAAOAAMAAQAAAAAAAAAOAAQAAQAAAAAAAAAOAAcAAQABAAAAAAAOAAgAAQABAAAAAAAOAAkAAQAAAAAAAAAOAAoAAQABAAAAAAAOAAsAAQAAAAAAAAAOAAwAAQAAAAAAAAAOAA0AAQABAAAAAAAOAA4AAQACAAAAAAAPAAAAAQAAAAAAAAAPAAEAAQACAAAAAAAPAAIAAQABAAAAAAAPAAMAAQAAAAAAAAAPAAQAAQABAAAAAAAPAAUAAQAAAAAAAAAPAAYAAQAAAAAAAAAPAAcAAQAAAAAAAAAPAAgAAQAAAAAAAAAPAAkAAQABAAAAAAAPAAoAAQABAAAAAAAPAAsAAQABAAAAAAAPAAwAAQAAAAAAAAAPAA0AAQAAAAAAAAAPAA4AAQAAAAAAAAAQAAAAAQABAAAAAAAQAAEAAQAAAAAAAAAQAAIAAQAAAAAAAAAQAAMAAQAAAAAAAAAQAAQAAQAAAAAAAAAQAAUAAQAAAAAAAAAQAAYAAQAAAAAAAAAQAAcAAQAAAAAAAAAQAAgAAQAAAAAAAAAQAAkAAQAAAAAAAAAQAAoAAQAAAAAAAAAQAAsAAQAAAAAAAAAQAAwAAQABAAAAAAAQAA0AAQAAAAAAAAAQAA4AAQABAAAAAAARAAAAAQAAAAAAAAARAAEAAQAAAAAAAAARAAIAAQABAAAAAAARAAMAAQABAAAAAAARAAQAAQAAAAAAAAARAAUAAQAAAAAAAAARAAYAAQAAAAAAAAARAAcAAQABAAAAAAARAAgAAQAAAAAAAAARAAkAAQAAAAAAAAARAAoAAQAAAAAAAAARAAsAAQAAAAAAAAARAAwAAQAAAAAAAAARAA0AAQABAAAAAAARAA4AAQAAAAAAAAASAAAAAQABAAAAAAASAAEAAQAAAAAAAAASAAIAAQACAAAAAAASAAMAAQAAAAAAAAASAAQAAQABAAAAAAASAAUAAQABAAAAAAASAAYAAQAAAAAAAAASAAcAAQAAAAAAAAASAAgAAQAAAAAAAAASAAkAAQAAAAAAAAASAAoAAQAAAAAAAAASAAsAAQAAAAAAAAASAAwAAQABAAAAAAASAA0AAQAAAAAAAAASAA4AAQABAAAAAAATAAAAAQAAAAAAAAATAAEAAQAAAAAAAAATAAIAAQABAAAAAAATAAMAAQAAAAAAAAATAAQAAQABAAAAAAATAAUAAQAAAAAAAAATAAYAAQAAAAAAAAATAAcAAQAAAAAAAAATAAgAAQAAAAAAAAATAAkAAQAAAAAAAAATAAoAAQAAAAAAAAATAAsAAQAAAAAAAAATAAwAAQACAAAAAAATAA0AAQACAAAAAAATAA4AAQAAAAAAAAAJAAoAAQABAAAAAAAKAAoAAQABAAAAAAAKAAkAAQAAAAAAAAALAAkAAQACAAAAAAAMAAgAAQAAAAAAAAAMAAcAAQACAAAAAAANAAcAAQAAAAAAAAANAAYAAQAAAAAAAAAOAAYAAQAAAAAAAAAOAAUAAQABAAAAAAA=")
+tile_set = ExtResource("4_yu7ov")
+
+[node name="Terrain" type="TileMapLayer" parent="LevelManager/Grid"]
+tile_map_data = PackedByteArray("AAATAAkAAQACAAMAAAATAAgAAQACAAIAAAATAAcAAQACAAIAAAATAAYAAQACAAIAAAATAAUAAQACAAIAAAATAAQAAQACAAEAAAASAAkAAQABAAMAAAASAAgAAQABAAIAAAASAAcAAQABAAIAAAASAAYAAQABAAIAAAASAAUAAQABAAIAAAASAAQAAQABAAEAAAARAAkAAQABAAMAAAARAAgAAQABAAIAAAARAAcAAQABAAIAAAARAAYAAQABAAIAAAARAAUAAQABAAIAAAARAAQAAQABAAEAAAAQAAkAAQABAAMAAAAQAAgAAQABAAIAAAAQAAcAAQABAAIAAAAQAAYAAQABAAIAAAAQAAUAAQABAAIAAAAQAAQAAQABAAEAAAAPAAkAAQAAAAMAAAAPAAgAAQADAAUAAAAPAAcAAQABAAIAAAAPAAYAAQABAAIAAAAPAAUAAQAAAAUAAAAPAAQAAQAAAAEAAAAOAAgAAQAAAAMAAAAOAAcAAQAAAAIAAAAOAAYAAQAAAAIAAAAOAAUAAQAAAAEAAAATAAIAAQACAAMAAAATAAEAAQACAAIAAAATAAAAAQACAAEAAAASAAIAAQABAAMAAAASAAEAAQABAAIAAAASAAAAAQABAAEAAAARAAIAAQAAAAMAAAARAAEAAQAAAAIAAAARAAAAAQAAAAEAAAACAAYAAQACAAMAAAACAAUAAQACAAIAAAACAAQAAQACAAEAAAABAAYAAQABAAMAAAABAAUAAQABAAIAAAABAAQAAQABAAEAAAAAAAYAAQAAAAMAAAAAAAUAAQAAAAIAAAAAAAQAAQAAAAEAAAARAAsAAQAKAAQAAAARAAoAAQAIAAQAAAA=")
+tile_set = ExtResource("4_yu7ov")
+
+[node name="Objects" type="TileMapLayer" parent="LevelManager/Grid"]
+tile_map_data = PackedByteArray("AAASAAIAAQAKAAMAAAABAAYAAQAKAAIAAAA=")
+tile_set = ExtResource("4_yu7ov")
+
+[node name="Occupy" type="TileMapLayer" parent="LevelManager/Grid"]
+modulate = Color(0, 1, 0, 0.392157)
+tile_map_data = PackedByteArray("AAAIAA4AAAAAAAMAAAAJAA4AAAABAAMAAAAKAA4AAAABAAMAAAALAA4AAAACAAMAAAA=")
+tile_set = ExtResource("10_0kgrh")
+
+[node name="Capture" parent="LevelManager/Grid" node_paths=PackedStringArray("AllowedArmies") instance=ExtResource("6_qahj2")]
+modulate = Color(1, 1, 1, 0.392157)
+tile_map_data = PackedByteArray("AAASAAMAAAABAAUAAAA=")
+tile_set = ExtResource("10_0kgrh")
+Action = &"Capture"
+AllowedArmies = [NodePath("../../Player")]
+OneShot = true
+"Terrain Set" = 0
+Terrain = "selection"
+
+[node name="Player" parent="LevelManager" instance=ExtResource("5_oeidl")]
+Faction = ExtResource("6_akw2u")
+
+[node name="PlayerController" parent="LevelManager/Player" instance=ExtResource("7_tajn8")]
+CursorSpriteTexture = ExtResource("8_s2xnc")
+CursorSpriteOffset = Vector2(8, 8)
+PointerSpriteTexture = ExtResource("9_6hgq8")
+ActionRangeTileSet = ExtResource("10_0kgrh")
+CursorMoveSound = ExtResource("11_npakb")
+SelectSound = ExtResource("14_8l58o")
+CancelSound = ExtResource("15_1yav4")
+ErrorSound = ExtResource("16_fv6cu")
+ZoneOnSound = ExtResource("16_2ofvg")
+ZoneOffSound = ExtResource("17_fv6cu")
+MenuHighlightSound = ExtResource("11_npakb")
+PathTileSet = ExtResource("4_yu7ov")
+PathTilesSourceId = 1
+PathTerrainSet = 1
+PathTerrain = 0
+
+[node name="PlayerA" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(96, 144)
+Class = ExtResource("12_qidbu")
+Stats = ExtResource("14_xri0l")
+AttackRange = PackedInt32Array(1, 2)
+SupportRange = PackedInt32Array(1)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(6, 9)
+Size = Vector2(16, 16)
+
+[node name="PlayerB" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(112, 128)
+Class = ExtResource("12_qidbu")
+Stats = ExtResource("14_xri0l")
+AttackRange = PackedInt32Array(1, 2)
+SupportRange = PackedInt32Array(1)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(7, 8)
+Size = Vector2(16, 16)
+
+[node name="PlayerC" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(128, 144)
+Class = ExtResource("12_qidbu")
+Stats = ExtResource("14_xri0l")
+AttackRange = PackedInt32Array(1, 2)
+SupportRange = PackedInt32Array(1)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(8, 9)
+Size = Vector2(16, 16)
+
+[node name="PlayerD" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(112, 160)
+Class = ExtResource("12_qidbu")
+Stats = ExtResource("14_xri0l")
+AttackRange = PackedInt32Array(1, 2)
+SupportRange = PackedInt32Array(1)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(7, 10)
+Size = Vector2(16, 16)
+
+[node name="Enemy1" parent="LevelManager" instance=ExtResource("5_oeidl")]
+Faction = ExtResource("7_yu7ov")
+
+[node name="AIController" parent="LevelManager/Enemy1" instance=ExtResource("9_s2xnc")]
+
+[node name="EnemyA" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(128, 208)
+Stats = ExtResource("17_co34n")
+Grid = NodePath("../../Grid")
+Cell = Vector2i(8, 13)
+Size = Vector2(16, 16)
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyA" instance=ExtResource("17_e23bw")]
+
+[node name="EnemyB" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(144, 208)
+Stats = ExtResource("17_co34n")
+Grid = NodePath("../../Grid")
+Cell = Vector2i(9, 13)
+Size = Vector2(16, 16)
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyB" instance=ExtResource("17_e23bw")]
+
+[node name="EnemyC" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(160, 208)
+Stats = ExtResource("17_co34n")
+Grid = NodePath("../../Grid")
+Cell = Vector2i(10, 13)
+Size = Vector2(16, 16)
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyC" instance=ExtResource("17_e23bw")]
+
+[node name="EnemyD" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(176, 208)
+Stats = ExtResource("17_co34n")
+Grid = NodePath("../../Grid")
+Cell = Vector2i(11, 13)
+Size = Vector2(16, 16)
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyD" instance=ExtResource("17_e23bw")]
+
+[node name="EnemyE" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(144, 80)
+Stats = ExtResource("17_co34n")
+Grid = NodePath("../../Grid")
+Cell = Vector2i(9, 5)
+Size = Vector2(16, 16)
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyE" instance=ExtResource("17_e23bw")]
+
+[node name="EnemyF" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(176, 80)
+Stats = ExtResource("17_co34n")
+Grid = NodePath("../../Grid")
+Cell = Vector2i(11, 5)
+Size = Vector2(16, 16)
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyF" instance=ExtResource("17_e23bw")]
+
+[node name="EnemyG" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(192, 96)
+Stats = ExtResource("17_co34n")
+Grid = NodePath("../../Grid")
+Cell = Vector2i(12, 6)
+Size = Vector2(16, 16)
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyG" instance=ExtResource("17_e23bw")]
+
+[node name="EnemyH" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(192, 128)
+Stats = ExtResource("17_co34n")
+Grid = NodePath("../../Grid")
+Cell = Vector2i(12, 8)
+Size = Vector2(16, 16)
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyH" instance=ExtResource("17_e23bw")]
+
+[node name="GuardA" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(288, 48)
+Stats = ExtResource("17_co34n")
+Grid = NodePath("../../Grid")
+Cell = Vector2i(18, 3)
+Size = Vector2(16, 16)
+
+[node name="StandBehavior" parent="LevelManager/Enemy1/GuardA" instance=ExtResource("16_6hgq8")]
+AttackInRange = true
+SupportInRange = false
+
+[node name="GuardB" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(256, 32)
+Stats = ExtResource("17_co34n")
+Grid = NodePath("../../Grid")
+Cell = Vector2i(16, 2)
+Size = Vector2(16, 16)
+
+[node name="SwitchBehavior" parent="LevelManager/Enemy1/GuardB" instance=ExtResource("14_d1c8n")]
+
+[node name="InRangeSwitchCondition" parent="LevelManager/Enemy1/GuardB/SwitchBehavior" node_paths=PackedStringArray("SourceUnits", "TriggerArmies") instance=ExtResource("17_ss7xl")]
+SourceUnits = [NodePath("../..")]
+TriggerArmies = [NodePath("../../../../Player")]
+
+[node name="StandBehavior" parent="LevelManager/Enemy1/GuardB/SwitchBehavior" instance=ExtResource("16_6hgq8")]
+AttackInRange = true
+SupportInRange = false
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/GuardB/SwitchBehavior" instance=ExtResource("17_e23bw")]
+
+[node name="GuardC" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(256, 48)
+Stats = ExtResource("17_co34n")
+Grid = NodePath("../../Grid")
+Cell = Vector2i(16, 3)
+Size = Vector2(16, 16)
+
+[node name="SwitchBehavior" parent="LevelManager/Enemy1/GuardC" instance=ExtResource("14_d1c8n")]
+
+[node name="InRangeSwitchCondition" parent="LevelManager/Enemy1/GuardC/SwitchBehavior" node_paths=PackedStringArray("SourceUnits", "TriggerArmies") instance=ExtResource("17_ss7xl")]
+SourceUnits = [NodePath("../..")]
+TriggerArmies = [NodePath("../../../../Player")]
+
+[node name="StandBehavior" parent="LevelManager/Enemy1/GuardC/SwitchBehavior" instance=ExtResource("16_6hgq8")]
+AttackInRange = true
+SupportInRange = false
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/GuardC/SwitchBehavior" instance=ExtResource("17_e23bw")]
+
+[node name="RoyalGuardA" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(288, 192)
+Stats = ExtResource("17_co34n")
+Grid = NodePath("../../Grid")
+Cell = Vector2i(18, 12)
+Size = Vector2(16, 16)
+
+[node name="StandBehavior" parent="LevelManager/Enemy1/RoyalGuardA" instance=ExtResource("16_6hgq8")]
+AttackInRange = true
+SupportInRange = false
+
+[node name="RoyalGuardB" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(272, 208)
+Stats = ExtResource("17_co34n")
+Grid = NodePath("../../Grid")
+Cell = Vector2i(17, 13)
+Size = Vector2(16, 16)
+
+[node name="StandBehavior" parent="LevelManager/Enemy1/RoyalGuardB" instance=ExtResource("16_6hgq8")]
+AttackInRange = true
+SupportInRange = false
+
+[node name="RoyalGuardC" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(256, 192)
+Stats = ExtResource("17_co34n")
+Grid = NodePath("../../Grid")
+Cell = Vector2i(16, 12)
+Size = Vector2(16, 16)
+
+[node name="StandBehavior" parent="LevelManager/Enemy1/RoyalGuardC" instance=ExtResource("16_6hgq8")]
+AttackInRange = true
+SupportInRange = false
+
+[node name="ReinforcementA" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+Stats = ExtResource("17_co34n")
+Grid = NodePath("../../Grid")
+Size = Vector2(16, 16)
+
+[node name="SwitchBehavior" parent="LevelManager/Enemy1/ReinforcementA" instance=ExtResource("14_d1c8n")]
+
+[node name="TurnSwitchCondition" parent="LevelManager/Enemy1/ReinforcementA/SwitchBehavior" instance=ExtResource("15_ss7xl")]
+TriggerTurn = 2
+
+[node name="StandBehavior" parent="LevelManager/Enemy1/ReinforcementA/SwitchBehavior" instance=ExtResource("16_6hgq8")]
+AttackInRange = true
+SupportInRange = false
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/ReinforcementA/SwitchBehavior" instance=ExtResource("17_e23bw")]
+
+[node name="ReinforcementB" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(32, 0)
+Stats = ExtResource("17_co34n")
+Grid = NodePath("../../Grid")
+Cell = Vector2i(2, 0)
+Size = Vector2(16, 16)
+
+[node name="SwitchBehavior" parent="LevelManager/Enemy1/ReinforcementB" instance=ExtResource("14_d1c8n")]
+
+[node name="TurnSwitchCondition" parent="LevelManager/Enemy1/ReinforcementB/SwitchBehavior" instance=ExtResource("15_ss7xl")]
+TriggerTurn = 2
+
+[node name="StandBehavior" parent="LevelManager/Enemy1/ReinforcementB/SwitchBehavior" instance=ExtResource("16_6hgq8")]
+AttackInRange = true
+SupportInRange = false
+
+[node name="MoveBehavior" parent="LevelManager/Enemy1/ReinforcementB/SwitchBehavior" instance=ExtResource("17_e23bw")]
+
+[node name="Enemy2" parent="LevelManager" instance=ExtResource("5_oeidl")]
+Faction = ExtResource("8_edc7l")
+
+[node name="AIController" parent="LevelManager/Enemy2" instance=ExtResource("9_s2xnc")]
+
+[node name="Boss" parent="LevelManager/Enemy2" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(272, 192)
+Class = ExtResource("12_qidbu")
+Stats = ExtResource("24_co34n")
+AttackRange = PackedInt32Array(1, 2)
+Grid = NodePath("../../Grid")
+Cell = Vector2i(17, 12)
+Size = Vector2(16, 16)
+
+[node name="StandBehavior" parent="LevelManager/Enemy2/Boss" instance=ExtResource("16_6hgq8")]
+AttackInRange = true
+SupportInRange = false
+
+[node name="Ally" parent="LevelManager" instance=ExtResource("5_oeidl")]
+Faction = ExtResource("20_6hgq8")
+
+[node name="AIController" parent="LevelManager/Ally" instance=ExtResource("9_s2xnc")]
+
+[node name="Ally" parent="LevelManager/Ally" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
+position = Vector2(16, 112)
+Stats = ExtResource("26_3brue")
+Grid = NodePath("../../Grid")
+Cell = Vector2i(1, 7)
+Size = Vector2(16, 16)
+
+[node name="StandBehavior" parent="LevelManager/Ally/Ally" instance=ExtResource("16_6hgq8")]
+AttackInRange = true
+
+[node name="DemoEventController" parent="." node_paths=PackedStringArray("Success", "Failure") instance=ExtResource("24_c7alg")]
+GameOverScreen = "uid://dx3e15oktmll8"
+Success = NodePath("SuccessObjective")
+Failure = NodePath("FailureObjective")
+
+[node name="SuccessObjective" parent="DemoEventController" instance=ExtResource("24_0hb45")]
+
+[node name="DefeatUnitObjective" parent="DemoEventController/SuccessObjective" node_paths=PackedStringArray("Target") instance=ExtResource("25_qahj2")]
+Target = NodePath("../../../LevelManager/Enemy2/Boss")
+
+[node name="OccupyObjective" parent="DemoEventController/SuccessObjective" node_paths=PackedStringArray("Region", "Army") instance=ExtResource("26_prinx")]
+Region = NodePath("../../../LevelManager/Grid/Occupy")
+Army = NodePath("../../../LevelManager/Player")
+Count = 4
+
+[node name="CaptureObjective" parent="DemoEventController/SuccessObjective" node_paths=PackedStringArray("ActionRegion") instance=ExtResource("27_c7alg")]
+ActionRegion = NodePath("../../../LevelManager/Grid/Capture")
+
+[node name="FailureObjective" parent="DemoEventController" instance=ExtResource("24_0hb45")]
+
+[node name="RouteObjective" parent="DemoEventController/FailureObjective" node_paths=PackedStringArray("Target") instance=ExtResource("29_c7alg")]
+Target = NodePath("../../../LevelManager/Player")
+
+[node name="DefeatUnitObjective" parent="DemoEventController/FailureObjective" node_paths=PackedStringArray("Target") instance=ExtResource("25_qahj2")]
+Target = NodePath("../../../LevelManager/Ally/Ally")
+
+[node name="TimeObjective" parent="DemoEventController/FailureObjective" instance=ExtResource("30_xri0l")]
+Turns = 5
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="HUD" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("35_dxofe")
+
+[node name="Status" type="VBoxContainer" parent="CanvasLayer/HUD"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 23.0
+grow_horizontal = 2
+size_flags_horizontal = 0
+
+[node name="TurnLabel" type="Label" parent="CanvasLayer/HUD/Status"]
+layout_mode = 2
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 32
+text = "Turn 1: Player"
+
+[node name="SuccessLabel" type="Label" parent="CanvasLayer/HUD/Status"]
+layout_mode = 2
+text = "Success: Route Enemy, Capture, or Defeat Boss"
+
+[node name="FailureLabel" type="Label" parent="CanvasLayer/HUD/Status"]
+layout_mode = 2
+text = "Failure: All Player Units Defeated, Ally Defeated, or 5 Turns Pass"
+
+[node name="Hints" type="HBoxContainer" parent="CanvasLayer/HUD"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -42.0
+offset_right = 504.0
+grow_vertical = 0
+
+[node name="CursorHint" parent="CanvasLayer/HUD/Hints" instance=ExtResource("34_0sxdy")]
+layout_mode = 2
+MouseMap = ExtResource("35_mogvl")
+KeyMap = ExtResource("36_npakb")
+ButtonMap = ExtResource("37_dxofe")
+AxisMap = ExtResource("38_v621i")
+
+[node name="SelectHint" parent="CanvasLayer/HUD/Hints" instance=ExtResource("39_mogvl")]
+layout_mode = 2
+Description = "Select"
+MouseMap = ExtResource("35_mogvl")
+KeyMap = ExtResource("36_npakb")
+GamepadButtonIconMap = ExtResource("37_dxofe")
+Action = &"select"
+
+[node name="CancelHint" parent="CanvasLayer/HUD/Hints" instance=ExtResource("39_mogvl")]
+layout_mode = 2
+Description = "Cancel"
+MouseMap = ExtResource("35_mogvl")
+KeyMap = ExtResource("36_npakb")
+GamepadButtonIconMap = ExtResource("37_dxofe")
+Action = &"cancel"
+
+[node name="SkipHint" parent="CanvasLayer/HUD/Hints" instance=ExtResource("39_mogvl")]
+layout_mode = 2
+Description = "Skip"
+MouseMap = ExtResource("35_mogvl")
+KeyMap = ExtResource("36_npakb")
+GamepadButtonIconMap = ExtResource("37_dxofe")
+Action = &"skip"
+
+[connection signal="child_entered_tree" from="LevelManager/Player" to="LevelManager" method="OnChildEnteredGroup"]
+[connection signal="EnabledInputActionsUpdated" from="LevelManager/Player/PlayerController" to="." method="OnEnabledInputActionsUpdated"]
+[connection signal="child_entered_tree" from="LevelManager/Enemy1" to="LevelManager" method="OnChildEnteredGroup"]
+[connection signal="child_entered_tree" from="LevelManager/Enemy2" to="LevelManager" method="OnChildEnteredGroup"]
+[connection signal="child_entered_tree" from="LevelManager/Ally" to="LevelManager" method="OnChildEnteredGroup"]

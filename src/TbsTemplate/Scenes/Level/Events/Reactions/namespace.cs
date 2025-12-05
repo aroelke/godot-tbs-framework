@@ -8,7 +8,7 @@ namespace TbsTemplate
             {
                 namespace Reactions
                 {
-                    /// <summary><see cref="Nodes.StateChart"/> state reactions to events that happen within a level.</summary>
+                    /// <summary><see cref="Nodes.StateCharts"/> state reactions to events that happen within a level.</summary>
                     static internal class NamespaceDoc {}
                 }
             }

@@ -3,7 +3,7 @@ using Godot;
 namespace TbsTemplate.Scenes.Level.Objectives;
 
 /// <summary>An objective that can be completed during the course of a level to signify if the level is won or lost.</summary>
-[GlobalClass, Tool]
+[GlobalClass, Icon("res://icons/Objective.svg"), Tool]
 public abstract partial class Objective : Node
 {
     /// <summary>Signals that the objective has switched status, either having been completed or uncompleted.</summary>

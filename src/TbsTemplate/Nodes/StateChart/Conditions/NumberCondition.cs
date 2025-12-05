@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Numerics;
 using Godot;
 
-namespace TbsTemplate.Nodes.StateChart.Conditions;
+namespace TbsTemplate.Nodes.StateCharts.Conditions;
 
-/// <summary><see cref="Chart"/> action condition that evaluates a single numerical property and compares it to a static value.</summary>
+/// <summary><see cref="StateChart"/> action condition that evaluates a single numerical property and compares it to a static value.</summary>
 /// <typeparam name="T">Numerical type</typeparam>
-[Icon("res://icons/statechart/NumberCondition.svg"), Tool]
-public abstract partial class NumberCondition<[MustBeVariant] T> : Condition where T : INumber<T>
+[Tool]
+public abstract partial class NumberCondition<[MustBeVariant] T> : StateCondition where T : INumber<T>
 {
     private const string Equal          = "=";
     private const string NotEqual       = "\u2260";

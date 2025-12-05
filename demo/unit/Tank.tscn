@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://cb1gfyilefvvj"]
+
+[ext_resource type="PackedScene" uid="uid://b0cvutx2lj5uy" path="res://src/TbsTemplate/Scenes/Level/Object/Unit.tscn" id="1_rxvfq"]
+[ext_resource type="Resource" uid="uid://c54fcxiunl1qa" path="res://demo/unit/demo_short_tank.tres" id="2_t1d0q"]
+
+[node name="Unit" instance=ExtResource("1_rxvfq")]
+Class = ExtResource("2_t1d0q")
+AttackRange = PackedInt32Array(1)
+SupportRange = PackedInt32Array()
+MoveSpeed = 160.0

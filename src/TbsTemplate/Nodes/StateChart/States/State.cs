@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
-namespace TbsTemplate.Nodes.StateChart.States;
+namespace TbsTemplate.Nodes.StateCharts.States;
 
-/// <summary>Base class implementing common behavior of all <see cref="StateChart"/> states.</summary>
+/// <summary>Base class implementing common behavior of all <see cref="StateCharts"/> states.</summary>
 [GlobalClass, Tool]
 public abstract partial class State : ChartNode
 {
@@ -19,10 +19,10 @@ public abstract partial class State : ChartNode
     /// <summary>Signals that the state is being exited.</summary>
     [Signal] public delegate void StateExitedEventHandler();
 
-    private static Chart FindChart(Node node) => node == null ? null : node as Chart ?? FindChart(node.GetParent());
+    private static StateChart FindChart(Node node) => node == null ? null : node as StateChart ?? FindChart(node.GetParent());
 
     private bool _active = false;
-    private readonly List<Transition> _transitions = [];
+    private readonly List<StateTransition> _transitions = [];
 
     /// <summary>Whether or not the state is active. Setting the state to inactive also disables processing (preventing signal emission).</summary>
     public bool Active
@@ -41,7 +41,7 @@ public abstract partial class State : ChartNode
         Active = false;
 
         _transitions.Clear();
-        _transitions.AddRange(GetChildren().OfType<Transition>());
+        _transitions.AddRange(GetChildren().OfType<StateTransition>());
     }
 
     /// <summary>Activate the state.</summary>
@@ -51,7 +51,7 @@ public abstract partial class State : ChartNode
         Active = true;
 
         EmitSignal(SignalName.StateEntered);
-        foreach (Transition transition in _transitions)
+        foreach (StateTransition transition in _transitions)
             if (transition.Automatic && transition.EvaluateCondition())
                 StateChart.RunTransition(transition, this);
     }
@@ -68,7 +68,7 @@ public abstract partial class State : ChartNode
         if (!property)
             EmitSignal(SignalName.EventReceived, @event);
         
-        foreach (Transition transition in _transitions)
+        foreach (StateTransition transition in _transitions)
         {
             if ((transition.Automatic || (!property && transition.Event == @event)) && transition.EvaluateCondition())
             {
@@ -79,7 +79,7 @@ public abstract partial class State : ChartNode
         return false;
     }
 
-    public abstract void HandleTransition(Transition transition, State from);
+    public abstract void HandleTransition(StateTransition transition, State from);
 
     /// <summary>Deactivate the state.</summary>
     public virtual void Exit()

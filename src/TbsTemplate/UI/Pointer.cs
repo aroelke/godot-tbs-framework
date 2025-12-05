@@ -4,8 +4,8 @@ using Godot;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes;
 using TbsTemplate.Nodes.Components;
-using TbsTemplate.Nodes.StateChart;
-using TbsTemplate.Nodes.StateChart.States;
+using TbsTemplate.Nodes.StateCharts;
+using TbsTemplate.Nodes.StateCharts.States;
 using TbsTemplate.UI.Controls.Device;
 
 namespace TbsTemplate.UI;
@@ -43,7 +43,7 @@ public partial class Pointer : BoundedNode2D
     private bool _tracking = true;
     private Tween _flyer = null;
 
-    private Chart ControlState => _cache.GetNode<Chart>("ControlState");
+    private StateChart ControlState => _cache.GetNode<StateChart>("ControlState");
     private State DigitalState => _cache.GetNode<State>("%DigitalState");
     private State AnalogState => _cache.GetNode<State>("%AnalogState");
     private State MouseState => _cache.GetNode<State>("%MouseState");

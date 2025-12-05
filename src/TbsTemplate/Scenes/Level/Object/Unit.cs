@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using System.Collections.Immutable;
 using System;
 using TbsTemplate.Data;
 using TbsTemplate.Extensions;
@@ -24,41 +23,41 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     /// <summary>Signal that the unit is done moving along its path.</summary>
     [Signal] public delegate void DoneMovingEventHandler();
 
-    // AnimationTree parameters
-    private static readonly StringName Idle = "parameters/conditions/idle";
-    private static readonly StringName Selected = "parameters/conditions/selected";
-    private static readonly StringName Moving = "parameters/conditions/moving";
-    private static readonly StringName MoveDirection = "parameters/Moving/Walking/blend_position";
-    private static readonly StringName Done = "parameters/conditions/done";
-
-    // AnimationTree states
-    private static readonly StringName IdleState = "Idle";
-    private static readonly StringName SelectedState = "Selected";
-    private static readonly StringName MovingState = "Moving";
-    private static readonly StringName DoneState = "Done";
-
     private readonly NodeCache _cache = null;
+    private UnitMapAnimations _animations = null;
+    private Class _class = null;
     private Army _army = null;
-    private Stats _stats = new();
+    private Stats _stats = null;
     private Vector2I _target = Vector2I.Zero;
 
+    private Sprite2D             EditorSprite   => _cache.GetNode<Sprite2D>("EditorSprite");
     private FastForwardComponent Accelerate     => _cache.GetNode<FastForwardComponent>("Accelerate");
-    private Sprite2D             Sprite         => _cache.GetNode<Sprite2D>("%Sprite");
     private Path2D               Path           => _cache.GetNode<Path2D>("Path");
     private PathFollow2D         PathFollow     => _cache.GetNode<PathFollow2D>("Path/Follow");
-    private AnimationTree        AnimationTree  => _cache.GetNode<AnimationTree>("AnimationTree");
-    private StringName           AnimationState => AnimationTree.Get("parameters/playback").As<AnimationNodeStateMachinePlayback>().GetCurrentNode();
 
-    private void CheckInvalidState(string operation, params StringName[] illegal)
+    private void UpdateVisuals(Class @class, Faction faction)
     {
-        if (illegal.Contains(AnimationState))
-            throw new InvalidOperationException($"Cannot {operation} unit {Name} while in animation state {AnimationState}");
-    }
+        if (Engine.IsEditorHint())
+        {
+            if (faction is not null && @class.EditorSprites.TryGetValue(faction, out Texture2D texture))
+                EditorSprite.Texture = texture;
+            else
+            {
+                EditorSprite.Texture = @class.DefaultEditorSprite;
+                EditorSprite.Modulate = faction?.Color ?? Colors.White;
+            }
+        }
+        else
+        {
+            _animations?.QueueFree();
+            _animations = @class.InstantiateMapAnimations(faction);
+            GetNode<PathFollow2D>("Path/Follow").AddChild(_animations);
 
-    private void CheckValidState(string operation, params StringName[] legal)
-    {
-        if (!legal.Contains(AnimationState))
-            throw new InvalidOperationException($"Cannot {operation} unit {Name} while in animation state {AnimationState}");
+            Health.Connect<int>(HealthComponent.SignalName.MaximumChanged, _animations.SetHealthMax);
+            Health.Connect(HealthComponent.SignalName.ValueChanged, new Callable(_animations, UnitMapAnimations.MethodName.SetHealthValue));
+            _animations.SetHealthMax(Health.Maximum);
+            _animations.SetHealthValue(Health.Value);
+        }
     }
 
     private (IEnumerable<Vector2I>, IEnumerable<Vector2I>, IEnumerable<Vector2I>) ExcludeOccupants(IEnumerable<Vector2I> move, IEnumerable<Vector2I> attack, IEnumerable<Vector2I> support)
@@ -73,7 +72,19 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     }
 
     /// <summary>Class this unit belongs to, defining some of its stats and animations.</summary>
-    [Export] public Class Class = null;
+    [Export] public Class Class
+    {
+        get => _class;
+        set
+        {
+            if (_class != value)
+            {
+                _class = value;
+                if (_class is not null)
+                    UpdateVisuals(_class, Faction);
+            }
+        }
+    }
 
     [Export] public Stats Stats
     {
@@ -84,7 +95,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
             {
                 _stats = value;
                 if (Health is not null)
-                    Health.Maximum = _stats.Health;
+                    Health.Maximum = _stats?.Health ?? 0;
             }
         }
     }
@@ -118,19 +129,19 @@ public partial class Unit : GridNode, IUnit, IHasHealth
             if (_army != value)
             {
                 _army = value;
-                if (Sprite is not null && _army is not null)
-                    Sprite.Modulate = _army.Faction.Color;
+                if (_class is not null)
+                    UpdateVisuals(_class, Faction);
             }
         }
     }
 
-    public Faction Faction => Army.Faction;
+    public Faction Faction => Army?.Faction;
 
     /// <summary>Whether or not the unit has completed its turn.</summary>
-    public bool Active => !AnimationTree.Get(Done).AsBool();
+    public bool Active = true;
 
     /// <summary>Whether or not the unit is currently moving along a path.</summary>
-    public bool IsMoving => AnimationTree.Get(Moving).AsBool();
+    public bool IsMoving => IsProcessing();
 
     /// <summary>Box defining the unit's current position and size, in pixels on the battlefield, including during movement.</summary>
     public BoundedNode2D MotionBox => _cache.GetNode<BoundedNode2D>("Path/Follow/MotionBox");
@@ -184,43 +195,29 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     }
 
     /// <summary>Put the unit in the "selected" state.</summary>
-    public void Select()
-    {
-        CheckInvalidState("select", DoneState);
-        AnimationTree.Set(Idle, false);
-        AnimationTree.Set(Selected, true);
-        AnimationTree.Set(Moving, false);
-    }
+    public void Select() => _animations.PlaySelected();
 
     /// <summary>Put the unit in the "idle" state.</summary>
-    public void Deselect()
-    {
-        CheckInvalidState("deselect", IdleState);
-        AnimationTree.Set(Idle, true);
-        AnimationTree.Set(Selected, false);
-        AnimationTree.Set(Moving, false);
-    }
+    public void Deselect() => _animations.PlayIdle();
 
     /// <summary>Put the unit in its "done" state, indicating it isn't available to act anymore.</summary>
     public void Finish()
     {
-        Sprite.Modulate = Colors.White;
-        AnimationTree.Set(Idle, false);
-        AnimationTree.Set(Selected, false);
-        AnimationTree.Set(Moving, false);
-        AnimationTree.Set(Done, true);
+        Active = false;
+        _animations.Modulate = Colors.White;
+        _animations.PlayDone();
     }
 
     /// <summary>Restore the unit into its "idle" state from being inactive, indicating that it's ready to act again.</summary>
     public void Refresh()
     {
-        CheckValidState("refresh", "", DoneState);
-        Sprite.Modulate = Army.Faction.Color;
-        AnimationTree.Set(Done, false);
-        AnimationTree.Set(Idle, true);
+        Active = true;
+        if (Faction is null || !_class.MapAnimationsPaths.ContainsKey(Faction))
+            _animations.Modulate = Faction?.Color ?? Colors.White;
+        _animations.PlayIdle();
     }
 
-    /// <summary>Play the unit's death animation and then remove it from the scene.</summary>
+    /// <summary>Remove the unit from the map and delete it.</summary>
     public void Die()
     {
         Grid.Occupants.Remove(Cell);
@@ -240,8 +237,6 @@ public partial class Unit : GridNode, IUnit, IHasHealth
         {
             foreach (Vector2I cell in path)
                 Path.Curve.AddPoint(Grid.PositionOf(cell) - Position);
-            AnimationTree.Set(Selected, false);
-            AnimationTree.Set(Moving, true);
             _target = path[^1];
             SetProcess(true);
         }
@@ -278,15 +273,18 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     {
         base._Ready();
 
-        if (_army is not null)
-            Sprite.Modulate = _army.Faction.Color;
         Behavior = GetChildren().OfType<Behavior>().FirstOrDefault();
 
+        if (_class is not null)
+            UpdateVisuals(_class, Faction);
         if (!Engine.IsEditorHint())
         {
+            RemoveChild(EditorSprite);
+            EditorSprite.QueueFree();
+            _animations.PlayIdle();
+
             Path.Curve = new();
             MotionBox.Size = Size;
-            AnimationTree.Active = true;
             SetProcess(false);
         }
 
@@ -297,29 +295,28 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     {
         base._Process(delta);
 
-        if (!Engine.IsEditorHint())
+        if (Engine.IsEditorHint())
+        {
+            if (_class is not null && EditorSprite.Texture is null)
+                UpdateVisuals(_class, Faction);
+        }
+        else
         {
             Vector2 prev = PathFollow.Position;
             PathFollow.Progress += (float)(MoveSpeed*(Accelerate.Active ? MoveAccelerationFactor : 1)*delta);
             Vector2 change = PathFollow.Position - prev;
             if (change != Vector2.Zero)
-                AnimationTree.Set(MoveDirection, change);
+                _animations.PlayMove(change);
 
             if (PathFollow.ProgressRatio >= 1)
             {
-                AnimationTree.Set(Selected, true);
-                AnimationTree.Set(Moving, false);
+                _animations.PlaySelected();
                 PathFollow.Progress = 0;
                 Cell = _target;
                 Path.Curve.ClearPoints();
                 SetProcess(false);
                 EmitSignal(SignalName.DoneMoving);
             }
-        }
-        else
-        {
-            if (_army is not null)
-                Sprite.Modulate = _army.Faction.Color;
         }
     }
 }

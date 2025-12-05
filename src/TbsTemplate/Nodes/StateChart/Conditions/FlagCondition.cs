@@ -1,13 +1,12 @@
-using System;
 using Godot;
 
-namespace TbsTemplate.Nodes.StateChart.Conditions;
+namespace TbsTemplate.Nodes.StateCharts.Conditions;
 
-/// <summary><see cref="Chart"/> action condition that evaluates a single boolean <see cref="Chart"/> property.</summary>
-[GlobalClass, Icon("res://icons/statechart/FlagCondition.svg"), Tool]
-public partial class FlagCondition : Condition
+/// <summary><see cref="StateChart"/> action condition that evaluates a single boolean <see cref="StateChart"/> property.</summary>
+[GlobalClass, Tool]
+public partial class FlagCondition : StateCondition
 {
-    /// <summary><see cref="Chart"/> property to evaluate.</summary>
+    /// <summary><see cref="StateChart"/> property to evaluate.</summary>
     [Export] public StringName Flag = "";
 
     public override bool IsSatisfied(ChartNode source) => source.StateChart.GetVariable<bool>(Flag);

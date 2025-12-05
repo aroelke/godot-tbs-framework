@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="KeyIconMap" load_steps=13 format=3 uid="uid://wmw7dj8yot4w"]
+
+[ext_resource type="Texture2D" uid="uid://dnxdklj5eo2mi" path="res://demo2/assets/ui/icons/controls/keyboard/down.png" id="1_8fecj"]
+[ext_resource type="Texture2D" uid="uid://c1qle07itrh3t" path="res://demo2/assets/ui/icons/controls/keyboard/a.png" id="1_eajsw"]
+[ext_resource type="Texture2D" uid="uid://b22lemesaffkm" path="res://demo2/assets/ui/icons/controls/keyboard/left.png" id="2_dmmv3"]
+[ext_resource type="Texture2D" uid="uid://5ofxn6dohh6v" path="res://demo2/assets/ui/icons/controls/keyboard/d.png" id="2_ego81"]
+[ext_resource type="Texture2D" uid="uid://dedquyam7p1qb" path="res://demo2/assets/ui/icons/controls/keyboard/right.png" id="3_xkdj2"]
+[ext_resource type="Texture2D" uid="uid://dmuqp65xl1ybx" path="res://demo2/assets/ui/icons/controls/keyboard/escape.png" id="4_ni5hh"]
+[ext_resource type="Texture2D" uid="uid://bvbkwcurpgl68" path="res://demo2/assets/ui/icons/controls/keyboard/up.png" id="4_nxlfd"]
+[ext_resource type="Texture2D" uid="uid://b3vori1d0m2s7" path="res://demo2/assets/ui/icons/controls/keyboard/space.png" id="4_oghol"]
+[ext_resource type="Texture2D" uid="uid://du3fgeyabo5t5" path="res://demo2/assets/ui/icons/controls/keyboard/s.png" id="6_t2hvc"]
+[ext_resource type="Texture2D" uid="uid://daehle27h57cr" path="res://demo2/assets/ui/icons/controls/keyboard/w.png" id="9_jhhkk"]
+[ext_resource type="Texture2D" uid="uid://bgqrhdtpn0i1y" path="res://demo2/assets/ui/icons/controls/keyboard/tab.png" id="9_l20x1"]
+[ext_resource type="Script" uid="uid://chtdqcyrp0mii" path="res://src/TbsTemplate/UI/Controls/IconMaps/KeyIconMap.cs" id="12_tetff"]
+
+[resource]
+script = ExtResource("12_tetff")
+Icons = Dictionary[int, Texture2D]({
+32: ExtResource("4_oghol"),
+65: ExtResource("1_eajsw"),
+68: ExtResource("2_ego81"),
+83: ExtResource("6_t2hvc"),
+87: ExtResource("9_jhhkk"),
+4194305: ExtResource("4_ni5hh"),
+4194306: ExtResource("9_l20x1"),
+4194319: ExtResource("2_dmmv3"),
+4194320: ExtResource("4_nxlfd"),
+4194321: ExtResource("3_xkdj2"),
+4194322: ExtResource("1_8fecj")
+})

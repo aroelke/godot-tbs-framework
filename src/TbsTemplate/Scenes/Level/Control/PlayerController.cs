@@ -5,7 +5,7 @@ using System.Linq;
 using TbsTemplate.Extensions;
 using TbsTemplate.Nodes;
 using TbsTemplate.Nodes.Components;
-using TbsTemplate.Nodes.StateChart;
+using TbsTemplate.Nodes.StateCharts;
 using TbsTemplate.Scenes.Level.Events;
 using TbsTemplate.Scenes.Level.Layers;
 using TbsTemplate.Scenes.Level.Map;
@@ -17,9 +17,12 @@ using TbsTemplate.UI.Controls.Device;
 namespace TbsTemplate.Scenes.Level.Control;
 
 /// <summary>Controls units based on player input.  Also includes UI elements to facilitate gameplay.</summary>
-[Tool]
+[Icon("res://icons/PlayerController.svg"), Tool]
 public partial class PlayerController : ArmyController
 {
+    private static readonly StringName PathTileSetProperty = "PathTileSet";
+    private static readonly StringName PathTerrainSetProperty = "PathTerrainSet";
+
     private static readonly StringName SelectEvent  = "select";
     private static readonly StringName PathEvent    = "path";
     private static readonly StringName CommandEvent = "command";
@@ -30,7 +33,10 @@ public partial class PlayerController : ArmyController
 
     private readonly NodeCache _cache = null;
     private Grid _grid = null;
-    private TileSet _tileset = null;
+    private TileSet _overlayTiles = null;
+    private TileSet _pathTiles = null;
+    private int _pathTerrainSet = -1, _pathTerrain = -1;
+    private Vector2I _pathUpArrow = -Vector2I.One, _pathRightArrow = -Vector2I.One, _pathDownArrow = -Vector2I.One, _pathLeftArrow = -Vector2I.One;
     private Color _move    = Colors.Blue  with { A = 100f/256f };
     private Color _attack  = Colors.Red   with { A = 100f/256f };
     private Color _support = Colors.Green with { A = 100f/256f };
@@ -42,7 +48,7 @@ public partial class PlayerController : ArmyController
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path;
 
-    private Chart             State               => _cache.GetNode<Chart>("State");
+    private StateChart        State               => _cache.GetNode<StateChart>("State");
     private ActionLayers      ActionLayers        => _cache.GetNode<ActionLayers>("ActionLayers");
     private TileMapLayer      MoveLayer           => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Move");
     private TileMapLayer      AttackLayer         => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Attack");
@@ -51,7 +57,7 @@ public partial class PlayerController : ArmyController
     private TileMapLayer      AllyTraversableZone => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/TraversableZone");
     private TileMapLayer      LocalDangerZone     => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/LocalDangerZone");
     private TileMapLayer      GlobalDangerZone    => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/GlobalDangerZone");
-    private PathLayer         PathLayer           => _cache.GetNode<PathLayer>("PathLayer");
+    private TileMapLayer      PathLayer           => _cache.GetNode<TileMapLayer>("PathLayer");
     private Cursor            Cursor              => _cache.GetNodeOrNull<Cursor>("Cursor");
     private Sprite2D          CursorSprite        => _cache.GetNodeOrNull<Sprite2D>("Cursor/Sprite");
     private Pointer           Pointer             => _cache.GetNode<Pointer>("Pointer");
@@ -79,18 +85,24 @@ public partial class PlayerController : ArmyController
         }
     }
 
+    /// <summary>Source ID of the tiles withing <see cref="_pathTiles"/> to use for drawing the path a unit will move along.</summary>
+    public int PathTilesSourceId = -1;
+
+    /// <summary>ID of the terrain within <see cref="PathTerrainSet"/> to use for connecting the arrow of the path a unit will move along.</summary>
+    public int PathTerrain = -1;
+
     public PlayerController() : base() { _cache = new(this); }
 #region Exports
     private void UpdateActionRangeTileSet(TileSet ts)
     {
         foreach (TileMapLayer layer in ActionLayers.GetChildren().OfType<TileMapLayer>())
             layer.TileSet = ts;
-        foreach (TileMapLayer layer in ActionLayers.GetChildren().OfType<TileMapLayer>())
+        foreach (TileMapLayer layer in ZoneLayers.GetChildren().OfType<TileMapLayer>())
             layer.TileSet = ts;
     }
 
     /// <summary>Sprite to use for the grid cursor.</summary>
-    [Export, ExportGroup("Control UI")] public Texture2D CursorSpriteTexture
+    [Export, ExportGroup("Control Interface/Input")] public Texture2D CursorSpriteTexture
     {
         get => CursorSprite?.Texture;
         set
@@ -101,7 +113,7 @@ public partial class PlayerController : ArmyController
     }
 
     /// <summary>Offset of the sprite from the origin of the texture to use for positioning it within a cell.</summary>
-    [Export(PropertyHint.None, "suffix:px"), ExportGroup("Control UI")] public Vector2 CursorSpriteOffset
+    [Export(PropertyHint.None, "suffix:px"), ExportGroup("Control Interface/Input")] public Vector2 CursorSpriteOffset
     {
         get => CursorSprite?.Offset ?? Vector2.Zero;
         set
@@ -112,7 +124,7 @@ public partial class PlayerController : ArmyController
     }
 
     /// <summary>Sprite to use for the analog (not mouse) pointer.</summary>
-    [Export, ExportGroup("Control UI")] public Texture2D PointerSpriteTexture
+    [Export, ExportGroup("Control Interface/Input")] public Texture2D PointerSpriteTexture
     {
         get => PointerSprite?.Texture;
         set
@@ -123,7 +135,7 @@ public partial class PlayerController : ArmyController
     }
 
     /// <summary>Offset of the analog pointer sprite from the origin of the texture.</summary>
-    [Export(PropertyHint.None, "suffix:px"), ExportGroup("Control UI")] public Vector2 PointerSpriteOffset
+    [Export(PropertyHint.None, "suffix:px"), ExportGroup("Control Interface/Input")] public Vector2 PointerSpriteOffset
     {
         get => PointerSprite?.Position ?? Vector2.Zero;
         set
@@ -133,11 +145,17 @@ public partial class PlayerController : ArmyController
         }
     }
 
+    /// <summary>
+    /// Mapping of direction vectors onto the tile set atlas coordinates to use for their arrowheads in cases where path arrows have different
+    /// starts and ends. Leave empty if that's not the case.
+    /// </summary>
+    [Export, ExportGroup("Control Interface/Path")] public Godot.Collections.Dictionary<Vector2, Vector2I> PathArrowheadCoordinates = [];
+
     /// <summary>Tile set to use for displaying action ranges and danger zones.</summary>
     [Export, ExportGroup("Action Ranges", "ActionRange")] public TileSet ActionRangeTileSet
     {
-        get => _tileset;
-        set => UpdateActionRangeTileSet(_tileset = value);
+        get => _overlayTiles;
+        set => UpdateActionRangeTileSet(_overlayTiles = value);
     }
 
     /// <summary>Color to use for highlighting which cells a unit can move to.</summary>
@@ -355,7 +373,7 @@ public partial class PlayerController : ArmyController
         UpdateDangerZones();
         ZoneLayers.Visible = true;
 
-        Cursor.Cell = ((IEnumerable<Unit>)Army).First().Cell;
+        Cursor.Cell = ((IEnumerable<Unit>)Army).Any() ? ((IEnumerable<Unit>)Army).First().Cell : Vector2I.Zero;
 
         Cursor.Resume();
         Pointer.StopWaiting();
@@ -578,7 +596,20 @@ public partial class PlayerController : ArmyController
         }).CallDeferred();
     }
 
-    private void UpdatePath(Path path) => PathLayer.Path = [.. _path = path];
+    private void UpdatePath(Path path)
+    {
+        _path = path;
+        PathLayer.Clear();
+        if (_path.Count > 1)
+        {
+            PathLayer.SetCellsTerrainPath([.. _path], _pathTerrainSet, PathTerrain);
+            if (PathArrowheadCoordinates.Count != 0)
+            {
+                Vector2I coords = PathArrowheadCoordinates.MaxBy((e) => e.Key.Normalized().Dot((_path[^1] - _path[^2]).Normalized())).Value;
+                PathLayer.SetCell(_path[^1], sourceId:PathTilesSourceId, atlasCoords:coords);
+            }
+        }
+    }
 
     private void AddToPath(Vector2I cell)
     {
@@ -804,18 +835,128 @@ public partial class PlayerController : ArmyController
 
     public void OnTargetExited() => Cursor.CellSelected -= ConfirmTargetSelection;
 #endregion
+#region Editor
+    public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
+    {
+        Godot.Collections.Array<Godot.Collections.Dictionary> properties = [.. base._GetPropertyList() ?? []];
+
+        properties.AddRange([
+            new()
+            {
+                ["name"]  = Variant.From("Control Interface/Path"),
+                ["usage"] = Variant.From(PropertyUsageFlags.Group)
+            },
+            new ObjectProperty(
+                PathTileSetProperty,
+                Variant.Type.Object,
+                PropertyHint.ResourceType,
+                $"{nameof(TileSet)}"
+            )
+        ]);
+        if (_pathTiles is not null)
+        {
+            properties.AddRange([
+                new ObjectProperty(
+                    PropertyName.PathTilesSourceId,
+                    Variant.Type.Int,
+                    PropertyHint.Enum,
+                    string.Join(',', Enumerable.Range(0, _pathTiles.GetSourceCount()).Select((i) => $"{_pathTiles.GetSourceId(i)}:{_pathTiles.GetSourceId(i)}"))
+                ),
+                new ObjectProperty(
+                    PathTerrainSetProperty,
+                    Variant.Type.Int,
+                    PropertyHint.Range,
+                    $"0,{_pathTiles.GetTerrainSetsCount() - 1},1"
+                )
+            ]);
+            if (_pathTerrainSet > -1)
+            {
+                properties.Add(new ObjectProperty(
+                    PropertyName.PathTerrain,
+                    Variant.Type.Int,
+                    PropertyHint.Enum,
+                    string.Join(',', Enumerable.Range(0, _pathTiles.GetTerrainsCount(_pathTerrainSet)).Select((i) => {
+                        string name = _pathTiles.GetTerrainName(_pathTerrainSet, i);
+                        if (name is null || name.Length == 0)
+                            return $"<terrain id: {i}>";
+                        else
+                            return name;
+                    }))
+                ));
+            }
+        }
+
+        return properties;
+    }
+
+    public override bool _Set(StringName property, Variant value)
+    {
+        if (property == PathTileSetProperty)
+        {
+            _pathTiles = value.As<TileSet>();
+            NotifyPropertyListChanged();
+            return true;
+        }
+        if (property == PathTerrainSetProperty)
+        {
+            _pathTerrainSet = value.AsInt32();
+            NotifyPropertyListChanged();
+            return true;
+        }
+        return base._Set(property, value);
+    }
+
+    public override Variant _Get(StringName property)
+    {
+        if (property == PathTileSetProperty)
+            return Variant.From(_pathTiles);
+        if (property == PathTerrainSetProperty)
+            return Variant.From(_pathTerrainSet);
+        return base._Get(property);
+    }
+
+    public override bool _PropertyCanRevert(StringName property)
+    {
+        if (property == PathTileSetProperty)
+            return true;
+        if (property == PropertyName.PathTilesSourceId)
+            return true;
+        if (property == PathTerrainSetProperty)
+            return true;
+        return base._PropertyCanRevert(property);
+    }
+
+    public override Variant _PropertyGetRevert(StringName property)
+    {
+        if (property == PathTileSetProperty)
+            return Variant.From<TileSet>(null);
+        if (property == PropertyName.PathTilesSourceId)
+            return -1;
+        if (property == PathTerrainSetProperty)
+            return -1;
+        return base._PropertyGetRevert(property);
+    }
+
+    public override void _ValidateProperty(Godot.Collections.Dictionary property)
+    {
+        if (property["name"].AsStringName() == PropertyName.PathArrowheadCoordinates && _pathTiles is null)
+            property["usage"] = Variant.From(PropertyUsageFlags.None);
+        base._ValidateProperty(property);
+    }
+#endregion
 #region Engine Events
     public override void _Ready()
     {
         base._Ready();
 
-        UpdateActionRangeTileSet(_tileset);
+        UpdateActionRangeTileSet(_overlayTiles);
+        PathLayer.TileSet            = _pathTiles;
         MoveLayer.Modulate           = _move;
         AttackLayer.Modulate         = _attack;
         SupportLayer.Modulate        = _support;
-        AllyTraversableZone.Modulate  = _ally;
-        LocalDangerZone.Modulate  = _local;
-        GlobalDangerZone.Modulate = _global;
+        AllyTraversableZone.Modulate = _ally;
+        LocalDangerZone.Modulate     = _local;
+        GlobalDangerZone.Modulate    = _global;
 
         if (!Engine.IsEditorHint())
         {

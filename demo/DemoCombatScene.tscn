@@ -1,0 +1,108 @@
+[gd_scene load_steps=9 format=3 uid="uid://didkiflqabwl4"]
+
+[ext_resource type="Script" uid="uid://b0772nvd2y455" path="res://demo/DemoCombatScene.cs" id="1_82dh7"]
+[ext_resource type="Theme" uid="uid://by6euruicgqv" path="res://demo/assets/ui/ui.tres" id="3_0swfn"]
+[ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DController.tscn" id="3_jlc87"]
+[ext_resource type="PackedScene" uid="uid://c2flvqnfd3o1x" path="res://demo/CombatantData.tscn" id="3_r0ow0"]
+[ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/TbsTemplate/UI/HUD/ControlHint.tscn" id="5_0swfn"]
+[ext_resource type="Resource" uid="uid://cu80svtcky350" path="res://demo/assets/ui/input/icons/icon_map_mouse.tres" id="6_n24vd"]
+[ext_resource type="Resource" uid="uid://scrs41kvnxyt" path="res://demo/assets/ui/input/icons/icon_map_keyboard.tres" id="7_fivgk"]
+[ext_resource type="Resource" uid="uid://bovrp7fmo4rn5" path="res://demo/assets/ui/input/icons/icon_map_button.tres" id="8_bd46v"]
+
+[node name="DemoCombatScene" type="Node"]
+script = ExtResource("1_82dh7")
+
+[node name="Camera" parent="." instance=ExtResource("3_jlc87")]
+Limits = Rect2i(0, 0, 320, 240)
+Zoom = Vector2(2, 2)
+ZoomMin = Vector2(2, 2)
+ZoomMax = Vector2(2, 2)
+
+[node name="Foreground" type="Polygon2D" parent="."]
+position = Vector2(0, 120)
+color = Color(0.168627, 0.756863, 0.419608, 1)
+polygon = PackedVector2Array(-50, 0, 370, 0, 370, 170, -50, 170)
+uv = PackedVector2Array(485, -74, 257, -79, -102, 87, 210, 41, 210, 41, 484, -66, 484, -65, 484, -65, 484, -65, 484, -65, 484, -65, 484, -65)
+
+[node name="Background" type="Polygon2D" parent="."]
+color = Color(0.607843, 0.858824, 0.941176, 1)
+polygon = PackedVector2Array(-50, -50, 370, -50, 370, 120, -50, 120)
+uv = PackedVector2Array(0, 0, 320, 0, 320, 120, 0, 120)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="UI" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_0swfn")
+
+[node name="CombatantData" type="Panel" parent="CanvasLayer/UI"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -113.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/UI/CombatantData"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -16.0
+offset_bottom = -13.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SpacerLeft" type="Control" parent="CanvasLayer/UI/CombatantData/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.5
+
+[node name="LeftData" parent="CanvasLayer/UI/CombatantData/HBoxContainer" instance=ExtResource("3_r0ow0")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="SpacerCenter" type="Control" parent="CanvasLayer/UI/CombatantData/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RightData" parent="CanvasLayer/UI/CombatantData/HBoxContainer" instance=ExtResource("3_r0ow0")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="SpacerRight" type="Control" parent="CanvasLayer/UI/CombatantData/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.5
+
+[node name="HUD" type="HBoxContainer" parent="CanvasLayer/UI"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -40.0
+offset_right = 40.0
+grow_vertical = 0
+
+[node name="SkipHint" parent="CanvasLayer/UI/HUD" instance=ExtResource("5_0swfn")]
+layout_mode = 2
+Description = "Skip"
+MouseMap = ExtResource("6_n24vd")
+KeyMap = ExtResource("7_fivgk")
+GamepadButtonIconMap = ExtResource("8_bd46v")
+Action = &"skip"
+
+[node name="TransitionDelay" type="Timer" parent="."]
+wait_time = 0.9
+one_shot = true
+
+[connection signal="timeout" from="TransitionDelay" to="." method="End"]

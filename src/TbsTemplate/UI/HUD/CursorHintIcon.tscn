@@ -1,32 +1,48 @@
-[gd_scene load_steps=12 format=3 uid="uid://dar0v4k4aqvpv"]
+[gd_scene load_steps=13 format=3 uid="uid://dar0v4k4aqvpv"]
 
 [ext_resource type="Script" uid="uid://bvs25valgct32" path="res://src/TbsTemplate/UI/HUD/CursorHintIcon.cs" id="1_go8iq"]
-[ext_resource type="Resource" uid="uid://birj34ju4ee2y" path="res://demo/assets/ui/icons/controls/mouse/MouseIconMap.tres" id="2_q2ack"]
-[ext_resource type="Resource" uid="uid://wmw7dj8yot4w" path="res://demo/assets/ui/icons/controls/keyboard/KeyIconMap.tres" id="3_fk33f"]
-[ext_resource type="Resource" uid="uid://bvjdkntd3y72l" path="res://demo/assets/ui/icons/controls/GamepadButtonIconMap.tres" id="4_tqd7u"]
-[ext_resource type="Resource" uid="uid://dkyggntwdoslv" path="res://demo/assets/ui/icons/controls/GamepadAxisIconMap.tres" id="5_h7fuu"]
-[ext_resource type="Texture2D" uid="uid://xnouovy7cud3" path="res://demo/assets/ui/icons/controls/mouse/mouse.png" id="6_tqd7u"]
-[ext_resource type="Texture2D" uid="uid://bvbkwcurpgl68" path="res://demo/assets/ui/icons/controls/keyboard/up.png" id="7_2xeja"]
-[ext_resource type="Texture2D" uid="uid://b22lemesaffkm" path="res://demo/assets/ui/icons/controls/keyboard/left.png" id="8_x07xd"]
-[ext_resource type="Texture2D" uid="uid://dnxdklj5eo2mi" path="res://demo/assets/ui/icons/controls/keyboard/down.png" id="9_l8mvq"]
-[ext_resource type="Texture2D" uid="uid://dedquyam7p1qb" path="res://demo/assets/ui/icons/controls/keyboard/right.png" id="10_ctinj"]
+[ext_resource type="Script" uid="uid://bkty261dwvxic" path="res://src/TbsTemplate/UI/Controls/IconMaps/MouseIconMap.cs" id="2_tqd7u"]
+[ext_resource type="Script" uid="uid://chtdqcyrp0mii" path="res://src/TbsTemplate/UI/Controls/IconMaps/KeyIconMap.cs" id="3_h7fuu"]
+[ext_resource type="Script" uid="uid://c1tquin6hbhk5" path="res://src/TbsTemplate/UI/Controls/IconMaps/GamepadButtonIconMap.cs" id="4_chi4a"]
+[ext_resource type="Script" uid="uid://c61eoe6d81ac8" path="res://src/TbsTemplate/UI/Controls/IconMaps/CompositeGamepadButtonIconMap.cs" id="5_fk33f"]
+[ext_resource type="Script" uid="uid://b1qk02c6ufcxj" path="res://src/TbsTemplate/UI/Controls/IconMaps/GamepadAxisIconMap.cs" id="6_2xeja"]
+[ext_resource type="Script" uid="uid://dna53iej3jmb0" path="res://src/TbsTemplate/UI/Controls/IconMaps/CompositeGamepadAxisIconMap.cs" id="7_x07xd"]
 [ext_resource type="PackedScene" uid="uid://cpswnx0irecoi" path="res://src/TbsTemplate/UI/HUD/GamepadCursorHintIcon.tscn" id="16_aragt"]
+
+[sub_resource type="Resource" id="Resource_l8mvq"]
+script = ExtResource("2_tqd7u")
+Icons = Dictionary[int, Texture2D]({})
+metadata/_custom_type_script = "uid://bkty261dwvxic"
+
+[sub_resource type="Resource" id="Resource_ctinj"]
+script = ExtResource("3_h7fuu")
+Icons = Dictionary[int, Texture2D]({})
+metadata/_custom_type_script = "uid://chtdqcyrp0mii"
+
+[sub_resource type="Resource" id="Resource_6c6gr"]
+script = ExtResource("5_fk33f")
+IconMaps = Dictionary[String, ExtResource("4_chi4a")]({})
+metadata/_custom_type_script = "uid://c61eoe6d81ac8"
+
+[sub_resource type="Resource" id="Resource_ibimm"]
+script = ExtResource("7_x07xd")
+IconMaps = Dictionary[String, ExtResource("6_2xeja")]({})
+metadata/_custom_type_script = "uid://dna53iej3jmb0"
 
 [node name="CursorHintIcon" type="HBoxContainer"]
 offset_right = 15.0
 offset_bottom = 28.0
 theme_override_constants/separation = 4
 script = ExtResource("1_go8iq")
-MouseMap = ExtResource("2_q2ack")
-KeyMap = ExtResource("3_fk33f")
-ButtonMap = ExtResource("4_tqd7u")
-AxisMap = ExtResource("5_h7fuu")
+MouseMap = SubResource("Resource_l8mvq")
+KeyMap = SubResource("Resource_ctinj")
+ButtonMap = SubResource("Resource_6c6gr")
+AxisMap = SubResource("Resource_ibimm")
 
 [node name="MouseIcon" type="TextureRect" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 4
-texture = ExtResource("6_tqd7u")
 stretch_mode = 3
 
 [node name="KeyboardIcon" type="GridContainer" parent="."]
@@ -43,7 +59,6 @@ layout_mode = 2
 [node name="UpKeyIcon" type="TextureRect" parent="KeyboardIcon"]
 unique_name_in_owner = true
 layout_mode = 2
-texture = ExtResource("7_2xeja")
 stretch_mode = 3
 
 [node name="Empty1" type="TextureRect" parent="KeyboardIcon"]
@@ -52,24 +67,23 @@ layout_mode = 2
 [node name="LeftKeyIcon" type="TextureRect" parent="KeyboardIcon"]
 unique_name_in_owner = true
 layout_mode = 2
-texture = ExtResource("8_x07xd")
 stretch_mode = 3
 
 [node name="DownKeyIcon" type="TextureRect" parent="KeyboardIcon"]
 unique_name_in_owner = true
 layout_mode = 2
-texture = ExtResource("9_l8mvq")
 stretch_mode = 3
 
 [node name="RightKeyIcon" type="TextureRect" parent="KeyboardIcon"]
 unique_name_in_owner = true
 layout_mode = 2
-texture = ExtResource("10_ctinj")
 stretch_mode = 3
 
 [node name="GamepadIcon" parent="." instance=ExtResource("16_aragt")]
 unique_name_in_owner = true
 layout_mode = 2
+ButtonMap = SubResource("Resource_6c6gr")
+AxisMap = SubResource("Resource_ibimm")
 
 [node name="Action" type="Label" parent="."]
 layout_mode = 2

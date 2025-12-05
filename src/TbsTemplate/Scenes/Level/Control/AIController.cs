@@ -17,6 +17,7 @@ using TbsTemplate.UI.Controls.Device;
 namespace TbsTemplate.Scenes.Level.Control;
 
 /// <summary>Automatically controls units based on their <see cref="UnitBehavior"/>s and the state of the level.</summary>
+[Icon("res://icons/AIController.svg"), Tool]
 public partial class AIController : ArmyController
 {
     private const int HealthDiffPrecision = 10;
@@ -509,7 +510,7 @@ public partial class AIController : ArmyController
     public override void _Input(InputEvent @event)
     {
         base._Input(@event);
-        if (EnableTurnSkipping && @event.IsActionPressed(InputManager.Cancel))
+        if (!Engine.IsEditorHint() && EnableTurnSkipping && @event.IsActionPressed(InputManager.Cancel))
             EmitSignal(SignalName.TurnFastForward);
     }
 }

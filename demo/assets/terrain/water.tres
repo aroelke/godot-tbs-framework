@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="Terrain" load_steps=2 format=3 uid="uid://c6aef0yi4n805"]
+
+[ext_resource type="Script" uid="uid://d23lpjno16iad" path="res://src/TbsTemplate/Scenes/Level/Map/Terrain.cs" id="1_d2kbr"]
+
+[resource]
+resource_name = "water"
+script = ExtResource("1_d2kbr")
+Cost = 5

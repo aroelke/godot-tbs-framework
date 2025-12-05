@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://cr7p08c3td7gg"]
-
-[ext_resource type="Script" uid="uid://c0i7lqkfi7txg" path="res://src/TbsTemplate/Nodes/StateChart/Chart.cs" id="1_3nbbd"]
-
-[node name="Chart" type="Node"]
-script = ExtResource("1_3nbbd")

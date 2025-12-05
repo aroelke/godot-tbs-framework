@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://0hg4eipcyuaf"]
+
+[ext_resource type="PackedScene" uid="uid://bwmdojktawhjy" path="res://demo/unit/LongTankCombatAnimations.tscn" id="1_ajgr3"]
+[ext_resource type="Texture2D" uid="uid://cycmnedoqd576" path="res://demo/assets/combat/tanks/long_body_player.png" id="2_6d6vh"]
+
+[node name="LongTankCombatAnimationsPlayer" instance=ExtResource("1_ajgr3")]
+
+[node name="Body" parent="." index="2"]
+texture = ExtResource("2_6d6vh")

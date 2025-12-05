@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://cqrf4toryh15a"]
+
+[ext_resource type="PackedScene" uid="uid://cikey3vro6fs7" path="res://demo/unit/LongTankMapAnimations.tscn" id="1_1q3td"]
+[ext_resource type="Texture2D" uid="uid://blfnc0chn5wst" path="res://demo/assets/map/tiles/long_tank_enemy2.png" id="2_xsh5x"]
+
+[node name="LongTankMapAnimationsEnemy2" instance=ExtResource("1_1q3td")]
+
+[node name="Sprite" parent="." index="0"]
+texture = ExtResource("2_xsh5x")
