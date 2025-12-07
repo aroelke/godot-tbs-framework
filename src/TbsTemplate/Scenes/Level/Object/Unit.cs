@@ -100,12 +100,6 @@ public partial class Unit : GridNode, IUnit, IHasHealth
         }
     }
 
-    /// <summary>Distances from the unit's occupied cell that it can attack.</summary>
-    [Export] public int[] AttackRange = [1, 2];
-
-    /// <summary>Distances from the unit's occupied cell that it can support.</summary>
-    [Export] public int[] SupportRange = [1, 2, 3];
-
     [ExportGroup("Path Traversal", "Move")]
 
     /// <summary>Base speed, in world pixels/second, to move along the path while moving.</summary>
@@ -153,7 +147,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     /// <returns>The set of cells that this unit can reach from its position, accounting for <see cref="Terrain.Cost"/>.</returns>
     public IEnumerable<Vector2I> TraversableCells() => TraversableCells(Grid);
 
-    public IEnumerable<Vector2I> AttackableCells(IGrid grid, IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(grid, sources, AttackRange);
+    public IEnumerable<Vector2I> AttackableCells(IGrid grid, IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(grid, sources, Stats.AttackRange);
 
     /// <summary>Compute all of the cells this unit could attack from the given set of source cells.</summary>
     /// <param name="sources">Cells to compute attack range from.</param>
@@ -168,7 +162,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     /// <remarks>Uses the unit's current <see cref="Cell"/> as the source.</remarks>
     public IEnumerable<Vector2I> AttackableCells() => AttackableCells(Cell);
 
-    public IEnumerable<Vector2I> SupportableCells(IGrid grid, IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(grid, sources, SupportRange);
+    public IEnumerable<Vector2I> SupportableCells(IGrid grid, IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(grid, sources, Stats.SupportRange);
 
     /// <summary>Compute all of the cells this unit could support from the given set of source cells.</summary>
     /// <param name="sources">Cells to compute support range from.</param>

@@ -1,3 +1,4 @@
+using System.Linq;
 using Godot;
 
 namespace TbsTemplate.Data;
@@ -11,14 +12,16 @@ public partial class Stats : Resource
 {
     public static Stats operator+(Stats a, Stats b) => new()
     {
-        Health = a.Health + b.Health,
-        Attack = a.Attack + b.Attack,
-        Defense = a.Defense + b.Defense,
-        Healing = a.Healing + b.Healing,
-        Accuracy = a.Accuracy + b.Accuracy,
-        Evasion = a.Evasion + b.Evasion,
-        Agility = a.Agility + b.Agility,
-        Move = a.Move + b.Move
+        Health       = a.Health   + b.Health,
+        Attack       = a.Attack   + b.Attack,
+        Defense      = a.Defense  + b.Defense,
+        Healing      = a.Healing  + b.Healing,
+        Accuracy     = a.Accuracy + b.Accuracy,
+        Evasion      = a.Evasion  + b.Evasion,
+        Agility      = a.Agility  + b.Agility,
+        Move         = a.Move     + b.Move,
+        AttackRange  = [.. a.AttackRange.Concat(b.AttackRange).Distinct().Order()],
+        SupportRange = [.. a.SupportRange.Concat(b.SupportRange).Distinct().Order()]
     };
 
     /// <summary>Max health stat. Determines the amount of damage a unit can take before being defeated.</summary>
@@ -44,4 +47,10 @@ public partial class Stats : Resource
 
     /// <summary>Movement range.</summary>
     [Export] public int Move = 5;
+
+    /// <summary>Distance at which the unit can attack an enemy.</summary>
+    [Export] public int[] AttackRange = [1];
+
+    /// <summary>Distance at which the unit can support an enemy.</summary>
+    [Export] public int[] SupportRange = [];
 }

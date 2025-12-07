@@ -73,8 +73,8 @@ public partial class AIController : ArmyController
         public int Health => (int)Math.Round(ExpectedHealth);
 
         public IEnumerable<Vector2I> TraversableCells(IGrid grid) => IUnit.TraversableCells(this, grid);
-        public IEnumerable<Vector2I> AttackableCells(IGrid grid, IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(grid, sources, Original.AttackRange);
-        public IEnumerable<Vector2I> SupportableCells(IGrid grid, IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(grid, sources, Original.SupportRange);
+        public IEnumerable<Vector2I> AttackableCells(IGrid grid, IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(grid, sources, Original.Stats.AttackRange);
+        public IEnumerable<Vector2I> SupportableCells(IGrid grid, IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(grid, sources, Original.Stats.SupportRange);
     }
 
     private class VirtualAction : IEquatable<VirtualAction>, IComparable<VirtualAction>
@@ -224,7 +224,7 @@ public partial class AIController : ArmyController
         if (action.Action == UnitAction.AttackAction)
         {
             target = action.Initial.Occupants[action.Target];
-            IEnumerable<Vector2I> safeCells = destinations.Where((c) => !target.Value.Original.AttackRange.Contains(c.ManhattanDistanceTo(target.Value.Cell)));
+            IEnumerable<Vector2I> safeCells = destinations.Where((c) => !target.Value.Original.Stats.AttackRange.Contains(c.ManhattanDistanceTo(target.Value.Cell)));
             if (safe = safeCells.Any())
                 destinations = [.. safeCells];
         }
