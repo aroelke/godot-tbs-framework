@@ -22,7 +22,6 @@ DeviceManager="*res://src/TbsTemplate/UI/Controls/Device/DeviceManager.tscn"
 MusicController="*res://src/TbsTemplate/UI/MusicController.tscn"
 SceneManager="*res://src/TbsTemplate/Scenes/SceneManager.tscn"
 LevelEvents="*res://src/TbsTemplate/Scenes/Level/Events/LevelEvents.tscn"
-SceneScout="*res://addons/GD_NET_ScOUT/SceneScout.cs"
 
 [display]
 
@@ -34,10 +33,6 @@ mouse_cursor/custom_image="uid://nhobvcrsi3w1"
 [dotnet]
 
 project/assembly_name="godot-tbs-template"
-
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/GD_NET_ScOUT/plugin.cfg")
 
 [input]
 
