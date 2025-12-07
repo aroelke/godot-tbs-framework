@@ -53,10 +53,12 @@ public partial class AIControllerTestScene : Node
         unit.Grid.Occupants[cell] = unit;
 
         unit.Class = new();
-        unit.AttackRange = attack ?? [];
-        unit.SupportRange = support ?? [];
         if (stats is not null)
             unit.Stats = stats;
+        if (attack is not null)
+            unit.Stats.AttackRange = attack;
+        if (support is not null)
+            unit.Stats.SupportRange = support;
         if (hp is not null)
             unit.Ready += () => unit.Health.Value = hp.Value; // Do in Ready handler because Unit inits its health to max
 

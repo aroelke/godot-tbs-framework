@@ -12,4 +12,6 @@ Accuracy = 100
 Evasion = 25
 Agility = 2
 Move = 5
+AttackRange = PackedInt32Array(1, 2)
+SupportRange = PackedInt32Array(1)
 metadata/_custom_type_script = "uid://cdy07gqijlx5a"
