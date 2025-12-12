@@ -1,9 +1,0 @@
-[gd_resource type="Theme" format=3 uid="uid://fr2dcmadshbl"]
-
-[resource]
-GridContainer/constants/h_separation = 10
-GridContainer/constants/v_separation = 0
-Label/colors/font_color = Color(1, 1, 1, 1)
-Label/colors/font_outline_color = Color(0, 0, 0, 1)
-Label/constants/outline_size = 4
-Label/font_sizes/font_size = 32
