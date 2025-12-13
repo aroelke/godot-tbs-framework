@@ -78,9 +78,6 @@ public partial class LevelManager : Node
 #region Exports
     [Export(PropertyHint.File, "*.tscn")] public string CombatScenePath = null;
 
-    /// <summary>Background music to play during the level.</summary>
-    [Export] public AudioStream BackgroundMusic = null;
-
     /// <summary>
     /// <see cref="Army"/> that gets the first turn and is controlled by the player. If null, use the first <see cref="Army"/>
     /// in the child list. After that, go down the child list in order, wrapping when at the end.
@@ -481,16 +478,6 @@ public partial class LevelManager : Node
         }
     }
 
-    public override void _EnterTree()
-    {
-        base._EnterTree();
-        if (!Engine.IsEditorHint())
-        {
-            MusicController.Resume(BackgroundMusic);
-            MusicController.FadeIn(SceneManager.CurrentTransition.TransitionTime/2);
-        }
-    }
-
     public override void _Ready()
     {
         base._Ready();
@@ -525,8 +512,6 @@ public partial class LevelManager : Node
             LevelEvents.Singleton.Connect<BoundedNode2D>(LevelEvents.SignalName.FocusCamera, PushCameraFocus);
             LevelEvents.Singleton.Connect(LevelEvents.SignalName.RevertCameraFocus, PopCameraFocus);
             LevelEvents.Singleton.Connect(LevelEvents.SignalName.EventComplete, OnEventComplete);
-
-            MusicController.ResetPlayback();
         }
     }
 #endregion
@@ -545,10 +530,6 @@ public partial class LevelManager : Node
         // Make sure there are units to control and to fight.
         if (!GetChildren().Any(static (c) => c is Army))
             warnings.Add("There are not any armies to assign units to.");
-
-        // Make sure there's background music
-        if (BackgroundMusic is null)
-            warnings.Add("Background music hasn't been added. Whatever's playing will stop.");
 
         return [.. warnings];
     }

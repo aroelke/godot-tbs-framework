@@ -72,7 +72,6 @@ public partial class SceneManager : Node
     {
         Task<T> task = Task.Run(gen);
         EmitSignal(SignalName.TransitionStarted);
-        MusicController.FadeOut(CurrentTransition.TransitionTime/2);
         CurrentTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => DoSceneChange(task), (uint)ConnectFlags.OneShot);
         CurrentTransition.TransitionOut();
     }
