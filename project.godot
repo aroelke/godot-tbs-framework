@@ -11,7 +11,6 @@ config_version=5
 [application]
 
 config/name="godot-tbs-template"
-run/main_scene="uid://dq2q8b0axoftt"
 config/features=PackedStringArray("4.4", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
