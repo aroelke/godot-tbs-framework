@@ -19,7 +19,6 @@ public partial class DemoEventController : EventController
         await ToSignal(GetTree().CreateTimer(1), Timer.SignalName.Timeout);
 
         SceneManager.Singleton.Connect<DemoGameOverScene>(SceneManager.SignalName.SceneLoaded, (s) => {
-            MusicController.Stop();
             s.win = success;
             QueueFree();
         }, (uint)ConnectFlags.OneShot);
