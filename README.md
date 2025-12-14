@@ -14,6 +14,9 @@ This is a framework written in C# for building turn-based strategy games in Godo
    - Using any objective as failure rather than success (e.g. all player units being defeated leads to failure)
 - Display of combat using a cut scene where participating units attack each other _(currently this is mandatory)_
 - Free switching between keyboard, mouse, and gamepad controls with free switching between joystick and dpad controls on gamepad
+## Running the Demo
+This project includes a demo that indicates how to set up a simple scene with the framework located in the "demo" directory. To run it,
+open the scene in the editor and click the "run current scene" button. There is no default scene set for this project.
 ## License
 The license for this project only covers the source code, scenes, and node icons.  Assets used in the demo have their own licenses
 which are included in their respective directories (all are CC0). Special thanks to Kenney (kenney.nl) and Ne Mene
