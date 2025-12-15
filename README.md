@@ -19,5 +19,5 @@ This project includes a demo that indicates how to set up a simple scene with th
 open the scene in the editor and click the "run current scene" button. There is no default scene set for this project.
 ## License
 The license for this project only covers the source code, scenes, and node icons.  Assets used in the demo have their own licenses
-which are included in their respective directories (all are CC0). Special thanks to Kenney (kenney.nl) and Ne Mene
+which are included in their respective directories (all are CC0). Special thanks to Kenney (https://kenney.nl/) and Ne Mene
 (https://ne-mene.itch.io/) for providing them.
