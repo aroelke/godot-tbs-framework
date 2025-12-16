@@ -70,8 +70,24 @@ Subsequent turns follow the order each `Army` in the tree is listed.
 
 Each `Unit` has a `Class` property that specifies its appearance on the map and in combat and a `Stats` property that specifies its performance
 in battle. A `Class` is simply a mapping of `Faction` resources onto scenes to use to represent them on the map and in combat and the `Stats`
-resource is simply a collection of numbers that are combined with other `Unit`s' `Stats` to determine combat outcome. A `Unit`'s `Faction`
-cannot be manually specified; instead, it is determined by the `Army` parent it has.
+resource is simply a collection of numbers that are combined with other `Unit`s' `Stats` to determine combat outcome and where on the map it can
+move and interact with other `Unit`s. A `Unit`'s `Faction` cannot be manually specified; instead, it is determined by the `Army` parent it has.
+
+If a `Unit` is part of a CPU-controlled `Army`, it must have a `Behavior` child node providing the `AIController` information about what the unit
+is allowed to do on its turn. There are three main types of `Behavior`s:
+- `StandBehavior`: prevents its parent `Unit` from moving and optionally allows it to act
+- `MoveBehavior`: allows its parent `Unit` to move to a new location to perform its action
+- `SwitchBehavior`: provides a mechanism for the `Unit` to change the way it acts during the level.
+
+Each `SwitchBehavior` must have one or more `SwitchCondition` child nodes and exactly two `Behavior` child nodes. The `SwitchCondition` nodes
+specify when the parent `Unit` switches from the first `Behavior` in the list to the second one. There are several types of `SwitchCondition`s
+included:
+- `RegionSwitchCondition`: switch to the second behavior when one or more `Unit`s have entered a region of the map specified using a `TileMapLayer`
+- `InRangeSwitchCondition`: switch to the second behavior when one or more `Unit`s have entered the total attack range of one or more other `Unit`s
+- `ManualSwitchCondition`: switch to the second behavior when the `Trigger` method is called (for example, when a signal is raised)
+- `TurnSwitchCondition`: switch to the second behavior after a certain number of turns have passed
+
+`SwitchCondition` also allows for its `Behavior` selection to revert if its `SwitchCondition` stops being satisfied.
 ### Connecting a Combat Scene
 ### Controls
 ## Running the Demo
