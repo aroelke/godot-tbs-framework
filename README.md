@@ -44,7 +44,7 @@ and could even be the root if desired.
 #### Map Objectives
 Map objectives are specified using a tree of `Objective` nodes. There are several types of `Objective`s available:
 - `ActionObjective`: One or more units must enter a specific region of the map specified using a `SpecialActionRegion`, which is a special
-type of `TileMapLayer` that defines a special action to be performed, and perform that region's action
+  type of `TileMapLayer` that defines a special action to be performed, and perform that region's action
 - `OccupyObjective`: One or more units must be in a specific region of the map when the objective is evaluated
 - `DefeatUnitObjective`: A specific unit must be defeated
 - `RouteObjective`: All units in a specific faction must be defeated
@@ -89,6 +89,27 @@ included:
 
 `SwitchCondition` also allows for its `Behavior` selection to revert if its `SwitchCondition` stops being satisfied.
 ### Connecting a Combat Scene
+_Note: Currently a separate combat scene is required. Future updates will add support for combat on the map._
+
+The combat scene is flexible and designed to support any kind of combat situation. Combat scenes should extend the `CombatScene` abstract class, which
+only requires an implementation of a `Start()` method to initiate the combat sequence and an `End` method to indicate the end. Implementations of the
+`End()` method should call `SceneManager.ReturnToPreviousScene()` to return back to the map. This method can also be called anywhere else in the
+combat script to return to the map at any time.
+
+Once the combat scene is created, it can be connected to the `LevelManager` by assigning the path to the .tscn file to the `LevelManager`'s
+`CombatScenePath` property. When a `Unit` initiates an interaction with another unit, the `LevelManager` will instantiate the `CombatScene` and switch
+to it to play the combat sequence.
+
+#### Notes About Implementing Combat
+- Combat results are computed by the `LevelManager` before transitioning to the combat scene and automatically applied after returning. The combat
+  scene should not make changes to the state of the map.
+- Updates to combat mechanics and unit stats can be made by manually modifying the code in the following places:
+  - The [`Stats`](https://github.com/aroelke/godot-tbs-template/blob/main/src/TbsTemplate/Data/Stats.cs) resource to change what stats units have
+    (make sure there's always an `AttackRange` property and `SupportRange` property)
+  - The [`CombatCalculations`](https://github.com/aroelke/godot-tbs-template/blob/main/src/TbsTemplate/Scenes/Combat/Data/CombatCalculations.cs)
+    static class to change the way combat results are calculated
+  - The [`AIController`](https://github.com/aroelke/godot-tbs-template/blob/main/src/TbsTemplate/Scenes/Level/Control/AIController.cs) class to
+    update its combat simulation to reflect the changes made to `CombatCalculation`
 ### Controls
 ## Running the Demo
 This project includes a demo that indicates how to set up a simple scene with the framework located in the "demo" directory. To run it,
