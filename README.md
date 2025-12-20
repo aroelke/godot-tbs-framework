@@ -111,6 +111,28 @@ to it to play the combat sequence.
   - The [`AIController`](https://github.com/aroelke/godot-tbs-template/blob/main/src/TbsTemplate/Scenes/Level/Control/AIController.cs) class to
     update its combat simulation to reflect the changes made to `CombatCalculation`
 ### Controls
+The framework uses the following input actions:
+- `digital_move_up` (keyboard Up, dpad up), `digital_move_left` (keyboard Left, dpad left), `digital_move_down` (keyboard Down, dpad down),
+  `digital_move_right` (keyboard key, dpad right): move the cursor in the indicated direction
+- `analog_move_up` (left stick up), `analog_move_left` (left stick left), `analog_move_down` (left stick down), `analog_move_right` (left stick right):
+  move the pointer in the indicated direction
+- `accelerate` (keyboard Ctrl, gamepad right trigger): use with `digital_move_*` to skip cursor as far as it can go in the indicated direction or with
+  `analog_move_*` to make the pointer move faster
+- `select` (keyboard Space, gamepad south button, mouse left click): confirm a selection
+- `cancel` (keyboard Esc, gamepad east button, mouse right click): cancel a selection
+- `skip` (keyboard Esc, gamepad east button, mouse right click): skip through a unit's movement or CPU-controlled `Army`'s turn
+- `previous` (keyboard Q, gamepad left shoulder, mouse thumb 1): cycle the cursor to the previous target or available unit
+- `next` (keyboard E, gamepad right shoulder, mouse thumb 2): cycle the cursor to the next target or available unit
+- `toggle_danger_zone` (keyboard C, gamepad north button, mouse middle click): toggle highlighted enemy's attack range, highlighted ally's movement
+  range, or all enemies' attack range
+- `digital_zoom_in` (keyboard Page Up, mouse wheel up), `digital_zoom_out` (keyboard Page Down, mouse wheel down), `analog_zoom_in` (right stick up),
+  `analog_zoom_out` (right stick down): zoom map camera in or out
+
+When controlling the pointer using the mouse or gamepad left stick, the cursor will automatically move to the cell the mouse is hovering over unless a
+target for an action is being chosen, in which case it will only make the move if the pointer is hovering over a valid target.  Attempting to make a
+selection when it isn't will cancel the target selection rather than confirm it.
+
+In addition to the above input actions, the built-in UI input actions (`ui_left`, etc.) are used to control context menus. 
 ## Running the Demo
 This project includes a demo that indicates how to set up a simple scene with the framework located in the "demo" directory. To run it,
 open the scene in the editor and click the "run current scene" button. There is no default scene set for this project.
