@@ -104,12 +104,11 @@ to it to play the combat sequence.
 - Combat results are computed by the `LevelManager` before transitioning to the combat scene and automatically applied after returning. The combat
   scene should not make changes to the state of the map.
 - Updates to combat mechanics and unit stats can be made by manually modifying the code in the following places:
-  - The [`Stats`](https://github.com/aroelke/godot-tbs-template/blob/main/src/TbsTemplate/Data/Stats.cs) resource to change what stats units have
-    (make sure there's always an `AttackRange` property and `SupportRange` property)
-  - The [`CombatCalculations`](https://github.com/aroelke/godot-tbs-template/blob/main/src/TbsTemplate/Scenes/Combat/Data/CombatCalculations.cs)
-    static class to change the way combat results are calculated
-  - The [`AIController`](https://github.com/aroelke/godot-tbs-template/blob/main/src/TbsTemplate/Scenes/Level/Control/AIController.cs) class to
-    update its combat simulation to reflect the changes made to `CombatCalculation`
+  - The [`Stats`](src/TbsFramework/Data/Stats.cs) resource to change what stats units have (make sure there's always an `AttackRange` property and
+    `SupportRange` property)
+  - The [`CombatCalculations`](src/TbsFramework/Scenes/Combat/Data/CombatCalculations.cs) static class to change the way combat results are calculated
+  - The [`AIController`](src/TbsFramework/Scenes/Level/Control/AIController.cs) class to update its combat simulation to reflect the changes made to
+    `CombatCalculation`
 ### Controls
 The framework uses the following input actions:
 - `digital_move_up` (keyboard Up, dpad up), `digital_move_left` (keyboard Left, dpad left), `digital_move_down` (keyboard Down, dpad down),
