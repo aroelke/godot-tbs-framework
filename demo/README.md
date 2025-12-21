@@ -31,3 +31,8 @@ may move to attack enemies or may wait to do so depending on battle conditions.
 
 Blue units can also forego an attack to heal an ally unit for 5 health from an adjacent space. They cannot heal
 themselves.
+## Basic Controls
+- Move cursor: arrow keys/dpad/left analog stick/mouse
+- Select: space bar/south button (Xbox A, Playstation X, etc.)/left click
+- Cancel/skip movement or CPU turn: Escape/east button (Xbox B, Playstation Circle, etc.)/right click
+- Toggle danger zone: C/north button (Xbox Y Playstation Triangle, etc.)/middle click
