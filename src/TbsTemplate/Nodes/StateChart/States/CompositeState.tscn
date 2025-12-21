@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://bykdjiak4bxvt"]
-
-[ext_resource type="Script" uid="uid://b5v5qlrga02xi" path="res://src/TbsTemplate/Nodes/StateChart/States/CompositeState.cs" id="1_q84ox"]
-
-[node name="CompositeState" type="Node"]
-script = ExtResource("1_q84ox")

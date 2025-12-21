@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://cseefrkj1yhgr"]
-
-[ext_resource type="Script" uid="uid://tdexpp7ys04d" path="res://src/TbsTemplate/Scenes/Level/Control/SwitchBehavior.cs" id="1_ox76d"]
-
-[node name="SwitchBehavior" type="Node"]
-script = ExtResource("1_ox76d")

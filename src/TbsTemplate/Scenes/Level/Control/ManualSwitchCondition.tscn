@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://dmft6ksatnr3c"]
-
-[ext_resource type="Script" uid="uid://cj6jaiqug8ugf" path="res://src/TbsTemplate/Scenes/Level/Control/ManualSwitchCondition.cs" id="1_gd8ww"]
-
-[node name="ManualSwitchCondition" type="Node"]
-script = ExtResource("1_gd8ww")

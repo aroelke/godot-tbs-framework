@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="KeyIconMap" load_steps=20 format=3 uid="uid://scrs41kvnxyt"]
 
-[ext_resource type="Script" uid="uid://chtdqcyrp0mii" path="res://src/TbsTemplate/UI/Controls/IconMaps/KeyIconMap.cs" id="1_hf3m4"]
+[ext_resource type="Script" uid="uid://chtdqcyrp0mii" path="res://src/TbsFramework/UI/Controls/IconMaps/KeyIconMap.cs" id="1_hf3m4"]
 [ext_resource type="Texture2D" uid="uid://frtm52s4cm4" path="res://demo/assets/ui/input/icons/key_noaction.png" id="1_s1604"]
 [ext_resource type="Texture2D" uid="uid://drheuwwipts8d" path="res://demo/assets/ui/input/icons/key_w.png" id="1_vd3qw"]
 [ext_resource type="Texture2D" uid="uid://b8mda3k0abxn8" path="res://demo/assets/ui/input/icons/key_a.png" id="2_akcd0"]

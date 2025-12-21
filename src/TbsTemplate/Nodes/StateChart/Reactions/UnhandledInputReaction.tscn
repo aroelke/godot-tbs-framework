@@ -1,8 +1,0 @@
-[gd_scene load_steps=3 format=3 uid="uid://djew2nxucmtwl"]
-
-[ext_resource type="Script" uid="uid://cqfiakwim46qw" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/UnhandledInputReaction.cs" id="1_onfph"]
-[ext_resource type="Resource" uid="uid://bw65e8e6vr1fl" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/UnCondition.tres" id="2_ro0yk"]
-
-[node name="UnhandledInputReaction" type="Node"]
-script = ExtResource("1_onfph")
-Condition = ExtResource("2_ro0yk")

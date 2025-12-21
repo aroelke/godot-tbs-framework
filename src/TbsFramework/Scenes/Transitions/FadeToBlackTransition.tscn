@@ -1,0 +1,24 @@
+[gd_scene load_steps=2 format=3 uid="uid://cl6fmcw1757sk"]
+
+[ext_resource type="Script" uid="uid://bg1q5kn4d6uvr" path="res://src/TbsFramework/Scenes/Transitions/FadeToBlackTransition.cs" id="1_nuq2l"]
+
+[node name="FadeToBlackTransition" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_nuq2l")
+TransitionTime = 1.0
+
+[node name="Overlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)

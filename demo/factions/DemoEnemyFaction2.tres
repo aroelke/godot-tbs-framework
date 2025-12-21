@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="Faction" load_steps=2 format=3 uid="uid://0dcwfdljw4ug"]
 
-[ext_resource type="Script" uid="uid://ddlp6kj6iah51" path="res://src/TbsTemplate/Data/Faction.cs" id="1_boe7q"]
+[ext_resource type="Script" uid="uid://ddlp6kj6iah51" path="res://src/TbsFramework/Data/Faction.cs" id="1_boe7q"]
 
 [resource]
 script = ExtResource("1_boe7q")

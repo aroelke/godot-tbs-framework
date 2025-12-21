@@ -16,10 +16,10 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-InputManager="*res://src/TbsTemplate/UI/Controls/Device/InputManager.tscn"
-DeviceManager="*res://src/TbsTemplate/UI/Controls/Device/DeviceManager.tscn"
-SceneManager="*res://src/TbsTemplate/Scenes/SceneManager.tscn"
-LevelEvents="*res://src/TbsTemplate/Scenes/Level/Events/LevelEvents.tscn"
+InputManager="*res://src/TbsFramework/UI/Controls/Device/InputManager.tscn"
+DeviceManager="*res://src/TbsFramework/UI/Controls/Device/DeviceManager.tscn"
+SceneManager="*res://src/TbsFramework/Scenes/SceneManager.tscn"
+LevelEvents="*res://src/TbsFramework/Scenes/Level/Events/LevelEvents.tscn"
 
 [display]
 

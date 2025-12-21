@@ -1,0 +1,45 @@
+[gd_scene load_steps=7 format=3 uid="uid://b0cvutx2lj5uy"]
+
+[ext_resource type="Script" uid="uid://ca8dcnn0pfia" path="res://src/TbsFramework/Scenes/Level/Object/Unit.cs" id="1_crlbh"]
+[ext_resource type="Script" uid="uid://cdy07gqijlx5a" path="res://src/TbsFramework/Data/Stats.cs" id="2_fgj32"]
+[ext_resource type="Script" uid="uid://xf7nwa5ddwrd" path="res://src/TbsFramework/Nodes/BoundedNode2D.cs" id="3_pmja0"]
+[ext_resource type="PackedScene" uid="uid://duggsftmu8x6l" path="res://src/TbsFramework/Nodes/Components/HealthComponent.tscn" id="6_jxbfo"]
+[ext_resource type="PackedScene" uid="uid://bmt2twqcbchie" path="res://src/TbsFramework/Nodes/Components/FastForwardComponent.tscn" id="9_cy0he"]
+
+[sub_resource type="Resource" id="Resource_gr881"]
+script = ExtResource("2_fgj32")
+Health = 10
+Attack = 1
+Defense = 0
+Healing = 0
+Accuracy = 100
+Evasion = 0
+Agility = 1
+Move = 5
+
+[node name="Unit" type="Node2D"]
+z_index = 1
+script = ExtResource("1_crlbh")
+Stats = SubResource("Resource_gr881")
+
+[node name="EditorSprite" type="Sprite2D" parent="."]
+centered = false
+
+[node name="Health" parent="." instance=ExtResource("6_jxbfo")]
+Maximum = 10
+Value = 10
+
+[node name="Accelerate" parent="." instance=ExtResource("9_cy0he")]
+
+[node name="Path" type="Path2D" parent="."]
+
+[node name="Follow" type="PathFollow2D" parent="Path"]
+rotates = false
+cubic_interp = false
+loop = false
+
+[node name="MotionBox" type="Node2D" parent="Path/Follow"]
+script = ExtResource("3_pmja0")
+DebugColor = Color(0, 0, 0, 0)
+
+[connection signal="ValueChanged" from="Health" to="." method="OnHealthChanged"]

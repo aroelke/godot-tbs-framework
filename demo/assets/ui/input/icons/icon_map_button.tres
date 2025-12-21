@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="CompositeGamepadButtonIconMap" load_steps=14 format=3 uid="uid://bovrp7fmo4rn5"]
 
-[ext_resource type="Script" uid="uid://c1tquin6hbhk5" path="res://src/TbsTemplate/UI/Controls/IconMaps/GamepadButtonIconMap.cs" id="1_3v1gq"]
+[ext_resource type="Script" uid="uid://c1tquin6hbhk5" path="res://src/TbsFramework/UI/Controls/IconMaps/GamepadButtonIconMap.cs" id="1_3v1gq"]
 [ext_resource type="Texture2D" uid="uid://b7t8h5oxmpeku" path="res://demo/assets/ui/input/icons/gamepad_noaction.png" id="2_il8ic"]
-[ext_resource type="Script" uid="uid://c61eoe6d81ac8" path="res://src/TbsTemplate/UI/Controls/IconMaps/CompositeGamepadButtonIconMap.cs" id="2_os5aj"]
+[ext_resource type="Script" uid="uid://c61eoe6d81ac8" path="res://src/TbsFramework/UI/Controls/IconMaps/CompositeGamepadButtonIconMap.cs" id="2_os5aj"]
 [ext_resource type="Texture2D" uid="uid://bcfd8mfi56ppe" path="res://demo/assets/ui/input/icons/gamepad_noinput.png" id="3_vfs53"]
 [ext_resource type="Texture2D" uid="uid://bovqoyaaorg7j" path="res://demo/assets/ui/input/icons/gamepad_dpad.png" id="4_vfs53"]
 [ext_resource type="Texture2D" uid="uid://hk4qoun4y5ht" path="res://demo/assets/ui/input/icons/gamepad_south.png" id="5_qtfqe"]
