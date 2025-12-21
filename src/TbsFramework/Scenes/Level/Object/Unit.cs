@@ -2,16 +2,16 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using System;
-using TbsTemplate.Data;
-using TbsTemplate.Extensions;
-using TbsTemplate.Nodes.Components;
-using TbsTemplate.Scenes.Level.Map;
-using TbsTemplate.Scenes.Level.Object.Group;
-using TbsTemplate.Scenes.Level.Events;
-using TbsTemplate.Scenes.Level.Control;
-using TbsTemplate.Nodes;
+using TbsFramework.Data;
+using TbsFramework.Extensions;
+using TbsFramework.Nodes.Components;
+using TbsFramework.Scenes.Level.Map;
+using TbsFramework.Scenes.Level.Object.Group;
+using TbsFramework.Scenes.Level.Events;
+using TbsFramework.Scenes.Level.Control;
+using TbsFramework.Nodes;
 
-namespace TbsTemplate.Scenes.Level.Object;
+namespace TbsFramework.Scenes.Level.Object;
 
 /// <summary>
 /// A unit that moves around the map.  Mostly is just a visual representation of what's where and an interface for the player to

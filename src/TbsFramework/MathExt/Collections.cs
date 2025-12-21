@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using TbsTemplate.Extensions;
+using TbsFramework.Extensions;
 
-namespace TbsTemplate.MathExt;
+namespace TbsFramework.MathExt;
 
 /// <summary>Standalone methods for performing collection operations.</summary>
 public static class Collections

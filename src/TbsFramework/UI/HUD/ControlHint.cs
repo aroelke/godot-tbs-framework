@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using Godot;
-using TbsTemplate.Extensions;
-using TbsTemplate.Nodes.Components;
-using TbsTemplate.UI.Controls.Device;
-using TbsTemplate.UI.Controls.IconMaps;
+using TbsFramework.Extensions;
+using TbsFramework.Nodes.Components;
+using TbsFramework.UI.Controls.Device;
+using TbsFramework.UI.Controls.IconMaps;
 
-namespace TbsTemplate.UI.HUD;
+namespace TbsFramework.UI.HUD;
 
 /// <summary>Icon and label showing the input for an action that doesn't have an analog or mouse option.</summary>
 [Icon("res://icons/ControlHint.svg"), Tool]

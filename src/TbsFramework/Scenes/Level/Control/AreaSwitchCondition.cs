@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using TbsTemplate.Scenes.Level.Events;
-using TbsTemplate.Scenes.Level.Object;
-using TbsTemplate.Scenes.Level.Object.Group;
+using TbsFramework.Scenes.Level.Events;
+using TbsFramework.Scenes.Level.Object;
+using TbsFramework.Scenes.Level.Object.Group;
 
-namespace TbsTemplate.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control;
 
 /// <summary>Behavior switching condition that triggers based on a unit from a set of units entering an area of the map.</summary>
 /// <remarks>

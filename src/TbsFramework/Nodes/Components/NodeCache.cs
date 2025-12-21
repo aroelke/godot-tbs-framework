@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Godot;
 
-namespace TbsTemplate.Nodes.Components;
+namespace TbsFramework.Nodes.Components;
 
 /// <summary>
 /// Node component (that's instantiated directly in code, not in in the scene editor) that cachees child references.

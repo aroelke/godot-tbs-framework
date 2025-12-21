@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using TbsTemplate.Data;
-using TbsTemplate.Scenes.Level.Control;
+using TbsFramework.Data;
+using TbsFramework.Scenes.Level.Control;
 
-namespace TbsTemplate.Scenes.Level.Object.Group;
+namespace TbsFramework.Scenes.Level.Object.Group;
 
 /// <summary>A group of <see cref="Unit"/> <see cref="GridNode"/>s that has allies and enemies.</summary>
 [GlobalClass, Tool]

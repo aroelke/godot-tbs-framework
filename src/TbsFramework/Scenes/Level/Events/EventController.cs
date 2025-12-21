@@ -1,12 +1,12 @@
 #pragma warning disable IDE1006 // Naming Styles
 
 using Godot;
-using TbsTemplate.Extensions;
-using TbsTemplate.Scenes.Level.Object;
-using TbsTemplate.Scenes.Level.Object.Group;
-using TbsTemplate.Scenes.Level.Objectives;
+using TbsFramework.Extensions;
+using TbsFramework.Scenes.Level.Object;
+using TbsFramework.Scenes.Level.Object.Group;
+using TbsFramework.Scenes.Level.Objectives;
 
-namespace TbsTemplate.Scenes.Level.Events;
+namespace TbsFramework.Scenes.Level.Events;
 
 /// <summary>
 /// Object controlling scriptable aspects of a level.  Interacts with the <see cref="LevelManager"/> to advance the state of the level and handles

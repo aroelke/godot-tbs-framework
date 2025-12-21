@@ -1,7 +1,7 @@
 using Godot;
-using TbsTemplate.Scenes.Level.Map;
+using TbsFramework.Scenes.Level.Map;
 
-namespace TbsTemplate.Extensions;
+namespace TbsFramework.Extensions;
 
 /// <summary>Extensions for <see cref="Vector2I"/>.</summary>
 public static class Vector2IExtensions

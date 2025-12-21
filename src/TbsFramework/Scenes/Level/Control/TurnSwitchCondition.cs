@@ -1,8 +1,8 @@
 using Godot;
-using TbsTemplate.Scenes.Level.Events;
-using TbsTemplate.Scenes.Level.Object.Group;
+using TbsFramework.Scenes.Level.Events;
+using TbsFramework.Scenes.Level.Object.Group;
 
-namespace TbsTemplate.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control;
 
 /// <summary>Behavior switch condition that triggers when a particular turn is reached.</summary>
 [Tool]

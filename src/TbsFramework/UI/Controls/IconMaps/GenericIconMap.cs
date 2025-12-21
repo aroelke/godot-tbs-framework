@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Godot;
 
-namespace TbsTemplate.UI.Controls.IconMaps;
+namespace TbsFramework.UI.Controls.IconMaps;
 
 /// <summary>Adds input enum mappings to display icons in addition to input action names.</summary>
 /// <typeparam name="T">Type of input enum being mapped to display icons.</typeparam>

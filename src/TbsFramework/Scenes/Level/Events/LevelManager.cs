@@ -3,22 +3,22 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using TbsTemplate.Extensions;
-using TbsTemplate.Scenes.Level.Map;
-using TbsTemplate.Scenes.Level.Object;
-using TbsTemplate.Scenes.Level.Object.Group;
-using TbsTemplate.Nodes;
-using TbsTemplate.Scenes.Combat.Data;
-using TbsTemplate.UI;
-using TbsTemplate.Scenes.Level.Layers;
-using TbsTemplate.Scenes.Combat;
-using TbsTemplate.Nodes.Components;
-using TbsTemplate.Scenes.Level.Control;
-using TbsTemplate.Nodes.StateCharts;
-using TbsTemplate.Nodes.StateCharts.Reactions;
-using TbsTemplate.Scenes.Level.Events.Reactions;
+using TbsFramework.Extensions;
+using TbsFramework.Scenes.Level.Map;
+using TbsFramework.Scenes.Level.Object;
+using TbsFramework.Scenes.Level.Object.Group;
+using TbsFramework.Nodes;
+using TbsFramework.Scenes.Combat.Data;
+using TbsFramework.UI;
+using TbsFramework.Scenes.Level.Layers;
+using TbsFramework.Scenes.Combat;
+using TbsFramework.Nodes.Components;
+using TbsFramework.Scenes.Level.Control;
+using TbsFramework.Nodes.StateCharts;
+using TbsFramework.Nodes.StateCharts.Reactions;
+using TbsFramework.Scenes.Level.Events.Reactions;
 
-namespace TbsTemplate.Scenes.Level.Events;
+namespace TbsFramework.Scenes.Level.Events;
 
 /// <summary>
 /// Manages the setup of and objects inside a level and provides them information about it.  Is "global" in a way in that

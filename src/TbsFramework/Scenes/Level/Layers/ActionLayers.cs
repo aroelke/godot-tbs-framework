@@ -3,9 +3,9 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
 using Godot;
-using TbsTemplate.Scenes.Level.Map;
+using TbsFramework.Scenes.Level.Map;
 
-namespace TbsTemplate.Scenes.Level.Layers;
+namespace TbsFramework.Scenes.Level.Layers;
 
 /// <summary>
 /// A <see cref="Grid"/> overlay comprised of a list of <see cref="TileMapLayer"/>s useful for displaying information about cells. Layers lower in the scene tree

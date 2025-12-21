@@ -1,6 +1,6 @@
 using Godot;
 
-namespace TbsTemplate.Scenes.Transitions;
+namespace TbsFramework.Scenes.Transitions;
 
 /// <summary>Simple scene transition that fades to a color and then back into the next scene.</summary>
 public partial class FadeToBlackTransition : SceneTransition

@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Godot;
-using TbsTemplate.Scenes.Level.Map;
-using TbsTemplate.Scenes.Level.Object;
-using TbsTemplate.Scenes.Level.Object.Group;
+using TbsFramework.Scenes.Level.Map;
+using TbsFramework.Scenes.Level.Object;
+using TbsFramework.Scenes.Level.Object.Group;
 
-namespace TbsTemplate.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control;
 
 /// <summary>Controller for determining which units act in a turn and how they act.</summary>
 public abstract partial class ArmyController : Node

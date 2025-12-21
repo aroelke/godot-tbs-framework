@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using Godot;
-using TbsTemplate.Nodes.Components;
+using TbsFramework.Nodes.Components;
 
-namespace TbsTemplate.Demo;
+namespace TbsFramework.Demo;
 
 /// <summary>Example demo class to use for player and boss units.</summary>
 public partial class LongTankCombatAnimations : CombatAnimations

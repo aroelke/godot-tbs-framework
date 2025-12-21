@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using TbsTemplate.Scenes.Level.Object;
-using TbsTemplate.Scenes.Level.Object.Group;
+using TbsFramework.Scenes.Level.Object;
+using TbsFramework.Scenes.Level.Object.Group;
 
-namespace TbsTemplate.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control;
 
 /// <summary>Behavior switch condition that triggers based on units being in attack range of other units.</summary>
 [Tool]

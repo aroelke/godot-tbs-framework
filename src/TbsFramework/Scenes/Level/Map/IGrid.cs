@@ -2,11 +2,11 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using TbsTemplate.Data;
-using TbsTemplate.Scenes.Level.Layers;
-using TbsTemplate.Scenes.Level.Object;
+using TbsFramework.Data;
+using TbsFramework.Scenes.Level.Layers;
+using TbsFramework.Scenes.Level.Object;
 
-namespace TbsTemplate.Scenes.Level.Map;
+namespace TbsFramework.Scenes.Level.Map;
 
 /// <summary>Defines necessary functionality for maintaining the game state and performing computations based on it.</summary>
 public interface IGrid

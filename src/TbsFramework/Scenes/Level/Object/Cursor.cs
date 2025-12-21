@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using TbsTemplate.Extensions;
-using TbsTemplate.Nodes.Components;
-using TbsTemplate.UI.Controls.Action;
-using TbsTemplate.UI.Controls.Device;
+using TbsFramework.Extensions;
+using TbsFramework.Nodes.Components;
+using TbsFramework.UI.Controls.Action;
+using TbsFramework.UI.Controls.Device;
 
-namespace TbsTemplate.Scenes.Level.Object;
+namespace TbsFramework.Scenes.Level.Object;
 
 /// <summary>Cursor on the <see cref="Map.Grid"/> used for highlighting a cell and selecting things in it.</summary>
 [Tool]

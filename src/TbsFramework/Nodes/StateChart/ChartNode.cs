@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Godot;
 
-namespace TbsTemplate.Nodes.StateCharts;
+namespace TbsFramework.Nodes.StateCharts;
 
 /// <summary>A component of a <see cref="StateChart"/>.</summary>
 public partial class ChartNode : Node

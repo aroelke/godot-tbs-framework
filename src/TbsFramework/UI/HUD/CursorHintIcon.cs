@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using Godot;
-using TbsTemplate.Scenes.Level.Object;
-using TbsTemplate.Nodes.Components;
-using TbsTemplate.UI.Controls.Device;
-using TbsTemplate.UI.Controls.IconMaps;
+using TbsFramework.Scenes.Level.Object;
+using TbsFramework.Nodes.Components;
+using TbsFramework.UI.Controls.Device;
+using TbsFramework.UI.Controls.IconMaps;
 
-namespace TbsTemplate.UI.HUD;
+namespace TbsFramework.UI.HUD;
 
 /// <summary>
 /// Hint icon for showing the controls to move the <see cref="Cursor"/>/<see cref="Pointer"/>

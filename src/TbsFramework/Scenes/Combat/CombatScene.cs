@@ -1,10 +1,10 @@
 using System.Collections.Immutable;
 using Godot;
-using TbsTemplate.Extensions;
-using TbsTemplate.Scenes.Combat.Data;
-using TbsTemplate.Scenes.Level.Object;
+using TbsFramework.Extensions;
+using TbsFramework.Scenes.Combat.Data;
+using TbsFramework.Scenes.Level.Object;
 
-namespace TbsTemplate.Scenes.Combat;
+namespace TbsFramework.Scenes.Combat;
 
 /// <summary>Scene used to display the results of combat in a cut scene.</summary>
 public abstract partial class CombatScene : Node

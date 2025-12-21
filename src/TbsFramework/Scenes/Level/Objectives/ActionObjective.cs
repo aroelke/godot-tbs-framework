@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using Godot;
-using TbsTemplate.Scenes.Level.Layers;
-using TbsTemplate.Scenes.Level.Object;
+using TbsFramework.Scenes.Level.Layers;
+using TbsFramework.Scenes.Level.Object;
 
-namespace TbsTemplate.Scenes.Level.Objectives;
+namespace TbsFramework.Scenes.Level.Objectives;
 
 /// <summary>Objective that's completed upon performing a special action in a region.</summary>
 [Tool]

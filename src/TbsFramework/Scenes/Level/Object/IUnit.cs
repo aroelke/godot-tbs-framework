@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using TbsTemplate.Data;
-using TbsTemplate.Scenes.Level.Map;
+using TbsFramework.Data;
+using TbsFramework.Scenes.Level.Map;
 
-namespace TbsTemplate.Scenes.Level.Object;
+namespace TbsFramework.Scenes.Level.Object;
 
 public interface IUnit
 {

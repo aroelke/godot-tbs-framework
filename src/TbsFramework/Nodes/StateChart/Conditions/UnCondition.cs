@@ -1,6 +1,6 @@
 using Godot;
 
-namespace TbsTemplate.Nodes.StateCharts.Conditions;
+namespace TbsFramework.Nodes.StateCharts.Conditions;
 
 /// <summary>
 /// A <see cref="StateChart"/> action condition that is always satisfied. Mostly used as a default value for automatic

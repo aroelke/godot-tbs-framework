@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Godot;
-using TbsTemplate.Extensions;
-using TbsTemplate.Scenes.Transitions;
-using TbsTemplate.UI;
+using TbsFramework.Extensions;
+using TbsFramework.Scenes.Transitions;
+using TbsFramework.UI;
 
-namespace TbsTemplate.Scenes;
+namespace TbsFramework.Scenes;
 
 /// <summary>Global autoloaded scene manager used to change scenes and enter or exit combat.</summary>
 public partial class SceneManager : Node

@@ -1,7 +1,7 @@
 using System;
 using Godot;
 
-namespace TbsTemplate.Nodes.Components;
+namespace TbsFramework.Nodes.Components;
 
 /// <summary>Interface for <see cref="Node"/>s that have <see cref="HealthComponent"/>s, providing external access to them.</summary>
 public interface IHasHealth

@@ -3,10 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Godot;
-using TbsTemplate.Extensions;
-using TbsTemplate.Nodes.Components;
+using TbsFramework.Extensions;
+using TbsFramework.Nodes.Components;
 
-namespace TbsTemplate.Data;
+namespace TbsFramework.Data;
 
 /// <summary>Contains data pertaining to character classes, including stats and resources.</summary>
 [GlobalClass, Tool]

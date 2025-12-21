@@ -1,6 +1,6 @@
 using Godot;
 
-namespace TbsTemplate
+namespace TbsFramework
 {
     namespace Nodes
     {

@@ -1,7 +1,7 @@
 using System.Linq;
 using Godot;
 
-namespace TbsTemplate.Data;
+namespace TbsFramework.Data;
 
 /// <summary>
 /// Structure defining the stats of an entity, such as a class or character. Can be added together to

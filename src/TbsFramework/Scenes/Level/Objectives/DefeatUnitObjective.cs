@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using Godot;
-using TbsTemplate.Scenes.Level.Object;
+using TbsFramework.Scenes.Level.Object;
 
-namespace TbsTemplate.Scenes.Level.Objectives;
+namespace TbsFramework.Scenes.Level.Objectives;
 
 /// <summary>Objective that's accomplished when a specific unit is defeated. Reassigning the target unit will uncomplete the objective.</summary>
 [Tool]

@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using TbsTemplate.Scenes.Level.Map;
-using TbsTemplate.Scenes.Level.Object;
+using TbsFramework.Scenes.Level.Map;
+using TbsFramework.Scenes.Level.Object;
 
-namespace TbsTemplate.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control;
 
 /// <summary>
 /// <see cref="Unit"/> behavior that can switch between two other behaviors based on a <see cref="SwitchCondition"/>. Can be configured to only

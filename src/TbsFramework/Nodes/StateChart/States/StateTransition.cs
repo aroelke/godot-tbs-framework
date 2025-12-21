@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using TbsTemplate.Extensions;
-using TbsTemplate.Nodes.StateCharts.Conditions;
+using TbsFramework.Extensions;
+using TbsFramework.Nodes.StateCharts.Conditions;
 
-namespace TbsTemplate.Nodes.StateCharts.States;
+namespace TbsFramework.Nodes.StateCharts.States;
 
 /// <summary>Transition between <see cref="State"/>s. </summary>
 [Icon("res://icons/statechart/StateTransition.svg"), Tool]

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using TbsTemplate.Extensions;
-using TbsTemplate.Scenes.Level.Object;
-using TbsTemplate.Scenes.Level.Object.Group;
+using TbsFramework.Extensions;
+using TbsFramework.Scenes.Level.Object;
+using TbsFramework.Scenes.Level.Object.Group;
 
-namespace TbsTemplate.Scenes.Level.Layers;
+namespace TbsFramework.Scenes.Level.Layers;
 
 /// <summary>Map layer marking out a region where a unit can perform a special action such as capture or escape.</summary>
 [GlobalClass, Tool]

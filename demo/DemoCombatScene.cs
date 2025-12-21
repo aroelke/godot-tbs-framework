@@ -4,16 +4,16 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
-using TbsTemplate.Extensions;
-using TbsTemplate.Nodes.Components;
-using TbsTemplate.Scenes;
-using TbsTemplate.Scenes.Combat;
-using TbsTemplate.Scenes.Combat.Data;
-using TbsTemplate.Scenes.Level.Object;
-using TbsTemplate.UI;
-using TbsTemplate.UI.Controls.Device;
+using TbsFramework.Extensions;
+using TbsFramework.Nodes.Components;
+using TbsFramework.Scenes;
+using TbsFramework.Scenes.Combat;
+using TbsFramework.Scenes.Combat.Data;
+using TbsFramework.Scenes.Level.Object;
+using TbsFramework.UI;
+using TbsFramework.UI.Controls.Device;
 
-namespace TbsTemplate.Demo;
+namespace TbsFramework.Demo;
 
 /// <summary>Example combat scene to display the results of two demo units engaging each other.</summary>
 public partial class DemoCombatScene : CombatScene

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Godot;
 
-namespace TbsTemplate.UI.Controls.IconMaps;
+namespace TbsFramework.UI.Controls.IconMaps;
 
 /// <summary>Maps input action names to icons to display for them.</summary>
 public abstract partial class IconMap : Resource, IReadOnlyDictionary<StringName, Texture2D>

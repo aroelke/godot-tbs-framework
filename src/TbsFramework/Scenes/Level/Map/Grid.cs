@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using TbsTemplate.Data;
-using TbsTemplate.Scenes.Level.Layers;
-using TbsTemplate.Scenes.Level.Object;
-using TbsTemplate.Scenes.Level.Object.Group;
+using TbsFramework.Data;
+using TbsFramework.Scenes.Level.Layers;
+using TbsFramework.Scenes.Level.Object;
+using TbsFramework.Scenes.Level.Object.Group;
 
-namespace TbsTemplate.Scenes.Level.Map;
+namespace TbsFramework.Scenes.Level.Map;
 
 /// <summary>Defines the grid dimensions and attributes and contains the locations of the objects and terrain within it.</summary>
 [Tool]

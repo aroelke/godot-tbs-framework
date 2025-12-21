@@ -1,7 +1,7 @@
 using Godot;
-using TbsTemplate.Scenes.Level.Object;
+using TbsFramework.Scenes.Level.Object;
 
-namespace TbsTemplate.Scenes.Level.Map;
+namespace TbsFramework.Scenes.Level.Map;
 
 /// <summary><see cref="Map.Grid"/> debugging tool that encloses cell occupants in a rectangle. Turn invisible to turn off.</summary>
 public partial class OccupantHighlighter : Node2D

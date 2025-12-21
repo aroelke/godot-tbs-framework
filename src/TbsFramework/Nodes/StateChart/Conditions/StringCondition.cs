@@ -1,6 +1,6 @@
 using Godot;
 
-namespace TbsTemplate.Nodes.StateCharts.Conditions;
+namespace TbsFramework.Nodes.StateCharts.Conditions;
 
 /// <summary>
 /// <see cref="StateChart"/> action condition that's satisfied based on the value of a string property. If it's exactly equal to the condition's value,

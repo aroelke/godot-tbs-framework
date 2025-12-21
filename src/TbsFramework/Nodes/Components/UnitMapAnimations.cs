@@ -1,7 +1,7 @@
 using Godot;
-using TbsTemplate.Scenes.Level.Object;
+using TbsFramework.Scenes.Level.Object;
 
-namespace TbsTemplate.Nodes.Components;
+namespace TbsFramework.Nodes.Components;
 
 /// <summary><see cref="Unit"/> component containign a collection of animations available to display on the map.</summary>
 public abstract partial class UnitMapAnimations : Node2D

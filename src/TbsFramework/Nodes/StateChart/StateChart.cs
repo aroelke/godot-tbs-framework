@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using TbsTemplate.Extensions;
-using TbsTemplate.Nodes.StateCharts.States;
+using TbsFramework.Extensions;
+using TbsFramework.Nodes.StateCharts.States;
 
-namespace TbsTemplate.Nodes.StateCharts;
+namespace TbsFramework.Nodes.StateCharts;
 
 /// <summary>
 /// A state chart modeled after <see href="https://github.com/derkork/godot-statecharts"/>. Contains a hierarchy of <see cref="State"/>s that have

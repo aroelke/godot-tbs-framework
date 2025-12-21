@@ -1,8 +1,8 @@
 using System;
 using Godot;
-using TbsTemplate.UI.Controls.Device;
+using TbsFramework.UI.Controls.Device;
 
-namespace TbsTemplate.Nodes.Components;
+namespace TbsFramework.Nodes.Components;
 
 /// <summary>Object component that enables the object to be controlled digitally (e.g. with keyboard keys or gamepad buttons).</summary>
 public partial class MoveController : Node

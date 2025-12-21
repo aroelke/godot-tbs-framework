@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
-namespace TbsTemplate.Scenes.Level.Objectives;
+namespace TbsFramework.Scenes.Level.Objectives;
 
 /// <summary>Objective that acts as an aggregate of other objectives, combining a set of them together to determine overall completion.</summary>
 public abstract partial class AggregateObjective : Objective

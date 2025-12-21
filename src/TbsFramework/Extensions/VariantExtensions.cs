@@ -1,7 +1,7 @@
 using System;
 using Godot;
 
-namespace TbsTemplate.Extensions;
+namespace TbsFramework.Extensions;
 
 public static class VariantExtensions
 {

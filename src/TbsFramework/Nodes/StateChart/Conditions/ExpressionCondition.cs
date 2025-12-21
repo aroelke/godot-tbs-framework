@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using Godot;
 
-namespace TbsTemplate.Nodes.StateCharts.Conditions;
+namespace TbsFramework.Nodes.StateCharts.Conditions;
 
 /// <summary><see cref="StateChart"/> action condition based on computing an expression (written in GDScript!) using <see cref="StateChart.GetVariable"/>.</summary>
 [GlobalClass, Tool]

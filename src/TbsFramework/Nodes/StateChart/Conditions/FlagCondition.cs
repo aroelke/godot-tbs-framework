@@ -1,6 +1,6 @@
 using Godot;
 
-namespace TbsTemplate.Nodes.StateCharts.Conditions;
+namespace TbsFramework.Nodes.StateCharts.Conditions;
 
 /// <summary><see cref="StateChart"/> action condition that evaluates a single boolean <see cref="StateChart"/> property.</summary>
 [GlobalClass, Tool]

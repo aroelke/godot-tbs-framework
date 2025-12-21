@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using TbsTemplate.Scenes.Level.Object;
-using TbsTemplate.Scenes.Level.Object.Group;
+using TbsFramework.Scenes.Level.Object;
+using TbsFramework.Scenes.Level.Object.Group;
 
-namespace TbsTemplate.Scenes.Level.Objectives;
+namespace TbsFramework.Scenes.Level.Objectives;
 
 /// <summary>Objective that's accomplished when a specific unit and/or a unit from a specific army occupy a specified region.</summary>
 [Tool]

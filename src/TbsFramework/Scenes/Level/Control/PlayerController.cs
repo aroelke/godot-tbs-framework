@@ -2,19 +2,19 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TbsTemplate.Extensions;
-using TbsTemplate.Nodes;
-using TbsTemplate.Nodes.Components;
-using TbsTemplate.Nodes.StateCharts;
-using TbsTemplate.Scenes.Level.Events;
-using TbsTemplate.Scenes.Level.Layers;
-using TbsTemplate.Scenes.Level.Map;
-using TbsTemplate.Scenes.Level.Object;
-using TbsTemplate.Scenes.Level.Object.Group;
-using TbsTemplate.UI;
-using TbsTemplate.UI.Controls.Device;
+using TbsFramework.Extensions;
+using TbsFramework.Nodes;
+using TbsFramework.Nodes.Components;
+using TbsFramework.Nodes.StateCharts;
+using TbsFramework.Scenes.Level.Events;
+using TbsFramework.Scenes.Level.Layers;
+using TbsFramework.Scenes.Level.Map;
+using TbsFramework.Scenes.Level.Object;
+using TbsFramework.Scenes.Level.Object.Group;
+using TbsFramework.UI;
+using TbsFramework.UI.Controls.Device;
 
-namespace TbsTemplate.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control;
 
 /// <summary>Controls units based on player input.  Also includes UI elements to facilitate gameplay.</summary>
 [Icon("res://icons/PlayerController.svg"), Tool]

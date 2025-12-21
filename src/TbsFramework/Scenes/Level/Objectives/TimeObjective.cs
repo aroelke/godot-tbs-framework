@@ -1,9 +1,9 @@
 using Godot;
-using TbsTemplate.Extensions;
-using TbsTemplate.Scenes.Level.Events;
-using TbsTemplate.Scenes.Level.Object.Group;
+using TbsFramework.Extensions;
+using TbsFramework.Scenes.Level.Events;
+using TbsFramework.Scenes.Level.Object.Group;
 
-namespace TbsTemplate.Scenes.Level.Objectives;
+namespace TbsFramework.Scenes.Level.Objectives;
 
 /// <summary>Objective that is completed after a certain number of turns from the beginning of the level have elapsed.</summary>
 [Tool]

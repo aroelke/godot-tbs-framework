@@ -1,7 +1,7 @@
 using System;
 using Godot;
 
-namespace TbsTemplate.Extensions;
+namespace TbsFramework.Extensions;
 
 /// <summary>Extensions for <see cref="GodotObject"/>.</summary>
 public static class GodotObjectExtensions

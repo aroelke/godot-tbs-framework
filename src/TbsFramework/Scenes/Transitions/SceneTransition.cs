@@ -1,6 +1,6 @@
 using Godot;
 
-namespace TbsTemplate.Scenes.Transitions;
+namespace TbsFramework.Scenes.Transitions;
 
 /// <summary>A transition animation between scenes to play when switching.</summary>
 [GlobalClass, Tool]

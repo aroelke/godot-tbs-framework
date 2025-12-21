@@ -1,7 +1,7 @@
 using Godot;
-using TbsTemplate.Scenes;
+using TbsFramework.Scenes;
 
-namespace TbsTemplate.Demo;
+namespace TbsFramework.Demo;
 
 /// <summary>Simple demo game over screen that notifies the player whether they won or lost.</summary>
 public partial class DemoGameOverScene : Node

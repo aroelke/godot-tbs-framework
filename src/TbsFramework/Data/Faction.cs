@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using Godot;
-using TbsTemplate.Scenes.Level.Object;
+using TbsFramework.Scenes.Level.Object;
 
-namespace TbsTemplate.Data;
+namespace TbsFramework.Data;
 
 /// <summary>Defines global data about a faction in the game.</summary>
 [GlobalClass, Tool]

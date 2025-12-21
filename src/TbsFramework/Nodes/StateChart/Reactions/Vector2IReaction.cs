@@ -1,6 +1,6 @@
 using Godot;
 
-namespace TbsTemplate.Nodes.StateCharts.Reactions;
+namespace TbsFramework.Nodes.StateCharts.Reactions;
 
 /// <summary>State reaction to an event involving a <see cref="Vector2I"/>l</summary>
 public partial class Vector2IReaction : StateReaction1<Vector2I>

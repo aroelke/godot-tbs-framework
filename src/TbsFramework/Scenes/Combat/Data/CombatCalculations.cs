@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using TbsTemplate.Scenes.Level.Object;
+using TbsFramework.Scenes.Level.Object;
 
-namespace TbsTemplate.Scenes.Combat.Data;
+namespace TbsFramework.Scenes.Combat.Data;
 
 /// <summary>Utility for computing combat stats and results.</summary>
 public static class CombatCalculations

@@ -1,6 +1,6 @@
 using Godot;
 
-namespace TbsTemplate.Nodes.StateCharts.Reactions;
+namespace TbsFramework.Nodes.StateCharts.Reactions;
 
 /// <summary>Allows a <see cref="State"/> to react to input events.</summary>
 public partial class InputReaction : StateReaction1<InputEvent>

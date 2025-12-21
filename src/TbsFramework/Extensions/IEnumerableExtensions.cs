@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TbsTemplate.MathExt;
+using TbsFramework.MathExt;
 
-namespace TbsTemplate.Extensions;
+namespace TbsFramework.Extensions;
 
 /// <summary>Extensions for <see cref="IEnumerable{T}"/>.</summary>
 public static class IEnumerableExtensions

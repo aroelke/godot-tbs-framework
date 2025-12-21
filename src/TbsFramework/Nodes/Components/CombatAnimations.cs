@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Godot;
 
-namespace TbsTemplate.Nodes.Components;
+namespace TbsFramework.Nodes.Components;
 
 /// <summary>Collection of animations to play during combat for a class or character.</summary>
 [GlobalClass, Tool]

@@ -1,4 +1,4 @@
-namespace TbsTemplate.UI.Controls.Device;
+namespace TbsFramework.UI.Controls.Device;
 
 /// <summary>Types of supported input devices.</summary>
 public enum InputDevice

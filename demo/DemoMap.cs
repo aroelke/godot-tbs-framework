@@ -1,12 +1,12 @@
 using System.Linq;
 using Godot;
-using TbsTemplate.Extensions;
-using TbsTemplate.Scenes.Level.Events;
-using TbsTemplate.Scenes.Level.Object.Group;
-using TbsTemplate.UI.Controls.Device;
-using TbsTemplate.UI.HUD;
+using TbsFramework.Extensions;
+using TbsFramework.Scenes.Level.Events;
+using TbsFramework.Scenes.Level.Object.Group;
+using TbsFramework.UI.Controls.Device;
+using TbsFramework.UI.HUD;
 
-namespace TbsTemplate.Demo;
+namespace TbsFramework.Demo;
 
 /// <summary>Script for the demo map that controls events outside level progression, suc as UI updates.</summary>
 public partial class DemoMap : Node

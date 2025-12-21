@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using TbsTemplate.Scenes.Level.Object.Group;
+using TbsFramework.Scenes.Level.Object.Group;
 
-namespace TbsTemplate.Scenes.Level.Objectives;
+namespace TbsFramework.Scenes.Level.Objectives;
 
 /// <summary>Objective that's accomplished when all units in an army are defeated.</summary>
 [Tool]

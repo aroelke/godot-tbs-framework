@@ -1,8 +1,8 @@
 using System;
 using Godot;
-using TbsTemplate.Nodes.Components;
+using TbsFramework.Nodes.Components;
 
-namespace TbsTemplate.Demo;
+namespace TbsFramework.Demo;
 
 public partial class ShortTankMapAnimations : UnitMapAnimations
 {

@@ -1,6 +1,6 @@
 using Godot;
 
-namespace TbsTemplate.Scenes.Level.Objectives;
+namespace TbsFramework.Scenes.Level.Objectives;
 
 /// <summary>An objective that can be completed during the course of a level to signify if the level is won or lost.</summary>
 [GlobalClass, Icon("res://icons/Objective.svg"), Tool]

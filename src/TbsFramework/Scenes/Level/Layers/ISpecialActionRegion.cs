@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using Godot;
-using TbsTemplate.Scenes.Level.Object;
+using TbsFramework.Scenes.Level.Object;
 
-namespace TbsTemplate.Scenes.Level.Layers;
+namespace TbsFramework.Scenes.Level.Layers;
 
 /// <summary>Represents a set of cells in which a set of units can perform a special action.</summary>
 public interface ISpecialActionRegion

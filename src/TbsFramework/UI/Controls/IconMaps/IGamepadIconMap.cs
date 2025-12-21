@@ -1,6 +1,6 @@
 using Godot;
 
-namespace TbsTemplate.UI.Controls.IconMaps;
+namespace TbsFramework.UI.Controls.IconMaps;
 
 /// <summary>Interface defining special icons for gamepad axis icon maps.</summary>
 public interface IGamepadAxisIconMap

@@ -1,8 +1,8 @@
 using Godot;
-using TbsTemplate.Extensions;
-using TbsTemplate.UI.Controls.Device;
+using TbsFramework.Extensions;
+using TbsFramework.UI.Controls.Device;
 
-namespace TbsTemplate.UI.Controls.Action;
+namespace TbsFramework.UI.Controls.Action;
 
 /// <summary>
 /// Converts an analog action into a different, equivalent digital one (like movement on an axis to a dpad press). The digital

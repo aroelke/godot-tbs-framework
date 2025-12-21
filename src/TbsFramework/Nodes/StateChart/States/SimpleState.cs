@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
-namespace TbsTemplate.Nodes.StateCharts.States;
+namespace TbsFramework.Nodes.StateCharts.States;
 
 /// <summary>A <see cref="State"/> that can't have any sub-<see cref="State"/>s.</summary>
 [Icon("res://icons/statechart/SimpleState.svg"), Tool]

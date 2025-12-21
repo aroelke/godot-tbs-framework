@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using TbsTemplate.Extensions;
+using TbsFramework.Extensions;
 
-namespace TbsTemplate.Scenes.Level.Map;
+namespace TbsFramework.Scenes.Level.Map;
 
 /// <summary>
 /// An ordered list of <see cref="Vector2I"/>s that guarantees sequential elements are (orthogonally) adjacent and there are no loops. When an attempt

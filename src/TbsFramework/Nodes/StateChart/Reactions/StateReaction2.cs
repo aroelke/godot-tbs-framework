@@ -1,6 +1,6 @@
 using Godot;
 
-namespace TbsTemplate.Nodes.StateCharts.Reactions;
+namespace TbsFramework.Nodes.StateCharts.Reactions;
 
 /// <summary>Reaction that has two parameters.</summary>
 /// <typeparam name="T">First parameter type. Must be variant compatible.</typeparam>

@@ -1,8 +1,8 @@
 using System.Linq;
 using Godot;
-using TbsTemplate.Extensions;
+using TbsFramework.Extensions;
 
-namespace TbsTemplate.UI.Controls.Device;
+namespace TbsFramework.UI.Controls.Device;
 
 /// <summary>Manages information about and changes in input actions.</summary>
 public partial class InputManager : Node2D

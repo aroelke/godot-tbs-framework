@@ -1,8 +1,8 @@
 using Godot;
-using TbsTemplate.Nodes.StateCharts.Reactions;
-using TbsTemplate.Scenes.Level.Object;
+using TbsFramework.Nodes.StateCharts.Reactions;
+using TbsFramework.Scenes.Level.Object;
 
-namespace TbsTemplate.Scenes.Level.Events.Reactions;
+namespace TbsFramework.Scenes.Level.Events.Reactions;
 
 /// <summary>State reaction to a unit command.</summary>
 public partial class CommandReaction : StateReaction2<Unit, StringName>

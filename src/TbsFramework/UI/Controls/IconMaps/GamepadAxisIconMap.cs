@@ -1,7 +1,7 @@
 using Godot;
-using TbsTemplate.UI.Controls.Device;
+using TbsFramework.UI.Controls.Device;
 
-namespace TbsTemplate.UI.Controls.IconMaps;
+namespace TbsFramework.UI.Controls.IconMaps;
 
 /// <summary>Maps gamepad axis inputs to icons for a particular type of gamepad.</summary>
 [GlobalClass, Tool]

@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using TbsTemplate.Extensions;
-using TbsTemplate.Nodes.Components;
-using TbsTemplate.UI.Controls.Device;
+using TbsFramework.Extensions;
+using TbsFramework.Nodes.Components;
+using TbsFramework.UI.Controls.Device;
 
-namespace TbsTemplate.UI;
+namespace TbsFramework.UI;
 
 /// <summary><see cref="ContextMenu"/> item defining a name and action to perform when clicked.</summary>
 /// <param name="Name">String to display for the menu item.</param>

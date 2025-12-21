@@ -1,6 +1,6 @@
 using Godot;
 
-namespace TbsTemplate.Nodes.StateCharts.Conditions;
+namespace TbsFramework.Nodes.StateCharts.Conditions;
 
 /// <summary><see cref="StateChart"/> number condition that compares integer values.</summary>
 [GlobalClass, Tool]

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using Godot;
 
-namespace TbsTemplate.Nodes.StateCharts.Conditions;
+namespace TbsFramework.Nodes.StateCharts.Conditions;
 
 /// <summary><see cref="StateChart"/> action condition that evaluates a single numerical property and compares it to a static value.</summary>
 /// <typeparam name="T">Numerical type</typeparam>

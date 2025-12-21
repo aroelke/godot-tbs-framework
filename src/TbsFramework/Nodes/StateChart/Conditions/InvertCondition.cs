@@ -1,6 +1,6 @@
 using Godot;
 
-namespace TbsTemplate.Nodes.StateCharts.Conditions;
+namespace TbsFramework.Nodes.StateCharts.Conditions;
 
 /// <summary>
 /// <see cref="StateChart"/> action condition that evaluates as the Boolean opposite of another condition, i.e. that condition should not be satisfied

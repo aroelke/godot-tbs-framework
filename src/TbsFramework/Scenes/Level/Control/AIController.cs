@@ -4,17 +4,17 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
-using TbsTemplate.Data;
-using TbsTemplate.Extensions;
-using TbsTemplate.Nodes.Components;
-using TbsTemplate.Scenes.Level.Layers;
-using TbsTemplate.Scenes.Level.Map;
-using TbsTemplate.Scenes.Level.Object;
-using TbsTemplate.Scenes.Level.Object.Group;
-using TbsTemplate.Scenes.Transitions;
-using TbsTemplate.UI.Controls.Device;
+using TbsFramework.Data;
+using TbsFramework.Extensions;
+using TbsFramework.Nodes.Components;
+using TbsFramework.Scenes.Level.Layers;
+using TbsFramework.Scenes.Level.Map;
+using TbsFramework.Scenes.Level.Object;
+using TbsFramework.Scenes.Level.Object.Group;
+using TbsFramework.Scenes.Transitions;
+using TbsFramework.UI.Controls.Device;
 
-namespace TbsTemplate.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control;
 
 /// <summary>Automatically controls units based on their <see cref="UnitBehavior"/>s and the state of the level.</summary>
 [Icon("res://icons/AIController.svg"), Tool]

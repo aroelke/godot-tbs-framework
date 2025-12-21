@@ -1,6 +1,6 @@
 using Godot;
 
-namespace TbsTemplate.UI.Controls.IconMaps;
+namespace TbsFramework.UI.Controls.IconMaps;
 
 /// <summary>Maps gamepad button inputs to icons for various types of gamepads.</summary>
 [GlobalClass, Tool]

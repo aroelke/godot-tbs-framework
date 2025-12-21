@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Godot;
 using Godot.Collections;
-using TbsTemplate.UI.Controls.Device;
+using TbsFramework.UI.Controls.Device;
 
-namespace TbsTemplate.UI.Controls.IconMaps;
+namespace TbsFramework.UI.Controls.IconMaps;
 
 /// <summary>
 /// Icon map comprised of one or more other maps that are mapped to <c>string</c> names that correspond to input device names. Directly accessing icons (by action or input) selects

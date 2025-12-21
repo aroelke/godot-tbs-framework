@@ -1,6 +1,6 @@
-using TbsTemplate.Scenes.Level.Object;
+using TbsFramework.Scenes.Level.Object;
 
-namespace TbsTemplate
+namespace TbsFramework
 {
     namespace Scenes
     {

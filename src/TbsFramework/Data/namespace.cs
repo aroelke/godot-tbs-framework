@@ -1,4 +1,4 @@
-namespace TbsTemplate
+namespace TbsFramework
 {
     namespace Data
     {

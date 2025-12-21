@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using Godot;
-using TbsTemplate.Extensions;
-using TbsTemplate.Nodes;
-using TbsTemplate.Nodes.Components;
-using TbsTemplate.Nodes.StateCharts;
-using TbsTemplate.Nodes.StateCharts.States;
-using TbsTemplate.UI.Controls.Device;
+using TbsFramework.Extensions;
+using TbsFramework.Nodes;
+using TbsFramework.Nodes.Components;
+using TbsFramework.Nodes.StateCharts;
+using TbsFramework.Nodes.StateCharts.States;
+using TbsFramework.UI.Controls.Device;
 
-namespace TbsTemplate.UI;
+namespace TbsFramework.UI;
 
 /// <summary>
 /// Virtual mouse pointer that lives in the game world but has a projection onto the UI canvas and is controlled via analog stick.
