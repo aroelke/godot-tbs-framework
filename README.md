@@ -135,6 +135,8 @@ In addition to the above input actions, the built-in UI input actions (`ui_left`
 ## Running the Demo
 This project includes a demo that indicates how to set up a simple scene with the framework located in the "demo" directory. To run it,
 open the scene in the editor and click the "run current scene" button. There is no default scene set for this project.
+
+For more information on the demo, see [its README](demo/README.md).
 ## License
 The license for this project only covers the source code, scenes, and node icons.  Assets used in the demo have their own licenses
 which are included in their respective directories (all are CC0). Special thanks to Kenney (https://kenney.nl/) and Ne Mene
