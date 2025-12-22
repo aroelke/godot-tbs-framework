@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="godot-tbs-template"
+config/name="godot-tbs-framework"
 config/features=PackedStringArray("4.4", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -30,7 +30,7 @@ mouse_cursor/custom_image="uid://nhobvcrsi3w1"
 
 [dotnet]
 
-project/assembly_name="godot-tbs-template"
+project/assembly_name="godot-tbs-framework"
 
 [input]
 
