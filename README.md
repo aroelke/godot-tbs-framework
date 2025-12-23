@@ -48,7 +48,8 @@ check that any objectives have been completed and then returns control to the `L
 #### Map Objectives
 Map objectives are specified using a tree of `Objective` nodes. There are several types of `Objective`s available:
 - [`ActionObjective`](src/TbsFramework/Scenes/Level/Objectives/ActionObjective.tscn): One or more units must enter a specific region of the
-  map specified using a `SpecialActionRegion`, which is a special type of `TileMapLayer` that defines a special action to be performed, and
+  map specified using a [`SpecialActionRegion`](src/TbsFramework/Scenes/Level/Layers/SpecialActionRegion.tscn), which is a special type of
+  `TileMapLayer` that defines a special action to be performed, and
   perform that region's action
 - [`OccupyObjective`](src/TbsFramework/Scenes/Level/Objectives/OccupyObjective.tscn): One or more units must be in a specific region of the
   map when the objective is evaluated
