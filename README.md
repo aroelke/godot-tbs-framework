@@ -64,7 +64,9 @@ long as any of its child objectives are complete.
 
 `Objective`s do not have to be anywhere specific in the scene tree. They primarily interact with the `EventController` to be evaluated and
 determine the result of completion, which allows them to be interpreted in any way desired. The default `EventController` contains a property
-specifying an `Objective` to interpret as successful completion of the map and one that is interpreted as failure of the map.
+specifying an `Objective` to interpret as successful completion of the map and one that is interpreted as failure of the map. An `Objective`
+will raise its `StatusChanged` signal any process frame in which it is completed or uncompleted to signal the change in completion status,
+allowing it to be used for additional purposes beyond simple level completion, such as triggering mid-level changes.
 #### Creating an Army
 Each [`Army`](src/TbsFramework/Scenes/Level/Object/Group/Army.tscn) has three main components:
 - A [`Faction`](src/TbsFramework/Data/Faction.cs) property which is specified using a `Faction` resource and determines the alliance it has
