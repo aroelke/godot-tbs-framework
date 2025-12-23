@@ -1,7 +1,0 @@
-[gd_resource type="Resource" script_class="FlagCondition" load_steps=2 format=3 uid="uid://bskotywb1gwgv"]
-
-[ext_resource type="Script" uid="uid://lboscbcuakk3" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/FlagCondition.cs" id="1_gw63i"]
-
-[resource]
-script = ExtResource("1_gw63i")
-Flag = &"traversable"

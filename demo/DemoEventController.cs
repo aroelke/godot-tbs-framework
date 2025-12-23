@@ -1,10 +1,10 @@
 using Godot;
-using TbsTemplate.Extensions;
-using TbsTemplate.Scenes;
-using TbsTemplate.Scenes.Level.Events;
-using TbsTemplate.UI;
+using TbsFramework.Extensions;
+using TbsFramework.Scenes;
+using TbsFramework.Scenes.Level.Events;
+using TbsFramework.UI;
 
-namespace TbsTemplate.Demo;
+namespace TbsFramework.Demo;
 
 /// <summary>
 /// Demo implementation of an event controller.  Reacts to objective completion and sends the player to the game over screen

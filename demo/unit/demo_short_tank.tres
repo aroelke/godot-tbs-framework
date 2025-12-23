@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="Class" load_steps=12 format=3 uid="uid://c54fcxiunl1qa"]
 
-[ext_resource type="Script" uid="uid://ddlp6kj6iah51" path="res://src/TbsTemplate/Data/Faction.cs" id="1_qva5q"]
+[ext_resource type="Script" uid="uid://ddlp6kj6iah51" path="res://src/TbsFramework/Data/Faction.cs" id="1_qva5q"]
 [ext_resource type="Texture2D" uid="uid://i8lrbs6m4l51" path="res://demo/assets/map/tiles/short_tank_default.png" id="2_2ur8b"]
 [ext_resource type="Resource" uid="uid://broidqni4h8ak" path="res://demo/factions/DemoPlayerFaction.tres" id="3_p1cre"]
 [ext_resource type="Texture2D" uid="uid://bbsohcyikx35l" path="res://demo/assets/map/tiles/short_tank_player.png" id="4_xvpjw"]
@@ -10,7 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://g8c38l54h1sw" path="res://demo/assets/map/tiles/short_tank_enemy2.png" id="8_6vhnh"]
 [ext_resource type="Resource" uid="uid://chjjd5sn6y2jw" path="res://demo/factions/DemoAllyFaction.tres" id="9_yho85"]
 [ext_resource type="Texture2D" uid="uid://cqx4yjbljfr62" path="res://demo/assets/map/tiles/short_tank_ally.png" id="10_0j1yr"]
-[ext_resource type="Script" uid="uid://hpaxa78srpai" path="res://src/TbsTemplate/Data/Class.cs" id="11_wpctn"]
+[ext_resource type="Script" uid="uid://hpaxa78srpai" path="res://src/TbsFramework/Data/Class.cs" id="11_wpctn"]
 
 [resource]
 script = ExtResource("11_wpctn")

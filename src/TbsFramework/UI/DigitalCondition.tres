@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="StringCondition" load_steps=2 format=3 uid="uid://du2acyfbvywug"]
+
+[ext_resource type="Script" uid="uid://co3unsiqwkew0" path="res://src/TbsFramework/Nodes/StateChart/Conditions/StringCondition.cs" id="1_l5qdn"]
+
+[resource]
+script = ExtResource("1_l5qdn")
+Property = &"mode"
+Value = "Digital"

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://brgi7pl8xxduv"]
+
+[ext_resource type="Script" uid="uid://m36s8lv6tygv" path="res://src/TbsFramework/Scenes/Level/Layers/ActionLayers.cs" id="1_5ejne"]
+
+[node name="ActionLayers" type="Node2D"]
+script = ExtResource("1_5ejne")

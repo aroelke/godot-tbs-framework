@@ -1,8 +1,0 @@
-[gd_resource type="Resource" script_class="StringCondition" load_steps=2 format=3 uid="uid://koe8v335eibs"]
-
-[ext_resource type="Script" uid="uid://co3unsiqwkew0" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/StringCondition.cs" id="1_u115b"]
-
-[resource]
-script = ExtResource("1_u115b")
-Property = &"mode"
-Value = "Mouse"

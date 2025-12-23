@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
 using Godot;
-using TbsTemplate.Nodes.Components;
+using TbsFramework.Nodes.Components;
 
-namespace TbsTemplate.Demo;
+namespace TbsFramework.Demo;
 
 /// <summary>Combat UI element that displays constant information about a unit participating in combat.</summary>
 [Tool]

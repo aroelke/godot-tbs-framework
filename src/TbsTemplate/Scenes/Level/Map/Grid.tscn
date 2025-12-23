@@ -1,7 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://dgsv1t18thon5"]
-
-[ext_resource type="Script" uid="uid://dgjmrm23bymqt" path="res://src/TbsTemplate/Scenes/Level/Map/Grid.cs" id="5_6ttph"]
-
-[node name="Grid" type="Node2D"]
-z_index = -1
-script = ExtResource("5_6ttph")

@@ -1,0 +1,38 @@
+[gd_scene load_steps=9 format=3 uid="uid://btlhiv0dyhf7o"]
+
+[ext_resource type="Script" uid="uid://cxmmuyk5pj3jm" path="res://src/TbsFramework/UI/HUD/ControlHint.cs" id="1_y8x7b"]
+[ext_resource type="Script" uid="uid://bkty261dwvxic" path="res://src/TbsFramework/UI/Controls/IconMaps/MouseIconMap.cs" id="2_216de"]
+[ext_resource type="Script" uid="uid://chtdqcyrp0mii" path="res://src/TbsFramework/UI/Controls/IconMaps/KeyIconMap.cs" id="3_23bho"]
+[ext_resource type="Script" uid="uid://c1tquin6hbhk5" path="res://src/TbsFramework/UI/Controls/IconMaps/GamepadButtonIconMap.cs" id="4_5ush6"]
+[ext_resource type="Script" uid="uid://c61eoe6d81ac8" path="res://src/TbsFramework/UI/Controls/IconMaps/CompositeGamepadButtonIconMap.cs" id="5_kauhx"]
+
+[sub_resource type="Resource" id="Resource_p6mfp"]
+script = ExtResource("2_216de")
+Icons = Dictionary[int, Texture2D]({})
+metadata/_custom_type_script = "uid://bkty261dwvxic"
+
+[sub_resource type="Resource" id="Resource_4pi8w"]
+script = ExtResource("3_23bho")
+Icons = Dictionary[int, Texture2D]({})
+metadata/_custom_type_script = "uid://chtdqcyrp0mii"
+
+[sub_resource type="Resource" id="Resource_w77iy"]
+script = ExtResource("5_kauhx")
+IconMaps = Dictionary[String, ExtResource("4_5ush6")]({})
+metadata/_custom_type_script = "uid://c61eoe6d81ac8"
+
+[node name="ControlHint" type="HBoxContainer"]
+theme_override_constants/separation = 4
+script = ExtResource("1_y8x7b")
+MouseMap = SubResource("Resource_p6mfp")
+KeyMap = SubResource("Resource_4pi8w")
+GamepadButtonIconMap = SubResource("Resource_w77iy")
+Action = &""
+
+[node name="Icon" type="TextureRect" parent="."]
+layout_mode = 2
+stretch_mode = 3
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+text = ": "

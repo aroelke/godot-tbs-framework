@@ -1,10 +1,10 @@
 using System;
 using System.Threading.Tasks;
 using Godot;
-using TbsTemplate.Nodes;
-using TbsTemplate.Nodes.Components;
+using TbsFramework.Nodes;
+using TbsFramework.Nodes.Components;
 
-namespace TbsTemplate.Demo;
+namespace TbsFramework.Demo;
 
 /// <summary>Example demo class to use for most enemy units.</summary>
 public partial class ShortTankCombatAnimations : CombatAnimations

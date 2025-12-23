@@ -1,0 +1,17 @@
+namespace TbsFramework.UI.Controls.Device;
+
+/// <summary>Types of supported input devices.</summary>
+public enum InputDevice
+{
+    Mouse,
+    Keyboard,
+    Gamepad
+}
+
+/// <summary>Types of supported input modes.</summary>
+public enum InputMode
+{
+    Mouse,
+    Digital,
+    Analog
+}

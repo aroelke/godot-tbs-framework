@@ -1,8 +1,0 @@
-[gd_scene load_steps=3 format=3 uid="uid://bajcy40oic1wf"]
-
-[ext_resource type="Script" uid="uid://deqt8tkvlyx3l" path="res://src/TbsTemplate/Nodes/StateChart/Reactions/ProcessReaction.cs" id="1_q40ov"]
-[ext_resource type="Resource" uid="uid://bw65e8e6vr1fl" path="res://src/TbsTemplate/Nodes/StateChart/Conditions/UnCondition.tres" id="2_s5ooa"]
-
-[node name="ProcessReaction" type="Node"]
-script = ExtResource("1_q40ov")
-Condition = ExtResource("2_s5ooa")

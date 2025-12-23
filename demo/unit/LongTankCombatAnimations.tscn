@@ -16,7 +16,7 @@
 [ext_resource type="Texture2D" uid="uid://c436wwgovwdk1" path="res://demo/assets/combat/tanks/long_explosion_4.png" id="14_1yiva"]
 [ext_resource type="Texture2D" uid="uid://b24i4fdvbo46d" path="res://demo/assets/combat/tanks/long_explosion_5.png" id="15_hmmrj"]
 [ext_resource type="Texture2D" uid="uid://t0rrdisgsqlh" path="res://demo/assets/combat/tanks/heal.png" id="16_1yiva"]
-[ext_resource type="Script" uid="uid://xf7nwa5ddwrd" path="res://src/TbsTemplate/Nodes/BoundedNode2D.cs" id="17_hmmrj"]
+[ext_resource type="Script" uid="uid://xf7nwa5ddwrd" path="res://src/TbsFramework/Nodes/BoundedNode2D.cs" id="17_hmmrj"]
 [ext_resource type="AudioStream" uid="uid://djegutvubsy13" path="res://demo/assets/combat/sounds/shoot.wav" id="18_o3sgs"]
 [ext_resource type="AudioStream" uid="uid://byawd1f1aatdq" path="res://demo/assets/combat/sounds/hit.wav" id="19_7j1h5"]
 [ext_resource type="AudioStream" uid="uid://7tj682jd1cii" path="res://demo/assets/combat/sounds/miss.wav" id="20_xr6ru"]

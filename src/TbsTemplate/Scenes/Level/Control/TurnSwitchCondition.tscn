@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://sh1oy4xaqis2"]
-
-[ext_resource type="Script" uid="uid://bdhij3072vx34" path="res://src/TbsTemplate/Scenes/Level/Control/TurnSwitchCondition.cs" id="1_v01m5"]
-
-[node name="TurnSwitchCondition" type="Node"]
-script = ExtResource("1_v01m5")

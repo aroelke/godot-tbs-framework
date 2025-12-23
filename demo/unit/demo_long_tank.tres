@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="Class" load_steps=12 format=3 uid="uid://8ni15si3ex81"]
 
-[ext_resource type="Script" uid="uid://ddlp6kj6iah51" path="res://src/TbsTemplate/Data/Faction.cs" id="1_6hy2a"]
-[ext_resource type="Script" uid="uid://hpaxa78srpai" path="res://src/TbsTemplate/Data/Class.cs" id="2_cpej2"]
+[ext_resource type="Script" uid="uid://ddlp6kj6iah51" path="res://src/TbsFramework/Data/Faction.cs" id="1_6hy2a"]
+[ext_resource type="Script" uid="uid://hpaxa78srpai" path="res://src/TbsFramework/Data/Class.cs" id="2_cpej2"]
 [ext_resource type="Texture2D" uid="uid://danuj6si5bj2r" path="res://demo/assets/map/tiles/long_tank_default.png" id="2_yuvx5"]
 [ext_resource type="Resource" uid="uid://broidqni4h8ak" path="res://demo/factions/DemoPlayerFaction.tres" id="3_pnx3k"]
 [ext_resource type="Texture2D" uid="uid://ladmjmqhdq3b" path="res://demo/assets/map/tiles/long_tank_player.png" id="4_xjiht"]

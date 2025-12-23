@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://bbanldfbqkktf"]
-
-[ext_resource type="Script" uid="uid://ser62f7m72li" path="res://src/TbsTemplate/Scenes/Level/Control/InRangeSwitchCondition.cs" id="1_i5mhr"]
-
-[node name="InRangeSwitchCondition" type="Node"]
-script = ExtResource("1_i5mhr")

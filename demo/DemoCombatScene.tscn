@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" uid="uid://b0772nvd2y455" path="res://demo/DemoCombatScene.cs" id="1_82dh7"]
 [ext_resource type="Theme" uid="uid://by6euruicgqv" path="res://demo/assets/ui/ui.tres" id="3_0swfn"]
-[ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsTemplate/UI/Camera2DController.tscn" id="3_jlc87"]
+[ext_resource type="PackedScene" uid="uid://dixhxpjk8n4y6" path="res://src/TbsFramework/UI/Camera2DController.tscn" id="3_jlc87"]
 [ext_resource type="PackedScene" uid="uid://c2flvqnfd3o1x" path="res://demo/CombatantData.tscn" id="3_r0ow0"]
-[ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/TbsTemplate/UI/HUD/ControlHint.tscn" id="5_0swfn"]
+[ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/TbsFramework/UI/HUD/ControlHint.tscn" id="5_0swfn"]
 [ext_resource type="Resource" uid="uid://cu80svtcky350" path="res://demo/assets/ui/input/icons/icon_map_mouse.tres" id="6_n24vd"]
 [ext_resource type="Resource" uid="uid://scrs41kvnxyt" path="res://demo/assets/ui/input/icons/icon_map_keyboard.tres" id="7_fivgk"]
 [ext_resource type="Resource" uid="uid://bovrp7fmo4rn5" path="res://demo/assets/ui/input/icons/icon_map_button.tres" id="8_bd46v"]

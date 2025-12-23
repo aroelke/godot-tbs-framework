@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://dtrul7dw5r6ly"]
+
+[ext_resource type="Script" uid="uid://buhp4ey33vxl6" path="res://src/TbsFramework/Nodes/StateChart/Reactions/Vector2Reaction.cs" id="1_jgire"]
+[ext_resource type="Resource" uid="uid://bw65e8e6vr1fl" path="res://src/TbsFramework/Nodes/StateChart/Conditions/UnCondition.tres" id="2_v78eq"]
+
+[node name="Vector2Reaction" type="Node"]
+script = ExtResource("1_jgire")
+Condition = ExtResource("2_v78eq")

@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://lrf5ywt1n230"]
+
+[ext_resource type="Script" uid="uid://druww0iicpo2s" path="res://src/TbsFramework/Nodes/StateChart/States/SimpleState.cs" id="1_gdkqp"]
+
+[node name="SimpleState" type="Node"]
+process_mode = 4
+script = ExtResource("1_gdkqp")

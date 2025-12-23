@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://bgcsg0l8mj2sn"]
+
+[ext_resource type="Script" uid="uid://bjvxat74a8ipo" path="res://src/TbsFramework/Scenes/Level/Object/Cursor.cs" id="2_ysrq3"]
+[ext_resource type="PackedScene" uid="uid://croni4vvkdn0a" path="res://src/TbsFramework/Nodes/Components/MoveController.tscn" id="3_xkmwu"]
+
+[node name="Cursor" type="Node2D"]
+script = ExtResource("2_ysrq3")
+
+[node name="MoveController" parent="." instance=ExtResource("3_xkmwu")]
+
+[node name="Sprite" type="Sprite2D" parent="."]
+
+[node name="MoveSound" type="AudioStreamPlayer" parent="."]
+
+[connection signal="CellChanged" from="." to="." method="OnCellChanged"]
+[connection signal="DirectionEchoed" from="MoveController" to="." method="OnDirectionEchoed"]
+[connection signal="DirectionPressed" from="MoveController" to="." method="OnDirectionPressed"]
+[connection signal="DirectionReleased" from="MoveController" to="." method="OnDirectionReleased"]

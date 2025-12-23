@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://0b22cirxc7k2"]
+
+[ext_resource type="Script" uid="uid://cucote1vkbfwa" path="res://src/TbsFramework/Nodes/StateChart/States/StateTransition.cs" id="1_jdtd4"]
+[ext_resource type="Resource" uid="uid://bw65e8e6vr1fl" path="res://src/TbsFramework/Nodes/StateChart/Conditions/UnCondition.tres" id="2_ltkiy"]
+
+[node name="StateTransition" type="Node"]
+script = ExtResource("1_jdtd4")
+Condition = ExtResource("2_ltkiy")

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bntay230afwxo"]
+
+[ext_resource type="Script" uid="uid://bn88gak3m7r31" path="res://src/TbsFramework/Scenes/Level/Layers/SpecialActionRegion.cs" id="1_y25qq"]
+
+[node name="SpecialActionRegion" type="TileMapLayer"]
+script = ExtResource("1_y25qq")
