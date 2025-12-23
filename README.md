@@ -155,7 +155,7 @@ selection when it isn't will cancel the target selection rather than confirm it.
 In addition to the above input actions, the built-in UI input actions (`ui_left`, etc.) are used to control context menus. 
 ## Running the Demo
 This project includes a demo that indicates how to set up a simple scene with the framework located in the "demo" directory. To run it,
-open the scene in the editor and click the "run current scene" button. There is no default scene set for this project.
+open [DemoMap.tscn](demo/DemoMap.tscn) in the editor and click the "run current scene" button. There is no default scene set for this project.
 
 For more information on the demo, see [its README](demo/README.md).
 ## License
