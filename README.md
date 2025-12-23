@@ -41,8 +41,9 @@ The scene tree should also contain an [`EventController`](src/TbsFramework/Scene
 be used for scripting custom map events. Whenever an `Army` begins its turn, a `Unit` ends its action, or an `Army` ends its turn, the
 `LevelManager` will signal the event and wait for an acknowledgment signal that returns control to it. The `EventController` receives these
 signals and returns control once its scripted event is complete. By default, `EventController` will do nothing with these signals except
-check that any objectives have been completed and then returns control to the `LevelManager` if none have been. The `EventController` does
-not have to be in any specific place in the scene tree and could even be the root if desired.
+check that any objectives have been completed and then returns control to the `LevelManager` if none have been. Subclasses of
+`EventController` can override the `_TurnBegan()`, `_ActionEnded()`, and `_TurnEnded()` methods to customize this behavior. The
+`EventController` does not have to be in any specific place in the scene tree and could even be the root if desired.
 
 #### Map Objectives
 Map objectives are specified using a tree of `Objective` nodes. There are several types of `Objective`s available:
