@@ -71,7 +71,7 @@ public static class CombatCalculations
         List<CombatAction> actions = [CreateAttackAction(a, b)];
         if (b.AttackableCells().Contains(a.Cell))
             actions.Add(CreateAttackAction(b, a));
-        if (FollowUp(a, b) is (Unit doubler, Unit doublee))
+        if (FollowUp(a, b) is (Unit doubler, Unit doublee) && doubler.AttackableCells().Contains(doublee.Cell))
             actions.Add(CreateAttackAction(doubler, doublee));
 
         return actions;
