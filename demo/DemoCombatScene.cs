@@ -117,13 +117,11 @@ public partial class DemoCombatScene : CombatScene
                 {
                     await Delay(HitDelay);
                     await _animations[unit].Die();
-                    goto Done;
                 }
             }
             await Delay(TurnDelay);
         }
 
-    Done:
         if (!_canceled)
             TransitionDelay.Start();
     }
