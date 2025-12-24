@@ -67,12 +67,20 @@ public static class CombatCalculations
     /// <returns>A list of data structures specifying the action taken during each round of combat.</returns>
     public static List<CombatAction> AttackResults(Unit a, Unit b)
     {
+        Dictionary<Unit, int> damage = new() {{ a, 0 }, { b, 0 }};
         // Compute complete combat action list
         List<CombatAction> actions = [CreateAttackAction(a, b)];
-        if (b.AttackableCells().Contains(a.Cell))
+        damage[b] += actions[^1].Damage;
+        if (damage[b] < b.Health.Value && b.AttackableCells().Contains(a.Cell))
+        {
             actions.Add(CreateAttackAction(b, a));
-        if (FollowUp(a, b) is (Unit doubler, Unit doublee) && doubler.AttackableCells().Contains(doublee.Cell))
+            damage[a] += actions[^1].Damage;
+        }
+        if (FollowUp(a, b) is (Unit doubler, Unit doublee) && damage[doubler] < doubler.Health.Value && doubler.AttackableCells().Contains(doublee.Cell))
+        {
             actions.Add(CreateAttackAction(doubler, doublee));
+            damage[doublee] += actions[^1].Damage;
+        }
 
         return actions;
     }
