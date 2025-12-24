@@ -239,7 +239,7 @@ public partial class AIController : ArmyController
         if (!destinations.Contains(action.Actor.Cell) || destinations.Count > 1)
             choices.Add(destinations.Where((c) => c != action.Actor.Cell).MinBy((c) => c.ManhattanDistanceTo(action.Actor.Cell)));
 
-        return choices.Select((c) => {
+        return choices.Max((c) => {
             VirtualUnit actor;
             VirtualUnit? updated = null;
             VirtualGrid after;
@@ -304,12 +304,12 @@ public partial class AIController : ArmyController
                     return false;
                 });
                 if (reduced.Any())
-                    decisions[after] = new(action, destination:c, result:reduced.Select((a) => EvaluateAction(reduced, a, decisions, remaining)).Max().Result);
+                    decisions[after] = new(action, destination:c, result:reduced.Max((a) => EvaluateAction(reduced, a, decisions, remaining)).Result);
             }
             if (!decisions.ContainsKey(after))
                 decisions[after] = new(action, destination:c, result:after, specials:special ? action.SpecialActionsPerformed + 1 : action.SpecialActionsPerformed, remaining:further.Count());
             return decisions[after];
-        }).Max();
+        });
     }
 
     private (VirtualUnit selected, Vector2I destination, StringName action, Vector2I target) ComputeAction(IEnumerable<VirtualUnit> available, VirtualGrid grid)
