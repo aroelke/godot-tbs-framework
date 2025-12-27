@@ -17,4 +17,4 @@ public enum CombatActionType
 /// <param name="Type">Type of action <paramref name="Actor"/> is performing on <paramref name="Target"/>.</param>
 /// <param name="Damage">How much damage is deal this turn. Use a negative number to indicate healing.  Zero does not mean the attack misses.</param>
 /// <param name="Hit">Whether or not the attack hits.</param>
-public readonly record struct CombatAction(Unit Actor, Unit Target, CombatActionType Type, int Damage, bool Hit) {}
+public readonly record struct CombatAction(IUnit Actor, IUnit Target, CombatActionType Type, int Damage, bool Hit) {}

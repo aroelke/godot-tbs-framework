@@ -70,7 +70,12 @@ public partial class AIController : ArmyController
 
         public Stats Stats => Original.Stats;
         public Faction Faction => Original.Faction;
-        public int Health => (int)Math.Round(ExpectedHealth);
+
+        public int Health
+        {
+            get => (int)Math.Round(ExpectedHealth);
+            set => throw new NotImplementedException("VirtualUnit is read-only.");
+        }
 
         public IEnumerable<Vector2I> TraversableCells(IGrid grid) => IUnit.TraversableCells(this, grid);
         public IEnumerable<Vector2I> AttackableCells(IGrid grid, IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(grid, sources, Original.Stats.AttackRange);

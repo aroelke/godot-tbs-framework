@@ -22,8 +22,8 @@ public partial class DemoCombatScene : CombatScene
 
     private readonly NodeCache _cache = null;
     private IImmutableList<CombatAction> _actions = null;
-    private readonly Dictionary<Unit, CombatAnimations> _animations = [];
-    private readonly Dictionary<Unit, CombatantData> _infos = [];
+    private readonly Dictionary<IUnit, CombatAnimations> _animations = [];
+    private readonly Dictionary<IUnit, CombatantData> _infos = [];
     private double _remaining = 0;
     private bool _canceled = false;
 
@@ -57,7 +57,7 @@ public partial class DemoCombatScene : CombatScene
     {
         foreach (CombatAction action in actions)
             if (action.Actor != left && action.Actor != right)
-                throw new ArgumentException($"CombatAction {action.Actor.Name} is not a participant in combat");
+                throw new ArgumentException($"CombatAction {((Unit)action.Actor).Name} is not a participant in combat");
         _actions = actions;
 
         _animations[left] = left.Class.InstantiateCombatAnimations(left.Faction);
@@ -111,7 +111,7 @@ public partial class DemoCombatScene : CombatScene
                 break;
             }
 
-            foreach ((Unit unit, CombatantData data) in _infos)
+            foreach ((IUnit unit, CombatantData data) in _infos)
             {
                 if (data.Health.Value <= 0)
                 {

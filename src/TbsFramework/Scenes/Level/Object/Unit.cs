@@ -112,7 +112,12 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     public Behavior Behavior { get; private set; } = null;
 
     public HealthComponent Health => _cache.GetNodeOrNull<HealthComponent>("Health");
-    int IUnit.Health => Health.Value;
+
+    int IUnit.Health
+    {
+        get => Health.Value;
+        set => Health.Value = value;
+    }
 
     /// <summary>Army to which this unit belongs, which determines its alliances and gives access to its compatriots.</summary>
     public Army Army
