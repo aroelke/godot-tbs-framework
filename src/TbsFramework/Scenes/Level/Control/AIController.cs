@@ -255,7 +255,7 @@ public partial class AIController : ArmyController
                 actor = action.Actor with { Cell = c };
                 updated = target;
                 after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(actor.Cell, actor) };
-                List<CombatAction> actions = CombatCalculations.AttackResults(actor, updated.Value, after);
+                List<CombatAction> actions = CombatCalculations.AttackResults(actor, updated.Value, after, true);
                 foreach (CombatAction combat in actions)
                 {
                     if (combat.Target.Cell == actor.Cell)

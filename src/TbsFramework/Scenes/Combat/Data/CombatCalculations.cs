@@ -37,7 +37,14 @@ public static class CombatCalculations
     /// <summary>Create an action representing the result of a single attack.</summary>
     /// <param name="attacker">Unit performing the attack.</param>
     /// <param name="defender">Unit receiving the attack.</param>
-    public static CombatAction CreateAttackAction(IUnit attacker, IUnit defender) => new(attacker, defender, CombatActionType.Attack, Damage(attacker, defender), rnd.Next(100) < HitChance(attacker, defender));
+    /// <param name="estimate">Whether to average damage based on hit chance (<c>true</c>) or use full damage but have a chance to miss (<c>false</c>).</param>
+    public static CombatAction CreateAttackAction(IUnit attacker, IUnit defender, bool estimate) => new(
+        attacker,
+        defender,
+        CombatActionType.Attack,
+        Damage(attacker, defender)*(estimate ? (double)HitChance(attacker, defender)/100.0 : 1),
+        estimate || rnd.Next(100) < HitChance(attacker, defender)
+    );
 
     /// <summary>Create an action representing the result of a single support.</summary>
     /// <param name="supporter">Unit performing the support.</param>
@@ -66,21 +73,22 @@ public static class CombatCalculations
     /// <param name="a">One of the participants.</param>
     /// <param name="b">One of the participants.</param>
     /// <param name="grid">Grid on which the units are attacking.</param>
+    /// /// <param name="estimate">Whether to average damage based on hit chance (<c>true</c>) or use full damage but have a chance to miss (<c>false</c>).</param>
     /// <returns>A list of data structures specifying the action taken during each round of combat.</returns>
-    public static List<CombatAction> AttackResults(IUnit a, IUnit b, IGrid grid)
+    public static List<CombatAction> AttackResults(IUnit a, IUnit b, IGrid grid, bool estimate)
     {
         Dictionary<IUnit, double> damage = new() {{ a, 0 }, { b, 0 }};
         // Compute complete combat action list
-        List<CombatAction> actions = [CreateAttackAction(a, b)];
+        List<CombatAction> actions = [CreateAttackAction(a, b, estimate)];
         damage[b] += actions[^1].Damage;
         if (damage[b] < b.Health && b.AttackableCells(grid, [b.Cell]).Contains(a.Cell))
         {
-            actions.Add(CreateAttackAction(b, a));
+            actions.Add(CreateAttackAction(b, a, estimate));
             damage[a] += actions[^1].Damage;
         }
         if (FollowUp(a, b) is (IUnit doubler, IUnit doublee) && damage[doubler] < doubler.Health && doubler.AttackableCells(grid, [doubler.Cell]).Contains(doublee.Cell))
         {
-            actions.Add(CreateAttackAction(doubler, doublee));
+            actions.Add(CreateAttackAction(doubler, doublee, estimate));
             damage[doublee] += actions[^1].Damage;
         }
 

@@ -339,7 +339,7 @@ public partial class LevelManager : Node
     public void OnCombatEntered()
     {
         if (_command == UnitAction.AttackAction)
-            _combatResults = CombatCalculations.AttackResults(_selected, _target, Grid);
+            _combatResults = CombatCalculations.AttackResults(_selected, _target, Grid, false);
         else if (_command == UnitAction.SupportAction)
             _combatResults = [CombatCalculations.CreateSupportAction(_selected, _target)];
         else
