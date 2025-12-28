@@ -330,8 +330,7 @@ public partial class LevelManager : Node
     private void ApplyCombatResults()
     {
         foreach (CombatAction action in _combatResults)
-            if (action.Actor.Health > 0 && action.Hit)
-                action.Target.Health -= action.Damage;
+            action.Target.Health -= action.Damage;
         _target = null;
         _combatResults = null;
     }
