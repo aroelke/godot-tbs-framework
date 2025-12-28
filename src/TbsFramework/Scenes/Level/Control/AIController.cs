@@ -7,6 +7,7 @@ using Godot;
 using TbsFramework.Data;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes.Components;
+using TbsFramework.Scenes.Combat.Data;
 using TbsFramework.Scenes.Level.Layers;
 using TbsFramework.Scenes.Level.Map;
 using TbsFramework.Scenes.Level.Object;
@@ -251,6 +252,21 @@ public partial class AIController : ArmyController
             bool special = false;
             if (action.Action == UnitAction.AttackAction)
             {
+                actor = action.Actor with { Cell = c };
+                updated = target;
+                after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(actor.Cell, actor) };
+                List<CombatAction> actions = CombatCalculations.AttackResults(actor, updated.Value, after);
+                foreach (CombatAction combat in actions)
+                {
+                    if (combat.Target.Cell == actor.Cell)
+                        actor = actor with { ExpectedHealth =  actor.ExpectedHealth - combat.Damage };
+                    else if (combat.Target.Cell == updated.Value.Cell)
+                        updated = updated.Value with { ExpectedHealth = updated.Value.ExpectedHealth - combat.Damage };
+                    else
+                        GD.PushWarning($"Combat participant at cell {combat.Target.Cell} is not this action's target");
+                }
+                after = after with { Occupants = after.Occupants.SetItem(actor.Cell, actor).SetItem(updated.Value.Cell, updated.Value) };
+/*
                 double targetHealth = target.Value.ExpectedHealth, actorHealth = action.Actor.ExpectedHealth;
                 static double ExpectedDamage(VirtualUnit a, VirtualUnit b) => Math.Max(0f, a.Original.Stats.Accuracy - b.Original.Stats.Evasion)/100f*(a.Original.Stats.Attack - b.Original.Stats.Defense);
                 targetHealth -= ExpectedDamage(action.Actor, target.Value);
@@ -266,6 +282,7 @@ public partial class AIController : ArmyController
                 actor = action.Actor with { Cell = c, ExpectedHealth = actorHealth, Active = false };
                 updated = target.Value with { ExpectedHealth = targetHealth };
                 after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(c, actor).Remove(target.Value.Cell).Add(updated.Value.Cell, updated.Value) };
+*/
             }
             else if (action.Action == UnitAction.SupportAction)
             {
