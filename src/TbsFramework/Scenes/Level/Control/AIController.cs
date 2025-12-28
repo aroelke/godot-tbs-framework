@@ -226,12 +226,11 @@ public partial class AIController : ArmyController
     {
         VirtualUnit? target = null;
         HashSet<Vector2I> destinations = [.. action.Sources];
-        bool safe = false;
         if (action.Action == UnitAction.AttackAction)
         {
             target = action.Initial.Occupants[action.Target];
             IEnumerable<Vector2I> safeCells = destinations.Where((c) => !target.Value.Original.Stats.AttackRange.Contains(c.ManhattanDistanceTo(target.Value.Cell)));
-            if (safe = safeCells.Any())
+            if (safeCells.Any())
                 destinations = [.. safeCells];
         }
         else if (action.Action == UnitAction.SupportAction)
@@ -266,23 +265,6 @@ public partial class AIController : ArmyController
                         GD.PushWarning($"Combat participant at cell {combat.Target.Cell} is not this action's target");
                 }
                 after = after with { Occupants = after.Occupants.SetItem(actor.Cell, actor).SetItem(updated.Value.Cell, updated.Value) };
-/*
-                double targetHealth = target.Value.ExpectedHealth, actorHealth = action.Actor.ExpectedHealth;
-                static double ExpectedDamage(VirtualUnit a, VirtualUnit b) => Math.Max(0f, a.Original.Stats.Accuracy - b.Original.Stats.Evasion)/100f*(a.Original.Stats.Attack - b.Original.Stats.Defense);
-                targetHealth -= ExpectedDamage(action.Actor, target.Value);
-                if (targetHealth > 0)
-                {
-                    if (!safe)
-                        actorHealth -= ExpectedDamage(target.Value, action.Actor);
-                    if (actorHealth > 0 && action.Actor.Original.Stats.Agility > target.Value.Original.Stats.Agility)
-                        targetHealth -= ExpectedDamage(action.Actor, target.Value);
-                    else if (targetHealth > 0 && !safe && target.Value.Original.Stats.Agility > action.Actor.Original.Stats.Agility)
-                        actorHealth -= ExpectedDamage(target.Value, action.Actor);
-                }
-                actor = action.Actor with { Cell = c, ExpectedHealth = actorHealth, Active = false };
-                updated = target.Value with { ExpectedHealth = targetHealth };
-                after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(c, actor).Remove(target.Value.Cell).Add(updated.Value.Cell, updated.Value) };
-*/
             }
             else if (action.Action == UnitAction.SupportAction)
             {
