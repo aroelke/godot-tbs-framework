@@ -143,6 +143,8 @@ Size = Vector2(16, 16)
 Faction = ExtResource("7_yu7ov")
 
 [node name="AIController" parent="LevelManager/Enemy1" instance=ExtResource("9_s2xnc")]
+CursorSprite = ExtResource("8_s2xnc")
+CursorOffset = Vector2(8, 8)
 
 [node name="EnemyA" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(128, 208)
@@ -336,6 +338,8 @@ SupportInRange = false
 Faction = ExtResource("8_edc7l")
 
 [node name="AIController" parent="LevelManager/Enemy2" instance=ExtResource("9_s2xnc")]
+CursorSprite = ExtResource("8_s2xnc")
+CursorOffset = Vector2(8, 8)
 
 [node name="Boss" parent="LevelManager/Enemy2" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(272, 192)
@@ -353,6 +357,8 @@ SupportInRange = false
 Faction = ExtResource("20_6hgq8")
 
 [node name="AIController" parent="LevelManager/Ally" instance=ExtResource("9_s2xnc")]
+CursorSprite = ExtResource("8_s2xnc")
+CursorOffset = Vector2(8, 8)
 
 [node name="Ally" parent="LevelManager/Ally" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(16, 112)
