@@ -31,7 +31,7 @@ public partial class MoveBehavior : Behavior
         if (allyCells.Any())
         {
             IEnumerable<IUnit> allies = allyCells.Select((c) => grid.GetOccupantUnits()[c]);
-            int lowest = allies.Select(static (u) => u.Health).Min();
+            double lowest = allies.Min(static (u) => u.Health);
             actions.AddRange(allies.Where((u) => u.Health == lowest).Select((t) => new UnitAction(UnitAction.SupportAction, unit.SupportableCells(grid, [t.Cell]).Intersect(destinations), t.Cell, destinations)));
         }
 

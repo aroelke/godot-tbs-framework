@@ -54,7 +54,7 @@ public interface IUnit
     public Faction Faction { get; }
 
     /// <summary>Current amount of health this unit has.</summary>
-    public int Health { get; set; }
+    public double Health { get; set; }
 
     /// <summary><see cref="IGrid"/> cell this unit is occupying.</summary>
     public Vector2I Cell { get; }

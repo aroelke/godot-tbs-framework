@@ -69,7 +69,7 @@ public static class CombatCalculations
     /// <returns>A list of data structures specifying the action taken during each round of combat.</returns>
     public static List<CombatAction> AttackResults(IUnit a, IUnit b, IGrid grid)
     {
-        Dictionary<IUnit, int> damage = new() {{ a, 0 }, { b, 0 }};
+        Dictionary<IUnit, double> damage = new() {{ a, 0 }, { b, 0 }};
         // Compute complete combat action list
         List<CombatAction> actions = [CreateAttackAction(a, b)];
         damage[b] += actions[^1].Damage;
@@ -86,16 +86,4 @@ public static class CombatCalculations
 
         return actions;
     }
-
-    /// <summary>Compute the total amount of damage dealt to a participant in combat</summary>
-    /// <param name="target">Participant to compute damage for.</param>
-    /// <param name="actions">Actions describing what happened in combat.</param>
-    /// <returns>The total amount of damage dealt to <paramref name="target"/> based on <paramref name="actions"/>.</returns>
-    public static int TotalDamage(IUnit target, IEnumerable<CombatAction> actions) => actions.Where((a) => a.Hit && a.Target == target).Select((a) => a.Damage).Sum();
-
-    /// <summary>Compute the expected amount of damage dealt to a participant in combat (e.g. sum of damage of each hit multiplied by its accuracy).</summary>
-    /// <param name="target">Participant to compute damage for.</param>
-    /// <param name="actions">Actions describing what will happen in combat.</param>
-    /// <returns>The total expected amount of damage, in a statistical sense, <paramref name="target"/> will receive based on <paramref name="actions"/>.</returns>
-    public static double TotalExpectedDamage(IUnit target, IEnumerable<CombatAction> actions) => actions.Where((a) => a.Target == target).Select((a) => a.Damage*HitChance(a.Actor, target)/100.0).Sum();
 }

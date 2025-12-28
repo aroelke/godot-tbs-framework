@@ -64,16 +64,16 @@ public partial class AIController : ArmyController
         public IEnumerable<ISpecialActionRegion> GetSpecialActionRegions() => [.. Regions];
     }
 
-    private readonly record struct VirtualUnit(Unit Original, Vector2I Cell, float ExpectedHealth, bool Active) : IUnit
+    private readonly record struct VirtualUnit(Unit Original, Vector2I Cell, double ExpectedHealth, bool Active) : IUnit
     {
         public VirtualUnit(Unit original) : this(original, original.Cell, original.Health.Value, original.Active) {}
 
         public Stats Stats => Original.Stats;
         public Faction Faction => Original.Faction;
 
-        public int Health
+        public double Health
         {
-            get => (int)Math.Round(ExpectedHealth);
+            get => Math.Round(ExpectedHealth);
             set => throw new NotImplementedException("VirtualUnit is read-only.");
         }
 
@@ -179,8 +179,8 @@ public partial class AIController : ArmyController
         public int SpecialActionsPerformed = 0;
         public int DefeatedEnemies { get; private set; } = 0;
         public int DefeatedAllies { get; private set; } = 0;
-        public float AllyHealthDifference { get; private set; } = 0;
-        public float EnemyHealthDifference { get; private set; } = 0;
+        public double AllyHealthDifference { get; private set; } = 0;
+        public double EnemyHealthDifference { get; private set; } = 0;
         public int PathCost { get; private set; } = 0;
         public int RemainingActions { get; private set; } = 0;
 
@@ -251,8 +251,8 @@ public partial class AIController : ArmyController
             bool special = false;
             if (action.Action == UnitAction.AttackAction)
             {
-                float targetHealth = target.Value.ExpectedHealth, actorHealth = action.Actor.ExpectedHealth;
-                static float ExpectedDamage(VirtualUnit a, VirtualUnit b) => Math.Max(0f, a.Original.Stats.Accuracy - b.Original.Stats.Evasion)/100f*(a.Original.Stats.Attack - b.Original.Stats.Defense);
+                double targetHealth = target.Value.ExpectedHealth, actorHealth = action.Actor.ExpectedHealth;
+                static double ExpectedDamage(VirtualUnit a, VirtualUnit b) => Math.Max(0f, a.Original.Stats.Accuracy - b.Original.Stats.Evasion)/100f*(a.Original.Stats.Attack - b.Original.Stats.Defense);
                 targetHealth -= ExpectedDamage(action.Actor, target.Value);
                 if (targetHealth > 0)
                 {
@@ -269,7 +269,7 @@ public partial class AIController : ArmyController
             }
             else if (action.Action == UnitAction.SupportAction)
             {
-                float targetHealth = target.Value.ExpectedHealth, actorHealth = action.Actor.ExpectedHealth;
+                double targetHealth = target.Value.ExpectedHealth, actorHealth = action.Actor.ExpectedHealth;
                 targetHealth = Math.Min(targetHealth + action.Actor.Stats.Healing, target.Value.Stats.Health);
                 actor = action.Actor with { Cell = c, ExpectedHealth = actorHealth, Active = false };
                 updated = target.Value with { ExpectedHealth = targetHealth };

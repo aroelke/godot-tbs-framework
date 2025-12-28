@@ -11,10 +11,10 @@ public enum CombatActionType
     Support
 }
 
-/// <summary>Data structure holding the information needed to choreograph one turn of combat.</summary>
-/// <param name="Actor">Which unit is acting this turn.</param>
-/// <param name="Target">Which unit is the target of the action this turn.</param>
+/// <summary>Data structure holding the information needed to choreograph one action of combat.</summary>
+/// <param name="Actor">Which unit is acting.</param>
+/// <param name="Target">Which unit is the target of the action.</param>
 /// <param name="Type">Type of action <paramref name="Actor"/> is performing on <paramref name="Target"/>.</param>
-/// <param name="Damage">How much damage is deal this turn. Use a negative number to indicate healing.  Zero does not mean the attack misses.</param>
+/// <param name="Damage">How much damage is dealt. Use a negative number to indicate healing.  Zero does not mean the attack misses.</param>
 /// <param name="Hit">Whether or not the attack hits.</param>
-public readonly record struct CombatAction(IUnit Actor, IUnit Target, CombatActionType Type, int Damage, bool Hit) {}
+public readonly record struct CombatAction(IUnit Actor, IUnit Target, CombatActionType Type, double Damage, bool Hit) {}

@@ -43,15 +43,15 @@ public partial class ShortTankMapAnimations : UnitMapAnimations
 
     public ShortTankMapAnimations() : base() { _cache = new(this); }
 
-    public override void SetHealthValue(int value)
+    public override void SetHealthValue(double value)
     {
         Health10.Visible = value > 9;
         if (value < 0 || value > 99)
             Health10.FrameCoords = Health1.FrameCoords = QuestionCoords;
         else
         {
-            Health1.FrameCoords = new(value % 10, DigitRow);
-            Health10.FrameCoords = new(value/10, DigitRow);
+            Health1.FrameCoords = new((int)value % 10, DigitRow);
+            Health10.FrameCoords = new((int)value/10, DigitRow);
         }
     }
 
@@ -59,5 +59,5 @@ public partial class ShortTankMapAnimations : UnitMapAnimations
     public override void PlayDone() => PlayAnimation(Vector2.Right, false);
     public override void PlayIdle() => PlayAnimation(Vector2I.Right, true);
     public override void PlaySelected() => PlayAnimation(Vector2I.Right, true);
-    public override void SetHealthMax(int value) {}
+    public override void SetHealthMax(double value) {}
 }
