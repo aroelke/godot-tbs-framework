@@ -128,8 +128,6 @@ to it to play the combat sequence.
   - The [`Stats`](src/TbsFramework/Data/Stats.cs) resource to change what stats units have (make sure there's always an `AttackRange` property and
     `SupportRange` property)
   - The [`CombatCalculations`](src/TbsFramework/Scenes/Combat/Data/CombatCalculations.cs) static class to change the way combat results are calculated
-  - The [`AIController`](src/TbsFramework/Scenes/Level/Control/AIController.cs) class to update its combat simulation to reflect the changes made to
-    `CombatCalculation`
 ### Controls
 The framework uses the following input actions:
 - `digital_move_up` (keyboard Up, dpad up), `digital_move_left` (keyboard Left, dpad left), `digital_move_down` (keyboard Down, dpad down),
