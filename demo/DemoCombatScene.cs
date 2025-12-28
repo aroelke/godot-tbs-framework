@@ -22,8 +22,8 @@ public partial class DemoCombatScene : CombatScene
 
     private readonly NodeCache _cache = null;
     private IImmutableList<CombatAction> _actions = null;
-    private readonly Dictionary<Unit, CombatAnimations> _animations = [];
-    private readonly Dictionary<Unit, CombatantData> _infos = [];
+    private readonly Dictionary<IUnit, CombatAnimations> _animations = [];
+    private readonly Dictionary<IUnit, CombatantData> _infos = [];
     private double _remaining = 0;
     private bool _canceled = false;
 
@@ -57,7 +57,7 @@ public partial class DemoCombatScene : CombatScene
     {
         foreach (CombatAction action in actions)
             if (action.Actor != left && action.Actor != right)
-                throw new ArgumentException($"CombatAction {action.Actor.Name} is not a participant in combat");
+                throw new ArgumentException($"CombatAction {((Unit)action.Actor).Name} is not a participant in combat");
         _actions = actions;
 
         _animations[left] = left.Class.InstantiateCombatAnimations(left.Faction);
@@ -65,7 +65,7 @@ public partial class DemoCombatScene : CombatScene
         _animations[left].Position = LeftPosition;
         _infos[left] = GetNode<CombatantData>("%LeftData");
         _infos[left].Health = left.Health;
-        _infos[left].Damage = [.. _actions.Where((a) => a.Actor == left).Select(static (a) => a.Damage)];
+        _infos[left].Damage = [.. _actions.Where((a) => a.Actor == left).Select(static (a) => (int)a.Damage)];
         _infos[left].HitChance = _actions.Any((a) => a.Actor == left) ? Math.Min(CombatCalculations.HitChance(left, right), 100) : -1;
         _infos[left].TransitionDuration = HitDelay;
 
@@ -74,7 +74,7 @@ public partial class DemoCombatScene : CombatScene
         _animations[right].Position = RightPosition;
         _infos[right] = GetNode<CombatantData>("%RightData");
         _infos[right].Health = right.Health;
-        _infos[right].Damage = [.. _actions.Where((a) => a.Actor == right).Select(static (a) => a.Damage)];
+        _infos[right].Damage = [.. _actions.Where((a) => a.Actor == right).Select(static (a) => (int)a.Damage)];
         _infos[right].HitChance = _actions.Any((a) => a.Actor == right) ? Math.Min(CombatCalculations.HitChance(right, left), 100) : -1;
         _infos[right].TransitionDuration = HitDelay;
 
@@ -96,14 +96,14 @@ public partial class DemoCombatScene : CombatScene
                 await _animations[action.Actor].BeginAttack(_animations[action.Target], action.Hit);
                 if (action.Hit)
                 {
-                    _infos[action.Target].Health.Value -= action.Damage;
+                    _infos[action.Target].Health.Value -= (int)action.Damage;
                     Camera.Trauma += CameraShakeHitTrauma;
                 }
                 await Task.WhenAll(_animations[action.Actor].FinishAttack(), Delay(HitDelay));
                 break;
             case CombatActionType.Support:
                 await _animations[action.Actor].BeginSupport(_animations[action.Target]);
-                _infos[action.Target].Health.Value -= action.Damage;
+                _infos[action.Target].Health.Value -= (int)action.Damage;
                 await Delay(HitDelay);
                 await _animations[action.Actor].FinishSupport();
                 break;
@@ -111,7 +111,7 @@ public partial class DemoCombatScene : CombatScene
                 break;
             }
 
-            foreach ((Unit unit, CombatantData data) in _infos)
+            foreach ((IUnit unit, CombatantData data) in _infos)
             {
                 if (data.Health.Value <= 0)
                 {

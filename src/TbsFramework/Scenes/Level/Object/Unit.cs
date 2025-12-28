@@ -53,7 +53,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
             _animations = @class.InstantiateMapAnimations(faction);
             GetNode<PathFollow2D>("Path/Follow").AddChild(_animations);
 
-            Health.Connect<int>(HealthComponent.SignalName.MaximumChanged, _animations.SetHealthMax);
+            Health.Connect<double>(HealthComponent.SignalName.MaximumChanged, _animations.SetHealthMax);
             Health.Connect(HealthComponent.SignalName.ValueChanged, new Callable(_animations, UnitMapAnimations.MethodName.SetHealthValue));
             _animations.SetHealthMax(Health.Maximum);
             _animations.SetHealthValue(Health.Value);
@@ -112,7 +112,12 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     public Behavior Behavior { get; private set; } = null;
 
     public HealthComponent Health => _cache.GetNodeOrNull<HealthComponent>("Health");
-    int IUnit.Health => Health.Value;
+
+    double IUnit.Health
+    {
+        get => Health.Value;
+        set => Health.Value = value;
+    }
 
     /// <summary>Army to which this unit belongs, which determines its alliances and gives access to its compatriots.</summary>
     public Army Army

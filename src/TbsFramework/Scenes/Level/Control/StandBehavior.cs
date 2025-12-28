@@ -35,7 +35,7 @@ public partial class StandBehavior : Behavior
             IEnumerable<IUnit> targets = grid.GetOccupantUnits().Where((e) => supportable.Contains(e.Key) && unit.Faction.AlliedTo(e.Value.Faction)).Select(static (p) => p.Value);
             if (targets.Any())
             {
-                int lowest = targets.Select(static (u) => u.Health).Min();
+                double lowest = targets.Min(static (u) => u.Health);
                 actions.AddRange(targets.Where((t) => t.Health == lowest).Select((t) => new UnitAction(UnitAction.SupportAction, [unit.Cell], t.Cell, [unit.Cell])));
             }
         }

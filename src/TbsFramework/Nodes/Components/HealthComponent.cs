@@ -16,22 +16,22 @@ public partial class HealthComponent : Node
 {
     /// <summary>Indicates that the current health value has changed.</summary>
     /// <param name="value">New health value.</param>
-    [Signal] public delegate void ValueChangedEventHandler(int value);
+    [Signal] public delegate void ValueChangedEventHandler(double value);
 
     /// <summary>Indicates that the maximum health value has changed.</summary>
     /// <param name="value">New maximum health value.</param>
     /// <remarks>If the maximum is set below the current, this fill fire before <see cref="ValueChanged"/></remarks>
-    [Signal] public delegate void MaximumChangedEventHandler(int value);
+    [Signal] public delegate void MaximumChangedEventHandler(double value);
 
-    private int _max = 0, _current = 0;
+    private double _max = 0, _current = 0;
 
     /// <summary>Max health value. Is always nonnegative. If set to a value below <see cref="Value"/>, also changes <see cref="Value"/>.</summary>
-    [Export] public int Maximum
+    [Export] public double Maximum
     {
         get => _max;
         set
         {
-            int next = Math.Max(value, 0);
+            double next = Math.Max(value, 0);
             if (_max != next)
             {
                 _max = next;
@@ -43,12 +43,12 @@ public partial class HealthComponent : Node
     }
 
     /// <summary>Current health value. Is always between 0 and <see cref="Maximum"/>, inclusive.</summary>
-    [Export] public int Value
+    [Export] public double Value
     {
         get => _current;
         set
         {
-            int next = Mathf.Clamp(value, 0, Maximum);
+            double next = Mathf.Clamp(value, 0, Maximum);
             if (_current != next)
             {
                 _current = next;

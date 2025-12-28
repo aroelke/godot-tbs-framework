@@ -330,8 +330,7 @@ public partial class LevelManager : Node
     private void ApplyCombatResults()
     {
         foreach (CombatAction action in _combatResults)
-            if (action.Actor.Health.Value > 0 && action.Hit)
-                action.Target.Health.Value -= action.Damage;
+            action.Target.Health -= action.Damage;
         _target = null;
         _combatResults = null;
     }
@@ -339,7 +338,7 @@ public partial class LevelManager : Node
     public void OnCombatEntered()
     {
         if (_command == UnitAction.AttackAction)
-            _combatResults = CombatCalculations.AttackResults(_selected, _target);
+            _combatResults = CombatCalculations.AttackResults(_selected, _target, Grid, false);
         else if (_command == UnitAction.SupportAction)
             _combatResults = [CombatCalculations.CreateSupportAction(_selected, _target)];
         else
