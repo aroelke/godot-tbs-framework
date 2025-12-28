@@ -49,7 +49,7 @@ public static class CombatCalculations
     /// <summary>Create an action representing the result of a single support.</summary>
     /// <param name="supporter">Unit performing the support.</param>
     /// <param name="recipient">Unit receiving the support.</param>
-    public static CombatAction CreateSupportAction(IUnit supporter, IUnit recipient) => new(supporter, recipient, CombatActionType.Support, -supporter.Stats.Healing, true);
+    public static CombatAction CreateSupportAction(IUnit supporter, IUnit recipient) => new(supporter, recipient, CombatActionType.Support, -Math.Min(supporter.Stats.Healing, recipient.Stats.Health - recipient.Health), true);
 
     /// <summary>
     /// Deterine which unit, if any, will follow up in a combat situation. Currently, a unit follows up if its agility is higher than the

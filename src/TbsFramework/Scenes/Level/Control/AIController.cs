@@ -254,24 +254,23 @@ public partial class AIController : ArmyController
                 actor = action.Actor with { Cell = c };
                 updated = target;
                 after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(actor.Cell, actor) };
-                List<CombatAction> actions = CombatCalculations.AttackResults(actor, updated.Value, after, true);
-                foreach (CombatAction combat in actions)
+                List<CombatAction> attacks = CombatCalculations.AttackResults(actor, updated.Value, after, true);
+                foreach (CombatAction attack in attacks)
                 {
-                    if (combat.Target.Cell == actor.Cell)
-                        actor = actor with { ExpectedHealth =  actor.ExpectedHealth - combat.Damage };
-                    else if (combat.Target.Cell == updated.Value.Cell)
-                        updated = updated.Value with { ExpectedHealth = updated.Value.ExpectedHealth - combat.Damage };
+                    if (attack.Target.Cell == actor.Cell)
+                        actor = actor with { ExpectedHealth =  actor.ExpectedHealth - attack.Damage };
+                    else if (attack.Target.Cell == updated.Value.Cell)
+                        updated = updated.Value with { ExpectedHealth = updated.Value.ExpectedHealth - attack.Damage };
                     else
-                        GD.PushWarning($"Combat participant at cell {combat.Target.Cell} is not this action's target");
+                        GD.PushWarning($"Combat participant at cell {attack.Target.Cell} is not this action's target");
                 }
                 after = after with { Occupants = after.Occupants.SetItem(actor.Cell, actor).SetItem(updated.Value.Cell, updated.Value) };
             }
             else if (action.Action == UnitAction.SupportAction)
             {
-                double targetHealth = target.Value.ExpectedHealth, actorHealth = action.Actor.ExpectedHealth;
-                targetHealth = Math.Min(targetHealth + action.Actor.Stats.Healing, target.Value.Stats.Health);
-                actor = action.Actor with { Cell = c, ExpectedHealth = actorHealth, Active = false };
-                updated = target.Value with { ExpectedHealth = targetHealth };
+                CombatAction support = CombatCalculations.CreateSupportAction(action.Actor, target.Value);
+                actor = action.Actor with { Cell = c, ExpectedHealth = action.Actor.ExpectedHealth + (support.Target.Cell == action.Actor.Cell ? -support.Damage : 0), Active = false };
+                updated = target.Value with { ExpectedHealth = target.Value.ExpectedHealth + (support.Target.Cell == target.Value.Cell ? -support.Damage : 0) };
                 after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(c, actor).Remove(target.Value.Cell).Add(updated.Value.Cell, updated.Value) };
             }
             else
