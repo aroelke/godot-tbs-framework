@@ -10,7 +10,7 @@ namespace TbsFramework.UI.HUD;
 /// Switches between showing four buttons in a diamond pattern and showing a single directional pad depending on if all the actions
 /// are mapped to the pad in the right way.
 /// </summary>
-[Icon("res://icons/ControlHint.svg"), Tool]
+[Icon("uid://dse1e8t65q25x"), Tool]
 public partial class GamepadCursorHintIcon : HBoxContainer
 {
     private readonly NodeCache _cache = null;

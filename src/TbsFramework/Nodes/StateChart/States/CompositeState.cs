@@ -6,7 +6,7 @@ using Godot;
 namespace TbsFramework.Nodes.StateCharts.States;
 
 /// <summary>A <see cref="State"/> that can have one or more sub-<see cref="State"/>s.</summary>
-[Icon("res://icons/statechart/CompositeState.svg"), Tool]
+[Icon("uid://cvo0q3f2sgv8f"), Tool]
 public partial class CompositeState : State
 {
     /// <summary>Signals that one of this state's sub-states is being entered.</summary>

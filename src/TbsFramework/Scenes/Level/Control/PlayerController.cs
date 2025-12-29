@@ -17,7 +17,7 @@ using TbsFramework.UI.Controls.Device;
 namespace TbsFramework.Scenes.Level.Control;
 
 /// <summary>Controls units based on player input.  Also includes UI elements to facilitate gameplay.</summary>
-[Icon("res://icons/PlayerController.svg"), Tool]
+[Icon("uid://csdm8hrgterwn"), Tool]
 public partial class PlayerController : ArmyController
 {
     private static readonly StringName PathTileSetProperty = "PathTileSet";

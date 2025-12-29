@@ -8,7 +8,7 @@ using TbsFramework.Nodes.StateCharts.Conditions;
 namespace TbsFramework.Nodes.StateCharts.States;
 
 /// <summary>Transition between <see cref="State"/>s. </summary>
-[Icon("res://icons/statechart/StateTransition.svg"), Tool]
+[Icon("uid://blo8fka73l77c"), Tool]
 public partial class StateTransition : ChartNode
 {
     /// <summary>Signals the transition is taken, but before the active <see cref="State"/> is actually exited.</summary>
