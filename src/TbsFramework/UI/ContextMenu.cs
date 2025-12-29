@@ -34,13 +34,13 @@ public partial class ContextMenu : PanelContainer
     [Signal] public delegate void MenuClosedEventHandler();
 
     private const int NothingSelected = -1;
-    private const string DefaultScenePath = "res://src/TbsFramework/UI/ContextMenu.tscn";
+    private const string DefaultSceneUID = "uid://cxa8uah4pn4fg";
     private static readonly PackedScene DefaultScene = null;
 
     static ContextMenu()
     {
         if (!Engine.IsEditorHint())
-            DefaultScene = GD.Load<PackedScene>(DefaultScenePath);
+            DefaultScene = GD.Load<PackedScene>(DefaultSceneUID);
     }
 
     /// <summary>Set up a context menu with a set of options mapped to actions.</summary>
