@@ -40,7 +40,8 @@ public abstract class GridObjectData(bool occupies)
                 _cell = next;
                 if (occupies && _grid is not null)
                     _grid.Occupants[_cell] = this;
-                CellChanged(_cell);
+                if (CellChanged is not null)
+                    CellChanged(_cell);
             }
         }
     }

@@ -1,6 +1,9 @@
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization.Formatters;
 using Godot;
 using TbsFramework.Collections;
+using TbsFramework.Scenes.Level.Layers;
 using TbsFramework.Scenes.Level.Object;
 
 namespace TbsFramework.Scenes.Level.Map;
@@ -25,14 +28,16 @@ public class GridData
     public GridData() : base()
     {
         _terrain.ItemsAdded += (items) => {
-            foreach ((Vector2I cell, Terrain terrain) in items)
-                TerrainUpdated(cell, terrain);
+            if (TerrainUpdated is not null)
+                foreach ((Vector2I cell, Terrain terrain) in items)
+                    TerrainUpdated(cell, terrain);
         };
         _terrain.ItemsRemoved += (items) => {
-            foreach ((Vector2I cell, _) in items)
-                TerrainUpdated(cell, DefaultTerrain);
+            if (TerrainUpdated is not null)
+                foreach ((Vector2I cell, _) in items)
+                    TerrainUpdated(cell, DefaultTerrain);
         };
-        _terrain.ItemReplaced += (cell, _, @new) => TerrainUpdated(cell, @new);
+        _terrain.ItemReplaced += (cell, _, @new) => { if (TerrainUpdated is not null) TerrainUpdated(cell, @new); };
     }
 
     public bool Contains(Vector2I cell) => cell.X >= 0 && cell.X < Size.X && cell.Y >= 0 && cell.Y < Size.Y;
