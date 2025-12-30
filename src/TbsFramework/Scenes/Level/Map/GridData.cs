@@ -65,5 +65,7 @@ public class GridData
 
     public IEnumerable<Vector2I> GetNeighbors(Vector2I cell) => GetCellsAtDistance(cell, 1);
 
+    public IEnumerable<Vector2I> GetCellsInRange(Vector2I center, IEnumerable<int> distances) => distances.SelectMany((r) => GetCellsAtDistance(center, r)).ToHashSet();
+
     public IList<StringName> GetSpecialActions(Vector2I cell) => [.. SpecialActionRegions.Where((r) => r.Cells.Contains(cell)).Select((r) => r.Action)];
 }
