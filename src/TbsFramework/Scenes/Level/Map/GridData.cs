@@ -35,5 +35,27 @@ public class GridData
         _terrain.ItemReplaced += (cell, _, @new) => TerrainUpdated(cell, @new);
     }
 
+    public bool Contains(Vector2I cell) => cell.X >= 0 && cell.X < Size.X && cell.Y >= 0 && cell.Y < Size.Y;
+
     public Vector2I Clamp(Vector2I cell) => cell.Clamp(Vector2I.Zero, Size - Vector2I.One);
+
+    public IEnumerable<Vector2I> GetCellsAtDistance(Vector2I center, int distance)
+    {
+        HashSet<Vector2I> cells = [];
+        for (int i = 0; i < distance; i++)
+        {
+            Vector2I target;
+            if (Contains(target = center + new Vector2I(-distance + i, -i)))
+                cells.Add(target);
+            if (Contains(target = center + new Vector2I(i, -distance + i)))
+                cells.Add(target);
+            if (Contains(target = center + new Vector2I(distance - i, i)))
+                cells.Add(target);
+            if (Contains(target = center + new Vector2I(-i, distance - i)))
+                cells.Add(target);
+        }
+        return cells;
+    }
+
+    public IEnumerable<Vector2I> GetNeighbors(Vector2I cell) => GetCellsAtDistance(cell, 1);
 }
