@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization.Formatters;
 using Godot;
 using TbsFramework.Collections;
 using TbsFramework.Scenes.Level.Layers;
@@ -24,6 +23,8 @@ public class GridData
     public Terrain DefaultTerrain = new();
 
     public IDictionary<Vector2I, GridObjectData> Occupants => _occupants;
+
+    public readonly List<SpecialActionRegionData> SpecialActionRegions = [];
 
     public GridData() : base()
     {
@@ -63,4 +64,6 @@ public class GridData
     }
 
     public IEnumerable<Vector2I> GetNeighbors(Vector2I cell) => GetCellsAtDistance(cell, 1);
+
+    public IList<StringName> GetSpecialActions(Vector2I cell) => [.. SpecialActionRegions.Where((r) => r.Cells.Contains(cell)).Select((r) => r.Action)];
 }
