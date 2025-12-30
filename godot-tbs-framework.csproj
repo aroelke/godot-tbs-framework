@@ -2,6 +2,6 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <EnableDynamicLoading>true</EnableDynamicLoading>
-    <RootNamespace>godottbsframework</RootNamespace>
+    <RootNamespace>TbsFramework</RootNamespace>
   </PropertyGroup>
 </Project>
