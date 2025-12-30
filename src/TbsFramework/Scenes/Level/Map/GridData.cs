@@ -9,14 +9,31 @@ namespace TbsFramework.Scenes.Level.Map;
 
 public class GridData
 {
+    public delegate void SizeUpdatedEventHandler(Vector2I size);
     public delegate void TerrainUpdatedEventHandler(Vector2I cell, Terrain terrain);
 
+    private Vector2I _size = Vector2I.One;
     private readonly ObservableDictionary<Vector2I, Terrain> _terrain = [];
     private readonly ObservableDictionary<Vector2I, GridObjectData> _occupants = [];
 
+    public event SizeUpdatedEventHandler SizeUpdated;
     public event TerrainUpdatedEventHandler TerrainUpdated;
 
-    public Vector2I Size = Vector2I.One;
+    public Vector2I Size
+    {
+        get => _size;
+        set
+        {
+            if (_size != value)
+            {
+                _size = value;
+                if (SizeUpdated is not null)
+                    SizeUpdated(_size);
+                foreach ((_, GridObjectData occupant) in new Dictionary<Vector2I, GridObjectData>(Occupants))
+                    occupant.Cell = Clamp(occupant.Cell);
+            }
+        }
+    }
 
     public IDictionary<Vector2I, Terrain> Terrain => _terrain;
 
