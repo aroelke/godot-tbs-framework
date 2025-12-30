@@ -4,12 +4,14 @@ using TbsFramework.Scenes.Level.Map;
 
 namespace TbsFramework.Scenes.Level.Object;
 
-public abstract partial class GridObjectData(bool occupies) : RefCounted
+public abstract class GridObjectData(bool occupies)
 {
-    [Signal] public delegate void CellChangedEventHandler(Vector2I cell);
+    public delegate void CellChangedEventHandler(Vector2I cell);
 
     private GridData _grid = null;
     private Vector2I _cell = -Vector2I.One;
+
+    public event CellChangedEventHandler CellChanged;
 
     public GridData Grid
     {
@@ -38,7 +40,7 @@ public abstract partial class GridObjectData(bool occupies) : RefCounted
                 _cell = next;
                 if (occupies && _grid is not null)
                     _grid.Occupants[_cell] = this;
-                EmitSignal(SignalName.CellChanged, _cell);
+                CellChanged(_cell);
             }
         }
     }

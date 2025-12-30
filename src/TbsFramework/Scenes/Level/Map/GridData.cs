@@ -5,12 +5,14 @@ using TbsFramework.Scenes.Level.Object;
 
 namespace TbsFramework.Scenes.Level.Map;
 
-public partial class GridData : RefCounted
+public class GridData
 {
-    [Signal] public delegate void TerrainUpdatedEventHandler(Vector2I cell, Terrain terrain);
+    public delegate void TerrainUpdatedEventHandler(Vector2I cell, Terrain terrain);
 
     private readonly ObservableDictionary<Vector2I, Terrain> _terrain = [];
     private readonly ObservableDictionary<Vector2I, GridObjectData> _occupants = [];
+
+    public event TerrainUpdatedEventHandler TerrainUpdated;
 
     public Vector2I Size = Vector2I.One;
 
@@ -24,13 +26,13 @@ public partial class GridData : RefCounted
     {
         _terrain.ItemsAdded += (items) => {
             foreach ((Vector2I cell, Terrain terrain) in items)
-                EmitSignal(SignalName.TerrainUpdated, cell, terrain);
+                TerrainUpdated(cell, terrain);
         };
         _terrain.ItemsRemoved += (items) => {
             foreach ((Vector2I cell, _) in items)
-                EmitSignal(SignalName.TerrainUpdated, cell, DefaultTerrain);
+                TerrainUpdated(cell, DefaultTerrain);
         };
-        _terrain.ItemReplaced += (cell, _, @new) => EmitSignal(SignalName.TerrainUpdated, cell, @new);
+        _terrain.ItemReplaced += (cell, _, @new) => TerrainUpdated(cell, @new);
     }
 
     public Vector2I Clamp(Vector2I cell) => cell.Clamp(Vector2I.Zero, Size - Vector2I.One);
