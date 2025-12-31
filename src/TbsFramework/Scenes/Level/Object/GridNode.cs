@@ -22,7 +22,7 @@ public abstract partial class GridNode : BoundedNode2D
             {
                 _grid = value;
                 if (_grid is not null)
-                    Cell = _grid.CellOf(GridPosition + Size/2);
+                    Cell = _grid.CellOf(GetGridPosition() + Size/2);
             }
         }
     }
@@ -34,18 +34,15 @@ public abstract partial class GridNode : BoundedNode2D
         set => Data.Cell = value;
     }
 
-    /// <summary>Position in the world of the rendered grid node relative to <see cref="Grid"/>'s origin.</summary>
-    public Vector2 GridPosition
-    {
-        get => GlobalPosition - _grid.GlobalPosition;
-        set => GlobalPosition = _grid.GlobalPosition + value;
-    }
-
     public abstract GridObjectData Data { get; }
 
     /// <inheritdoc cref="BoundedNode2D.Size"/>
     /// <remarks>Grid nodes have a constant size that is based on the size of the <see cref="Map.Grid"/> cells.</remarks>
     public override Vector2 Size { get => _grid?.CellSize ?? Vector2.Zero; set {}}
+
+    public Vector2 GetGridPosition() => GlobalPosition - _grid.GlobalPosition;
+
+    public void SetGridPosition(Vector2 position) => GlobalPosition = _grid.GlobalPosition + position;
 
     public override void _ValidateProperty(Dictionary property)
     {
@@ -72,13 +69,13 @@ public abstract partial class GridNode : BoundedNode2D
 
         Data.CellChanged += (cell) => {
             if (_grid is not null)
-                GridPosition = _grid.PositionOf(cell);
+                SetGridPosition(_grid.PositionOf(cell));
             if (Engine.IsEditorHint())
                 UpdateConfigurationWarnings();
         };
 
         if (_grid is not null)
-            Data.Cell = _grid.CellOf(GridPosition + Size/2);
+            Data.Cell = _grid.CellOf(GetGridPosition() + Size/2);
     }
 
 
@@ -88,8 +85,8 @@ public abstract partial class GridNode : BoundedNode2D
 
         if (Engine.IsEditorHint() && _grid is not null && !Input.IsMouseButtonPressed(MouseButton.Left))
         {
-            Data.Cell = _grid.CellOf(GridPosition + Size/2);
-            GridPosition = _grid.PositionOf(Data.Cell);
+            Data.Cell = _grid.CellOf(GetGridPosition() + Size/2);
+            SetGridPosition(_grid.PositionOf(Data.Cell));
         }
     }
 }
