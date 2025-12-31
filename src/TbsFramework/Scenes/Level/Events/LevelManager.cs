@@ -432,7 +432,15 @@ public partial class LevelManager : Node
     public void PopCameraFocus() => Camera.Target = _cameraHistory.Pop();
 
     /// <summary>When an event is completed, go to the next state.</summary>
-    public void OnEventComplete() => State.SendEvent(DoneEvent);
+    public void OnEventComplete()
+    {
+        // Events should only occur on the map, so if this node isn't in the scene tree and receives an event completion signal, then the level must have
+        // completed and this LevelManager is no longer needed
+        if (IsInsideTree())
+            State.SendEvent(DoneEvent);
+        else
+            QueueFree();
+    }
 
     /// <summary>When the pointer starts flying, we need to wait for it to finish. Also focus the camera on its target if there's something there.</summary>
     /// <param name="target">Position the pointer is going to fly to.</param>
