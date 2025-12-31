@@ -149,7 +149,7 @@ public partial class Cursor : GridNode
                             Cell = target;
                         }
                         else
-                            Cell = Grid.Clamp(Cell + direction*Grid.Size);
+                            Cell = Data.Grid.Clamp(Cell + direction*Grid.Size);
                     }
                 }
             }
@@ -280,7 +280,7 @@ public partial class Cursor : GridNode
                         Cell = target;
                     }
                     else
-                        Cell = Grid.Clamp(Cell + direction*Grid.Size);
+                        Cell = Data.Grid.Clamp(Cell + direction*Grid.Size);
                 }
             }
         }

@@ -63,11 +63,6 @@ public partial class Grid : Node2D, IGrid
     /// <summary>Regions in which units can perform special actions defined by the region.</summary>
     public IEnumerable<SpecialActionRegion> SpecialActionRegions => GetChildren().OfType<SpecialActionRegion>();
 
-    /// <summary>Find the cell offset closest to the given one inside the grid.</summary>
-    /// <param name="cell">Cell offset to clamp.
-    /// <returns>The cell <paramref name="offset"/> clamped to be inside the grid bounds using <c>Vector2I.Clamp</c></returns>
-    public Vector2I Clamp(Vector2I offset) => Data.Clamp(offset);
-
     /// <summary>Find the position in pixels of a cell offset.</summary>
     /// <param name="offset">Cell offset to use for calculation (can be outside grid bounds).</param>
     /// <returns>The position, in pixels, of the upper-left corner of the grid cell.</returns>
