@@ -203,6 +203,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     /// <summary>Remove the unit from the map and delete it.</summary>
     public void Die()
     {
+        UnitData.Grid.Occupants.Remove(Cell);
         Grid.Occupants.Remove(Cell);
         QueueFree();
     }

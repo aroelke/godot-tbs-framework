@@ -67,15 +67,22 @@ public abstract partial class GridNode : BoundedNode2D
     {
         base._Ready();
 
-        Data.CellChanged += (cell) => {
-            if (_grid is not null)
-                SetGridPosition(_grid.PositionOf(cell));
-            if (Engine.IsEditorHint())
-                UpdateConfigurationWarnings();
-        };
+        if (!Engine.IsEditorHint())
+        {
+            Data.CellChanged += (cell) => {
+                if (_grid is not null)
+                    SetGridPosition(_grid.PositionOf(cell));
+                if (Engine.IsEditorHint())
+                    UpdateConfigurationWarnings();
+            };
 
-        if (_grid is not null)
-            Data.Cell = _grid.CellOf(GetGridPosition() + Size/2);
+            // Do this after all nodes have been initialized so the backing data is defined
+            Callable.From(() => {
+                // Set cell first because otherwise all the grid nodes will go to (1, 1) and trigger occupancy exceptions
+                Data.Cell = _grid.CellOf(GetGridPosition() + Size/2);
+                Data.Grid = _grid.Data;
+            }).CallDeferred();
+        }
     }
 
 

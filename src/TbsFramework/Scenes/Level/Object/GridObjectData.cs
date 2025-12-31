@@ -37,9 +37,13 @@ public abstract class GridObjectData(bool occupies)
             {
                 if (occupies && (_grid?.Occupants.TryGetValue(next, out GridObjectData occupant) ?? false) && occupant != this)
                     throw new ArgumentException($"Cell {next} is already occupied");
+                Vector2I old = _cell;
                 _cell = next;
                 if (occupies && _grid is not null)
+                {
+                    _grid.Occupants.Remove(old);
                     _grid.Occupants[_cell] = this;
+                }
                 if (CellChanged is not null)
                     CellChanged(_cell);
             }

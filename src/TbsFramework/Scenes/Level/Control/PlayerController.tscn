@@ -54,7 +54,6 @@ use_parent_material = true
 navigation_enabled = false
 
 [node name="Cursor" parent="." instance=ExtResource("2_rkggg")]
-Cell = Vector2i(-1, -1)
 
 [node name="UserInterface" type="CanvasLayer" parent="."]
 
@@ -185,8 +184,8 @@ Event = &"finish"
 [connection signal="Taken" from="State/Root/Active/Select/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="StateEntered" from="State/Root/Active/Path" to="." method="OnPathEntered"]
 [connection signal="StateExited" from="State/Root/Active/Path" to="." method="OnPathExited"]
-[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnPathCanceled"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnCancel"]
+[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnPathCanceled"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnPathFinished"]
 [connection signal="StateEntered" from="State/Root/Active/Command" to="." method="OnCommandEntered"]
