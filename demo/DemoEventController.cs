@@ -2,7 +2,6 @@ using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Scenes;
 using TbsFramework.Scenes.Level.Events;
-using TbsFramework.UI;
 
 namespace TbsFramework.Demo;
 
