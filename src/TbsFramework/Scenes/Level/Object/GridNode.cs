@@ -10,8 +10,22 @@ namespace TbsFramework.Scenes.Level.Object;
 [Icon("res://icons/GridNode.svg"), Tool]
 public abstract partial class GridNode : BoundedNode2D
 {
+    private Grid _grid = null;
+
     /// <summary>Grid on which the containing object sits.</summary>
-    [Export] public Grid Grid;
+    [Export] public Grid Grid
+    {
+        get => _grid;
+        set
+        {
+            if (_grid != value)
+            {
+                _grid = value;
+                if (_grid is not null)
+                    Cell = _grid.CellOf(GridPosition + Size/2);
+            }
+        }
+    }
 
     /// <summary>Cell on the <see cref="Map.Grid"/> that this object currently occupies.</summary>
     [Export] public virtual Vector2I Cell
@@ -20,11 +34,18 @@ public abstract partial class GridNode : BoundedNode2D
         set => Data.Cell = value;
     }
 
+    /// <summary>Position in the world of the rendered grid node relative to <see cref="Grid"/>'s origin.</summary>
+    public Vector2 GridPosition
+    {
+        get => GlobalPosition - _grid.GlobalPosition;
+        set => GlobalPosition = _grid.GlobalPosition + value;
+    }
+
     public abstract GridObjectData Data { get; }
 
     /// <inheritdoc cref="BoundedNode2D.Size"/>
     /// <remarks>Grid nodes have a constant size that is based on the size of the <see cref="Map.Grid"/> cells.</remarks>
-    public override Vector2 Size { get => Grid?.CellSize ?? Vector2.Zero; set {}}
+    public override Vector2 Size { get => _grid?.CellSize ?? Vector2.Zero; set {}}
 
     public override void _ValidateProperty(Dictionary property)
     {
@@ -37,9 +58,9 @@ public abstract partial class GridNode : BoundedNode2D
     {
         List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
 
-        if (Grid is null)
+        if (_grid is null)
             warnings.Add("No grid to move on has been defined.");
-        else if (Cell.X < 0 || Cell.Y < 0 || Cell.X >= Grid.Size.X || Cell.Y >= Grid.Size.Y)
+        else if (Cell.X < 0 || Cell.Y < 0 || Cell.X >= _grid.Size.X || Cell.Y >= _grid.Size.Y)
             warnings.Add("Outside grid bounds.");
 
         return [.. warnings];
@@ -50,11 +71,14 @@ public abstract partial class GridNode : BoundedNode2D
         base._Ready();
 
         Data.CellChanged += (cell) => {
-            if (Grid is not null)
-                GlobalPosition = Grid.PositionOf(cell) + Grid.GlobalPosition;
+            if (_grid is not null)
+                GridPosition = _grid.PositionOf(cell);
             if (Engine.IsEditorHint())
                 UpdateConfigurationWarnings();
         };
+
+        if (_grid is not null)
+            Data.Cell = _grid.CellOf(GridPosition + Size/2);
     }
 
 
@@ -62,10 +86,10 @@ public abstract partial class GridNode : BoundedNode2D
     {
         base._Process(delta);
 
-        if (Engine.IsEditorHint() && Grid is not null && !Input.IsMouseButtonPressed(MouseButton.Left))
+        if (Engine.IsEditorHint() && _grid is not null && !Input.IsMouseButtonPressed(MouseButton.Left))
         {
-            Cell = Grid.CellOf(GlobalPosition - Grid.GlobalPosition + Size/2);
-            GlobalPosition = Grid.PositionOf(Data.Cell) + Grid.GlobalPosition;
+            Data.Cell = _grid.CellOf(GridPosition + Size/2);
+            GridPosition = _grid.PositionOf(Data.Cell);
         }
     }
 }
