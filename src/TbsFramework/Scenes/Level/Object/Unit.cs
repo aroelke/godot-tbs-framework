@@ -25,9 +25,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
 
     private readonly NodeCache _cache = null;
     private UnitMapAnimations _animations = null;
-    private Class _class = null;
     private Army _army = null;
-    private Stats _stats = null;
     private Vector2I _target = Vector2I.Zero;
 
     private Sprite2D             EditorSprite   => _cache.GetNode<Sprite2D>("EditorSprite");
@@ -71,33 +69,20 @@ public partial class Unit : GridNode, IUnit, IHasHealth
         );
     }
 
+    public UnitData UnitData { get; init; } = new();
+    public override GridObjectData Data => UnitData;
+
     /// <summary>Class this unit belongs to, defining some of its stats and animations.</summary>
     [Export] public Class Class
     {
-        get => _class;
-        set
-        {
-            if (_class != value)
-            {
-                _class = value;
-                if (_class is not null)
-                    UpdateVisuals(_class, Faction);
-            }
-        }
+        get => UnitData.Class;
+        set => UnitData.Class = value;
     }
 
     [Export] public Stats Stats
     {
-        get => _stats;
-        set
-        {
-            if (_stats != value)
-            {
-                _stats = value;
-                if (Health is not null)
-                    Health.Maximum = _stats?.Health ?? 0;
-            }
-        }
+        get => UnitData.Stats;
+        set => UnitData.Stats = value;
     }
 
     [ExportGroup("Path Traversal", "Move")]
@@ -128,16 +113,15 @@ public partial class Unit : GridNode, IUnit, IHasHealth
             if (_army != value)
             {
                 _army = value;
-                if (_class is not null)
-                    UpdateVisuals(_class, Faction);
+                UnitData.Faction = _army.Faction;
             }
         }
     }
 
-    public Faction Faction => Army?.Faction;
+    public Faction Faction => UnitData.Faction;
 
     /// <summary>Whether or not the unit has completed its turn.</summary>
-    public bool Active = true;
+    public bool Active => UnitData.Active;
 
     /// <summary>Whether or not the unit is currently moving along a path.</summary>
     public bool IsMoving => IsProcessing();
@@ -202,7 +186,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     /// <summary>Put the unit in its "done" state, indicating it isn't available to act anymore.</summary>
     public void Finish()
     {
-        Active = false;
+        UnitData.Active = false;
         _animations.Modulate = Colors.White;
         _animations.PlayDone();
     }
@@ -210,8 +194,8 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     /// <summary>Restore the unit into its "idle" state from being inactive, indicating that it's ready to act again.</summary>
     public void Refresh()
     {
-        Active = true;
-        if (Faction is null || !_class.MapAnimationsPaths.ContainsKey(Faction))
+        UnitData.Active = true;
+        if (Faction is null || !UnitData.Class.MapAnimationsPaths.ContainsKey(Faction))
             _animations.Modulate = Faction?.Color ?? Colors.White;
         _animations.PlayIdle();
     }
@@ -274,8 +258,8 @@ public partial class Unit : GridNode, IUnit, IHasHealth
 
         Behavior = GetChildren().OfType<Behavior>().FirstOrDefault();
 
-        if (_class is not null)
-            UpdateVisuals(_class, Faction);
+        if (UnitData.Class is not null)
+            UpdateVisuals(UnitData.Class, Faction);
         if (!Engine.IsEditorHint())
         {
             RemoveChild(EditorSprite);
@@ -288,6 +272,19 @@ public partial class Unit : GridNode, IUnit, IHasHealth
         }
 
         Health.Value = Health.Maximum = Stats.Health;
+
+        UnitData.FactionUpdated += (faction) => {
+            if (UnitData.Class is not null)
+                UpdateVisuals(UnitData.Class, faction);
+        };
+        UnitData.ClassUpdated += (@class) => {
+            if (@class is not null)
+                UpdateVisuals(@class, Faction);
+        };
+        UnitData.StatsUpdated += (stats) => {
+            if (Health is not null)
+                Health.Maximum = stats.Health;
+        };
     }
 
     public override void _Process(double delta)
@@ -296,8 +293,8 @@ public partial class Unit : GridNode, IUnit, IHasHealth
 
         if (Engine.IsEditorHint())
         {
-            if (_class is not null && EditorSprite.Texture is null)
-                UpdateVisuals(_class, Faction);
+            if (UnitData.Class is not null && EditorSprite.Texture is null)
+                UpdateVisuals(UnitData.Class, Faction);
         }
         else
         {

@@ -28,7 +28,7 @@ public partial class Grid : Node2D, IGrid
 
     [Export] public Godot.Collections.Dictionary<Terrain, Vector2I> TerrainTileSetAtlasCoords = [];
 
-    public GridData Data = new();
+    public readonly GridData Data = new();
 
     public override void _Ready()
     {

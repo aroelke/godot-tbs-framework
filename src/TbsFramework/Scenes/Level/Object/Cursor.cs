@@ -4,7 +4,6 @@ using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes.Components;
-using TbsFramework.UI.Controls.Action;
 using TbsFramework.UI.Controls.Device;
 
 namespace TbsFramework.Scenes.Level.Object;
@@ -17,6 +16,8 @@ public partial class Cursor : GridNode
     /// <param name="region">Region enclosed by the cursor after movement.</param>
     [Signal] public delegate void CursorMovedEventHandler(Rect2 region);
 
+    /// <summary>Emitted when a cursor stops in a new cell.</summary>
+    /// <param name="cell">Cell the cursor stopped in.</param>
     [Signal] public delegate void CellEnteredEventHandler(Vector2I cell);
 
     /// <summary>Signals that a cell has been selected.</summary>
@@ -66,6 +67,8 @@ public partial class Cursor : GridNode
                 MoveSoundPlayer.Stream = value;
         }
     }
+
+    public override GridObjectData Data { get; } = new CursorData();
 
     /// <summary>"Soft zone" that breaks cursor continuous movement and skips to the edge of.</summary>
     public HashSet<Vector2I> SoftRestriction = [];
