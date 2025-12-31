@@ -12,7 +12,6 @@ script = ExtResource("2_ysrq3")
 
 [node name="MoveSound" type="AudioStreamPlayer" parent="."]
 
-[connection signal="CellChanged" from="." to="." method="OnCellChanged"]
 [connection signal="DirectionEchoed" from="MoveController" to="." method="OnDirectionEchoed"]
 [connection signal="DirectionPressed" from="MoveController" to="." method="OnDirectionPressed"]
 [connection signal="DirectionReleased" from="MoveController" to="." method="OnDirectionReleased"]

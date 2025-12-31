@@ -12,6 +12,8 @@ namespace TbsFramework.Scenes.Level.Object;
 [Tool]
 public partial class Cursor : GridNode
 {
+    private class CursorData() : GridObjectData(false);
+
     /// <summary>Emitted when the cursor moves to a new location.</summary>
     /// <param name="region">Region enclosed by the cursor after movement.</param>
     [Signal] public delegate void CursorMovedEventHandler(Rect2 region);
@@ -283,6 +285,7 @@ public partial class Cursor : GridNode
     {
         base._Ready();
         _previous = Cell;
+        Data.CellChanged += OnCellChanged;
     }
 
     public override void _UnhandledInput(InputEvent @event)
