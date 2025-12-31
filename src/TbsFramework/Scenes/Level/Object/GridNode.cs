@@ -10,10 +10,6 @@ namespace TbsFramework.Scenes.Level.Object;
 [Icon("res://icons/GridNode.svg"), Tool]
 public abstract partial class GridNode : BoundedNode2D
 {
-    /// <summary>Signals that the cell containing the object has changed.</summary>
-    /// <param name="cell">New cell containing the object.</param>
-    [Signal] public delegate void CellChangedEventHandler(Vector2I cell);
-
     /// <summary>Grid on which the containing object sits.</summary>
     [Export] public Grid Grid;
 
@@ -39,7 +35,7 @@ public abstract partial class GridNode : BoundedNode2D
 
     public override string[] _GetConfigurationWarnings()
     {
-        List<string> warnings = new(base._GetConfigurationWarnings() ?? []);
+        List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
 
         if (Grid is null)
             warnings.Add("No grid to move on has been defined.");
@@ -56,7 +52,6 @@ public abstract partial class GridNode : BoundedNode2D
         Data.CellChanged += (cell) => {
             if (Grid is not null)
                 GlobalPosition = Grid.PositionOf(cell) + Grid.GlobalPosition;
-            EmitSignal(SignalName.CellChanged, cell);
             if (Engine.IsEditorHint())
                 UpdateConfigurationWarnings();
         };

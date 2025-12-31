@@ -14,6 +14,10 @@ public partial class Cursor : GridNode
 {
     private class CursorData() : GridObjectData(false);
 
+    /// <summary>Signals that the cell containing the cursor has changed.</summary>
+    /// <param name="cell">New cell containing the cursor.</param>
+    [Signal] public delegate void CellChangedEventHandler(Vector2I cell);
+
     /// <summary>Emitted when the cursor moves to a new location.</summary>
     /// <param name="region">Region enclosed by the cursor after movement.</param>
     [Signal] public delegate void CursorMovedEventHandler(Rect2 region);
@@ -231,6 +235,7 @@ public partial class Cursor : GridNode
             }
         }
 
+        EmitSignal(SignalName.CellChanged, cell);
         EmitSignal(SignalName.CursorMoved, Grid.CellRect(cell));
         _previous = cell;
     }

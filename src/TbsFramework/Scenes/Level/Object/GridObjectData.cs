@@ -21,7 +21,7 @@ public abstract class GridObjectData(bool occupies)
             if (_grid != value)
             {
                 _grid = value;
-                if (occupies && _grid is not null)
+                if (_grid is not null)
                     Cell = _grid.Clamp(_cell);
             }
         }
