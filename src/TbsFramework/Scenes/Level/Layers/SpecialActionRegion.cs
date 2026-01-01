@@ -40,10 +40,11 @@ public partial class SpecialActionRegion : TileMapLayer, ISpecialActionRegion
     /// <summary>Whether or not an action should only be performed once per unit.</summary>
     [Export] public bool SingleUse = false;
 
-    /// <summary>Set of units that have already performed the action. Updates before the performed signal is emitted.</summary>
-    public ImmutableHashSet<Unit> Performed { get; private set; } = [];
+    public SpecialActionRegionData Data { get; private set; } = new();
 
-    public ISet<Vector2I> Cells => GetUsedCells().ToHashSet();
+    public ISet<Vector2I> Cells => Data.Cells;
+
+    public ImmutableHashSet<Unit> Performed { get; private set; } = [];
 
     /// <returns>A set containing all units that are allowed to perform the action in the region.</returns>
     public ImmutableHashSet<Unit> AllAllowedUnits() => AllowedUnits.ToImmutableHashSet().Union(AllowedArmies.SelectMany((a) => a.Units()));
@@ -57,23 +58,16 @@ public partial class SpecialActionRegion : TileMapLayer, ISpecialActionRegion
     /// <param name="cell">Cell the action is being performed in.</param>
     public virtual void PerformSpecialAction(Unit performer, Vector2I cell)
     {
-        if (HasSpecialAction(performer, cell))
+        if (Data.Perform(performer.UnitData, cell))
         {
             Performed = Performed.Add(performer);
             EmitSignal(SignalName.SpecialActionPerformed, Action, performer, cell);
-            if (OneShot)
-            {
-                Godot.Collections.Array<Vector2I> used = GetUsedCells();
-                Clear();
-                used.Remove(cell);
-                SetCellsTerrainConnect(used, _set, _terrain);
-            }
         }
         else
             throw new ArgumentException($"{performer.Name} cannot perform action {Action} in cell {cell}");
     }
 
-    public bool IsAllowed(IUnit unit) => unit is Unit u && (!SingleUse || !Performed.Contains(u)) && (AllowedUnits.Contains(u) || AllowedArmies.Any((a) => a.Faction.AlliedTo(u.Faction)));
+    public bool IsAllowed(IUnit unit) => unit is Unit u && Data.CanPerform(u.UnitData);
 
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
     {
@@ -155,5 +149,25 @@ public partial class SpecialActionRegion : TileMapLayer, ISpecialActionRegion
             warnings.Add("No cells in region. Action cannot be performed.");
 
         return [.. warnings];
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+
+        Data.Action = Action;
+        Data.Cells = [.. GetUsedCells()];
+        foreach (Army army in AllowedArmies)
+            Data.AllowedFactions.Add(army.Faction);
+        foreach (Unit unit in AllowedUnits)
+            Data.AllowedUnits.Add(unit.UnitData);
+        Data.OneShot = OneShot;
+        Data.SingleUse = SingleUse;
+
+        Data.CellsUpdated += (cells) => {
+            Clear();
+            if (cells.Count > 0)
+                SetCellsTerrainConnect([.. cells], _set, _terrain);
+        };
     }
 }
