@@ -592,7 +592,7 @@ public partial class PlayerController : ArmyController
             (ActionLayers[MoveLayer.Name], ActionLayers[AttackLayer.Name], ActionLayers[SupportLayer.Name]) = (_traversable, _attackable, _supportable) = _selected.ActionRanges();
             Cursor.SoftRestriction = [.. _traversable];
             Cursor.Cell = _selected.Cell;
-            UpdatePath(Path.Empty(Cursor.Grid, _traversable).Add(_selected.Cell));
+            UpdatePath(Path.Empty(Cursor.Grid.Data, _traversable).Add(_selected.Cell));
         }).CallDeferred();
     }
 
