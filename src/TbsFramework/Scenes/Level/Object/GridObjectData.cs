@@ -22,7 +22,10 @@ public abstract class GridObjectData(bool occupies)
             {
                 _grid = value;
                 if (_grid is not null)
+                {
                     Cell = _grid.Clamp(_cell);
+                    _grid.Occupants[Cell] = this;
+                }
             }
         }
     }
