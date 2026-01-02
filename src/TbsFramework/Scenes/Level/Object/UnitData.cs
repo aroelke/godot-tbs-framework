@@ -131,7 +131,7 @@ public class UnitData : GridObjectData
         return cells.Keys;
     }
 
-    public IEnumerable<Vector2I> GetAttackableCells(Vector2I source) => Grid.GetCellsInRange(Cell, Stats.AttackRange);
+    public IEnumerable<Vector2I> GetAttackableCells(Vector2I source) => Grid.GetCellsInRange(source, Stats.AttackRange);
 
     public IEnumerable<Vector2I> GetAttackableCells() => GetAttackableCells(Cell);
 
