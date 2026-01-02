@@ -117,7 +117,7 @@ public class UnitData : GridObjectData
         {
             Vector2I current = potential.Dequeue();
 
-            foreach (Vector2I neighbor in Grid.GetNeighbors(Cell))
+            foreach (Vector2I neighbor in Grid.GetNeighbors(current))
             {
                 int cost = cells[current] + Grid.Terrain.GetValueOrDefault(neighbor, Grid.DefaultTerrain).Cost;
                 if ((!cells.TryGetValue(neighbor, out int c) || c > cost) && IsCellTraversable(neighbor) && cost <= Stats.Move) // cost to get to cell is within range
