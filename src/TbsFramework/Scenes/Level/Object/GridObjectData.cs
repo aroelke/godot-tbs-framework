@@ -49,4 +49,6 @@ public abstract class GridObjectData(bool occupies)
             }
         }
     }
+
+    public abstract GridObjectData Clone();
 }

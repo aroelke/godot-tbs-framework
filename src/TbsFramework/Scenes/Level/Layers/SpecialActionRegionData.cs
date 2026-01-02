@@ -40,6 +40,19 @@ public class SpecialActionRegionData
 
     public ImmutableHashSet<UnitData> Performed = [];
 
+    public SpecialActionRegionData() {}
+
+    private SpecialActionRegionData(SpecialActionRegionData original)
+    {
+        Action = original.Action;
+        _cells = original._cells;
+        OneShot = original.OneShot;
+        SingleUse = original.SingleUse;
+        AllowedFactions = [.. original.AllowedFactions];
+        AllowedUnits = [.. original.AllowedUnits];
+        Performed = original.Performed;
+    }
+
     public bool CanPerform(UnitData unit) => (AllowedFactions.Contains(unit.Faction) || AllowedUnits.Contains(unit)) && (!SingleUse || !Performed.Contains(unit));
 
     public bool Perform(UnitData unit, Vector2I cell)
@@ -52,4 +65,6 @@ public class SpecialActionRegionData
             Cells = Cells.Remove(cell);
         return true;
     }
+
+    public SpecialActionRegionData Clone() => new(this);
 }

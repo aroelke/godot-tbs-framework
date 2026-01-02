@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using TbsFramework.Extensions;
 using TbsFramework.Data;
-using TbsFramework.Scenes.Level.Map;
+using TbsFramework.Scenes.Level.Control;
 
 namespace TbsFramework.Scenes.Level.Object;
 
@@ -85,9 +86,21 @@ public class UnitData : GridObjectData
         }
     }
 
+    public Behavior Behavior = null;
+
     public UnitData() : base(true)
     {
-        Health = Stats.Health;
+        _hp = Stats.Health;
+    }
+
+    private UnitData(UnitData original) : base(true)
+    {
+        _faction = original._faction;
+        _class = original._class;
+        _stats = original._stats;
+        _hp = original._hp;
+        Cell = original.Cell;
+        Grid = original.Grid;
     }
 
     public bool IsCellTraversable(Vector2I cell) => !Grid.Occupants.TryGetValue(cell, out GridObjectData occupant) || (occupant is UnitData unit && unit.Faction.AlliedTo(Faction));
@@ -106,7 +119,7 @@ public class UnitData : GridObjectData
 
             foreach (Vector2I neighbor in Grid.GetNeighbors(Cell))
             {
-                int cost = cells[current] + (Grid.Terrain.TryGetValue(neighbor, out Terrain terrain) ? terrain : Grid.DefaultTerrain).Cost;
+                int cost = cells[current] + Grid.Terrain.GetValueOrDefault(neighbor, Grid.DefaultTerrain).Cost;
                 if ((!cells.TryGetValue(neighbor, out int c) || c > cost) && IsCellTraversable(neighbor) && cost <= Stats.Move) // cost to get to cell is within range
                 {
                     cells[neighbor] = cost;
@@ -129,4 +142,6 @@ public class UnitData : GridObjectData
     public IEnumerable<Vector2I> GetSupportableCells() => GetSupportableCells(Cell);
 
     public IEnumerable<Vector2I> GetSupportableCellsInReach() => GetTraversableCells().SelectMany(GetSupportableCells).ToHashSet();
+
+    public override GridObjectData Clone() => new UnitData(this);
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace TbsFramework.Scenes.Level.Object;
 [Tool]
 public partial class Cursor : GridNode
 {
-    private class CursorData() : GridObjectData(false);
+    private class CursorData() : GridObjectData(false) { public override GridObjectData Clone() => throw new NotSupportedException("The cursor's data should never need to be copied."); }
 
     /// <summary>Signals that the cell containing the cursor has changed.</summary>
     /// <param name="cell">New cell containing the cursor.</param>
