@@ -94,7 +94,11 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     [Export] public double MoveAccelerationFactor = 2;
 
     ///<summary>Behavior defining actions to take when AI controlled.</summary>
-    public Behavior Behavior { get; private set; } = null;
+    public Behavior Behavior
+    {
+        get => UnitData.Behavior;
+        set => UnitData.Behavior = value;
+    }
 
     public HealthComponent Health => _cache.GetNodeOrNull<HealthComponent>("Health");
 
@@ -121,7 +125,11 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     public Faction Faction => UnitData.Faction;
 
     /// <summary>Whether or not the unit has completed its turn.</summary>
-    public bool Active => UnitData.Active;
+    public bool Active
+    {
+        get => UnitData.Active;
+        set => UnitData.Active = value;
+    }
 
     /// <summary>Whether or not the unit is currently moving along a path.</summary>
     public bool IsMoving => IsProcessing();
