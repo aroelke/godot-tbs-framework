@@ -88,19 +88,22 @@ public class UnitData : GridObjectData
 
     public Behavior Behavior = null;
 
+    public Unit Renderer = null;
+
     public UnitData() : base(true)
     {
         _hp = Stats.Health;
     }
 
-    private UnitData(UnitData original) : base(true)
+    private UnitData(UnitData original) : base(original)
     {
         _faction = original._faction;
         _class = original._class;
         _stats = original._stats;
         _hp = original._hp;
-        Cell = original.Cell;
-        Grid = original.Grid;
+        Behavior = original.Behavior;
+
+        Renderer = original.Renderer;
     }
 
     public bool IsCellTraversable(Vector2I cell) => !Grid.Occupants.TryGetValue(cell, out GridObjectData occupant) || (occupant is UnitData unit && unit.Faction.AlliedTo(Faction));

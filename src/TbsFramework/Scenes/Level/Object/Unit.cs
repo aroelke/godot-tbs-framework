@@ -266,6 +266,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
         base._Ready();
 
         Behavior = GetChildren().OfType<Behavior>().FirstOrDefault();
+        UnitData.Renderer = this;
 
         if (UnitData.Class is not null)
             UpdateVisuals(UnitData.Class, Faction);
@@ -294,6 +295,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
             if (Health is not null)
                 Health.Maximum = stats.Health;
         };
+        UnitData.HealthUpdated += (hp) => Health.Value = hp;
     }
 
     public override void _Process(double delta)
