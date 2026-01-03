@@ -48,7 +48,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
             _astar.AddPoint(CellId(cell), cell, grid.Terrain.GetValueOrDefault(cell, grid.DefaultTerrain).Cost);
         foreach (Vector2I cell in traversable)
         {
-            foreach (Vector2I direction in IGrid.Directions)
+            foreach (Vector2I direction in Vector2IExtensions.Directions)
             {
                 Vector2I neighbor = cell + direction;
                 if (!_astar.ArePointsConnected(CellId(cell), CellId(neighbor)) && traversable.Contains(neighbor))

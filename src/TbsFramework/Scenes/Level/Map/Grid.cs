@@ -10,7 +10,7 @@ namespace TbsFramework.Scenes.Level.Map;
 
 /// <summary>Defines the grid dimensions and attributes and contains the locations of the objects and terrain within it.</summary>
 [Tool]
-public partial class Grid : Node2D, IGrid
+public partial class Grid : Node2D
 {
     /// <summary><see cref="TileMapLayer"/> containing ground tiles.</summary>
     [Export] public TileMapLayer GroundLayer = null;
@@ -99,7 +99,7 @@ public partial class Grid : Node2D, IGrid
     public bool IsTraversable(Vector2I cell, Faction faction) => !Occupants.TryGetValue(cell, out GridNode occupant) || (occupant is Unit unit && unit.Faction.AlliedTo(faction));
     public IEnumerable<Vector2I> GetCellsAtDistance(Vector2I cell, int distance) => Data.GetCellsAtDistance(cell, distance);
     public Terrain GetTerrain(Vector2I cell) => Data.Terrain.TryGetValue(cell, out Terrain terrain) ? terrain : Data.DefaultTerrain;
-    public int PathCost(IEnumerable<Vector2I> path) => IGrid.PathCost(this, path);
+    public int PathCost(IEnumerable<Vector2I> path) => Data.PathCost(path);
     public IImmutableDictionary<Vector2I, Unit> GetOccupantUnits() => Occupants.Where((e) => e.Value is Unit).ToImmutableDictionary((e) => e.Key, (e) => e.Value as Unit);
     public IEnumerable<SpecialActionRegion> GetSpecialActionRegions() => SpecialActionRegions;
 

@@ -136,12 +136,10 @@ public partial class Unit : GridNode, IHasHealth
     /// <returns>The set of cells that this unit can reach from its position, accounting for <see cref="Terrain.Cost"/>.</returns>
     public IEnumerable<Vector2I> TraversableCells() => UnitData.GetTraversableCells();
 
-    public IEnumerable<Vector2I> AttackableCells(IGrid grid, IEnumerable<Vector2I> sources) => sources.SelectMany((c) => UnitData.GetAttackableCells(c)).ToHashSet();
-
     /// <summary>Compute all of the cells this unit could attack from the given set of source cells.</summary>
     /// <param name="sources">Cells to compute attack range from.</param>
     /// <returns>The set of all cells that could be attacked from any of the cell <paramref name="sources"/>.</returns>
-    public IEnumerable<Vector2I> AttackableCells(IEnumerable<Vector2I> sources) => AttackableCells(Grid, sources);
+    public IEnumerable<Vector2I> AttackableCells(IEnumerable<Vector2I> sources) => sources.SelectMany((c) => UnitData.GetAttackableCells(c)).ToHashSet();
 
     /// <inheritdoc cref="AttackableCells"/>
     /// <remarks>Uses a singleton set of cells constructed from the single <paramref name="source"/> cell.</remarks>
@@ -151,12 +149,10 @@ public partial class Unit : GridNode, IHasHealth
     /// <remarks>Uses the unit's current <see cref="Cell"/> as the source.</remarks>
     public IEnumerable<Vector2I> AttackableCells() => AttackableCells(Cell);
 
-    public IEnumerable<Vector2I> SupportableCells(IGrid grid, IEnumerable<Vector2I> sources) => sources.SelectMany((c) => UnitData.GetSupportableCells(c)).ToHashSet();
-
     /// <summary>Compute all of the cells this unit could support from the given set of source cells.</summary>
     /// <param name="sources">Cells to compute support range from.</param>
     /// <returns>The set of all cells that could be supported from any of the source cells.</returns>
-    public IEnumerable<Vector2I> SupportableCells(IEnumerable<Vector2I> sources) => SupportableCells(Grid, sources);
+    public IEnumerable<Vector2I> SupportableCells(IEnumerable<Vector2I> sources) => sources.SelectMany((c) => UnitData.GetSupportableCells(c)).ToHashSet();
 
     /// <inheritdoc cref="SupportableCells"/>
     /// <remarks>Uses a singleton set of cells constructed from the single <paramref name="source"/> cell.</remarks>
