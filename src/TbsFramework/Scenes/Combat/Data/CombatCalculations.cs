@@ -80,16 +80,19 @@ public static class CombatCalculations
         Dictionary<IUnit, double> damage = new() {{ a, 0 }, { b, 0 }};
         // Compute complete combat action list
         List<CombatAction> actions = [CreateAttackAction(a, b, estimate)];
-        damage[b] += actions[^1].Damage;
+        if (actions[^1].Hit)
+            damage[b] += actions[^1].Damage;
         if (damage[b] < b.Health && b.AttackableCells(grid, [b.Cell]).Contains(a.Cell))
         {
             actions.Add(CreateAttackAction(b, a, estimate));
-            damage[a] += actions[^1].Damage;
+            if (actions[^1].Hit)
+                damage[a] += actions[^1].Damage;
         }
         if (FollowUp(a, b) is (IUnit doubler, IUnit doublee) && damage[doubler] < doubler.Health && doubler.AttackableCells(grid, [doubler.Cell]).Contains(doublee.Cell))
         {
             actions.Add(CreateAttackAction(doubler, doublee, estimate));
-            damage[doublee] += actions[^1].Damage;
+            if (actions[^1].Hit)
+                damage[doublee] += actions[^1].Damage;
         }
 
         return actions;
