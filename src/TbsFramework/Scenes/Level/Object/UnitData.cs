@@ -8,16 +8,32 @@ using TbsFramework.Scenes.Level.Control;
 
 namespace TbsFramework.Scenes.Level.Object;
 
+/// <summary>Data structure tracking information about a unit on the map.</summary>
 public class UnitData : GridObjectData
 {
+    /// <summary>Handler for changes to the unit's faction.</summary>
+    /// <param name="faction">New faction after the change.</param>
     public delegate void FactionUpdatedEventHandler(Faction faction);
+
+    /// <summary>Handler for changes to the unit's class.</summary>
+    /// <param name="class">New class after the change.</param>
     public delegate void ClassUpdatedEventHandler(Class @class);
+
+    /// <summary>Handler for changes to the object reference defining the unit's stats.</summary>
+    /// <param name="stats">New stats object reference.</param>
     public delegate void StatsUpdatedEventHandler(Stats stats);
+
+    /// <summary>Handler for changes to the unit's current health.</summary>
+    /// <param name="hp">New health value.</param>
     public delegate void HealthUpdatedEventHandler(double hp);
 
+    /// <summary>Signals that the unit's faction has been changed.</summary>
     public event FactionUpdatedEventHandler FactionUpdated;
+    /// <summary>Signals that the unit's class has been changed.</summary>
     public event ClassUpdatedEventHandler ClassUpdated;
+    /// <summary>Signals that the reference to the structure containing the unit's stats has been changed.</summary>
     public event StatsUpdatedEventHandler StatsUpdated;
+    /// <summary>Signals that the unit's current health value has changed.</summary>
     public event HealthUpdatedEventHandler HealthUpdated;
 
     private Faction _faction = null;
@@ -25,8 +41,10 @@ public class UnitData : GridObjectData
     private Stats _stats = new();
     private double _hp = 0;
 
+    /// <summary>Whether or not the unit is available to act.</summary>
     public bool Active = true;
 
+    /// <summary>Faction this unit belongs to.</summary>
     public Faction Faction
     {
         get => _faction;
@@ -41,6 +59,7 @@ public class UnitData : GridObjectData
         }
     }
 
+    /// <summary>Class this unit has.</summary>
     public Class Class
     {
         get => _class;
@@ -55,6 +74,7 @@ public class UnitData : GridObjectData
         }
     }
 
+    /// <summary>This unit's stats.</summary>
     public Stats Stats
     {
         get => _stats;
@@ -71,6 +91,7 @@ public class UnitData : GridObjectData
         }
     }
 
+    /// <summary>This unit's current health. Can't go below 0 or above <see cref="Stats.Health"/>.</summary>
     public double Health
     {
         get => _hp;
@@ -86,14 +107,13 @@ public class UnitData : GridObjectData
         }
     }
 
+    /// <summary>The unit's behavior if CPU-controlled. Leave <c>null</c> for player-controlled units.</summary>
     public Behavior Behavior = null;
 
+    /// <summary>Reference to the <see cref="Unit"/> rendering the unit's state on the map.</summary>
     public Unit Renderer = null;
 
-    public UnitData() : base(true)
-    {
-        _hp = Stats.Health;
-    }
+    public UnitData() : base(true) { _hp = Stats.Health; }
 
     private UnitData(UnitData original) : base(original)
     {
@@ -106,8 +126,10 @@ public class UnitData : GridObjectData
         Renderer = original.Renderer;
     }
 
+    /// <returns><c>true</c> if this unit can move into or through <paramref name="cell"/>, and <c>false</c> otherwise.</returns>
     public bool IsCellTraversable(Vector2I cell) => !Grid.Occupants.TryGetValue(cell, out GridObjectData occupant) || (occupant is UnitData unit && unit.Faction.AlliedTo(Faction));
 
+    /// <returns>The set of cells this unit can move into or through based on terrain and its movement stat.</returns>
     public IEnumerable<Vector2I> GetTraversableCells()
     {
         int max = 2*(Stats.Move + 1)*(Stats.Move + 1) - 2*Stats.Move - 1;
@@ -134,19 +156,26 @@ public class UnitData : GridObjectData
         return cells.Keys;
     }
 
+    /// <returns>The set of cells this unit can end its movement in.</returns>
     public IEnumerable<Vector2I> GetOccupiableCells() => GetTraversableCells().Where((c) => !Grid.Occupants.TryGetValue(c, out GridObjectData occupant) || occupant == this);
 
+    /// <returns>The set of cells this unit can attack from cell <paramref name="source"/>.</returns>
     public IEnumerable<Vector2I> GetAttackableCells(Vector2I source) => Grid.GetCellsInRange(source, Stats.AttackRange);
 
+    /// <returns>The set of cells this unit can attack from its current cell.</returns>
     public IEnumerable<Vector2I> GetAttackableCells() => GetAttackableCells(Cell);
 
-    public IEnumerable<Vector2I> GetAttackableCellsInReach() => GetTraversableCells().SelectMany(GetAttackableCells).ToHashSet();
+    /// <returns>The set of cells this unit can attack from across all of the cells it can end its movement in.</returns>
+    public IEnumerable<Vector2I> GetAttackableCellsInReach() => GetOccupiableCells().SelectMany(GetAttackableCells).ToHashSet();
 
+    /// <returns>The set of cells this unit can support from cell <paramref name="source"/>.</returns>
     public IEnumerable<Vector2I> GetSupportableCells(Vector2I source) => Grid.GetCellsInRange(source, Stats.SupportRange);
 
+    /// <returns>The set of cells this unit can support from its current cell.</returns>
     public IEnumerable<Vector2I> GetSupportableCells() => GetSupportableCells(Cell);
 
-    public IEnumerable<Vector2I> GetSupportableCellsInReach() => GetTraversableCells().SelectMany(GetSupportableCells).ToHashSet();
+    /// <returns>The set of cells this can support from across all of the cells it can end its movement in.</returns>
+    public IEnumerable<Vector2I> GetSupportableCellsInReach() => GetOccupiableCells().SelectMany(GetSupportableCells).ToHashSet();
 
     public override GridObjectData Clone() => new UnitData(this);
 }
