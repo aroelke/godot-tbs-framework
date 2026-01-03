@@ -27,165 +27,104 @@ public partial class AIController : ArmyController
     /// <param name="enable"><c>true</c> if fast-forwarding is in progress, and <c>false</c> otherwise.</param>
     [Signal] public delegate void FastForwardStateChangedEventHandler(bool enable);
 
-    private readonly record struct VirtualSpecialActionRegion(SpecialActionRegion Original, StringName Action, ImmutableHashSet<Vector2I> Cells) : ISpecialActionRegion
-    {
-        ISet<Vector2I> ISpecialActionRegion.Cells => Cells;
-
-        public VirtualSpecialActionRegion(SpecialActionRegion original) : this(original, original.Action, [.. original.GetUsedCells()]) {}
-
-        public bool IsAllowed(IUnit unit) => unit is VirtualUnit u && Original.IsAllowed(u.Original);
-    }
-
-    private readonly record struct VirtualGrid(Vector2I Size, Terrain[][] Terrain, IImmutableDictionary<Vector2I, VirtualUnit> Occupants, IImmutableSet<VirtualSpecialActionRegion> Regions) : IGrid
-    {
-        public VirtualGrid(Vector2I size, Terrain terrain, IImmutableDictionary<Vector2I, VirtualUnit> occupants) : this(size, [.. Enumerable.Repeat(Enumerable.Repeat(terrain, size.X).ToArray(), size.Y)], occupants, []) {}
-
-        public VirtualGrid(Grid grid) : this(
-            grid.Size,
-            [.. Enumerable.Range(0, grid.Size.Y).Select((r) => Enumerable.Range(0, grid.Size.X).Select((c) => grid.GetTerrain(new(c, r))).ToArray())],
-            grid.Occupants.Where((e) => e.Value is Unit).ToImmutableDictionary((e) => e.Key, (e) => new VirtualUnit(e.Value as Unit)),
-            [.. grid.SpecialActionRegions.Select((r) => new VirtualSpecialActionRegion(r))]
-        ) {}
-
-        public IEnumerable<VirtualAction> GetAvailableActions(Faction faction, int specials=0)
-        {
-            List<VirtualAction> actions = [];
-            foreach (VirtualUnit unit in Occupants.Values.Where((u) => u.Faction == faction && u.Active && u.ExpectedHealth > 0))
-                foreach (UnitAction action in unit.Original.Behavior.Actions(unit, this))
-                        actions.Add(new(this, unit, action.Name, action.Source, action.Target, action.Traversable, specials));
-            return actions;
-        }
-
-        public bool Contains(Vector2I cell) => IGrid.Contains(this, cell);
-        public bool IsTraversable(Vector2I cell, Faction faction) => !Occupants.TryGetValue(cell, out VirtualUnit unit) || unit.Faction.AlliedTo(faction);
-        public IEnumerable<Vector2I> GetCellsAtDistance(Vector2I cell, int distance) => IGrid.GetCellsAtDistance(this, cell, distance);
-        public Terrain GetTerrain(Vector2I cell) => Terrain[cell.Y][cell.X];
-        public int PathCost(IEnumerable<Vector2I> path) => IGrid.PathCost(this, path);
-        public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits() => Occupants.ToImmutableDictionary((e) => e.Key, (e) => e.Value as IUnit);
-        public IEnumerable<ISpecialActionRegion> GetSpecialActionRegions() => [.. Regions];
-    }
-
-    private readonly record struct VirtualUnit(Unit Original, Vector2I Cell, double ExpectedHealth, bool Active) : IUnit
-    {
-        public VirtualUnit(Unit original) : this(original, original.Cell, original.Health.Value, original.Active) {}
-
-        public Stats Stats => Original.Stats;
-        public Faction Faction => Original.Faction;
-
-        public double Health
-        {
-            get => Math.Round(ExpectedHealth);
-            set => throw new NotImplementedException("VirtualUnit is read-only.");
-        }
-
-        public IEnumerable<Vector2I> TraversableCells(IGrid grid) => IUnit.TraversableCells(this, grid);
-        public IEnumerable<Vector2I> AttackableCells(IGrid grid, IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(grid, sources, Original.Stats.AttackRange);
-        public IEnumerable<Vector2I> SupportableCells(IGrid grid, IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(grid, sources, Original.Stats.SupportRange);
-    }
-
     private class VirtualAction : IEquatable<VirtualAction>, IComparable<VirtualAction>
     {
         public static bool operator >(VirtualAction a, VirtualAction b) => a.CompareTo(b) > 0;
         public static bool operator <(VirtualAction a, VirtualAction b) => a.CompareTo(b) < 0;
 
-        private VirtualGrid _result;
-        private readonly List<VirtualUnit> _enemies = [];
-        private readonly HashSet<VirtualUnit> _allies = [];
+        private readonly List<UnitData> _enemies = [];
+        private readonly HashSet<UnitData> _allies = [];
         private Vector2I _destination = -Vector2I.One;
+        private GridData _result = null;
 
-        public VirtualAction(VirtualGrid initial, VirtualUnit actor, StringName action, IEnumerable<Vector2I> sources, Vector2I target, IEnumerable<Vector2I> traversable, int specials)
+        public VirtualAction(UnitData actor, StringName action, IEnumerable<Vector2I> sources, Vector2I target)
         {
-            Initial = initial;
             Actor = actor;
             Action = action;
             Sources = sources;
             Target = target;
-            Traversable = traversable;
-            SpecialActionsPerformed = specials;
 
-            _destination = Actor.Cell;
-            Result = Initial;
-            RemainingActions = 0;
+            if (Actor is not null)
+            {
+                Traversable = Actor.GetTraversableCells();
+                _destination = Actor.Cell;
+            }
         }
 
-        public VirtualAction(VirtualAction original, 
-            VirtualGrid? initial=null,
-            VirtualUnit? actor=null,
-            StringName action=null,
-            IEnumerable<Vector2I> sources=null,
-            Vector2I? target=null,
-            IEnumerable<Vector2I> traversable=null,
-            Vector2I? destination=null,
-            VirtualGrid? result=null,
-            int? specials=null,
-            int? remaining=null
-        ) : this(
-            initial ?? original.Initial,
-            actor ?? original.Actor,
-            action ?? original.Action,
-            sources ?? original.Sources,
-            target ?? original.Target,
-            traversable ?? original.Traversable,
-            specials ?? original.SpecialActionsPerformed
-        )
+        private VirtualAction(VirtualAction original) : this(null, original.Action, original.Sources, original.Target)
         {
-            Destination = destination ?? original.Destination;
-            Result = result ?? original.Result;
-            RemainingActions = remaining ?? original.RemainingActions;
+            Actor = original.Actor.Grid.Clone().Occupants[original.Actor.Cell] as UnitData;
+            Traversable = original.Traversable;
+            Destination = original.Destination;
+
+            _result = original.Result;
+            SpecialActionsPerformed = original.SpecialActionsPerformed;
+            DefeatedEnemies = original.DefeatedEnemies;
+            DefeatedAllies = original.DefeatedAllies;
+            AllyHealthDifference = original.AllyHealthDifference;
+            EnemyHealthDifference = original.EnemyHealthDifference;
+            RemainingActions = original.RemainingActions;
         }
 
-        public VirtualGrid Initial { get; private set; }
-        public VirtualUnit Actor { get; private set; }
+        public UnitData Actor { get; private set; }
         public StringName Action { get; private set; }
-        public IEnumerable<Vector2I> Sources { get; private set; }
-        public Vector2I Target { get; private set; }
+        public IEnumerable<Vector2I> Sources = [];
+        public Vector2I Target = -Vector2I.One;
         public IEnumerable<Vector2I> Traversable { get; private set; }
 
         public Vector2I Destination
         {
             get => _destination;
-            set => PathCost = Path.Empty(Initial, Actor.TraversableCells(Initial)).Add(Actor.Cell).Add(_destination = value).Cost;
+            set
+            {
+                _destination = value;
+                PathCost = Path.Empty(Actor.Grid, Actor.GetTraversableCells()).Add(Actor.Cell).Add(_destination).Cost;
+            }
         }
 
-        public VirtualGrid Result
+        public int SpecialActionsPerformed = 0;
+        public int DefeatedEnemies = 0;
+        public int DefeatedAllies = 0;
+        public double AllyHealthDifference { get; private set; } = 0;
+        public double EnemyHealthDifference { get; private set; } = 0;
+        public int PathCost { get; private set; } = 0;
+        public int RemainingActions = 0;
+
+        public GridData Result
         {
             get => _result;
             set
             {
                 _result = value;
 
-                DefeatedAllies = DefeatedEnemies = 0;
-                foreach ((_, VirtualUnit unit) in _result.Occupants)
+                foreach ((_, GridObjectData obj) in _result.Occupants)
                 {
-                    if (Actor.Faction.AlliedTo(unit.Faction))
+                    if (obj is UnitData unit)
                     {
-                        _allies.Add(unit);
-                        if (unit.ExpectedHealth <= 0)
-                            DefeatedAllies++;
-                        AllyHealthDifference += unit.Stats.Health - unit.ExpectedHealth;
-                    }
-                    else
-                    {
-                        _enemies.Add(unit);
-                        if (unit.ExpectedHealth <= 0)
-                            DefeatedEnemies++;
-                        EnemyHealthDifference += unit.Stats.Health - unit.ExpectedHealth;
+                        if (Actor.Faction.AlliedTo(unit.Faction))
+                        {
+                            _allies.Add(unit);
+                            if (unit.Health <= 0)
+                                DefeatedAllies++;
+                            AllyHealthDifference += unit.Stats.Health - unit.Health;
+                        }
+                        else
+                        {
+                            _enemies.Add(unit);
+                            if (unit.Health <= 0)
+                                DefeatedEnemies++;
+                            EnemyHealthDifference += unit.Stats.Health - unit.Health;
+                        }
                     }
                 }
 
-                _enemies.Sort((a, b) => (int)((a.ExpectedHealth - b.ExpectedHealth)*HealthDiffPrecision));
+                _enemies.Sort((a, b) => (int)((a.Health - b.Health)*HealthDiffPrecision));
             }
         }
 
-        public int SpecialActionsPerformed = 0;
-        public int DefeatedEnemies { get; private set; } = 0;
-        public int DefeatedAllies { get; private set; } = 0;
-        public double AllyHealthDifference { get; private set; } = 0;
-        public double EnemyHealthDifference { get; private set; } = 0;
-        public int PathCost { get; private set; } = 0;
-        public int RemainingActions { get; private set; } = 0;
+        public VirtualAction Clone() => new(this);
 
-        public bool Equals(VirtualAction other) => other is not null && Initial == other.Initial && Actor == other.Actor && Action == other.Action && Target == other.Target && Destination == other.Destination;
+        public bool Equals(VirtualAction other) => other is not null && Actor == other.Actor && Actor.Grid == other.Actor.Grid && Action == other.Action && Target == other.Target && Destination == other.Destination;
         public override bool Equals(object obj) => Equals(obj as VirtualAction);
 
         // Positive is better
@@ -206,8 +145,8 @@ public partial class AIController : ArmyController
 
             int smaller = Math.Min(_enemies.Count, other._enemies.Count);
             for (int i = 0; i < smaller; i++)
-                if (_enemies[i].ExpectedHealth != other._enemies[i].ExpectedHealth)
-                    return (int)((other._enemies[i].ExpectedHealth - _enemies[i].ExpectedHealth)*HealthDiffPrecision);
+                if (_enemies[i].Health != other._enemies[i].Health)
+                    return (int)((other._enemies[i].Health - _enemies[i].Health)*HealthDiffPrecision);
 
             if ((diff = (int)((EnemyHealthDifference - other.EnemyHealthDifference)*HealthDiffPrecision)) != 0)
                 return diff;
@@ -219,22 +158,36 @@ public partial class AIController : ArmyController
         }
 
         public override string ToString() => $"Move {Actor.Faction.Name}@{Actor.Cell} to {Destination} and {Action} {Target}";
-        public override int GetHashCode() => HashCode.Combine(Initial, Actor, Action, Target, Destination);
+        public override int GetHashCode() => HashCode.Combine(Actor, Actor.Grid, Action, Target, Destination);
     }
 
-    private static VirtualAction EvaluateAction(IEnumerable<VirtualAction> actions, VirtualAction action, Dictionary<VirtualGrid, VirtualAction> decisions, int remaining)
+    private static List<VirtualAction> GetAvailableActions(GridData grid, Faction faction)
     {
-        VirtualUnit? target = null;
+        List<VirtualAction> actions = [];
+        foreach ((_, GridObjectData obj) in grid.Occupants)
+        {
+            if (obj is UnitData unit && unit.Faction == faction && unit.Active && unit.Health > 0)
+            {
+                foreach (UnitAction action in unit.Behavior.Actions(unit))
+                    actions.Add(new(unit, action.Name, action.Source, action.Target));
+            }
+        }
+        return actions;
+    }
+
+    private static VirtualAction EvaluateAction(IEnumerable<VirtualAction> actions, VirtualAction action, Dictionary<GridData, VirtualAction> decisions, int remaining)
+    {
+        UnitData target = null;
         HashSet<Vector2I> destinations = [.. action.Sources];
         if (action.Action == UnitAction.AttackAction)
         {
-            target = action.Initial.Occupants[action.Target];
-            IEnumerable<Vector2I> safeCells = destinations.Where((c) => !target.Value.Original.Stats.AttackRange.Contains(c.ManhattanDistanceTo(target.Value.Cell)));
+            target = action.Actor.Grid.Occupants[action.Target] as UnitData;
+            IEnumerable<Vector2I> safeCells = destinations.Where((c) => !target.Stats.AttackRange.Contains(c.ManhattanDistanceTo(target.Cell)));
             if (safeCells.Any())
                 destinations = [.. safeCells];
         }
         else if (action.Action == UnitAction.SupportAction)
-            target = action.Initial.Occupants[action.Target];
+            target = action.Actor.Grid.Occupants[action.Target] as UnitData;
         else if (action.Action == UnitAction.EndAction)
             throw new InvalidOperationException($"End actions cannot be evaluated");
 
@@ -245,46 +198,32 @@ public partial class AIController : ArmyController
             choices.Add(destinations.Where((c) => c != action.Actor.Cell).MinBy((c) => c.ManhattanDistanceTo(action.Actor.Cell)));
 
         return choices.Max((c) => {
-            VirtualUnit actor;
-            VirtualUnit? updated = null;
-            VirtualGrid after;
-            bool special = false;
-            if (action.Action == UnitAction.AttackAction)
+            VirtualAction duplicate = action.Clone();
+            duplicate.Actor.Cell = duplicate.Destination = c;
+            UnitData target = null;
+
+            if (duplicate.Action == UnitAction.AttackAction)
             {
-                actor = action.Actor with { Cell = c };
-                updated = target;
-                after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(actor.Cell, actor) };
-                List<CombatAction> attacks = CombatCalculations.AttackResults(actor, updated.Value, after, true);
+                target = duplicate.Actor.Grid.Occupants[duplicate.Target] as UnitData;
+                List<CombatAction> attacks = CombatCalculations.AttackResults(duplicate.Actor, target, true);
                 foreach (CombatAction attack in attacks)
-                {
-                    if (attack.Target.Cell == actor.Cell)
-                        actor = actor with { ExpectedHealth =  actor.ExpectedHealth - attack.Damage };
-                    else if (attack.Target.Cell == updated.Value.Cell)
-                        updated = updated.Value with { ExpectedHealth = updated.Value.ExpectedHealth - attack.Damage };
-                    else
-                        GD.PushWarning($"Combat participant at cell {attack.Target.Cell} is not this action's target");
-                }
-                after = after with { Occupants = after.Occupants.SetItem(actor.Cell, actor).SetItem(updated.Value.Cell, updated.Value) };
+                    attack.Target.Health -= attack.Damage;
             }
-            else if (action.Action == UnitAction.SupportAction)
+            else if (duplicate.Action == UnitAction.SupportAction)
             {
-                CombatAction support = CombatCalculations.CreateSupportAction(action.Actor, target.Value);
-                actor = action.Actor with { Cell = c, ExpectedHealth = action.Actor.ExpectedHealth + (support.Target.Cell == action.Actor.Cell ? -support.Damage : 0), Active = false };
-                updated = target.Value with { ExpectedHealth = target.Value.ExpectedHealth + (support.Target.Cell == target.Value.Cell ? -support.Damage : 0) };
-                after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(c, actor).Remove(target.Value.Cell).Add(updated.Value.Cell, updated.Value) };
+                target = duplicate.Actor.Grid.Occupants[duplicate.Target] as UnitData;
+                CombatAction support = CombatCalculations.CreateSupportAction(duplicate.Actor, target);
+                support.Target.Health += -support.Damage;
             }
             else
-            {
-                actor = action.Actor with { Cell = c, Active = false };
-                after = action.Initial with { Occupants = action.Initial.Occupants.Remove(action.Actor.Cell).Add(c, actor) };
-                special = true;
-            }
+                duplicate.SpecialActionsPerformed++;
+            duplicate.Result = duplicate.Actor.Grid;
 
             // If this action results in a board state that was already explored, skip the rest of this branch and use that result
-            if (decisions.TryGetValue(after, out VirtualAction decision))
+            if (decisions.TryGetValue(duplicate.Actor.Grid, out VirtualAction decision))
                 return decision;
 
-            IEnumerable<VirtualAction> further = after.GetAvailableActions(actor.Faction, special ? action.SpecialActionsPerformed + 1 : action.SpecialActionsPerformed);
+            IEnumerable<VirtualAction> further = GetAvailableActions(duplicate.Result, duplicate.Actor.Faction);
             if (remaining == 0 || remaining > 1)
             {
                 remaining = Math.Max(0, remaining - 1);
@@ -293,36 +232,44 @@ public partial class AIController : ArmyController
                     if (!actions.Any((b) => a.Actor == b.Actor && a.Target == b.Target))
                         return true;
                     // Evaluate a if a or this action was not an attack action
-                    if (action.Action != UnitAction.AttackAction || a.Action != UnitAction.AttackAction)
+                    if (duplicate.Action != UnitAction.AttackAction || a.Action != UnitAction.AttackAction)
                         return true;
                     // Don't evaluate a if a's target is defeated
-                    if (a.Initial.Occupants[a.Target].ExpectedHealth <= 0)
+                    if ((a.Actor.Grid.Occupants[a.Target] as UnitData).Health <= 0)
                         return false;
                     // Evaluate a if this action defeated its target to see if more enemies can be defeated down this branch
-                    if (updated.Value.ExpectedHealth <= 0)
+                    if (target.Health <= 0)
                         return true;
                     // Evaluate a if it has the same target as this action
-                    if (a.Target == action.Target)
+                    if (a.Target == duplicate.Target)
                         return true;
                     return false;
                 });
                 if (reduced.Any())
-                    decisions[after] = new(action, destination:c, result:reduced.Max((a) => EvaluateAction(reduced, a, decisions, remaining)).Result);
+                {
+                    decisions[duplicate.Actor.Grid] = duplicate.Clone();
+                    IEnumerable<VirtualAction> results = reduced.Select((a) => EvaluateAction(reduced, a, decisions, remaining));
+                    decisions[duplicate.Actor.Grid].Result = results.Max().Result;
+                }
             }
-            if (!decisions.ContainsKey(after))
-                decisions[after] = new(action, destination:c, result:after, specials:special ? action.SpecialActionsPerformed + 1 : action.SpecialActionsPerformed, remaining:further.Count());
-            return decisions[after];
+            if (!decisions.TryGetValue(duplicate.Actor.Grid, out VirtualAction value))
+            {
+                value = duplicate.Clone();
+                decisions[duplicate.Actor.Grid] = value;
+                decisions[duplicate.Actor.Grid].RemainingActions = further.Count();
+            }
+            return value;
         });
     }
 
-    private (VirtualUnit selected, Vector2I destination, StringName action, Vector2I target) ComputeAction(IEnumerable<VirtualUnit> available, VirtualGrid grid)
+    private (UnitData selected, Vector2I destination, StringName action, Vector2I target) ComputeAction(IEnumerable<UnitData> available)
     {
-        VirtualUnit? selected = null;
+        UnitData selected = null;
         Vector2I destination = -Vector2I.One;
         StringName action = null;
         Vector2I target;
 
-        List<VirtualAction> actions = [.. grid.GetAvailableActions(Army.Faction)];
+        List<VirtualAction> actions = [.. GetAvailableActions(Grid.Data, Army.Faction)];
         if (actions.Count != 0)
         {
             VirtualAction result;
@@ -330,8 +277,8 @@ public partial class AIController : ArmyController
                 result = Task.WhenAll([.. actions.Select((a) => Task.Run(() => EvaluateAction(actions, a, [], MaxSearchDepth)))]).Result.Max();
             else
             {
-                Dictionary<VirtualGrid, VirtualAction> decisions = [];
-                result = actions.Select((a) => EvaluateAction(actions, a, decisions, MaxSearchDepth)).Max();
+                Dictionary<GridData, VirtualAction> decisions = [];
+                result = actions.Max((a) => EvaluateAction(actions, a, decisions, MaxSearchDepth));
             }
             selected = result.Actor;
             destination = result.Destination;
@@ -340,24 +287,20 @@ public partial class AIController : ArmyController
         }
         else
         {
-            IEnumerable<VirtualUnit> enemies = grid.GetOccupantUnits().Values.Where((u) => !u.Faction.AlliedTo(Army.Faction)).OfType<VirtualUnit>();
+            IEnumerable<UnitData> enemies = Grid.Data.Occupants.Values.Where((o) => o is UnitData u && !u.Faction.AlliedTo(Army.Faction)).OfType<UnitData>();
 
-            selected = enemies.Any() ? available.MinBy((u) => enemies.Select((e) => u.Cell.DistanceTo(e.Cell)).Min()) : available.First();
+            selected = enemies.Any() ? available.MinBy((u) => enemies.Min((e) => u.Cell.DistanceTo(e.Cell))) : available.First();
             action = UnitAction.EndAction;
 
-            IEnumerable<VirtualUnit> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Value.Cell));
+            IEnumerable<UnitData> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Cell));
             if (ordered.Any())
-            {
-                destination = selected.Value.Original.Behavior.Destinations(selected.Value, grid)
-                    .OrderBy((c) => selected.Value.Original.Behavior.GetPath(selected.Value, grid, c).Cost)
-                    .OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
-            }
+                destination = selected.Behavior.Destinations(selected).OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
             else
-                destination = selected.Value.Cell;
+                destination = selected.Cell;
             target = -Vector2I.One;
         }
 
-        return (selected.Value, destination, action, target);
+        return (selected, destination, action, target);
     }
 
     private readonly NodeCache _cache = null;
@@ -425,12 +368,8 @@ public partial class AIController : ArmyController
 
     public (Unit selected, Vector2I destination, StringName action, Unit target) ComputeAction(IEnumerable<Unit> available, IEnumerable<Unit> enemies, Grid grid)
     {
-        VirtualGrid virtualGrid = new(grid);
-        IEnumerable<VirtualUnit> virtualAvailable = available.Select((u) => new VirtualUnit(u));
-
-        (VirtualUnit selected, Vector2I destination, StringName action, Vector2I target) = ComputeAction(virtualAvailable, virtualGrid);
-
-        return (selected.Original, destination, action, virtualGrid.Occupants.TryGetValue(target, out VirtualUnit occupant) ? occupant.Original : null);
+        (UnitData selected, Vector2I destination, StringName action, Vector2I target) = ComputeAction(available.Select(static (u) => u.UnitData));
+        return (selected.Renderer, destination, action, Grid.Data.Occupants.TryGetValue(target, out GridObjectData occupant) && occupant is UnitData unit ? unit.Renderer : null);
     }
 
     /// <inheritdoc/>
@@ -445,15 +384,14 @@ public partial class AIController : ArmyController
     public override async void SelectUnit()
     {
         // Compute this outside the task because it calls Node.GetChildren(), which has to be called on the same thread as that node.
-        // Also, use a collection expression to immediately evaluated it rather than waiting until later, because that will be in the
+        // Also, use a collection expression to immediately evaluate it rather than waiting until later, because that will be in the
         // wrong thread.
-        VirtualGrid grid = new(Grid);
-        IEnumerable<VirtualUnit> available = [.. ((IEnumerable<Unit>)Army).Where(static (u) => u.Active).Select(static (u) => new VirtualUnit(u))];
+        IEnumerable<UnitData> available = [.. ((IEnumerable<Unit>)Army).Where(static (u) => u.Active).Select(static (u) => u.UnitData)];
 
-        (VirtualUnit selected, _destination, _action, Vector2I target) = await Task.Run<(VirtualUnit, Vector2I, StringName, Vector2I)>(() => ComputeAction(available, grid));
-        _selected = selected.Original;
-        if (grid.Occupants.TryGetValue(target, out VirtualUnit occupant))
-            _target = occupant.Original;
+        (UnitData selected, _destination, _action, Vector2I target) = await Task.Run<(UnitData, Vector2I, StringName, Vector2I)>(() => ComputeAction(available));
+        _selected = selected.Renderer;
+        if (Grid.Data.Occupants.TryGetValue(target, out GridObjectData occupant) && occupant is UnitData unit)
+            _target = unit.Renderer;
         else
             _target = null;
 
@@ -462,7 +400,7 @@ public partial class AIController : ArmyController
 
     public override void MoveUnit(Unit unit)
     {
-        void ConfirmMove() => EmitSignal(SignalName.PathConfirmed, unit, new Godot.Collections.Array<Vector2I>(unit.Behavior.GetPath(unit, unit.Grid, _destination)));
+        void ConfirmMove() => EmitSignal(SignalName.PathConfirmed, unit, new Godot.Collections.Array<Vector2I>(unit.Behavior.GetPath(unit.UnitData, _destination)));
         if (FastForwardTransition.Active)
             FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, ConfirmMove, (uint)ConnectFlags.OneShot);
         else

@@ -19,7 +19,7 @@ namespace TbsFramework.Scenes.Level.Map;
 /// Paths are immutable, so any functions that cause changes instead return a new Path with the change made, preserving the old one, as in
 /// <see cref="ImmutableList{T}"/>.
 /// 
-/// Paths exist on a <see cref="IGrid"/> within traversable cells that they use to compute segments when needed.
+/// Paths exist on a grid within traversable cells that they use to compute segments when needed.
 /// </summary>
 public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyCollection<Vector2I>, IReadOnlyList<Vector2I>, ICollection, IEnumerable
 {
@@ -27,14 +27,14 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// <param name="grid">Grid containing the cells the path goes through.</param>
     /// <param name="traversable">Collecton of traversable cells the path can use.</param>
     /// <returns>An empty path.</returns>
-    public static Path Empty(IGrid grid, IEnumerable<Vector2I> traversable) => new(grid, traversable, []);
+    public static Path Empty(GridData grid, IEnumerable<Vector2I> traversable) => new(grid, traversable, []);
 
-    private readonly IGrid _grid;
+    private readonly GridData _grid;
     private readonly AStar2D _astar;
     private readonly IEnumerable<Vector2I> _traversable;
     private readonly ImmutableList<Vector2I> _cells;
 
-    private Path(IGrid grid, AStar2D astar, IEnumerable<Vector2I> traversable, ImmutableList<Vector2I> initial)
+    private Path(GridData grid, AStar2D astar, IEnumerable<Vector2I> traversable, ImmutableList<Vector2I> initial)
     {
         _grid = grid;
         _astar = astar;
@@ -42,10 +42,10 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
         _cells = initial;
     }
 
-    private Path(IGrid grid, IEnumerable<Vector2I> traversable, ImmutableList<Vector2I> initial) : this(grid, new(), traversable, initial)
+    private Path(GridData grid, IEnumerable<Vector2I> traversable, ImmutableList<Vector2I> initial) : this(grid, new(), traversable, initial)
     {
         foreach (Vector2I cell in traversable)
-            _astar.AddPoint(CellId(cell), cell, grid.GetTerrain(cell).Cost);
+            _astar.AddPoint(CellId(cell), cell, grid.Terrain.GetValueOrDefault(cell, grid.DefaultTerrain).Cost);
         foreach (Vector2I cell in traversable)
         {
             foreach (Vector2I direction in IGrid.Directions)

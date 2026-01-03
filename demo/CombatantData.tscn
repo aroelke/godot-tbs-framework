@@ -10,8 +10,8 @@ columns = 3
 script = ExtResource("1_18j1e")
 
 [node name="HealthComponent" parent="." instance=ExtResource("2_xmdts")]
-Maximum = 10
-Value = 10
+Maximum = 10.0
+Value = 10.0
 
 [node name="HealthLabel" type="Label" parent="."]
 layout_mode = 2
