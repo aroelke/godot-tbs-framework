@@ -11,7 +11,7 @@ namespace TbsFramework.Scenes.Level.Layers;
 
 /// <summary>Map layer marking out a region where a unit can perform a special action such as capture or escape.</summary>
 [GlobalClass, Tool]
-public partial class SpecialActionRegion : TileMapLayer, ISpecialActionRegion
+public partial class SpecialActionRegion : TileMapLayer
 {
     private static readonly StringName TerrainSet = "Terrain Set";
     private static readonly StringName Terrain = "Terrain";
@@ -51,7 +51,7 @@ public partial class SpecialActionRegion : TileMapLayer, ISpecialActionRegion
 
     /// <summary>Check if a unit can perform the special action in a cell.</summary>
     /// <returns><c>true</c> if <paramref name="unit"/> is allowed to perform the action and <paramref name="cell"/> is in the region, and <c>false</c> otherwise.</returns>
-    public virtual bool HasSpecialAction(Unit unit, Vector2I cell) => ((ISpecialActionRegion)this).CanPerform(unit, cell);
+    public virtual bool HasSpecialAction(Unit unit, Vector2I cell) => Data.Cells.Contains(cell) && Data.CanPerform(unit.UnitData);
 
     /// <summary>Perform the special action. By default, this just emits a signal indicating the action is performed by a unit at a cell.</summary>
     /// <param name="performer">Unit performing the action.</param>

@@ -68,5 +68,5 @@ public interface IGrid
     /// <remarks><b>Note</b>: Returns an immutable dictionary to prevent attempts to update occupants through it.</remarks>
     public IImmutableDictionary<Vector2I, Unit> GetOccupantUnits();
 
-    public IEnumerable<ISpecialActionRegion> GetSpecialActionRegions();
+    public IEnumerable<SpecialActionRegion> GetSpecialActionRegions();
 }
