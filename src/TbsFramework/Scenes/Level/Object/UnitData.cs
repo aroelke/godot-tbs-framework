@@ -134,6 +134,8 @@ public class UnitData : GridObjectData
         return cells.Keys;
     }
 
+    public IEnumerable<Vector2I> GetOccupiableCells() => GetTraversableCells().Where((c) => !Grid.Occupants.TryGetValue(c, out GridObjectData occupant) || occupant == this);
+
     public IEnumerable<Vector2I> GetAttackableCells(Vector2I source) => Grid.GetCellsInRange(source, Stats.AttackRange);
 
     public IEnumerable<Vector2I> GetAttackableCells() => GetAttackableCells(Cell);
