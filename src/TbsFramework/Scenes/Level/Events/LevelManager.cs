@@ -144,7 +144,7 @@ public partial class LevelManager : Node
         _target = null;
 
         // Compute move/attack/support ranges for selected unit
-        _path = Path.Empty(Grid, _selected.TraversableCells());
+        _path = Path.Empty(Grid.Data, _selected.TraversableCells());
 
         // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
         Rect2? zoomRect = null; // Grid.EnclosingRect(ActionLayers.Union());
@@ -330,7 +330,8 @@ public partial class LevelManager : Node
     private void ApplyCombatResults()
     {
         foreach (CombatAction action in _combatResults)
-            action.Target.Health -= action.Damage;
+            if (action.Hit)
+                action.Target.Health -= action.Damage;
         _target = null;
         _combatResults = null;
     }
@@ -338,9 +339,9 @@ public partial class LevelManager : Node
     public void OnCombatEntered()
     {
         if (_command == UnitAction.AttackAction)
-            _combatResults = CombatCalculations.AttackResults(_selected, _target, Grid, false);
+            _combatResults = CombatCalculations.AttackResults(_selected.UnitData, _target.UnitData, false);
         else if (_command == UnitAction.SupportAction)
-            _combatResults = [CombatCalculations.CreateSupportAction(_selected, _target)];
+            _combatResults = [CombatCalculations.CreateSupportAction(_selected.UnitData, _target.UnitData)];
         else
             throw new NotSupportedException($"Unknown action {_command}");
 
@@ -351,7 +352,7 @@ public partial class LevelManager : Node
         }
         else
         {
-            SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, _combatResults.ToImmutableList()), (uint)ConnectFlags.OneShot);
+            SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected.UnitData, _target.UnitData, _combatResults.ToImmutableList()), (uint)ConnectFlags.OneShot);
             SceneManager.CallScene(CombatScenePath);
         }
     }
