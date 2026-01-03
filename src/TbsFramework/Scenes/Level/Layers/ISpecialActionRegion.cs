@@ -14,8 +14,8 @@ public interface ISpecialActionRegion
     public ISet<Vector2I> Cells { get; }
 
     /// <returns><c>true</c> if <paramref name="unit"/> is allowed to perform the action (regardless of its position), and <c>false</c> otherwise.</returns>
-    public bool IsAllowed(IUnit unit);
+    public bool IsAllowed(Unit unit);
 
     /// <returns><c>true</c> if <paramref name="unit"/> can perform the action in <paramref name="cell"/>, and <c>false</c> otherwise.</returns>
-    public bool CanPerform(IUnit unit, Vector2I cell) => IsAllowed(unit) && Cells.Contains(cell);
+    public bool CanPerform(Unit unit, Vector2I cell) => IsAllowed(unit) && Cells.Contains(cell);
 }

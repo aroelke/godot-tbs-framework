@@ -66,7 +66,7 @@ public interface IGrid
     /// <summary>Get the units occupying the grid.</summary>
     /// <returns>A mapping of grid cells occupied by units onto those units.</returns>
     /// <remarks><b>Note</b>: Returns an immutable dictionary to prevent attempts to update occupants through it.</remarks>
-    public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits();
+    public IImmutableDictionary<Vector2I, Unit> GetOccupantUnits();
 
     public IEnumerable<ISpecialActionRegion> GetSpecialActionRegions();
 }

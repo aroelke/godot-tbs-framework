@@ -100,7 +100,7 @@ public partial class Grid : Node2D, IGrid
     public IEnumerable<Vector2I> GetCellsAtDistance(Vector2I cell, int distance) => Data.GetCellsAtDistance(cell, distance);
     public Terrain GetTerrain(Vector2I cell) => Data.Terrain.TryGetValue(cell, out Terrain terrain) ? terrain : Data.DefaultTerrain;
     public int PathCost(IEnumerable<Vector2I> path) => IGrid.PathCost(this, path);
-    public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits() => Occupants.Where((e) => e.Value is Unit).ToImmutableDictionary((e) => e.Key, (e) => e.Value as IUnit);
+    public IImmutableDictionary<Vector2I, Unit> GetOccupantUnits() => Occupants.Where((e) => e.Value is Unit).ToImmutableDictionary((e) => e.Key, (e) => e.Value as Unit);
     public IEnumerable<ISpecialActionRegion> GetSpecialActionRegions() => SpecialActionRegions;
 
     public override string[] _GetConfigurationWarnings()

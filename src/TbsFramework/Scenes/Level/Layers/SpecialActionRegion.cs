@@ -67,7 +67,7 @@ public partial class SpecialActionRegion : TileMapLayer, ISpecialActionRegion
             throw new ArgumentException($"{performer.Name} cannot perform action {Action} in cell {cell}");
     }
 
-    public bool IsAllowed(IUnit unit) => unit is Unit u && Data.CanPerform(u.UnitData);
+    public bool IsAllowed(Unit unit) => unit is Unit u && Data.CanPerform(u.UnitData);
 
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
     {

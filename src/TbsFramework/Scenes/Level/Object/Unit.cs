@@ -18,7 +18,7 @@ namespace TbsFramework.Scenes.Level.Object;
 /// interact.
 /// </summary>
 [GlobalClass, Tool]
-public partial class Unit : GridNode, IUnit, IHasHealth
+public partial class Unit : GridNode, IHasHealth
 {
     /// <summary>Signal that the unit is done moving along its path.</summary>
     [Signal] public delegate void DoneMovingEventHandler();
@@ -102,12 +102,6 @@ public partial class Unit : GridNode, IUnit, IHasHealth
 
     public HealthComponent Health => _cache.GetNodeOrNull<HealthComponent>("Health");
 
-    double IUnit.Health
-    {
-        get => Health.Value;
-        set => Health.Value = value;
-    }
-
     /// <summary>Army to which this unit belongs, which determines its alliances and gives access to its compatriots.</summary>
     public Army Army
     {
@@ -139,12 +133,10 @@ public partial class Unit : GridNode, IUnit, IHasHealth
 
     public Unit() : base() { _cache = new(this); }
 
-    public IEnumerable<Vector2I> TraversableCells(IGrid grid) => IUnit.TraversableCells(this, grid);
-
     /// <returns>The set of cells that this unit can reach from its position, accounting for <see cref="Terrain.Cost"/>.</returns>
-    public IEnumerable<Vector2I> TraversableCells() => TraversableCells(Grid);
+    public IEnumerable<Vector2I> TraversableCells() => UnitData.GetTraversableCells();
 
-    public IEnumerable<Vector2I> AttackableCells(IGrid grid, IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(grid, sources, Stats.AttackRange);
+    public IEnumerable<Vector2I> AttackableCells(IGrid grid, IEnumerable<Vector2I> sources) => sources.SelectMany((c) => UnitData.GetAttackableCells(c)).ToHashSet();
 
     /// <summary>Compute all of the cells this unit could attack from the given set of source cells.</summary>
     /// <param name="sources">Cells to compute attack range from.</param>
@@ -159,7 +151,7 @@ public partial class Unit : GridNode, IUnit, IHasHealth
     /// <remarks>Uses the unit's current <see cref="Cell"/> as the source.</remarks>
     public IEnumerable<Vector2I> AttackableCells() => AttackableCells(Cell);
 
-    public IEnumerable<Vector2I> SupportableCells(IGrid grid, IEnumerable<Vector2I> sources) => IUnit.GetCellsInRange(grid, sources, Stats.SupportRange);
+    public IEnumerable<Vector2I> SupportableCells(IGrid grid, IEnumerable<Vector2I> sources) => sources.SelectMany((c) => UnitData.GetSupportableCells(c)).ToHashSet();
 
     /// <summary>Compute all of the cells this unit could support from the given set of source cells.</summary>
     /// <param name="sources">Cells to compute support range from.</param>
