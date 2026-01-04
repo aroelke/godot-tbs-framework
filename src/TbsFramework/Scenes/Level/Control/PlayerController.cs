@@ -350,16 +350,16 @@ public partial class PlayerController : ArmyController
         IEnumerable<Unit> enemies = _tracked.Where((u) => !Army.Faction.AlliedTo(u));
 
         if (allies.Any())
-            ZoneLayers[AllyTraversableZone.Name] = allies.SelectMany(static (u) => u.TraversableCells());
+            ZoneLayers[AllyTraversableZone.Name] = allies.SelectMany(static (u) => u.UnitData.GetTraversableCells());
         else
             ZoneLayers.Clear(AllyTraversableZone.Name);
         if (enemies.Any())
-            ZoneLayers[LocalDangerZone.Name] = enemies.SelectMany(static (u) => u.AttackableCells(u.TraversableCells()));
+            ZoneLayers[LocalDangerZone.Name] = enemies.SelectMany(static (u) => u.UnitData.GetAttackableCellsInReach());
         else
             ZoneLayers.Clear(LocalDangerZone.Name);
         
         if (_showGlobalDangerZone)
-            ZoneLayers[GlobalDangerZone.Name] = Grid.Occupants.Values.OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u)).SelectMany(static (u) => u.AttackableCells(u.TraversableCells()));
+            ZoneLayers[GlobalDangerZone.Name] = Grid.Occupants.Values.OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u)).SelectMany(static (u) => u.UnitData.GetAttackableCellsInReach());
         else
             ZoneLayers.Clear(GlobalDangerZone.Name);
     }
@@ -568,7 +568,11 @@ public partial class PlayerController : ArmyController
     public void OnSelectCursorCellEntered(Vector2I cell)
     {
         if (Grid.Occupants.GetValueOrDefault(cell) is Unit unit)
-            (ActionLayers[MoveLayer.Name], ActionLayers[AttackLayer.Name], ActionLayers[SupportLayer.Name]) = unit.ActionRanges();
+        {
+            ActionLayers[MoveLayer.Name] = unit.UnitData.GetTraversableCells();
+            ActionLayers[AttackLayer.Name] = unit.UnitData.GetFilteredAttackableCellsInReach();
+            ActionLayers[SupportLayer.Name] = unit.UnitData.GetFilteredSupportableCellsInReach();
+        }
     }
 
     public void OnSelectedPointerStopped(Vector2 position) => OnSelectCursorCellEntered(Grid.CellOf(position));
@@ -589,7 +593,9 @@ public partial class PlayerController : ArmyController
             State.SendEvent(PathEvent);
 
             _selected = unit;
-            (ActionLayers[MoveLayer.Name], ActionLayers[AttackLayer.Name], ActionLayers[SupportLayer.Name]) = (_traversable, _attackable, _supportable) = _selected.ActionRanges();
+            ActionLayers[MoveLayer.Name] = _traversable = _selected.UnitData.GetTraversableCells();
+            ActionLayers[AttackLayer.Name] = _attackable = _selected.UnitData.GetFilteredAttackableCellsInReach();
+            ActionLayers[SupportLayer.Name] = _supportable = _selected.UnitData.GetFilteredSupportableCellsInReach();
             Cursor.SoftRestriction = [.. _traversable];
             Cursor.Cell = _selected.Cell;
             UpdatePath(Path.Empty(Cursor.Grid.Data, _traversable).Add(_selected.Cell));
@@ -626,9 +632,9 @@ public partial class PlayerController : ArmyController
         {
             // Compute cells the highlighted unit could be targeted from (friend or foe)
             if (target != _selected && Army.Faction.AlliedTo(target) && _supportable.Contains(cell))
-                sources = _selected.SupportableCells(cell).Where(_traversable.Contains);
+                sources = _selected.UnitData.GetSupportableCells(cell).Where(_traversable.Contains);
             else if (!Army.Faction.AlliedTo(target) && _attackable.Contains(cell))
-                sources = _selected.AttackableCells(cell).Where(_traversable.Contains);
+                sources = _selected.UnitData.GetAttackableCells(cell).Where(_traversable.Contains);
             sources = sources.Where((c) => !Cursor.Grid.Occupants.ContainsKey(c) || Cursor.Grid.Occupants[c] == _selected);
 
             if (sources.Any())
@@ -723,8 +729,8 @@ public partial class PlayerController : ArmyController
     public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)
     {
         ActionLayers.Clear(MoveLayer.Name);
-        ActionLayers[AttackLayer.Name] = source.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(source) ?? false);
-        ActionLayers[SupportLayer.Name] = source.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(source) ?? false);
+        ActionLayers[AttackLayer.Name] = source.UnitData.GetAttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(source) ?? false);
+        ActionLayers[SupportLayer.Name] = source.UnitData.GetSupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(source) ?? false);
 
         Callable.From(() => {
             State.SendEvent(CommandEvent);

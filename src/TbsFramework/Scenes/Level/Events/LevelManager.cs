@@ -144,7 +144,7 @@ public partial class LevelManager : Node
         _target = null;
 
         // Compute move/attack/support ranges for selected unit
-        _path = Path.Empty(Grid.Data, _selected.TraversableCells());
+        _path = Path.Empty(Grid.Data, _selected.UnitData.GetTraversableCells());
 
         // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
         Rect2? zoomRect = null; // Grid.EnclosingRect(ActionLayers.Union());
@@ -263,8 +263,8 @@ public partial class LevelManager : Node
                 }));
             }
         }
-        AddActionOption(UnitAction.AttackAction, _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
-        AddActionOption(UnitAction.SupportAction, _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
+        AddActionOption(UnitAction.AttackAction, _selected.UnitData.GetAttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
+        AddActionOption(UnitAction.SupportAction, _selected.UnitData.GetSupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
         foreach (SpecialActionRegion region in Grid.SpecialActionRegions)
         {
             if (region.HasSpecialAction(_selected, _selected.Cell))

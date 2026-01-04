@@ -168,14 +168,20 @@ public class UnitData : GridObjectData
     /// <returns>The set of cells this unit can attack from across all of the cells it can end its movement in.</returns>
     public IEnumerable<Vector2I> GetAttackableCellsInReach() => GetOccupiableCells().SelectMany(GetAttackableCells).ToHashSet();
 
+    /// <returns>The set of cells this unit can attack from across all of the cells it can end its movement in, excluding ones with allies</returns>
+    public IEnumerable<Vector2I> GetFilteredAttackableCellsInReach() => GetAttackableCellsInReach().Where((c) => !Grid.Occupants.TryGetValue(c, out GridObjectData occupant) || !(occupant is UnitData unit && unit.Faction.AlliedTo(Faction)));
+
     /// <returns>The set of cells this unit can support from cell <paramref name="source"/>.</returns>
     public IEnumerable<Vector2I> GetSupportableCells(Vector2I source) => Grid.GetCellsInRange(source, Stats.SupportRange);
 
     /// <returns>The set of cells this unit can support from its current cell.</returns>
     public IEnumerable<Vector2I> GetSupportableCells() => GetSupportableCells(Cell);
 
-    /// <returns>The set of cells this can support from across all of the cells it can end its movement in.</returns>
+    /// <returns>The set of cells this unit can support from across all of the cells it can end its movement in.</returns>
     public IEnumerable<Vector2I> GetSupportableCellsInReach() => GetOccupiableCells().SelectMany(GetSupportableCells).ToHashSet();
+
+    /// <returns>The set of cells this unit can support from across all of the cells it can end its movement in, excluding ones with enemies.</returns>
+    public IEnumerable<Vector2I> GetFilteredSupportableCellsInReach() => GetSupportableCellsInReach().Where((c) => !Grid.Occupants.TryGetValue(c, out GridObjectData occupant) || !(occupant is UnitData unit && !unit.Faction.AlliedTo(Faction)));
 
     public override GridObjectData Clone() => new UnitData(this);
 }

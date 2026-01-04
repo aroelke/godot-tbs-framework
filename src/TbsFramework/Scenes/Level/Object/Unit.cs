@@ -58,17 +58,6 @@ public partial class Unit : GridNode, IHasHealth
         }
     }
 
-    private (IEnumerable<Vector2I>, IEnumerable<Vector2I>, IEnumerable<Vector2I>) ExcludeOccupants(IEnumerable<Vector2I> move, IEnumerable<Vector2I> attack, IEnumerable<Vector2I> support)
-    {
-        IEnumerable<Unit> allies = Grid.Occupants.Select(static (e) => e.Value).OfType<Unit>().Where(Army.Faction.AlliedTo);
-        IEnumerable<Unit> enemies = Grid.Occupants.Select(static (e) => e.Value).OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u));
-        return (
-            move.Where((c) => !enemies.Any((u) => u.Cell == c)),
-            attack.Where((c) => !allies.Any((u) => u.Cell == c)),
-            support.Where((c) => !enemies.Any((u) => u.Cell == c))
-        );
-    }
-
     public UnitData UnitData { get; init; } = new();
     public override GridObjectData Data => UnitData;
 
@@ -132,46 +121,6 @@ public partial class Unit : GridNode, IHasHealth
     public BoundedNode2D MotionBox => _cache.GetNode<BoundedNode2D>("Path/Follow/MotionBox");
 
     public Unit() : base() { _cache = new(this); }
-
-    /// <returns>The set of cells that this unit can reach from its position, accounting for <see cref="Terrain.Cost"/>.</returns>
-    public IEnumerable<Vector2I> TraversableCells() => UnitData.GetTraversableCells();
-
-    /// <summary>Compute all of the cells this unit could attack from the given set of source cells.</summary>
-    /// <param name="sources">Cells to compute attack range from.</param>
-    /// <returns>The set of all cells that could be attacked from any of the cell <paramref name="sources"/>.</returns>
-    public IEnumerable<Vector2I> AttackableCells(IEnumerable<Vector2I> sources) => sources.SelectMany((c) => UnitData.GetAttackableCells(c)).ToHashSet();
-
-    /// <inheritdoc cref="AttackableCells"/>
-    /// <remarks>Uses a singleton set of cells constructed from the single <paramref name="source"/> cell.</remarks>
-    public IEnumerable<Vector2I> AttackableCells(Vector2I source) => AttackableCells([source]);
-
-    /// <inheritdoc cref="AttackableCells"/>
-    /// <remarks>Uses the unit's current <see cref="Cell"/> as the source.</remarks>
-    public IEnumerable<Vector2I> AttackableCells() => AttackableCells(Cell);
-
-    /// <summary>Compute all of the cells this unit could support from the given set of source cells.</summary>
-    /// <param name="sources">Cells to compute support range from.</param>
-    /// <returns>The set of all cells that could be supported from any of the source cells.</returns>
-    public IEnumerable<Vector2I> SupportableCells(IEnumerable<Vector2I> sources) => sources.SelectMany((c) => UnitData.GetSupportableCells(c)).ToHashSet();
-
-    /// <inheritdoc cref="SupportableCells"/>
-    /// <remarks>Uses a singleton set of cells constructed from the single <paramref name="source"/> cell.</remarks>
-    public IEnumerable<Vector2I> SupportableCells(Vector2I source) => SupportableCells([source]);
-
-    /// <inheritdoc cref="SupportableCells"/>
-    /// <remarks>Uses the unit's current <see cref="Cell"/> as the source.</remarks>
-    public IEnumerable<Vector2I> SupportableCells() => SupportableCells(Cell);
-
-    /// <returns>The complete sets of cells this unit can act on.</returns>
-    public (IEnumerable<Vector2I> traversable, IEnumerable<Vector2I> attackable, IEnumerable<Vector2I> supportable) ActionRanges()
-    {
-        IEnumerable<Vector2I> traversable = TraversableCells();
-        return ExcludeOccupants(
-            traversable,
-            AttackableCells(traversable.Where((c) => !Grid.Occupants.ContainsKey(c) || Grid.Occupants[c] == this)),
-            SupportableCells(traversable.Where((c) => !Grid.Occupants.ContainsKey(c) || Grid.Occupants[c] == this))
-        );
-    }
 
     /// <summary>Put the unit in the "selected" state.</summary>
     public void Select() => _animations.PlaySelected();
