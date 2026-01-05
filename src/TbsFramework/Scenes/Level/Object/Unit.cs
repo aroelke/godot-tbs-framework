@@ -82,13 +82,6 @@ public partial class Unit : GridNode, IHasHealth
     /// <summary>Factor to multiply <see cref="MoveSpeed"/> by while <see cref="MoveAccelerateAction"/> is held down.</summary>
     [Export] public double MoveAccelerationFactor = 2;
 
-    ///<summary>Behavior defining actions to take when AI controlled.</summary>
-    public Behavior Behavior
-    {
-        get => UnitData.Behavior;
-        set => UnitData.Behavior = value;
-    }
-
     public HealthComponent Health => _cache.GetNodeOrNull<HealthComponent>("Health");
 
     /// <summary>Army to which this unit belongs, which determines its alliances and gives access to its compatriots.</summary>
@@ -202,13 +195,13 @@ public partial class Unit : GridNode, IHasHealth
     {
         base._Ready();
 
-        Behavior = GetChildren().OfType<Behavior>().FirstOrDefault();
-        UnitData.Renderer = this;
-
         if (UnitData.Class is not null)
             UpdateVisuals(UnitData.Class, Faction);
         if (!Engine.IsEditorHint())
         {
+            UnitData.Behavior = GetChildren().OfType<Behavior>().FirstOrDefault();
+            UnitData.Renderer = this;
+
             RemoveChild(EditorSprite);
             EditorSprite.QueueFree();
             _animations.PlayIdle();
