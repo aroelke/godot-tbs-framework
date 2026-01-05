@@ -16,18 +16,21 @@ Accuracy = 100
 Evasion = 0
 Agility = 1
 Move = 5
+AttackRange = PackedInt32Array(1)
+SupportRange = PackedInt32Array()
 
 [node name="Unit" type="Node2D"]
 z_index = 1
 script = ExtResource("1_crlbh")
 Stats = SubResource("Resource_gr881")
+Cell = Vector2i(-1, -1)
 
 [node name="EditorSprite" type="Sprite2D" parent="."]
 centered = false
 
 [node name="Health" parent="." instance=ExtResource("6_jxbfo")]
-Maximum = 10
-Value = 10
+Maximum = 10.0
+Value = 10.0
 
 [node name="Accelerate" parent="." instance=ExtResource("9_cy0he")]
 
@@ -41,5 +44,3 @@ loop = false
 [node name="MotionBox" type="Node2D" parent="Path/Follow"]
 script = ExtResource("3_pmja0")
 DebugColor = Color(0, 0, 0, 0)
-
-[connection signal="ValueChanged" from="Health" to="." method="OnHealthChanged"]

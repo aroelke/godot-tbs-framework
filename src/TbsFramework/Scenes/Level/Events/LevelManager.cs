@@ -378,7 +378,7 @@ public partial class LevelManager : Node
     /// <summary>Clean up at the end of the unit's turn.</summary>
     public void OnEndActionExited()
     {
-        if (_selected.Health.Value <= 0)
+        if (_selected.UnitData.Health <= 0)
             _selected.Die();
         _selected = null;
     }

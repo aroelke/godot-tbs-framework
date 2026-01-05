@@ -3,7 +3,6 @@ using System.Linq;
 using Godot;
 using System;
 using TbsFramework.Data;
-using TbsFramework.Extensions;
 using TbsFramework.Nodes.Components;
 using TbsFramework.Scenes.Level.Map;
 using TbsFramework.Scenes.Level.Object.Group;
@@ -18,7 +17,7 @@ namespace TbsFramework.Scenes.Level.Object;
 /// interact.
 /// </summary>
 [GlobalClass, Tool]
-public partial class Unit : GridNode, IHasHealth
+public partial class Unit : GridNode
 {
     /// <summary>Signal that the unit is done moving along its path.</summary>
     [Signal] public delegate void DoneMovingEventHandler();
@@ -51,10 +50,8 @@ public partial class Unit : GridNode, IHasHealth
             _animations = @class.InstantiateMapAnimations(faction);
             GetNode<PathFollow2D>("Path/Follow").AddChild(_animations);
 
-            Health.Connect<double>(HealthComponent.SignalName.MaximumChanged, _animations.SetHealthMax);
-            Health.Connect(HealthComponent.SignalName.ValueChanged, new Callable(_animations, UnitMapAnimations.MethodName.SetHealthValue));
-            _animations.SetHealthMax(Health.Maximum);
-            _animations.SetHealthValue(Health.Value);
+            _animations.SetHealthMax(UnitData.Stats.Health);
+            _animations.SetHealthValue(UnitData.Health);
         }
     }
 
@@ -81,8 +78,6 @@ public partial class Unit : GridNode, IHasHealth
 
     /// <summary>Factor to multiply <see cref="MoveSpeed"/> by while <see cref="MoveAccelerateAction"/> is held down.</summary>
     [Export] public double MoveAccelerationFactor = 2;
-
-    public HealthComponent Health => _cache.GetNodeOrNull<HealthComponent>("Health");
 
     /// <summary>Army to which this unit belongs, which determines its alliances and gives access to its compatriots.</summary>
     public Army Army
@@ -173,12 +168,6 @@ public partial class Unit : GridNode, IHasHealth
         PathFollow.ProgressRatio = 1;
     }
 
-    public void OnHealthChanged(int value)
-    {
-        if (value == 0)
-            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.UnitDefeated, this);
-    }
-
     public override string[] _GetConfigurationWarnings()
     {
         List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
@@ -211,8 +200,6 @@ public partial class Unit : GridNode, IHasHealth
             SetProcess(false);
         }
 
-        Health.Value = Health.Maximum = Stats.Health;
-
         UnitData.FactionUpdated += (faction) => {
             if (UnitData.Class is not null)
                 UpdateVisuals(UnitData.Class, faction);
@@ -221,11 +208,12 @@ public partial class Unit : GridNode, IHasHealth
             if (@class is not null)
                 UpdateVisuals(@class, Faction);
         };
-        UnitData.StatsUpdated += (stats) => {
-            if (Health is not null)
-                Health.Maximum = stats.Health;
+        UnitData.StatsUpdated += (stats) => _animations?.SetHealthMax(stats.Health);
+        UnitData.HealthUpdated += (hp) => {
+            _animations?.SetHealthValue(hp);
+            if (hp == 0)
+                LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.UnitDefeated, this);
         };
-        UnitData.HealthUpdated += (hp) => Health.Value = hp;
     }
 
     public override void _Process(double delta)
