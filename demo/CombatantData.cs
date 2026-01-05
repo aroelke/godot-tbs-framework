@@ -7,7 +7,7 @@ namespace TbsFramework.Demo;
 
 /// <summary>Combat UI element that displays constant information about a unit participating in combat.</summary>
 [Tool]
-public partial class CombatantData : GridContainer, IHasHealth
+public partial class CombatantData : GridContainer
 {
     private readonly NodeCache _cache = null;
     private int _maxHealth = 10, _currentHealth = 10;

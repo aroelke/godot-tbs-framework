@@ -3,13 +3,6 @@ using Godot;
 
 namespace TbsFramework.Nodes.Components;
 
-/// <summary>Interface for <see cref="Node"/>s that have <see cref="HealthComponent"/>s, providing external access to them.</summary>
-public interface IHasHealth
-{
-    /// <summary>Component maintaining the health of the parent <see cref="Node"/>.</summary>
-    public HealthComponent Health { get; }
-}
-
 /// <summary>Node component maintaining health. Signals when health changes.</summary>
 [Tool]
 public partial class HealthComponent : Node
