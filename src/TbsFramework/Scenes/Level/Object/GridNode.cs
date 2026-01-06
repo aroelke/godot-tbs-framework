@@ -7,7 +7,7 @@ using TbsFramework.Scenes.Level.Map;
 namespace TbsFramework.Scenes.Level.Object;
 
 /// <summary>A node representing an object that moves on a <see cref="Map.Grid"/>.</summary>
-[Icon("res://icons/GridNode.svg"), GlobalClass, Tool]
+[Icon("uid://5yh84odsi0xx"), GlobalClass, Tool]
 public partial class GridNode : BoundedNode2D
 {
     /// <summary>Signals that the cell containing the object has changed.</summary>

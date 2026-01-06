@@ -11,7 +11,7 @@ namespace TbsFramework.UI.HUD;
 /// Hint icon for showing the controls to move the <see cref="Cursor"/>/<see cref="Pointer"/>
 /// for the current control scheme.
 /// </summary>
-[Icon("res://icons/ControlHint.svg"), Tool]
+[Icon("uid://dse1e8t65q25x"), Tool]
 public partial class CursorHintIcon : HBoxContainer
 {
     private readonly NodeCache _cache = null;

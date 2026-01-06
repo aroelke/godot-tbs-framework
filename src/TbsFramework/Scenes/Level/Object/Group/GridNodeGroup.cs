@@ -6,7 +6,7 @@ using Godot;
 namespace TbsFramework.Scenes.Level.Object.Group;
 
 /// <summary>A  group of <see cref="GridNode"/>s to facilitate managing and iterating over them.</summary>
-[Icon("res://icons/GridNodeGroup.svg")]
+[Icon("uid://j6vriinotgdo")]
 public partial class GridNodeGroup : Node, IEnumerable<GridNode>, IEnumerable
 {
     /// <summary>Number of <see cref="GridNode"/>s in the group.</summary>

@@ -411,7 +411,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
+mouse_behavior_recursive = 1
 theme = ExtResource("35_dxofe")
 
 [node name="Status" type="VBoxContainer" parent="CanvasLayer/HUD"]
@@ -421,7 +421,6 @@ anchor_right = 1.0
 offset_bottom = 23.0
 grow_horizontal = 2
 size_flags_horizontal = 0
-mouse_filter = 2
 
 [node name="TurnLabel" type="Label" parent="CanvasLayer/HUD/Status"]
 layout_mode = 2
@@ -445,11 +444,9 @@ anchor_bottom = 1.0
 offset_top = -42.0
 offset_right = 504.0
 grow_vertical = 0
-mouse_filter = 2
 
 [node name="CursorHint" parent="CanvasLayer/HUD/Hints" instance=ExtResource("34_0sxdy")]
 layout_mode = 2
-mouse_filter = 2
 MouseMap = ExtResource("35_mogvl")
 KeyMap = ExtResource("36_npakb")
 ButtonMap = ExtResource("37_dxofe")
@@ -457,7 +454,6 @@ AxisMap = ExtResource("38_v621i")
 
 [node name="SelectHint" parent="CanvasLayer/HUD/Hints" instance=ExtResource("39_mogvl")]
 layout_mode = 2
-mouse_filter = 2
 Description = "Select"
 MouseMap = ExtResource("35_mogvl")
 KeyMap = ExtResource("36_npakb")
@@ -466,7 +462,6 @@ Action = &"select"
 
 [node name="CancelHint" parent="CanvasLayer/HUD/Hints" instance=ExtResource("39_mogvl")]
 layout_mode = 2
-mouse_filter = 2
 Description = "Cancel"
 MouseMap = ExtResource("35_mogvl")
 KeyMap = ExtResource("36_npakb")
@@ -475,7 +470,6 @@ Action = &"cancel"
 
 [node name="SkipHint" parent="CanvasLayer/HUD/Hints" instance=ExtResource("39_mogvl")]
 layout_mode = 2
-mouse_filter = 2
 Description = "Skip"
 MouseMap = ExtResource("35_mogvl")
 KeyMap = ExtResource("36_npakb")

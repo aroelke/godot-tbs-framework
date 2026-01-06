@@ -6,7 +6,7 @@ namespace TbsFramework.Nodes;
 /// A <see cref="Node2D"/> with additional size information that forms a <see cref="BoundingBox"/> along with its
 /// <see cref="Node2D.Position"/>.
 /// </summary>
-[Icon("res://icons/BoundedNode2D.svg"), GlobalClass, Tool]
+[Icon("uid://bf768fue0t5d1"), GlobalClass, Tool]
 public partial class BoundedNode2D : Node2D
 {
     /// <summary>Size of the node that forms its bounding box along with its <see cref="Node2D.Position"/>.</summary>

@@ -18,7 +18,7 @@ using TbsFramework.UI.Controls.Device;
 namespace TbsFramework.Scenes.Level.Control;
 
 /// <summary>Automatically controls units based on their <see cref="UnitBehavior"/>s and the state of the level.</summary>
-[Icon("res://icons/AIController.svg"), Tool]
+[Icon("uid://bambqlpd7p4kr"), Tool]
 public partial class AIController : ArmyController
 {
     private const int HealthDiffPrecision = 10;
