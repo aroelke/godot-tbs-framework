@@ -145,6 +145,7 @@ Faction = ExtResource("7_yu7ov")
 [node name="AIController" parent="LevelManager/Enemy1" instance=ExtResource("9_s2xnc")]
 CursorSprite = ExtResource("8_s2xnc")
 CursorOffset = Vector2(8, 8)
+EvaluateWithThreads = false
 
 [node name="EnemyA" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(128, 208)

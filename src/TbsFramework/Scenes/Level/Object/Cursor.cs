@@ -1,10 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes.Components;
-using TbsFramework.UI.Controls.Action;
 using TbsFramework.UI.Controls.Device;
 
 namespace TbsFramework.Scenes.Level.Object;
@@ -13,10 +13,18 @@ namespace TbsFramework.Scenes.Level.Object;
 [Tool]
 public partial class Cursor : GridNode
 {
+    private class CursorData() : GridObjectData(false) { public override GridObjectData Clone() => throw new NotSupportedException("The cursor's data should never need to be copied."); }
+
+    /// <summary>Signals that the cell containing the cursor has changed.</summary>
+    /// <param name="cell">New cell containing the cursor.</param>
+    [Signal] public delegate void CellChangedEventHandler(Vector2I cell);
+
     /// <summary>Emitted when the cursor moves to a new location.</summary>
     /// <param name="region">Region enclosed by the cursor after movement.</param>
     [Signal] public delegate void CursorMovedEventHandler(Rect2 region);
 
+    /// <summary>Emitted when a cursor stops in a new cell.</summary>
+    /// <param name="cell">Cell the cursor stopped in.</param>
     [Signal] public delegate void CellEnteredEventHandler(Vector2I cell);
 
     /// <summary>Signals that a cell has been selected.</summary>
@@ -66,6 +74,8 @@ public partial class Cursor : GridNode
                 MoveSoundPlayer.Stream = value;
         }
     }
+
+    public override GridObjectData Data { get; } = new CursorData();
 
     /// <summary>"Soft zone" that breaks cursor continuous movement and skips to the edge of.</summary>
     public HashSet<Vector2I> SoftRestriction = [];
@@ -140,7 +150,7 @@ public partial class Cursor : GridNode
                             Cell = target;
                         }
                         else
-                            Cell = Grid.Clamp(Cell + direction*Grid.Size);
+                            Cell = Data.Grid.Clamp(Cell + direction*Grid.Size);
                     }
                 }
             }
@@ -226,6 +236,7 @@ public partial class Cursor : GridNode
             }
         }
 
+        EmitSignal(SignalName.CellChanged, cell);
         EmitSignal(SignalName.CursorMoved, Grid.CellRect(cell));
         _previous = cell;
     }
@@ -270,7 +281,7 @@ public partial class Cursor : GridNode
                         Cell = target;
                     }
                     else
-                        Cell = Grid.Clamp(Cell + direction*Grid.Size);
+                        Cell = Data.Grid.Clamp(Cell + direction*Grid.Size);
                 }
             }
         }
@@ -280,6 +291,7 @@ public partial class Cursor : GridNode
     {
         base._Ready();
         _previous = Cell;
+        Data.CellChanged += OnCellChanged;
     }
 
     public override void _UnhandledInput(InputEvent @event)

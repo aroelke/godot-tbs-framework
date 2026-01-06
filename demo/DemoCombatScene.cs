@@ -22,8 +22,8 @@ public partial class DemoCombatScene : CombatScene
 
     private readonly NodeCache _cache = null;
     private IImmutableList<CombatAction> _actions = null;
-    private readonly Dictionary<IUnit, CombatAnimations> _animations = [];
-    private readonly Dictionary<IUnit, CombatantData> _infos = [];
+    private readonly Dictionary<UnitData, CombatAnimations> _animations = [];
+    private readonly Dictionary<UnitData, CombatantData> _infos = [];
     private double _remaining = 0;
     private bool _canceled = false;
 
@@ -53,18 +53,19 @@ public partial class DemoCombatScene : CombatScene
 
     public DemoCombatScene() : base() { _cache = new(this); }
 
-    public override void Initialize(Unit left, Unit right, IImmutableList<CombatAction> actions)
+    public override void Initialize(UnitData left, UnitData right, IImmutableList<CombatAction> actions)
     {
         foreach (CombatAction action in actions)
             if (action.Actor != left && action.Actor != right)
-                throw new ArgumentException($"CombatAction {((Unit)action.Actor).Name} is not a participant in combat");
+                throw new ArgumentException($"Unit at cell {action.Actor.Cell} is not a participant in combat");
         _actions = actions;
 
         _animations[left] = left.Class.InstantiateCombatAnimations(left.Faction);
         _animations[left].SetFacing(Vector2.Right);
         _animations[left].Position = LeftPosition;
         _infos[left] = GetNode<CombatantData>("%LeftData");
-        _infos[left].Health = left.Health;
+        _infos[left].Health.Maximum = left.Stats.Health;
+        _infos[left].Health.Value = left.Health;
         _infos[left].Damage = [.. _actions.Where((a) => a.Actor == left).Select(static (a) => (int)a.Damage)];
         _infos[left].HitChance = _actions.Any((a) => a.Actor == left) ? Math.Min(CombatCalculations.HitChance(left, right), 100) : -1;
         _infos[left].TransitionDuration = HitDelay;
@@ -73,7 +74,8 @@ public partial class DemoCombatScene : CombatScene
         _animations[right].SetFacing(Vector2.Left);
         _animations[right].Position = RightPosition;
         _infos[right] = GetNode<CombatantData>("%RightData");
-        _infos[right].Health = right.Health;
+        _infos[right].Health.Maximum = right.Stats.Health;
+        _infos[right].Health.Value = right.Health;
         _infos[right].Damage = [.. _actions.Where((a) => a.Actor == right).Select(static (a) => (int)a.Damage)];
         _infos[right].HitChance = _actions.Any((a) => a.Actor == right) ? Math.Min(CombatCalculations.HitChance(right, left), 100) : -1;
         _infos[right].TransitionDuration = HitDelay;
@@ -111,7 +113,7 @@ public partial class DemoCombatScene : CombatScene
                 break;
             }
 
-            foreach ((IUnit unit, CombatantData data) in _infos)
+            foreach ((UnitData unit, CombatantData data) in _infos)
             {
                 if (data.Health.Value <= 0)
                 {

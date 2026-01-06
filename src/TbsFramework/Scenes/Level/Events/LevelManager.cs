@@ -144,7 +144,7 @@ public partial class LevelManager : Node
         _target = null;
 
         // Compute move/attack/support ranges for selected unit
-        _path = Path.Empty(Grid, _selected.TraversableCells());
+        _path = Path.Empty(Grid.Data, _selected.UnitData.GetTraversableCells());
 
         // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
         Rect2? zoomRect = null; // Grid.EnclosingRect(ActionLayers.Union());
@@ -263,8 +263,8 @@ public partial class LevelManager : Node
                 }));
             }
         }
-        AddActionOption(UnitAction.AttackAction, _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
-        AddActionOption(UnitAction.SupportAction, _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
+        AddActionOption(UnitAction.AttackAction, _selected.UnitData.GetAttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
+        AddActionOption(UnitAction.SupportAction, _selected.UnitData.GetSupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
         foreach (SpecialActionRegion region in Grid.SpecialActionRegions)
         {
             if (region.HasSpecialAction(_selected, _selected.Cell))
@@ -339,9 +339,9 @@ public partial class LevelManager : Node
     public void OnCombatEntered()
     {
         if (_command == UnitAction.AttackAction)
-            _combatResults = CombatCalculations.AttackResults(_selected, _target, Grid, false);
+            _combatResults = CombatCalculations.AttackResults(_selected.UnitData, _target.UnitData, false);
         else if (_command == UnitAction.SupportAction)
-            _combatResults = [CombatCalculations.CreateSupportAction(_selected, _target)];
+            _combatResults = [CombatCalculations.CreateSupportAction(_selected.UnitData, _target.UnitData)];
         else
             throw new NotSupportedException($"Unknown action {_command}");
 
@@ -352,7 +352,7 @@ public partial class LevelManager : Node
         }
         else
         {
-            SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, _combatResults.ToImmutableList()), (uint)ConnectFlags.OneShot);
+            SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected.UnitData, _target.UnitData, _combatResults.ToImmutableList()), (uint)ConnectFlags.OneShot);
             SceneManager.CallScene(CombatScenePath);
         }
     }
@@ -378,7 +378,7 @@ public partial class LevelManager : Node
     /// <summary>Clean up at the end of the unit's turn.</summary>
     public void OnEndActionExited()
     {
-        if (_selected.Health.Value <= 0)
+        if (_selected.UnitData.Health <= 0)
             _selected.Die();
         _selected = null;
     }

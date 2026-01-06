@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Level.Layers;
-using TbsFramework.Scenes.Level.Map;
 using TbsFramework.Scenes.Level.Object;
 
 namespace TbsFramework.Scenes.Level.Control;
@@ -11,28 +10,28 @@ namespace TbsFramework.Scenes.Level.Control;
 [Tool]
 public partial class MoveBehavior : Behavior
 {
-    public override IEnumerable<Vector2I> Destinations(IUnit unit, IGrid grid) => unit.TraversableCells(grid).Where((c) => !grid.GetOccupantUnits().TryGetValue(c, out IUnit occupant) || c == unit.Cell);
+    public override IEnumerable<Vector2I> Destinations(UnitData unit) => unit.GetTraversableCells().Where((c) => !unit.Grid.Occupants.ContainsKey(c) || c == unit.Cell);
 
-    public override IEnumerable<UnitAction> Actions(IUnit unit, IGrid grid)
+    public override IEnumerable<UnitAction> Actions(UnitData unit)
     {
-        IEnumerable<Vector2I> destinations = Destinations(unit, grid);
+        IEnumerable<Vector2I> destinations = Destinations(unit);
         List<UnitAction> actions = [];
 
-        foreach (ISpecialActionRegion region in grid.GetSpecialActionRegions())
+        foreach (SpecialActionRegionData region in unit.Grid.SpecialActionRegions)
         {
-            IEnumerable<Vector2I> actionable = region.Cells.Intersect(destinations).Where((c) => region.CanPerform(unit, c));
+            IEnumerable<Vector2I> actionable = region.Cells.Intersect(destinations).Where((c) => region.CanPerform(unit));
             actions.AddRange(actionable.Select((a) => new UnitAction(region.Action, [a], a, destinations)));
         }
 
-        IEnumerable<Vector2I> enemies = unit.AttackableCells(grid, destinations).Where((c) => grid.GetOccupantUnits().TryGetValue(c, out IUnit occupant) && !occupant.Faction.AlliedTo(unit.Faction));
-        actions.AddRange(enemies.Select((e) => new UnitAction(UnitAction.AttackAction, unit.AttackableCells(grid, [e]).Intersect(destinations), e, destinations)));
+        IEnumerable<Vector2I> enemies = destinations.SelectMany((c) => unit.GetAttackableCells(c)).ToHashSet().Where((c) => unit.Grid.Occupants.TryGetValue(c, out GridObjectData occupant) && occupant is UnitData u && !u.Faction.AlliedTo(unit.Faction));
+        actions.AddRange(enemies.Select((e) => new UnitAction(UnitAction.AttackAction, unit.GetAttackableCells(e).Intersect(destinations), e, destinations)));
 
-        IEnumerable<Vector2I> allyCells = unit.SupportableCells(grid, destinations).Where((c) => c != unit.Cell && grid.GetOccupantUnits().TryGetValue(c, out IUnit occupant) && occupant.Faction.AlliedTo(unit.Faction));
+        IEnumerable<Vector2I> allyCells = destinations.SelectMany((c) => unit.GetSupportableCells(c)).ToHashSet().Where((c) => c != unit.Cell && unit.Grid.Occupants.TryGetValue(c, out GridObjectData occupant) && occupant is UnitData u && u.Faction.AlliedTo(unit.Faction));
         if (allyCells.Any())
         {
-            IEnumerable<IUnit> allies = allyCells.Select((c) => grid.GetOccupantUnits()[c]);
+            IEnumerable<UnitData> allies = allyCells.Select((c) => unit.Grid.Occupants[c]).OfType<UnitData>();
             double lowest = allies.Min(static (u) => u.Health);
-            actions.AddRange(allies.Where((u) => u.Health == lowest).Select((t) => new UnitAction(UnitAction.SupportAction, unit.SupportableCells(grid, [t.Cell]).Intersect(destinations), t.Cell, destinations)));
+            actions.AddRange(allies.Where((u) => u.Health == lowest).Select((t) => new UnitAction(UnitAction.SupportAction, unit.GetSupportableCells(t.Cell).Intersect(destinations), t.Cell, destinations)));
         }
 
         return actions;
