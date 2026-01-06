@@ -39,7 +39,7 @@ public class UnitData : GridObjectData
     private Faction _faction = null;
     private Class _class = null;
     private Stats _stats = new();
-    private double _hp = 0;
+    private readonly ClampedDouble _health = new();
 
     /// <summary>Whether or not the unit is available to act.</summary>
     public bool Active = true;
@@ -87,6 +87,7 @@ public class UnitData : GridObjectData
                 _stats = value;
                 if (StatsUpdated is not null)
                     StatsUpdated(_stats);
+                _health.Maximum = _stats.Health;
             }
         }
     }
@@ -94,17 +95,8 @@ public class UnitData : GridObjectData
     /// <summary>This unit's current health. Can't go below 0 or above <see cref="Stats.Health"/>.</summary>
     public double Health
     {
-        get => _hp;
-        set
-        {
-            double next = Mathf.Clamp(value, 0, _stats.Health);
-            if (_hp != next)
-            {
-                _hp = next;
-                if (HealthUpdated is not null)
-                    HealthUpdated(_hp);
-            }
-        }
+        get => _health.Value;
+        set => _health.Value = value;
     }
 
     /// <summary>The unit's behavior if CPU-controlled. Leave <c>null</c> for player-controlled units.</summary>
@@ -113,16 +105,24 @@ public class UnitData : GridObjectData
     /// <summary>Reference to the <see cref="Unit"/> rendering the unit's state on the map.</summary>
     public Unit Renderer = null;
 
-    public UnitData() : base(true) { _hp = Stats.Health; }
+    public UnitData() : base(true)
+    {
+        _health.Maximum = _stats.Health;
+        _health.Value = _stats.Health;
+
+        _health.ValueChanged += (_, @new) => { if (HealthUpdated is not null) HealthUpdated(@new); };
+    }
 
     private UnitData(UnitData original) : base(original)
     {
         _faction = original._faction;
         _class = original._class;
         _stats = original._stats;
-        _hp = original._hp;
+        _health.Maximum = original._health.Maximum;
+        _health.Value = original._health.Value;
         Behavior = original.Behavior;
 
+        _health.ValueChanged += (_, @new) => { if (HealthUpdated is not null) HealthUpdated(@new); };
         Renderer = original.Renderer;
     }
 

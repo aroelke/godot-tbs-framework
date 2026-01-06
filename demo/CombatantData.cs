@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Godot;
+using TbsFramework.Data;
 using TbsFramework.Nodes.Components;
 
 namespace TbsFramework.Demo;
@@ -14,7 +15,6 @@ public partial class CombatantData : GridContainer
     private int[] _damage = [0];
     private int _hit = 0;
 
-    private HealthComponent    HealthComponent => _cache.GetNode<HealthComponent>("HealthComponent");
     private Label              HealthLabel     => _cache.GetNode<Label>("HealthLabel");
     private Label              DamageTitle     => _cache.GetNode<Label>("DamageTitle");
     private Label              DamageLabel     => _cache.GetNode<Label>("DamageLabel");
@@ -86,30 +86,25 @@ public partial class CombatantData : GridContainer
     /// <summary>Amount of time to take to update the health bar when health is changed.</summary>
     [Export(PropertyHint.None, "suffix:s")] public double TransitionDuration = 0.3;
 
-    public HealthComponent Health
-    {
-        get => HealthComponent;
-        set
-        {
-            if (value is not null && HealthComponent is not null)
-            {
-                HealthComponent.Maximum = value.Maximum;
-                HealthComponent.Value = value.Value;
+    public readonly ClampedDouble Health = new();
 
-                if (HealthBar is not null)
-                {
-                    HealthBar.MaxValue = HealthComponent.Maximum;
-                    HealthBar.Value = HealthComponent.Value;
-                }
-                if (HealthLabel is not null)
-                    HealthLabel.Text = $"HP: {HealthComponent.Value}";
+    public CombatantData() : base()
+    {
+        _cache = new(this);
+        Health.RangeChanged += (_, _, _, max, _, value) =>
+        {
+            if (HealthBar is not null)
+            {
+                HealthBar.MaxValue = max;
+                HealthBar.Value = value;
             }
-        }
+            if (HealthLabel is not null)
+                HealthLabel.Text = $"HP: {value}";
+        };
+        Health.ValueChanged += (_, @new) => OnHealthChanged(@new);
     }
 
-    public CombatantData() : base() { _cache = new(this); }
-
-    public void OnHealthChanged(int value)
+    public void OnHealthChanged(double value)
     {
         void UpdateHealth(double hp)
         {
