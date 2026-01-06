@@ -41,6 +41,8 @@ public class UnitData : GridObjectData
     private Stats _stats = new();
     private readonly ClampedValue<double> _health = new(0, double.PositiveInfinity);
 
+    private void OnStatValuesChanged(Stats stats) => _health.Maximum = stats.Health;
+
     /// <summary>Whether or not the unit is available to act.</summary>
     public bool Active = true;
 
@@ -84,7 +86,9 @@ public class UnitData : GridObjectData
                 throw new ArgumentException($"A unit's stats should never be null.");
             if (_stats != value)
             {
+                _stats.ValuesChanged -= OnStatValuesChanged;
                 _stats = value;
+                _stats.ValuesChanged += OnStatValuesChanged;
                 if (StatsUpdated is not null)
                     StatsUpdated(_stats);
                 _health.Maximum = _stats.Health;
@@ -111,6 +115,7 @@ public class UnitData : GridObjectData
         _health.Value = _stats.Health;
 
         _health.ValueChanged += (_, @new) => { if (HealthUpdated is not null) HealthUpdated(@new); };
+        _stats.ValuesChanged += OnStatValuesChanged;
     }
 
     private UnitData(UnitData original) : base(original)
