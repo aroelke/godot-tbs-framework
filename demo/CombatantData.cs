@@ -86,7 +86,7 @@ public partial class CombatantData : GridContainer
     /// <summary>Amount of time to take to update the health bar when health is changed.</summary>
     [Export(PropertyHint.None, "suffix:s")] public double TransitionDuration = 0.3;
 
-    public readonly ClampedDouble Health = new();
+    public readonly ClampedValue<double> Health = new(0, double.PositiveInfinity);
 
     public CombatantData() : base()
     {

@@ -39,7 +39,7 @@ public class UnitData : GridObjectData
     private Faction _faction = null;
     private Class _class = null;
     private Stats _stats = new();
-    private readonly ClampedDouble _health = new();
+    private readonly ClampedValue<double> _health = new(0, double.PositiveInfinity);
 
     /// <summary>Whether or not the unit is available to act.</summary>
     public bool Active = true;
