@@ -96,7 +96,7 @@ public partial class Grid : Node2D
     }
 
     public bool Contains(Vector2I cell) => Data.Contains(cell);
-    public bool IsTraversable(Vector2I cell, Faction faction) => !Occupants.TryGetValue(cell, out GridNode occupant) || (occupant is Unit unit && unit.Faction.AlliedTo(faction));
+    public bool IsTraversable(Vector2I cell, Faction faction) => !Occupants.TryGetValue(cell, out GridNode occupant) || (occupant is Unit unit && unit.UnitData.Faction.AlliedTo(faction));
     public IEnumerable<Vector2I> GetCellsAtDistance(Vector2I cell, int distance) => Data.GetCellsAtDistance(cell, distance);
     public Terrain GetTerrain(Vector2I cell) => Data.Terrain.TryGetValue(cell, out Terrain terrain) ? terrain : Data.DefaultTerrain;
     public int PathCost(IEnumerable<Vector2I> path) => Data.PathCost(path);

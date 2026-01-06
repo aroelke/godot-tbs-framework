@@ -93,8 +93,6 @@ public partial class Unit : GridNode
         }
     }
 
-    public Faction Faction => UnitData.Faction;
-
     /// <summary>Whether or not the unit is currently moving along a path.</summary>
     public bool IsMoving => IsProcessing();
 
@@ -121,8 +119,8 @@ public partial class Unit : GridNode
     public void Refresh()
     {
         UnitData.Active = true;
-        if (Faction is null || !UnitData.Class.MapAnimationsPaths.ContainsKey(Faction))
-            _animations.Modulate = Faction?.Color ?? Colors.White;
+        if (UnitData.Faction is null || !UnitData.Class.MapAnimationsPaths.ContainsKey(UnitData.Faction))
+            _animations.Modulate = UnitData.Faction?.Color ?? Colors.White;
         _animations.PlayIdle();
     }
 
@@ -178,7 +176,7 @@ public partial class Unit : GridNode
         base._Ready();
 
         if (UnitData.Class is not null)
-            UpdateVisuals(UnitData.Class, Faction);
+            UpdateVisuals(UnitData.Class, UnitData.Faction);
         if (!Engine.IsEditorHint())
         {
             UnitData.Behavior = GetChildren().OfType<Behavior>().FirstOrDefault();
@@ -199,7 +197,7 @@ public partial class Unit : GridNode
         };
         UnitData.ClassUpdated += (@class) => {
             if (@class is not null)
-                UpdateVisuals(@class, Faction);
+                UpdateVisuals(@class, UnitData.Faction);
         };
         UnitData.StatsUpdated += (stats) => _animations?.SetHealthMax(stats.Health);
         UnitData.HealthUpdated += (hp) => {
@@ -216,7 +214,7 @@ public partial class Unit : GridNode
         if (Engine.IsEditorHint())
         {
             if (UnitData.Class is not null && EditorSprite.Texture is null)
-                UpdateVisuals(UnitData.Class, Faction);
+                UpdateVisuals(UnitData.Class, UnitData.Faction);
         }
         else
         {
