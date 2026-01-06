@@ -382,7 +382,11 @@ public partial class PlayerController : ArmyController
     public override void FinalizeAction()
     {
         UpdateDangerZones();
-        EmitSignal(SignalName.ProgressUpdated, ((IEnumerable<Unit>)Army).Count((u) => !u.Active) + 1, ((IEnumerable<Unit>)Army).Count((u) => u.Active) - 1); // Add one to account for the unit that just finished
+        EmitSignal(
+            SignalName.ProgressUpdated,
+            ((IEnumerable<Unit>)Army).Count(static (u) => !u.UnitData.Active) + 1, // Add one to account for the unit that just finished
+            ((IEnumerable<Unit>)Army).Count(static (u) => u.UnitData.Active) - 1
+        );
         EmitSignal(SignalName.EnabledInputActionsUpdated, Array.Empty<StringName>());
     }
 
@@ -465,7 +469,7 @@ public partial class PlayerController : ArmyController
     {
         if (Cursor.Grid.Occupants.TryGetValue(cell, out GridNode node) && node is Unit unit)
         {
-            if (unit.Army.Faction == Army.Faction && unit.Active)
+            if (unit.Army.Faction == Army.Faction && unit.UnitData.Active)
             {
                 State.SendEvent(FinishEvent);
                 EmitSignal(SignalName.UnitSelected, unit);
@@ -545,7 +549,7 @@ public partial class PlayerController : ArmyController
             }
             else
             {
-                IEnumerable<Unit> units = Army.Units().Where((u) => u.Active);
+                IEnumerable<Unit> units = Army.Units().Where(static (u) => u.UnitData.Active);
                 if (!units.Any())
                     units = Army.Units();
                 if (units.Any())

@@ -95,13 +95,6 @@ public partial class Unit : GridNode
 
     public Faction Faction => UnitData.Faction;
 
-    /// <summary>Whether or not the unit has completed its turn.</summary>
-    public bool Active
-    {
-        get => UnitData.Active;
-        set => UnitData.Active = value;
-    }
-
     /// <summary>Whether or not the unit is currently moving along a path.</summary>
     public bool IsMoving => IsProcessing();
 

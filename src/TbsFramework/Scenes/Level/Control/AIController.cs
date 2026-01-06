@@ -386,7 +386,7 @@ public partial class AIController : ArmyController
         // Compute this outside the task because it calls Node.GetChildren(), which has to be called on the same thread as that node.
         // Also, use a collection expression to immediately evaluate it rather than waiting until later, because that will be in the
         // wrong thread.
-        IEnumerable<UnitData> available = [.. ((IEnumerable<Unit>)Army).Where(static (u) => u.Active).Select(static (u) => u.UnitData)];
+        IEnumerable<UnitData> available = [.. ((IEnumerable<Unit>)Army).Where(static (u) => u.UnitData.Active).Select(static (u) => u.UnitData)];
 
         (UnitData selected, _destination, _action, Vector2I target) = await Task.Run<(UnitData, Vector2I, StringName, Vector2I)>(() => ComputeAction(available));
         _selected = selected.Renderer;
@@ -437,7 +437,11 @@ public partial class AIController : ArmyController
     public override void FinalizeAction()
     {
         Pseudocursor.Visible = false;
-        EmitSignal(SignalName.ProgressUpdated, ((IEnumerable<Unit>)Army).Count((u) => !u.Active) + 1, ((IEnumerable<Unit>)Army).Count((u) => u.Active) - 1); // Add one to account for the unit that just finished
+        EmitSignal(
+            SignalName.ProgressUpdated,
+            ((IEnumerable<Unit>)Army).Count(static (u) => !u.UnitData.Active) + 1, // Add one to account for the unit that just finished
+            ((IEnumerable<Unit>)Army).Count(static (u) => u.UnitData.Active) - 1
+        );
     }
 
     public override void FinalizeTurn()

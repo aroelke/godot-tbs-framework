@@ -119,7 +119,7 @@ public partial class LevelManager : Node
     {
         if (unit.Army.Faction != _armies.Current.Faction)
             throw new InvalidOperationException($"Cannot select unit not from army {_armies.Current.Name}");
-        if (!unit.Active)
+        if (!unit.UnitData.Active)
             throw new InvalidOperationException($"Cannot select inactive unit {unit.Name}");
 
         _selected = unit;
@@ -370,7 +370,7 @@ public partial class LevelManager : Node
     {
         _armies.Current.Controller.FinalizeAction();
         _selected.Finish();
-        State.SetVariable(ActiveProperty, ((IEnumerable<Unit>)_armies.Current).Count((u) => u.Active));
+        State.SetVariable(ActiveProperty, ((IEnumerable<Unit>)_armies.Current).Count(static (u) => u.UnitData.Active));
 
         Callable.From<Unit>((u) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, u)).CallDeferred(_selected);
     }
@@ -411,7 +411,7 @@ public partial class LevelManager : Node
     public void OnTurnFastForward()
     {
         // Reuse this signal for skipping to the end of the current army's turn, which should only happen for player-controlled armies
-        if (!((IEnumerable<Unit>)_armies.Current).Any((u) => u.Active))
+        if (!((IEnumerable<Unit>)_armies.Current).Any(static (u) => u.UnitData.Active))
             State.SendEvent(SkipEvent);
         else if (!_ff)
         {
