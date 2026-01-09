@@ -69,7 +69,7 @@ public abstract partial class GridNode : BoundedNode2D
 
         if (!Engine.IsEditorHint())
         {
-            Data.CellChanged += (cell) => {
+            Data.CellChanged += (_, cell) => {
                 if (_grid is not null)
                     SetGridPosition(_grid.PositionOf(cell));
                 if (Engine.IsEditorHint())

@@ -214,31 +214,31 @@ public partial class Cursor : GridNode
     /// When the cursor's cell changes, play the cursor-moved sound, stop echoing digital movement at the edge of a movement region, and emit the
     /// <see cref="SignalName.CursorMoved"/> signal to indicate the new rectangle enclosed by the cursor.
     /// </summary>
-    /// <param name="cell">Cell that was moved to.</param>
-    public void OnCellChanged(Vector2I cell)
+    /// <param name="to">Cell that was moved to.</param>
+    public void OnCellChanged(Vector2I from, Vector2I to)
     {
         if (!_halted)
         {
             MoveSoundPlayer.Play();
             if (!MoveController.Active && (DeviceManager.Mode == InputMode.Digital || !HardRestriction.IsEmpty))
-                Callable.From<Vector2I>((c) => EmitSignal(SignalName.CellEntered, c)).CallDeferred(cell);
+                Callable.From<Vector2I>((c) => EmitSignal(SignalName.CellEntered, c)).CallDeferred(to);
         }
 
         // Briefly break continuous digital movement to allow reaction from the player when the cursor has reached the edge of the soft restriction
-        if (SoftRestriction.Contains(cell))
+        if (SoftRestriction.Contains(to))
         {
             if (DeviceManager.Mode == InputMode.Digital)
             {
-                Vector2I direction = cell - _previous;
-                Vector2I further = cell + direction;
+                Vector2I direction = to - _previous;
+                Vector2I further = to + direction;
                 if (Grid.Contains(further) && !SoftRestriction.Contains(further))
                     MoveController.ResetEcho();
             }
         }
 
-        EmitSignal(SignalName.CellChanged, cell);
-        EmitSignal(SignalName.CursorMoved, Grid.CellRect(cell));
-        _previous = cell;
+        EmitSignal(SignalName.CellChanged, to);
+        EmitSignal(SignalName.CursorMoved, Grid.CellRect(to));
+        _previous = to;
     }
 
     /// <summary>Update the <see cref="Map.Grid"/> cell when the pointer signals it has moved, unless the cursor is what's controlling movement.</summary>
