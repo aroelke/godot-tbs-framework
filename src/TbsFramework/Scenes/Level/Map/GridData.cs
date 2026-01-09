@@ -36,8 +36,7 @@ public class GridData
                 _size = value;
                 if (SizeUpdated is not null)
                     SizeUpdated(_size);
-                foreach ((_, GridObjectData occupant) in new Dictionary<Vector2I, GridObjectData>(Occupants))
-                    occupant.Cell = Clamp(occupant.Cell);
+                // Let handlers of SizeUpdated handle moving units to remain inside the grid
             }
         }
     }
