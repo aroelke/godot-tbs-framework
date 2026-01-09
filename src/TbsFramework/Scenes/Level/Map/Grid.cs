@@ -19,7 +19,11 @@ public partial class Grid : Node2D
     [Export] public TileMapLayer TerrainLayer = null;
 
     /// <summary>Default terrain to use when it isn't placed explicitly on the map.</summary>
-    [Export] public Terrain DefaultTerrain = null;
+    [Export] public Terrain DefaultTerrain
+    {
+        get => Data.DefaultTerrain;
+        set => Data.DefaultTerrain = value;
+    }
 
     [Export] public string TerrainCustomDataName = "terrain";
 
@@ -36,7 +40,6 @@ public partial class Grid : Node2D
         if (!Engine.IsEditorHint())
         {
             Data.Size = GroundLayer.GetUsedRect().End;
-            Data.DefaultTerrain = DefaultTerrain;
             if (TerrainLayer is not null)
             {
                 foreach (Vector2I cell in TerrainLayer.GetUsedCells())
