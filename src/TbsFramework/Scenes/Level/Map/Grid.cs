@@ -41,7 +41,7 @@ public partial class Grid : Node2D
             {
                 foreach (Vector2I cell in TerrainLayer.GetUsedCells())
                     Data.Terrain[cell] = TerrainLayer.GetCellTileData(cell).GetCustomData(TerrainCustomDataName).As<Terrain>();
-                Data.TerrainUpdated += (cell, terrain) => {
+                Data.TerrainUpdated += (cell, _, terrain) => {
                     if (terrain == DefaultTerrain)
                         TerrainLayer.SetCell(cell, -1, -Vector2I.One);
                     else
