@@ -86,20 +86,15 @@ public partial class CombatantData : GridContainer
     /// <summary>Amount of time to take to update the health bar when health is changed.</summary>
     [Export(PropertyHint.None, "suffix:s")] public double TransitionDuration = 0.3;
 
-    public readonly ClampedValue<double> Health = new(0, double.PositiveInfinity);
+    public readonly ClampedProperty<double> Health = new(0, double.PositiveInfinity);
 
     public CombatantData() : base()
     {
         _cache = new(this);
-        Health.RangeChanged += (_, _, _, max, _, value) =>
+        Health.RangeChanged += (_, _, _, max) =>
         {
             if (HealthBar is not null)
-            {
                 HealthBar.MaxValue = max;
-                HealthBar.Value = value;
-            }
-            if (HealthLabel is not null)
-                HealthLabel.Text = $"HP: {value}";
         };
         Health.ValueChanged += (_, @new) => OnHealthChanged(@new);
     }

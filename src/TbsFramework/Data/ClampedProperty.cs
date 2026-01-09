@@ -5,28 +5,27 @@ namespace TbsFramework.Data;
 
 /// <summary>Represents a value that is bounded to a minimum and a maximum.  Also has signals for watching value changes.</summary>
 /// <typeparam name="T">Data type of the value.</typeparam>
-public class ClampedValue<T> where T : IComparable<T>
+public class ClampedProperty<T> where T : IComparable<T>
 {
     /// <summary>Handler for changes in the value.</summary>
     /// <param name="old">Value before the change.</param>
     /// <param name="new">Value after the change.</param>
     public delegate void ValueChangedEventHandler(T old, T @new);
 
-    /// <summary>Handler for changes in the range. If the current value was outside the new range, it may have changed as well.</summary>
+    /// <summary>Handler for changes in the range.</summary>
     /// <param name="oldMin">Minimum value before the range change.</param>
     /// <param name="newMin">Minimum value after the range change.</param>
     /// <param name="oldMax">Maximum value before the range change.</param>
     /// <param name="newMax">Maximum value after the range change.</param>
-    /// <param name="oldValue">Current value before the range change.</param>
-    /// <param name="newValue">Current value clamped to the new range.</param>
-    public delegate void RangeChangedEventHandler(T oldMin, T newMin, T oldMax, T newMax, T oldValue, T newValue);
+    public delegate void RangeChangedEventHandler(T oldMin, T newMin, T oldMax, T newMax);
 
     /// <summary>Signals that the value has changed.</summary>
     public event ValueChangedEventHandler ValueChanged;
     /// <summary>Signals that the range has changed.</summary>
     public event RangeChangedEventHandler RangeChanged;
 
-    private T _value, _min, _max;
+    private T _min, _max;
+    private readonly ObservableProperty<T> _value = new();
     private static T Clamp(T value, T min, T max) => value.CompareTo(min) < 0 ? min : value.CompareTo(max) > 0 ? max : value;
 
     /// <summary>
@@ -35,18 +34,8 @@ public class ClampedValue<T> where T : IComparable<T>
     /// </summary>
     public T Value
     {
-        get => _value;
-        set
-        {
-            T next = Clamp(value, _min, _max);
-            if (!EqualityComparer<T>.Default.Equals(next, _value))
-            {
-                T old = _value;
-                _value = next;
-                if (ValueChanged is not null)
-                    ValueChanged(old, _value);
-            }
-        }
+        get => _value.Value;
+        set => _value.Value = Clamp(value, _min, _max);
     }
 
     /// <summary>
@@ -64,11 +53,9 @@ public class ClampedValue<T> where T : IComparable<T>
                 _min = value;
                 if (_min.CompareTo(_max) > 0)
                     _max = _min;
-                _value = Clamp(_value, _min, _max);
                 if (RangeChanged is not null)
-                    RangeChanged(oldMin, _min, oldMax, _max, oldVal, _value);
-                if (!EqualityComparer<T>.Default.Equals(_value, oldVal) && ValueChanged is not null)
-                    ValueChanged(oldVal, _value);
+                    RangeChanged(oldMin, _min, oldMax, _max);
+                _value.Value = Clamp(_value, _min, _max);
             }
         }
     }
@@ -88,24 +75,23 @@ public class ClampedValue<T> where T : IComparable<T>
                 _max = value;
                 if (_max.CompareTo(_min) < 0)
                     _min = _max;
-                _value = Clamp(_value, _min, _max);
                 if (RangeChanged is not null)
-                    RangeChanged(oldMin, _min, oldMax, _max, oldVal, _value);
-                if (!EqualityComparer<T>.Default.Equals(_value, oldVal) && ValueChanged is not null)
-                    ValueChanged(oldVal, _value);
+                    RangeChanged(oldMin, _min, oldMax, _max);
+                _value.Value = Clamp(_value, _min, _max);
             }
         }
     }
 
-    public ClampedValue(T value, T min, T max)
+    public ClampedProperty(T value, T min, T max)
     {
         if (min.CompareTo(max) > 0)
             throw new ArgumentException($"Minimum value {min} is higher than maximum value {max}");
 
         _min = min;
         _max = max;
-        _value = Clamp(value, _min, _max);
+        _value.Value = Clamp(value, _min, _max);
+        _value.ValueChanged += (old, @new) => { if (ValueChanged is not null) ValueChanged(old, @new); };
     }
 
-    public ClampedValue(T min, T max) : this(min, min, max) {}
+    public ClampedProperty(T min, T max) : this(min, min, max) {}
 }

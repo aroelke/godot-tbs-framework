@@ -39,7 +39,7 @@ public class UnitData : GridObjectData
     private Faction _faction = null;
     private Class _class = null;
     private Stats _stats = new();
-    private readonly ClampedValue<double> _health = new(0, double.PositiveInfinity);
+    private readonly ClampedProperty<double> _health = new(0, double.PositiveInfinity);
 
     private void OnStatValuesChanged(Stats stats) => _health.Maximum = stats.Health;
 
