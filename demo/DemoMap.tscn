@@ -304,6 +304,7 @@ SupportInRange = false
 [node name="ReinforcementA" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 Stats = ExtResource("17_co34n")
 Grid = NodePath("../../Grid")
+Cell = Vector2i(0, 0)
 Size = Vector2(16, 16)
 
 [node name="SwitchBehavior" parent="LevelManager/Enemy1/ReinforcementA" instance=ExtResource("14_d1c8n")]
