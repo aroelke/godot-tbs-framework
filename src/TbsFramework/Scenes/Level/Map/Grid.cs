@@ -87,7 +87,6 @@ public partial class Grid : Node2D
         return enclosure;
     }
 
-    public IImmutableDictionary<Vector2I, Unit> GetOccupantUnits() => Occupants.Where((e) => e.Value is Unit).ToImmutableDictionary((e) => e.Key, (e) => e.Value as Unit);
     public IEnumerable<SpecialActionRegion> GetSpecialActionRegions() => SpecialActionRegions;
 
     public override string[] _GetConfigurationWarnings()
