@@ -34,14 +34,17 @@ public abstract partial class GridNode : BoundedNode2D
         set => Data.Cell = value;
     }
 
+    /// <summary>Structure containing the state of the object during gameplay.</summary>
     public abstract GridObjectData Data { get; }
 
     /// <inheritdoc cref="BoundedNode2D.Size"/>
     /// <remarks>Grid nodes have a constant size that is based on the size of the <see cref="Map.Grid"/> cells.</remarks>
     public override Vector2 Size { get => _grid?.CellSize ?? Vector2.Zero; set {}}
 
+    /// <returns>The position of the node relative to its grid.</returns>
     public Vector2 GetGridPosition() => GlobalPosition - _grid.GlobalPosition;
 
+    /// <summary>Set the position of the node relative to its grid.</summary>
     public void SetGridPosition(Vector2 position) => GlobalPosition = _grid.GlobalPosition + position;
 
     public override void _ValidateProperty(Dictionary property)
