@@ -21,8 +21,18 @@ public partial class Grid : Node2D
     /// <summary>Default terrain to use when it isn't placed explicitly on the map.</summary>
     [Export] public Terrain DefaultTerrain
     {
-        get => Data.DefaultTerrain;
-        set => Data.DefaultTerrain = value;
+        get
+        {
+            if (!Engine.IsEditorHint() && IsNodeReady())
+                GD.PushWarning("Use GridData.DefaultTerrain to get/set default terrain while the game is running.");
+            return Data.DefaultTerrain;
+        }
+        set
+        {
+            if (!Engine.IsEditorHint() && IsNodeReady())
+                GD.PushWarning("Use GridData.DefaultTerrain to get/set default terrain while the game is running.");
+            Data.DefaultTerrain = value;
+        }
     }
 
     [Export] public string TerrainCustomDataName = "terrain";
