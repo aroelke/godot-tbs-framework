@@ -57,8 +57,6 @@ public abstract partial class GridNode : BoundedNode2D
 
         if (_grid is null)
             warnings.Add("No grid to move on has been defined.");
-        else if (Cell.X < 0 || Cell.Y < 0 || Cell.X >= _grid.Size.X || Cell.Y >= _grid.Size.Y)
-            warnings.Add("Outside grid bounds.");
 
         return [.. warnings];
     }

@@ -48,9 +48,6 @@ public partial class Grid : Node2D
     /// <summary>Grid cell dimensions derived from the <see cref="TileSet"/>.  If there is no <see cref="TileSet"/>, the size is zero.</summary>
     public Vector2 CellSize => GroundLayer?.TileSet?.TileSize ?? Vector2.Zero;
 
-    /// <summary>Size of the grid in cells.</summary>
-    public Vector2I Size => Engine.IsEditorHint() ? GroundLayer?.GetUsedRect().End ?? Vector2I.Zero : Data.Size;
-
     /// <summary>Characters and objects occupying the grid.</summary>
     public readonly Dictionary<Vector2I, GridNode> Occupants = [];
 

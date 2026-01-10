@@ -494,7 +494,7 @@ public partial class LevelManager : Node
         {
             Grid = GetNode<Grid>("Grid");
 
-            Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
+            Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Data.Size*Grid.CellSize));
             LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.CameraBoundsUpdated, Camera.Limits);
 
             foreach (Army army in GetChildren().OfType<Army>())

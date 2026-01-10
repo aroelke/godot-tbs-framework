@@ -134,9 +134,9 @@ public partial class Cursor : GridNode
                 }
                 else
                 {
-                    if ((Cell.Y == 0 && direction.Y < 0) || (Cell.Y == Grid.Size.Y - 1 && direction.Y > 0))
+                    if ((Cell.Y == 0 && direction.Y < 0) || (Cell.Y == Data.Grid.Size.Y - 1 && direction.Y > 0))
                         direction = direction with { Y = 0 };
-                    if ((Cell.X == 0 && direction.X < 0) || (Cell.X == Grid.Size.X - 1 && direction.X > 0))
+                    if ((Cell.X == 0 && direction.X < 0) || (Cell.X == Data.Grid.Size.X - 1 && direction.X > 0))
                         direction = direction with { X = 0 };
 
                     if (direction != Vector2I.Zero)
@@ -150,7 +150,7 @@ public partial class Cursor : GridNode
                             Cell = target;
                         }
                         else
-                            Cell = Data.Grid.Clamp(Cell + direction*Grid.Size);
+                            Cell = Data.Grid.Clamp(Cell + direction*Data.Grid.Size);
                     }
                 }
             }
@@ -171,7 +171,7 @@ public partial class Cursor : GridNode
             if (_hard.IsEmpty)
             {
                 if (Wrap)
-                    Cell = (Cell + direction + Grid.Size) % Grid.Size;
+                    Cell = (Cell + direction + Data.Grid.Size) % Data.Grid.Size;
                 else
                     Cell += direction;
             }
@@ -265,9 +265,9 @@ public partial class Cursor : GridNode
             }
             else
             {
-                if ((Cell.Y == 0 && direction.Y < 0) || (Cell.Y == Grid.Size.Y - 1 && direction.Y > 0))
+                if ((Cell.Y == 0 && direction.Y < 0) || (Cell.Y == Data.Grid.Size.Y - 1 && direction.Y > 0))
                     direction = direction with { Y = 0 };
-                if ((Cell.X == 0 && direction.X < 0) || (Cell.X == Grid.Size.X - 1 && direction.X > 0))
+                if ((Cell.X == 0 && direction.X < 0) || (Cell.X == Data.Grid.Size.X - 1 && direction.X > 0))
                     direction = direction with { X = 0 };
 
                 if (direction != Vector2I.Zero)
@@ -281,7 +281,7 @@ public partial class Cursor : GridNode
                         Cell = target;
                     }
                     else
-                        Cell = Data.Grid.Clamp(Cell + direction*Grid.Size);
+                        Cell = Data.Grid.Clamp(Cell + direction*Data.Grid.Size);
                 }
             }
         }
