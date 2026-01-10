@@ -145,7 +145,7 @@ public partial class Cursor : GridNode
                         {
                             bool traversable = SoftRestriction.Contains(Cell + direction);
                             Vector2I target = Cell; // Don't want to directly update cell to avoid firing events
-                            while (Grid.Contains(target + direction) && SoftRestriction.Contains(target + direction) == traversable)
+                            while (Data.Grid.Contains(target + direction) && SoftRestriction.Contains(target + direction) == traversable)
                                 target += direction;
                             Cell = target;
                         }
@@ -231,7 +231,7 @@ public partial class Cursor : GridNode
             {
                 Vector2I direction = to - _previous;
                 Vector2I further = to + direction;
-                if (Grid.Contains(further) && !SoftRestriction.Contains(further))
+                if (Data.Grid.Contains(further) && !SoftRestriction.Contains(further))
                     MoveController.ResetEcho();
             }
         }
@@ -276,7 +276,7 @@ public partial class Cursor : GridNode
                     {
                         bool traversable = SoftRestriction.Contains(Cell + direction);
                         Vector2I target = Cell; // Don't want to directly update cell to avoid firing events
-                        while (Grid.Contains(target + direction) && SoftRestriction.Contains(target + direction) == traversable)
+                        while (Data.Grid.Contains(target + direction) && SoftRestriction.Contains(target + direction) == traversable)
                             target += direction;
                         Cell = target;
                     }
