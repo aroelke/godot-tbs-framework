@@ -87,8 +87,6 @@ public partial class Grid : Node2D
         return enclosure;
     }
 
-    public IEnumerable<SpecialActionRegion> GetSpecialActionRegions() => SpecialActionRegions;
-
     public override string[] _GetConfigurationWarnings()
     {
         List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
