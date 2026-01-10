@@ -3,7 +3,6 @@ using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Scenes.Level.Layers;
-using TbsFramework.Scenes.Level.Object;
 
 namespace TbsFramework.Scenes.Level.Map;
 
@@ -45,9 +44,6 @@ public partial class Grid : Node2D
 
     /// <summary>Grid cell dimensions derived from the <see cref="TileSet"/>.  If there is no <see cref="TileSet"/>, the size is zero.</summary>
     public Vector2 CellSize => GroundLayer?.TileSet?.TileSize ?? Vector2.Zero;
-
-    /// <summary>Characters and objects occupying the grid.</summary>
-    public readonly Dictionary<Vector2I, GridNode> Occupants = [];
 
     /// <summary>Regions in which units can perform special actions defined by the region.</summary>
     public IEnumerable<SpecialActionRegion> SpecialActionRegions => GetChildren().OfType<SpecialActionRegion>();

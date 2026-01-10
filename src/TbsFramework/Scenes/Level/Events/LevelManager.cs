@@ -177,17 +177,15 @@ public partial class LevelManager : Node
     {
         if (unit != _selected)
             throw new InvalidOperationException($"Cannot confirm path for unselected unit {unit.Name} ({_selected.Name} is selected)");
-        if (path.Any((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Army.Faction.AlliedTo(_selected.UnitData) ?? false)))
+        if (path.Any((c) => Grid.Data.Occupants.ContainsKey(c) && (!(Grid.Data.Occupants[c] as UnitData)?.Faction.AlliedTo(_selected.UnitData) ?? false)))
             throw new InvalidOperationException("The chosen path must only contain traversable cells.");
-        if (Grid.Occupants.ContainsKey(path[^1]) && Grid.Occupants[path[^1]] != unit)
+        if (Grid.Data.Occupants.ContainsKey(path[^1]) && Grid.Data.Occupants[path[^1]] != unit.Data)
             throw new InvalidOperationException("The chosen path must not end on an occupied cell.");
 
         State.SetVariable(TraversableProperty, true);
         if (_ff)
         {
-            Grid.Occupants.Remove(_selected.Cell);
             _selected.Cell = path[^1];
-            Grid.Occupants[path[^1]] = _selected;
             State.SendEvent(SkipEvent);
         }
         else
@@ -223,9 +221,9 @@ public partial class LevelManager : Node
         PushCameraFocus(_selected.MotionBox);
 
         // Move the unit
-        Grid.Occupants.Remove(_selected.Cell);
+//        Grid.Data.Occupants.Remove(_selected.Cell);
         _selected.Connect(Unit.SignalName.DoneMoving, _target is null ? () => State.SendEvent(DoneEvent) : () => State.SendEvent(SkipEvent), (uint)ConnectFlags.OneShot);
-        Grid.Occupants[_path[^1]] = _selected;
+//        Grid.Data.Occupants[_path[^1]] = _selected.Data;
         _selected.MoveAlong(_path); // must be last in case it fires right away
     }
 
@@ -263,8 +261,8 @@ public partial class LevelManager : Node
                 }));
             }
         }
-        AddActionOption(UnitAction.AttackAction, _selected.UnitData.GetAttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected.UnitData) ?? false));
-        AddActionOption(UnitAction.SupportAction, _selected.UnitData.GetSupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected.UnitData) ?? false));
+        AddActionOption(UnitAction.AttackAction, _selected.UnitData.GetAttackableCells().Where((c) => !(Grid.Data.Occupants.GetValueOrDefault(c) as UnitData)?.Faction.AlliedTo(_selected.UnitData) ?? false));
+        AddActionOption(UnitAction.SupportAction, _selected.UnitData.GetSupportableCells().Where((c) => (Grid.Data.Occupants.GetValueOrDefault(c) as UnitData)?.Faction.AlliedTo(_selected.UnitData) ?? false));
         foreach (SpecialActionRegion region in Grid.SpecialActionRegions)
         {
             if (region.HasSpecialAction(_selected, _selected.Cell))
@@ -296,9 +294,9 @@ public partial class LevelManager : Node
         _command = null;
 
         // Move the selected unit back to its original cell
-        Grid.Occupants.Remove(_selected.Cell);
+//        Grid.Data.Occupants.Remove(_selected.Cell);
         _selected.Cell = _initialCell.Value;
-        Grid.Occupants[_selected.Cell] = _selected;
+//        Grid.Data.Occupants[_selected.Cell] = _selected;
         _initialCell = null;
 
         _target = null;
@@ -448,7 +446,7 @@ public partial class LevelManager : Node
     public void OnPointerFlightStarted(Vector2 target)
     {
         State.SendEvent(WaitEvent);
-        PushCameraFocus(Grid.Occupants.ContainsKey(Grid.CellOf(target)) ? Grid.Occupants[Grid.CellOf(target)] : Camera.Target);
+        PushCameraFocus(Grid.Data.Occupants.ContainsKey(Grid.CellOf(target)) ? (Grid.Data.Occupants[Grid.CellOf(target)] as UnitData).Renderer : Camera.Target);
     }
 
     /// <summary>When the pointer finished flying, return to the previous state.</summary>
@@ -504,7 +502,6 @@ public partial class LevelManager : Node
                 {
                     unit.Grid = Grid;
                     unit.Cell = Grid.CellOf(unit.GlobalPosition - Grid.GlobalPosition);
-                    Grid.Occupants[unit.Cell] = unit;
                 }
             }
             LevelEvents.Singleton.Connect<Unit>(LevelEvents.SignalName.UnitDefeated, OnUnitDefeated);

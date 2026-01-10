@@ -128,7 +128,6 @@ public partial class Unit : GridNode
     public void Die()
     {
         UnitData.Grid.Occupants.Remove(Cell);
-        Grid.Occupants.Remove(Cell);
         QueueFree();
     }
 
