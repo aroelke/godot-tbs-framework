@@ -12,6 +12,9 @@ namespace TbsFramework.Scenes.Level.Map;
 [Tool]
 public partial class Grid : Node2D
 {
+    private readonly Dictionary<Vector2I, string> _customNames = [];
+    private readonly Dictionary<Terrain, (int sourceId, Vector2I atlasCoords)> _terrainCoords = [];
+
     /// <summary><see cref="TileMapLayer"/> containing ground tiles.</summary>
     [Export] public TileMapLayer GroundLayer = null;
 
@@ -37,10 +40,6 @@ public partial class Grid : Node2D
 
     [Export] public string TerrainCustomDataName = "terrain";
 
-    [Export] public int TerrainTileSetSourceId = -1;
-
-    [Export] public Godot.Collections.Dictionary<Terrain, Vector2I> TerrainTileSetAtlasCoords = [];
-
     public readonly GridData Data = new();
 
     public override void _Ready()
@@ -54,11 +53,34 @@ public partial class Grid : Node2D
             {
                 foreach (Vector2I cell in TerrainLayer.GetUsedCells())
                     Data.Terrain[cell] = TerrainLayer.GetCellTileData(cell).GetCustomData(TerrainCustomDataName).As<Terrain>();
+
+                for (int i = 0; i < TerrainLayer.TileSet.GetSourceCount(); i++)
+                {
+                    int id = TerrainLayer.TileSet.GetSourceId(i);
+                    if (TerrainLayer.TileSet.GetSource(id) is TileSetAtlasSource source)
+                    {
+                        for (int t = 0; t < source.GetTilesCount(); t++)
+                        {
+                            Vector2I atlas = source.GetTileId(t);
+                            TileData data = source.GetTileData(atlas, 0);
+                            Terrain terrain = data.GetCustomData(TerrainCustomDataName).As<Terrain>();
+                            if (terrain is not null)
+                                _terrainCoords[terrain] = (id, atlas);
+                        }
+                    }
+                }
+
+                foreach ((Terrain terrain, (int id, Vector2I atlas)) in _terrainCoords)
+                    GD.Print($"{terrain.ResourceName}: {id} => {atlas}");
+
                 Data.TerrainUpdated += (cell, _, terrain) => {
                     if (terrain == DefaultTerrain)
                         TerrainLayer.SetCell(cell, -1, -Vector2I.One);
                     else
-                        TerrainLayer.SetCell(cell, TerrainTileSetSourceId, TerrainTileSetAtlasCoords[terrain]);
+                    {
+                        (int id, Vector2I atlas) = _terrainCoords[terrain];
+                        TerrainLayer.SetCell(cell, id, atlas);
+                    }
                 };
             }
         }
