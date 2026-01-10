@@ -46,7 +46,11 @@ public class GridData
     /// Signals that the grid's size has been updated. If the grid shrinks, <see cref="GridObjectData"/>s that are now outside the grid
     /// are not moved. The handler should handle that.
     /// </summary>
-    public event SizeUpdatedEventHandler SizeUpdated;
+    public event ObservableProperty<Vector2I>.ValueChangedEventHandler SizeUpdated
+    {
+        add    => _size.ValueChanged += value;
+        remove => _size.ValueChanged -= value;
+    }
 
     /// <summary>Signals that the terrain of a cell has been changed.</summary>
     public event TerrainUpdatedEventHandler TerrainUpdated;
@@ -72,11 +76,6 @@ public class GridData
 
     public GridData()
     {
-        _size.ValueChanged += (old, @new) => {
-            if (SizeUpdated is not null)
-                SizeUpdated(old, @new);
-            // Let handlers of SizeUpdated handle moving units to remain inside the grid
-        };
         _terrain.ItemsAdded += (items) => {
             if (TerrainUpdated is not null)
                 foreach ((Vector2I cell, Terrain terrain) in items)

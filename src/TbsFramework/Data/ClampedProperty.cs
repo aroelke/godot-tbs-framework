@@ -7,11 +7,6 @@ namespace TbsFramework.Data;
 /// <typeparam name="T">Data type of the value.</typeparam>
 public class ClampedProperty<T> where T : IComparable<T>
 {
-    /// <summary>Handler for changes in the value.</summary>
-    /// <param name="old">Value before the change.</param>
-    /// <param name="new">Value after the change.</param>
-    public delegate void ValueChangedEventHandler(T old, T @new);
-
     /// <summary>Handler for changes in the range.</summary>
     /// <param name="oldMin">Minimum value before the range change.</param>
     /// <param name="newMin">Minimum value after the range change.</param>
@@ -20,7 +15,12 @@ public class ClampedProperty<T> where T : IComparable<T>
     public delegate void RangeChangedEventHandler(T oldMin, T newMin, T oldMax, T newMax);
 
     /// <summary>Signals that the value has changed.</summary>
-    public event ValueChangedEventHandler ValueChanged;
+    public event ObservableProperty<T>.ValueChangedEventHandler ValueChanged
+    {
+        add    => _value.ValueChanged += value;
+        remove => _value.ValueChanged -= value;
+    }
+
     /// <summary>Signals that the range has changed.</summary>
     public event RangeChangedEventHandler RangeChanged;
 
@@ -90,7 +90,6 @@ public class ClampedProperty<T> where T : IComparable<T>
         _min = min;
         _max = max;
         _value.Value = Clamp(value, _min, _max);
-        _value.ValueChanged += (old, @new) => { if (ValueChanged is not null) ValueChanged(old, @new); };
     }
 
     public ClampedProperty(T min, T max) : this(min, min, max) {}
