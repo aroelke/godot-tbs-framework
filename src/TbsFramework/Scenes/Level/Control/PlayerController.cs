@@ -346,8 +346,8 @@ public partial class PlayerController : ArmyController
 
     private void UpdateDangerZones()
     {
-        IEnumerable<Unit> allies = _tracked.Where(Army.Faction.AlliedTo);
-        IEnumerable<Unit> enemies = _tracked.Where((u) => !Army.Faction.AlliedTo(u));
+        IEnumerable<Unit> allies = _tracked.Where((u) => Army.Faction.AlliedTo(u.UnitData));
+        IEnumerable<Unit> enemies = _tracked.Where((u) => !Army.Faction.AlliedTo(u.UnitData));
 
         if (allies.Any())
             ZoneLayers[AllyTraversableZone.Name] = allies.SelectMany(static (u) => u.UnitData.GetTraversableCells());
@@ -359,7 +359,7 @@ public partial class PlayerController : ArmyController
             ZoneLayers.Clear(LocalDangerZone.Name);
         
         if (_showGlobalDangerZone)
-            ZoneLayers[GlobalDangerZone.Name] = Grid.Occupants.Values.OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u)).SelectMany(static (u) => u.UnitData.GetAttackableCellsInReach());
+            ZoneLayers[GlobalDangerZone.Name] = Grid.Occupants.Values.OfType<Unit>().Where((u) => !Army.Faction.AlliedTo(u.UnitData)).SelectMany(static (u) => u.UnitData.GetAttackableCellsInReach());
         else
             ZoneLayers.Clear(GlobalDangerZone.Name);
     }
@@ -635,9 +635,9 @@ public partial class PlayerController : ArmyController
         if (Cursor.Grid.Occupants.GetValueOrDefault(cell) is Unit target)
         {
             // Compute cells the highlighted unit could be targeted from (friend or foe)
-            if (target != _selected && Army.Faction.AlliedTo(target) && _supportable.Contains(cell))
+            if (target != _selected && Army.Faction.AlliedTo(target.UnitData) && _supportable.Contains(cell))
                 sources = _selected.UnitData.GetSupportableCells(cell).Where(_traversable.Contains);
-            else if (!Army.Faction.AlliedTo(target) && _attackable.Contains(cell))
+            else if (!Army.Faction.AlliedTo(target.UnitData) && _attackable.Contains(cell))
                 sources = _selected.UnitData.GetAttackableCells(cell).Where(_traversable.Contains);
             sources = sources.Where((c) => !Cursor.Grid.Occupants.ContainsKey(c) || Cursor.Grid.Occupants[c] == _selected);
 
@@ -733,8 +733,8 @@ public partial class PlayerController : ArmyController
     public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)
     {
         ActionLayers.Clear(MoveLayer.Name);
-        ActionLayers[AttackLayer.Name] = source.UnitData.GetAttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(source) ?? false);
-        ActionLayers[SupportLayer.Name] = source.UnitData.GetSupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(source) ?? false);
+        ActionLayers[AttackLayer.Name] = source.UnitData.GetAttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(source.UnitData) ?? false);
+        ActionLayers[SupportLayer.Name] = source.UnitData.GetSupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(source.UnitData) ?? false);
 
         Callable.From(() => {
             State.SendEvent(CommandEvent);

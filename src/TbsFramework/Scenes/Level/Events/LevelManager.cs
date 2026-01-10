@@ -177,7 +177,7 @@ public partial class LevelManager : Node
     {
         if (unit != _selected)
             throw new InvalidOperationException($"Cannot confirm path for unselected unit {unit.Name} ({_selected.Name} is selected)");
-        if (path.Any((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Army.Faction.AlliedTo(_selected) ?? false)))
+        if (path.Any((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Army.Faction.AlliedTo(_selected.UnitData) ?? false)))
             throw new InvalidOperationException("The chosen path must only contain traversable cells.");
         if (Grid.Occupants.ContainsKey(path[^1]) && Grid.Occupants[path[^1]] != unit)
             throw new InvalidOperationException("The chosen path must not end on an occupied cell.");
@@ -263,8 +263,8 @@ public partial class LevelManager : Node
                 }));
             }
         }
-        AddActionOption(UnitAction.AttackAction, _selected.UnitData.GetAttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
-        AddActionOption(UnitAction.SupportAction, _selected.UnitData.GetSupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
+        AddActionOption(UnitAction.AttackAction, _selected.UnitData.GetAttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected.UnitData) ?? false));
+        AddActionOption(UnitAction.SupportAction, _selected.UnitData.GetSupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected.UnitData) ?? false));
         foreach (SpecialActionRegion region in Grid.SpecialActionRegions)
         {
             if (region.HasSpecialAction(_selected, _selected.Cell))
@@ -318,7 +318,7 @@ public partial class LevelManager : Node
     {
         if (source != _selected)
             throw new InvalidOperationException($"Cannot choose target for unselected unit {source.Name} ({_selected.Name} is selected)");
-        if ((_command == UnitAction.AttackAction && target.Army.Faction.AlliedTo(_selected)) || (_command == UnitAction.SupportAction && !target.Army.Faction.AlliedTo(_selected)))
+        if ((_command == UnitAction.AttackAction && target.Army.Faction.AlliedTo(_selected.UnitData)) || (_command == UnitAction.SupportAction && !target.Army.Faction.AlliedTo(_selected.UnitData)))
             throw new ArgumentException($"{_selected.Name} cannot {_command} {target.Name}");
         _target = target;
         State.SendEvent(DoneEvent);
