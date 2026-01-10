@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Godot;
 using TbsFramework.Data;
+using TbsFramework.Extensions;
 using TbsFramework.Scenes.Level.Layers;
 using TbsFramework.Scenes.Level.Object;
 
@@ -12,7 +13,10 @@ namespace TbsFramework.Scenes.Level.Map;
 [Tool]
 public partial class Grid : Node2D
 {
-    private readonly Dictionary<Vector2I, string> _customNames = [];
+    private readonly StringName TerrainCustomDataProperty = "TerrainCustomDataName";
+    private const string TerrainCustomDataDefault = "terrain";
+
+    private string _terrainCustomDataName = TerrainCustomDataDefault;
     private readonly Dictionary<Terrain, (int sourceId, Vector2I atlasCoords)> _terrainCoords = [];
 
     /// <summary><see cref="TileMapLayer"/> containing ground tiles.</summary>
@@ -38,9 +42,39 @@ public partial class Grid : Node2D
         }
     }
 
-    [Export] public string TerrainCustomDataName = "terrain";
-
     public readonly GridData Data = new();
+
+    public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
+    {
+        Godot.Collections.Array<Godot.Collections.Dictionary> properties = [.. base._GetPropertyList() ?? []];
+
+        if (TerrainLayer?.TileSet is not null)
+        {
+            properties.Add(ObjectProperty.CreateEnumProperty(
+                TerrainCustomDataProperty,
+                Enumerable.Range(0, TerrainLayer.TileSet.GetCustomDataLayersCount()).Select(TerrainLayer.TileSet.GetCustomDataLayerName)
+            ));
+        }
+
+        return properties;
+    }
+
+    public override Variant _Get(StringName property) => property == TerrainCustomDataProperty ? _terrainCustomDataName : base._Get(property);
+
+    public override bool _Set(StringName property, Variant value)
+    {
+        if (property == TerrainCustomDataProperty)
+        {
+            _terrainCustomDataName = value.AsString();
+            return true;
+        }
+        else
+            return base._Set(property, value);
+    }
+
+    public override bool _PropertyCanRevert(StringName property) => property == TerrainCustomDataProperty || base._PropertyCanRevert(property);
+
+    public override Variant _PropertyGetRevert(StringName property) => property == TerrainCustomDataProperty ? TerrainCustomDataDefault : base._PropertyGetRevert(property);
 
     public override void _Ready()
     {
@@ -52,7 +86,7 @@ public partial class Grid : Node2D
             if (TerrainLayer is not null)
             {
                 foreach (Vector2I cell in TerrainLayer.GetUsedCells())
-                    Data.Terrain[cell] = TerrainLayer.GetCellTileData(cell).GetCustomData(TerrainCustomDataName).As<Terrain>();
+                    Data.Terrain[cell] = TerrainLayer.GetCellTileData(cell).GetCustomData(_terrainCustomDataName).As<Terrain>();
 
                 for (int i = 0; i < TerrainLayer.TileSet.GetSourceCount(); i++)
                 {
@@ -63,15 +97,12 @@ public partial class Grid : Node2D
                         {
                             Vector2I atlas = source.GetTileId(t);
                             TileData data = source.GetTileData(atlas, 0);
-                            Terrain terrain = data.GetCustomData(TerrainCustomDataName).As<Terrain>();
+                            Terrain terrain = data.GetCustomData(_terrainCustomDataName).As<Terrain>();
                             if (terrain is not null)
                                 _terrainCoords[terrain] = (id, atlas);
                         }
                     }
                 }
-
-                foreach ((Terrain terrain, (int id, Vector2I atlas)) in _terrainCoords)
-                    GD.Print($"{terrain.ResourceName}: {id} => {atlas}");
 
                 Data.TerrainUpdated += (cell, _, terrain) => {
                     if (terrain == DefaultTerrain)
