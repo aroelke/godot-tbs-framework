@@ -586,7 +586,7 @@ public partial class PlayerController : ArmyController
 #region Path Selection
     private StringName _command = null;
 
-    public override void MoveUnit(Unit unit)
+    public override void MoveUnit(UnitData unit)
     {
         Cursor.Resume();
         Pointer.StopWaiting();
@@ -596,7 +596,7 @@ public partial class PlayerController : ArmyController
         Callable.From(() => {
             State.SendEvent(PathEvent);
 
-            _selected = unit;
+            _selected = unit.Renderer;
             ActionLayers[MoveLayer.Name] = _traversable = _selected.UnitData.GetTraversableCells();
             ActionLayers[AttackLayer.Name] = _attackable = _selected.UnitData.GetFilteredAttackableCellsInReach();
             ActionLayers[SupportLayer.Name] = _supportable = _selected.UnitData.GetFilteredSupportableCellsInReach();
@@ -730,22 +730,22 @@ public partial class PlayerController : ArmyController
     }
 #endregion
 #region Command Selection
-    public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)
+    public override void CommandUnit(UnitData source, Godot.Collections.Array<StringName> commands, StringName cancel)
     {
         ActionLayers.Clear(MoveLayer.Name);
-        ActionLayers[AttackLayer.Name] = source.UnitData.GetAttackableCells().Where((c) => !(Grid.Data.Occupants.GetValueOrDefault(c) as UnitData)?.Faction.AlliedTo(source.UnitData) ?? false);
-        ActionLayers[SupportLayer.Name] = source.UnitData.GetSupportableCells().Where((c) => (Grid.Data.Occupants.GetValueOrDefault(c) as UnitData)?.Faction.AlliedTo(source.UnitData) ?? false);
+        ActionLayers[AttackLayer.Name] = source.GetAttackableCells().Where((c) => !(Grid.Data.Occupants.GetValueOrDefault(c) as UnitData)?.Faction.AlliedTo(source) ?? false);
+        ActionLayers[SupportLayer.Name] = source.GetSupportableCells().Where((c) => (Grid.Data.Occupants.GetValueOrDefault(c) as UnitData)?.Faction.AlliedTo(source) ?? false);
 
         Callable.From(() => {
             State.SendEvent(CommandEvent);
 
-            _selected = source;
+            _selected = source.Renderer;
             _menu = ShowMenu(Cursor.Grid.CellRect(source.Cell), commands.Select((c) => new ContextMenuOption() { Name = c, Action = () => {
                 ActionLayers.Keep(c);
                 State.SendEvent(FinishEvent);
-                EmitSignal(SignalName.UnitCommanded, source, c);
+                EmitSignal(SignalName.UnitCommanded, source.Renderer, c);
             }}));
-            _menu.MenuCanceled += () => EmitSignal(SignalName.UnitCommanded, source, cancel);
+            _menu.MenuCanceled += () => EmitSignal(SignalName.UnitCommanded, source.Renderer, cancel);
             _menu.MenuClosed += () => _menu = null;
         }).CallDeferred();
     }
@@ -765,7 +765,7 @@ public partial class PlayerController : ArmyController
 #region Target Selection
     private IEnumerable<Vector2I> _targets = null;
 
-    public override void SelectTarget(Unit source, IEnumerable<Vector2I> targets)
+    public override void SelectTarget(UnitData source, IEnumerable<Vector2I> targets)
     {
         Cursor.Resume();
         Pointer.StopWaiting();
@@ -776,7 +776,7 @@ public partial class PlayerController : ArmyController
         Callable.From(() => {
             State.SendEvent(TargetEvent);
 
-            _selected = source;
+            _selected = source.Renderer;
             Cursor.HardRestriction = [.. _targets=targets];
         }).CallDeferred();
     }

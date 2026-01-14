@@ -156,7 +156,7 @@ public partial class LevelManager : Node
                 Camera.PushZoom(zoomTarget);
         }
 
-        Callable.From<Unit>(_armies.Current.Controller.MoveUnit).CallDeferred(_selected);
+        _armies.Current.Controller.MoveUnit(_selected.UnitData);
     }
 
     public void OnSelectedUnitCommanded(Unit unit, StringName command)
@@ -221,9 +221,7 @@ public partial class LevelManager : Node
         PushCameraFocus(_selected.MotionBox);
 
         // Move the unit
-//        Grid.Data.Occupants.Remove(_selected.Cell);
         _selected.Connect(Unit.SignalName.DoneMoving, _target is null ? () => State.SendEvent(DoneEvent) : () => State.SendEvent(SkipEvent), (uint)ConnectFlags.OneShot);
-//        Grid.Data.Occupants[_path[^1]] = _selected.Data;
         _selected.MoveAlong(_path); // must be last in case it fires right away
     }
 
@@ -276,7 +274,7 @@ public partial class LevelManager : Node
         _options.Add(new(UnitAction.EndAction, () => State.SendEvent(SkipEvent)));
         _options.Add(new("Cancel", () => State.SendEvent(CancelEvent)));
 
-        Callable.From<Unit, Godot.Collections.Array<StringName>, StringName>(_armies.Current.Controller.CommandUnit).CallDeferred(_selected, new Godot.Collections.Array<StringName>(_options.Select((o) => o.Name)), "Cancel");
+        _armies.Current.Controller.CommandUnit(_selected.UnitData, [.. _options.Select((o) => o.Name)], "Cancel");
     }
 
     public void OnCommandingUnitCommanded(Unit unit, StringName command)
@@ -293,10 +291,7 @@ public partial class LevelManager : Node
     {
         _command = null;
 
-        // Move the selected unit back to its original cell
-//        Grid.Data.Occupants.Remove(_selected.Cell);
         _selected.Cell = _initialCell.Value;
-//        Grid.Data.Occupants[_selected.Cell] = _selected;
         _initialCell = null;
 
         _target = null;
@@ -309,7 +304,7 @@ public partial class LevelManager : Node
 
     public void OnTargetingEntered()
     {
-        _armies.Current.Controller.SelectTarget(_selected, _targets);
+        _armies.Current.Controller.SelectTarget(_selected.UnitData, _targets);
     }
 
     public void OnTargetChosen(Unit source, Unit target)

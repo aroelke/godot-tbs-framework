@@ -89,23 +89,23 @@ public abstract partial class ArmyController : Node
     /// <summary>Skip through the rest of this army's turn.</summary>
     public abstract void FastForwardTurn();
 
-    /// <summary>Choose a unit in the army to select. Once the <see cref="Unit"/> has been selected, emit <c>UnitSelected</c>.</summary>
+    /// <summary>Choose a unit in the army to select. Once the unit has been selected, emit <c>UnitSelected</c>.</summary>
     public abstract void SelectUnit();
 
     /// <summary>Choose the path along which a unit will move. Once the path has been determined, emit <c>UnitMoved</c>.</summary>
     /// <param name="unit">Unit to move.</param>
-    public abstract void MoveUnit(Unit unit);
+    public abstract void MoveUnit(UnitData unit);
 
     /// <summary>Choose an action for a unit to perform. Once a command has been selected, emit <c>UnitCommanded</c>.</summary>
     /// <param name="source">Unit chosen to perform a command.</param>
     /// <param name="commands">List of commands available to perform.</param>
     /// <param name="cancel">Command to perform on cancel.</param>
-    public abstract void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel);
+    public abstract void CommandUnit(UnitData source, Godot.Collections.Array<StringName> commands, StringName cancel);
 
     /// <summary>Choose the target for an action that was selected.</summary>
     /// <param name="source">Unit that will perform the action.</param>
     /// <param name="targets">Cells <paramref name="source"/> can act on.</param>
-    public abstract void SelectTarget(Unit source, IEnumerable<Vector2I> targets);
+    public abstract void SelectTarget(UnitData source, IEnumerable<Vector2I> targets);
 
     /// <summary>Clean up at the end of a unit's action and get ready for the next unit's action.</summary>
     public abstract void FinalizeAction();

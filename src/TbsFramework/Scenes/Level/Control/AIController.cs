@@ -398,37 +398,37 @@ public partial class AIController : ArmyController
         EmitSignal(SignalName.UnitSelected, _selected);
     }
 
-    public override void MoveUnit(Unit unit)
+    public override void MoveUnit(UnitData unit)
     {
-        void ConfirmMove() => EmitSignal(SignalName.PathConfirmed, unit, new Godot.Collections.Array<Vector2I>(unit.UnitData.Behavior.GetPath(unit.UnitData, _destination)));
+        void ConfirmMove() => EmitSignal(SignalName.PathConfirmed, unit.Renderer, new Godot.Collections.Array<Vector2I>(unit.Behavior.GetPath(unit, _destination)));
         if (FastForwardTransition.Active)
             FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, ConfirmMove, (uint)ConnectFlags.OneShot);
         else
             ConfirmMove();
     }
 
-    public override void CommandUnit(Unit source, Godot.Collections.Array<StringName> commands, StringName cancel)
+    public override void CommandUnit(UnitData source, Godot.Collections.Array<StringName> commands, StringName cancel)
     {
-        EmitSignal(SignalName.UnitCommanded, source, _action);
+        EmitSignal(SignalName.UnitCommanded, source.Renderer, _action);
     }
 
-    public override void SelectTarget(Unit source, IEnumerable<Vector2I> targets)
+    public override void SelectTarget(UnitData source, IEnumerable<Vector2I> targets)
     {
         if (_target is null)
-            throw new InvalidOperationException($"{source.Name}'s target has not been determined");
+            throw new InvalidOperationException($"{source.Renderer.Name}'s target has not been determined");
         if (!targets.Contains(_target.Cell))
-            throw new InvalidOperationException($"{source.Name} can't target {_target}");
+            throw new InvalidOperationException($"{source.Renderer.Name} can't target {_target}");
 
         Pseudocursor.Position = Grid.PositionOf(_target.Cell);
         Pseudocursor.Visible = true;
 
         if (_ff)
-            EmitSignal(SignalName.TargetChosen, source, _target);
+            EmitSignal(SignalName.TargetChosen, source.Renderer, _target);
         else if (FastForwardTransition.Active)
-            FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => EmitSignal(SignalName.TargetChosen, source, _target), (uint)ConnectFlags.OneShot);
+            FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => EmitSignal(SignalName.TargetChosen, source.Renderer, _target), (uint)ConnectFlags.OneShot);
         else
         {
-            IndicatorTimer.Connect(Timer.SignalName.Timeout, () => EmitSignal(SignalName.TargetChosen, source, _target), (uint)ConnectFlags.OneShot);
+            IndicatorTimer.Connect(Timer.SignalName.Timeout, () => EmitSignal(SignalName.TargetChosen, source.Renderer, _target), (uint)ConnectFlags.OneShot);
             IndicatorTimer.WaitTime = IndicationTime;
             IndicatorTimer.Start();
         }
