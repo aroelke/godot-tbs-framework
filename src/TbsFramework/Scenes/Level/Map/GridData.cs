@@ -25,7 +25,7 @@ public class GridData
 
     private readonly ObservableProperty<Vector2I> _size = new(Vector2I.One);
     private readonly ObservableDictionary<Vector2I, Terrain> _terrain = [];
-    private readonly ObservableDictionary<Vector2I, GridObjectData> _occupants = [];
+    private readonly ObservableDictionary<Vector2I, UnitData> _occupants = [];
 
     private GridData(GridData original) : this()
     {
@@ -33,7 +33,7 @@ public class GridData
         DefaultTerrain = original.DefaultTerrain;
         foreach ((Vector2I cell, Terrain terrain) in original.Terrain)
             _terrain[cell] = terrain;
-        foreach ((Vector2I cell, GridObjectData occupant) in original._occupants)
+        foreach ((Vector2I cell, UnitData occupant) in original._occupants)
         {
             _occupants[cell] = occupant.Clone();
             _occupants[cell].Grid = this;
@@ -69,7 +69,7 @@ public class GridData
     public Terrain DefaultTerrain = new();
 
     /// <summary>Objects occupying the grid. Only one object tracked by this can be in a grid cell at a time.</summary>
-    public IDictionary<Vector2I, GridObjectData> Occupants => _occupants;
+    public IDictionary<Vector2I, UnitData> Occupants => _occupants;
 
     /// <summary>Regions identifying special actions that units can perform.</summary>
     public readonly List<SpecialActionRegionData> SpecialActionRegions = [];

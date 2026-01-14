@@ -41,6 +41,29 @@ public class UnitData : GridObjectData
     private Stats _stats = new();
     private readonly ClampedProperty<double> _health = new(0, double.PositiveInfinity);
 
+    private void Initialize()
+    {
+        _health.ValueChanged += (_, @new) => { if (HealthUpdated is not null) HealthUpdated(@new); };
+        _stats.ValuesChanged += OnStatValuesChanged;
+        CellChanged += (from, to) => {
+            if ((Grid?.Occupants.TryGetValue(to, out UnitData occupant) ?? false) && occupant != this)
+                throw new ArgumentException($"Cell {to} is already occupied");
+            if (Grid is not null)
+            {
+                Grid.Occupants.Remove(from);
+                Grid.Occupants[to] = this;
+            }
+        };
+        GridChanged += (from, to) => {
+            from?.Occupants.Remove(Cell);
+            if (to is not null)
+            {
+                Cell = to.Clamp(Cell);
+                to.Occupants[Cell] = this;
+            }
+        };
+    }
+
     private void OnStatValuesChanged(Stats stats) => _health.Maximum = stats.Health;
 
     /// <summary>Whether or not the unit is available to act.</summary>
@@ -109,13 +132,12 @@ public class UnitData : GridObjectData
     /// <summary>Reference to the <see cref="Unit"/> rendering the unit's state on the map.</summary>
     public Unit Renderer = null;
 
-    public UnitData() : base(true)
+    public UnitData() : base()
     {
         _health.Maximum = _stats.Health;
         _health.Value = _stats.Health;
 
-        _health.ValueChanged += (_, @new) => { if (HealthUpdated is not null) HealthUpdated(@new); };
-        _stats.ValuesChanged += OnStatValuesChanged;
+        Initialize();
     }
 
     private UnitData(UnitData original) : base(original)
@@ -127,12 +149,13 @@ public class UnitData : GridObjectData
         _health.Value = original._health.Value;
         Behavior = original.Behavior;
 
-        _health.ValueChanged += (_, @new) => { if (HealthUpdated is not null) HealthUpdated(@new); };
+        Initialize();
+
         Renderer = original.Renderer;
     }
 
     /// <returns><c>true</c> if this unit can move into or through <paramref name="cell"/>, and <c>false</c> otherwise.</returns>
-    public bool IsCellTraversable(Vector2I cell) => !Grid.Occupants.TryGetValue(cell, out GridObjectData occupant) || (occupant is UnitData unit && unit.Faction.AlliedTo(Faction));
+    public bool IsCellTraversable(Vector2I cell) => !Grid.Occupants.TryGetValue(cell, out UnitData unit) || unit.Faction.AlliedTo(Faction);
 
     /// <returns>The set of cells this unit can move into or through based on terrain and its movement stat.</returns>
     public IEnumerable<Vector2I> GetTraversableCells()
@@ -162,7 +185,7 @@ public class UnitData : GridObjectData
     }
 
     /// <returns>The set of cells this unit can end its movement in.</returns>
-    public IEnumerable<Vector2I> GetOccupiableCells() => GetTraversableCells().Where((c) => !Grid.Occupants.TryGetValue(c, out GridObjectData occupant) || occupant == this);
+    public IEnumerable<Vector2I> GetOccupiableCells() => GetTraversableCells().Where((c) => !Grid.Occupants.TryGetValue(c, out UnitData occupant) || occupant == this);
 
     /// <returns>The set of cells this unit can attack from cell <paramref name="source"/>.</returns>
     public IEnumerable<Vector2I> GetAttackableCells(Vector2I source) => Grid.GetCellsInRange(source, Stats.AttackRange);
@@ -174,7 +197,7 @@ public class UnitData : GridObjectData
     public IEnumerable<Vector2I> GetAttackableCellsInReach() => GetOccupiableCells().SelectMany(GetAttackableCells).ToHashSet();
 
     /// <returns>The set of cells this unit can attack from across all of the cells it can end its movement in, excluding ones with allies</returns>
-    public IEnumerable<Vector2I> GetFilteredAttackableCellsInReach() => GetAttackableCellsInReach().Where((c) => !Grid.Occupants.TryGetValue(c, out GridObjectData occupant) || !(occupant is UnitData unit && unit.Faction.AlliedTo(Faction)));
+    public IEnumerable<Vector2I> GetFilteredAttackableCellsInReach() => GetAttackableCellsInReach().Where((c) => !Grid.Occupants.TryGetValue(c, out UnitData occupant) || !occupant.Faction.AlliedTo(Faction));
 
     /// <returns>The set of cells this unit can support from cell <paramref name="source"/>.</returns>
     public IEnumerable<Vector2I> GetSupportableCells(Vector2I source) => Grid.GetCellsInRange(source, Stats.SupportRange);
@@ -186,7 +209,7 @@ public class UnitData : GridObjectData
     public IEnumerable<Vector2I> GetSupportableCellsInReach() => GetOccupiableCells().SelectMany(GetSupportableCells).ToHashSet();
 
     /// <returns>The set of cells this unit can support from across all of the cells it can end its movement in, excluding ones with enemies.</returns>
-    public IEnumerable<Vector2I> GetFilteredSupportableCellsInReach() => GetSupportableCellsInReach().Where((c) => !Grid.Occupants.TryGetValue(c, out GridObjectData occupant) || !(occupant is UnitData unit && !unit.Faction.AlliedTo(Faction)));
+    public IEnumerable<Vector2I> GetFilteredSupportableCellsInReach() => GetSupportableCellsInReach().Where((c) => !Grid.Occupants.TryGetValue(c, out UnitData occupant) || occupant.Faction.AlliedTo(Faction));
 
-    public override GridObjectData Clone() => new UnitData(this);
+    public UnitData Clone() => new(this);
 }

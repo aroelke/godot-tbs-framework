@@ -8,7 +8,6 @@ using TbsFramework.Data;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes.Components;
 using TbsFramework.Scenes.Combat.Data;
-using TbsFramework.Scenes.Level.Layers;
 using TbsFramework.Scenes.Level.Map;
 using TbsFramework.Scenes.Level.Object;
 using TbsFramework.Scenes.Level.Object.Group;
@@ -369,7 +368,7 @@ public partial class AIController : ArmyController
     public (Unit selected, Vector2I destination, StringName action, Unit target) ComputeAction(IEnumerable<Unit> available, IEnumerable<Unit> enemies, Grid grid)
     {
         (UnitData selected, Vector2I destination, StringName action, Vector2I target) = ComputeAction(available.Select(static (u) => u.UnitData));
-        return (selected.Renderer, destination, action, Grid.Data.Occupants.TryGetValue(target, out GridObjectData occupant) && occupant is UnitData unit ? unit.Renderer : null);
+        return (selected.Renderer, destination, action, Grid.Data.Occupants.TryGetValue(target, out UnitData occupant) && occupant is null ? null : occupant.Renderer);
     }
 
     /// <inheritdoc/>
@@ -390,7 +389,7 @@ public partial class AIController : ArmyController
 
         (UnitData selected, _destination, _action, Vector2I target) = await Task.Run<(UnitData, Vector2I, StringName, Vector2I)>(() => ComputeAction(available));
         _selected = selected.Renderer;
-        if (Grid.Data.Occupants.TryGetValue(target, out GridObjectData occupant) && occupant is UnitData unit)
+        if (Grid.Data.Occupants.TryGetValue(target, out UnitData unit))
             _target = unit.Renderer;
         else
             _target = null;

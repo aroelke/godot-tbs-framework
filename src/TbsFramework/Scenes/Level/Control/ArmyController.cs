@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Godot;
+using TbsFramework.Data;
 using TbsFramework.Scenes.Level.Map;
 using TbsFramework.Scenes.Level.Object;
 using TbsFramework.Scenes.Level.Object.Group;
@@ -25,7 +26,7 @@ public abstract partial class ArmyController : Node
     /// </summary>
     [Signal] public delegate void TurnFastForwardEventHandler();
 
-    /// <summary>Signals that a <see cref="Unit"/> has been chosen to act.</summary>
+    /// <summary>Signals that a unit has been chosen to act.</summary>
     /// <param name="unit">Selected unit.</param>
     [Signal] public delegate void UnitSelectedEventHandler(Unit unit);
 

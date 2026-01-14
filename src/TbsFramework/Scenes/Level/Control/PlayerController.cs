@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TbsFramework.Data;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes;
 using TbsFramework.Nodes.Components;
@@ -441,7 +442,7 @@ public partial class PlayerController : ArmyController
 
         if (@event.IsActionPressed(InputManager.ToggleDangerZone))
         {
-            if (Cursor.Grid.Data.Occupants.TryGetValue(Cursor.Cell, out GridObjectData obj) && obj is UnitData unit)
+            if (Cursor.Grid.Data.Occupants.TryGetValue(Cursor.Cell, out UnitData unit))
             {
                 if (!_tracked.Remove(unit.Renderer))
                     _tracked.Add(unit.Renderer);
@@ -467,7 +468,7 @@ public partial class PlayerController : ArmyController
 
     private void ConfirmCursorSelection(Vector2I cell)
     {
-        if (Cursor.Grid.Data.Occupants.TryGetValue(cell, out GridObjectData obj) && obj is UnitData unit)
+        if (Cursor.Grid.Data.Occupants.TryGetValue(cell, out UnitData unit))
         {
             if (unit.Faction == Army.Faction && unit.Active)
             {
@@ -557,7 +558,7 @@ public partial class PlayerController : ArmyController
             }
         }
 
-        if (@event.IsActionPressed(InputManager.Cancel) && Cursor.Grid.Data.Occupants.TryGetValue(Cursor.Cell, out GridObjectData obj) && obj is UnitData untrack)
+        if (@event.IsActionPressed(InputManager.Cancel) && Cursor.Grid.Data.Occupants.TryGetValue(Cursor.Cell, out UnitData untrack))
         {
             if (_tracked.Remove(untrack.Renderer))
             {
@@ -668,13 +669,13 @@ public partial class PlayerController : ArmyController
 
     private void ConfirmPathSelection(Vector2I cell)
     {
-        bool occupied = Cursor.Grid.Data.Occupants.TryGetValue(cell, out GridObjectData occupant);
+        bool occupied = Cursor.Grid.Data.Occupants.TryGetValue(cell, out UnitData occupant);
         if (!_traversable.Contains(cell) && !occupied)
         {
             State.SendEvent(CancelEvent);
             EmitSignal(SignalName.SelectionCanceled);
         }
-        else if (!occupied || (occupant as UnitData).Renderer == _selected)
+        else if (!occupied || occupant.Renderer == _selected)
         {
             State.SendEvent(FinishEvent);
             EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {InputManager.Skip, InputManager.Accelerate});
@@ -788,7 +789,7 @@ public partial class PlayerController : ArmyController
             State.SendEvent(CancelEvent);
             EmitSignal(SignalName.TargetCanceled, _selected);
         }
-        else if (Cursor.Grid.Data.Occupants.TryGetValue(cell, out GridObjectData obj) && obj is UnitData target)
+        else if (Cursor.Grid.Data.Occupants.TryGetValue(cell, out UnitData target))
         {
             Cursor.Halt(hide:false);
             Pointer.StartWaiting(hide:false);
