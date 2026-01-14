@@ -394,7 +394,7 @@ public partial class AIController : ArmyController
         else
             _target = null;
 
-        EmitSignal(SignalName.UnitSelected, _selected);
+        EmitSignal(SignalName.UnitSelected, _selected.Data.Cell);
     }
 
     public override void MoveUnit(UnitData unit)

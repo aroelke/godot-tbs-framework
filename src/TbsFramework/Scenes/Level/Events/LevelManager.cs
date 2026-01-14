@@ -51,16 +51,16 @@ public partial class LevelManager : Node
 
     private Grid Grid = null;
     private Camera2DController   Camera                            => _cache.GetNode<Camera2DController>("Camera");
-    private CanvasLayer     UserInterface                     => _cache.GetNode<CanvasLayer>("UserInterface");
+    private CanvasLayer          UserInterface                     => _cache.GetNode<CanvasLayer>("UserInterface");
     private StateChart           State                             => _cache.GetNode<StateChart>("State");
-    private ActionReaction  OnSkipTurnReaction                => _cache.GetNode<ActionReaction>("State/Root/Running/Skippable/OnFastForward");
-    private UnitReaction    OnUnitSelectedReaction            => _cache.GetNode<UnitReaction>("State/Root/Running/Skippable/Idle/OnUnitSelected");
-    private PathReaction    OnPathConfirmedReaction           => _cache.GetNode<PathReaction>("State/Root/Running/Skippable/UnitSelected/OnPathConfirmed");
-    private CommandReaction OnSelectedUnitCommandedReaction   => _cache.GetNode<CommandReaction>("State/Root/Running/Skippable/UnitSelected/OnUnitCommanded");
-    private TargetReaction  OnSelectedTargetChosenReaction    => _cache.GetNode<TargetReaction>("State/Root/Running/Skippable/UnitSelected/OnTargetChosen");
-    private CommandReaction OnCommandingUnitCommandedReaction => _cache.GetNode<CommandReaction>("State/Root/Running/Skippable/UnitCommanding/OnUnitCommanded");
-    private TargetReaction  OnTargetingTargetChosenReaction   => _cache.GetNode<TargetReaction>("State/Root/Running/Skippable/UnitTargeting/OnTargetChosen");
-    private Timer           TurnAdvance                       => _cache.GetNode<Timer>("TurnAdvance");
+    private ActionReaction       OnSkipTurnReaction                => _cache.GetNode<ActionReaction>("State/Root/Running/Skippable/OnFastForward");
+    private Vector2IReaction     OnUnitSelectedReaction            => _cache.GetNode<Vector2IReaction>("State/Root/Running/Skippable/Idle/OnUnitSelected");
+    private PathReaction         OnPathConfirmedReaction           => _cache.GetNode<PathReaction>("State/Root/Running/Skippable/UnitSelected/OnPathConfirmed");
+    private CommandReaction      OnSelectedUnitCommandedReaction   => _cache.GetNode<CommandReaction>("State/Root/Running/Skippable/UnitSelected/OnUnitCommanded");
+    private TargetReaction       OnSelectedTargetChosenReaction    => _cache.GetNode<TargetReaction>("State/Root/Running/Skippable/UnitSelected/OnTargetChosen");
+    private CommandReaction      OnCommandingUnitCommandedReaction => _cache.GetNode<CommandReaction>("State/Root/Running/Skippable/UnitCommanding/OnUnitCommanded");
+    private TargetReaction       OnTargetingTargetChosenReaction   => _cache.GetNode<TargetReaction>("State/Root/Running/Skippable/UnitTargeting/OnTargetChosen");
+    private Timer                TurnAdvance                       => _cache.GetNode<Timer>("TurnAdvance");
 
     public LevelManager() : base() { _cache = new(this); }
 #endregion
@@ -99,7 +99,7 @@ public partial class LevelManager : Node
     {
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.SelectionCanceled, Callable.From(OnSelectionCanceled));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TurnFastForward, Callable.From(OnSkipTurnReaction.React));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitSelected, Callable.From<Unit>(OnUnitSelectedReaction.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitSelected, Callable.From<Vector2I>(OnUnitSelectedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.PathConfirmed, Callable.From<Unit, Godot.Collections.Array<Vector2I>>(OnPathConfirmedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Unit, StringName>(OnSelectedUnitCommandedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Unit, Unit>(OnSelectedTargetChosenReaction.React));
@@ -115,8 +115,9 @@ public partial class LevelManager : Node
     /// <summary>Update the UI when re-entering idle.</summary>
     public void OnIdleEntered() => Callable.From(_armies.Current.Controller.SelectUnit).CallDeferred();
 
-    public void OnIdleUnitSelected(Unit unit)
+    public void OnIdleUnitSelected(Vector2I cell)
     {
+        Unit unit = Grid.Data.Occupants[cell].Renderer;
         if (unit.Army.Faction != _armies.Current.Faction)
             throw new InvalidOperationException($"Cannot select unit not from army {_armies.Current.Name}");
         if (!unit.UnitData.Active)

@@ -27,8 +27,8 @@ public abstract partial class ArmyController : Node
     [Signal] public delegate void TurnFastForwardEventHandler();
 
     /// <summary>Signals that a unit has been chosen to act.</summary>
-    /// <param name="unit">Selected unit.</param>
-    [Signal] public delegate void UnitSelectedEventHandler(Unit unit);
+    /// <param name="unit">Cell containing the selected unit.</param>
+    [Signal] public delegate void UnitSelectedEventHandler(Vector2I cell);
 
     /// <summary>Signals that a path for a <see cref="Unit"/> to move on has been chosen.</summary>
     /// <param name="unit">Unit that will move along the path.</param>

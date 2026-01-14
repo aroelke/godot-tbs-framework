@@ -473,7 +473,7 @@ public partial class PlayerController : ArmyController
             if (unit.Faction == Army.Faction && unit.Active)
             {
                 State.SendEvent(FinishEvent);
-                EmitSignal(SignalName.UnitSelected, unit.Renderer);
+                EmitSignal(SignalName.UnitSelected, unit.Cell);
             }
             else if (unit.Faction != Army.Faction)
             {
