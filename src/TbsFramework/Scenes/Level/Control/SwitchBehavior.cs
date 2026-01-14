@@ -45,8 +45,8 @@ public partial class SwitchBehavior : Behavior
         return _switched ? Final : Initial;
     }
 
-    public override IEnumerable<UnitAction> Actions(IUnit unit, IGrid grid) => TargetBehavior()?.Actions(unit, grid) ?? [];
-    public override IEnumerable<Vector2I> Destinations(IUnit unit, IGrid grid) => TargetBehavior()?.Destinations(unit, grid) ?? [];
+    public override IEnumerable<UnitAction> Actions(UnitData unit) => TargetBehavior()?.Actions(unit) ?? [];
+    public override IEnumerable<Vector2I> Destinations(UnitData unit) => TargetBehavior()?.Destinations(unit) ?? [];
 
     /// <summary>Reset the state of the behavior. Mainly intended to be used for testing.</summary>
     public void Reset() => _switched = false;

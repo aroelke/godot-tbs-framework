@@ -7,51 +7,45 @@ using TbsFramework.Scenes.Level.Map;
 namespace TbsFramework.Scenes.Level.Object;
 
 /// <summary>A node representing an object that moves on a <see cref="Map.Grid"/>.</summary>
-[Icon("res://icons/GridNode.svg"), GlobalClass, Tool]
-public partial class GridNode : BoundedNode2D
+[Icon("res://icons/GridNode.svg"), Tool]
+public abstract partial class GridNode : BoundedNode2D
 {
-    /// <summary>Signals that the cell containing the object has changed.</summary>
-    /// <param name="cell">New cell containing the object.</param>
-    [Signal] public delegate void CellChangedEventHandler(Vector2I cell);
-
-    private Vector2I _cell = Vector2I.Zero;
+    private Grid _grid = null;
 
     /// <summary>Grid on which the containing object sits.</summary>
-    [Export] public Grid Grid;
-
-    /// <summary>Cell on the <see cref="Map.Grid"/> that this object currently occupies.</summary>
-    [Export] public virtual Vector2I Cell
+    [Export] public Grid Grid
     {
-        get => _cell;
+        get => _grid;
         set
         {
-            if (Engine.IsEditorHint())
+            if (_grid != value)
             {
-                if (_cell != value)
-                {
-                    _cell = value;
-                    if (Grid is not null)
-                        GlobalPosition = Grid.PositionOf(_cell) + Grid.GlobalPosition;
-                    UpdateConfigurationWarnings();
-                }
-            }
-            else
-            {
-                Vector2I next = Grid?.Clamp(value) ?? value;
-                if (next != _cell)
-                {
-                    _cell = next;
-                    if (Grid is not null)
-                        GlobalPosition = Grid.PositionOf(_cell) + Grid.GlobalPosition;
-                    EmitSignal(SignalName.CellChanged, _cell);
-                }
+                _grid = value;
+                if (_grid is not null)
+                    Cell = _grid.CellOf(GetGridPosition() + Size/2);
             }
         }
     }
 
+    /// <summary>Cell on the <see cref="Map.Grid"/> that this object currently occupies.</summary>
+    [Export] public virtual Vector2I Cell
+    {
+        get => Data.Cell;
+        set => Data.Cell = value;
+    }
+
+    /// <summary>Structure containing the state of the object during gameplay.</summary>
+    public abstract GridObjectData Data { get; }
+
     /// <inheritdoc cref="BoundedNode2D.Size"/>
     /// <remarks>Grid nodes have a constant size that is based on the size of the <see cref="Map.Grid"/> cells.</remarks>
-    public override Vector2 Size { get => Grid?.CellSize ?? Vector2.Zero; set {}}
+    public override Vector2 Size { get => _grid?.CellSize ?? Vector2.Zero; set {}}
+
+    /// <returns>The position of the node relative to its grid.</returns>
+    public Vector2 GetGridPosition() => GlobalPosition - _grid.GlobalPosition;
+
+    /// <summary>Set the position of the node relative to its grid.</summary>
+    public void SetGridPosition(Vector2 position) => GlobalPosition = _grid.GlobalPosition + position;
 
     public override void _ValidateProperty(Dictionary property)
     {
@@ -62,24 +56,45 @@ public partial class GridNode : BoundedNode2D
 
     public override string[] _GetConfigurationWarnings()
     {
-        List<string> warnings = new(base._GetConfigurationWarnings() ?? []);
+        List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
 
-        if (Grid is null)
+        if (_grid is null)
             warnings.Add("No grid to move on has been defined.");
-        else if (Cell.X < 0 || Cell.Y < 0 || Cell.X >= Grid.Size.X || Cell.Y >= Grid.Size.Y)
-            warnings.Add("Outside grid bounds.");
 
         return [.. warnings];
     }
+
+    public override void _Ready()
+    {
+        base._Ready();
+
+        if (!Engine.IsEditorHint())
+        {
+            Data.CellChanged += (_, cell) => {
+                if (_grid is not null)
+                    SetGridPosition(_grid.PositionOf(cell));
+                if (Engine.IsEditorHint())
+                    UpdateConfigurationWarnings();
+            };
+
+            // Do this after all nodes have been initialized so the backing data is defined
+            Callable.From(() => {
+                // Set cell first because otherwise all the grid nodes will go to (1, 1) and trigger occupancy exceptions
+                Data.Cell = _grid.CellOf(GetGridPosition() + Size/2);
+                Data.Grid = _grid.Data;
+            }).CallDeferred();
+        }
+    }
+
 
     public override void _Process(double delta)
     {
         base._Process(delta);
 
-        if (Engine.IsEditorHint() && Grid is not null && !Input.IsMouseButtonPressed(MouseButton.Left))
+        if (Engine.IsEditorHint() && _grid is not null && !Input.IsMouseButtonPressed(MouseButton.Left))
         {
-            Cell = Grid.CellOf(GlobalPosition - Grid.GlobalPosition + Size/2);
-            GlobalPosition = Grid.PositionOf(_cell) + Grid.GlobalPosition;
+            Data.Cell = _grid.CellOf(GetGridPosition() + Size/2);
+            SetGridPosition(_grid.PositionOf(Data.Cell));
         }
     }
 }

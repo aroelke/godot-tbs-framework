@@ -119,7 +119,7 @@ public partial class LevelManager : Node
     {
         if (unit.Army.Faction != _armies.Current.Faction)
             throw new InvalidOperationException($"Cannot select unit not from army {_armies.Current.Name}");
-        if (!unit.Active)
+        if (!unit.UnitData.Active)
             throw new InvalidOperationException($"Cannot select inactive unit {unit.Name}");
 
         _selected = unit;
@@ -144,7 +144,7 @@ public partial class LevelManager : Node
         _target = null;
 
         // Compute move/attack/support ranges for selected unit
-        _path = Path.Empty(Grid, _selected.TraversableCells());
+        _path = Path.Empty(Grid.Data, _selected.UnitData.GetTraversableCells());
 
         // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
         Rect2? zoomRect = null; // Grid.EnclosingRect(ActionLayers.Union());
@@ -156,7 +156,7 @@ public partial class LevelManager : Node
                 Camera.PushZoom(zoomTarget);
         }
 
-        Callable.From<Unit>(_armies.Current.Controller.MoveUnit).CallDeferred(_selected);
+        _armies.Current.Controller.MoveUnit(_selected.UnitData);
     }
 
     public void OnSelectedUnitCommanded(Unit unit, StringName command)
@@ -177,17 +177,15 @@ public partial class LevelManager : Node
     {
         if (unit != _selected)
             throw new InvalidOperationException($"Cannot confirm path for unselected unit {unit.Name} ({_selected.Name} is selected)");
-        if (path.Any((c) => Grid.Occupants.ContainsKey(c) && (!(Grid.Occupants[c] as Unit)?.Army.Faction.AlliedTo(_selected) ?? false)))
+        if (path.Any((c) => Grid.Data.Occupants.ContainsKey(c) && (!(Grid.Data.Occupants[c] as UnitData)?.Faction.AlliedTo(_selected.UnitData) ?? false)))
             throw new InvalidOperationException("The chosen path must only contain traversable cells.");
-        if (Grid.Occupants.ContainsKey(path[^1]) && Grid.Occupants[path[^1]] != unit)
+        if (Grid.Data.Occupants.ContainsKey(path[^1]) && Grid.Data.Occupants[path[^1]] != unit.Data)
             throw new InvalidOperationException("The chosen path must not end on an occupied cell.");
 
         State.SetVariable(TraversableProperty, true);
         if (_ff)
         {
-            Grid.Occupants.Remove(_selected.Cell);
             _selected.Cell = path[^1];
-            Grid.Occupants[path[^1]] = _selected;
             State.SendEvent(SkipEvent);
         }
         else
@@ -223,9 +221,7 @@ public partial class LevelManager : Node
         PushCameraFocus(_selected.MotionBox);
 
         // Move the unit
-        Grid.Occupants.Remove(_selected.Cell);
         _selected.Connect(Unit.SignalName.DoneMoving, _target is null ? () => State.SendEvent(DoneEvent) : () => State.SendEvent(SkipEvent), (uint)ConnectFlags.OneShot);
-        Grid.Occupants[_path[^1]] = _selected;
         _selected.MoveAlong(_path); // must be last in case it fires right away
     }
 
@@ -263,8 +259,8 @@ public partial class LevelManager : Node
                 }));
             }
         }
-        AddActionOption(UnitAction.AttackAction, _selected.AttackableCells().Where((c) => !(Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
-        AddActionOption(UnitAction.SupportAction, _selected.SupportableCells().Where((c) => (Grid.Occupants.GetValueOrDefault(c) as Unit)?.Army.Faction.AlliedTo(_selected) ?? false));
+        AddActionOption(UnitAction.AttackAction, _selected.UnitData.GetAttackableCells().Where((c) => !(Grid.Data.Occupants.GetValueOrDefault(c) as UnitData)?.Faction.AlliedTo(_selected.UnitData) ?? false));
+        AddActionOption(UnitAction.SupportAction, _selected.UnitData.GetSupportableCells().Where((c) => (Grid.Data.Occupants.GetValueOrDefault(c) as UnitData)?.Faction.AlliedTo(_selected.UnitData) ?? false));
         foreach (SpecialActionRegion region in Grid.SpecialActionRegions)
         {
             if (region.HasSpecialAction(_selected, _selected.Cell))
@@ -278,7 +274,7 @@ public partial class LevelManager : Node
         _options.Add(new(UnitAction.EndAction, () => State.SendEvent(SkipEvent)));
         _options.Add(new("Cancel", () => State.SendEvent(CancelEvent)));
 
-        Callable.From<Unit, Godot.Collections.Array<StringName>, StringName>(_armies.Current.Controller.CommandUnit).CallDeferred(_selected, new Godot.Collections.Array<StringName>(_options.Select((o) => o.Name)), "Cancel");
+        _armies.Current.Controller.CommandUnit(_selected.UnitData, [.. _options.Select((o) => o.Name)], "Cancel");
     }
 
     public void OnCommandingUnitCommanded(Unit unit, StringName command)
@@ -295,10 +291,7 @@ public partial class LevelManager : Node
     {
         _command = null;
 
-        // Move the selected unit back to its original cell
-        Grid.Occupants.Remove(_selected.Cell);
         _selected.Cell = _initialCell.Value;
-        Grid.Occupants[_selected.Cell] = _selected;
         _initialCell = null;
 
         _target = null;
@@ -311,14 +304,14 @@ public partial class LevelManager : Node
 
     public void OnTargetingEntered()
     {
-        _armies.Current.Controller.SelectTarget(_selected, _targets);
+        _armies.Current.Controller.SelectTarget(_selected.UnitData, _targets);
     }
 
     public void OnTargetChosen(Unit source, Unit target)
     {
         if (source != _selected)
             throw new InvalidOperationException($"Cannot choose target for unselected unit {source.Name} ({_selected.Name} is selected)");
-        if ((_command == UnitAction.AttackAction && target.Army.Faction.AlliedTo(_selected)) || (_command == UnitAction.SupportAction && !target.Army.Faction.AlliedTo(_selected)))
+        if ((_command == UnitAction.AttackAction && target.Army.Faction.AlliedTo(_selected.UnitData)) || (_command == UnitAction.SupportAction && !target.Army.Faction.AlliedTo(_selected.UnitData)))
             throw new ArgumentException($"{_selected.Name} cannot {_command} {target.Name}");
         _target = target;
         State.SendEvent(DoneEvent);
@@ -339,9 +332,9 @@ public partial class LevelManager : Node
     public void OnCombatEntered()
     {
         if (_command == UnitAction.AttackAction)
-            _combatResults = CombatCalculations.AttackResults(_selected, _target, Grid, false);
+            _combatResults = CombatCalculations.AttackResults(_selected.UnitData, _target.UnitData, false);
         else if (_command == UnitAction.SupportAction)
-            _combatResults = [CombatCalculations.CreateSupportAction(_selected, _target)];
+            _combatResults = [CombatCalculations.CreateSupportAction(_selected.UnitData, _target.UnitData)];
         else
             throw new NotSupportedException($"Unknown action {_command}");
 
@@ -352,7 +345,7 @@ public partial class LevelManager : Node
         }
         else
         {
-            SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, _combatResults.ToImmutableList()), (uint)ConnectFlags.OneShot);
+            SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected.UnitData, _target.UnitData, _combatResults.ToImmutableList()), (uint)ConnectFlags.OneShot);
             SceneManager.CallScene(CombatScenePath);
         }
     }
@@ -370,7 +363,7 @@ public partial class LevelManager : Node
     {
         _armies.Current.Controller.FinalizeAction();
         _selected.Finish();
-        State.SetVariable(ActiveProperty, ((IEnumerable<Unit>)_armies.Current).Count((u) => u.Active));
+        State.SetVariable(ActiveProperty, ((IEnumerable<Unit>)_armies.Current).Count(static (u) => u.UnitData.Active));
 
         Callable.From<Unit>((u) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, u)).CallDeferred(_selected);
     }
@@ -378,7 +371,7 @@ public partial class LevelManager : Node
     /// <summary>Clean up at the end of the unit's turn.</summary>
     public void OnEndActionExited()
     {
-        if (_selected.Health.Value <= 0)
+        if (_selected.UnitData.Health <= 0)
             _selected.Die();
         _selected = null;
     }
@@ -411,7 +404,7 @@ public partial class LevelManager : Node
     public void OnTurnFastForward()
     {
         // Reuse this signal for skipping to the end of the current army's turn, which should only happen for player-controlled armies
-        if (!((IEnumerable<Unit>)_armies.Current).Any((u) => u.Active))
+        if (!((IEnumerable<Unit>)_armies.Current).Any(static (u) => u.UnitData.Active))
             State.SendEvent(SkipEvent);
         else if (!_ff)
         {
@@ -448,7 +441,7 @@ public partial class LevelManager : Node
     public void OnPointerFlightStarted(Vector2 target)
     {
         State.SendEvent(WaitEvent);
-        PushCameraFocus(Grid.Occupants.ContainsKey(Grid.CellOf(target)) ? Grid.Occupants[Grid.CellOf(target)] : Camera.Target);
+        PushCameraFocus(Grid.Data.Occupants.ContainsKey(Grid.CellOf(target)) ? (Grid.Data.Occupants[Grid.CellOf(target)] as UnitData).Renderer : Camera.Target);
     }
 
     /// <summary>When the pointer finished flying, return to the previous state.</summary>
@@ -494,7 +487,7 @@ public partial class LevelManager : Node
         {
             Grid = GetNode<Grid>("Grid");
 
-            Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Size*Grid.CellSize));
+            Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Data.Size*Grid.CellSize));
             LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.CameraBoundsUpdated, Camera.Limits);
 
             foreach (Army army in GetChildren().OfType<Army>())
@@ -504,7 +497,6 @@ public partial class LevelManager : Node
                 {
                     unit.Grid = Grid;
                     unit.Cell = Grid.CellOf(unit.GlobalPosition - Grid.GlobalPosition);
-                    Grid.Occupants[unit.Cell] = unit;
                 }
             }
             LevelEvents.Singleton.Connect<Unit>(LevelEvents.SignalName.UnitDefeated, OnUnitDefeated);

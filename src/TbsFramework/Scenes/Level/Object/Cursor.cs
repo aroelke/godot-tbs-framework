@@ -1,10 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes.Components;
-using TbsFramework.UI.Controls.Action;
 using TbsFramework.UI.Controls.Device;
 
 namespace TbsFramework.Scenes.Level.Object;
@@ -13,10 +13,18 @@ namespace TbsFramework.Scenes.Level.Object;
 [Tool]
 public partial class Cursor : GridNode
 {
+    private class CursorData() : GridObjectData(false) { public override GridObjectData Clone() => throw new NotSupportedException("The cursor's data should never need to be copied."); }
+
+    /// <summary>Signals that the cell containing the cursor has changed.</summary>
+    /// <param name="cell">New cell containing the cursor.</param>
+    [Signal] public delegate void CellChangedEventHandler(Vector2I cell);
+
     /// <summary>Emitted when the cursor moves to a new location.</summary>
     /// <param name="region">Region enclosed by the cursor after movement.</param>
     [Signal] public delegate void CursorMovedEventHandler(Rect2 region);
 
+    /// <summary>Emitted when a cursor stops in a new cell.</summary>
+    /// <param name="cell">Cell the cursor stopped in.</param>
     [Signal] public delegate void CellEnteredEventHandler(Vector2I cell);
 
     /// <summary>Signals that a cell has been selected.</summary>
@@ -66,6 +74,8 @@ public partial class Cursor : GridNode
                 MoveSoundPlayer.Stream = value;
         }
     }
+
+    public override GridObjectData Data { get; } = new CursorData();
 
     /// <summary>"Soft zone" that breaks cursor continuous movement and skips to the edge of.</summary>
     public HashSet<Vector2I> SoftRestriction = [];
@@ -124,9 +134,9 @@ public partial class Cursor : GridNode
                 }
                 else
                 {
-                    if ((Cell.Y == 0 && direction.Y < 0) || (Cell.Y == Grid.Size.Y - 1 && direction.Y > 0))
+                    if ((Cell.Y == 0 && direction.Y < 0) || (Cell.Y == Data.Grid.Size.Y - 1 && direction.Y > 0))
                         direction = direction with { Y = 0 };
-                    if ((Cell.X == 0 && direction.X < 0) || (Cell.X == Grid.Size.X - 1 && direction.X > 0))
+                    if ((Cell.X == 0 && direction.X < 0) || (Cell.X == Data.Grid.Size.X - 1 && direction.X > 0))
                         direction = direction with { X = 0 };
 
                     if (direction != Vector2I.Zero)
@@ -135,12 +145,12 @@ public partial class Cursor : GridNode
                         {
                             bool traversable = SoftRestriction.Contains(Cell + direction);
                             Vector2I target = Cell; // Don't want to directly update cell to avoid firing events
-                            while (Grid.Contains(target + direction) && SoftRestriction.Contains(target + direction) == traversable)
+                            while (Data.Grid.Contains(target + direction) && SoftRestriction.Contains(target + direction) == traversable)
                                 target += direction;
                             Cell = target;
                         }
                         else
-                            Cell = Grid.Clamp(Cell + direction*Grid.Size);
+                            Cell = Data.Grid.Clamp(Cell + direction*Data.Grid.Size);
                     }
                 }
             }
@@ -161,7 +171,7 @@ public partial class Cursor : GridNode
             if (_hard.IsEmpty)
             {
                 if (Wrap)
-                    Cell = (Cell + direction + Grid.Size) % Grid.Size;
+                    Cell = (Cell + direction + Data.Grid.Size) % Data.Grid.Size;
                 else
                     Cell += direction;
             }
@@ -204,30 +214,31 @@ public partial class Cursor : GridNode
     /// When the cursor's cell changes, play the cursor-moved sound, stop echoing digital movement at the edge of a movement region, and emit the
     /// <see cref="SignalName.CursorMoved"/> signal to indicate the new rectangle enclosed by the cursor.
     /// </summary>
-    /// <param name="cell">Cell that was moved to.</param>
-    public void OnCellChanged(Vector2I cell)
+    /// <param name="to">Cell that was moved to.</param>
+    public void OnCellChanged(Vector2I from, Vector2I to)
     {
         if (!_halted)
         {
             MoveSoundPlayer.Play();
             if (!MoveController.Active && (DeviceManager.Mode == InputMode.Digital || !HardRestriction.IsEmpty))
-                Callable.From<Vector2I>((c) => EmitSignal(SignalName.CellEntered, c)).CallDeferred(cell);
+                Callable.From<Vector2I>((c) => EmitSignal(SignalName.CellEntered, c)).CallDeferred(to);
         }
 
         // Briefly break continuous digital movement to allow reaction from the player when the cursor has reached the edge of the soft restriction
-        if (SoftRestriction.Contains(cell))
+        if (SoftRestriction.Contains(to))
         {
             if (DeviceManager.Mode == InputMode.Digital)
             {
-                Vector2I direction = cell - _previous;
-                Vector2I further = cell + direction;
-                if (Grid.Contains(further) && !SoftRestriction.Contains(further))
+                Vector2I direction = to - _previous;
+                Vector2I further = to + direction;
+                if (Data.Grid.Contains(further) && !SoftRestriction.Contains(further))
                     MoveController.ResetEcho();
             }
         }
 
-        EmitSignal(SignalName.CursorMoved, Grid.CellRect(cell));
-        _previous = cell;
+        EmitSignal(SignalName.CellChanged, to);
+        EmitSignal(SignalName.CursorMoved, Grid.CellRect(to));
+        _previous = to;
     }
 
     /// <summary>Update the <see cref="Map.Grid"/> cell when the pointer signals it has moved, unless the cursor is what's controlling movement.</summary>
@@ -254,9 +265,9 @@ public partial class Cursor : GridNode
             }
             else
             {
-                if ((Cell.Y == 0 && direction.Y < 0) || (Cell.Y == Grid.Size.Y - 1 && direction.Y > 0))
+                if ((Cell.Y == 0 && direction.Y < 0) || (Cell.Y == Data.Grid.Size.Y - 1 && direction.Y > 0))
                     direction = direction with { Y = 0 };
-                if ((Cell.X == 0 && direction.X < 0) || (Cell.X == Grid.Size.X - 1 && direction.X > 0))
+                if ((Cell.X == 0 && direction.X < 0) || (Cell.X == Data.Grid.Size.X - 1 && direction.X > 0))
                     direction = direction with { X = 0 };
 
                 if (direction != Vector2I.Zero)
@@ -265,12 +276,12 @@ public partial class Cursor : GridNode
                     {
                         bool traversable = SoftRestriction.Contains(Cell + direction);
                         Vector2I target = Cell; // Don't want to directly update cell to avoid firing events
-                        while (Grid.Contains(target + direction) && SoftRestriction.Contains(target + direction) == traversable)
+                        while (Data.Grid.Contains(target + direction) && SoftRestriction.Contains(target + direction) == traversable)
                             target += direction;
                         Cell = target;
                     }
                     else
-                        Cell = Grid.Clamp(Cell + direction*Grid.Size);
+                        Cell = Data.Grid.Clamp(Cell + direction*Data.Grid.Size);
                 }
             }
         }
@@ -280,6 +291,7 @@ public partial class Cursor : GridNode
     {
         base._Ready();
         _previous = Cell;
+        Data.CellChanged += OnCellChanged;
     }
 
     public override void _UnhandledInput(InputEvent @event)

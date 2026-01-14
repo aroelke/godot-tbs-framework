@@ -22,8 +22,8 @@ public partial class OccupantHighlighter : Node2D
     {
         base._Draw();
 
-        foreach ((Vector2I cell, GridNode node) in Grid.Occupants)
-            DrawRect(Grid.CellRect(cell), node is Unit unit ? unit.Army.Faction.Color : DefaultColor, filled:false);
+        foreach ((Vector2I cell, GridObjectData obj) in Grid.Data.Occupants)
+            DrawRect(Grid.CellRect(cell), obj is UnitData unit ? unit.Faction.Color : DefaultColor, filled:false);
     }
 
     public override void _Process(double delta)

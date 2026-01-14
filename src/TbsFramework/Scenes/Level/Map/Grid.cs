@@ -1,18 +1,21 @@
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using TbsFramework.Data;
+using TbsFramework.Extensions;
 using TbsFramework.Scenes.Level.Layers;
-using TbsFramework.Scenes.Level.Object;
-using TbsFramework.Scenes.Level.Object.Group;
 
 namespace TbsFramework.Scenes.Level.Map;
 
 /// <summary>Defines the grid dimensions and attributes and contains the locations of the objects and terrain within it.</summary>
 [Tool]
-public partial class Grid : Node2D, IGrid
+public partial class Grid : Node2D
 {
+    private readonly StringName TerrainCustomDataProperty = "TerrainCustomDataName";
+    private const string TerrainCustomDataDefault = "terrain";
+
+    private string _terrainCustomDataName = TerrainCustomDataDefault;
+    private readonly Dictionary<Terrain, (int sourceId, Vector2I atlasCoords)> _terrainCoords = [];
+
     /// <summary><see cref="TileMapLayer"/> containing ground tiles.</summary>
     [Export] public TileMapLayer GroundLayer = null;
 
@@ -20,23 +23,30 @@ public partial class Grid : Node2D, IGrid
     [Export] public TileMapLayer TerrainLayer = null;
 
     /// <summary>Default terrain to use when it isn't placed explicitly on the map.</summary>
-    [Export] public Terrain DefaultTerrain = null;
+    [Export] public Terrain DefaultTerrain
+    {
+        get
+        {
+            if (!Engine.IsEditorHint() && IsNodeReady())
+                GD.PushWarning("Use GridData.DefaultTerrain to get/set default terrain while the game is running.");
+            return Data.DefaultTerrain;
+        }
+        set
+        {
+            if (!Engine.IsEditorHint() && IsNodeReady())
+                GD.PushWarning("Use GridData.DefaultTerrain to get/set default terrain while the game is running.");
+            Data.DefaultTerrain = value;
+        }
+    }
+
+    /// <summary>Structure containing the state of the grid during gameplay.</summary>
+    public readonly GridData Data = new();
 
     /// <summary>Grid cell dimensions derived from the <see cref="TileSet"/>.  If there is no <see cref="TileSet"/>, the size is zero.</summary>
     public Vector2 CellSize => GroundLayer?.TileSet?.TileSize ?? Vector2.Zero;
 
-    public Vector2I Size => GroundLayer?.GetUsedRect().End ?? Vector2I.Zero;
-
-    /// <summary>Characters and objects occupying the grid.</summary>
-    public readonly Dictionary<Vector2I, GridNode> Occupants = [];
-
     /// <summary>Regions in which units can perform special actions defined by the region.</summary>
     public IEnumerable<SpecialActionRegion> SpecialActionRegions => GetChildren().OfType<SpecialActionRegion>();
-
-    /// <summary>Find the cell offset closest to the given one inside the grid.</summary>
-    /// <param name="cell">Cell offset to clamp.
-    /// <returns>The cell <paramref name="offset"/> clamped to be inside the grid bounds using <c>Vector2I.Clamp</c></returns>
-    public Vector2I Clamp(Vector2I offset) => offset.Clamp(Vector2I.Zero, Size - Vector2I.One);
 
     /// <summary>Find the position in pixels of a cell offset.</summary>
     /// <param name="offset">Cell offset to use for calculation (can be outside grid bounds).</param>
@@ -71,14 +81,6 @@ public partial class Grid : Node2D, IGrid
         return enclosure;
     }
 
-    public bool Contains(Vector2I cell) => IGrid.Contains(this, cell);
-    public bool IsTraversable(Vector2I cell, Faction faction) => !Occupants.TryGetValue(cell, out GridNode occupant) || (occupant is Unit unit && unit.Faction.AlliedTo(faction));
-    public IEnumerable<Vector2I> GetCellsAtDistance(Vector2I cell, int distance) => IGrid.GetCellsAtDistance(this, cell, distance);
-    public Terrain GetTerrain(Vector2I cell) => TerrainLayer?.GetCellTileData(cell)?.GetCustomData("terrain").As<Terrain>() ?? DefaultTerrain;
-    public int PathCost(IEnumerable<Vector2I> path) => IGrid.PathCost(this, path);
-    public IImmutableDictionary<Vector2I, IUnit> GetOccupantUnits() => Occupants.Where((e) => e.Value is Unit).ToImmutableDictionary((e) => e.Key, (e) => e.Value as IUnit);
-    public IEnumerable<ISpecialActionRegion> GetSpecialActionRegions() => SpecialActionRegions;
-
     public override string[] _GetConfigurationWarnings()
     {
         List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
@@ -94,5 +96,78 @@ public partial class Grid : Node2D, IGrid
                     warnings.Add($"Tile size of layer {layer.Name} does not match cell size {CellSize}");
 
         return [.. warnings];
+    }
+
+    public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
+    {
+        Godot.Collections.Array<Godot.Collections.Dictionary> properties = [.. base._GetPropertyList() ?? []];
+
+        if (TerrainLayer?.TileSet is not null)
+        {
+            properties.Add(ObjectProperty.CreateEnumProperty(
+                TerrainCustomDataProperty,
+                Enumerable.Range(0, TerrainLayer.TileSet.GetCustomDataLayersCount()).Select(TerrainLayer.TileSet.GetCustomDataLayerName)
+            ));
+        }
+
+        return properties;
+    }
+
+    public override Variant _Get(StringName property) => property == TerrainCustomDataProperty ? _terrainCustomDataName : base._Get(property);
+
+    public override bool _Set(StringName property, Variant value)
+    {
+        if (property == TerrainCustomDataProperty)
+        {
+            _terrainCustomDataName = value.AsString();
+            return true;
+        }
+        else
+            return base._Set(property, value);
+    }
+
+    public override bool _PropertyCanRevert(StringName property) => property == TerrainCustomDataProperty || base._PropertyCanRevert(property);
+
+    public override Variant _PropertyGetRevert(StringName property) => property == TerrainCustomDataProperty ? TerrainCustomDataDefault : base._PropertyGetRevert(property);
+
+    public override void _Ready()
+    {
+        base._Ready();
+
+        if (!Engine.IsEditorHint())
+        {
+            Data.Size = GroundLayer.GetUsedRect().End;
+            if (TerrainLayer is not null)
+            {
+                foreach (Vector2I cell in TerrainLayer.GetUsedCells())
+                    Data.Terrain[cell] = TerrainLayer.GetCellTileData(cell).GetCustomData(_terrainCustomDataName).As<Terrain>();
+
+                for (int i = 0; i < TerrainLayer.TileSet.GetSourceCount(); i++)
+                {
+                    int id = TerrainLayer.TileSet.GetSourceId(i);
+                    if (TerrainLayer.TileSet.GetSource(id) is TileSetAtlasSource source)
+                    {
+                        for (int t = 0; t < source.GetTilesCount(); t++)
+                        {
+                            Vector2I atlas = source.GetTileId(t);
+                            TileData data = source.GetTileData(atlas, 0);
+                            Terrain terrain = data.GetCustomData(_terrainCustomDataName).As<Terrain>();
+                            if (terrain is not null)
+                                _terrainCoords[terrain] = (id, atlas);
+                        }
+                    }
+                }
+
+                Data.TerrainUpdated += (cell, _, terrain) => {
+                    if (terrain == DefaultTerrain)
+                        TerrainLayer.SetCell(cell, -1, -Vector2I.One);
+                    else
+                    {
+                        (int id, Vector2I atlas) = _terrainCoords[terrain];
+                        TerrainLayer.SetCell(cell, id, atlas);
+                    }
+                };
+            }
+        }
     }
 }

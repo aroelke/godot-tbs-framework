@@ -11,7 +11,7 @@ namespace TbsFramework.Scenes.Level.Layers;
 
 /// <summary>Map layer marking out a region where a unit can perform a special action such as capture or escape.</summary>
 [GlobalClass, Tool]
-public partial class SpecialActionRegion : TileMapLayer, ISpecialActionRegion
+public partial class SpecialActionRegion : TileMapLayer
 {
     private static readonly StringName TerrainSet = "Terrain Set";
     private static readonly StringName Terrain = "Terrain";
@@ -40,40 +40,34 @@ public partial class SpecialActionRegion : TileMapLayer, ISpecialActionRegion
     /// <summary>Whether or not an action should only be performed once per unit.</summary>
     [Export] public bool SingleUse = false;
 
-    /// <summary>Set of units that have already performed the action. Updates before the performed signal is emitted.</summary>
-    public ImmutableHashSet<Unit> Performed { get; private set; } = [];
+    public SpecialActionRegionData Data { get; private set; } = new();
 
-    public ISet<Vector2I> Cells => GetUsedCells().ToHashSet();
+    public ISet<Vector2I> Cells => Data.Cells;
+
+    public ImmutableHashSet<Unit> Performed { get; private set; } = [];
 
     /// <returns>A set containing all units that are allowed to perform the action in the region.</returns>
     public ImmutableHashSet<Unit> AllAllowedUnits() => AllowedUnits.ToImmutableHashSet().Union(AllowedArmies.SelectMany((a) => a.Units()));
 
     /// <summary>Check if a unit can perform the special action in a cell.</summary>
     /// <returns><c>true</c> if <paramref name="unit"/> is allowed to perform the action and <paramref name="cell"/> is in the region, and <c>false</c> otherwise.</returns>
-    public virtual bool HasSpecialAction(Unit unit, Vector2I cell) => ((ISpecialActionRegion)this).CanPerform(unit, cell);
+    public virtual bool HasSpecialAction(Unit unit, Vector2I cell) => Data.Cells.Contains(cell) && Data.CanPerform(unit.UnitData);
 
     /// <summary>Perform the special action. By default, this just emits a signal indicating the action is performed by a unit at a cell.</summary>
     /// <param name="performer">Unit performing the action.</param>
     /// <param name="cell">Cell the action is being performed in.</param>
     public virtual void PerformSpecialAction(Unit performer, Vector2I cell)
     {
-        if (HasSpecialAction(performer, cell))
+        if (Data.Perform(performer.UnitData, cell))
         {
             Performed = Performed.Add(performer);
             EmitSignal(SignalName.SpecialActionPerformed, Action, performer, cell);
-            if (OneShot)
-            {
-                Godot.Collections.Array<Vector2I> used = GetUsedCells();
-                Clear();
-                used.Remove(cell);
-                SetCellsTerrainConnect(used, _set, _terrain);
-            }
         }
         else
             throw new ArgumentException($"{performer.Name} cannot perform action {Action} in cell {cell}");
     }
 
-    public bool IsAllowed(IUnit unit) => unit is Unit u && (!SingleUse || !Performed.Contains(u)) && (AllowedUnits.Contains(u) || AllowedArmies.Any((a) => a.Faction.AlliedTo(u.Faction)));
+    public bool IsAllowed(Unit unit) => unit is Unit u && Data.CanPerform(u.UnitData);
 
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
     {
@@ -155,5 +149,25 @@ public partial class SpecialActionRegion : TileMapLayer, ISpecialActionRegion
             warnings.Add("No cells in region. Action cannot be performed.");
 
         return [.. warnings];
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+
+        Data.Action = Action;
+        Data.Cells = [.. GetUsedCells()];
+        foreach (Army army in AllowedArmies)
+            Data.AllowedFactions.Add(army.Faction);
+        foreach (Unit unit in AllowedUnits)
+            Data.AllowedUnits.Add(unit.UnitData);
+        Data.OneShot = OneShot;
+        Data.SingleUse = SingleUse;
+
+        Data.CellsUpdated += (cells) => {
+            Clear();
+            if (cells.Count > 0)
+                SetCellsTerrainConnect([.. cells], _set, _terrain);
+        };
     }
 }
