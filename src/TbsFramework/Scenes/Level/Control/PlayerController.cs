@@ -787,7 +787,7 @@ public partial class PlayerController : ArmyController
         if (Cursor.Cell != Grid.CellOf(Pointer.Position))
         {
             State.SendEvent(CancelEvent);
-            EmitSignal(SignalName.TargetCanceled, _selected);
+            EmitSignal(SignalName.TargetCanceled, _selected.Data.Cell);
         }
         else if (Cursor.Grid.Data.Occupants.TryGetValue(cell, out UnitData target))
         {

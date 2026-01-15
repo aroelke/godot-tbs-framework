@@ -103,7 +103,7 @@ public partial class LevelManager : Node
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.PathConfirmed, Callable.From<Vector2I, Godot.Collections.Array<Vector2I>>(OnPathConfirmedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, StringName>(OnSelectedUnitCommandedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Vector2I, Vector2I>(OnSelectedTargetChosenReaction.React));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetCanceled, Callable.From<Unit>(OnTargetingCanceled));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetCanceled, Callable.From<Vector2I>(OnTargetingCanceled));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, StringName>(OnCommandingUnitCommandedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Vector2I, Vector2I>(OnTargetingTargetChosenReaction.React));
 
@@ -320,7 +320,7 @@ public partial class LevelManager : Node
         State.SendEvent(DoneEvent);
     }
 
-    public void OnTargetingCanceled(Unit source) => State.SendEvent(CancelEvent);
+    public void OnTargetingCanceled(Vector2I source) => State.SendEvent(CancelEvent);
 #endregion
 #region In Combat
     private void ApplyCombatResults()

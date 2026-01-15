@@ -45,8 +45,8 @@ public abstract partial class ArmyController : Node
     [Signal] public delegate void TargetChosenEventHandler(Vector2I source, Vector2I target);
 
     /// <summary>Signals that targeting for a unit's action was canceled.</summary>
-    /// <param name="source">Unit whose action was canceled.</param>
-    [Signal] public delegate void TargetCanceledEventHandler(Unit source);
+    /// <param name="source">Cell containing the unit whose action was canceled.</param>
+    [Signal] public delegate void TargetCanceledEventHandler(Vector2I source);
 
     /// <summary>Signals that a unit's action has been finalized and the current army's turn has progressed.</summary>
     /// <param name="completed">Number of units that have completed actions, including the one that just did.</param>
