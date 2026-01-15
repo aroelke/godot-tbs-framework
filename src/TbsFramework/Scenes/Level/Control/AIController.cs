@@ -418,16 +418,16 @@ public partial class AIController : ArmyController
         if (!targets.Contains(_target.Cell))
             throw new InvalidOperationException($"{source.Renderer.Name} can't target {_target}");
 
-        Pseudocursor.Position = Grid.PositionOf(_target.Cell);
+        Pseudocursor.Position = Grid.PositionOf(_target.Data.Cell);
         Pseudocursor.Visible = true;
 
         if (_ff)
-            EmitSignal(SignalName.TargetChosen, source.Renderer, _target);
+            EmitSignal(SignalName.TargetChosen, source.Cell, _target.Data.Cell);
         else if (FastForwardTransition.Active)
-            FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => EmitSignal(SignalName.TargetChosen, source.Renderer, _target), (uint)ConnectFlags.OneShot);
+            FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => EmitSignal(SignalName.TargetChosen, source.Cell, _target.Data.Cell), (uint)ConnectFlags.OneShot);
         else
         {
-            IndicatorTimer.Connect(Timer.SignalName.Timeout, () => EmitSignal(SignalName.TargetChosen, source.Renderer, _target), (uint)ConnectFlags.OneShot);
+            IndicatorTimer.Connect(Timer.SignalName.Timeout, () => EmitSignal(SignalName.TargetChosen, source.Cell, _target.Data.Cell), (uint)ConnectFlags.OneShot);
             IndicatorTimer.WaitTime = IndicationTime;
             IndicatorTimer.Start();
         }

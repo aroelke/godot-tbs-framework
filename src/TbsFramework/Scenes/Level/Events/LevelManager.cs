@@ -102,10 +102,10 @@ public partial class LevelManager : Node
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitSelected, Callable.From<Vector2I>(OnUnitSelectedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.PathConfirmed, Callable.From<Vector2I, Godot.Collections.Array<Vector2I>>(OnPathConfirmedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, StringName>(OnSelectedUnitCommandedReaction.React));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Unit, Unit>(OnSelectedTargetChosenReaction.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Vector2I, Vector2I>(OnSelectedTargetChosenReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetCanceled, Callable.From<Unit>(OnTargetingCanceled));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, StringName>(OnCommandingUnitCommandedReaction.React));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Unit, Unit>(OnTargetingTargetChosenReaction.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Vector2I, Vector2I>(OnTargetingTargetChosenReaction.React));
 
         _armies.Current.Controller.InitializeTurn();
         Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
@@ -167,11 +167,11 @@ public partial class LevelManager : Node
         _command = command;
     }
 
-    public void OnSelectedTargetChosen(Unit source, Unit target)
+    public void OnSelectedTargetChosen(Vector2I source, Vector2I target)
     {
-        if (source != _selected)
-            throw new InvalidOperationException($"Cannot choose action target for unselected unit {source.Name} ({_selected.Name} is selected)");
-        _target = target;
+        if (Grid.Data.Occupants[source].Renderer != _selected)
+            throw new InvalidOperationException($"Cannot choose action target for unselected unit at {source} ({_selected.Name} is selected)");
+        _target = Grid.Data.Occupants[target].Renderer;
     }
 
     public void OnSelectedPathConfirmed(Vector2I cell, Godot.Collections.Array<Vector2I> path)
@@ -309,13 +309,14 @@ public partial class LevelManager : Node
         _armies.Current.Controller.SelectTarget(_selected.UnitData, _targets);
     }
 
-    public void OnTargetChosen(Unit source, Unit target)
+    public void OnTargetChosen(Vector2I source, Vector2I target)
     {
-        if (source != _selected)
-            throw new InvalidOperationException($"Cannot choose target for unselected unit {source.Name} ({_selected.Name} is selected)");
-        if ((_command == UnitAction.AttackAction && target.Army.Faction.AlliedTo(_selected.UnitData)) || (_command == UnitAction.SupportAction && !target.Army.Faction.AlliedTo(_selected.UnitData)))
-            throw new ArgumentException($"{_selected.Name} cannot {_command} {target.Name}");
-        _target = target;
+        UnitData targetData = Grid.Data.Occupants[target];
+        if (Grid.Data.Occupants[source].Renderer != _selected)
+            throw new InvalidOperationException($"Cannot choose target for unselected unit at {source} ({_selected.Name} is selected)");
+        if ((_command == UnitAction.AttackAction && targetData.Faction.AlliedTo(_selected.UnitData)) || (_command == UnitAction.SupportAction && !targetData.Faction.AlliedTo(_selected.UnitData)))
+            throw new ArgumentException($"{_selected.Name} cannot {_command} unit at {target}");
+        _target = targetData.Renderer;
         State.SendEvent(DoneEvent);
     }
 

@@ -30,7 +30,7 @@ public abstract partial class ArmyController : Node
     /// <param name="cell">Cell containing the selected unit.</param>
     [Signal] public delegate void UnitSelectedEventHandler(Vector2I cell);
 
-    /// <summary>Signals that a path for a <see cref="Unit"/> to move on has been chosen.</summary>
+    /// <summary>Signals that a path for a unit to move on has been chosen.</summary>
     /// <param name="cell">Cell containing the unit that will move along the path.</param>
     /// <param name="path">Contiguous list of cells for the unit to move through.</param>
     [Signal] public delegate void PathConfirmedEventHandler(Vector2I cell, Godot.Collections.Array<Vector2I> path);
@@ -40,9 +40,9 @@ public abstract partial class ArmyController : Node
     [Signal] public delegate void UnitCommandedEventHandler(Vector2I cell, StringName command);
 
     /// <summary>Signals that a target for an action has been chosen.</summary>
-    /// <param name="source">Unit performing the action.</param>
-    /// <param name="target">Target of the action.</param>
-    [Signal] public delegate void TargetChosenEventHandler(Unit source, Unit target);
+    /// <param name="source">Cell containing the unit performing the action.</param>
+    /// <param name="target">Target cell of the action.</param>
+    [Signal] public delegate void TargetChosenEventHandler(Vector2I source, Vector2I target);
 
     /// <summary>Signals that targeting for a unit's action was canceled.</summary>
     /// <param name="source">Unit whose action was canceled.</param>
