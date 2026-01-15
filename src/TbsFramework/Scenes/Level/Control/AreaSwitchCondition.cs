@@ -55,7 +55,7 @@ public abstract partial class AreaSwitchCondition : SwitchCondition
         HashSet<Vector2I> region = GetRegion();
         IEnumerable<Unit> applicable = GetTriggerUnits();
         Func<Func<Unit, bool>, bool> matcher = RequiresEveryone ? applicable.All : applicable.Any;
-        Func<Unit, bool> container = Inside ? (u) => region.Contains(u.Cell) : (u) => !region.Contains(u.Cell);
+        Func<Unit, bool> container = Inside ? (u) => region.Contains(u.Data.Cell) : (u) => !region.Contains(u.Data.Cell);
 
         Satisfied = matcher(container);
     }

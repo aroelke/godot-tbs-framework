@@ -373,7 +373,7 @@ public partial class PlayerController : ArmyController
         UpdateDangerZones();
         ZoneLayers.Visible = true;
 
-        Cursor.Cell = ((IEnumerable<Unit>)Army).Any() ? ((IEnumerable<Unit>)Army).First().Cell : Vector2I.Zero;
+        Cursor.Data.Cell = ((IEnumerable<Unit>)Army).Any() ? ((IEnumerable<Unit>)Army).First().Data.Cell : Vector2I.Zero;
 
         Cursor.Resume();
         Pointer.StopWaiting();
@@ -441,7 +441,7 @@ public partial class PlayerController : ArmyController
 
         if (@event.IsActionPressed(InputManager.ToggleDangerZone))
         {
-            if (Cursor.Grid.Data.Occupants.TryGetValue(Cursor.Cell, out UnitData unit))
+            if (Cursor.Grid.Data.Occupants.TryGetValue(Cursor.Data.Cell, out UnitData unit))
             {
                 if (!_tracked.Remove(unit.Renderer))
                     _tracked.Add(unit.Renderer);
@@ -461,7 +461,7 @@ public partial class PlayerController : ArmyController
         ActionLayers.Clear();
         ActionLayers.Modulate = ActionRangeHoverModulate;
 
-        OnSelectCursorCellEntered(Cursor.Cell = Grid.CellOf(Pointer.Position));
+        OnSelectCursorCellEntered(Cursor.Data.Cell = Grid.CellOf(Pointer.Position));
         Callable.From(() => State.SendEvent(SelectEvent)).CallDeferred();
     }
 
@@ -540,12 +540,12 @@ public partial class PlayerController : ArmyController
     {
         if (@event.IsActionPressed(InputManager.Previous) || @event.IsActionPressed(InputManager.Next))
         {
-            if (Cursor.Grid.Data.Occupants.GetValueOrDefault(Cursor.Cell) is UnitData hovered)
+            if (Cursor.Grid.Data.Occupants.GetValueOrDefault(Cursor.Data.Cell) is UnitData hovered)
             {
                 if (@event.IsActionPressed(InputManager.Previous) && hovered.Renderer.Army.Previous(hovered.Renderer) is Unit prev)
-                    Cursor.Cell = prev.Cell;
+                    Cursor.Data.Cell = prev.Data.Cell;
                 if (@event.IsActionPressed(InputManager.Next) && hovered.Renderer.Army.Next(hovered.Renderer) is Unit next)
-                    Cursor.Cell = next.Cell;
+                    Cursor.Data.Cell = next.Data.Cell;
             }
             else
             {
@@ -553,11 +553,11 @@ public partial class PlayerController : ArmyController
                 if (!units.Any())
                     units = Army.Units();
                 if (units.Any())
-                    Cursor.Cell = units.OrderBy((u) => u.Cell.DistanceTo(Cursor.Cell)).First().Cell;
+                    Cursor.Data.Cell = units.OrderBy((u) => u.Data.Cell.DistanceTo(Cursor.Data.Cell)).First().Data.Cell;
             }
         }
 
-        if (@event.IsActionPressed(InputManager.Cancel) && Cursor.Grid.Data.Occupants.TryGetValue(Cursor.Cell, out UnitData untrack))
+        if (@event.IsActionPressed(InputManager.Cancel) && Cursor.Grid.Data.Occupants.TryGetValue(Cursor.Data.Cell, out UnitData untrack))
         {
             if (_tracked.Remove(untrack.Renderer))
             {
@@ -601,7 +601,7 @@ public partial class PlayerController : ArmyController
             ActionLayers[AttackLayer.Name] = _attackable = _selected.GetFilteredAttackableCellsInReach();
             ActionLayers[SupportLayer.Name] = _supportable = _selected.GetFilteredSupportableCellsInReach();
             Cursor.SoftRestriction = [.. _traversable];
-            Cursor.Cell = _selected.Cell;
+            Cursor.Data.Cell = _selected.Cell;
             UpdatePath(Path.Empty(Cursor.Grid.Data, _traversable).Add(_selected.Cell));
         }).CallDeferred();
     }
@@ -783,7 +783,7 @@ public partial class PlayerController : ArmyController
 
     private void ConfirmTargetSelection(Vector2I cell)
     {
-        if (Cursor.Cell != Grid.CellOf(Pointer.Position))
+        if (Cursor.Data.Cell != Grid.CellOf(Pointer.Position))
         {
             State.SendEvent(CancelEvent);
             EmitSignal(SignalName.TargetCanceled, _selected.Cell);
@@ -821,12 +821,12 @@ public partial class PlayerController : ArmyController
 
         if (next != 0)
         {
-            if (_targets.Contains(Cursor.Cell))
+            if (_targets.Contains(Cursor.Data.Cell))
             {
                 if (_targets.Count() > 1)
                 {
                     Vector2I[] cells = [.. _targets];
-                    Cursor.Cell = cells[(Array.IndexOf(cells, Cursor.Cell) + next + cells.Length) % cells.Length];
+                    Cursor.Data.Cell = cells[(Array.IndexOf(cells, Cursor.Data.Cell) + next + cells.Length) % cells.Length];
                 }
             }
             else

@@ -91,8 +91,8 @@ public partial class Cursor : GridNode
             _hard = value;
             if (!_hard.IsEmpty)
             {
-                if (!_hard.Contains(Cell))
-                    Cell = _hard.OrderBy((c) => Cell.DistanceTo(c)).First();
+                if (!_hard.Contains(Data.Cell))
+                    Data.Cell = _hard.OrderBy((c) => Data.Cell.DistanceTo(c)).First();
                 MoveController.EnableAnalog = true;
             }
             else
@@ -127,29 +127,29 @@ public partial class Cursor : GridNode
             {
                 if (!HardRestriction.IsEmpty)
                 {
-                    IEnumerable<Vector2I> ahead = HardRestriction.Where((c) => (c - Cell)*direction > Vector2I.Zero);
+                    IEnumerable<Vector2I> ahead = HardRestriction.Where((c) => (c - Data.Cell)*direction > Vector2I.Zero);
                     if (ahead.Any())
-                        Cell = ahead.OrderBy((c) => (c - Cell).ProjectionsTo(direction).Abs(), FurtherAlongDirection).First();
+                        Data.Cell = ahead.OrderBy((c) => (c - Data.Cell).ProjectionsTo(direction).Abs(), FurtherAlongDirection).First();
                 }
                 else
                 {
-                    if ((Cell.Y == 0 && direction.Y < 0) || (Cell.Y == Data.Grid.Size.Y - 1 && direction.Y > 0))
+                    if ((Data.Cell.Y == 0 && direction.Y < 0) || (Data.Cell.Y == Data.Grid.Size.Y - 1 && direction.Y > 0))
                         direction = direction with { Y = 0 };
-                    if ((Cell.X == 0 && direction.X < 0) || (Cell.X == Data.Grid.Size.X - 1 && direction.X > 0))
+                    if ((Data.Cell.X == 0 && direction.X < 0) || (Data.Cell.X == Data.Grid.Size.X - 1 && direction.X > 0))
                         direction = direction with { X = 0 };
 
                     if (direction != Vector2I.Zero)
                     {
                         if (SoftRestriction.Count != 0)
                         {
-                            bool traversable = SoftRestriction.Contains(Cell + direction);
-                            Vector2I target = Cell; // Don't want to directly update cell to avoid firing events
+                            bool traversable = SoftRestriction.Contains(Data.Cell + direction);
+                            Vector2I target = Data.Cell; // Don't want to directly update cell to avoid firing events
                             while (Data.Grid.Contains(target + direction) && SoftRestriction.Contains(target + direction) == traversable)
                                 target += direction;
-                            Cell = target;
+                            Data.Cell = target;
                         }
                         else
-                            Cell = Data.Grid.Clamp(Cell + direction*Data.Grid.Size);
+                            Data.Cell = Data.Grid.Clamp(Data.Cell + direction*Data.Grid.Size);
                     }
                 }
             }
@@ -170,15 +170,15 @@ public partial class Cursor : GridNode
             if (_hard.IsEmpty)
             {
                 if (Wrap)
-                    Cell = (Cell + direction + Data.Grid.Size) % Data.Grid.Size;
+                    Data.Cell = (Data.Cell + direction + Data.Grid.Size) % Data.Grid.Size;
                 else
-                    Cell += direction;
+                    Data.Cell += direction;
             }
             else
             {
-                IEnumerable<Vector2I> ahead = HardRestriction.Where((c) => (c - Cell)*direction > Vector2I.Zero);
+                IEnumerable<Vector2I> ahead = HardRestriction.Where((c) => (c - Data.Cell)*direction > Vector2I.Zero);
                 if (ahead.Any())
-                    Cell = ahead.OrderBy((c) => ((c - Cell).Abs().Sum(), (c - Cell).Normalized().Dot(direction)), static (a, b) => {
+                    Data.Cell = ahead.OrderBy((c) => ((c - Data.Cell).Abs().Sum(), (c - Data.Cell).Normalized().Dot(direction)), static (a, b) => {
                         (int dA, float thetaA) = a;
                         (int dB, float thetaB) = b;
 
@@ -195,7 +195,7 @@ public partial class Cursor : GridNode
                         return 0;
                     }).First();
                 else if (Wrap)
-                    Cell = HardRestriction.OrderBy((c) => (c - Cell).ProjectionsTo(direction).Abs(), FurtherAlongDirection).First();
+                    Data.Cell = HardRestriction.OrderBy((c) => (c - Data.Cell).ProjectionsTo(direction).Abs(), FurtherAlongDirection).First();
             }
         }
     }
@@ -206,7 +206,7 @@ public partial class Cursor : GridNode
     public void OnDirectionReleased(Vector2I direction)
     {
         if (!_halted)
-            EmitSignal(SignalName.CellEntered, Cell);
+            EmitSignal(SignalName.CellEntered, Data.Cell);
     }
 
     /// <summary>
@@ -245,7 +245,7 @@ public partial class Cursor : GridNode
     public void OnPointerMoved(Vector2 position)
     {
         if (DeviceManager.Mode != InputMode.Digital && (HardRestriction.IsEmpty || HardRestriction.Contains(Grid.CellOf(position))))
-            Cell = Grid.CellOf(position);
+            Data.Cell = Grid.CellOf(position);
     }
 
     /// <summary>
@@ -258,29 +258,29 @@ public partial class Cursor : GridNode
         {
             if (!HardRestriction.IsEmpty)
             {
-                IEnumerable<Vector2I> ahead = HardRestriction.Where((c) => (c - Cell)*direction > Vector2I.Zero);
+                IEnumerable<Vector2I> ahead = HardRestriction.Where((c) => (c - Data.Cell)*direction > Vector2I.Zero);
                 if (ahead.Any())
-                    Cell = ahead.OrderBy((c) => (c - Cell).ProjectionsTo(direction).Abs(), FurtherAlongDirection).First();
+                    Data.Cell = ahead.OrderBy((c) => (c - Data.Cell).ProjectionsTo(direction).Abs(), FurtherAlongDirection).First();
             }
             else
             {
-                if ((Cell.Y == 0 && direction.Y < 0) || (Cell.Y == Data.Grid.Size.Y - 1 && direction.Y > 0))
+                if ((Data.Cell.Y == 0 && direction.Y < 0) || (Data.Cell.Y == Data.Grid.Size.Y - 1 && direction.Y > 0))
                     direction = direction with { Y = 0 };
-                if ((Cell.X == 0 && direction.X < 0) || (Cell.X == Data.Grid.Size.X - 1 && direction.X > 0))
+                if ((Data.Cell.X == 0 && direction.X < 0) || (Data.Cell.X == Data.Grid.Size.X - 1 && direction.X > 0))
                     direction = direction with { X = 0 };
 
                 if (direction != Vector2I.Zero)
                 {
                     if (SoftRestriction.Count != 0)
                     {
-                        bool traversable = SoftRestriction.Contains(Cell + direction);
-                        Vector2I target = Cell; // Don't want to directly update cell to avoid firing events
+                        bool traversable = SoftRestriction.Contains(Data.Cell + direction);
+                        Vector2I target = Data.Cell; // Don't want to directly update cell to avoid firing events
                         while (Data.Grid.Contains(target + direction) && SoftRestriction.Contains(target + direction) == traversable)
                             target += direction;
-                        Cell = target;
+                        Data.Cell = target;
                     }
                     else
-                        Cell = Data.Grid.Clamp(Cell + direction*Data.Grid.Size);
+                        Data.Cell = Data.Grid.Clamp(Data.Cell + direction*Data.Grid.Size);
                 }
             }
         }
@@ -289,7 +289,7 @@ public partial class Cursor : GridNode
     public override void _Ready()
     {
         base._Ready();
-        _previous = Cell;
+        _previous = Data.Cell;
         Data.CellChanged += OnCellChanged;
     }
 

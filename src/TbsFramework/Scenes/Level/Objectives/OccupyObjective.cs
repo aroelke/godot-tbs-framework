@@ -32,8 +32,8 @@ public partial class OccupyObjective : Objective
             int occupants = 0;
             HashSet<Vector2I> region = [.. Region.GetUsedCells()];
             if (Army is not null)
-                occupants += region.Where((c) => ((IEnumerable<Unit>)Army).Any((u) => u.Cell == c)).Count();
-            occupants += region.Where((c) => Units.Any((u) => u.Cell == c)).Count();
+                occupants += region.Count((c) => ((IEnumerable<Unit>)Army).Any((u) => u.Data.Cell == c));
+            occupants += region.Count((c) => Units.Any((u) => u.Data.Cell == c));
             return occupants >= Count;
         }
     }
@@ -48,7 +48,7 @@ public partial class OccupyObjective : Objective
 
     public override string[] _GetConfigurationWarnings()
     {
-        List<string> warnings = new(base._GetConfigurationWarnings() ?? []);
+        List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
 
         if (Region is null || Region.GetUsedCells().Count == 0)
             warnings.Add("Region is undefined or empty. Objective cannot be completed.");

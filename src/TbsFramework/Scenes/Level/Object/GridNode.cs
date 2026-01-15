@@ -21,17 +21,10 @@ public abstract partial class GridNode : BoundedNode2D
             if (_grid != value)
             {
                 _grid = value;
-                if (_grid is not null)
-                    Cell = _grid.CellOf(GetGridPosition() + Size/2);
+                if (!Engine.IsEditorHint() && _grid is not null)
+                    SetGridPosition(_grid.Snap(GetGridPosition()));
             }
         }
-    }
-
-    /// <summary>Cell on the <see cref="Map.Grid"/> that this object currently occupies.</summary>
-    [Export] public virtual Vector2I Cell
-    {
-        get => Data.Cell;
-        set => Data.Cell = value;
     }
 
     /// <summary>Structure containing the state of the object during gameplay.</summary>
@@ -92,9 +85,6 @@ public abstract partial class GridNode : BoundedNode2D
         base._Process(delta);
 
         if (Engine.IsEditorHint() && _grid is not null && !Input.IsMouseButtonPressed(MouseButton.Left))
-        {
-            Data.Cell = _grid.CellOf(GetGridPosition() + Size/2);
-            SetGridPosition(_grid.PositionOf(Data.Cell));
-        }
+            SetGridPosition(_grid.Snap(GetGridPosition() + _grid.CellSize/2));
     }
 }

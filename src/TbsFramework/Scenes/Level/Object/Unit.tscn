@@ -22,7 +22,6 @@ SupportRange = PackedInt32Array()
 z_index = 1
 script = ExtResource("1_crlbh")
 Stats = SubResource("Resource_gr881")
-Cell = Vector2i(-1, -1)
 
 [node name="EditorSprite" type="Sprite2D" parent="."]
 centered = false

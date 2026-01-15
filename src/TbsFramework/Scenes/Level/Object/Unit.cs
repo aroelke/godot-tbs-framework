@@ -127,7 +127,7 @@ public partial class Unit : GridNode
     /// <summary>Remove the unit from the map and delete it.</summary>
     public void Die()
     {
-        UnitData.Grid.Occupants.Remove(Cell);
+        UnitData.Grid.Occupants.Remove(Data.Cell);
         QueueFree();
     }
 
@@ -135,7 +135,7 @@ public partial class Unit : GridNode
     /// <param name="path">Coordinates of the cells to move along.</param>
     public void MoveAlong(Path path)
     {
-        if (path[0] != Cell)
+        if (path[0] != Data.Cell)
             throw new ArgumentException("The first cell in the path must be the unit's cell");
 
         if (path.Count == 1)
@@ -227,7 +227,7 @@ public partial class Unit : GridNode
             {
                 _animations.PlaySelected();
                 PathFollow.Progress = 0;
-                Cell = _target;
+                Data.Cell = _target;
                 Path.Curve.ClearPoints();
                 SetProcess(false);
                 EmitSignal(SignalName.DoneMoving);

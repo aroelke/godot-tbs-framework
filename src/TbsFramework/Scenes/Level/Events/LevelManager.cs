@@ -140,7 +140,7 @@ public partial class LevelManager : Node
     public void OnSelectedEntered()
     {
         _selected.Select();
-        _initialCell = _selected.Cell;
+        _initialCell = _selected.Data.Cell;
         _command = null;
         _target = null;
 
@@ -187,7 +187,7 @@ public partial class LevelManager : Node
         State.SetVariable(TraversableProperty, true);
         if (_ff)
         {
-            _selected.Cell = path[^1];
+            _selected.Data.Cell = path[^1];
             State.SendEvent(SkipEvent);
         }
         else
@@ -265,10 +265,10 @@ public partial class LevelManager : Node
         AddActionOption(UnitAction.SupportAction, _selected.UnitData.GetSupportableCells().Where((c) => Grid.Data.Occupants.GetValueOrDefault(c)?.Faction.AlliedTo(_selected.UnitData) ?? false));
         foreach (SpecialActionRegion region in Grid.SpecialActionRegions)
         {
-            if (region.HasSpecialAction(_selected, _selected.Cell))
+            if (region.HasSpecialAction(_selected, _selected.Data.Cell))
             {
                 _options.Add(new(region.Name, () => {
-                    region.PerformSpecialAction(_selected, _selected.Cell);
+                    region.PerformSpecialAction(_selected, _selected.Data.Cell);
                     State.SendEvent(SkipEvent);
                 }));
             }
@@ -288,12 +288,12 @@ public partial class LevelManager : Node
                 option.Action();
     }
 
-    /// <summary>Move the selected <see cref="Unit"/> and <see cref="Object.Cursor"/> back to the cell the unit was at before it moved.</summary>
+    /// <summary>Move the selected <see cref="Unit"/> and <see cref="Cursor"/> back to the cell the unit was at before it moved.</summary>
     public void OnCommandingCanceled()
     {
         _command = null;
 
-        _selected.Cell = _initialCell.Value;
+        _selected.Data.Cell = _initialCell.Value;
         _initialCell = null;
 
         _target = null;
@@ -499,7 +499,7 @@ public partial class LevelManager : Node
                 foreach (Unit unit in (IEnumerable<Unit>)army)
                 {
                     unit.Grid = Grid;
-                    unit.Cell = Grid.CellOf(unit.GlobalPosition - Grid.GlobalPosition);
+                    unit.Data.Cell = Grid.CellOf(unit.GlobalPosition - Grid.GlobalPosition);
                 }
             }
             LevelEvents.Singleton.Connect<Unit>(LevelEvents.SignalName.UnitDefeated, OnUnitDefeated);

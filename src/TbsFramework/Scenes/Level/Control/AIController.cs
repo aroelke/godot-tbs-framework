@@ -415,7 +415,7 @@ public partial class AIController : ArmyController
     {
         if (_target is null)
             throw new InvalidOperationException($"{source.Renderer.Name}'s target has not been determined");
-        if (!targets.Contains(_target.Cell))
+        if (!targets.Contains(_target.Data.Cell))
             throw new InvalidOperationException($"{source.Renderer.Name} can't target {_target}");
 
         Pseudocursor.Position = Grid.PositionOf(_target.Data.Cell);
