@@ -408,7 +408,7 @@ public partial class AIController : ArmyController
 
     public override void CommandUnit(UnitData source, Godot.Collections.Array<StringName> commands, StringName cancel)
     {
-        EmitSignal(SignalName.UnitCommanded, source.Renderer, _action);
+        EmitSignal(SignalName.UnitCommanded, source.Cell, _action);
     }
 
     public override void SelectTarget(UnitData source, IEnumerable<Vector2I> targets)

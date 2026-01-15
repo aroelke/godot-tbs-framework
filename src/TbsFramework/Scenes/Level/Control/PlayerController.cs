@@ -685,7 +685,7 @@ public partial class PlayerController : ArmyController
         {
             State.SendEvent(FinishEvent);
             EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {InputManager.Skip, InputManager.Accelerate});
-            EmitSignal(SignalName.UnitCommanded, _selected, _command);
+            EmitSignal(SignalName.UnitCommanded, _selected.Data.Cell, _command);
             EmitSignal(SignalName.TargetChosen, _selected, target.Renderer);
             EmitSignal(SignalName.PathConfirmed, _selected.Data.Cell, new Godot.Collections.Array<Vector2I>(_path));
         }
@@ -744,9 +744,9 @@ public partial class PlayerController : ArmyController
             _menu = ShowMenu(Cursor.Grid.CellRect(source.Cell), commands.Select((c) => new ContextMenuOption() { Name = c, Action = () => {
                 ActionLayers.Keep(c);
                 State.SendEvent(FinishEvent);
-                EmitSignal(SignalName.UnitCommanded, source.Renderer, c);
+                EmitSignal(SignalName.UnitCommanded, source.Cell, c);
             }}));
-            _menu.MenuCanceled += () => EmitSignal(SignalName.UnitCommanded, source.Renderer, cancel);
+            _menu.MenuCanceled += () => EmitSignal(SignalName.UnitCommanded, source.Cell, cancel);
             _menu.MenuClosed += () => _menu = null;
         }).CallDeferred();
     }

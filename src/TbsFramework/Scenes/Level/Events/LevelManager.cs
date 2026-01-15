@@ -101,10 +101,10 @@ public partial class LevelManager : Node
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TurnFastForward, Callable.From(OnSkipTurnReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitSelected, Callable.From<Vector2I>(OnUnitSelectedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.PathConfirmed, Callable.From<Vector2I, Godot.Collections.Array<Vector2I>>(OnPathConfirmedReaction.React));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Unit, StringName>(OnSelectedUnitCommandedReaction.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, StringName>(OnSelectedUnitCommandedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Unit, Unit>(OnSelectedTargetChosenReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetCanceled, Callable.From<Unit>(OnTargetingCanceled));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Unit, StringName>(OnCommandingUnitCommandedReaction.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, StringName>(OnCommandingUnitCommandedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Unit, Unit>(OnTargetingTargetChosenReaction.React));
 
         _armies.Current.Controller.InitializeTurn();
@@ -160,10 +160,10 @@ public partial class LevelManager : Node
         _armies.Current.Controller.MoveUnit(_selected.UnitData);
     }
 
-    public void OnSelectedUnitCommanded(Unit unit, StringName command)
+    public void OnSelectedUnitCommanded(Vector2I cell, StringName command)
     {
-        if (unit != _selected)
-            throw new InvalidOperationException($"Cannot command unselected unit {unit.Name} ({_selected.Name} is selected)");
+        if (Grid.Data.Occupants[cell].Renderer != _selected)
+            throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Name} is selected)");
         _command = command;
     }
 
@@ -261,8 +261,8 @@ public partial class LevelManager : Node
                 }));
             }
         }
-        AddActionOption(UnitAction.AttackAction, _selected.UnitData.GetAttackableCells().Where((c) => !(Grid.Data.Occupants.GetValueOrDefault(c) as UnitData)?.Faction.AlliedTo(_selected.UnitData) ?? false));
-        AddActionOption(UnitAction.SupportAction, _selected.UnitData.GetSupportableCells().Where((c) => (Grid.Data.Occupants.GetValueOrDefault(c) as UnitData)?.Faction.AlliedTo(_selected.UnitData) ?? false));
+        AddActionOption(UnitAction.AttackAction, _selected.UnitData.GetAttackableCells().Where((c) => !Grid.Data.Occupants.GetValueOrDefault(c)?.Faction.AlliedTo(_selected.UnitData) ?? false));
+        AddActionOption(UnitAction.SupportAction, _selected.UnitData.GetSupportableCells().Where((c) => Grid.Data.Occupants.GetValueOrDefault(c)?.Faction.AlliedTo(_selected.UnitData) ?? false));
         foreach (SpecialActionRegion region in Grid.SpecialActionRegions)
         {
             if (region.HasSpecialAction(_selected, _selected.Cell))
@@ -279,10 +279,10 @@ public partial class LevelManager : Node
         _armies.Current.Controller.CommandUnit(_selected.UnitData, [.. _options.Select((o) => o.Name)], "Cancel");
     }
 
-    public void OnCommandingUnitCommanded(Unit unit, StringName command)
+    public void OnCommandingUnitCommanded(Vector2I cell, StringName command)
     {
-        if (unit != _selected)
-            throw new InvalidOperationException($"Cannon command unselected unit {unit.Name} ({_selected.Name} is selected)");
+        if (Grid.Data.Occupants[cell].Renderer != _selected)
+            throw new InvalidOperationException($"Cannon command unselected unit at {cell} ({_selected.Name} is selected)");
         foreach (ContextMenuOption option in _options)
             if (option.Name == command)
                 option.Action();
