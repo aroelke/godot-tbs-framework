@@ -100,7 +100,7 @@ public partial class LevelManager : Node
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.SelectionCanceled, Callable.From(OnSelectionCanceled));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TurnFastForward, Callable.From(OnSkipTurnReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitSelected, Callable.From<Vector2I>(OnUnitSelectedReaction.React));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.PathConfirmed, Callable.From<Unit, Godot.Collections.Array<Vector2I>>(OnPathConfirmedReaction.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.PathConfirmed, Callable.From<Vector2I, Godot.Collections.Array<Vector2I>>(OnPathConfirmedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Unit, StringName>(OnSelectedUnitCommandedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Unit, Unit>(OnSelectedTargetChosenReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetCanceled, Callable.From<Unit>(OnTargetingCanceled));
@@ -174,8 +174,9 @@ public partial class LevelManager : Node
         _target = target;
     }
 
-    public void OnSelectedPathConfirmed(Unit unit, Godot.Collections.Array<Vector2I> path)
+    public void OnSelectedPathConfirmed(Vector2I cell, Godot.Collections.Array<Vector2I> path)
     {
+        Unit unit = Grid.Data.Occupants[cell].Renderer;
         if (unit != _selected)
             throw new InvalidOperationException($"Cannot confirm path for unselected unit {unit.Name} ({_selected.Name} is selected)");
         if (path.Any((c) => Grid.Data.Occupants.ContainsKey(c) && (!(Grid.Data.Occupants[c] as UnitData)?.Faction.AlliedTo(_selected.UnitData) ?? false)))

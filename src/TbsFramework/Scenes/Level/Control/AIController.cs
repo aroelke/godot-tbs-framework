@@ -399,7 +399,7 @@ public partial class AIController : ArmyController
 
     public override void MoveUnit(UnitData unit)
     {
-        void ConfirmMove() => EmitSignal(SignalName.PathConfirmed, unit.Renderer, new Godot.Collections.Array<Vector2I>(unit.Behavior.GetPath(unit, _destination)));
+        void ConfirmMove() => EmitSignal(SignalName.PathConfirmed, unit.Cell, new Godot.Collections.Array<Vector2I>(unit.Behavior.GetPath(unit, _destination)));
         if (FastForwardTransition.Active)
             FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, ConfirmMove, (uint)ConnectFlags.OneShot);
         else

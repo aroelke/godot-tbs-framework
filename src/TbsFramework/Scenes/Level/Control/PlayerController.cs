@@ -679,7 +679,7 @@ public partial class PlayerController : ArmyController
         {
             State.SendEvent(FinishEvent);
             EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {InputManager.Skip, InputManager.Accelerate});
-            EmitSignal(SignalName.PathConfirmed, _selected, new Godot.Collections.Array<Vector2I>(_path));
+            EmitSignal(SignalName.PathConfirmed, _selected.Data.Cell, new Godot.Collections.Array<Vector2I>(_path));
         }
         else if (occupied && occupant is UnitData target && (_attackable.Contains(target.Cell) || _supportable.Contains(target.Cell)))
         {
@@ -687,7 +687,7 @@ public partial class PlayerController : ArmyController
             EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {InputManager.Skip, InputManager.Accelerate});
             EmitSignal(SignalName.UnitCommanded, _selected, _command);
             EmitSignal(SignalName.TargetChosen, _selected, target.Renderer);
-            EmitSignal(SignalName.PathConfirmed, _selected, new Godot.Collections.Array<Vector2I>(_path));
+            EmitSignal(SignalName.PathConfirmed, _selected.Data.Cell, new Godot.Collections.Array<Vector2I>(_path));
         }
         else
             ErrorSoundPlayer.Play();

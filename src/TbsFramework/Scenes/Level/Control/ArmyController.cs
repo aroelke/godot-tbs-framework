@@ -27,13 +27,13 @@ public abstract partial class ArmyController : Node
     [Signal] public delegate void TurnFastForwardEventHandler();
 
     /// <summary>Signals that a unit has been chosen to act.</summary>
-    /// <param name="unit">Cell containing the selected unit.</param>
+    /// <param name="cell">Cell containing the selected unit.</param>
     [Signal] public delegate void UnitSelectedEventHandler(Vector2I cell);
 
     /// <summary>Signals that a path for a <see cref="Unit"/> to move on has been chosen.</summary>
-    /// <param name="unit">Unit that will move along the path.</param>
+    /// <param name="cell">Cell containing the unit that will move along the path.</param>
     /// <param name="path">Contiguous list of cells for the unit to move through.</param>
-    [Signal] public delegate void PathConfirmedEventHandler(Unit unit, Godot.Collections.Array<Vector2I> path);
+    [Signal] public delegate void PathConfirmedEventHandler(Vector2I cell, Godot.Collections.Array<Vector2I> path);
     /// <summary>Signals that an action has been chosen for a unit.</summary>
     /// <param name="unit">Unit being commanded.</param>
     /// <param name="command">String representing the action to perform.</param>
