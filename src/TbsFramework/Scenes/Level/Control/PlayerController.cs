@@ -2,7 +2,6 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TbsFramework.Data;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes;
 using TbsFramework.Nodes.Components;
@@ -45,7 +44,7 @@ public partial class PlayerController : ArmyController
     private Color _local   = new(0.5f, 0, 0.25f, 100f/256f);
     private Color _global  = Colors.Black with { A = 100f/256f };
 
-    private Unit _selected = null, _target = null;
+    private UnitData _selected = null, _target = null;
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path;
 
@@ -427,8 +426,8 @@ public partial class PlayerController : ArmyController
 #region Ready
     public void OnReadyInput(InputEvent @event)
     {
-        if (@event.IsActionPressed(InputManager.Cancel) && (_selected?.IsMoving ?? false))
-            _selected.SkipMoving();
+        if (@event.IsActionPressed(InputManager.Cancel) && (_selected?.Renderer.IsMoving ?? false))
+            _selected.Renderer.SkipMoving();
     }
 #endregion
 #region Active
@@ -597,10 +596,10 @@ public partial class PlayerController : ArmyController
         Callable.From(() => {
             State.SendEvent(PathEvent);
 
-            _selected = unit.Renderer;
-            ActionLayers[MoveLayer.Name] = _traversable = _selected.UnitData.GetTraversableCells();
-            ActionLayers[AttackLayer.Name] = _attackable = _selected.UnitData.GetFilteredAttackableCellsInReach();
-            ActionLayers[SupportLayer.Name] = _supportable = _selected.UnitData.GetFilteredSupportableCellsInReach();
+            _selected = unit;
+            ActionLayers[MoveLayer.Name] = _traversable = _selected.GetTraversableCells();
+            ActionLayers[AttackLayer.Name] = _attackable = _selected.GetFilteredAttackableCellsInReach();
+            ActionLayers[SupportLayer.Name] = _supportable = _selected.GetFilteredSupportableCellsInReach();
             Cursor.SoftRestriction = [.. _traversable];
             Cursor.Cell = _selected.Cell;
             UpdatePath(Path.Empty(Cursor.Grid.Data, _traversable).Add(_selected.Cell));
@@ -636,15 +635,15 @@ public partial class PlayerController : ArmyController
         if (Cursor.Grid.Data.Occupants.GetValueOrDefault(cell) is UnitData target)
         {
             // Compute cells the highlighted unit could be targeted from (friend or foe)
-            if (target.Renderer != _selected && Army.Faction.AlliedTo(target) && _supportable.Contains(cell))
-                sources = _selected.UnitData.GetSupportableCells(cell).Where(_traversable.Contains);
+            if (target != _selected && Army.Faction.AlliedTo(target) && _supportable.Contains(cell))
+                sources = _selected.GetSupportableCells(cell).Where(_traversable.Contains);
             else if (!Army.Faction.AlliedTo(target) && _attackable.Contains(cell))
-                sources = _selected.UnitData.GetAttackableCells(cell).Where(_traversable.Contains);
-            sources = sources.Where((c) => !Cursor.Grid.Data.Occupants.ContainsKey(c) || (Cursor.Grid.Data.Occupants[c] as UnitData).Renderer == _selected);
+                sources = _selected.GetAttackableCells(cell).Where(_traversable.Contains);
+            sources = sources.Where((c) => !Cursor.Grid.Data.Occupants.TryGetValue(c, out UnitData occupant) || occupant == _selected);
 
             if (sources.Any())
             {
-                _target = target.Renderer;
+                _target = target;
 
                 // Store the action command related to selecting the target as if it were the command state
                 if (_attackable.Contains(cell))
@@ -675,19 +674,19 @@ public partial class PlayerController : ArmyController
             State.SendEvent(CancelEvent);
             EmitSignal(SignalName.SelectionCanceled);
         }
-        else if (!occupied || occupant.Renderer == _selected)
+        else if (!occupied || occupant == _selected)
         {
             State.SendEvent(FinishEvent);
             EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {InputManager.Skip, InputManager.Accelerate});
-            EmitSignal(SignalName.PathConfirmed, _selected.Data.Cell, new Godot.Collections.Array<Vector2I>(_path));
+            EmitSignal(SignalName.PathConfirmed, _selected.Cell, new Godot.Collections.Array<Vector2I>(_path));
         }
         else if (occupied && (_attackable.Contains(occupant.Cell) || _supportable.Contains(occupant.Cell)))
         {
             State.SendEvent(FinishEvent);
             EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {InputManager.Skip, InputManager.Accelerate});
-            EmitSignal(SignalName.UnitCommanded, _selected.Data.Cell, _command);
-            EmitSignal(SignalName.TargetChosen, _selected.Data.Cell, occupant.Cell);
-            EmitSignal(SignalName.PathConfirmed, _selected.Data.Cell, new Godot.Collections.Array<Vector2I>(_path));
+            EmitSignal(SignalName.UnitCommanded, _selected.Cell, _command);
+            EmitSignal(SignalName.TargetChosen, _selected.Cell, occupant.Cell);
+            EmitSignal(SignalName.PathConfirmed, _selected.Cell, new Godot.Collections.Array<Vector2I>(_path));
         }
         else
             ErrorSoundPlayer.Play();
@@ -720,7 +719,7 @@ public partial class PlayerController : ArmyController
     {
         Cursor.Halt(hide:false);
         Pointer.StartWaiting(hide:false);
-        _selected.Connect(Unit.SignalName.DoneMoving, UpdateDangerZones, (uint)ConnectFlags.OneShot);
+        _selected.Renderer.Connect(Unit.SignalName.DoneMoving, UpdateDangerZones, (uint)ConnectFlags.OneShot);
         CleanUpPath();
     }
 
@@ -740,7 +739,7 @@ public partial class PlayerController : ArmyController
         Callable.From(() => {
             State.SendEvent(CommandEvent);
 
-            _selected = source.Renderer;
+            _selected = source;
             _menu = ShowMenu(Cursor.Grid.CellRect(source.Cell), commands.Select((c) => new ContextMenuOption() { Name = c, Action = () => {
                 ActionLayers.Keep(c);
                 State.SendEvent(FinishEvent);
@@ -777,7 +776,7 @@ public partial class PlayerController : ArmyController
         Callable.From(() => {
             State.SendEvent(TargetEvent);
 
-            _selected = source.Renderer;
+            _selected = source;
             Cursor.HardRestriction = [.. _targets=targets];
         }).CallDeferred();
     }
@@ -787,7 +786,7 @@ public partial class PlayerController : ArmyController
         if (Cursor.Cell != Grid.CellOf(Pointer.Position))
         {
             State.SendEvent(CancelEvent);
-            EmitSignal(SignalName.TargetCanceled, _selected.Data.Cell);
+            EmitSignal(SignalName.TargetCanceled, _selected.Cell);
         }
         else if (Cursor.Grid.Data.Occupants.TryGetValue(cell, out UnitData target))
         {
@@ -795,7 +794,7 @@ public partial class PlayerController : ArmyController
             Pointer.StartWaiting(hide:false);
 
             State.SendEvent(FinishEvent);
-            EmitSignal(SignalName.TargetChosen, _selected.Data.Cell, target.Cell);
+            EmitSignal(SignalName.TargetChosen, _selected.Cell, target.Cell);
         }
     }
 
