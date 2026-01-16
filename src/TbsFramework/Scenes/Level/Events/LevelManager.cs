@@ -497,10 +497,7 @@ public partial class LevelManager : Node
             {
                 army.Controller.Grid = Grid;
                 foreach (Unit unit in (IEnumerable<Unit>)army)
-                {
                     unit.Grid = Grid;
-                    unit.Data.Cell = Grid.CellOf(unit.GlobalPosition - Grid.GlobalPosition);
-                }
             }
             LevelEvents.Singleton.Connect<Unit>(LevelEvents.SignalName.UnitDefeated, OnUnitDefeated);
 
@@ -515,6 +512,8 @@ public partial class LevelManager : Node
             LevelEvents.Singleton.Connect<BoundedNode2D>(LevelEvents.SignalName.FocusCamera, PushCameraFocus);
             LevelEvents.Singleton.Connect(LevelEvents.SignalName.RevertCameraFocus, PopCameraFocus);
             LevelEvents.Singleton.Connect(LevelEvents.SignalName.EventComplete, OnEventComplete);
+
+            Callable.From(() => State.SendEvent(DoneEvent)).CallDeferred();
         }
     }
 #endregion

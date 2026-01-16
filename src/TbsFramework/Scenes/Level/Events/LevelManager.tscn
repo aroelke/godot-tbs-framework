@@ -16,7 +16,7 @@
 [ext_resource type="PackedScene" uid="uid://b7i65c130fgfs" path="res://src/TbsFramework/Nodes/StateChart/Reactions/EnterTreeReaction.tscn" id="29_o6hju"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -1231866329
+seed = 1993779890
 
 [sub_resource type="Resource" id="Resource_3lvnu"]
 script = ExtResource("27_kyhbc")
@@ -44,7 +44,13 @@ InitialVariableValues = Dictionary[StringName, Variant]({
 
 [node name="Root" parent="State" node_paths=PackedStringArray("InitialState") instance=ExtResource("18_k7m3y")]
 process_mode = 4
-InitialState = NodePath("Running")
+InitialState = NodePath("Initializing")
+
+[node name="Initializing" parent="State/Root" instance=ExtResource("19_o30vs")]
+
+[node name="StateTransition" parent="State/Root/Initializing" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../Running/BeginTurn")
+Event = &"done"
 
 [node name="Running" parent="State/Root" node_paths=PackedStringArray("InitialState") instance=ExtResource("18_k7m3y")]
 process_mode = 4
