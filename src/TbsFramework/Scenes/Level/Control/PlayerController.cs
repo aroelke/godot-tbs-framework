@@ -341,20 +341,20 @@ public partial class PlayerController : ArmyController
     }
 #endregion
 #region Danger Zone
-    private readonly HashSet<Unit> _tracked = [];
+    private readonly HashSet<UnitData> _tracked = [];
     private bool _showGlobalDangerZone = false;
 
     private void UpdateDangerZones()
     {
-        IEnumerable<Unit> allies = _tracked.Where((u) => Faction.AlliedTo(u.UnitData));
-        IEnumerable<Unit> enemies = _tracked.Where((u) => !Faction.AlliedTo(u.UnitData));
+        IEnumerable<UnitData> allies = _tracked.Where((u) => Faction.AlliedTo(u.Faction));
+        IEnumerable<UnitData> enemies = _tracked.Where((u) => !Faction.AlliedTo(u.Faction));
 
         if (allies.Any())
-            ZoneLayers[AllyTraversableZone.Name] = allies.SelectMany(static (u) => u.UnitData.GetTraversableCells());
+            ZoneLayers[AllyTraversableZone.Name] = allies.SelectMany(static (u) => u.GetTraversableCells());
         else
             ZoneLayers.Clear(AllyTraversableZone.Name);
         if (enemies.Any())
-            ZoneLayers[LocalDangerZone.Name] = enemies.SelectMany(static (u) => u.UnitData.GetAttackableCellsInReach());
+            ZoneLayers[LocalDangerZone.Name] = enemies.SelectMany(static (u) => u.GetAttackableCellsInReach());
         else
             ZoneLayers.Clear(LocalDangerZone.Name);
         
@@ -419,7 +419,7 @@ public partial class PlayerController : ArmyController
 
     public void OnUnitDefeated(Unit defeated)
     {
-        if (_tracked.Remove(defeated) || _showGlobalDangerZone)
+        if (_tracked.Remove(defeated.UnitData) || _showGlobalDangerZone)
             UpdateDangerZones();
     }
 
@@ -445,9 +445,9 @@ public partial class PlayerController : ArmyController
         {
             if (Cursor.Grid.Data.Occupants.TryGetValue(Cursor.Data.Cell, out UnitData unit))
             {
-                if (!_tracked.Remove(unit.Renderer))
-                    _tracked.Add(unit.Renderer);
-                ZoneUpdateSound(_tracked.Contains(unit.Renderer)).Play();
+                if (!_tracked.Remove(unit))
+                    _tracked.Add(unit);
+                ZoneUpdateSound(_tracked.Contains(unit)).Play();
             }
             else
                 ZoneUpdateSound(_showGlobalDangerZone = !_showGlobalDangerZone).Play();
@@ -478,9 +478,9 @@ public partial class PlayerController : ArmyController
             }
             else if (unit.Faction != Faction)
             {
-                if (!_tracked.Remove(unit.Renderer))
-                    _tracked.Add(unit.Renderer);
-                ZoneUpdateSound(_tracked.Contains(unit.Renderer)).Play();
+                if (!_tracked.Remove(unit))
+                    _tracked.Add(unit);
+                ZoneUpdateSound(_tracked.Contains(unit)).Play();
                 UpdateDangerZones();
             }
         }
@@ -562,7 +562,7 @@ public partial class PlayerController : ArmyController
 
         if (@event.IsActionPressed(InputManager.Cancel) && Cursor.Grid.Data.Occupants.TryGetValue(Cursor.Data.Cell, out UnitData untrack))
         {
-            if (_tracked.Remove(untrack.Renderer))
+            if (_tracked.Remove(untrack))
             {
                 ZoneUpdateSound(false).Play();
                 UpdateDangerZones();
