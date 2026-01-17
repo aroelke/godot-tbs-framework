@@ -346,8 +346,8 @@ public partial class PlayerController : ArmyController
 
     private void UpdateDangerZones()
     {
-        IEnumerable<Unit> allies = _tracked.Where((u) => Army.Faction.AlliedTo(u.UnitData));
-        IEnumerable<Unit> enemies = _tracked.Where((u) => !Army.Faction.AlliedTo(u.UnitData));
+        IEnumerable<Unit> allies = _tracked.Where((u) => Faction.AlliedTo(u.UnitData));
+        IEnumerable<Unit> enemies = _tracked.Where((u) => !Faction.AlliedTo(u.UnitData));
 
         if (allies.Any())
             ZoneLayers[AllyTraversableZone.Name] = allies.SelectMany(static (u) => u.UnitData.GetTraversableCells());
@@ -359,7 +359,7 @@ public partial class PlayerController : ArmyController
             ZoneLayers.Clear(LocalDangerZone.Name);
         
         if (_showGlobalDangerZone)
-            ZoneLayers[GlobalDangerZone.Name] = Grid.Data.Occupants.Values.OfType<UnitData>().Where((u) => !Army.Faction.AlliedTo(u)).SelectMany(static (u) => u.GetAttackableCellsInReach());
+            ZoneLayers[GlobalDangerZone.Name] = Grid.Data.Occupants.Values.OfType<UnitData>().Where((u) => !Faction.AlliedTo(u)).SelectMany(static (u) => u.GetAttackableCellsInReach());
         else
             ZoneLayers.Clear(GlobalDangerZone.Name);
     }
@@ -373,7 +373,8 @@ public partial class PlayerController : ArmyController
         UpdateDangerZones();
         ZoneLayers.Visible = true;
 
-        Cursor.Data.Cell = ((IEnumerable<Unit>)Army).Any() ? ((IEnumerable<Unit>)Army).First().Data.Cell : Vector2I.Zero;
+        IEnumerable<UnitData> units = Faction.GetUnits(Grid.Data);
+        Cursor.Data.Cell = units.Any() ? units.First().Cell : Vector2I.Zero;
 
         Cursor.Resume();
         Pointer.StopWaiting();
@@ -382,10 +383,11 @@ public partial class PlayerController : ArmyController
     public override void FinalizeAction()
     {
         UpdateDangerZones();
+        IEnumerable<UnitData> units = Faction.GetUnits(Grid.Data);
         EmitSignal(
             SignalName.ProgressUpdated,
-            ((IEnumerable<Unit>)Army).Count(static (u) => !u.UnitData.Active) + 1, // Add one to account for the unit that just finished
-            ((IEnumerable<Unit>)Army).Count(static (u) => u.UnitData.Active) - 1
+            units.Count(static (u) => !u.Active) + 1, // Add one to account for the unit that just finished
+            units.Count(static (u) => u.Active) - 1
         );
         EmitSignal(SignalName.EnabledInputActionsUpdated, Array.Empty<StringName>());
     }
@@ -469,12 +471,12 @@ public partial class PlayerController : ArmyController
     {
         if (Cursor.Grid.Data.Occupants.TryGetValue(cell, out UnitData unit))
         {
-            if (unit.Faction == Army.Faction && unit.Active)
+            if (unit.Faction == Faction && unit.Active)
             {
                 State.SendEvent(FinishEvent);
                 EmitSignal(SignalName.UnitSelected, unit.Cell);
             }
-            else if (unit.Faction != Army.Faction)
+            else if (unit.Faction != Faction)
             {
                 if (!_tracked.Remove(unit.Renderer))
                     _tracked.Add(unit.Renderer);
@@ -503,8 +505,8 @@ public partial class PlayerController : ArmyController
                     // Cursor is already halted
                     Pointer.StartWaiting(hide:true);
 
-                    foreach (Unit unit in (IEnumerable<Unit>)Army)
-                        unit.Finish();
+                    foreach (UnitData unit in Faction.GetUnits(Grid.Data))
+                        unit.Active = false;
                     State.SendEvent(FinishEvent);
                     EmitSignal(SignalName.TurnFastForward);
                     SelectSoundPlayer.Play();
@@ -542,18 +544,19 @@ public partial class PlayerController : ArmyController
         {
             if (Cursor.Grid.Data.Occupants.GetValueOrDefault(Cursor.Data.Cell) is UnitData hovered)
             {
-                if (@event.IsActionPressed(InputManager.Previous) && hovered.Renderer.Army.Previous(hovered.Renderer) is Unit prev)
-                    Cursor.Data.Cell = prev.Data.Cell;
-                if (@event.IsActionPressed(InputManager.Next) && hovered.Renderer.Army.Next(hovered.Renderer) is Unit next)
-                    Cursor.Data.Cell = next.Data.Cell;
+                if (@event.IsActionPressed(InputManager.Previous) && hovered.Faction.GetUnitBefore(hovered) is UnitData prev)
+                    Cursor.Data.Cell = prev.Cell;
+                if (@event.IsActionPressed(InputManager.Next) && hovered.Faction.GetUnitAfter(hovered) is UnitData next)
+                    Cursor.Data.Cell = next.Cell;
             }
             else
             {
-                IEnumerable<Unit> units = Army.Units().Where(static (u) => u.UnitData.Active);
-                if (!units.Any())
-                    units = Army.Units();
+                IEnumerable<UnitData> units = Faction.GetUnits(Grid.Data);
+                IEnumerable<UnitData> active = units.Where(static (u) => u.Active);
+                if (active.Any())
+                    units = active;
                 if (units.Any())
-                    Cursor.Data.Cell = units.OrderBy((u) => u.Data.Cell.DistanceTo(Cursor.Data.Cell)).First().Data.Cell;
+                    Cursor.Data.Cell = units.OrderBy((u) => u.Cell.DistanceTo(Cursor.Data.Cell)).First().Cell;
             }
         }
 
@@ -635,9 +638,9 @@ public partial class PlayerController : ArmyController
         if (Cursor.Grid.Data.Occupants.GetValueOrDefault(cell) is UnitData target)
         {
             // Compute cells the highlighted unit could be targeted from (friend or foe)
-            if (target != _selected && Army.Faction.AlliedTo(target) && _supportable.Contains(cell))
+            if (target != _selected && Faction.AlliedTo(target) && _supportable.Contains(cell))
                 sources = _selected.GetSupportableCells(cell).Where(_traversable.Contains);
-            else if (!Army.Faction.AlliedTo(target) && _attackable.Contains(cell))
+            else if (!Faction.AlliedTo(target) && _attackable.Contains(cell))
                 sources = _selected.GetAttackableCells(cell).Where(_traversable.Contains);
             sources = sources.Where((c) => !Cursor.Grid.Data.Occupants.TryGetValue(c, out UnitData occupant) || occupant == _selected);
 

@@ -11,6 +11,8 @@ namespace TbsFramework.Scenes.Level.Object;
 /// <summary>Data structure tracking information about a unit on the map.</summary>
 public class UnitData : GridObjectData
 {
+    public delegate void AvailabilityUpdatedEventHandler(bool active);
+
     /// <summary>Handler for changes to the unit's faction.</summary>
     /// <param name="faction">New faction after the change.</param>
     public delegate void FactionUpdatedEventHandler(Faction faction);
@@ -27,6 +29,7 @@ public class UnitData : GridObjectData
     /// <param name="hp">New health value.</param>
     public delegate void HealthUpdatedEventHandler(double hp);
 
+    public event AvailabilityUpdatedEventHandler AvailabilityUpdated;
     /// <summary>Signals that the unit's faction has been changed.</summary>
     public event FactionUpdatedEventHandler FactionUpdated;
     /// <summary>Signals that the unit's class has been changed.</summary>
@@ -36,6 +39,7 @@ public class UnitData : GridObjectData
     /// <summary>Signals that the unit's current health value has changed.</summary>
     public event HealthUpdatedEventHandler HealthUpdated;
 
+    private bool _active = true;
     private Faction _faction = null;
     private Class _class = null;
     private Stats _stats = new();
@@ -67,7 +71,19 @@ public class UnitData : GridObjectData
     private void OnStatValuesChanged(Stats stats) => _health.Maximum = stats.Health;
 
     /// <summary>Whether or not the unit is available to act.</summary>
-    public bool Active = true;
+    public bool Active
+    {
+        get => _active;
+        set
+        {
+            if (_active != value)
+            {
+                _active = value;
+                if (AvailabilityUpdated is not null)
+                    AvailabilityUpdated(_active);
+            }
+        }
+    }
 
     /// <summary>Faction this unit belongs to.</summary>
     public Faction Faction

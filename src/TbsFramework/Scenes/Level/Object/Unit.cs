@@ -110,7 +110,6 @@ public partial class Unit : GridNode
     /// <summary>Put the unit in its "done" state, indicating it isn't available to act anymore.</summary>
     public void Finish()
     {
-        UnitData.Active = false;
         _animations.Modulate = Colors.White;
         _animations.PlayDone();
     }
@@ -118,7 +117,6 @@ public partial class Unit : GridNode
     /// <summary>Restore the unit into its "idle" state from being inactive, indicating that it's ready to act again.</summary>
     public void Refresh()
     {
-        UnitData.Active = true;
         if (UnitData.Faction is null || !UnitData.Class.MapAnimationsPaths.ContainsKey(UnitData.Faction))
             _animations.Modulate = UnitData.Faction?.Color ?? Colors.White;
         _animations.PlayIdle();
@@ -190,6 +188,12 @@ public partial class Unit : GridNode
             SetProcess(false);
         }
 
+        UnitData.AvailabilityUpdated += (active) => {
+            if (active)
+                Refresh();
+            else
+                Finish();
+        };
         UnitData.FactionUpdated += (faction) => {
             if (UnitData.Class is not null)
                 UpdateVisuals(UnitData.Class, faction);

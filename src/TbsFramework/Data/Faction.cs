@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -33,4 +34,37 @@ public partial class Faction : Resource
 
     /// <returns>Get all units in this faction on a grid.</returns>
     public IEnumerable<UnitData> GetUnits(GridData grid) => grid.Occupants.Values.OfType<UnitData>().Where((u) => u.Faction == this);
+
+    public UnitData GetUnitAfter(UnitData unit)
+    {
+        if (unit.Faction != this)
+            throw new ArgumentException($"Cannot get next unit from a faction that isn't {Name}");
+
+        List<UnitData> units = [.. GetUnits(unit.Grid)];
+        if (units.Count == 0)
+            return null;
+        else
+        {
+            int index = units.IndexOf(unit);
+            return units[(index + 1) % units.Count];
+        }
+    }
+
+    public UnitData GetUnitBefore(UnitData unit)
+    {
+        if (unit.Faction != this)
+            throw new ArgumentException($"Cannot get next unit from a faction that isn't {Name}");
+        
+        List<UnitData> units = [.. GetUnits(unit.Grid)];
+        if (units.Count == 0)
+            return null;
+        else
+        {
+            int index = units.IndexOf(unit);
+            if (index == 0)
+                return units[^1];
+            else
+                return units[index - 1];
+        }
+    }
 }

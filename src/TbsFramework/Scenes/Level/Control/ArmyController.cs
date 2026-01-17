@@ -53,11 +53,10 @@ public abstract partial class ArmyController : Node
     /// <param name="remaining">Number of units that can still act.</param>
     [Signal] public delegate void ProgressUpdatedEventHandler(int completed, int remaining);
 
-    private Army _army = null;
     private readonly ImmutableDictionary<StringName, List<Callable>> _turnSignals;
 
-    /// <summary>Army being controlled. Should be the direct parent of this controller.</summary>
-    public Army Army => _army ??= GetParentOrNull<Army>();
+    /// <summary>Faction of the units this controller commands.</summary>
+    public Faction Faction { get; private set; } = null;
 
     public ArmyController() : base()
     {
@@ -135,5 +134,11 @@ public abstract partial class ArmyController : Node
             warnings.Add("This controller does not belong to an army. It has nothing to control.");
 
         return [.. warnings];
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+        Faction = GetParentOrNull<Army>()?.Faction;
     }
 }

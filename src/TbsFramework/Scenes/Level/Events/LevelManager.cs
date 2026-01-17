@@ -365,7 +365,7 @@ public partial class LevelManager : Node
     public void OnEndActionEntered()
     {
         _armies.Current.Controller.FinalizeAction();
-        _selected.Finish();
+        _selected.UnitData.Active = false;
         State.SetVariable(ActiveProperty, ((IEnumerable<Unit>)_armies.Current).Count(static (u) => u.UnitData.Active));
 
         Callable.From<Unit>((u) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, u)).CallDeferred(_selected);
@@ -392,7 +392,7 @@ public partial class LevelManager : Node
         _armies.Current.Controller.FinalizeTurn();
 
         foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
-            unit.Refresh();
+            unit.UnitData.Active = true;
 
         do
         {

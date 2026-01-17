@@ -268,7 +268,7 @@ public partial class AIController : ArmyController
         StringName action = null;
         Vector2I target;
 
-        List<VirtualAction> actions = [.. GetAvailableActions(Grid.Data, Army.Faction)];
+        List<VirtualAction> actions = [.. GetAvailableActions(Grid.Data, Faction)];
         if (actions.Count != 0)
         {
             VirtualAction result;
@@ -286,7 +286,7 @@ public partial class AIController : ArmyController
         }
         else
         {
-            IEnumerable<UnitData> enemies = Grid.Data.Occupants.Values.Where((o) => o is UnitData u && !u.Faction.AlliedTo(Army.Faction)).OfType<UnitData>();
+            IEnumerable<UnitData> enemies = Grid.Data.Occupants.Values.Where((o) => o is UnitData u && !u.Faction.AlliedTo(Faction)).OfType<UnitData>();
 
             selected = enemies.Any() ? available.MinBy((u) => enemies.Min((e) => u.Cell.DistanceTo(e.Cell))) : available.First();
             action = UnitAction.EndAction;
@@ -361,7 +361,7 @@ public partial class AIController : ArmyController
         _action = null;
         _target = null;
 
-        EmitSignal(SignalName.ProgressUpdated, 0, ((IEnumerable<Unit>)Army).Count());
+        EmitSignal(SignalName.ProgressUpdated, 0, Faction.GetUnits(Grid.Data).Count());
         EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {InputManager.Skip});
     }
 
@@ -385,7 +385,7 @@ public partial class AIController : ArmyController
         // Compute this outside the task because it calls Node.GetChildren(), which has to be called on the same thread as that node.
         // Also, use a collection expression to immediately evaluate it rather than waiting until later, because that will be in the
         // wrong thread.
-        IEnumerable<UnitData> available = [.. ((IEnumerable<Unit>)Army).Where(static (u) => u.UnitData.Active).Select(static (u) => u.UnitData)];
+        IEnumerable<UnitData> available = [.. Faction.GetUnits(Grid.Data).Where(static (u) => u.Active)];
 
         (UnitData selected, _destination, _action, Vector2I target) = await Task.Run<(UnitData, Vector2I, StringName, Vector2I)>(() => ComputeAction(available));
         _selected = selected.Renderer;
@@ -436,10 +436,11 @@ public partial class AIController : ArmyController
     public override void FinalizeAction()
     {
         Pseudocursor.Visible = false;
+        IEnumerable<UnitData> units = Faction.GetUnits(Grid.Data);
         EmitSignal(
             SignalName.ProgressUpdated,
-            ((IEnumerable<Unit>)Army).Count(static (u) => !u.UnitData.Active) + 1, // Add one to account for the unit that just finished
-            ((IEnumerable<Unit>)Army).Count(static (u) => u.UnitData.Active) - 1
+            units.Count(static (u) => !u.Active) + 1, // Add one to account for the unit that just finished
+            units.Count(static (u) => u.Active) - 1
         );
     }
 
