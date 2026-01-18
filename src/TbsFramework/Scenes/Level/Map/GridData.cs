@@ -12,11 +12,6 @@ namespace TbsFramework.Scenes.Level.Map;
 /// <summary>Data structure for tracking information about the map and the objects on it.</summary>
 public class GridData
 {
-    /// <summary>Handler for changes in the grid's size.</summary>
-    /// <param name="old">Size of the grid before the change.</param>
-    /// <param name="new">Size of the grid after the change.</param>
-    public delegate void SizeUpdatedEventHandler(Vector2I old, Vector2I @new);
-
     /// <summary>Handler for changes in a cell's terrain.</summary>
     /// <param name="cell">Cell where the terrain was changed.</param>
     /// <param name="old">Terrain before the change.</param>
@@ -46,7 +41,7 @@ public class GridData
     /// Signals that the grid's size has been updated. If the grid shrinks, <see cref="GridObjectData"/>s that are now outside the grid
     /// are not moved. The handler should handle that.
     /// </summary>
-    public event ObservableProperty<Vector2I>.ValueChangedEventHandler SizeUpdated
+    public event PropertyChangedEventHandler<Vector2I> SizeUpdated
     {
         add    => _size.ValueChanged += value;
         remove => _size.ValueChanged -= value;

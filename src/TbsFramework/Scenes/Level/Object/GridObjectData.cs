@@ -1,4 +1,5 @@
 using Godot;
+using TbsFramework.Data;
 using TbsFramework.Scenes.Level.Map;
 
 namespace TbsFramework.Scenes.Level.Object;
@@ -10,20 +11,13 @@ namespace TbsFramework.Scenes.Level.Object;
 /// </param>
 public abstract class GridObjectData()
 {
-    /// <summary>Handler for changes in this object's cell.</summary>
-    /// <param name="from">Cell that was moved from.</param>
-    /// <param name="to">Cell that was moved to.</param>
-    public delegate void CellChangedEventHandler(Vector2I from, Vector2I to);
-
-    public delegate void GridChangedEventHandler(GridData from, GridData to);
-
     private GridData _grid = null;
     private Vector2I _cell = -Vector2I.One;
 
     /// <summary>Signals that the grid object has moved to a new cell.</summary>
-    public event CellChangedEventHandler CellChanged;
-
-    public event GridChangedEventHandler GridChanged;
+    public event PropertyChangedEventHandler<Vector2I> CellChanged;
+    /// <summary>Signls that the object's grid has changed.</summary>
+    public event PropertyChangedEventHandler<GridData> GridChanged;
 
     /// <summary>Grid the object exists on.</summary>
     public GridData Grid

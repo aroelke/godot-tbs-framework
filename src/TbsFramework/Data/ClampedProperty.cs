@@ -15,7 +15,7 @@ public class ClampedProperty<T> where T : IComparable<T>
     public delegate void RangeChangedEventHandler(T oldMin, T newMin, T oldMax, T newMax);
 
     /// <summary>Signals that the value has changed.</summary>
-    public event ObservableProperty<T>.ValueChangedEventHandler ValueChanged
+    public event PropertyChangedEventHandler<T> ValueChanged
     {
         add    => _value.ValueChanged += value;
         remove => _value.ValueChanged -= value;

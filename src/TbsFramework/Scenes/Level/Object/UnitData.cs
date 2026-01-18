@@ -11,33 +11,20 @@ namespace TbsFramework.Scenes.Level.Object;
 /// <summary>Data structure tracking information about a unit on the map.</summary>
 public class UnitData : GridObjectData
 {
-    public delegate void AvailabilityUpdatedEventHandler(bool active);
-
-    /// <summary>Handler for changes to the unit's faction.</summary>
-    /// <param name="faction">New faction after the change.</param>
-    public delegate void FactionUpdatedEventHandler(Faction faction);
-
-    /// <summary>Handler for changes to the unit's class.</summary>
-    /// <param name="class">New class after the change.</param>
-    public delegate void ClassUpdatedEventHandler(Class @class);
-
-    /// <summary>Handler for changes to the object reference defining the unit's stats.</summary>
-    /// <param name="stats">New stats object reference.</param>
-    public delegate void StatsUpdatedEventHandler(Stats stats);
-
-    /// <summary>Handler for changes to the unit's current health.</summary>
-    /// <param name="hp">New health value.</param>
-    public delegate void HealthUpdatedEventHandler(double hp);
-
-    public event AvailabilityUpdatedEventHandler AvailabilityUpdated;
+    /// <summary>Signals that the unit has become active or inactive.</summary>
+    public event Action<bool> AvailabilityUpdated;
     /// <summary>Signals that the unit's faction has been changed.</summary>
-    public event FactionUpdatedEventHandler FactionUpdated;
+    public event PropertyChangedEventHandler<Faction> FactionUpdated;
     /// <summary>Signals that the unit's class has been changed.</summary>
-    public event ClassUpdatedEventHandler ClassUpdated;
+    public event PropertyChangedEventHandler<Class> ClassUpdated;
     /// <summary>Signals that the reference to the structure containing the unit's stats has been changed.</summary>
-    public event StatsUpdatedEventHandler StatsUpdated;
+    public event Action<Stats> StatsUpdated;
     /// <summary>Signals that the unit's current health value has changed.</summary>
-    public event HealthUpdatedEventHandler HealthUpdated;
+    public event PropertyChangedEventHandler<double> HealthUpdated
+    {
+        add    => _health.ValueChanged += value;
+        remove => _health.ValueChanged -= value;
+    }
 
     private bool _active = true;
     private Faction _faction = null;
@@ -47,7 +34,6 @@ public class UnitData : GridObjectData
 
     private void Initialize()
     {
-        _health.ValueChanged += (_, @new) => { if (HealthUpdated is not null) HealthUpdated(@new); };
         _stats.ValuesChanged += OnStatValuesChanged;
         CellChanged += (from, to) => {
             if ((Grid?.Occupants.TryGetValue(to, out UnitData occupant) ?? false) && occupant != this)
@@ -93,9 +79,10 @@ public class UnitData : GridObjectData
         {
             if (_faction != value)
             {
+                Faction old = _faction;
                 _faction = value;
                 if (FactionUpdated is not null)
-                    FactionUpdated(_faction);
+                    FactionUpdated(old, _faction);
             }
         }
     }
@@ -108,9 +95,10 @@ public class UnitData : GridObjectData
         {
             if (_class != value)
             {
+                Class old = _class;
                 _class = value;
                 if (ClassUpdated is not null)
-                    ClassUpdated(_class);
+                    ClassUpdated(old, _class);
             }
         }
     }

@@ -194,16 +194,16 @@ public partial class Unit : GridNode
             else
                 Finish();
         };
-        UnitData.FactionUpdated += (faction) => {
+        UnitData.FactionUpdated += (_, faction) => {
             if (UnitData.Class is not null)
                 UpdateVisuals(UnitData.Class, faction);
         };
-        UnitData.ClassUpdated += (@class) => {
+        UnitData.ClassUpdated += (_, @class) => {
             if (@class is not null)
                 UpdateVisuals(@class, UnitData.Faction);
         };
         UnitData.StatsUpdated += (stats) => _animations?.SetHealthMax(stats.Health);
-        UnitData.HealthUpdated += (hp) => {
+        UnitData.HealthUpdated += (_, hp) => {
             _animations?.SetHealthValue(hp);
             if (hp == 0)
                 LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.UnitDefeated, this);
