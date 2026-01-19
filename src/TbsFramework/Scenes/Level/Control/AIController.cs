@@ -304,7 +304,7 @@ public partial class AIController : ArmyController
 
     private readonly NodeCache _cache = null;
     private Grid _grid = null;
-    private Unit _selected = null;
+    private UnitData _selected = null;
     private Vector2I _destination = -Vector2I.One;
     private StringName _action = null;
     private Unit _target = null;
@@ -388,13 +388,13 @@ public partial class AIController : ArmyController
         IEnumerable<UnitData> available = [.. Faction.GetUnits(Grid.Data).Where(static (u) => u.Active)];
 
         (UnitData selected, _destination, _action, Vector2I target) = await Task.Run<(UnitData, Vector2I, StringName, Vector2I)>(() => ComputeAction(available));
-        _selected = selected.Renderer;
+        _selected = selected;
         if (Grid.Data.Occupants.TryGetValue(target, out UnitData unit))
             _target = unit.Renderer;
         else
             _target = null;
 
-        EmitSignal(SignalName.UnitSelected, _selected.Data.Cell);
+        EmitSignal(SignalName.UnitSelected, _selected.Cell);
     }
 
     public override void MoveUnit(UnitData unit)
