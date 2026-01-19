@@ -23,21 +23,7 @@ public partial class Grid : Node2D
     [Export] public TileMapLayer TerrainLayer = null;
 
     /// <summary>Default terrain to use when it isn't placed explicitly on the map.</summary>
-    [Export] public Terrain DefaultTerrain
-    {
-        get
-        {
-            if (!Engine.IsEditorHint() && IsNodeReady())
-                GD.PushWarning("Use GridData.DefaultTerrain to get/set default terrain while the game is running.");
-            return Data.DefaultTerrain;
-        }
-        set
-        {
-            if (!Engine.IsEditorHint() && IsNodeReady())
-                GD.PushWarning("Use GridData.DefaultTerrain to get/set default terrain while the game is running.");
-            Data.DefaultTerrain = value;
-        }
-    }
+    [Export] public Terrain DefaultTerrain;
 
     /// <summary>Structure containing the state of the grid during gameplay.</summary>
     public readonly GridData Data = new();
@@ -137,6 +123,7 @@ public partial class Grid : Node2D
         if (!Engine.IsEditorHint())
         {
             Data.Size = GroundLayer.GetUsedRect().End;
+            Data.DefaultTerrain = DefaultTerrain;
             if (TerrainLayer is not null)
             {
                 foreach (Vector2I cell in TerrainLayer.GetUsedCells())
