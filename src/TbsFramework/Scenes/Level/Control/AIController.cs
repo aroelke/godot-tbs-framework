@@ -383,12 +383,7 @@ public partial class AIController : ArmyController
 
     public override async void SelectUnit()
     {
-        // Compute this outside the task because it calls Node.GetChildren(), which has to be called on the same thread as that node.
-        // Also, use a collection expression to immediately evaluate it rather than waiting until later, because that will be in the
-        // wrong thread.
-        IEnumerable<UnitData> available = [.. Faction.GetUnits(Grid.Data).Where(static (u) => u.Active)];
-
-        (_selected, _destination, _action, Vector2I target) = await Task.Run<(UnitData, Vector2I, StringName, Vector2I)>(() => ComputeAction(available));
+        (_selected, _destination, _action, Vector2I target) = await Task.Run(() => ComputeAction(Faction.GetUnits(Grid.Data).Where(static (u) => u.Active)));
         if (Grid.Data.Occupants.TryGetValue(target, out UnitData unit))
             _target = unit;
         else
