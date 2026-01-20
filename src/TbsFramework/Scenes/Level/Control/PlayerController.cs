@@ -722,7 +722,7 @@ public partial class PlayerController : ArmyController
     {
         Cursor.Halt(hide:false);
         Pointer.StartWaiting(hide:false);
-        _selected.Renderer.Connect(Unit.SignalName.DoneMoving, UpdateDangerZones, (uint)ConnectFlags.OneShot);
+        _selected.WhenDoneMoving(_path[^1], UpdateDangerZones);
         CleanUpPath();
     }
 

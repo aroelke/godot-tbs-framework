@@ -1,3 +1,4 @@
+using System;
 using Godot;
 using TbsFramework.Data;
 using TbsFramework.Scenes.Level.Map;
@@ -60,5 +61,22 @@ public abstract class GridObjectData()
                     CellChanged(old, _cell);
             }
         }
+    }
+
+    /// <summary>When this object next enters a specific cell, such as when it's done moving along a path, perform an action.</summary>
+    public void WhenDoneMoving(Vector2I cell, Action action)
+    {
+        void OnCellChanged(Vector2I from, Vector2I to)
+        {
+            if (to == cell)
+            {
+                action();
+                CellChanged -= OnCellChanged;
+            }
+        }
+        if (Cell == cell)
+            action();
+        else
+            CellChanged += OnCellChanged;
     }
 }

@@ -223,7 +223,7 @@ public partial class LevelManager : Node
         PushCameraFocus(_selected.MotionBox);
 
         // Move the unit
-        _selected.Connect(Unit.SignalName.DoneMoving, _target is null ? () => State.SendEvent(DoneEvent) : () => State.SendEvent(SkipEvent), (uint)ConnectFlags.OneShot);
+        _selected.UnitData.WhenDoneMoving(_path[^1], _target is null ? () => State.SendEvent(DoneEvent) : () => State.SendEvent(SkipEvent));
         _selected.MoveAlong(_path); // must be last in case it fires right away
     }
 

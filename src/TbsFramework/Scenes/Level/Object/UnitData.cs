@@ -215,5 +215,6 @@ public class UnitData : GridObjectData
     /// <returns>The set of cells this unit can support from across all of the cells it can end its movement in, excluding ones with enemies.</returns>
     public IEnumerable<Vector2I> GetFilteredSupportableCellsInReach() => GetSupportableCellsInReach().Where((c) => !Grid.Occupants.TryGetValue(c, out UnitData occupant) || occupant.Faction.AlliedTo(Faction));
 
+    /// <returns>A copy of this unit, except it maintains the same references to its faction, class, stats, and behavior.</returns>
     public UnitData Clone() => new(this);
 }
