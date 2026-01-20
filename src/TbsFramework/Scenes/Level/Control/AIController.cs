@@ -303,7 +303,6 @@ public partial class AIController : ArmyController
     }
 
     private readonly NodeCache _cache = null;
-    private Grid _grid = null;
     private UnitData _selected = null;
     private Vector2I _destination = -Vector2I.One;
     private StringName _action = null;
@@ -314,7 +313,7 @@ public partial class AIController : ArmyController
     private FadeToBlackTransition FastForwardTransition => _cache.GetNode<FadeToBlackTransition>("CanvasLayer/FastForwardTransition");
     private Timer                 IndicatorTimer        => _cache.GetNode<Timer>("IndicatorTimer");
 
-    public override Grid Grid { get => _grid; set => _grid = value; }
+    public override Grid Grid { get; set; } = null;
 
     /// <summary>Sprite to use for the pseudocursor.</summary>
     [Export] public Texture2D CursorSprite
