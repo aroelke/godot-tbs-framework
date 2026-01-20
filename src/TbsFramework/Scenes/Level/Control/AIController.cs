@@ -52,7 +52,7 @@ public partial class AIController : ArmyController
 
         private VirtualAction(VirtualAction original) : this(null, original.Action, original.Sources, original.Target)
         {
-            Actor = original.Actor.Grid.Clone().Occupants[original.Actor.Cell] as UnitData;
+            Actor = original.Actor.Grid.Clone().Occupants[original.Actor.Cell];
             Traversable = original.Traversable;
             Destination = original.Destination;
 
@@ -65,11 +65,11 @@ public partial class AIController : ArmyController
             RemainingActions = original.RemainingActions;
         }
 
-        public UnitData Actor { get; private set; }
-        public StringName Action { get; private set; }
+        public UnitData Actor;
+        public StringName Action;
         public IEnumerable<Vector2I> Sources = [];
         public Vector2I Target = -Vector2I.One;
-        public IEnumerable<Vector2I> Traversable { get; private set; }
+        public IEnumerable<Vector2I> Traversable;
 
         public Vector2I Destination
         {
@@ -84,9 +84,9 @@ public partial class AIController : ArmyController
         public int SpecialActionsPerformed = 0;
         public int DefeatedEnemies = 0;
         public int DefeatedAllies = 0;
-        public double AllyHealthDifference { get; private set; } = 0;
-        public double EnemyHealthDifference { get; private set; } = 0;
-        public int PathCost { get; private set; } = 0;
+        public double AllyHealthDifference = 0;
+        public double EnemyHealthDifference = 0;
+        public int PathCost = 0;
         public int RemainingActions = 0;
 
         public GridData Result
@@ -180,13 +180,13 @@ public partial class AIController : ArmyController
         HashSet<Vector2I> destinations = [.. action.Sources];
         if (action.Action == UnitAction.AttackAction)
         {
-            target = action.Actor.Grid.Occupants[action.Target] as UnitData;
+            target = action.Actor.Grid.Occupants[action.Target];
             IEnumerable<Vector2I> safeCells = destinations.Where((c) => !target.Stats.AttackRange.Contains(c.ManhattanDistanceTo(target.Cell)));
             if (safeCells.Any())
                 destinations = [.. safeCells];
         }
         else if (action.Action == UnitAction.SupportAction)
-            target = action.Actor.Grid.Occupants[action.Target] as UnitData;
+            target = action.Actor.Grid.Occupants[action.Target];
         else if (action.Action == UnitAction.EndAction)
             throw new InvalidOperationException($"End actions cannot be evaluated");
 
@@ -203,14 +203,14 @@ public partial class AIController : ArmyController
 
             if (duplicate.Action == UnitAction.AttackAction)
             {
-                target = duplicate.Actor.Grid.Occupants[duplicate.Target] as UnitData;
+                target = duplicate.Actor.Grid.Occupants[duplicate.Target];
                 List<CombatAction> attacks = CombatCalculations.AttackResults(duplicate.Actor, target, true);
                 foreach (CombatAction attack in attacks)
                     attack.Target.Health -= attack.Damage;
             }
             else if (duplicate.Action == UnitAction.SupportAction)
             {
-                target = duplicate.Actor.Grid.Occupants[duplicate.Target] as UnitData;
+                target = duplicate.Actor.Grid.Occupants[duplicate.Target];
                 CombatAction support = CombatCalculations.CreateSupportAction(duplicate.Actor, target);
                 support.Target.Health += -support.Damage;
             }
@@ -234,7 +234,7 @@ public partial class AIController : ArmyController
                     if (duplicate.Action != UnitAction.AttackAction || a.Action != UnitAction.AttackAction)
                         return true;
                     // Don't evaluate a if a's target is defeated
-                    if ((a.Actor.Grid.Occupants[a.Target] as UnitData).Health <= 0)
+                    if (a.Actor.Grid.Occupants[a.Target].Health <= 0)
                         return false;
                     // Evaluate a if this action defeated its target to see if more enemies can be defeated down this branch
                     if (target.Health <= 0)
@@ -257,6 +257,7 @@ public partial class AIController : ArmyController
                 decisions[duplicate.Actor.Grid] = value;
                 decisions[duplicate.Actor.Grid].RemainingActions = further.Count();
             }
+            value.Actor = action.Actor; // Maintain original actor to keep its cell intact if it's chosen to act
             return value;
         });
     }
@@ -307,7 +308,7 @@ public partial class AIController : ArmyController
     private UnitData _selected = null;
     private Vector2I _destination = -Vector2I.One;
     private StringName _action = null;
-    private Unit _target = null;
+    private UnitData _target = null;
     private bool _ff = false;
 
     private Sprite2D              Pseudocursor          => _cache.GetNode<Sprite2D>("Pseudocursor");
@@ -387,10 +388,9 @@ public partial class AIController : ArmyController
         // wrong thread.
         IEnumerable<UnitData> available = [.. Faction.GetUnits(Grid.Data).Where(static (u) => u.Active)];
 
-        (UnitData selected, _destination, _action, Vector2I target) = await Task.Run<(UnitData, Vector2I, StringName, Vector2I)>(() => ComputeAction(available));
-        _selected = selected;
+        (_selected, _destination, _action, Vector2I target) = await Task.Run<(UnitData, Vector2I, StringName, Vector2I)>(() => ComputeAction(available));
         if (Grid.Data.Occupants.TryGetValue(target, out UnitData unit))
-            _target = unit.Renderer;
+            _target = unit;
         else
             _target = null;
 
@@ -415,19 +415,19 @@ public partial class AIController : ArmyController
     {
         if (_target is null)
             throw new InvalidOperationException($"{source.Renderer.Name}'s target has not been determined");
-        if (!targets.Contains(_target.Data.Cell))
-            throw new InvalidOperationException($"{source.Renderer.Name} can't target {_target}");
+        if (!targets.Contains(_target.Cell))
+            throw new InvalidOperationException($"{source.Renderer.Name} can't target {_target.Renderer}");
 
-        Pseudocursor.Position = Grid.PositionOf(_target.Data.Cell);
+        Pseudocursor.Position = Grid.PositionOf(_target.Cell);
         Pseudocursor.Visible = true;
 
         if (_ff)
-            EmitSignal(SignalName.TargetChosen, source.Cell, _target.Data.Cell);
+            EmitSignal(SignalName.TargetChosen, source.Cell, _target.Cell);
         else if (FastForwardTransition.Active)
-            FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => EmitSignal(SignalName.TargetChosen, source.Cell, _target.Data.Cell), (uint)ConnectFlags.OneShot);
+            FastForwardTransition.Connect(SceneTransition.SignalName.TransitionedOut, () => EmitSignal(SignalName.TargetChosen, source.Cell, _target.Cell), (uint)ConnectFlags.OneShot);
         else
         {
-            IndicatorTimer.Connect(Timer.SignalName.Timeout, () => EmitSignal(SignalName.TargetChosen, source.Cell, _target.Data.Cell), (uint)ConnectFlags.OneShot);
+            IndicatorTimer.Connect(Timer.SignalName.Timeout, () => EmitSignal(SignalName.TargetChosen, source.Cell, _target.Cell), (uint)ConnectFlags.OneShot);
             IndicatorTimer.WaitTime = IndicationTime;
             IndicatorTimer.Start();
         }
