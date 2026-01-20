@@ -10,7 +10,6 @@ using TbsFramework.Nodes.Components;
 using TbsFramework.Scenes.Combat.Data;
 using TbsFramework.Scenes.Level.Map;
 using TbsFramework.Scenes.Level.Object;
-using TbsFramework.Scenes.Level.Object.Group;
 using TbsFramework.Scenes.Transitions;
 using TbsFramework.UI.Controls.Device;
 
@@ -262,7 +261,7 @@ public partial class AIController : ArmyController
         });
     }
 
-    private (UnitData selected, Vector2I destination, StringName action, Vector2I target) ComputeAction(IEnumerable<UnitData> available)
+    public (UnitData selected, Vector2I destination, StringName action, Vector2I target) ComputeAction(IEnumerable<UnitData> available)
     {
         UnitData selected = null;
         Vector2I destination = -Vector2I.One;
@@ -364,12 +363,6 @@ public partial class AIController : ArmyController
 
         EmitSignal(SignalName.ProgressUpdated, 0, Faction.GetUnits(Grid.Data).Count());
         EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {InputManager.Skip});
-    }
-
-    public (Unit selected, Vector2I destination, StringName action, Unit target) ComputeAction(IEnumerable<Unit> available, IEnumerable<Unit> enemies, Grid grid)
-    {
-        (UnitData selected, Vector2I destination, StringName action, Vector2I target) = ComputeAction(available.Select(static (u) => u.UnitData));
-        return (selected.Renderer, destination, action, Grid.Data.Occupants.TryGetValue(target, out UnitData occupant) && occupant is null ? null : occupant.Renderer);
     }
 
     /// <inheritdoc/>
