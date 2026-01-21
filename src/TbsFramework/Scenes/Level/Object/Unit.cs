@@ -146,13 +146,13 @@ public partial class Unit : GridNode
         if (path[0] != Data.Cell)
             throw new ArgumentException("The first cell in the path must be the unit's cell");
 
-        if (path.Count == 1)
-            EmitSignal(SignalName.DoneMoving);
-        else if (path.Count > 1)
+        // Assumes the path doesn't start and end on the unit's current cell, which shouldn't happen anyway
+        Data.WhenDoneMoving(path[^1], () => EmitSignal(SignalName.DoneMoving));
+        if (path.Count > 1)
         {
+            _target = path[^1];
             foreach (Vector2I cell in path)
                 Path.Curve.AddPoint(Grid.PositionOf(cell) - Position);
-            _target = path[^1];
             Data.CellChanged += OnMoveSkipped;
             SetProcess(true);
         }
@@ -234,11 +234,10 @@ public partial class Unit : GridNode
                 Data.CellChanged -= OnMoveSkipped;
                 _animations.PlaySelected();
                 PathFollow.Progress = 0;
-                Data.Cell = _target;
-                _target = -Vector2I.One;
                 Path.Curve.ClearPoints();
                 SetProcess(false);
-                EmitSignal(SignalName.DoneMoving);
+                Data.Cell = _target;
+                _target = -Vector2I.One;
             }
         }
     }
