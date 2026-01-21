@@ -42,8 +42,7 @@ public partial class LevelManager : Node
     private readonly NodeCache _cache = null;
 
     private Path _path = null;
-    private UnitData _selected = null;
-    private Unit _target = null;
+    private UnitData _selected = null, _target = null;
     private IEnumerator<Army> _armies = null;
     private Vector2I? _initialCell = null;
     private readonly Stack<BoundedNode2D> _cameraHistory = [];
@@ -172,7 +171,7 @@ public partial class LevelManager : Node
     {
         if (Grid.Data.Occupants[source] != _selected)
             throw new InvalidOperationException($"Cannot choose action target for unselected unit at {source} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        _target = Grid.Data.Occupants[target].Renderer;
+        _target = Grid.Data.Occupants[target];
     }
 
     public void OnSelectedPathConfirmed(Vector2I cell, Godot.Collections.Array<Vector2I> path)
@@ -305,12 +304,11 @@ public partial class LevelManager : Node
 
     public void OnTargetChosen(Vector2I source, Vector2I target)
     {
-        UnitData targetData = Grid.Data.Occupants[target];
+        _target = Grid.Data.Occupants[target];
         if (Grid.Data.Occupants[source] != _selected)
             throw new InvalidOperationException($"Cannot choose target for unselected unit at {source} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        if ((_command == UnitAction.AttackAction && targetData.Faction.AlliedTo(_selected)) || (_command == UnitAction.SupportAction && !targetData.Faction.AlliedTo(_selected)))
+        if ((_command == UnitAction.AttackAction && _target.Faction.AlliedTo(_selected)) || (_command == UnitAction.SupportAction && !_target.Faction.AlliedTo(_selected)))
             throw new ArgumentException($"{_selected.Faction.Name} unit at {_selected.Cell} cannot {_command} unit at {target}");
-        _target = targetData.Renderer;
         State.SendEvent(DoneEvent);
     }
 
@@ -329,9 +327,9 @@ public partial class LevelManager : Node
     public void OnCombatEntered()
     {
         if (_command == UnitAction.AttackAction)
-            _combatResults = CombatCalculations.AttackResults(_selected, _target.UnitData, false);
+            _combatResults = CombatCalculations.AttackResults(_selected, _target, false);
         else if (_command == UnitAction.SupportAction)
-            _combatResults = [CombatCalculations.CreateSupportAction(_selected, _target.UnitData)];
+            _combatResults = [CombatCalculations.CreateSupportAction(_selected, _target)];
         else
             throw new NotSupportedException($"Unknown action {_command}");
 
@@ -342,7 +340,7 @@ public partial class LevelManager : Node
         }
         else
         {
-            SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target.UnitData, _combatResults.ToImmutableList()), (uint)ConnectFlags.OneShot);
+            SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, [.. _combatResults]), (uint)ConnectFlags.OneShot);
             SceneManager.CallScene(CombatScenePath);
         }
     }
