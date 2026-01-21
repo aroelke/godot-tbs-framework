@@ -428,8 +428,9 @@ public partial class PlayerController : ArmyController
 #region Ready
     public void OnReadyInput(InputEvent @event)
     {
+        // Force the unit to warp to the end of its path, which causes it to immediately stop moving
         if (@event.IsActionPressed(InputManager.Cancel) && (_selected?.Renderer.IsMoving ?? false))
-            _selected.Renderer.SkipMoving();
+            _selected.Cell = _path[^1];
     }
 #endregion
 #region Active

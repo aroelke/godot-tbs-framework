@@ -227,13 +227,6 @@ public partial class LevelManager : Node
         _selected.MoveAlong(_path); // must be last in case it fires right away
     }
 
-    /// <summary>Press the cancel button during movement to skip to the end.</summary>
-    public void OnMovingEventReceived(StringName @event)
-    {
-        if (@event == CancelEvent)
-            _selected.SkipMoving();
-    }
-
     /// <summary>When done moving, restore the <see cref="Camera2DController">camera</see> target (most likely to the cursor) and update danger zones.</summary>
     public void OnMovingExited()
     {

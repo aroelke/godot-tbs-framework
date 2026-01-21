@@ -25,7 +25,7 @@ public partial class Unit : GridNode
     private readonly NodeCache _cache = null;
     private UnitMapAnimations _animations = null;
     private Army _army = null;
-    private Vector2I _target = Vector2I.Zero;
+    private Vector2I _target = -Vector2I.One;
 
     private Sprite2D             EditorSprite   => _cache.GetNode<Sprite2D>("EditorSprite");
     private FastForwardComponent Accelerate     => _cache.GetNode<FastForwardComponent>("Accelerate");
@@ -53,6 +53,16 @@ public partial class Unit : GridNode
             _animations.SetHealthMax(UnitData.Stats.Health);
             _animations.SetHealthValue(UnitData.Health);
         }
+    }
+
+    /// <summary>
+    /// If this unit is moved to the end of its movement path while moving, it assumes it was meant to skip the rest of its movement
+    /// animation and stops moving.
+    /// </summary>
+    private void OnMoveSkipped(Vector2I from, Vector2I to)
+    {
+        if (IsMoving && to == _target)
+            PathFollow.ProgressRatio = 1;
     }
 
     public UnitData UnitData { get; init; } = new();
@@ -143,17 +153,9 @@ public partial class Unit : GridNode
             foreach (Vector2I cell in path)
                 Path.Curve.AddPoint(Grid.PositionOf(cell) - Position);
             _target = path[^1];
+            Data.CellChanged += OnMoveSkipped;
             SetProcess(true);
         }
-    }
-
-    /// <summary>If this unit is moving, skip straight to the end of the path.</summary>
-    /// <exception cref="InvalidOperationException">If the unit is not moving.</exception>
-    public void SkipMoving()
-    {
-        if (!IsMoving)
-            throw new InvalidOperationException($"Unit {Name} isn't moving");
-        PathFollow.ProgressRatio = 1;
     }
 
     public override string[] _GetConfigurationWarnings()
@@ -229,9 +231,11 @@ public partial class Unit : GridNode
 
             if (PathFollow.ProgressRatio >= 1)
             {
+                Data.CellChanged -= OnMoveSkipped;
                 _animations.PlaySelected();
                 PathFollow.Progress = 0;
                 Data.Cell = _target;
+                _target = -Vector2I.One;
                 Path.Curve.ClearPoints();
                 SetProcess(false);
                 EmitSignal(SignalName.DoneMoving);
