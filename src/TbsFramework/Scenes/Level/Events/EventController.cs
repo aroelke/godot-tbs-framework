@@ -29,13 +29,13 @@ public partial class EventController : Node
         if (Success?.Complete ?? false)
         {
             if (signal)
-                LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.SuccessObjectiveComplete);
+                LevelEvents.SuccessObjectiveComplete();
             return true;
         }
         else if (Failure?.Complete ?? false)
         {
             if (signal)
-                LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.FailureObjectiveComplete);
+                LevelEvents.FailureObjectiveComplete();
             return true;
         }
         else
@@ -46,7 +46,7 @@ public partial class EventController : Node
     public void SkipEvent()
     {
         if (!EvaluateObjective())
-            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.EventComplete);
+            LevelEvents.EventComplete();
     }
 
     /// <summary>
@@ -69,14 +69,27 @@ public partial class EventController : Node
     public virtual void _TurnEnded(int turn, Army army) => SkipEvent();
     public void OnTurnEnded(int turn, Army army) => Callable.From<int, Army>(_TurnEnded).CallDeferred(turn, army);
 
-    public override void _Ready()
+    public override void _EnterTree()
     {
-        base._Ready();
+        base._EnterTree();
+
         if (!Engine.IsEditorHint())
         {
-            LevelEvents.Singleton.Connect<int, Army>(LevelEvents.SignalName.TurnBegan, OnTurnBegan);
-            LevelEvents.Singleton.Connect<Unit>(LevelEvents.SignalName.ActionEnded, OnActionEnded);
-            LevelEvents.Singleton.Connect<int, Army>(LevelEvents.SignalName.TurnEnded, OnTurnEnded);
+            LevelEvents.TurnBegan += OnTurnBegan;
+            LevelEvents.ActionEnded += OnActionEnded;
+            LevelEvents.TurnEnded += OnTurnEnded;
+        }
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+
+        if (!Engine.IsEditorHint())
+        {
+            LevelEvents.TurnBegan -= OnTurnBegan;
+            LevelEvents.ActionEnded -= OnActionEnded;
+            LevelEvents.TurnEnded -= OnTurnEnded;
         }
     }
 }

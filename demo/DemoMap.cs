@@ -28,10 +28,17 @@ public partial class DemoMap : Node
         ]).Any();
     }
 
-    public override void _Ready()
+    public override void _EnterTree()
     {
-        base._Ready();
+        base._EnterTree();
         if (!Engine.IsEditorHint())
-            LevelEvents.Singleton.Connect<int, Army>(LevelEvents.SignalName.TurnBegan, OnTurnBegan);
+            LevelEvents.TurnBegan += OnTurnBegan;
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+        if (!Engine.IsEditorHint())
+            LevelEvents.TurnBegan -= OnTurnBegan;
     }
 }

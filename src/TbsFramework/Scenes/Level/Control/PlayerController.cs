@@ -326,9 +326,9 @@ public partial class PlayerController : ArmyController
         menu.Wrap = true;
         UserInterface.AddChild(menu);
         menu.Visible = false;
-        menu.MenuClosed += () => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.RevertCameraFocus);
+        menu.MenuClosed += LevelEvents.RevertCameraFocus;
 
-        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.FocusCamera, (BoundedNode2D)null);
+        LevelEvents.FocusCamera(null);
 
         Callable.From<ContextMenu, Rect2>((m, r) => {
             m.Visible = true;
@@ -402,19 +402,21 @@ public partial class PlayerController : ArmyController
     }
 #endregion
 #region State Independent
+    private void OnCameraBoundsUpdated(Rect2I bounds) => Pointer.Bounds = bounds;
+
     public void OnCancel() => CancelSoundPlayer.Play();
     public void OnFinish() => SelectSoundPlayer.Play();
 
     public void OnPointerFlightStarted(Vector2 target)
     {
         State.SendEvent(WaitEvent);
-        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.FocusCamera, target);
+        LevelEvents.FocusCamera(Pointer);
     }
 
     public void OnPointerFlightCompleted()
     {
         State.SendEvent(FinishEvent);
-        LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.RevertCameraFocus);
+        LevelEvents.RevertCameraFocus();
     }
 
     public void OnUnitDefeated(Unit defeated)
@@ -957,8 +959,16 @@ public partial class PlayerController : ArmyController
             property["usage"] = Variant.From(PropertyUsageFlags.None);
         base._ValidateProperty(property);
     }
-#endregion
-#region Engine Events
+    #endregion
+    #region Engine Events
+    public override void _EnterTree()
+    {
+        base._EnterTree();
+
+        if (!Engine.IsEditorHint())
+            LevelEvents.CameraBoundsUpdated += OnCameraBoundsUpdated;
+    }
+
     public override void _Ready()
     {
         base._Ready();
@@ -974,9 +984,8 @@ public partial class PlayerController : ArmyController
 
         if (!Engine.IsEditorHint())
         {
-            LevelEvents.Singleton.Connect<Rect2I>(LevelEvents.SignalName.CameraBoundsUpdated, (b) => Pointer.Bounds = b);
             LevelEvents.Singleton.Connect<Unit>(LevelEvents.SignalName.UnitDefeated, OnUnitDefeated);
-            Callable.From(() => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.FocusCamera, Pointer)).CallDeferred();
+            Callable.From<BoundedNode2D>(LevelEvents.FocusCamera).CallDeferred(Pointer);
             Cursor.Halt();
         }
     }
@@ -986,6 +995,14 @@ public partial class PlayerController : ArmyController
         base._Process(delta);
         if (_menu is not null)
             _menu.Position = MenuPosition(Cursor.Grid.CellRect(_selected.Cell), _menu.Size);
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+
+        if (!Engine.IsEditorHint())
+            LevelEvents.CameraBoundsUpdated -= OnCameraBoundsUpdated;
     }
 }
 #endregion

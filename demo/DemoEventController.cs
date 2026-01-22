@@ -24,14 +24,28 @@ public partial class DemoEventController : EventController
         SceneManager.JumpToScene(GameOverScreen);
     }
 
-    public override void _Ready()
+    public void OnSuccessObjectiveCompleted() => OnObjectiveCompleted(true);
+    public void OnFailureObjectiveCompleted() => OnObjectiveCompleted(false);
+
+    public override void _EnterTree()
     {
-        base._Ready();
+        base._EnterTree();
 
         if (!Engine.IsEditorHint())
         {
-            LevelEvents.Singleton.Connect(LevelEvents.SignalName.SuccessObjectiveComplete, () => OnObjectiveCompleted(true));
-            LevelEvents.Singleton.Connect(LevelEvents.SignalName.FailureObjectiveComplete, () => OnObjectiveCompleted(false));
+            LevelEvents.SuccessObjectiveCompleted += OnSuccessObjectiveCompleted;
+            LevelEvents.FailureObjectiveCompleted += OnFailureObjectiveCompleted;
+        }
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+
+        if (!Engine.IsEditorHint())
+        {
+            LevelEvents.SuccessObjectiveCompleted -= OnSuccessObjectiveCompleted;
+            LevelEvents.FailureObjectiveCompleted -= OnFailureObjectiveCompleted;
         }
     }
 }

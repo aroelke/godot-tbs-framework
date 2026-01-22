@@ -24,13 +24,13 @@ public partial class TurnSwitchCondition : SwitchCondition
     {
         base._EnterTree();
         if (!Engine.IsEditorHint())
-            LevelEvents.Singleton.TurnBegan += Update;
+            LevelEvents.TurnBegan += Update;
     }
 
     public override void _ExitTree()
     {
         base._ExitTree();
         if (!Engine.IsEditorHint())
-            LevelEvents.Singleton.TurnBegan -= Update;
+            LevelEvents.TurnBegan -= Update;
     }
 }

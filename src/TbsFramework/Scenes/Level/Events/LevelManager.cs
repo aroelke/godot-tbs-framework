@@ -108,7 +108,7 @@ public partial class LevelManager : Node
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Vector2I, Vector2I>(OnTargetingTargetChosenReaction.React));
 
         _armies.Current.Controller.InitializeTurn();
-        Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnBegan, t, a)).CallDeferred(Turn, _armies.Current);
+        Callable.From<int, Army>(LevelEvents.BeginTurn).CallDeferred(Turn, _armies.Current);
     }
 #endregion
 #region Idle State
@@ -360,7 +360,7 @@ public partial class LevelManager : Node
         _selected.Active = false;
         State.SetVariable(ActiveProperty, ((IEnumerable<Unit>)_armies.Current).Count(static (u) => u.UnitData.Active));
 
-        Callable.From<Unit>((u) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.ActionEnded, u)).CallDeferred(_selected.Renderer);
+        Callable.From<Unit>(LevelEvents.EndAction).CallDeferred(_selected.Renderer);
     }
 
     /// <summary>Clean up at the end of the unit's turn.</summary>
@@ -372,7 +372,7 @@ public partial class LevelManager : Node
     }
 #endregion
 #region End Turn State
-    public void Turnover() => Callable.From<int, Army>((t, a) => LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.TurnEnded, t, a)).CallDeferred(Turn, _armies.Current);
+    public void Turnover() => Callable.From<int, Army>(LevelEvents.EndTurn).CallDeferred(Turn, _armies.Current);
 
     /// <summary>After a delay, signal that the turn is ending and wait for a response.</summary>
     public void OnEndTurnEntered() => TurnAdvance.Start();
@@ -474,6 +474,18 @@ public partial class LevelManager : Node
         }
     }
 
+    public override void _EnterTree()
+    {
+        base._EnterTree();
+
+        if (!Engine.IsEditorHint())
+        {
+            LevelEvents.EventCompleted += OnEventComplete;
+            LevelEvents.CameraFocused += PushCameraFocus;
+            LevelEvents.CameraFocusReverted += PopCameraFocus;
+        }
+    }
+
     public override void _Ready()
     {
         base._Ready();
@@ -483,7 +495,7 @@ public partial class LevelManager : Node
             Grid = GetNode<Grid>("Grid");
 
             Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Data.Size*Grid.CellSize));
-            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.CameraBoundsUpdated, Camera.Limits);
+            LevelEvents.UpdateCameraBounds(Camera.Limits);
 
             foreach (Army army in GetChildren().OfType<Army>())
             {
@@ -501,11 +513,19 @@ public partial class LevelManager : Node
                     if (!_armies.MoveNext())
                         break;
 
-            LevelEvents.Singleton.Connect<BoundedNode2D>(LevelEvents.SignalName.FocusCamera, PushCameraFocus);
-            LevelEvents.Singleton.Connect(LevelEvents.SignalName.RevertCameraFocus, PopCameraFocus);
-            LevelEvents.Singleton.Connect(LevelEvents.SignalName.EventComplete, OnEventComplete);
-
             Callable.From(() => State.SendEvent(DoneEvent)).CallDeferred();
+        }
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+
+        if (!Engine.IsEditorHint())
+        {
+            LevelEvents.EventCompleted -= OnEventComplete;
+            LevelEvents.CameraFocused -= PushCameraFocus;
+            LevelEvents.CameraFocusReverted -= PopCameraFocus;
         }
     }
 #endregion

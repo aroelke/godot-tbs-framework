@@ -75,13 +75,13 @@ public abstract partial class AreaSwitchCondition : SwitchCondition
     {
         base._EnterTree();
         if (!Engine.IsEditorHint())
-            LevelEvents.Singleton.ActionEnded += Update;
+            LevelEvents.ActionEnded += Update;
     }
 
     public override void _ExitTree()
     {
         base._ExitTree();
         if (!Engine.IsEditorHint())
-            LevelEvents.Singleton.ActionEnded -= Update;
+            LevelEvents.ActionEnded -= Update;
     }
 }
