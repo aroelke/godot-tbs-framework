@@ -17,6 +17,7 @@ using TbsFramework.Scenes.Level.Control;
 using TbsFramework.Nodes.StateCharts;
 using TbsFramework.Nodes.StateCharts.Reactions;
 using TbsFramework.Scenes.Level.Events.Reactions;
+using TbsFramework.Data;
 
 namespace TbsFramework.Scenes.Level.Events;
 
@@ -108,7 +109,7 @@ public partial class LevelManager : Node
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Vector2I, Vector2I>(OnTargetingTargetChosenReaction.React));
 
         _armies.Current.Controller.InitializeTurn();
-        Callable.From<int, Army>(LevelEvents.BeginTurn).CallDeferred(Turn, _armies.Current);
+        Callable.From<int, Faction>(LevelEvents.BeginTurn).CallDeferred(Turn, _armies.Current.Faction);
     }
 #endregion
 #region Idle State
@@ -372,7 +373,7 @@ public partial class LevelManager : Node
     }
 #endregion
 #region End Turn State
-    public void Turnover() => Callable.From<int, Army>(LevelEvents.EndTurn).CallDeferred(Turn, _armies.Current);
+    public void Turnover() => Callable.From<int, Faction>(LevelEvents.EndTurn).CallDeferred(Turn, _armies.Current.Faction);
 
     /// <summary>After a delay, signal that the turn is ending and wait for a response.</summary>
     public void OnEndTurnEntered() => TurnAdvance.Start();

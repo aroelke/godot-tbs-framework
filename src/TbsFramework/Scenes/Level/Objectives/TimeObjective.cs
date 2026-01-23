@@ -1,7 +1,6 @@
 using Godot;
-using TbsFramework.Extensions;
+using TbsFramework.Data;
 using TbsFramework.Scenes.Level.Events;
-using TbsFramework.Scenes.Level.Object.Group;
 
 namespace TbsFramework.Scenes.Level.Objectives;
 
@@ -11,7 +10,7 @@ public partial class TimeObjective : Objective
 {
     private int _turn = 0;
 
-    private void OnTurnBegan(int turn, Army _) => _turn = turn;
+    private void OnTurnBegan(int turn, Faction _) => _turn = turn;
 
     /// <summary>Number of turns to elapse before completion.</summary>
     [Export(PropertyHint.Range, "1,10,or_greater")] public int Turns = 0;

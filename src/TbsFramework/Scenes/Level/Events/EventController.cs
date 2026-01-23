@@ -1,9 +1,8 @@
 #pragma warning disable IDE1006 // Naming Styles
 
 using Godot;
-using TbsFramework.Extensions;
+using TbsFramework.Data;
 using TbsFramework.Scenes.Level.Object;
-using TbsFramework.Scenes.Level.Object.Group;
 using TbsFramework.Scenes.Level.Objectives;
 
 namespace TbsFramework.Scenes.Level.Events;
@@ -54,20 +53,20 @@ public partial class EventController : Node
     /// Overriding classes should signal <c>EventComplete</c> when they're ready for the turn to begin.
     /// </summary>
     /// <param name="turn">Turn number that's about to begin.</param>
-    /// <param name="army">Army that's about to begin its turn.</param>
-    public virtual void _TurnBegan(int turn, Army army) => SkipEvent();
-    public void OnTurnBegan(int turn, Army army) => Callable.From<int, Army>(_TurnBegan).CallDeferred(turn, army);
+    /// <param name="faction">Faction that's about to begin its turn.</param>
+    public virtual void _TurnBegan (int turn, Faction faction) => SkipEvent();
+    public         void OnTurnBegan(int turn, Faction Faction) => Callable.From<int, Faction>(_TurnBegan).CallDeferred(turn, Faction);
 
     /// <summary>
     /// Event to perform just after a unit ends its action. By default, evaluates the objectives and signals to continue to the next action if not success
     /// or failure. Overriding classes should signal <c>EventComplete</c> when they're ready for the turn to end.
     /// </summary>
     /// <param name="unit">Unit that just acted.</param>
-    public virtual void _ActionEnded(Unit unit) => SkipEvent();
-    public void OnActionEnded(Unit unit) => Callable.From<Unit>(_ActionEnded).CallDeferred(unit);
+    public virtual void _ActionEnded (Unit unit) => SkipEvent();
+    public         void OnActionEnded(Unit unit) => Callable.From<Unit>(_ActionEnded).CallDeferred(unit);
 
-    public virtual void _TurnEnded(int turn, Army army) => SkipEvent();
-    public void OnTurnEnded(int turn, Army army) => Callable.From<int, Army>(_TurnEnded).CallDeferred(turn, army);
+    public virtual void _TurnEnded (int turn, Faction faction) => SkipEvent();
+    public         void OnTurnEnded(int turn, Faction faction) => Callable.From<int, Faction>(_TurnEnded).CallDeferred(turn, faction);
 
     public override void _EnterTree()
     {

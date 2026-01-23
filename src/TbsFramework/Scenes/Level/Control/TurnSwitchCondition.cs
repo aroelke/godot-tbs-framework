@@ -1,4 +1,5 @@
 using Godot;
+using TbsFramework.Data;
 using TbsFramework.Scenes.Level.Events;
 using TbsFramework.Scenes.Level.Object.Group;
 
@@ -14,9 +15,9 @@ public partial class TurnSwitchCondition : SwitchCondition
     /// <summary>Army whose turn should be tracked for triggering. Leave <c>null</c> to track all armies.</summary>
     [Export] public Army TriggerArmy = null;
 
-    public void Update(int turn, Army army)
+    public void Update(int turn, Faction army)
     {
-        if (TriggerArmy is null || army == TriggerArmy)
+        if (TriggerArmy is null || army == TriggerArmy.Faction)
             Satisfied = turn >= TriggerTurn;
     }
 

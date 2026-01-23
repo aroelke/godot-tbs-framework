@@ -1,9 +1,9 @@
 using System;
 using Godot;
+using TbsFramework.Data;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes;
 using TbsFramework.Scenes.Level.Object;
-using TbsFramework.Scenes.Level.Object.Group;
 
 namespace TbsFramework.Scenes.Level.Events;
 
@@ -15,8 +15,8 @@ public partial class LevelEvents : Node
 #region Level Manager
     /// <summary>Event handler for turn phases for a faction.</summary>
     /// <param name="turn">Number of the turn that ended.</param>
-    /// <param name="army">Army whose turn ended.</param>
-    public delegate void TurnPhaseEventHandler(int turn, Army army);
+    /// <param name="faction">Faction whose turn phase began.</param>
+    public delegate void TurnPhaseEventHandler(int turn, Faction faction);
 
     /// <summary>Signals that an army's turn has begun.</summary>
     public static event TurnPhaseEventHandler TurnBegan;
@@ -37,13 +37,13 @@ public partial class LevelEvents : Node
     public static event Action CameraFocusReverted;
 
     /// <summary>Signal that the turn has begun for a faction.</summary>
-    public static void BeginTurn(int turn, Army army) { if (TurnBegan is not null) TurnBegan(turn, army); }
+    public static void BeginTurn(int turn, Faction faction) { if (TurnBegan is not null) TurnBegan(turn, faction); }
 
     /// <summary>Signal that a unit's action has ended.</summary>
     public static void EndAction(Unit unit) { if (ActionEnded is not null) ActionEnded(unit); }
 
     /// <summary>Signal that the turn has ended for a faction.</summary>
-    public static void EndTurn(int turn, Army army) { if (TurnEnded is not null) TurnEnded(turn, army); }
+    public static void EndTurn(int turn, Faction faction) { if (TurnEnded is not null) TurnEnded(turn, faction); }
 
     /// <summary>Signal that the camera bounds on the map have been updated.</summary>
     public static void UpdateCameraBounds(Rect2I bounds) { if (CameraBoundsUpdated is not null) CameraBoundsUpdated(bounds); }
