@@ -382,6 +382,9 @@ public partial class PlayerController : ArmyController
 
     public override void FinalizeAction()
     {
+        foreach (UnitData unit in _tracked)
+            if (unit.Grid is null)
+                _tracked.Remove(unit);
         UpdateDangerZones();
         IEnumerable<UnitData> units = Faction.GetUnits(Grid.Data);
         EmitSignal(
@@ -417,12 +420,6 @@ public partial class PlayerController : ArmyController
     {
         State.SendEvent(FinishEvent);
         LevelEvents.RevertCameraFocus();
-    }
-
-    public void OnUnitDefeated(Unit defeated)
-    {
-        if (_tracked.Remove(defeated.UnitData) || _showGlobalDangerZone)
-            UpdateDangerZones();
     }
 
     public override void FastForwardTurn() => throw new NotImplementedException("Fast forward doesn't make sense for the player controller yet");
@@ -984,7 +981,6 @@ public partial class PlayerController : ArmyController
 
         if (!Engine.IsEditorHint())
         {
-            LevelEvents.Singleton.Connect<Unit>(LevelEvents.SignalName.UnitDefeated, OnUnitDefeated);
             Callable.From<BoundedNode2D>(LevelEvents.FocusCamera).CallDeferred(Pointer);
             Cursor.Halt();
         }

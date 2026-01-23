@@ -161,7 +161,7 @@ public partial class Unit : GridNode
         _animations.PlayIdle();
     }
 
-    /// <summary>Remove the unit from the map and delete it.</summary>
+    /// <summary>Remove the unit from the map and delete its renderer.</summary>
     public void Die()
     {
         UnitData.AvailabilityUpdated -= OnAvailabilityUpdated;
@@ -170,7 +170,7 @@ public partial class Unit : GridNode
         UnitData.StatsUpdated        -= OnStatsUpdated;
         UnitData.HealthUpdated       -= OnHealthUpdated;
 
-        UnitData.Grid.Occupants.Remove(Data.Cell);
+        UnitData.Grid = null;
         QueueFree();
     }
 
