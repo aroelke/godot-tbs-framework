@@ -319,8 +319,14 @@ public partial class LevelManager : Node
     private void ApplyCombatResults()
     {
         foreach (CombatAction action in _combatResults)
+        {
             if (action.Hit)
+            {
                 action.Target.Health -= action.Damage;
+                if (action.Target.Health <= 0)
+                    action.Target.Renderer.Die();
+            }
+        }
         _target = null;
         _combatResults = null;
     }
@@ -368,8 +374,6 @@ public partial class LevelManager : Node
     /// <summary>Clean up at the end of the unit's turn.</summary>
     public void OnEndActionExited()
     {
-        if (_selected.Health <= 0)
-            _selected.Renderer.Die();
         _selected = null;
     }
 #endregion
@@ -464,18 +468,6 @@ public partial class LevelManager : Node
             gd.Grid = Engine.IsEditorHint() ? GetNode<Grid>("Grid") : Grid;
     }
 
-    public void OnUnitDefeated(Unit defeated)
-    {
-        // If the dead unit is the currently-selected one, it will be cleared away at the end of its action.
-        if (_selected.Renderer != defeated)
-            defeated.Die();
-        else // Otherwise, pretend it's dead by removing it from the scene tree and making it invisible until the action is over
-        {
-            _armies.Current.RemoveChild(_selected.Renderer);
-            defeated.Visible = false;
-        }
-    }
-
     public override void _EnterTree()
     {
         base._EnterTree();
@@ -505,7 +497,6 @@ public partial class LevelManager : Node
                 foreach (Unit unit in (IEnumerable<Unit>)army)
                     unit.Grid = Grid;
             }
-            LevelEvents.Singleton.Connect<Unit>(LevelEvents.SignalName.UnitDefeated, OnUnitDefeated);
 
             _armies = GetChildren().OfType<Army>().GetCyclicalEnumerator();
             if (StartingArmy is null)

@@ -65,6 +65,35 @@ public partial class Unit : GridNode
             PathFollow.ProgressRatio = 1;
     }
 
+    private void OnAvailabilityUpdated(bool active)
+    {
+        if (active)
+            Refresh();
+        else
+            Finish();
+    }
+
+    private void OnFactionUpdated(Faction _, Faction faction)
+    {
+        if (UnitData.Class is not null)
+            UpdateVisuals(UnitData.Class, faction);
+    }
+
+    private void OnClassUpdated(Class _, Class @class)
+    {
+        if (@class is not null)
+            UpdateVisuals(@class, UnitData.Faction);
+    }
+
+    private void OnStatsUpdated(Stats stats) => _animations?.SetHealthMax(stats.Health);
+
+    private void OnHealthUpdated(double _, double hp)
+    {
+        _animations?.SetHealthValue(hp);
+        if (hp == 0)
+            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.UnitDefeated, this);
+    }
+
     public UnitData UnitData { get; init; } = new();
     public override GridObjectData Data => UnitData;
 
@@ -135,6 +164,12 @@ public partial class Unit : GridNode
     /// <summary>Remove the unit from the map and delete it.</summary>
     public void Die()
     {
+        UnitData.AvailabilityUpdated -= OnAvailabilityUpdated;
+        UnitData.FactionUpdated      -= OnFactionUpdated;
+        UnitData.ClassUpdated        -= OnClassUpdated;
+        UnitData.StatsUpdated        -= OnStatsUpdated;
+        UnitData.HealthUpdated       -= OnHealthUpdated;
+
         UnitData.Grid.Occupants.Remove(Data.Cell);
         QueueFree();
     }
@@ -190,26 +225,11 @@ public partial class Unit : GridNode
             SetProcess(false);
         }
 
-        UnitData.AvailabilityUpdated += (active) => {
-            if (active)
-                Refresh();
-            else
-                Finish();
-        };
-        UnitData.FactionUpdated += (_, faction) => {
-            if (UnitData.Class is not null)
-                UpdateVisuals(UnitData.Class, faction);
-        };
-        UnitData.ClassUpdated += (_, @class) => {
-            if (@class is not null)
-                UpdateVisuals(@class, UnitData.Faction);
-        };
-        UnitData.StatsUpdated += (stats) => _animations?.SetHealthMax(stats.Health);
-        UnitData.HealthUpdated += (_, hp) => {
-            _animations?.SetHealthValue(hp);
-            if (hp == 0)
-                LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.UnitDefeated, this);
-        };
+        UnitData.AvailabilityUpdated += OnAvailabilityUpdated;
+        UnitData.FactionUpdated      += OnFactionUpdated;
+        UnitData.ClassUpdated        += OnClassUpdated;
+        UnitData.StatsUpdated        += OnStatsUpdated;
+        UnitData.HealthUpdated       += OnHealthUpdated;
     }
 
     public override void _Process(double delta)
