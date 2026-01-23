@@ -55,7 +55,7 @@ public partial class EventController : Node
     /// <param name="turn">Turn number that's about to begin.</param>
     /// <param name="faction">Faction that's about to begin its turn.</param>
     public virtual void _TurnBegan (int turn, Faction faction) => SkipEvent();
-    public         void OnTurnBegan(int turn, Faction Faction) => Callable.From<int, Faction>(_TurnBegan).CallDeferred(turn, Faction);
+    public         void OnTurnBegan(int turn, Faction Faction) => _TurnBegan(turn, Faction);
 
     /// <summary>
     /// Event to perform just after a unit ends its action. By default, evaluates the objectives and signals to continue to the next action if not success
@@ -63,10 +63,10 @@ public partial class EventController : Node
     /// </summary>
     /// <param name="unit">Unit that just acted.</param>
     public virtual void _ActionEnded (UnitData unit) => SkipEvent();
-    public         void OnActionEnded(UnitData unit) => Callable.From(() => _ActionEnded(unit)).CallDeferred();
+    public         void OnActionEnded(UnitData unit) => _ActionEnded(unit);
 
     public virtual void _TurnEnded (int turn, Faction faction) => SkipEvent();
-    public         void OnTurnEnded(int turn, Faction faction) => Callable.From<int, Faction>(_TurnEnded).CallDeferred(turn, faction);
+    public         void OnTurnEnded(int turn, Faction faction) => _TurnEnded(turn, faction);
 
     public override void _EnterTree()
     {
