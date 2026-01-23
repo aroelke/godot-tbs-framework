@@ -47,7 +47,7 @@ public abstract partial class AreaSwitchCondition : SwitchCondition
     /// property accordingly.
     /// </summary>
     /// <param name="unit">Unit that finished moving.</param>
-    public void Update(Unit unit)
+    public void Update(UnitData unit)
     {
         if (!GetTriggerUnits().Any())
             return;

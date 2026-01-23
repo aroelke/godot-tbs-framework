@@ -361,7 +361,8 @@ public partial class LevelManager : Node
         _selected.Active = false;
         State.SetVariable(ActiveProperty, ((IEnumerable<Unit>)_armies.Current).Count(static (u) => u.UnitData.Active));
 
-        Callable.From<Unit>(LevelEvents.EndAction).CallDeferred(_selected.Renderer);
+        UnitData selected = _selected;
+        Callable.From(() => LevelEvents.EndAction(selected)).CallDeferred();
     }
 
     /// <summary>Clean up at the end of the unit's turn.</summary>

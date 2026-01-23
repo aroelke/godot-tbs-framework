@@ -62,8 +62,8 @@ public partial class EventController : Node
     /// or failure. Overriding classes should signal <c>EventComplete</c> when they're ready for the turn to end.
     /// </summary>
     /// <param name="unit">Unit that just acted.</param>
-    public virtual void _ActionEnded (Unit unit) => SkipEvent();
-    public         void OnActionEnded(Unit unit) => Callable.From<Unit>(_ActionEnded).CallDeferred(unit);
+    public virtual void _ActionEnded (UnitData unit) => SkipEvent();
+    public         void OnActionEnded(UnitData unit) => Callable.From(() => _ActionEnded(unit)).CallDeferred();
 
     public virtual void _TurnEnded (int turn, Faction faction) => SkipEvent();
     public         void OnTurnEnded(int turn, Faction faction) => Callable.From<int, Faction>(_TurnEnded).CallDeferred(turn, faction);

@@ -22,7 +22,7 @@ public partial class LevelEvents : Node
     public static event TurnPhaseEventHandler TurnBegan;
 
     /// <summary>Signals that a unit's action has ended.</summary>
-    public static event Action<Unit> ActionEnded;
+    public static event Action<UnitData> ActionEnded;
 
     /// <summary>Signals that an army's turn has ended.</summary>
     public static event TurnPhaseEventHandler TurnEnded;
@@ -40,7 +40,7 @@ public partial class LevelEvents : Node
     public static void BeginTurn(int turn, Faction faction) { if (TurnBegan is not null) TurnBegan(turn, faction); }
 
     /// <summary>Signal that a unit's action has ended.</summary>
-    public static void EndAction(Unit unit) { if (ActionEnded is not null) ActionEnded(unit); }
+    public static void EndAction(UnitData unit) { if (ActionEnded is not null) ActionEnded(unit); }
 
     /// <summary>Signal that the turn has ended for a faction.</summary>
     public static void EndTurn(int turn, Faction faction) { if (TurnEnded is not null) TurnEnded(turn, faction); }
