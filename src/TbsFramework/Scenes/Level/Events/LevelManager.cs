@@ -134,17 +134,6 @@ public partial class LevelManager : Node
         _initialCell = _selected.Cell;
         _command = null;
         _target = null;
-
-        // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
-        Rect2? zoomRect = null; // Grid.EnclosingRect(ActionLayers.Union());
-        if (zoomRect is not null)
-        {
-            Vector2 zoomTarget = Grid.GetViewportRect().Size/zoomRect.Value.Size;
-            zoomTarget = Vector2.One*Mathf.Min(zoomTarget.X, zoomTarget.Y);
-            if (Camera.Zoom > zoomTarget)
-                Camera.PushZoom(zoomTarget);
-        }
-
         _armies.Current.Controller.MoveUnit(_selected);
     }
 
@@ -422,21 +411,6 @@ public partial class LevelManager : Node
             State.SendEvent(DoneEvent);
         else
             QueueFree();
-    }
-
-    /// <summary>When the pointer starts flying, we need to wait for it to finish. Also focus the camera on its target if there's something there.</summary>
-    /// <param name="target">Position the pointer is going to fly to.</param>
-    public void OnPointerFlightStarted(Vector2 target)
-    {
-        State.SendEvent(WaitEvent);
-        PushCameraFocus(Grid.Data.Occupants.ContainsKey(Grid.CellOf(target)) ? (Grid.Data.Occupants[Grid.CellOf(target)] as UnitData).Renderer : Camera.Target);
-    }
-
-    /// <summary>When the pointer finished flying, return to the previous state.</summary>
-    public void OnPointerFlightCompleted()
-    {
-        PopCameraFocus();
-        State.SendEvent(DoneEvent);
     }
 
     /// <summary>Automatically connect to a child <see cref="Army"/>'s <see cref="Node.SignalName.ChildEnteredTree"/> signal so new units in it can be automatically added to the grid.</summary>
