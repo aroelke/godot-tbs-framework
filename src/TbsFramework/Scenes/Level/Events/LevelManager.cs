@@ -65,17 +65,6 @@ public partial class LevelManager : Node
 
     public LevelManager() : base() { _cache = new(this); }
 #endregion
-#region Helper Properties and Methods
-    private Vector2 MenuPosition(Rect2 rect, Vector2 size)
-    {
-        Rect2 viewportRect = Grid.GetGlobalTransformWithCanvas()*rect;
-        float viewportCenter = GetViewport().GetVisibleRect().Position.X + GetViewport().GetVisibleRect().Size.X/2;
-        return new(
-            viewportCenter - viewportRect.Position.X < viewportRect.Size.X/2 ? viewportRect.Position.X - size.X : viewportRect.End.X,
-            Mathf.Clamp(viewportRect.Position.Y - (size.Y - viewportRect.Size.Y)/2, 0, GetViewport().GetVisibleRect().Size.Y - size.Y)
-        );
-    }
-#endregion
 #region Exports
     [Export(PropertyHint.File, "*.tscn")] public string CombatScenePath = null;
 
