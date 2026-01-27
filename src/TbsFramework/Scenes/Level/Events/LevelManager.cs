@@ -66,6 +66,7 @@ public partial class LevelManager : Node
     public LevelManager() : base() { _cache = new(this); }
 #endregion
 #region Exports
+    /// <summary>Path to the scene used to play combat animations.</summary>
     [Export(PropertyHint.File, "*.tscn")] public string CombatScenePath = null;
 
     /// <summary>
@@ -134,9 +135,6 @@ public partial class LevelManager : Node
         _command = null;
         _target = null;
 
-        // Compute move/attack/support ranges for selected unit
-        _path = Path.Empty(Grid.Data, _selected.GetTraversableCells());
-
         // If the camera isn't zoomed out enough to show the whole range, zoom out so it does
         Rect2? zoomRect = null; // Grid.EnclosingRect(ActionLayers.Union());
         if (zoomRect is not null)
@@ -182,7 +180,7 @@ public partial class LevelManager : Node
         }
         else
         {
-            _path = _path.SetTo(path);
+            _path = Path.Empty(Grid.Data, _selected.GetTraversableCells()).AddRange(path);
             State.SendEvent(SelectEvent);
         }
     }
@@ -453,8 +451,9 @@ public partial class LevelManager : Node
     /// <param name="child"></param>
     public void OnChildEnteredGroup(Node child)
     {
-        if (child is GridNode gd)
-            gd.Grid = Engine.IsEditorHint() ? GetNode<Grid>("Grid") : Grid;
+        if (Engine.IsEditorHint())
+            if (child is GridNode gd)
+                gd.Grid = GetNode<Grid>("Grid");
     }
 
     public override void _EnterTree()
