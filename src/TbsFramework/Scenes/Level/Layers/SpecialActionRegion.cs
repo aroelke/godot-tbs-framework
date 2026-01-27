@@ -40,34 +40,8 @@ public partial class SpecialActionRegion : TileMapLayer
     /// <summary>Whether or not an action should only be performed once per unit.</summary>
     [Export] public bool SingleUse = false;
 
-    public SpecialActionRegionData Data { get; private set; } = new();
-
-    public ISet<Vector2I> Cells => Data.Cells;
-
-    public ImmutableHashSet<Unit> Performed { get; private set; } = [];
-
-    /// <returns>A set containing all units that are allowed to perform the action in the region.</returns>
-    public ImmutableHashSet<Unit> AllAllowedUnits() => AllowedUnits.ToImmutableHashSet().Union(AllowedArmies.SelectMany((a) => a.Units()));
-
-    /// <summary>Check if a unit can perform the special action in a cell.</summary>
-    /// <returns><c>true</c> if <paramref name="unit"/> is allowed to perform the action and <paramref name="cell"/> is in the region, and <c>false</c> otherwise.</returns>
-    public virtual bool HasSpecialAction(Unit unit, Vector2I cell) => Data.Cells.Contains(cell) && Data.CanPerform(unit.UnitData);
-
-    /// <summary>Perform the special action. By default, this just emits a signal indicating the action is performed by a unit at a cell.</summary>
-    /// <param name="performer">Unit performing the action.</param>
-    /// <param name="cell">Cell the action is being performed in.</param>
-    public virtual void PerformSpecialAction(Unit performer, Vector2I cell)
-    {
-        if (Data.Perform(performer.UnitData, cell))
-        {
-            Performed = Performed.Add(performer);
-            EmitSignal(SignalName.SpecialActionPerformed, Action, performer, cell);
-        }
-        else
-            throw new ArgumentException($"{performer.Name} cannot perform action {Action} in cell {cell}");
-    }
-
-    public bool IsAllowed(Unit unit) => unit is Unit u && Data.CanPerform(u.UnitData);
+    /// <summary>Structure defining the state of the special action region.</summary>
+    public readonly SpecialActionRegionData Data = new();
 
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
     {

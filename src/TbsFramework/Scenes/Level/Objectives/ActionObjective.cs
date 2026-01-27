@@ -9,7 +9,8 @@ namespace TbsFramework.Scenes.Level.Objectives;
 [Tool]
 public partial class ActionObjective : Objective
 {
-    private readonly List<Unit> _units = [];
+    private SpecialActionRegionData _region = null;
+    private readonly List<UnitData> _units = [];
     private readonly List<Vector2I> _spaces = [];
 
     /// <summary>Region to perform the action in.  Also defines which units can perform the action. Side effects are not implemented here.</summary>
@@ -27,21 +28,21 @@ public partial class ActionObjective : Objective
     {
         get
         {
-            if (ActionRegion is null)
+            if (_region is null)
                 return false;
-            else if (ActionRegion.OneShot)
+            else if (_region.OneShot)
             {
                 if (Target == 0)
-                    return ActionRegion.GetUsedCells().Count == 0;
+                    return _region.Cells.Count == 0;
                 else
                     return _spaces.Count >= Target;
             }
-            else if (ActionRegion.SingleUse)
+            else if (_region.SingleUse)
             {
                 if (Target == 0)
-                    return ActionRegion.Performed == ActionRegion.AllAllowedUnits();
+                    return _region.Performed == _region.AllAllowedUnits();
                 else
-                    return ActionRegion.Performed.Count >= Target;
+                    return _region.Performed.Count >= Target;
             }
             else
                 return Target > 0 && _units.Count >= Target;
@@ -52,30 +53,37 @@ public partial class ActionObjective : Objective
     {
         get
         {
-            if (ActionRegion is null)
+            if (_region is null)
                 return "";
-            else if (ActionRegion.OneShot)
-                return $"{ActionRegion.Action} in {(Target == 0 ? "all" : Target)} space(s) of {ActionRegion.Name}";
-            else if (ActionRegion.SingleUse)
-                return $"{ActionRegion.Action} with {(Target == 0 ? "all" : Target)} allowed unit(s)";
+            else if (_region.OneShot)
+                return $"{_region.Action} in {(Target == 0 ? "all" : Target)} space(s) of {_region.Action}";
+            else if (_region.SingleUse)
+                return $"{_region.Action} with {(Target == 0 ? "all" : Target)} allowed unit(s)";
             else
-                return $"{ActionRegion.Action} {Target} time(s)";
+                return $"{_region.Action} {Target} time(s)";
         }
     }
 
-    public void ActionPerformed(StringName action, Unit actor, Vector2I cell)
+    public override string[] _GetConfigurationWarnings()
     {
-        if (action == ActionRegion.Action)
-        {
-            _units.Add(actor);
-            _spaces.Add(cell);
-        }
+        List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
+
+        if (ActionRegion is null)
+            warnings.Add("");
+
+        return [.. warnings];
     }
 
     public override void _Ready()
     {
         base._Ready();
         if (!Engine.IsEditorHint() && ActionRegion is not null)
-            ActionRegion.SpecialActionPerformed += ActionPerformed;
+        {
+            _region = ActionRegion.Data;
+            _region.ActionPerformed += (_, unit, cell) => {
+                _units.Add(unit);
+                _spaces.Add(cell);
+            };
+        }
     }
 }

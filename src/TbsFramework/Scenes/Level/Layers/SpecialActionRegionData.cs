@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Godot;
 using TbsFramework.Data;
+using TbsFramework.Scenes.Level.Map;
 using TbsFramework.Scenes.Level.Object;
 
 namespace TbsFramework.Scenes.Level.Layers;
@@ -12,13 +14,49 @@ public class SpecialActionRegionData
     /// <summary>Handler for changes the cells defining the region in which the action can be performed.</summary>
     public delegate void CellsUpdatedEventHandler(ISet<Vector2I> cells);
 
+    /// <summary>Handler for when a unit performs the special action in a cell.</summary>
+    public delegate void ActionPerformedEventHandler(StringName action, UnitData unit, Vector2I cell);
+
+    private GridData _grid = null;
     private ImmutableHashSet<Vector2I> _cells = [];
+
+    private void OnGridSizeChanged(Vector2I _, Vector2I size)
+    {
+        if (!_cells.All(_grid.Contains))
+        {
+            GD.PushWarning($"Some cells in region {Action} are outside the new grid bounds. They will be truncated.");
+            Cells = [.. Cells.Where(_grid.Contains)];
+        }
+    }
 
     /// <summary>Event signaling that the cells defining the region have changed.</summary>
     public event CellsUpdatedEventHandler CellsUpdated;
 
+    /// <summary>Event signaling that the action has been performed.</summary>
+    public event ActionPerformedEventHandler ActionPerformed;
+
     /// <summary>Name of the region. Also is the string displayed when presenting the option to perform the action.</summary>
     public StringName Action = "";
+
+    /// <summary>Grid containing the action region.</summary>
+    public GridData Grid
+    {
+        get => _grid;
+        set
+        {
+            if (_grid != value)
+            {
+                if (_grid is not null)
+                    _grid.SizeUpdated -= OnGridSizeChanged;
+                _grid = value;
+                if (_grid is not null)
+                {
+                    _grid.SizeUpdated += OnGridSizeChanged;
+                    OnGridSizeChanged(Vector2I.Zero, _grid.Size);
+                }
+            }
+        }
+    }
 
     /// <summary>Cells on the grid in which the special action can be performed.</summary>
     public ImmutableHashSet<Vector2I> Cells
@@ -63,6 +101,21 @@ public class SpecialActionRegionData
         Performed = original.Performed;
     }
 
+    /// <returns>
+    /// The set of all units that are currently allowed to perform the action, derived from the explicit units and factions that are allowed and the ones that have
+    /// already performed it, if each unit can only perform it once.
+    /// </returns>
+    public IEnumerable<UnitData> AllAllowedUnits()
+    {
+        HashSet<UnitData> units = [];
+        units.UnionWith(AllowedUnits);
+        foreach (Faction faction in AllowedFactions)
+            units.UnionWith(faction.GetUnits(_grid));
+        if (SingleUse)
+            units.ExceptWith(Performed);
+        return units;
+    }
+
     /// <returns><c>true</c> if <paramref name="unit"/> can perform the special action, and <c>false</c> otherwise.</returns>
     public bool CanPerform(UnitData unit) => (AllowedFactions.Contains(unit.Faction) || AllowedUnits.Contains(unit)) && (!SingleUse || !Performed.Contains(unit));
 
@@ -81,6 +134,7 @@ public class SpecialActionRegionData
         Performed = Performed.Add(unit);
         if (OneShot)
             Cells = Cells.Remove(cell);
+        ActionPerformed(Action, unit, cell);
         return true;
     }
 

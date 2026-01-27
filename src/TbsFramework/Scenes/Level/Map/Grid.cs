@@ -31,9 +31,6 @@ public partial class Grid : Node2D
     /// <summary>Grid cell dimensions derived from the <see cref="TileSet"/>.  If there is no <see cref="TileSet"/>, the size is zero.</summary>
     public Vector2 CellSize => GroundLayer?.TileSet?.TileSize ?? Vector2.Zero;
 
-    /// <summary>Regions in which units can perform special actions defined by the region.</summary>
-    public IEnumerable<SpecialActionRegion> SpecialActionRegions => GetChildren().OfType<SpecialActionRegion>();
-
     /// <summary>Find the position in pixels of a cell offset.</summary>
     /// <param name="offset">Cell offset to use for calculation (can be outside grid bounds).</param>
     /// <returns>The position, in pixels, of the upper-left corner of the grid cell.</returns>
@@ -154,6 +151,12 @@ public partial class Grid : Node2D
                         TerrainLayer.SetCell(cell, id, atlas);
                     }
                 };
+            }
+
+            foreach (SpecialActionRegion region in GetChildren().OfType<SpecialActionRegion>())
+            {
+                region.Data.Grid = Data;
+                Data.SpecialActionRegions.Add(region.Data);
             }
         }
     }

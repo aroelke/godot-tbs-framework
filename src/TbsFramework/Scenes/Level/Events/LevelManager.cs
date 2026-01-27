@@ -233,12 +233,12 @@ public partial class LevelManager : Node
         }
         AddActionOption(UnitAction.AttackAction, _selected.GetAttackableCells().Where((c) => !Grid.Data.Occupants.GetValueOrDefault(c)?.Faction.AlliedTo(_selected) ?? false));
         AddActionOption(UnitAction.SupportAction, _selected.GetSupportableCells().Where((c) => Grid.Data.Occupants.GetValueOrDefault(c)?.Faction.AlliedTo(_selected) ?? false));
-        foreach (SpecialActionRegion region in Grid.SpecialActionRegions)
+        foreach (SpecialActionRegionData region in Grid.Data.SpecialActionRegions)
         {
-            if (region.HasSpecialAction(_selected.Renderer, _selected.Cell))
+            if (region.CanPerform(_selected) && region.Cells.Contains(_selected.Cell))
             {
-                _options.Add(new(region.Name, () => {
-                    region.PerformSpecialAction(_selected.Renderer, _selected.Cell);
+                _options.Add(new(region.Action, () => {
+                    region.Perform(_selected, _selected.Cell);
                     State.SendEvent(SkipEvent);
                 }));
             }
