@@ -50,7 +50,7 @@ public partial class LevelManager : Node
     private StringName _command = null;
     private bool _ff = false;
 
-    private Grid Grid = null;
+    private GridData _grid = null;
     private Camera2DController   Camera                            => _cache.GetNode<Camera2DController>("Camera");
     private CanvasLayer          UserInterface                     => _cache.GetNode<CanvasLayer>("UserInterface");
     private StateChart           State                             => _cache.GetNode<StateChart>("State");
@@ -108,7 +108,7 @@ public partial class LevelManager : Node
 
     public void OnIdleUnitSelected(Vector2I cell)
     {
-        _selected = Grid.Data.Occupants[cell];
+        _selected = _grid.Occupants[cell];
 
         if (_selected.Faction != _armies.Current.Faction)
             throw new InvalidOperationException($"Cannot select unit not from army {_selected.Faction.Name}");
@@ -139,26 +139,26 @@ public partial class LevelManager : Node
 
     public void OnSelectedUnitCommanded(Vector2I cell, StringName command)
     {
-        if (Grid.Data.Occupants[cell] != _selected)
+        if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
         _command = command;
     }
 
     public void OnSelectedTargetChosen(Vector2I source, Vector2I target)
     {
-        if (Grid.Data.Occupants[source] != _selected)
+        if (_grid.Occupants[source] != _selected)
             throw new InvalidOperationException($"Cannot choose action target for unselected unit at {source} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        _target = Grid.Data.Occupants[target];
+        _target = _grid.Occupants[target];
     }
 
     public void OnSelectedPathConfirmed(Vector2I cell, Godot.Collections.Array<Vector2I> path)
     {
-        UnitData unit = Grid.Data.Occupants[cell];
+        UnitData unit = _grid.Occupants[cell];
         if (unit != _selected)
             throw new InvalidOperationException($"Cannot confirm path for unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        if (path.Any((c) => Grid.Data.Occupants.ContainsKey(c) && !Grid.Data.Occupants[c].Faction.AlliedTo(_selected)))
+        if (path.Any((c) => _grid.Occupants.ContainsKey(c) && !_grid.Occupants[c].Faction.AlliedTo(_selected)))
             throw new InvalidOperationException("The chosen path must only contain traversable cells.");
-        if (Grid.Data.Occupants.ContainsKey(path[^1]) && Grid.Data.Occupants[path[^1]] != unit)
+        if (_grid.Occupants.ContainsKey(path[^1]) && _grid.Occupants[path[^1]] != unit)
             throw new InvalidOperationException("The chosen path must not end on an occupied cell.");
 
         State.SetVariable(TraversableProperty, true);
@@ -169,7 +169,7 @@ public partial class LevelManager : Node
         }
         else
         {
-            _path = Path.Empty(Grid.Data, _selected.GetTraversableCells()).AddRange(path);
+            _path = Path.Empty(_grid, _selected.GetTraversableCells()).AddRange(path);
             State.SendEvent(SelectEvent);
         }
     }
@@ -231,9 +231,9 @@ public partial class LevelManager : Node
                 }));
             }
         }
-        AddActionOption(UnitAction.AttackAction, _selected.GetAttackableCells().Where((c) => !Grid.Data.Occupants.GetValueOrDefault(c)?.Faction.AlliedTo(_selected) ?? false));
-        AddActionOption(UnitAction.SupportAction, _selected.GetSupportableCells().Where((c) => Grid.Data.Occupants.GetValueOrDefault(c)?.Faction.AlliedTo(_selected) ?? false));
-        foreach (SpecialActionRegionData region in Grid.Data.SpecialActionRegions)
+        AddActionOption(UnitAction.AttackAction, _selected.GetAttackableCells().Where((c) => !_grid.Occupants.GetValueOrDefault(c)?.Faction.AlliedTo(_selected) ?? false));
+        AddActionOption(UnitAction.SupportAction, _selected.GetSupportableCells().Where((c) => _grid.Occupants.GetValueOrDefault(c)?.Faction.AlliedTo(_selected) ?? false));
+        foreach (SpecialActionRegionData region in _grid.SpecialActionRegions)
         {
             if (region.CanPerform(_selected) && region.Cells.Contains(_selected.Cell))
             {
@@ -251,7 +251,7 @@ public partial class LevelManager : Node
 
     public void OnCommandingUnitCommanded(Vector2I cell, StringName command)
     {
-        if (Grid.Data.Occupants[cell] != _selected)
+        if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannon command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
         foreach (ContextMenuOption option in _options)
             if (option.Name == command)
@@ -281,8 +281,8 @@ public partial class LevelManager : Node
 
     public void OnTargetChosen(Vector2I source, Vector2I target)
     {
-        _target = Grid.Data.Occupants[target];
-        if (Grid.Data.Occupants[source] != _selected)
+        _target = _grid.Occupants[target];
+        if (_grid.Occupants[source] != _selected)
             throw new InvalidOperationException($"Cannot choose target for unselected unit at {source} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
         if ((_command == UnitAction.AttackAction && _target.Faction.AlliedTo(_selected)) || (_command == UnitAction.SupportAction && !_target.Faction.AlliedTo(_selected)))
             throw new ArgumentException($"{_selected.Faction.Name} unit at {_selected.Cell} cannot {_command} unit at {target}");
@@ -448,16 +448,17 @@ public partial class LevelManager : Node
 
         if (!Engine.IsEditorHint())
         {
-            Grid = GetNode<Grid>("Grid");
+            Grid grid = GetNode<Grid>("Grid");
+            _grid = grid.Data;
 
-            Camera.Limits = new(Vector2I.Zero, (Vector2I)(Grid.Data.Size*Grid.CellSize));
+            Camera.Limits = new(Vector2I.Zero, (Vector2I)(_grid.Size*grid.CellSize));
             LevelEvents.UpdateCameraBounds(Camera.Limits);
 
             foreach (Army army in GetChildren().OfType<Army>())
             {
-                army.Controller.Grid = Grid;
+                army.Controller.Grid = grid;
                 foreach (Unit unit in (IEnumerable<Unit>)army)
-                    unit.Grid = Grid;
+                    unit.Grid = grid;
             }
 
             _armies = GetChildren().OfType<Army>().GetCyclicalEnumerator();
