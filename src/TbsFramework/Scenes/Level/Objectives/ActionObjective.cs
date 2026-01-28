@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Level.Layers;
 using TbsFramework.Scenes.Level.Object;
@@ -18,10 +19,16 @@ public partial class ActionObjective : Objective
 
     /// <summary>
     /// If the region is:
-    /// - A one-shot region, represents the number of spaces the action must be performed in, with 0 representing "all of them"
-    /// - A single-use region, represents the number of different units that must perform the action, with 0 representing "all of them"
-    /// - Neither, represents the number of times the action must be performed, with 0 being invalid
+    /// <list type="bullet">
+    ///   <item>A one-shot region, represents the number of spaces the action must be performed in, with 0 representing "all of them"</item>
+    ///   <item>A single-use region, represents the number of different units that must perform the action, with 0 representing "all of them"</item>
+    ///   <item>Neither, represents the number of times the action must be performed, with 0 being invalid</item>
+    /// </list>
     /// </summary>
+    /// <remarks>
+    /// Note that, if 0 is set for a one-shot region whose allowed units include all those from any factions, the set of allowed units updates as
+    /// units in those factions enter and leave the map.
+    /// </remarks>
     [Export(PropertyHint.Range, "0,10,or_greater")] public int Target = 1;
 
     public override bool Complete
@@ -40,7 +47,7 @@ public partial class ActionObjective : Objective
             else if (_region.SingleUse)
             {
                 if (Target == 0)
-                    return _region.Performed == _region.AllAllowedUnits();
+                    return !_region.AllAllowedUnits().Any();
                 else
                     return _region.Performed.Count >= Target;
             }
