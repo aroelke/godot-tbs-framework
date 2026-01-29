@@ -35,6 +35,9 @@ public partial class Faction : Resource
     /// <returns>Get all units in this faction on a grid.</returns>
     public IEnumerable<UnitData> GetUnits(GridData grid) => grid.Occupants.Values.OfType<UnitData>().Where((u) => u.Faction == this);
 
+    /// <summary>Find the unit that comes after the given one on its grid.</summary>
+    /// <exception cref="ArgumentException">If <paramref name="unit"/> is not part of this faction.</exception>
+    /// <remarks><b>Note</b>: Currently the ordering of units is arbitrary.</remarks>
     public UnitData GetUnitAfter(UnitData unit)
     {
         if (unit.Faction != this)
@@ -50,6 +53,9 @@ public partial class Faction : Resource
         }
     }
 
+    /// <summary>Find the unit that comes before the given one on its grid.</summary>
+    /// <exception cref="ArgumentException">if <paramref name="unit"/> is not part of this faction.</exception>
+    /// <remarks><b>Note</b>: Currently the ordering of units is arbitrary.</remarks>
     public UnitData GetUnitBefore(UnitData unit)
     {
         if (unit.Faction != this)

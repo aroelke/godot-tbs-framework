@@ -20,50 +20,6 @@ public partial class Army : GridNodeGroup, IEnumerable<Unit>
     /// <returns>The collection of units that belong to this army.</returns>
     public IEnumerable<Unit> Units() => GetChildren().OfType<Unit>();
 
-    /// <summary>Find the "previous" unit in the list, looping around to the end if needed.</summary>
-    /// <remarks>"Previous" is arbitrarily defined by the order each unit was inserted into the <see cref="SceneTree"/>.</remarks>
-    /// <param name="unit">Unit to find the previous of.</param>
-    /// <returns>
-    /// The <see cref="Unit"/> before <paramref name="unit"/> in the army's children, or the last one if <paramref name="unit"/>
-    /// is the first.
-    /// </returns>
-    public Unit Previous(Unit unit)
-    {
-        Unit[] units = [.. Units()];
-        if (units.Length <= 1)
-            return null;
-
-        int index = Array.IndexOf(units, unit);
-        if (index < 0)
-            return null;
-        else if (index == 0)
-            return units[^1];
-        else
-            return units[index - 1];
-    }
-
-    /// <summary>Find the "next" unit in the list, looping around to the beginning if needed.</summary>
-    /// <remarks>"Next" is arbitrarily defined by the order each unit was inserted into the <see cref="SceneTree"/>.</remarks>
-    /// <param name="unit">Unit to find the next of.</param>
-    /// <returns>
-    /// The <see cref="Unit"/> after <paramref name="unit"/> in the army's children, or the first one if <paramref name="unit"/>
-    /// is the last.
-    /// </returns>
-    public Unit Next(Unit unit)
-    {
-        Unit[] units = [.. Units()];
-        if (units.Length <= 1)
-            return null;
-
-        int index = Array.IndexOf(units, unit);
-        if (index < 0)
-            return null;
-        else if (index < units.Length - 1)
-            return units[index + 1];
-        else
-            return units[0];
-    }
-
     /// <summary>When a <see cref="Unit"/> is added to the army, update its <see cref="Unit.Affiliation"/> to this army.</summary>
     /// <param name="child">Node that was just added.</param>
     public void OnChildEnteredTree(Node child)
