@@ -79,10 +79,6 @@ public partial class LevelManager : Node
     /// <summary>Turn count (including current turn, so it starts at 1).</summary>
     [ExportGroup("Turn Control")]
     [Export] public int Turn = 1;
-
-    /// <summary>Modulate color for the action range overlay to use during idle state to differentiate from the one displayed while selecting a move path.</summary>
-    [ExportGroup("Range Overlay")]
-    [Export] public Color ActionRangeIdleModulate = new(1, 1, 1, 0.66f);
 #endregion
 #region Begin Turn State
     /// <summary>Signal that a turn is about to begin.</summary>
