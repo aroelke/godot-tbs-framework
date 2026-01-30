@@ -82,6 +82,11 @@ public class ClampedProperty<T> where T : IComparable<T>
         }
     }
 
+    /// <summary>Create a new property with an initial value and range.</summary>
+    /// <param name="value">Initial value.</param>
+    /// <param name="min">Initial minimum value.</param>
+    /// <param name="max">Initial maximum value.</param>
+    /// <exception cref="ArgumentException">If the initial minimum is greater than the initial maximum.</exception>
     public ClampedProperty(T value, T min, T max)
     {
         if (min.CompareTo(max) > 0)
@@ -92,5 +97,8 @@ public class ClampedProperty<T> where T : IComparable<T>
         _value.Value = Clamp(value, _min, _max);
     }
 
+    /// <summary>Create a new property with an initial range whose value is the minimum of that range.</summary>
+    /// <param name="min">Initial minimum and current values.</param>
+    /// <param name="max">Initial maximum value.</param>
     public ClampedProperty(T min, T max) : this(min, min, max) {}
 }
