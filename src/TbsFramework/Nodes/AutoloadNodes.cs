@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Godot;
 
-namespace TbsFramework.Extensions;
+namespace TbsFramework.Nodes;
 
 /// <summary>Cache for autoload nodes.</summary>
 public static class AutoloadNodes
