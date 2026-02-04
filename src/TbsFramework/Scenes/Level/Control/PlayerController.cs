@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TbsFramework.Data;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes;
 using TbsFramework.Nodes.Components;

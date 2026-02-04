@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using TbsFramework.Data;
 using TbsFramework.Scenes.Level.Events;
 using TbsFramework.Scenes.Level.Object;
 using TbsFramework.Scenes.Level.Object.Group;

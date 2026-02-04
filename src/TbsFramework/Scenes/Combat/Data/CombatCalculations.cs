@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using TbsFramework.Scenes.Level.Map;
+using TbsFramework.Data;
 using TbsFramework.Scenes.Level.Object;
 
 namespace TbsFramework.Scenes.Combat.Data;

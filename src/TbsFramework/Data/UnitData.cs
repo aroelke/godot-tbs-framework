@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
-using TbsFramework.Data;
 using TbsFramework.Scenes.Level.Control;
 using TbsFramework.Properties;
+using TbsFramework.Scenes.Level.Object;
 
-namespace TbsFramework.Scenes.Level.Object;
+namespace TbsFramework.Data;
 
 /// <summary>Data structure tracking information about a unit on the map.</summary>
 public class UnitData : GridObjectData

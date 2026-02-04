@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godot;
 using Godot.Collections;
+using TbsFramework.Data;
 using TbsFramework.Nodes;
 using TbsFramework.Scenes.Level.Map;
 

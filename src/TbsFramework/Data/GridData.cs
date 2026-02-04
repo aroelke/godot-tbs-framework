@@ -7,7 +7,7 @@ using TbsFramework.Properties;
 using TbsFramework.Scenes.Level.Layers;
 using TbsFramework.Scenes.Level.Object;
 
-namespace TbsFramework.Scenes.Level.Map;
+namespace TbsFramework.Data;
 
 /// <summary>Data structure for tracking information about the map and the objects on it.</summary>
 public class GridData
