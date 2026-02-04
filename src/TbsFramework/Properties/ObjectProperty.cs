@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
-namespace TbsFramework.Extensions;
+namespace TbsFramework.Properties;
 
 /// <summary>Structure defining the fields of a property for <see cref="GodotObject._GetPropertyList"/>.</summary>
 /// <param name="Name">Name of the property.</param>

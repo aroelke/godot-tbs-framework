@@ -5,6 +5,7 @@ using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Data;
 using TbsFramework.Scenes.Level.Control;
+using TbsFramework.Properties;
 
 namespace TbsFramework.Scenes.Level.Object;
 

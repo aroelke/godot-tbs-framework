@@ -6,11 +6,11 @@ using TbsFramework.Extensions;
 using TbsFramework.Nodes;
 using TbsFramework.Nodes.Components;
 using TbsFramework.Nodes.StateCharts;
+using TbsFramework.Properties;
 using TbsFramework.Scenes.Level.Events;
 using TbsFramework.Scenes.Level.Layers;
 using TbsFramework.Scenes.Level.Map;
 using TbsFramework.Scenes.Level.Object;
-using TbsFramework.Scenes.Level.Object.Group;
 using TbsFramework.UI;
 using TbsFramework.UI.Controls.Device;
 

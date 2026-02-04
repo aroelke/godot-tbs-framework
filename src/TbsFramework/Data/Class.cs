@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Godot;
-using TbsFramework.Extensions;
 using TbsFramework.Nodes.Components;
+using TbsFramework.Properties;
 
 namespace TbsFramework.Data;
 

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace TbsFramework.Data;
+namespace TbsFramework.Properties;
 
 /// <summary>Represents a value that is bounded to a minimum and a maximum.  Also has signals for watching value changes.</summary>
 /// <typeparam name="T">Data type of the value.</typeparam>

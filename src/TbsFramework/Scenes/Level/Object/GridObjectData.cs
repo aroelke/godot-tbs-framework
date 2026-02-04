@@ -1,6 +1,6 @@
 using System;
 using Godot;
-using TbsFramework.Data;
+using TbsFramework.Properties;
 using TbsFramework.Scenes.Level.Map;
 
 namespace TbsFramework.Scenes.Level.Object;

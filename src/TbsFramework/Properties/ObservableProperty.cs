@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace TbsFramework.Data;
+namespace TbsFramework.Properties;
 
 /// <summary>Handler for changes in a property's value.</summary>
 /// <param name="from">Previous value before the change.</param>

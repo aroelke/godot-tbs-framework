@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
 using Godot;
-using TbsFramework.Data;
 using TbsFramework.Nodes.Components;
+using TbsFramework.Properties;
 
 namespace TbsFramework.Demo;
 

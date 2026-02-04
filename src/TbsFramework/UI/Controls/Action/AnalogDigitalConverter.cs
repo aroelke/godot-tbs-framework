@@ -1,5 +1,5 @@
 using Godot;
-using TbsFramework.Extensions;
+using TbsFramework.Properties;
 using TbsFramework.UI.Controls.Device;
 
 namespace TbsFramework.UI.Controls.Action;
