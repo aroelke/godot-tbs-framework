@@ -1,5 +1,6 @@
 using Godot;
 using TbsFramework.Data;
+using TbsFramework.Rendering;
 using TbsFramework.Scenes.Level.Object;
 
 namespace TbsFramework.Scenes.Level.Map;

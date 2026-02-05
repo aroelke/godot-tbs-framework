@@ -10,7 +10,6 @@ using TbsFramework.Scenes.Level.Object.Group;
 using TbsFramework.Nodes;
 using TbsFramework.Scenes.Combat.Data;
 using TbsFramework.UI;
-using TbsFramework.Scenes.Level.Layers;
 using TbsFramework.Scenes.Combat;
 using TbsFramework.Nodes.Components;
 using TbsFramework.Scenes.Level.Control;
@@ -18,6 +17,7 @@ using TbsFramework.Nodes.StateCharts;
 using TbsFramework.Nodes.StateCharts.Reactions;
 using TbsFramework.Scenes.Level.Events.Reactions;
 using TbsFramework.Data;
+using TbsFramework.Rendering;
 
 namespace TbsFramework.Scenes.Level.Events;
 

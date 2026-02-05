@@ -8,6 +8,7 @@ using TbsFramework.Nodes;
 using TbsFramework.Nodes.Components;
 using TbsFramework.Nodes.StateCharts;
 using TbsFramework.Properties;
+using TbsFramework.Rendering;
 using TbsFramework.Scenes.Level.Events;
 using TbsFramework.Scenes.Level.Layers;
 using TbsFramework.Scenes.Level.Map;

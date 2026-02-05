@@ -3,7 +3,7 @@ using Godot;
 using Godot.Collections;
 using TbsFramework.Data;
 using TbsFramework.Nodes;
-using TbsFramework.Scenes.Level.Map;
+using TbsFramework.Rendering;
 
 namespace TbsFramework.Scenes.Level.Object;
 
