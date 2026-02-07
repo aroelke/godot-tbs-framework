@@ -4,9 +4,8 @@ using Godot;
 using TbsFramework.Properties;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Object.Group;
-using TbsFramework.Scenes.Rendering;
 
-namespace TbsFramework.Scenes.Level.Layers;
+namespace TbsFramework.Scenes.Rendering;
 
 /// <summary>Map layer marking out a region where a unit can perform a special action such as capture or escape.</summary>
 [GlobalClass, Tool]
