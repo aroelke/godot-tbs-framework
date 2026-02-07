@@ -4,6 +4,7 @@ using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Control;
+using TbsFramework.Scenes.Rendering;
 
 namespace TbsFramework.Scenes.Level.Object.Group;
 

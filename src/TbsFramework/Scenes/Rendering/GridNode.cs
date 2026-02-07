@@ -3,9 +3,8 @@ using Godot;
 using Godot.Collections;
 using TbsFramework.Nodes;
 using TbsFramework.Scenes.Data;
-using TbsFramework.Scenes.Rendering;
 
-namespace TbsFramework.Scenes.Level.Object;
+namespace TbsFramework.Scenes.Rendering;
 
 /// <summary>A node representing an object that moves on a <see cref="Map.Grid"/>.</summary>
 [Icon("res://icons/GridNode.svg"), Tool]

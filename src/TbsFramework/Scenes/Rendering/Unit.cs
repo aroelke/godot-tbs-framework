@@ -10,7 +10,7 @@ using TbsFramework.Scenes.Level.Control;
 using TbsFramework.Nodes;
 using TbsFramework.Scenes.Data;
 
-namespace TbsFramework.Scenes.Level.Object;
+namespace TbsFramework.Scenes.Rendering;
 
 /// <summary>
 /// A unit that moves around the map.  Mostly is just a visual representation of what's where and an interface for the player to
