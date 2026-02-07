@@ -3,7 +3,7 @@ using System.Linq;
 using Godot;
 using TbsFramework.Properties;
 
-namespace TbsFramework.Data;
+namespace TbsFramework.Scenes.Data;
 
 /// <summary>
 /// Structure defining the stats of an entity, such as a class or character. Can be added together to

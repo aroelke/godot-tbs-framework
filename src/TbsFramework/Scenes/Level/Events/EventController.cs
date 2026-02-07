@@ -1,8 +1,7 @@
 #pragma warning disable IDE1006 // Naming Styles
 
 using Godot;
-using TbsFramework.Data;
-using TbsFramework.Scenes.Level.Object;
+using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Objectives;
 
 namespace TbsFramework.Scenes.Level.Events;

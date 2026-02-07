@@ -1,4 +1,4 @@
-using TbsFramework.Data;
+using TbsFramework.Scenes.Data;
 
 namespace TbsFramework.Scenes.Combat.Data;
 

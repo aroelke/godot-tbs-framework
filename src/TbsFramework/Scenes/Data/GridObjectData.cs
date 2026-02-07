@@ -2,7 +2,7 @@ using System;
 using Godot;
 using TbsFramework.Properties;
 
-namespace TbsFramework.Data;
+namespace TbsFramework.Scenes.Data;
 
 /// <summary>Data structure for tracking information about an object on the map.</summary>
 /// <param name="occupies">

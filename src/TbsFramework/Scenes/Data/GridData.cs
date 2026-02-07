@@ -4,10 +4,8 @@ using Godot;
 using TbsFramework.Collections;
 using TbsFramework.Extensions;
 using TbsFramework.Properties;
-using TbsFramework.Scenes.Level.Layers;
-using TbsFramework.Scenes.Level.Object;
 
-namespace TbsFramework.Data;
+namespace TbsFramework.Scenes.Data;
 
 /// <summary>Data structure for tracking information about the map and the objects on it.</summary>
 public class GridData

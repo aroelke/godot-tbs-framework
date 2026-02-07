@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://b0cvutx2lj5uy"]
 
 [ext_resource type="Script" uid="uid://ca8dcnn0pfia" path="res://src/TbsFramework/Scenes/Level/Object/Unit.cs" id="1_crlbh"]
-[ext_resource type="Script" uid="uid://cdy07gqijlx5a" path="res://src/TbsFramework/Data/Stats.cs" id="2_fgj32"]
+[ext_resource type="Script" uid="uid://cdy07gqijlx5a" path="res://src/TbsFramework/Scenes/Data/Stats.cs" id="2_fgj32"]
 [ext_resource type="Script" uid="uid://xf7nwa5ddwrd" path="res://src/TbsFramework/Nodes/BoundedNode2D.cs" id="3_pmja0"]
 [ext_resource type="PackedScene" uid="uid://bmt2twqcbchie" path="res://src/TbsFramework/Nodes/Components/FastForwardComponent.tscn" id="9_cy0he"]
 

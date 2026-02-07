@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Godot;
-using TbsFramework.Data;
 using TbsFramework.Rendering;
+using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Object.Group;
 
 namespace TbsFramework.Scenes.Level.Control;

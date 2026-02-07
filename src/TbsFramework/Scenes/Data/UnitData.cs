@@ -7,7 +7,7 @@ using TbsFramework.Scenes.Level.Control;
 using TbsFramework.Properties;
 using TbsFramework.Scenes.Level.Object;
 
-namespace TbsFramework.Data;
+namespace TbsFramework.Scenes.Data;
 
 /// <summary>Data structure tracking information about a unit on the map.</summary>
 public class UnitData : GridObjectData

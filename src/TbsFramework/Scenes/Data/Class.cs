@@ -6,7 +6,7 @@ using Godot;
 using TbsFramework.Nodes.Components;
 using TbsFramework.Properties;
 
-namespace TbsFramework.Data;
+namespace TbsFramework.Scenes.Data;
 
 /// <summary>Contains data pertaining to character classes, including stats and resources.</summary>
 [GlobalClass, Tool]

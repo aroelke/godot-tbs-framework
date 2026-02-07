@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using Godot;
-using TbsFramework.Data;
 using TbsFramework.Extensions;
 using TbsFramework.Scenes.Combat.Data;
+using TbsFramework.Scenes.Data;
 
 namespace TbsFramework.Scenes.Combat;
 

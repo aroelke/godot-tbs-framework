@@ -2,9 +2,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using TbsFramework.Scenes.Level.Object;
 
-namespace TbsFramework.Data;
+namespace TbsFramework.Scenes.Data;
 
 /// <summary>Data specifying the information about a region in the grid in which a unit can perform a special action.</summary>
 public class SpecialActionRegionData

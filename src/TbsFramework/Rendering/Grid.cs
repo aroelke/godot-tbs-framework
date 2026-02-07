@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using TbsFramework.Data;
 using TbsFramework.Properties;
+using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Layers;
 
 namespace TbsFramework.Rendering;

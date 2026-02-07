@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using TbsFramework.Data;
 using TbsFramework.Extensions;
+using TbsFramework.Scenes.Data;
 
 namespace TbsFramework.Scenes.Level.Map;
 

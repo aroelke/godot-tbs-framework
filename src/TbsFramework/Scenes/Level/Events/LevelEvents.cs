@@ -1,8 +1,7 @@
 using System;
 using Godot;
-using TbsFramework.Data;
-using TbsFramework.Extensions;
 using TbsFramework.Nodes;
+using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Object;
 
 namespace TbsFramework.Scenes.Level.Events;

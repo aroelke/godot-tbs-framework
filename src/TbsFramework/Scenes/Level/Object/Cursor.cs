@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
-using TbsFramework.Data;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes.Components;
+using TbsFramework.Scenes.Data;
 using TbsFramework.UI.Controls.Device;
 
 namespace TbsFramework.Scenes.Level.Object;

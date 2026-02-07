@@ -1,7 +1,7 @@
 using System.Linq;
 using Godot;
-using TbsFramework.Data;
 using TbsFramework.Extensions;
+using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Events;
 using TbsFramework.UI.Controls.Device;
 using TbsFramework.UI.HUD;

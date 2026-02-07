@@ -1,5 +1,5 @@
 using Godot;
-using TbsFramework.Data;
+using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Events;
 using TbsFramework.Scenes.Level.Object.Group;
 
