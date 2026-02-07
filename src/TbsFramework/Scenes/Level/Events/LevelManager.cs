@@ -16,8 +16,8 @@ using TbsFramework.Scenes.Level.Control;
 using TbsFramework.Nodes.StateCharts;
 using TbsFramework.Nodes.StateCharts.Reactions;
 using TbsFramework.Scenes.Level.Events.Reactions;
-using TbsFramework.Rendering;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Rendering;
 
 namespace TbsFramework.Scenes.Level.Events;
 

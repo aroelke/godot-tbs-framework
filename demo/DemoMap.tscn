@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsFramework/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="Script" uid="uid://c2joupgp3ohcx" path="res://demo/DemoMap.cs" id="1_npakb"]
-[ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsFramework/Rendering/Grid.tscn" id="2_oeidl"]
+[ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsFramework/Scenes/Rendering/Grid.tscn" id="2_oeidl"]
 [ext_resource type="Resource" uid="uid://420nufm5mgjd" path="res://demo/assets/terrain/plain.tres" id="3_akw2u"]
 [ext_resource type="TileSet" uid="uid://cqqq5romj5brh" path="res://demo/assets/map/tiles/tileset.tres" id="4_yu7ov"]
 [ext_resource type="PackedScene" uid="uid://1ev2yxu31ow" path="res://src/TbsFramework/Scenes/Level/Object/Group/Army.tscn" id="5_oeidl"]

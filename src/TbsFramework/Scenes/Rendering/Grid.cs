@@ -5,7 +5,7 @@ using TbsFramework.Properties;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Layers;
 
-namespace TbsFramework.Rendering;
+namespace TbsFramework.Scenes.Rendering;
 
 /// <summary>Defines the grid dimensions and attributes and contains the locations of the objects and terrain within it.</summary>
 [Tool]

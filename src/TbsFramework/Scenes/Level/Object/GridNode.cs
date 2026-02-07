@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using Godot;
 using Godot.Collections;
 using TbsFramework.Nodes;
-using TbsFramework.Rendering;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Rendering;
 
 namespace TbsFramework.Scenes.Level.Object;
 
