@@ -11,7 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://bajcy40oic1wf" path="res://src/TbsFramework/Nodes/StateChart/Reactions/ProcessReaction.tscn" id="7_bii0f"]
 [ext_resource type="PackedScene" uid="uid://dnfp4qfxs85wh" path="res://src/TbsFramework/Nodes/StateChart/States/HistoryState.tscn" id="13_cu4ve"]
 [ext_resource type="PackedScene" uid="uid://bolt0jtmhdfb8" path="res://src/TbsFramework/Nodes/StateChart/Reactions/Vector2IReaction.tscn" id="14_yh42t"]
-[ext_resource type="PackedScene" uid="uid://brgi7pl8xxduv" path="res://src/TbsFramework/Scenes/Level/Layers/ActionLayers.tscn" id="15_fsxw4"]
+[ext_resource type="PackedScene" uid="uid://brgi7pl8xxduv" path="res://src/TbsFramework/Scenes/Rendering/ActionLayers.tscn" id="15_fsxw4"]
 [ext_resource type="PackedScene" uid="uid://dtrul7dw5r6ly" path="res://src/TbsFramework/Nodes/StateChart/Reactions/Vector2Reaction.tscn" id="16_5nli1"]
 
 [node name="PlayerController" type="Node"]

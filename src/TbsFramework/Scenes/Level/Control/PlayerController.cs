@@ -9,7 +9,6 @@ using TbsFramework.Nodes.StateCharts;
 using TbsFramework.Properties;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Events;
-using TbsFramework.Scenes.Level.Layers;
 using TbsFramework.Scenes.Rendering;
 using TbsFramework.UI;
 using TbsFramework.UI.Controls.Device;

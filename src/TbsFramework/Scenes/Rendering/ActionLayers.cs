@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Godot;
 
-namespace TbsFramework.Scenes.Level.Layers;
+namespace TbsFramework.Scenes.Rendering;
 
 /// <summary>
 /// A <see cref="Grid"/> overlay comprised of a list of <see cref="TileMapLayer"/>s useful for displaying information about cells. Layers lower in the scene tree
@@ -23,7 +23,7 @@ public partial class ActionLayers : Node2D
         if (ShowUnion)
         {
             foreach ((StringName name, ImmutableHashSet<Vector2I> cells) in _cells)
-                _layers[name].SetCellsTerrainConnect(new(cells), 0, 0);
+                _layers[name].SetCellsTerrainConnect([.. cells], 0, 0);
         }
         else
         {
