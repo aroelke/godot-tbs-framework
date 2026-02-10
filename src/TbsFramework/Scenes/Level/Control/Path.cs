@@ -7,7 +7,7 @@ using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Scenes.Data;
 
-namespace TbsFramework.Scenes.Level.Map;
+namespace TbsFramework.Scenes.Level.Control;
 
 /// <summary>
 /// An ordered list of <see cref="Vector2I"/>s that guarantees sequential elements are (orthogonally) adjacent and there are no loops. When an attempt
