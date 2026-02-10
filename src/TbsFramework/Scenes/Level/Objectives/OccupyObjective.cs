@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using TbsFramework.Scenes.Level.Object.Group;
 using TbsFramework.Scenes.Rendering;
 
 namespace TbsFramework.Scenes.Level.Objectives;

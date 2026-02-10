@@ -1,5 +1,4 @@
 using Godot;
-using TbsFramework.Scenes.Level.Object;
 
 namespace TbsFramework.Nodes.Components;
 

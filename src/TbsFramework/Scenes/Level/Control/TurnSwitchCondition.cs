@@ -1,7 +1,6 @@
 using Godot;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Events;
-using TbsFramework.Scenes.Level.Object.Group;
 
 namespace TbsFramework.Scenes.Level.Control;
 

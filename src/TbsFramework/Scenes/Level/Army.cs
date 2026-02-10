@@ -7,7 +7,7 @@ using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Control;
 using TbsFramework.Scenes.Rendering;
 
-namespace TbsFramework.Scenes.Level.Object.Group;
+namespace TbsFramework.Scenes.Level;
 
 /// <summary>A group of <see cref="Unit"/> <see cref="GridNode"/>s that has allies and enemies.</summary>
 [GlobalClass, Tool]
