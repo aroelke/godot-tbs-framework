@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
-namespace TbsFramework.Collections;
+namespace TbsFramework.Properties;
 
 /// <summary>A generic collection of key/value pairs that raises events when contents change.</summary>
 /// <typeparam name="TKey">The type of keys in the dictionary.</typeparam>
