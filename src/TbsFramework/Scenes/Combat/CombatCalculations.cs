@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using TbsFramework.Scenes.Data;
 
-namespace TbsFramework.Scenes.Combat.Data;
+namespace TbsFramework.Scenes.Combat;
 
 /// <summary>Utility for computing combat stats and results.</summary>
 public static class CombatCalculations

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes.Components;
-using TbsFramework.Scenes.Combat.Data;
+using TbsFramework.Scenes.Combat;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Rendering;
 using TbsFramework.Scenes.Transitions;

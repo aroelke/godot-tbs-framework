@@ -5,7 +5,6 @@ using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes;
-using TbsFramework.Scenes.Combat.Data;
 using TbsFramework.UI;
 using TbsFramework.Scenes.Combat;
 using TbsFramework.Nodes.Components;

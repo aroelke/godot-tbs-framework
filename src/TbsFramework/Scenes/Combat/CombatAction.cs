@@ -1,6 +1,6 @@
 using TbsFramework.Scenes.Data;
 
-namespace TbsFramework.Scenes.Combat.Data;
+namespace TbsFramework.Scenes.Combat;
 
 /// <summary>Types of actions that can be performed in a combat scenario.</summary>
 public enum CombatActionType
