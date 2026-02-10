@@ -3,7 +3,6 @@ using System.Linq;
 using Godot;
 using System;
 using TbsFramework.Nodes.Components;
-using TbsFramework.Scenes.Level.Map;
 using TbsFramework.Scenes.Level.Object.Group;
 using TbsFramework.Scenes.Level.Events;
 using TbsFramework.Scenes.Level.Control;

@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Numerics;
 using Godot;
-using TbsFramework.Scenes.Level.Map;
 
 namespace TbsFramework.Scenes.Level.Layers;
 
