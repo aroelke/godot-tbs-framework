@@ -8,7 +8,7 @@ using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Rendering;
 using TbsFramework.UI.Controls.Device;
 
-namespace TbsFramework.Scenes.Level.Object;
+namespace TbsFramework.Scenes.Level.Control;
 
 /// <summary>Cursor on the <see cref="Map.Grid"/> used for highlighting a cell and selecting things in it.</summary>
 [Tool]

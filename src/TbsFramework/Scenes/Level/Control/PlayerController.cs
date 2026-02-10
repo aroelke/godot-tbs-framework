@@ -11,7 +11,6 @@ using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Events;
 using TbsFramework.Scenes.Level.Layers;
 using TbsFramework.Scenes.Level.Map;
-using TbsFramework.Scenes.Level.Object;
 using TbsFramework.Scenes.Rendering;
 using TbsFramework.UI;
 using TbsFramework.UI.Controls.Device;

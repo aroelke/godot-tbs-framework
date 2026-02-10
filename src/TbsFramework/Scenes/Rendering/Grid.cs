@@ -3,7 +3,6 @@ using System.Linq;
 using Godot;
 using TbsFramework.Properties;
 using TbsFramework.Scenes.Data;
-using TbsFramework.Scenes.Level.Layers;
 
 namespace TbsFramework.Scenes.Rendering;
 

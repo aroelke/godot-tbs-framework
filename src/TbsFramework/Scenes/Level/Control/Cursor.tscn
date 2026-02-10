@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://bgcsg0l8mj2sn"]
 
-[ext_resource type="Script" uid="uid://bjvxat74a8ipo" path="res://src/TbsFramework/Scenes/Level/Object/Cursor.cs" id="2_ysrq3"]
+[ext_resource type="Script" uid="uid://bjvxat74a8ipo" path="res://src/TbsFramework/Scenes/Level/Control/Cursor.cs" id="2_ysrq3"]
 [ext_resource type="PackedScene" uid="uid://croni4vvkdn0a" path="res://src/TbsFramework/Nodes/Components/MoveController.tscn" id="3_xkmwu"]
 
 [node name="Cursor" type="Node2D"]
