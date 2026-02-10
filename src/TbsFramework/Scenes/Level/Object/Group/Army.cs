@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -10,7 +11,7 @@ namespace TbsFramework.Scenes.Level.Object.Group;
 
 /// <summary>A group of <see cref="Unit"/> <see cref="GridNode"/>s that has allies and enemies.</summary>
 [GlobalClass, Tool]
-public partial class Army : GridNodeGroup, IEnumerable<Unit>
+public partial class Army : Node, IEnumerable<Unit>, IEnumerable
 {
     private ArmyController _controller = null;
     public ArmyController Controller => _controller ??= GetChildren().OfType<ArmyController>().FirstOrDefault();
@@ -47,5 +48,6 @@ public partial class Army : GridNodeGroup, IEnumerable<Unit>
             unit.Army = this;
     }
 
-    IEnumerator<Unit> IEnumerable<Unit>.GetEnumerator() => Units().GetEnumerator();
+    public IEnumerator<Unit> GetEnumerator() => Units().GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetChildren().OfType<GridNode>().GetEnumerator();
 }
