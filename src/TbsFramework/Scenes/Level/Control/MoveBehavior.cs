@@ -25,7 +25,9 @@ public partial class MoveBehavior : Behavior
         IEnumerable<Vector2I> enemies = destinations.SelectMany((c) => unit.GetAttackableCells(c)).ToHashSet().Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData u) && !u.Faction.AlliedTo(unit.Faction));
         actions.AddRange(enemies.Select((e) => new UnitAction(UnitAction.AttackAction, unit.GetAttackableCells(e).Intersect(destinations), e, destinations)));
 
-        IEnumerable<Vector2I> allyCells = destinations.SelectMany((c) => unit.GetSupportableCells(c)).ToHashSet().Where((c) => c != unit.Cell && unit.Grid.Occupants.TryGetValue(c, out UnitData u) && u.Faction.AlliedTo(unit.Faction));
+        IEnumerable<Vector2I> allyCells = destinations
+            .SelectMany((c) => unit.GetSupportableCells(c)).ToHashSet()
+            .Where((c) => c != unit.Cell && unit.Grid.Occupants.TryGetValue(c, out UnitData u) && u.Faction.AlliedTo(unit.Faction) && u.Health < u.Stats.Health);
         if (allyCells.Any())
         {
             IEnumerable<UnitData> allies = allyCells.Select((c) => unit.Grid.Occupants[c]).OfType<UnitData>();
