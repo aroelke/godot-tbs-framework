@@ -18,7 +18,7 @@ public partial class MoveBehavior : Behavior
 
         foreach (SpecialActionRegionData region in unit.Grid.SpecialActionRegions)
         {
-            IEnumerable<Vector2I> actionable = region.Cells.Intersect(destinations).Where((c) => region.CanPerform(unit));
+            IEnumerable<Vector2I> actionable = region.Cells.Intersect(destinations).Where((c) => region.CanPerformIn(c, unit));
             actions.AddRange(actionable.Select((a) => new UnitAction(region.Action, [a], a, destinations)));
         }
 

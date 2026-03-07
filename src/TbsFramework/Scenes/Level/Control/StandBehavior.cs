@@ -21,7 +21,7 @@ public partial class StandBehavior : Behavior
     {
         List<UnitAction> actions = [];
 
-        actions.AddRange(unit.Grid.SpecialActionRegions.Where((r) => r.CanPerform(unit)).Select((r) => new UnitAction(r.Action, [unit.Cell], unit.Cell, [unit.Cell])));
+        actions.AddRange(unit.Grid.SpecialActionRegions.Where((r) => r.CanPerformIn(unit.Cell, unit)).Select((r) => new UnitAction(r.Action, [unit.Cell], unit.Cell, [unit.Cell])));
         if (AttackInRange)
         {
             IEnumerable<Vector2I> attackable = unit.GetAttackableCells();
