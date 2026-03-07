@@ -214,6 +214,7 @@ public partial class AIController : ArmyController
             }
             else
                 duplicate.SpecialActionsPerformed++;
+            duplicate.Actor.Active = false;
             duplicate.Result = duplicate.Actor.Grid;
 
             // If this action results in a board state that was already explored, skip the rest of this branch and use that result
