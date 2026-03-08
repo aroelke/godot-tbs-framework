@@ -21,7 +21,7 @@ public partial class StandBehavior : Behavior
     {
         List<UnitAction> actions = [];
 
-        actions.AddRange(unit.Grid.SpecialActionRegions.Where((r) => r.CanPerform(unit)).Select((r) => new UnitAction(r.Action, [unit.Cell], unit.Cell, [unit.Cell])));
+        actions.AddRange(unit.Grid.SpecialActionRegions.Where((r) => r.CanPerformIn(unit.Cell, unit)).Select((r) => new UnitAction(r.Action, [unit.Cell], unit.Cell, [unit.Cell])));
         if (AttackInRange)
         {
             IEnumerable<Vector2I> attackable = unit.GetAttackableCells();
@@ -31,7 +31,9 @@ public partial class StandBehavior : Behavior
         if (SupportInRange)
         {
             IEnumerable<Vector2I> supportable = unit.GetSupportableCells();
-            IEnumerable<UnitData> targets = unit.Grid.Occupants.Where((e) => supportable.Contains(e.Key) && e.Value is UnitData u && unit.Faction.AlliedTo(u.Faction)).Select(static (p) => p.Value).OfType<UnitData>();
+            IEnumerable<UnitData> targets = unit.Grid.Occupants
+                .Where((e) => supportable.Contains(e.Key) && e.Value is UnitData u && unit.Faction.AlliedTo(u.Faction) && u.Health < u.Stats.Health)
+                .Select(static (p) => p.Value).OfType<UnitData>();
             if (targets.Any())
             {
                 double lowest = targets.Min(static (u) => u.Health);

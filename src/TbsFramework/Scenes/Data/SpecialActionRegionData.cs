@@ -116,6 +116,9 @@ public class SpecialActionRegionData
     /// <returns><c>true</c> if <paramref name="unit"/> can perform the special action, and <c>false</c> otherwise.</returns>
     public bool CanPerform(UnitData unit) => (AllowedFactions.Contains(unit.Faction) || AllowedUnits.Contains(unit)) && (!SingleUse || !Performed.Contains(unit));
 
+    /// <returns><c>true</c> if <paramref name="unit"/> can perform the special action and <paramref name="cell"/> is in <see cref="Cells"/>, and <c>false</c> otherwise.</returns>
+    public bool CanPerformIn(Vector2I cell, UnitData unit) => Cells.Contains(cell) && CanPerform(unit);
+
     /// <summary>Update the region to reflect that a unit has performed the special action.</summary>
     /// <param name="unit">Unit performing the action.</param>
     /// <param name="cell">Cell in which the unit is performing the action.</param>
@@ -125,7 +128,7 @@ public class SpecialActionRegionData
     /// </returns>
     public bool Perform(UnitData unit, Vector2I cell)
     {
-        if (!Cells.Contains(cell) || !CanPerform(unit))
+        if (CanPerformIn(cell, unit))
             return false;
 
         Performed = Performed.Add(unit);

@@ -40,6 +40,7 @@ public partial class AIController : ArmyController
             Action = action;
             Sources = sources;
             Target = target;
+            Start = actor?.Cell ?? -Vector2I.One;
 
             if (Actor is not null)
             {
@@ -52,6 +53,7 @@ public partial class AIController : ArmyController
         {
             Actor = original.Actor.Grid.Clone().Occupants[original.Actor.Cell];
             Traversable = original.Traversable;
+            Start = original.Start;
             Destination = original.Destination;
 
             _result = original.Result;
@@ -68,6 +70,7 @@ public partial class AIController : ArmyController
         public IEnumerable<Vector2I> Sources = [];
         public Vector2I Target = -Vector2I.One;
         public IEnumerable<Vector2I> Traversable;
+        public Vector2I Start = -Vector2I.One;
 
         public Vector2I Destination
         {
@@ -75,7 +78,7 @@ public partial class AIController : ArmyController
             set
             {
                 _destination = value;
-                PathCost = Path.Empty(Actor.Grid, Actor.GetTraversableCells()).Add(Actor.Cell).Add(_destination).Cost;
+                PathCost = Path.Empty(Actor.Grid, Actor.GetTraversableCells()).Add(Start).Add(_destination).Cost;
             }
         }
 
@@ -154,7 +157,7 @@ public partial class AIController : ArmyController
             return other.PathCost - PathCost;
         }
 
-        public override string ToString() => $"Move {Actor.Faction.Name}@{Actor.Cell} to {Destination} and {Action} {Target}";
+        public override string ToString() => $"Move {Actor.Faction.Name}@{Start} to {Destination} and {Action} {Target}";
         public override int GetHashCode() => HashCode.Combine(Actor, Actor.Grid, Action, Target, Destination);
     }
 
@@ -214,6 +217,7 @@ public partial class AIController : ArmyController
             }
             else
                 duplicate.SpecialActionsPerformed++;
+            duplicate.Actor.Active = false;
             duplicate.Result = duplicate.Actor.Grid;
 
             // If this action results in a board state that was already explored, skip the rest of this branch and use that result
