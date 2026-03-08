@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Events;
-using TbsFramework.Scenes.Level.Object;
-using TbsFramework.Scenes.Level.Object.Group;
+using TbsFramework.Scenes.Rendering;
 
 namespace TbsFramework.Scenes.Level.Control;
 
@@ -47,7 +47,7 @@ public abstract partial class AreaSwitchCondition : SwitchCondition
     /// property accordingly.
     /// </summary>
     /// <param name="unit">Unit that finished moving.</param>
-    public void Update(Unit unit)
+    public void Update(UnitData unit)
     {
         if (!GetTriggerUnits().Any())
             return;
@@ -55,7 +55,7 @@ public abstract partial class AreaSwitchCondition : SwitchCondition
         HashSet<Vector2I> region = GetRegion();
         IEnumerable<Unit> applicable = GetTriggerUnits();
         Func<Func<Unit, bool>, bool> matcher = RequiresEveryone ? applicable.All : applicable.Any;
-        Func<Unit, bool> container = Inside ? (u) => region.Contains(u.Cell) : (u) => !region.Contains(u.Cell);
+        Func<Unit, bool> container = Inside ? (u) => region.Contains(u.Data.Cell) : (u) => !region.Contains(u.Data.Cell);
 
         Satisfied = matcher(container);
     }
@@ -75,13 +75,13 @@ public abstract partial class AreaSwitchCondition : SwitchCondition
     {
         base._EnterTree();
         if (!Engine.IsEditorHint())
-            LevelEvents.Singleton.ActionEnded += Update;
+            LevelEvents.ActionEnded += Update;
     }
 
     public override void _ExitTree()
     {
         base._ExitTree();
         if (!Engine.IsEditorHint())
-            LevelEvents.Singleton.ActionEnded -= Update;
+            LevelEvents.ActionEnded -= Update;
     }
 }

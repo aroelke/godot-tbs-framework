@@ -1,0 +1,90 @@
+using System.Collections.Generic;
+using Godot;
+using Godot.Collections;
+using TbsFramework.Nodes;
+using TbsFramework.Scenes.Data;
+
+namespace TbsFramework.Scenes.Rendering;
+
+/// <summary>A node representing an object that moves on a <see cref="Map.Grid"/>.</summary>
+[Icon("res://icons/GridNode.svg"), Tool]
+public abstract partial class GridNode : BoundedNode2D
+{
+    private Grid _grid = null;
+
+    /// <summary>Grid on which the containing object sits.</summary>
+    [Export] public Grid Grid
+    {
+        get => _grid;
+        set
+        {
+            if (_grid != value)
+            {
+                _grid = value;
+                if (!Engine.IsEditorHint() && _grid is not null)
+                    SetGridPosition(_grid.Snap(GetGridPosition()));
+            }
+        }
+    }
+
+    /// <summary>Structure containing the state of the object during gameplay.</summary>
+    public abstract GridObjectData Data { get; }
+
+    /// <inheritdoc cref="BoundedNode2D.Size"/>
+    /// <remarks>Grid nodes have a constant size that is based on the size of the <see cref="Map.Grid"/> cells.</remarks>
+    public override Vector2 Size { get => _grid?.CellSize ?? Vector2.Zero; set {}}
+
+    /// <returns>The position of the node relative to its grid.</returns>
+    public Vector2 GetGridPosition() => GlobalPosition - _grid.GlobalPosition;
+
+    /// <summary>Set the position of the node relative to its grid.</summary>
+    public void SetGridPosition(Vector2 position) => GlobalPosition = _grid.GlobalPosition + position;
+
+    public override void _ValidateProperty(Dictionary property)
+    {
+        if (property["name"].As<StringName>() == PropertyName.Size)
+            property["usage"] = property["usage"].As<uint>() | (uint)PropertyUsageFlags.ReadOnly;
+        base._ValidateProperty(property);
+    }
+
+    public override string[] _GetConfigurationWarnings()
+    {
+        List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
+
+        if (_grid is null)
+            warnings.Add("No grid to move on has been defined.");
+
+        return [.. warnings];
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+
+        if (!Engine.IsEditorHint())
+        {
+            Data.CellChanged += (_, cell) => {
+                if (_grid is not null)
+                    SetGridPosition(_grid.PositionOf(cell));
+                if (Engine.IsEditorHint())
+                    UpdateConfigurationWarnings();
+            };
+
+            // Do this after all nodes have been initialized so the backing data is defined
+            Callable.From(() => {
+                // Set cell first because otherwise all the grid nodes will go to (1, 1) and trigger occupancy exceptions
+                Data.Cell = _grid.CellOf(GetGridPosition() + Size/2);
+                Data.Grid = _grid.Data;
+            }).CallDeferred();
+        }
+    }
+
+
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+
+        if (Engine.IsEditorHint() && _grid is not null && !Input.IsMouseButtonPressed(MouseButton.Left))
+            SetGridPosition(_grid.Snap(GetGridPosition() + _grid.CellSize/2));
+    }
+}

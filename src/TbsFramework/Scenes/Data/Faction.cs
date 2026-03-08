@@ -1,0 +1,74 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using Godot;
+
+namespace TbsFramework.Scenes.Data;
+
+/// <summary>Defines global data about a faction in the game.</summary>
+[GlobalClass, Tool]
+public partial class Faction : Resource
+{
+    private ImmutableDictionary<string, Faction> _allies = ImmutableDictionary<string, Faction>.Empty;
+
+    /// <summary>Name of the faction.</summary>
+    [Export] public StringName Name = "";
+
+    /// <summary>Primary color of the faction for easy distinguishing on the battlefield.</summary>
+    [Export] public Color Color = Colors.White;
+
+    /// <summary>Paths to other factions. Can't be direct references to them, as Godot doesn't support that.</summary>
+    [Export(PropertyHint.TypeString, "4/13:*.tres" /* Variant.Type.String=4/PropertyHint.File=13 */)] public string[] AllyPaths = [];
+
+    /// <summary>References to other factions that are allied to this one as loaded from <see cref="AllyPaths"/>.</summary>
+    public IEnumerable<Faction> Allies => (_allies = AllyPaths.ToImmutableDictionary(static (p) => p, (p) => _allies.TryGetValue(p, out Faction f) ? f : ResourceLoader.Load<Faction>(p))).Values;
+
+    /// <summary>Whether or not this faction is allied to another one.</summary>
+    public bool AlliedTo(Faction other) => other == this || Allies.Contains(other);
+
+    /// <summary>Whether or not this faction is allied to a <see cref="Unit"/>'s faction.</summary>
+    public bool AlliedTo(UnitData unit) => unit is not null && AlliedTo(unit.Faction);
+
+    /// <returns>Get all units in this faction on a grid.</returns>
+    public IEnumerable<UnitData> GetUnits(GridData grid) => grid.Occupants.Values.OfType<UnitData>().Where((u) => u.Faction == this);
+
+    /// <summary>Find the unit that comes after the given one on its grid.</summary>
+    /// <exception cref="ArgumentException">If <paramref name="unit"/> is not part of this faction.</exception>
+    /// <remarks><b>Note</b>: Currently the ordering of units is arbitrary.</remarks>
+    public UnitData GetUnitAfter(UnitData unit)
+    {
+        if (unit.Faction != this)
+            throw new ArgumentException($"Cannot get next unit from a faction that isn't {Name}");
+
+        List<UnitData> units = [.. GetUnits(unit.Grid)];
+        if (units.Count == 0)
+            return null;
+        else
+        {
+            int index = units.IndexOf(unit);
+            return units[(index + 1) % units.Count];
+        }
+    }
+
+    /// <summary>Find the unit that comes before the given one on its grid.</summary>
+    /// <exception cref="ArgumentException">if <paramref name="unit"/> is not part of this faction.</exception>
+    /// <remarks><b>Note</b>: Currently the ordering of units is arbitrary.</remarks>
+    public UnitData GetUnitBefore(UnitData unit)
+    {
+        if (unit.Faction != this)
+            throw new ArgumentException($"Cannot get next unit from a faction that isn't {Name}");
+        
+        List<UnitData> units = [.. GetUnits(unit.Grid)];
+        if (units.Count == 0)
+            return null;
+        else
+        {
+            int index = units.IndexOf(unit);
+            if (index == 0)
+                return units[^1];
+            else
+                return units[index - 1];
+        }
+    }
+}

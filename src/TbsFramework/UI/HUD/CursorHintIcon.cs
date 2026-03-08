@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Godot;
-using TbsFramework.Scenes.Level.Object;
 using TbsFramework.Nodes.Components;
 using TbsFramework.UI.Controls.Device;
 using TbsFramework.UI.Controls.IconMaps;

@@ -1,9 +1,7 @@
 #pragma warning disable IDE1006 // Naming Styles
 
 using Godot;
-using TbsFramework.Extensions;
-using TbsFramework.Scenes.Level.Object;
-using TbsFramework.Scenes.Level.Object.Group;
+using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Objectives;
 
 namespace TbsFramework.Scenes.Level.Events;
@@ -29,13 +27,13 @@ public partial class EventController : Node
         if (Success?.Complete ?? false)
         {
             if (signal)
-                LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.SuccessObjectiveComplete);
+                LevelEvents.SuccessObjectiveComplete();
             return true;
         }
         else if (Failure?.Complete ?? false)
         {
             if (signal)
-                LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.FailureObjectiveComplete);
+                LevelEvents.FailureObjectiveComplete();
             return true;
         }
         else
@@ -46,7 +44,7 @@ public partial class EventController : Node
     public void SkipEvent()
     {
         if (!EvaluateObjective())
-            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.EventComplete);
+            LevelEvents.EventComplete();
     }
 
     /// <summary>
@@ -54,29 +52,42 @@ public partial class EventController : Node
     /// Overriding classes should signal <c>EventComplete</c> when they're ready for the turn to begin.
     /// </summary>
     /// <param name="turn">Turn number that's about to begin.</param>
-    /// <param name="army">Army that's about to begin its turn.</param>
-    public virtual void _TurnBegan(int turn, Army army) => SkipEvent();
-    public void OnTurnBegan(int turn, Army army) => Callable.From<int, Army>(_TurnBegan).CallDeferred(turn, army);
+    /// <param name="faction">Faction that's about to begin its turn.</param>
+    public virtual void _TurnBegan (int turn, Faction faction) => SkipEvent();
+    public         void OnTurnBegan(int turn, Faction Faction) => _TurnBegan(turn, Faction);
 
     /// <summary>
     /// Event to perform just after a unit ends its action. By default, evaluates the objectives and signals to continue to the next action if not success
     /// or failure. Overriding classes should signal <c>EventComplete</c> when they're ready for the turn to end.
     /// </summary>
     /// <param name="unit">Unit that just acted.</param>
-    public virtual void _ActionEnded(Unit unit) => SkipEvent();
-    public void OnActionEnded(Unit unit) => Callable.From<Unit>(_ActionEnded).CallDeferred(unit);
+    public virtual void _ActionEnded (UnitData unit) => SkipEvent();
+    public         void OnActionEnded(UnitData unit) => _ActionEnded(unit);
 
-    public virtual void _TurnEnded(int turn, Army army) => SkipEvent();
-    public void OnTurnEnded(int turn, Army army) => Callable.From<int, Army>(_TurnEnded).CallDeferred(turn, army);
+    public virtual void _TurnEnded (int turn, Faction faction) => SkipEvent();
+    public         void OnTurnEnded(int turn, Faction faction) => _TurnEnded(turn, faction);
 
-    public override void _Ready()
+    public override void _EnterTree()
     {
-        base._Ready();
+        base._EnterTree();
+
         if (!Engine.IsEditorHint())
         {
-            LevelEvents.Singleton.Connect<int, Army>(LevelEvents.SignalName.TurnBegan, OnTurnBegan);
-            LevelEvents.Singleton.Connect<Unit>(LevelEvents.SignalName.ActionEnded, OnActionEnded);
-            LevelEvents.Singleton.Connect<int, Army>(LevelEvents.SignalName.TurnEnded, OnTurnEnded);
+            LevelEvents.TurnBegan += OnTurnBegan;
+            LevelEvents.ActionEnded += OnActionEnded;
+            LevelEvents.TurnEnded += OnTurnEnded;
+        }
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+
+        if (!Engine.IsEditorHint())
+        {
+            LevelEvents.TurnBegan -= OnTurnBegan;
+            LevelEvents.ActionEnded -= OnActionEnded;
+            LevelEvents.TurnEnded -= OnTurnEnded;
         }
     }
 }

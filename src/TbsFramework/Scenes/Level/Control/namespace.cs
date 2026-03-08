@@ -1,4 +1,4 @@
-using TbsFramework.Scenes.Level.Object;
+using TbsFramework.Scenes.Rendering;
 
 namespace TbsFramework
 {

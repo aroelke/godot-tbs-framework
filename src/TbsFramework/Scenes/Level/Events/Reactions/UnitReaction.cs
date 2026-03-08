@@ -1,6 +1,6 @@
 using Godot;
 using TbsFramework.Nodes.StateCharts.Reactions;
-using TbsFramework.Scenes.Level.Object;
+using TbsFramework.Scenes.Rendering;
 
 namespace TbsFramework.Scenes.Level.Events.Reactions;
 

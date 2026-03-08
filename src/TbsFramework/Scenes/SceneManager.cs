@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Godot;
 using TbsFramework.Extensions;
+using TbsFramework.Nodes;
 using TbsFramework.Scenes.Transitions;
-using TbsFramework.UI;
 
 namespace TbsFramework.Scenes;
 
