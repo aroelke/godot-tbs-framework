@@ -16,11 +16,13 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v6
+            - name: Get SSH
+              run: apt update && apt install -y ssh
             - name: Checkout Tests
               uses: actions/checkout@v6
               with:
                 ssh-key: ${{ secrets.GODOT_TBS_TEMPLATE_ACTIONS }}
-                repository: aroelke/godot-tbs-template-tests
+                repository: aroelke/godot-tbs-framework-tests
                 path: test
             - name: Setup
               run: |
