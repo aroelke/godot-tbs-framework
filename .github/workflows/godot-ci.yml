@@ -16,15 +16,18 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v6
+            - name: Checkout Tests
+              uses: actions/checkout@v6
+              with:
+                ssh-key: ${{ secrets.GODOT_TBS_TEMPLATE_ACTIONS }}
+                repository: aroelke/godot-tbs-template-tests
+                path: test
             - name: Setup
               run: |
                 mkdir -v -p ~/.local/share/godot/export_templates
                 mkdir -v -p ~/.config
                 cp -R /root/.config/godot ~/.config/godot
                 cp -R /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono
-                eval `ssh-agent -s`
-                ssh-add - <<< "${{ secrets.GODOT_TBS_TEMPLATE_ACTIONS }}"
-                git clone git@github.com:aroelke/godot-tbs-framework-tests.git test
             - name: Linux Build
               run: |
                 mkdir -v -p ${BUILD_DIR}/linux
