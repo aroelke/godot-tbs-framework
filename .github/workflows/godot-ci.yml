@@ -5,7 +5,7 @@ env:
     GODOT_VERSION: 4.5.1
     BUILD_DIR: build
     EXPORT_BIN: godot-tbs-framework.test
-    LINUX_EXPORT: "Linux (Test)"
+    LINUX_EXPORT: Linux (Test)
 
 jobs:
     unit-test-linux:
@@ -35,4 +35,4 @@ jobs:
                 mkdir -v -p ${BUILD_DIR}/linux
                 EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
                 godot --headless --build-solutions --quit
-                godot --headless --export-debug ${LINUX_EXPORT} "${EXPORT_DIR}/linux/${EXPORT_BIN}.x86_64"
+                godot --headless --export-debug "${LINUX_EXPORT}" "${EXPORT_DIR}/linux/${EXPORT_BIN}.x86_64"
