@@ -21,7 +21,7 @@ jobs:
                 mkdir -v -p ~/.local/share/godot/export_templates
                 mkdir -v -p ~/.config
                 cp -R /root/.config/godot ~/.config/godot
-                cp -R /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+                cp -R /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono
                 git clone git@github.com:aroelke/godot-tbs-framework-tests.git test
             - name: Linux Build
               run: |
