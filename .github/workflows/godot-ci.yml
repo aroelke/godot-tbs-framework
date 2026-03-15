@@ -1,0 +1,31 @@
+name: "godot-tbs-framework unit tests"
+on: push
+
+env:
+    GODOT_VERSION: 4.5.1
+    BUILD_DIR: build
+    EXPORT_BIN: godot-tbs-framework.test
+    LINUX_EXPORT: "Linux (Test)"
+
+jobs:
+    unit-test-linux:
+        name: Run Unit Tests (Linux)
+        runs-on: ubuntu-24.04
+        container:
+            image: barichello/godot-ci:mono-4.5.1
+        steps:
+            - name: Checkout
+              uses: actions/checkout
+            - name: Setup
+              run: |
+                mkdir -v -p ~/.local/share/godot/export_templates
+                mkdir -v -p ~/.config
+                cp -R /root/.config/godot ~/.config/godot
+                cp -R /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+                git clone git@github.com:aroelke/godot-tbs-framework-tests.git test
+            - name: Linux Build
+              run: |
+                mkdir -v -p ${BUILD_DIR}/linux
+                EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
+                godot --headless --build-solutions --quit
+                godot --headless --export-debug ${LINUX_EXPORT} "${EXPORT_DIR}/linux/${EXPORT_BIN}.x86_64"
