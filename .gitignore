@@ -2,3 +2,4 @@
 .godot/
 addons/godot-git-plugin/win64/~libgit_plugin.windows.editor.x86_64.dll
 test/
+build/
