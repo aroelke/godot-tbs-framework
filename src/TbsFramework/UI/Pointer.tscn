@@ -38,7 +38,6 @@ InitialState = NodePath("DigitalState")
 
 [node name="DigitalState" parent="ControlState/Root/Active" instance=ExtResource("10_fcy41")]
 unique_name_in_owner = true
-process_mode = 4
 
 [node name="ToAnalog" parent="ControlState/Root/Active/DigitalState" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
 To = NodePath("../../AnalogState")
@@ -52,7 +51,6 @@ Event = &""
 
 [node name="AnalogState" parent="ControlState/Root/Active" instance=ExtResource("10_fcy41")]
 unique_name_in_owner = true
-process_mode = 4
 
 [node name="ToDigital" parent="ControlState/Root/Active/AnalogState" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
 To = NodePath("../../DigitalState")
@@ -70,7 +68,6 @@ Event = &""
 
 [node name="MouseState" parent="ControlState/Root/Active" instance=ExtResource("10_fcy41")]
 unique_name_in_owner = true
-process_mode = 4
 
 [node name="ToDigital" parent="ControlState/Root/Active/MouseState" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
 To = NodePath("../../DigitalState")
@@ -91,7 +88,6 @@ To = NodePath("../../Waiting")
 Event = &"wait"
 
 [node name="Waiting" parent="ControlState/Root" instance=ExtResource("10_fcy41")]
-process_mode = 4
 
 [node name="ToActive" parent="ControlState/Root/Waiting" node_paths=PackedStringArray("To") instance=ExtResource("11_uxn4c")]
 To = NodePath("../../Active/History")

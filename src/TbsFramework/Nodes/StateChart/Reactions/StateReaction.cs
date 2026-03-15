@@ -6,7 +6,7 @@ using TbsFramework.Nodes.StateCharts.States;
 namespace TbsFramework.Nodes.StateCharts.Reactions;
 
 /// <summary><see cref="State"/>-specific reaction to a trigger that should cause an action without a transition.</summary>
-[GlobalClass, Icon("res://icons/statechart/StateReaction.svg"), Tool]
+[GlobalClass, Icon("uid://cp577d8i7p1x6"), Tool]
 public partial class StateReaction : ChartNode
 {
     private State _state = null;
