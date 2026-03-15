@@ -42,3 +42,8 @@ jobs:
         run: |
           EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
           ${EXPORT_DIR}/linux/${EXPORT_BIN}.x86_64 --headless
+      - name: Publish Test Results
+        uses: mikepenz/action-junit-report@v6
+        if: success() || failure()
+        with:
+          report_paths: 'test/report.xml'
