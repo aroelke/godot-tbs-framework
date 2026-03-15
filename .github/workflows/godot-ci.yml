@@ -17,7 +17,7 @@ jobs:
       - name: Get Packages
         run: |
           apt update
-          apt install -y ssh libxcursor1 xvfb
+          apt install -y ssh
       - name: Checkout Framework
         uses: actions/checkout@v6
       - name: Checkout Tests
@@ -41,4 +41,4 @@ jobs:
       - name: Run
         run: |
           EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
-          xvfb-run ${EXPORT_DIR}/linux/${EXPORT_BIN}.x86_64 --rendering-driver opengl3
+          ${EXPORT_DIR}/linux/${EXPORT_BIN}.x86_64 --headless
