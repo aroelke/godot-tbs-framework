@@ -2,37 +2,41 @@ name: "godot-tbs-framework unit tests"
 on: push
 
 env:
-    GODOT_VERSION: 4.5.1
-    BUILD_DIR: build
-    EXPORT_BIN: godot-tbs-framework.test
-    LINUX_EXPORT: Linux (Test)
+  GODOT_VERSION: 4.5.1
+  BUILD_DIR: build
+  EXPORT_BIN: godot-tbs-framework.test
+  LINUX_EXPORT: Linux (Test)
 
 jobs:
-    unit-test-linux:
-        name: Run Unit Tests (Linux)
-        runs-on: ubuntu-24.04
-        container:
-            image: barichello/godot-ci:mono-4.5.1
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v6
-            - name: Get SSH
-              run: apt update && apt install -y ssh
-            - name: Checkout Tests
-              uses: actions/checkout@v6
-              with:
-                ssh-key: ${{ secrets.GODOT_TBS_TEMPLATE_ACTIONS }}
-                repository: aroelke/godot-tbs-framework-tests
-                path: test
-            - name: Setup
-              run: |
-                mkdir -v -p ~/.local/share/godot/export_templates
-                mkdir -v -p ~/.config
-                cp -R /root/.config/godot ~/.config/godot
-                cp -R /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono
-            - name: Linux Build
-              run: |
-                mkdir -v -p ${BUILD_DIR}/linux
-                EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
-                godot --headless --build-solutions --quit
-                godot --headless --export-debug "${LINUX_EXPORT}" "${EXPORT_DIR}/linux/${EXPORT_BIN}.x86_64"
+  unit-test-linux:
+    name: Run Unit Tests (Linux)
+    runs-on: ubuntu-24.04
+    container:
+      image: barichello/godot-ci:mono-4.5.1
+    steps:
+      - name: Checkout Framework
+        uses: actions/checkout@v6
+      - name: Get SSH
+        run: apt update && apt install -y ssh
+      - name: Checkout Tests
+        uses: actions/checkout@v6
+        with:
+          ssh-key: ${{ secrets.GODOT_TBS_TEMPLATE_ACTIONS }}
+          repository: aroelke/godot-tbs-framework-tests
+          path: test
+      - name: Copy Templates
+        run: |
+          mkdir -v -p ~/.local/share/godot/export_templates
+          mkdir -v -p ~/.config
+          cp -R /root/.config/godot ~/.config/godot
+          cp -R /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono
+      - name: Build
+        run: |
+          mkdir -v -p ${BUILD_DIR}/linux
+          EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
+          godot --headless --build-solutions --quit
+          godot --headless --export-debug "${LINUX_EXPORT}" "${EXPORT_DIR}/linux/${EXPORT_BIN}.x86_64"
+      - name: Run
+        run: |
+          EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
+          ${EXPORT_DIR}/linux/${EXPORT_BIN}.x86_64 --rendering-driver opengl3
