@@ -10,7 +10,7 @@ using TbsFramework.Scenes.Rendering;
 namespace TbsFramework.Scenes.Level;
 
 /// <summary>A group of <see cref="Unit"/> <see cref="GridNode"/>s that has allies and enemies.</summary>
-[GlobalClass, Tool]
+[GlobalClass, Icon("uid://j6vriinotgdo"), Tool]
 public partial class Army : Node, IEnumerable<Unit>, IEnumerable
 {
     private ArmyController _controller = null;

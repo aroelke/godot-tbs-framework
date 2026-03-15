@@ -8,7 +8,7 @@ using TbsFramework.UI.Controls.IconMaps;
 namespace TbsFramework.UI.HUD;
 
 /// <summary>Icon and label showing the input for an action that doesn't have an analog or mouse option.</summary>
-[Icon("res://icons/ControlHint.svg"), Tool]
+[Icon("uid://dse1e8t65q25x"), Tool]
 public partial class ControlHint : HBoxContainer
 {
     private readonly NodeCache _cache = null;

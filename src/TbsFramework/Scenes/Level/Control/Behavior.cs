@@ -7,7 +7,7 @@ using TbsFramework.Scenes.Data;
 namespace TbsFramework.Scenes.Level.Control;
 
 /// <summary>A <see cref="Unit"/> component that provides information about how the AI uses it in a specific situation.</summary>
-[Tool, Icon("res://icons/Behavior.svg")]
+[Tool, Icon("uid://cvtdbcchxcvon")]
 public abstract partial class Behavior : Node
 {
     

@@ -7,7 +7,7 @@ using TbsFramework.Scenes.Data;
 namespace TbsFramework.Scenes.Rendering;
 
 /// <summary>A node representing an object that moves on a <see cref="Map.Grid"/>.</summary>
-[Icon("res://icons/GridNode.svg"), Tool]
+[Icon("uid://5yh84odsi0xx"), Tool]
 public abstract partial class GridNode : BoundedNode2D
 {
     private Grid _grid = null;

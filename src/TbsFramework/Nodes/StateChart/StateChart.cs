@@ -15,7 +15,7 @@ namespace TbsFramework.Nodes.StateCharts;
 /// <see cref="State"/> is active, it can receive events, which cause it to trigger <see cref="StateTransition"/>s to other <see cref="State"/>s or
 /// emit signals.
 /// </summary>
-[Icon("res://icons/statechart/StateChart.svg"), Tool]
+[Icon("uid://l3t17xf2u207"), Tool]
 public partial class StateChart : Node
 {
     /// <summary>Signals that the state chart has received an event before any transitions are processed.</summary>
