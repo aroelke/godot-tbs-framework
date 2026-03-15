@@ -14,10 +14,12 @@ jobs:
     container:
       image: barichello/godot-ci:mono-4.5.1
     steps:
+      - name: Get Packages
+        run: |
+          apt update
+          apt install -y ssh libxcursor1 xvfb
       - name: Checkout Framework
         uses: actions/checkout@v6
-      - name: Get SSH
-        run: apt update && apt install -y ssh
       - name: Checkout Tests
         uses: actions/checkout@v6
         with:
@@ -39,4 +41,4 @@ jobs:
       - name: Run
         run: |
           EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
-          ${EXPORT_DIR}/linux/${EXPORT_BIN}.x86_64 --rendering-driver opengl3
+          xvfb-run ${EXPORT_DIR}/linux/${EXPORT_BIN}.x86_64 --rendering-driver opengl3
