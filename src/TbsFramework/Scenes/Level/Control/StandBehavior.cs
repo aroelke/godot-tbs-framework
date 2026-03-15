@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using TbsFramework.Scenes.Level.Map;
-using TbsFramework.Scenes.Level.Object;
+using TbsFramework.Scenes.Data;
 
 namespace TbsFramework.Scenes.Level.Control;
 
@@ -16,23 +15,25 @@ public partial class StandBehavior : Behavior
     /// <summary>Whether or not the unit should support allies in range.</summary>
     [Export] public bool SupportInRange = true;
 
-    public override IEnumerable<Vector2I> Destinations(IUnit unit, IGrid grid) => [unit.Cell];
+    public override IEnumerable<Vector2I> Destinations(UnitData unit) => [unit.Cell];
 
-    public override IEnumerable<UnitAction> Actions(IUnit unit, IGrid grid)
+    public override IEnumerable<UnitAction> Actions(UnitData unit)
     {
         List<UnitAction> actions = [];
 
-        actions.AddRange(grid.GetSpecialActionRegions().Where((r) => r.CanPerform(unit, unit.Cell)).Select((r) => new UnitAction(r.Action, [unit.Cell], unit.Cell, [unit.Cell])));
+        actions.AddRange(unit.Grid.SpecialActionRegions.Where((r) => r.CanPerformIn(unit.Cell, unit)).Select((r) => new UnitAction(r.Action, [unit.Cell], unit.Cell, [unit.Cell])));
         if (AttackInRange)
         {
-            IEnumerable<Vector2I> attackable = unit.AttackableCells(grid, [unit.Cell]);
-            IEnumerable<IUnit> targets = grid.GetOccupantUnits().Where((e) => attackable.Contains(e.Key) && !unit.Faction.AlliedTo(e.Value.Faction)).Select(static (p) => p.Value);
+            IEnumerable<Vector2I> attackable = unit.GetAttackableCells();
+            IEnumerable<UnitData> targets = unit.Grid.Occupants.Where((e) => attackable.Contains(e.Key) && e.Value is UnitData u && !unit.Faction.AlliedTo(u.Faction)).Select(static (p) => p.Value).OfType<UnitData>();
             actions.AddRange(targets.Select((t) => new UnitAction(UnitAction.AttackAction, [unit.Cell], t.Cell, [unit.Cell])));
         }
         if (SupportInRange)
         {
-            IEnumerable<Vector2I> supportable = unit.SupportableCells(grid, [unit.Cell]);
-            IEnumerable<IUnit> targets = grid.GetOccupantUnits().Where((e) => supportable.Contains(e.Key) && unit.Faction.AlliedTo(e.Value.Faction)).Select(static (p) => p.Value);
+            IEnumerable<Vector2I> supportable = unit.GetSupportableCells();
+            IEnumerable<UnitData> targets = unit.Grid.Occupants
+                .Where((e) => supportable.Contains(e.Key) && e.Value is UnitData u && unit.Faction.AlliedTo(u.Faction) && u.Health < u.Stats.Health)
+                .Select(static (p) => p.Value).OfType<UnitData>();
             if (targets.Any())
             {
                 double lowest = targets.Min(static (u) => u.Health);

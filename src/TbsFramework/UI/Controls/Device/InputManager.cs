@@ -1,6 +1,6 @@
 using System.Linq;
 using Godot;
-using TbsFramework.Extensions;
+using TbsFramework.Nodes;
 
 namespace TbsFramework.UI.Controls.Device;
 

@@ -4,6 +4,7 @@ using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes.StateCharts.Conditions;
+using TbsFramework.Properties;
 
 namespace TbsFramework.Nodes.StateCharts.States;
 

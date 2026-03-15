@@ -4,7 +4,7 @@
 
 [node name="DemoGameOverScene" type="Node"]
 script = ExtResource("1_7jaj6")
-RestartTarget = "uid://didkiflqabwl4"
+RestartTarget = "uid://dq2q8b0axoftt"
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 

@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
-using TbsFramework.Scenes.Level.Layers;
-using TbsFramework.Scenes.Level.Object;
+using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Rendering;
 
 namespace TbsFramework.Scenes.Level.Objectives;
 
@@ -9,7 +10,8 @@ namespace TbsFramework.Scenes.Level.Objectives;
 [Tool]
 public partial class ActionObjective : Objective
 {
-    private readonly List<Unit> _units = [];
+    private SpecialActionRegionData _region = null;
+    private readonly List<UnitData> _units = [];
     private readonly List<Vector2I> _spaces = [];
 
     /// <summary>Region to perform the action in.  Also defines which units can perform the action. Side effects are not implemented here.</summary>
@@ -17,31 +19,37 @@ public partial class ActionObjective : Objective
 
     /// <summary>
     /// If the region is:
-    /// - A one-shot region, represents the number of spaces the action must be performed in, with 0 representing "all of them"
-    /// - A single-use region, represents the number of different units that must perform the action, with 0 representing "all of them"
-    /// - Neither, represents the number of times the action must be performed, with 0 being invalid
+    /// <list type="bullet">
+    ///   <item>A one-shot region, represents the number of spaces the action must be performed in, with 0 representing "all of them"</item>
+    ///   <item>A single-use region, represents the number of different units that must perform the action, with 0 representing "all of them"</item>
+    ///   <item>Neither, represents the number of times the action must be performed, with 0 being invalid</item>
+    /// </list>
     /// </summary>
+    /// <remarks>
+    /// Note that, if 0 is set for a one-shot region whose allowed units include all those from any factions, the set of allowed units updates as
+    /// units in those factions enter and leave the map.
+    /// </remarks>
     [Export(PropertyHint.Range, "0,10,or_greater")] public int Target = 1;
 
     public override bool Complete
     {
         get
         {
-            if (ActionRegion is null)
+            if (_region is null)
                 return false;
-            else if (ActionRegion.OneShot)
+            else if (_region.OneShot)
             {
                 if (Target == 0)
-                    return ActionRegion.GetUsedCells().Count == 0;
+                    return _region.Cells.Count == 0;
                 else
                     return _spaces.Count >= Target;
             }
-            else if (ActionRegion.SingleUse)
+            else if (_region.SingleUse)
             {
                 if (Target == 0)
-                    return ActionRegion.Performed == ActionRegion.AllAllowedUnits();
+                    return !_region.AllAllowedUnits().Any();
                 else
-                    return ActionRegion.Performed.Count >= Target;
+                    return _region.Performed.Count >= Target;
             }
             else
                 return Target > 0 && _units.Count >= Target;
@@ -52,30 +60,37 @@ public partial class ActionObjective : Objective
     {
         get
         {
-            if (ActionRegion is null)
+            if (_region is null)
                 return "";
-            else if (ActionRegion.OneShot)
-                return $"{ActionRegion.Action} in {(Target == 0 ? "all" : Target)} space(s) of {ActionRegion.Name}";
-            else if (ActionRegion.SingleUse)
-                return $"{ActionRegion.Action} with {(Target == 0 ? "all" : Target)} allowed unit(s)";
+            else if (_region.OneShot)
+                return $"{_region.Action} in {(Target == 0 ? "all" : Target)} space(s) of {_region.Action}";
+            else if (_region.SingleUse)
+                return $"{_region.Action} with {(Target == 0 ? "all" : Target)} allowed unit(s)";
             else
-                return $"{ActionRegion.Action} {Target} time(s)";
+                return $"{_region.Action} {Target} time(s)";
         }
     }
 
-    public void ActionPerformed(StringName action, Unit actor, Vector2I cell)
+    public override string[] _GetConfigurationWarnings()
     {
-        if (action == ActionRegion.Action)
-        {
-            _units.Add(actor);
-            _spaces.Add(cell);
-        }
+        List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
+
+        if (ActionRegion is null)
+            warnings.Add("");
+
+        return [.. warnings];
     }
 
     public override void _Ready()
     {
         base._Ready();
         if (!Engine.IsEditorHint() && ActionRegion is not null)
-            ActionRegion.SpecialActionPerformed += ActionPerformed;
+        {
+            _region = ActionRegion.Data;
+            _region.ActionPerformed += (_, unit, cell) => {
+                _units.Add(unit);
+                _spaces.Add(cell);
+            };
+        }
     }
 }
