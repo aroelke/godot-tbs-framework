@@ -22,6 +22,8 @@ jobs:
                 mkdir -v -p ~/.config
                 cp -R /root/.config/godot ~/.config/godot
                 cp -R /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono
+                eval `ssh-agent -s`
+                ssh-add - <<< "${{ secrets.GODOT_TBS_TEMPLATE_ACTIONS }}"
                 git clone git@github.com:aroelke/godot-tbs-framework-tests.git test
             - name: Linux Build
               run: |
