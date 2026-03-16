@@ -1,6 +1,10 @@
 name: "godot-tbs-framework unit tests"
 on: push
 
+permissions:
+  contents: read
+  checks: write
+
 env:
   GODOT_VERSION: 4.5.1
   BUILD_DIR: build
