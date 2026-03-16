@@ -1,4 +1,4 @@
-name: "godot-tbs-framework unit tests"
+name: "test"
 on: push
 
 permissions:
