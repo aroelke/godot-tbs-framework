@@ -56,12 +56,10 @@ public partial class AIController : ArmyController
             Start = original.Start;
             Destination = original.Destination;
 
-            _result = original.Result;
+            Result = original.Result;
             SpecialActionsPerformed = original.SpecialActionsPerformed;
             DefeatedEnemies = original.DefeatedEnemies;
             DefeatedAllies = original.DefeatedAllies;
-            AllyHealthDifference = original.AllyHealthDifference;
-            EnemyHealthDifference = original.EnemyHealthDifference;
             RemainingActions = original.RemainingActions;
         }
 
@@ -95,30 +93,31 @@ public partial class AIController : ArmyController
             get => _result;
             set
             {
-                _result = value;
-
-                foreach ((_, GridObjectData obj) in _result.Occupants)
+                if ((_result = value) is not null)
                 {
-                    if (obj is UnitData unit)
+                    foreach ((_, GridObjectData obj) in _result.Occupants)
                     {
-                        if (Actor.Faction.AlliedTo(unit.Faction))
+                        if (obj is UnitData unit)
                         {
-                            _allies.Add(unit);
-                            if (unit.Health <= 0)
-                                DefeatedAllies++;
-                            AllyHealthDifference += unit.Stats.Health - unit.Health;
-                        }
-                        else
-                        {
-                            _enemies.Add(unit);
-                            if (unit.Health <= 0)
-                                DefeatedEnemies++;
-                            EnemyHealthDifference += unit.Stats.Health - unit.Health;
+                            if (Actor.Faction.AlliedTo(unit.Faction))
+                            {
+                                _allies.Add(unit);
+                                if (unit.Health <= 0)
+                                    DefeatedAllies++;
+                                AllyHealthDifference += unit.Stats.Health - unit.Health;
+                            }
+                            else
+                            {
+                                _enemies.Add(unit);
+                                if (unit.Health <= 0)
+                                    DefeatedEnemies++;
+                                EnemyHealthDifference += unit.Stats.Health - unit.Health;
+                            }
                         }
                     }
-                }
 
-                _enemies.Sort((a, b) => (int)((a.Health - b.Health)*HealthDiffPrecision));
+                    _enemies.Sort((a, b) => (int)((a.Health - b.Health)*HealthDiffPrecision));
+                }
             }
         }
 
