@@ -1,4 +1,5 @@
 # C# Turn-Based Strategy Framework for Godot
+[![test](https://github.com/aroelke/godot-tbs-framework/actions/workflows/godot-ci.yml/badge.svg)](https://github.com/aroelke/godot-tbs-framework/actions/workflows/godot-ci.yml)
 ## Introduction
 This is a framework written in C# for building turn-based strategy games in Godot 4.5 or later. It has the following features:
  - Support for a variable number of factions with customizable alliances that can be controlled either by player or CPU
