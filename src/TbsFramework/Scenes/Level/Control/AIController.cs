@@ -140,7 +140,7 @@ public partial class AIController : ArmyController
             if ((diff = other.DefeatedAllies - DefeatedAllies) != 0)
                 return diff;
 
-            if ((diff = (int)((other.AllyHealthDifference - AllyHealthDifference)*HealthDiffPrecision)) != 0)
+            if ((Action == UnitAction.SupportAction || other.Action == UnitAction.SupportAction) && (diff = (int)((other.AllyHealthDifference - AllyHealthDifference)*HealthDiffPrecision)) != 0)
                 return diff;
 
             int smaller = Math.Min(_enemies.Count, other._enemies.Count);
@@ -149,6 +149,9 @@ public partial class AIController : ArmyController
                     return (int)((other._enemies[i].Health - _enemies[i].Health)*HealthDiffPrecision);
 
             if ((diff = (int)((EnemyHealthDifference - other.EnemyHealthDifference)*HealthDiffPrecision)) != 0)
+                return diff;
+
+            if ((diff = (int)((other.AllyHealthDifference - AllyHealthDifference)*HealthDiffPrecision)) != 0)
                 return diff;
 
             if ((diff = RemainingActions - other.RemainingActions) != 0)
