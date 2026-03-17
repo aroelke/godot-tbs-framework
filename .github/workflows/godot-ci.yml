@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           ssh-key: ${{ secrets.GODOT_TBS_TEMPLATE_ACTIONS }}
-          repository: aroelke/godot-tbs-framework-tests
+          repository: ${{ github.repository_owner }}/godot-tbs-framework-tests
           path: test
       - name: Copy Templates
         run: |
