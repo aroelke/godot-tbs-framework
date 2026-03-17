@@ -10,6 +10,7 @@ env:
   BUILD_DIR: build
   EXPORT_BIN: godot-tbs-framework.test
   LINUX_EXPORT: Linux (Test)
+  WINDOWS_EXPORT: Windows Desktop (Test)
 
 jobs:
   unit-test-linux:
@@ -38,10 +39,18 @@ jobs:
           cp -R /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono
       - name: Build
         run: |
-          mkdir -v -p ${BUILD_DIR}/linux
           EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
           godot --headless --build-solutions --quit
+      - name: Linux Export
+        run: |
+          mkdir -v -p ${BUILD_DIR}/linux
+          EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
           godot --headless --export-debug "${LINUX_EXPORT}" "${EXPORT_DIR}/linux/${EXPORT_BIN}.x86_64"
+      - name: Windows Export
+        run: |
+          mkdir -v -p ${BUILD_DIR}/windows
+          EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
+          godot --headless --export-debug "${WINDOWS_EXPORT}" "${EXPORT_DIR}/windows/${EXPORT_BIN}.exe"
       - name: Run
         run: |
           EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
