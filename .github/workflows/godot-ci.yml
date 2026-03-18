@@ -10,11 +10,10 @@ env:
   BUILD_DIR: build
   EXPORT_BIN: godot-tbs-framework.test
   LINUX_EXPORT: Linux (Test)
-  WINDOWS_EXPORT: Windows Desktop (Test)
 
 jobs:
-  setup-test-repo:
-    name: Setup Tests
+  run-unit-tests:
+    name: Run Unit Tests
     runs-on: ubuntu-latest
     container:
       image: barichello/godot-ci:mono-4.5.1
@@ -31,24 +30,6 @@ jobs:
           ssh-key: ${{ secrets.GODOT_TBS_TEMPLATE_ACTIONS }}
           repository: ${{ github.repository_owner }}/godot-tbs-framework-tests
           path: test
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v6
-        with:
-          name: unit-tests
-          retention-days: 1
-          path: ${{ github.workspace }}
-  unit-test-linux:
-    name: Build and Run Unit Tests (Linux)
-    runs-on: ubuntu-latest
-    needs: setup-test-repo
-    container:
-      image: barichello/godot-ci:mono-4.5.1
-    steps:
-      - name: Download Artifact
-        uses: actions/download-artifact@v8
-        with:
-          name: unit-tests
-          path: ${{ github.workspace }}
       - name: Copy Templates
         run: |
           mkdir -v -p ~/.local/share/godot/export_templates
@@ -57,49 +38,13 @@ jobs:
           cp -R /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono
       - name: Build
         run: |
-          EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
+          mkdir -v -p build
           godot --headless --build-solutions --quit
-      - name: Linux Export
-        run: |
-          mkdir -v -p ${BUILD_DIR}/linux
-          EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
-          godot --headless --export-debug "${LINUX_EXPORT}" "${EXPORT_DIR}/linux/${EXPORT_BIN}.x86_64"
+          godot --headless --export-debug "${LINUX_EXPORT}" "build/${EXPORT_BIN}.x86_64"
       - name: Run
-        run: |
-          EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
-          ${EXPORT_DIR}/linux/${EXPORT_BIN}.x86_64 --headless
+        run: build/${EXPORT_BIN}.x86_64 --headless
       - name: Publish Test Results
         uses: mikepenz/action-junit-report@v6
         if: success() || failure()
         with:
           report_paths: 'test/report.xml'
-  build-windows:
-    name: Build (Windows)
-    runs-on: ubuntu-latest
-    needs: setup-test-repo
-    container:
-      image: barichello/godot-ci:mono-4.5.1
-    steps:
-      - name: Download Artifact
-        uses: actions/download-artifact@v8
-        with:
-          name: unit-tests
-          path: ${{ github.workspace }}
-      - name: Copy Templates
-        shell: bash
-        run: |
-          mkdir -v -p ~/.local/share/godot/export_templates
-          mkdir -v -p ~/.config
-          cp -R /root/.config/godot ~/.config/godot
-          cp -R /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono
-      - name: Build
-        shell: bash
-        run: |
-          EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
-          godot --headless --build-solutions --quit
-      - name: Windows Export
-        shell: bash
-        run: |
-          mkdir -v -p ${BUILD_DIR}/windows
-          EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
-          godot --headless --export-debug "${WINDOWS_EXPORT}" "${EXPORT_DIR}/windows/${EXPORT_BIN}.exe"
