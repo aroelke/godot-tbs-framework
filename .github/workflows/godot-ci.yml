@@ -75,7 +75,7 @@ jobs:
           report_paths: 'test/report.xml'
   build-windows:
     name: Build (Windows)
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: unit-test-linux
     container:
       image: barichello/godot-ci:mono-4.5.1
@@ -86,16 +86,19 @@ jobs:
           name: unit-tests
           path: ${{ github.workspace }}
       - name: Copy Templates
+        shell: bash
         run: |
           mkdir -v -p ~/.local/share/godot/export_templates
           mkdir -v -p ~/.config
           cp -R /root/.config/godot ~/.config/godot
           cp -R /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono
       - name: Build
+        shell: bash
         run: |
           EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
           godot --headless --build-solutions --quit
       - name: Windows Export
+        shell: bash
         run: |
           mkdir -v -p ${BUILD_DIR}/windows
           EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
