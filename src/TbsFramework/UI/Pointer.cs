@@ -306,7 +306,9 @@ public partial class Pointer : BoundedNode2D
             _flyer = CreateTween();
             _flyer.Kill();
 
-            Mouse.Texture = ResourceLoader.Load<Texture2D>(ProjectSettings.GetSetting("display/mouse_cursor/custom_image").As<string>());
+            string pointer = ProjectSettings.GetSetting("display/mouse_cursor/custom_image").As<string>();
+            if (!string.IsNullOrEmpty(pointer))
+                Mouse.Texture = ResourceLoader.Load<Texture2D>(pointer);
             Callable.From(() => Mouse.Position = WorldToViewport(Position)).CallDeferred();
             OnInputModeChanged(DeviceManager.Mode);
 
