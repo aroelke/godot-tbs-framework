@@ -38,7 +38,7 @@ jobs:
           retention-days: 1
           path: ${{ github.workspace }}
   unit-test-linux:
-    name: Run Unit Tests (Linux)
+    name: Build and Run Unit Tests (Linux)
     runs-on: ubuntu-latest
     needs: setup-test-repo
     container:
@@ -64,11 +64,6 @@ jobs:
           mkdir -v -p ${BUILD_DIR}/linux
           EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
           godot --headless --export-debug "${LINUX_EXPORT}" "${EXPORT_DIR}/linux/${EXPORT_BIN}.x86_64"
-      - name: Windows Export
-        run: |
-          mkdir -v -p ${BUILD_DIR}/windows
-          EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
-          godot --headless --export-debug "${WINDOWS_EXPORT}" "${EXPORT_DIR}/windows/${EXPORT_BIN}.exe"
       - name: Run
         run: |
           EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
@@ -78,3 +73,30 @@ jobs:
         if: success() || failure()
         with:
           report_paths: 'test/report.xml'
+  build-windows:
+    name: Build (Windows)
+    runs-on: ubuntu-latest
+    needs: unit-test-linux
+    container:
+      image: barichello/godot-ci:mono-4.5.1
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: unit-tests
+          path: ${{ github.workspace }}
+      - name: Copy Templates
+        run: |
+          mkdir -v -p ~/.local/share/godot/export_templates
+          mkdir -v -p ~/.config
+          cp -R /root/.config/godot ~/.config/godot
+          cp -R /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable.mono
+      - name: Build
+        run: |
+          EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
+          godot --headless --build-solutions --quit
+      - name: Windows Export
+        run: |
+          mkdir -v -p ${BUILD_DIR}/windows
+          EXPORT_DIR="$(readlink -f ${BUILD_DIR})"
+          godot --headless --export-debug "${WINDOWS_EXPORT}" "${EXPORT_DIR}/windows/${EXPORT_BIN}.exe"
