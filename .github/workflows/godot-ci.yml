@@ -75,8 +75,8 @@ jobs:
           report_paths: 'test/report.xml'
   build-windows:
     name: Build (Windows)
-    runs-on: windows-latest
-    needs: unit-test-linux
+    runs-on: ubuntu-latest
+    needs: setup-test-repo
     container:
       image: barichello/godot-ci:mono-4.5.1
     steps:
