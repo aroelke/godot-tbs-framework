@@ -11,6 +11,8 @@ namespace TbsFramework.Demo;
 /// <summary>Script for the demo map that controls events outside level progression, suc as UI updates.</summary>
 public partial class DemoMap : Node
 {
+    [Export] public Texture2D MouseCursor = null;
+
     public void OnTurnBegan(int turn, Faction faction)
     {
         Label label = GetNode<Label>("CanvasLayer/HUD/Status/TurnLabel");
@@ -40,5 +42,14 @@ public partial class DemoMap : Node
         base._ExitTree();
         if (!Engine.IsEditorHint())
             LevelEvents.TurnBegan -= OnTurnBegan;
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+        if (!Engine.IsEditorHint())
+        {
+            Input.SetCustomMouseCursor(MouseCursor);
+        }
     }
 }

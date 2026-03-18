@@ -152,6 +152,7 @@ public class UnitData : GridObjectData
         _stats = original._stats;
         _health.Maximum = original._health.Maximum;
         _health.Value = original._health.Value;
+        _active = original._active;
         Behavior = original.Behavior;
 
         Initialize();

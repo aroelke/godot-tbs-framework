@@ -50,6 +50,7 @@
 
 [node name="DemoMap" type="Node"]
 script = ExtResource("1_npakb")
+MouseCursor = ExtResource("9_6hgq8")
 
 [node name="LevelManager" parent="." node_paths=PackedStringArray("StartingArmy") instance=ExtResource("1_3r8kd")]
 CombatScenePath = "uid://didkiflqabwl4"
