@@ -54,9 +54,8 @@ public partial class DemoCombatScene : CombatController
 
     public override void Initialize(UnitData left, UnitData right, IImmutableList<CombatAction> actions)
     {
-        foreach (CombatAction action in actions)
-            if (action.Actor != left && action.Actor != right)
-                throw new ArgumentException($"Unit at cell {action.Actor.Cell} is not a participant in combat");
+        base.Initialize(left, right, actions);
+
         _actions = actions;
 
         _animations[left] = left.Class.InstantiateCombatAnimations(left.Faction);

@@ -22,7 +22,6 @@ public partial class Unit : GridNode
     [Signal] public delegate void DoneMovingEventHandler();
 
     private readonly NodeCache _cache = null;
-    private UnitMapAnimations _animations = null;
     private Army _army = null;
     private Vector2I _target = -Vector2I.One;
 
@@ -45,12 +44,13 @@ public partial class Unit : GridNode
         }
         else
         {
-            _animations?.QueueFree();
-            _animations = @class.InstantiateMapAnimations(faction);
-            GetNode<PathFollow2D>("Path/Follow").AddChild(_animations);
+            Animations?.QueueFree();
+            Animations = @class.InstantiateMapAnimations(faction);
+            Animations.Grid = Grid;
+            GetNode<PathFollow2D>("Path/Follow").AddChild(Animations);
 
-            _animations.SetHealthMax(UnitData.Stats.Health);
-            _animations.SetHealthValue(UnitData.Health);
+            Animations.SetHealthMax(UnitData.Stats.Health);
+            Animations.SetHealthValue(UnitData.Health);
         }
     }
 
@@ -84,11 +84,11 @@ public partial class Unit : GridNode
             UpdateVisuals(@class, UnitData.Faction);
     }
 
-    private void OnStatsUpdated(Stats stats) => _animations?.SetHealthMax(stats.Health);
+    private void OnStatsUpdated(Stats stats) => Animations?.SetHealthMax(stats.Health);
 
     private void OnHealthUpdated(double _, double hp)
     {
-        _animations?.SetHealthValue(hp);
+        Animations?.SetHealthValue(hp);
         if (hp == 0)
             LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.UnitDefeated, this);
     }
@@ -137,27 +137,29 @@ public partial class Unit : GridNode
     /// <summary>Box defining the unit's current position and size, in pixels on the battlefield, including during movement.</summary>
     public BoundedNode2D MotionBox => _cache.GetNode<BoundedNode2D>("Path/Follow/MotionBox");
 
+    public UnitMapAnimations Animations { get; private set; } = null;
+
     public Unit() : base() { _cache = new(this); }
 
     /// <summary>Put the unit in the "selected" state.</summary>
-    public void Select() => _animations.PlaySelected();
+    public void Select() => Animations.PlaySelected();
 
     /// <summary>Put the unit in the "idle" state.</summary>
-    public void Deselect() => _animations.PlayIdle();
+    public void Deselect() => Animations.PlayIdle();
 
     /// <summary>Put the unit in its "done" state, indicating it isn't available to act anymore.</summary>
     public void Finish()
     {
-        _animations.Modulate = Colors.White;
-        _animations.PlayDone();
+        Animations.Modulate = Colors.White;
+        Animations.PlayDone();
     }
 
     /// <summary>Restore the unit into its "idle" state from being inactive, indicating that it's ready to act again.</summary>
     public void Refresh()
     {
         if (UnitData.Faction is null || !UnitData.Class.MapAnimationsPaths.ContainsKey(UnitData.Faction))
-            _animations.Modulate = UnitData.Faction?.Color ?? Colors.White;
-        _animations.PlayIdle();
+            Animations.Modulate = UnitData.Faction?.Color ?? Colors.White;
+        Animations.PlayIdle();
     }
 
     /// <summary>Remove the unit from the map and delete its renderer.</summary>
@@ -217,7 +219,7 @@ public partial class Unit : GridNode
 
             RemoveChild(EditorSprite);
             EditorSprite.QueueFree();
-            _animations.PlayIdle();
+            Animations.PlayIdle();
 
             Path.Curve = new();
             MotionBox.Size = Size;
@@ -246,12 +248,12 @@ public partial class Unit : GridNode
             PathFollow.Progress += (float)(MoveSpeed*(Accelerate.Active ? MoveAccelerationFactor : 1)*delta);
             Vector2 change = PathFollow.Position - prev;
             if (change != Vector2.Zero)
-                _animations.PlayMove(change);
+                Animations.PlayMove(change);
 
             if (PathFollow.ProgressRatio >= 1)
             {
                 Data.CellChanged -= OnMoveSkipped;
-                _animations.PlaySelected();
+                Animations.PlaySelected();
                 PathFollow.Progress = 0;
                 Path.Curve.ClearPoints();
                 SetProcess(false);

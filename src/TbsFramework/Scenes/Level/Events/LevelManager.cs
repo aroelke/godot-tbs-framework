@@ -334,7 +334,7 @@ public partial class LevelManager : Node
         else if (_combat is not null)
         {
             _combat.Initialize(_selected, _target, [.. _combatResults]);
-            _combat.Connect(CombatController.SignalName.CombatEnded, () => State.SendEvent(DoneEvent), (uint)ConnectFlags.OneShot);
+            _combat.Connect(CombatController.SignalName.CombatEnded, skip, (uint)ConnectFlags.OneShot);
             _combat.Start();
         }
         else

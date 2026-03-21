@@ -10,8 +10,6 @@ public abstract partial class CombatAnimations : Node2D
     /// <summary>Signals that the current animation has completed.</summary>
     [Signal] public delegate void AnimationFinishedEventHandler();
 
-    [Signal] public delegate void StepTakenEventHandler();
-
     /// <summary>Signals that the camera should begin to shake for an animation frame.</summary>
     [Signal] public delegate void ShakeCameraEventHandler();
 

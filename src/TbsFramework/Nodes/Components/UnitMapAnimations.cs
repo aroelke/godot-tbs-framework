@@ -1,10 +1,16 @@
+using System.Threading.Tasks;
 using Godot;
+using TbsFramework.Scenes.Rendering;
 
 namespace TbsFramework.Nodes.Components;
 
 /// <summary><see cref="Unit"/> component containign a collection of animations available to display on the map.</summary>
 public abstract partial class UnitMapAnimations : Node2D
 {
+    [Signal] public delegate void AnimationFinishedEventHandler();
+
+    public Grid Grid = null;
+
     /// <summary>Begin the idle animation for when the unit is available to act but not selected.</summary>
     public abstract void PlayIdle();
 
@@ -17,6 +23,11 @@ public abstract partial class UnitMapAnimations : Node2D
 
     /// <summary>Begin the animation for when the unit has finished acting and is no longer available.</summary>
     public abstract void PlayDone();
+
+    /// <summary>Begin an animation to attack something in a target cell.</summary>
+    /// <param name="source">Cell the attack is being made from</param> 
+    /// <param name="target">Cell to attack.</param>
+    public abstract Task PlayAttack(Vector2I source, Vector2I target);
 
     /// <summary>Set the unit's maximum health value to indicate on the map.</summary>
     /// <param name="value">New maximum health value.</param>

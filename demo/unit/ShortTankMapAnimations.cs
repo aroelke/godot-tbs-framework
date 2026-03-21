@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Godot;
 using TbsFramework.Nodes.Components;
 
@@ -53,6 +54,16 @@ public partial class ShortTankMapAnimations : UnitMapAnimations
             Health1.FrameCoords = new((int)value % 10, DigitRow);
             Health10.FrameCoords = new((int)value/10, DigitRow);
         }
+    }
+
+    public override async Task PlayAttack(Vector2I source, Vector2I target)
+    {
+        PlayAnimation(target - source, true);
+        PropertyTweener hit = CreateTween().TweenProperty(this, new(Sprite2D.PropertyName.Position), Grid.PositionOf(target) - Grid.PositionOf(source), 0.25);
+        await ToSignal(hit, PropertyTweener.SignalName.Finished);
+        PropertyTweener @return = CreateTween().TweenProperty(this, new(Sprite2D.PropertyName.Position), Vector2.Zero, 0.1);
+        await ToSignal(@return, PropertyTweener.SignalName.Finished);
+        EmitSignal(SignalName.AnimationFinished);
     }
 
     public override void PlayMove(Vector2 direction) => PlayAnimation(direction, true);

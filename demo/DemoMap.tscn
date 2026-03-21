@@ -1,4 +1,4 @@
-[gd_scene load_steps=48 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=49 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsFramework/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="Script" uid="uid://c2joupgp3ohcx" path="res://demo/DemoMap.cs" id="1_npakb"]
@@ -41,6 +41,7 @@
 [ext_resource type="PackedScene" uid="uid://bi38gny50edyk" path="res://src/TbsFramework/Scenes/Level/Objectives/RouteObjective.tscn" id="29_c7alg"]
 [ext_resource type="PackedScene" uid="uid://bdxrle0amq3ew" path="res://src/TbsFramework/Scenes/Level/Objectives/TimeObjective.tscn" id="30_xri0l"]
 [ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/TbsFramework/UI/HUD/CursorHintIcon.tscn" id="34_0sxdy"]
+[ext_resource type="PackedScene" uid="uid://tdcp5jyrdck7" path="res://demo/DemoMapCombatController.tscn" id="34_3j3nk"]
 [ext_resource type="Theme" uid="uid://by6euruicgqv" path="res://demo/assets/ui/ui.tres" id="35_dxofe"]
 [ext_resource type="Resource" uid="uid://cu80svtcky350" path="res://demo/assets/ui/input/icons/icon_map_mouse.tres" id="35_mogvl"]
 [ext_resource type="Resource" uid="uid://scrs41kvnxyt" path="res://demo/assets/ui/input/icons/icon_map_keyboard.tres" id="36_npakb"]
@@ -55,6 +56,9 @@ MouseCursor = ExtResource("9_6hgq8")
 [node name="LevelManager" parent="." node_paths=PackedStringArray("StartingArmy") instance=ExtResource("1_3r8kd")]
 StartingArmy = NodePath("Player")
 CombatScenePath = "uid://didkiflqabwl4"
+PlayCombatOnMap = true
+
+[node name="DemoMapCombatController" parent="LevelManager" instance=ExtResource("34_3j3nk")]
 
 [node name="Grid" parent="LevelManager" node_paths=PackedStringArray("GroundLayer", "TerrainLayer") instance=ExtResource("2_oeidl")]
 GroundLayer = NodePath("Ground")
