@@ -1,13 +1,14 @@
 using System.Collections.Immutable;
 using Godot;
-using TbsFramework.Extensions;
 using TbsFramework.Scenes.Data;
 
 namespace TbsFramework.Scenes.Combat;
 
-/// <summary>Scene used to display the results of combat in a cut scene.</summary>
-public abstract partial class CombatScene : Node
+public abstract partial class CombatController : Node
 {
+    /// <summary>Signal that combat has ended.</summary>
+    [Signal] public delegate void CombatEndedEventHandler();
+
     /// <summary>Set up the combat.</summary>
     /// <param name="left">Unit on the left side of the screen.</param>
     /// <param name="right">Unit on the right side of the screen.</param>
@@ -20,11 +21,4 @@ public abstract partial class CombatScene : Node
 
     /// <summary>Initiate the end of the combat. This can be used to trigger returning to the map that initiated the combat so the level can continue.</summary>
     public abstract void End();
-
-    public override void _Ready()
-    {
-        base._Ready();
-        if (!Engine.IsEditorHint())
-            SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, Start, (uint)ConnectFlags.OneShot);
-    }
 }

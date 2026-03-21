@@ -15,7 +15,7 @@ using TbsFramework.UI.Controls.Device;
 namespace TbsFramework.Demo;
 
 /// <summary>Example combat scene to display the results of two demo units engaging each other.</summary>
-public partial class DemoCombatScene : CombatScene
+public partial class DemoCombatScene : CombatController
 {
     [Signal] public delegate void TimeExpiredEventHandler();
 
@@ -131,11 +131,19 @@ public partial class DemoCombatScene : CombatScene
     {
         if (!_canceled)
         {
+            // Don't bother signaling CombatEnded because the scene is being disposed anyway
             TransitionDelay.Stop();
             _canceled = true;
             SceneManager.Singleton.Connect<Node>(SceneManager.SignalName.SceneLoaded, _ => QueueFree(), (uint)ConnectFlags.OneShot);
             SceneManager.ReturnToPreviousScene();
         }
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+        if (!Engine.IsEditorHint())
+            SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, Start, (uint)ConnectFlags.OneShot);
     }
 
     public override void _Input(InputEvent @event)
