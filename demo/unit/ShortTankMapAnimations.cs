@@ -12,10 +12,11 @@ public partial class ShortTankMapAnimations : UnitMapAnimations
 
     private readonly NodeCache _cache = null;
 
-    private Sprite2D Sprite   => _cache.GetNode<Sprite2D>("Sprite");
-    private Sprite2D Inactive => _cache.GetNode<Sprite2D>("Inactive");
-    private Sprite2D Health1  => _cache.GetNode<Sprite2D>("Health1");
-    private Sprite2D Health10 => _cache.GetNode<Sprite2D>("Health10");
+    private Sprite2D          Sprite     => _cache.GetNode<Sprite2D>("Sprite");
+    private Sprite2D          Inactive   => _cache.GetNode<Sprite2D>("Inactive");
+    private Sprite2D          Health1    => _cache.GetNode<Sprite2D>("Health1");
+    private Sprite2D          Health10   => _cache.GetNode<Sprite2D>("Health10");
+    private AudioStreamPlayer DeathSound => _cache.GetNode<AudioStreamPlayer>("DeathSound");
 
     private void PlayAnimation(Vector2 direction, bool active)
     {
@@ -42,7 +43,28 @@ public partial class ShortTankMapAnimations : UnitMapAnimations
         };
     }
 
+    /// <summary>Time, in seconds, the death animation takes.</summary>
+    [Export(PropertyHint.None, "suffix:s")] public double DeathTime = 0.5;
+
     public ShortTankMapAnimations() : base() { _cache = new(this); }
+
+    public override async Task PlayAttack(Vector2I source, Vector2I target)
+    {
+        PlayAnimation(target - source, true);
+        PropertyTweener hit = CreateTween().TweenProperty(this, new(Sprite2D.PropertyName.Position), Grid.PositionOf(target) - Grid.PositionOf(source), 0.1);
+        await ToSignal(hit, PropertyTweener.SignalName.Finished);
+        PropertyTweener @return = CreateTween().TweenProperty(this, new(Sprite2D.PropertyName.Position), Vector2.Zero, 0.1);
+        await ToSignal(@return, PropertyTweener.SignalName.Finished);
+        EmitSignal(SignalName.AnimationFinished);
+    }
+
+    public override async Task PlayDie()
+    {
+        PlayIdle();
+        DeathSound.Play();
+        PropertyTweener animation = CreateTween().TweenProperty(this, new(PropertyName.Modulate), Colors.Transparent, DeathTime);
+        await ToSignal(animation, PropertyTweener.SignalName.Finished);
+    }
 
     public override void SetHealthValue(double value)
     {
@@ -54,16 +76,6 @@ public partial class ShortTankMapAnimations : UnitMapAnimations
             Health1.FrameCoords = new((int)value % 10, DigitRow);
             Health10.FrameCoords = new((int)value/10, DigitRow);
         }
-    }
-
-    public override async Task PlayAttack(Vector2I source, Vector2I target)
-    {
-        PlayAnimation(target - source, true);
-        PropertyTweener hit = CreateTween().TweenProperty(this, new(Sprite2D.PropertyName.Position), Grid.PositionOf(target) - Grid.PositionOf(source), 0.25);
-        await ToSignal(hit, PropertyTweener.SignalName.Finished);
-        PropertyTweener @return = CreateTween().TweenProperty(this, new(Sprite2D.PropertyName.Position), Vector2.Zero, 0.1);
-        await ToSignal(@return, PropertyTweener.SignalName.Finished);
-        EmitSignal(SignalName.AnimationFinished);
     }
 
     public override void PlayMove(Vector2 direction) => PlayAnimation(direction, true);

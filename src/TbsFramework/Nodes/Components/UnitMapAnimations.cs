@@ -29,6 +29,9 @@ public abstract partial class UnitMapAnimations : Node2D
     /// <param name="target">Cell to attack.</param>
     public abstract Task PlayAttack(Vector2I source, Vector2I target);
 
+    /// <summary>Begin an animation to be defeated.</summary>
+    public abstract Task PlayDie();
+
     /// <summary>Set the unit's maximum health value to indicate on the map.</summary>
     /// <param name="value">New maximum health value.</param>
     public abstract void SetHealthValue(double value);
