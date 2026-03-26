@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -31,6 +32,7 @@ public partial class DemoMapCombatController : CombatController
             _animations[action.Actor].ZIndex = 1;
             await _animations[action.Actor].PlayAttack(action.Actor.Cell, action.Target.Cell);
             damage[action.Target] += action.Damage;
+            _animations[action.Target].SetHealthValue(Math.Max(0, action.Target.Health - damage[action.Target]));
             _animations[action.Actor].ZIndex = 0;
             _animations[action.Actor].PlayIdle();
 
