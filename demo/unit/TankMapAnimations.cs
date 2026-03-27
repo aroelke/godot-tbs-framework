@@ -5,7 +5,7 @@ using TbsFramework.Nodes.Components;
 
 namespace TbsFramework.Demo;
 
-public partial class ShortTankMapAnimations : UnitMapAnimations
+public partial class TankMapAnimations : UnitMapAnimations
 {
     private const int DigitRow = 10;
     private static readonly Vector2I QuestionCoords = new(10, DigitRow);
@@ -47,7 +47,7 @@ public partial class ShortTankMapAnimations : UnitMapAnimations
     /// <summary>Time, in seconds, the death animation takes.</summary>
     [Export(PropertyHint.None, "suffix:s")] public double DeathTime = 0.5;
 
-    public ShortTankMapAnimations() : base() { _cache = new(this); }
+    public TankMapAnimations() : base() { _cache = new(this); }
 
     public override async Task PlayAttack(Vector2I source, Vector2I target)
     {
