@@ -33,5 +33,13 @@ hframes = 18
 vframes = 11
 frame = 180
 
+[node name="Heart" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("3_cs64x")
+offset = Vector2(8, 8)
+hframes = 18
+vframes = 11
+frame = 195
+
 [node name="DeathSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("4_ntpbq")

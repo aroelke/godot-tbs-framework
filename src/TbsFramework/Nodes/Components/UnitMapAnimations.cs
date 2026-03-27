@@ -29,6 +29,11 @@ public abstract partial class UnitMapAnimations : Node2D
     /// <param name="target">Cell to attack.</param>
     public abstract Task PlayAttack(Vector2I source, Vector2I target);
 
+    /// <summary>Begin an animation to support something in a target cell.</summary>
+    /// <param name="source">Cell the support is being made from</param> 
+    /// <param name="target">Cell to support.</param>
+    public abstract Task PlaySupport(Vector2I source, Vector2I target);
+
     /// <summary>Begin an animation to be defeated.</summary>
     public abstract Task PlayDie();
 

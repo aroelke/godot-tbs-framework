@@ -30,7 +30,17 @@ public partial class DemoMapCombatController : CombatController
         foreach (CombatAction action in _actions)
         {
             _animations[action.Actor].ZIndex = 1;
-            await _animations[action.Actor].PlayAttack(action.Actor.Cell, action.Target.Cell);
+            switch (action.Type)
+            {
+            case CombatActionType.Attack:
+                await _animations[action.Actor].PlayAttack(action.Actor.Cell, action.Target.Cell);
+                break;
+            case CombatActionType.Support:
+                await _animations[action.Actor].PlaySupport(action.Actor.Cell, action.Target.Cell);
+                break;
+            default:
+                break;
+            }
             damage[action.Target] += action.Damage;
             _animations[action.Target].SetHealthValue(Math.Max(0, action.Target.Health - damage[action.Target]));
             _animations[action.Actor].ZIndex = 0;

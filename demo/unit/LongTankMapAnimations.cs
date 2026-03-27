@@ -16,6 +16,7 @@ public partial class LongTankMapAnimations : UnitMapAnimations
     private Sprite2D          Inactive   => _cache.GetNode<Sprite2D>("Inactive");
     private Sprite2D          Health1    => _cache.GetNode<Sprite2D>("Health1");
     private Sprite2D          Health10   => _cache.GetNode<Sprite2D>("Health10");
+    private Sprite2D          Heart      => _cache.GetNode<Sprite2D>("Heart");
     private AudioStreamPlayer DeathSound => _cache.GetNode<AudioStreamPlayer>("DeathSound");
 
     private void PlayAnimation(Vector2 direction, bool active)
@@ -58,12 +59,24 @@ public partial class LongTankMapAnimations : UnitMapAnimations
         EmitSignal(SignalName.AnimationFinished);
     }
 
+    public override async Task PlaySupport(Vector2I source, Vector2I target)
+    {
+        Heart.Visible = true;
+        PropertyTweener heal = CreateTween().TweenProperty(Heart, new(Sprite2D.PropertyName.Position), Grid.PositionOf(target) - Grid.PositionOf(source), 0.4).SetEase(Tween.EaseType.Out);
+        await ToSignal(heal, PropertyTweener.SignalName.Finished);
+        PropertyTweener fade = CreateTween().TweenProperty(Heart, new(Sprite2D.PropertyName.Modulate), Colors.Transparent, 0.25);
+        await ToSignal(fade, PropertyTweener.SignalName.Finished);
+        Heart.Visible = false;
+        EmitSignal(SignalName.AnimationFinished);
+    }
+
     public override async Task PlayDie()
     {
         PlayIdle();
         DeathSound.Play();
         PropertyTweener animation = CreateTween().TweenProperty(this, new(PropertyName.Modulate), Colors.Transparent, DeathTime);
         await ToSignal(animation, PropertyTweener.SignalName.Finished);
+        EmitSignal(SignalName.AnimationFinished);
     }
 
     public override void SetHealthValue(double value)
