@@ -1,0 +1,45 @@
+[gd_scene load_steps=5 format=3 uid="uid://cyferwqdl0soh"]
+
+[ext_resource type="Script" uid="uid://cylhfavav6mrl" path="res://demo/unit/TankMapAnimations.cs" id="1_vvb8s"]
+[ext_resource type="Texture2D" uid="uid://danuj6si5bj2r" path="res://demo/assets/map/tiles/long_tank_default.png" id="2_aand6"]
+[ext_resource type="Texture2D" uid="uid://bgqtmae6uy5c" path="res://demo/assets/map/tiles/tiles.png" id="3_1th3o"]
+[ext_resource type="AudioStream" uid="uid://cmoa4683y73tl" path="res://demo/assets/combat/sounds/defeat.wav" id="4_5fe11"]
+
+[node name="TankMapAnimations" type="Node2D"]
+script = ExtResource("1_vvb8s")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+texture = ExtResource("2_aand6")
+offset = Vector2(8, 8)
+
+[node name="Inactive" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("2_aand6")
+offset = Vector2(8, 8)
+
+[node name="Health1" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("3_1th3o")
+offset = Vector2(8, 8)
+hframes = 18
+vframes = 11
+frame = 180
+
+[node name="Health10" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("3_1th3o")
+offset = Vector2(2, 8)
+hframes = 18
+vframes = 11
+frame = 180
+
+[node name="Heart" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("3_1th3o")
+offset = Vector2(8, 8)
+hframes = 18
+vframes = 11
+frame = 195
+
+[node name="DeathSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_5fe11")
