@@ -41,5 +41,13 @@ hframes = 18
 vframes = 11
 frame = 195
 
+[node name="Bullet" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("3_1th3o")
+offset = Vector2(8, 8)
+hframes = 18
+vframes = 11
+frame = 191
+
 [node name="DeathSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("4_5fe11")

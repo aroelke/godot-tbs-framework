@@ -17,6 +17,7 @@ public partial class TankMapAnimations : UnitMapAnimations
     private Sprite2D          Health1    => _cache.GetNode<Sprite2D>("Health1");
     private Sprite2D          Health10   => _cache.GetNode<Sprite2D>("Health10");
     private Sprite2D          Heart      => _cache.GetNode<Sprite2D>("Heart");
+    private Sprite2D          Bullet     => _cache.GetNode<Sprite2D>("Bullet");
     private AudioStreamPlayer DeathSound => _cache.GetNode<AudioStreamPlayer>("DeathSound");
 
     private void PlayAnimation(Vector2 direction, bool active)
@@ -47,15 +48,19 @@ public partial class TankMapAnimations : UnitMapAnimations
     /// <summary>Time, in seconds, the death animation takes.</summary>
     [Export(PropertyHint.None, "suffix:s")] public double DeathTime = 0.5;
 
+    [Export(PropertyHint.None, "suffix:px/s")] public double BulletSpeed = 120;
+
     public TankMapAnimations() : base() { _cache = new(this); }
 
     public override async Task PlayAttack(Vector2I source, Vector2I target)
     {
         PlayAnimation(target - source, true);
-        PropertyTweener hit = CreateTween().TweenProperty(this, new(Sprite2D.PropertyName.Position), Grid.PositionOf(target) - Grid.PositionOf(source), 0.1);
+        Bullet.Transform = new((float)(Math.Atan2((source - target).Y, (source - target).X) + Math.PI), Vector2.Zero);
+        Bullet.Visible = true;
+        PropertyTweener hit = CreateTween().TweenProperty(Bullet, new(Sprite2D.PropertyName.Position), Grid.PositionOf(target) - Grid.PositionOf(source), Grid.PositionOf(target).DistanceTo(Grid.PositionOf(source))/BulletSpeed);
         await ToSignal(hit, PropertyTweener.SignalName.Finished);
-        PropertyTweener @return = CreateTween().TweenProperty(this, new(Sprite2D.PropertyName.Position), Vector2.Zero, 0.1);
-        await ToSignal(@return, PropertyTweener.SignalName.Finished);
+        Bullet.Visible = false;
+        Bullet.Position = Vector2.Zero;
         EmitSignal(SignalName.AnimationFinished);
     }
 
