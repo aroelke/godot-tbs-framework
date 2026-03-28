@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using Godot;
 using TbsFramework.Nodes.Components;
 
@@ -11,6 +10,7 @@ public partial class TankMapAnimations : UnitMapAnimations
     private static readonly Vector2I QuestionCoords = new(10, DigitRow);
 
     private readonly NodeCache _cache = null;
+    private Vector2 _bulletOrigin = -Vector2I.One;
     private Vector2I _source = -Vector2I.One;
     private Vector2I _target = -Vector2I.One;
     private bool _hit = false;
@@ -67,10 +67,14 @@ public partial class TankMapAnimations : UnitMapAnimations
         _target = target;
         _hit = hit;
         PlayAnimation(target - source, true);
-        Bullet.Transform = new((float)(Math.Atan2((source - target).Y, (source - target).X) + Math.PI), Vector2.Zero);
+        Bullet.Transform = new((float)(Math.Atan2((source - target).Y, (source - target).X) + Math.PI), _bulletOrigin);
         Bullet.Visible = true;
         ShootSound.Play();
-        PropertyTweener shoot = CreateTween().TweenProperty(Bullet, new(Sprite2D.PropertyName.Position), Grid.PositionOf(target) - Grid.PositionOf(source), Grid.PositionOf(target).DistanceTo(Grid.PositionOf(source))/BulletSpeed);
+        PropertyTweener shoot = CreateTween().TweenProperty(Bullet,
+            new(Sprite2D.PropertyName.Position),
+            Grid.PositionOf(target) - Grid.PositionOf(source) + _bulletOrigin,
+            Grid.PositionOf(target).DistanceTo(Grid.PositionOf(source))/BulletSpeed
+        );
         await ToSignal(shoot, PropertyTweener.SignalName.Finished);
         EmitSignal(SignalName.AnimationFinished);
     }
@@ -78,7 +82,8 @@ public partial class TankMapAnimations : UnitMapAnimations
     public override async void FinishAttack()
     {
         Bullet.Visible = false;
-        Bullet.Position = Vector2.Zero;
+        Bullet.Position = _bulletOrigin;
+        Bullet.Transform = new(0, _bulletOrigin);
         if (_hit)
         {
             HitExplosion.Visible = true;
@@ -105,6 +110,7 @@ public partial class TankMapAnimations : UnitMapAnimations
         Heart.Visible = true;
         PropertyTweener heal = CreateTween().TweenProperty(Heart, new(Sprite2D.PropertyName.Position), Grid.PositionOf(target) - Grid.PositionOf(source), 0.4).SetEase(Tween.EaseType.Out);
         await ToSignal(heal, PropertyTweener.SignalName.Finished);
+        HealSound.Play();
         EmitSignal(SignalName.AnimationFinished);
     }
 
@@ -142,4 +148,9 @@ public partial class TankMapAnimations : UnitMapAnimations
     public override void PlayIdle() => PlayAnimation(Vector2I.Right, true);
     public override void PlaySelected() => PlayAnimation(Vector2I.Right, true);
     public override void SetHealthMax(double value) {}
+
+    public override void _Ready()
+    {
+        _bulletOrigin = Bullet.Position;
+    }
 }
