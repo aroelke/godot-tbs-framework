@@ -27,15 +27,19 @@ public abstract partial class UnitMapAnimations : Node2D
     /// <summary>Begin an animation to attack something in a target cell.</summary>
     /// <param name="source">Cell the attack is being made from</param> 
     /// <param name="target">Cell to attack.</param>
-    public abstract Task PlayAttack(Vector2I source, Vector2I target);
+    public abstract void BeginAttack(Vector2I source, Vector2I target, bool hit);
+
+    public abstract void FinishAttack();
 
     /// <summary>Begin an animation to support something in a target cell.</summary>
     /// <param name="source">Cell the support is being made from</param> 
     /// <param name="target">Cell to support.</param>
-    public abstract Task PlaySupport(Vector2I source, Vector2I target);
+    public abstract void BeginSupport(Vector2I source, Vector2I target);
+
+    public abstract void FinishSupport();
 
     /// <summary>Begin an animation to be defeated.</summary>
-    public abstract Task PlayDie();
+    public abstract void PlayDie();
 
     /// <summary>Set the unit's maximum health value to indicate on the map.</summary>
     /// <param name="value">New maximum health value.</param>
