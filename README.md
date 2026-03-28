@@ -25,6 +25,7 @@ and the turn order, among other things.
 
 The hierarchy looks like this:
 - [`LevelManager`](src/TbsFramework/Scenes/Level/Events/LevelManager.tscn)
+  - [`CombatController`] if combat animations should be playable on the map _(optional)_
   - [`Grid`](src/TbsFramework/Scenes/Level/Map/Grid.tscn)
     - "Ground" `TileMapLayer`
     - "Terrain" `TileMapLayer`
