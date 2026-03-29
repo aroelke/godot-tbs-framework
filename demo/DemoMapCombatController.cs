@@ -87,6 +87,7 @@ public partial class DemoMapCombatController : CombatController
             }
             if (defeated)
                 break;
+            await Delay(TurnDelay);
         }
         End();
     }
