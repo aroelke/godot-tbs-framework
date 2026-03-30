@@ -10,6 +10,7 @@ public partial class TankMapAnimations : UnitMapAnimations
     private static readonly Vector2I QuestionCoords = new(10, DigitRow);
 
     private readonly NodeCache _cache = null;
+    private Tween _tween = null;
     private Vector2 _bulletOrigin = -Vector2I.One;
     private Vector2I _source = -Vector2I.One;
     private Vector2I _target = -Vector2I.One;
@@ -53,6 +54,24 @@ public partial class TankMapAnimations : UnitMapAnimations
         };
     }
 
+    private void ResetBullet()
+    {
+        Bullet.Visible = false;
+        Bullet.Transform = new(0, _bulletOrigin);
+    }
+
+    private void ResetExplosion()
+    {
+        HitExplosion.Visible = false;
+        HitExplosion.Position = Vector2.Zero;
+    }
+
+    private void ResetHeart()
+    {
+        Heart.Visible = false;
+        Heart.Position = Vector2.Zero;
+    }
+
     /// <summary>Time, in seconds, the death animation takes.</summary>
     [Export(PropertyHint.None, "suffix:s")] public double DeathTime = 0.5;
 
@@ -70,30 +89,26 @@ public partial class TankMapAnimations : UnitMapAnimations
         Bullet.Transform = new((float)(Math.Atan2((source - target).Y, (source - target).X) + Math.PI), _bulletOrigin);
         Bullet.Visible = true;
         ShootSound.Play();
-        PropertyTweener shoot = CreateTween().TweenProperty(Bullet,
+        _tween = CreateTween();
+        _tween.TweenProperty(Bullet,
             new(Sprite2D.PropertyName.Position),
             Grid.PositionOf(target) - Grid.PositionOf(source) + _bulletOrigin,
             Grid.PositionOf(target).DistanceTo(Grid.PositionOf(source))/BulletSpeed
-        );
-        await ToSignal(shoot, PropertyTweener.SignalName.Finished);
+        ).Finished += ResetBullet;
+        await ToSignal(_tween, Tween.SignalName.Finished);
         EmitSignal(SignalName.AnimationFinished);
     }
 
     public override async void FinishAttack()
     {
-        Bullet.Visible = false;
-        Bullet.Position = _bulletOrigin;
-        Bullet.Transform = new(0, _bulletOrigin);
         if (_hit)
         {
             HitExplosion.Visible = true;
             HitExplosion.Position = Grid.PositionOf(_target) - Grid.PositionOf(_source);
-            HitExplosion.Visible = true;
             HitExplosion.Play();
             HitSound.Play();
             await ToSignal(HitExplosion, AnimatedSprite2D.SignalName.AnimationFinished);
-            HitExplosion.Visible = false;
-            HitExplosion.Position = Vector2.Zero;
+            ResetExplosion();
         }
         else
         {
@@ -108,17 +123,19 @@ public partial class TankMapAnimations : UnitMapAnimations
     public override async void BeginSupport(Vector2I source, Vector2I target)
     {
         Heart.Visible = true;
-        PropertyTweener heal = CreateTween().TweenProperty(Heart, new(Sprite2D.PropertyName.Position), Grid.PositionOf(target) - Grid.PositionOf(source), 0.4).SetEase(Tween.EaseType.Out);
-        await ToSignal(heal, PropertyTweener.SignalName.Finished);
+        _tween = CreateTween();
+        _tween.TweenProperty(Heart, new(Sprite2D.PropertyName.Position), Grid.PositionOf(target) - Grid.PositionOf(source), 0.4).SetEase(Tween.EaseType.Out);
+        await ToSignal(_tween, Tween.SignalName.Finished);
         HealSound.Play();
         EmitSignal(SignalName.AnimationFinished);
     }
 
     public override async void FinishSupport()
     {
-        PropertyTweener fade = CreateTween().TweenProperty(Heart, new(Sprite2D.PropertyName.Modulate), Colors.Transparent, 0.25);
-        await ToSignal(fade, PropertyTweener.SignalName.Finished);
-        Heart.Visible = false;
+        _tween = CreateTween();
+        _tween.TweenProperty(Heart, new(Sprite2D.PropertyName.Modulate), Colors.Transparent, 0.25);
+        await ToSignal(_tween, Tween.SignalName.Finished);
+        ResetHeart();
         EmitSignal(SignalName.AnimationFinished);
     }
 
@@ -126,8 +143,9 @@ public partial class TankMapAnimations : UnitMapAnimations
     {
         PlayIdle();
         DeathSound.Play();
-        PropertyTweener animation = CreateTween().TweenProperty(this, new(PropertyName.Modulate), Colors.Transparent, DeathTime);
-        await ToSignal(animation, PropertyTweener.SignalName.Finished);
+        _tween = CreateTween();
+        _tween.TweenProperty(this, new(PropertyName.Modulate), Colors.Transparent, DeathTime);
+        await ToSignal(_tween, Tween.SignalName.Finished);
         EmitSignal(SignalName.AnimationFinished);
     }
 
@@ -149,8 +167,19 @@ public partial class TankMapAnimations : UnitMapAnimations
     public override void PlaySelected() => PlayAnimation(Vector2I.Right, true);
     public override void SetHealthMax(double value) {}
 
+    public override void CancelAnimation()
+    {
+        if (_tween?.IsValid() ?? false)
+            _tween.Kill();
+        ResetBullet();
+        ResetExplosion();
+        ResetHeart();
+        PlayIdle();
+    }
+
     public override void _Ready()
     {
+        base._Ready();
         _bulletOrigin = Bullet.Position;
     }
 }

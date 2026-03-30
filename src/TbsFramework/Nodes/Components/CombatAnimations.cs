@@ -19,9 +19,6 @@ public abstract partial class CombatAnimations : Node2D
     /// <summary>Signals the frame in which the attack animation connects (or misses) with the opponent.</summary>
     [Signal] public delegate void AttackStrikeEventHandler();
 
-    /// <summary>Signals the frame at which the animation for a spell that is cast should begin.</summary>
-    [Signal] public delegate void SpellCastEventHandler();
-
     /// <summary>Offset on the image where an attack made by it will contact its target.</summary>
     public abstract Vector2 ContactPoint { get; }
 

@@ -52,4 +52,6 @@ public abstract partial class UnitMapAnimations : Node2D
     /// <summary>Set the unit's current health value to indicate on the map.</summary>
     /// <param name="value">New current health value.</param>
     public abstract void SetHealthMax(double value);
+
+    public abstract void CancelAnimation();
 }
