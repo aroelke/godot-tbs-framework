@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using Godot;
 using TbsFramework.Nodes.Components;
 
@@ -28,10 +27,6 @@ public partial class LongTankCombatAnimations : CombatAnimations
     private Vector2 _beam = Vector2.Zero;
 
     private double ComputeLaunchAngle(double distance) => Math.Asin(Gravity*distance/(MissileSpeed*MissileSpeed))/2;
-
-    public override Vector2 ContactPoint => throw new NotImplementedException();
-    public override Rect2 BoundingBox => throw new NotImplementedException();
-    public override float AnimationSpeedScale { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
     /// <summary>Initial speed the projectile is fired at.</summary>
     [Export(PropertyHint.None, "suffix:px/s")] public double MissileSpeed = 600;

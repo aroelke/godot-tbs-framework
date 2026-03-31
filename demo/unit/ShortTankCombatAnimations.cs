@@ -1,7 +1,5 @@
 using System;
-using System.Threading.Tasks;
 using Godot;
-using TbsFramework.Nodes;
 using TbsFramework.Nodes.Components;
 
 namespace TbsFramework.Demo;
@@ -22,10 +20,6 @@ public partial class ShortTankCombatAnimations : CombatAnimations
     private Vector2 _bullet = Vector2.Zero;
     private Vector2 _explosion = Vector2.Zero;
     private bool _hit = true;
-
-    public override Vector2 ContactPoint => throw new NotImplementedException();
-    public override Rect2 BoundingBox => _cache.GetNode<BoundedNode2D>("BoundingBox").BoundingBox;
-    public override float AnimationSpeedScale { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
     /// <summary>Speed the projectile travels across the screen when it's fired.</summary>
     [Export(PropertyHint.None, "suffix:px/s")] public float BulletSpeed = 600;

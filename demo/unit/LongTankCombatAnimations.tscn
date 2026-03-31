@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://bwmdojktawhjy"]
+[gd_scene load_steps=24 format=3 uid="uid://bwmdojktawhjy"]
 
 [ext_resource type="Script" uid="uid://dm0rfqq5316r1" path="res://demo/unit/LongTankCombatAnimations.cs" id="1_ptwue"]
 [ext_resource type="Texture2D" uid="uid://dajswi5e828y2" path="res://demo/assets/combat/tanks/short_tread.png" id="2_46g3h"]
@@ -16,7 +16,6 @@
 [ext_resource type="Texture2D" uid="uid://c436wwgovwdk1" path="res://demo/assets/combat/tanks/long_explosion_4.png" id="14_1yiva"]
 [ext_resource type="Texture2D" uid="uid://b24i4fdvbo46d" path="res://demo/assets/combat/tanks/long_explosion_5.png" id="15_hmmrj"]
 [ext_resource type="Texture2D" uid="uid://t0rrdisgsqlh" path="res://demo/assets/combat/tanks/heal.png" id="16_1yiva"]
-[ext_resource type="Script" uid="uid://xf7nwa5ddwrd" path="res://src/TbsFramework/Nodes/BoundedNode2D.cs" id="17_hmmrj"]
 [ext_resource type="AudioStream" uid="uid://djegutvubsy13" path="res://demo/assets/combat/sounds/shoot.wav" id="18_o3sgs"]
 [ext_resource type="AudioStream" uid="uid://byawd1f1aatdq" path="res://demo/assets/combat/sounds/hit.wav" id="19_7j1h5"]
 [ext_resource type="AudioStream" uid="uid://7tj682jd1cii" path="res://demo/assets/combat/sounds/miss.wav" id="20_xr6ru"]
@@ -113,13 +112,6 @@ texture = ExtResource("16_1yiva")
 visible = false
 position = Vector2(0, -30)
 texture = ExtResource("10_1xm4j")
-
-[node name="BoundingBox" type="Node2D" parent="."]
-position = Vector2(-42, -39)
-script = ExtResource("17_hmmrj")
-Size = Vector2(84, 64)
-DrawBoundingBox = true
-metadata/_custom_type_script = "uid://xf7nwa5ddwrd"
 
 [node name="ShootSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("18_o3sgs")

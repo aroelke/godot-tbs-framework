@@ -18,18 +18,6 @@ public abstract partial class CombatAnimations : Node2D
     /// <summary>Signals the frame in which the attack animation connects (or misses) with the opponent.</summary>
     [Signal] public delegate void AttackStrikeEventHandler();
 
-    /// <summary>Offset on the image where an attack made by it will contact its target.</summary>
-    public abstract Vector2 ContactPoint { get; }
-
-    /// <summary>Box defining the edges of the image for help with positioning and motion.</summary>
-    public abstract Rect2 BoundingBox { get; }
-
-    /// <summary>
-    /// Animation speed scale ratio. A value of 1 means normal speed, between 0 and 1 means slower, and higher than 1 means faster. Negative numbers
-    /// mean to play the animation backwards.
-    /// </summary>
-    public abstract float AnimationSpeedScale { get; set; }
-
     /// <summary>Set the direction the animation should be facing. The meaning of that is left to the implementation.</summary>
     /// <param name="direction">Direction the animation should face.</param>
     public abstract void SetFacing(Vector2 direction);
