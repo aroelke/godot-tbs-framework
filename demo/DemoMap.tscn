@@ -462,8 +462,26 @@ KeyMap = ExtResource("36_npakb")
 GamepadButtonIconMap = ExtResource("37_dxofe")
 Action = &"skip"
 
+[node name="CombatToggle" type="CheckBox" parent="CanvasLayer"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -94.0
+offset_top = -26.0
+offset_right = 27.0
+offset_bottom = 5.0
+grow_horizontal = 0
+grow_vertical = 0
+scale = Vector2(0.75, 0.75)
+theme = ExtResource("35_dxofe")
+button_pressed = true
+text = "Use Combat Scene"
+
 [connection signal="child_entered_tree" from="LevelManager/Player" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="EnabledInputActionsUpdated" from="LevelManager/Player/PlayerController" to="." method="OnEnabledInputActionsUpdated"]
 [connection signal="child_entered_tree" from="LevelManager/Enemy1" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Enemy2" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Ally" to="LevelManager" method="OnChildEnteredGroup"]
+[connection signal="toggled" from="CanvasLayer/CombatToggle" to="." method="OnCombatSceneToggled"]
