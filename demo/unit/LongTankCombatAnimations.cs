@@ -50,11 +50,6 @@ public partial class LongTankCombatAnimations : CombatAnimations
 
     public LongTankCombatAnimations() : base() { _cache = new(this); }
 
-    public override Task ActionCompleted()
-    {
-        throw new NotImplementedException();
-    }
-
     public override void SetFacing(Vector2 direction) => Transform = new(Transform.Rotation, new(direction == Vector2.Right ? 1 : -1, 1), Transform.Skew, Transform.Origin);
 
     public async override Task BeginAttack(CombatAnimations target, bool hit)

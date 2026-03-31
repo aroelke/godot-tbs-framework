@@ -40,11 +40,6 @@ public partial class ShortTankCombatAnimations : CombatAnimations
 
     public override void SetFacing(Vector2 direction) => Transform = new(Transform.Rotation, new(direction == Vector2.Right ? 1 : -1, 1), Transform.Skew, Transform.Origin);
 
-    public override async Task ActionCompleted()
-    {
-        await ToSignal(this, SignalName.AnimationFinished);
-    }
-
     public override async Task BeginAttack(CombatAnimations target, bool hit)
     {
         float distance = Math.Abs(target.Position.X - Position.X);

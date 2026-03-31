@@ -74,7 +74,4 @@ public abstract partial class CombatAnimations : Node2D
     /// <summary>Play the death animation.</summary>
     /// <returns>A task that can be awaited until the animation is complete.</returns>
     public abstract Task Die();
-
-    /// <summary>Create a task that can be awaited until an action animation has completed.</summary>
-    public abstract Task ActionCompleted();
 }
