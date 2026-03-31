@@ -397,6 +397,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+mouse_behavior_recursive = 1
 theme = ExtResource("35_dxofe")
 
 [node name="Status" type="VBoxContainer" parent="CanvasLayer/HUD"]
