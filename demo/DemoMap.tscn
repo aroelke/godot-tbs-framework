@@ -56,7 +56,6 @@ MouseCursor = ExtResource("9_6hgq8")
 [node name="LevelManager" parent="." node_paths=PackedStringArray("StartingArmy") instance=ExtResource("1_3r8kd")]
 StartingArmy = NodePath("Player")
 CombatScenePath = "uid://didkiflqabwl4"
-PlayCombatOnMap = true
 
 [node name="DemoMapCombatController" parent="LevelManager" instance=ExtResource("34_3j3nk")]
 

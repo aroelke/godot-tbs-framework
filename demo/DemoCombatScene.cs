@@ -93,19 +93,23 @@ public partial class DemoCombatScene : CombatController
             switch (action.Type)
             {
             case CombatActionType.Attack:
-                await _animations[action.Actor].BeginAttack(_animations[action.Target], action.Hit);
+                _animations[action.Actor].BeginAttack(_animations[action.Target], action.Hit);
+                await ToSignal(_animations[action.Actor], CombatAnimations.SignalName.AnimationFinished);
                 if (action.Hit)
                 {
                     _infos[action.Target].Health.Value -= (int)action.Damage;
                     Camera.Trauma += CameraShakeHitTrauma;
                 }
-                await Task.WhenAll(_animations[action.Actor].FinishAttack(), Delay(HitDelay));
+                _animations[action.Actor].FinishAttack();
+                await Task.WhenAll(this.AwaitSignal(_animations[action.Actor], CombatAnimations.SignalName.AnimationFinished), Delay(HitDelay));
                 break;
             case CombatActionType.Support:
-                await _animations[action.Actor].BeginSupport(_animations[action.Target]);
+                _animations[action.Actor].BeginSupport(_animations[action.Target]);
+                await ToSignal(_animations[action.Actor], CombatAnimations.SignalName.AnimationFinished);
                 _infos[action.Target].Health.Value -= (int)action.Damage;
                 await Delay(HitDelay);
-                await _animations[action.Actor].FinishSupport();
+                _animations[action.Actor].FinishSupport();
+                await ToSignal(_animations[action.Actor], CombatAnimations.SignalName.AnimationFinished);
                 break;
             default:
                 break;
@@ -116,7 +120,8 @@ public partial class DemoCombatScene : CombatController
                 if (data.Health.Value <= 0)
                 {
                     await Delay(HitDelay);
-                    await _animations[unit].Die();
+                    _animations[unit].Die();
+                    await ToSignal(_animations[unit], CombatAnimations.SignalName.AnimationFinished);
                 }
             }
             await Delay(TurnDelay);

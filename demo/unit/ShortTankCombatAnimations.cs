@@ -40,7 +40,7 @@ public partial class ShortTankCombatAnimations : CombatAnimations
 
     public override void SetFacing(Vector2 direction) => Transform = new(Transform.Rotation, new(direction == Vector2.Right ? 1 : -1, 1), Transform.Skew, Transform.Origin);
 
-    public override async Task BeginAttack(CombatAnimations target, bool hit)
+    public override async void BeginAttack(CombatAnimations target, bool hit)
     {
         float distance = Math.Abs(target.Position.X - Position.X);
         _target = target;
@@ -61,7 +61,7 @@ public partial class ShortTankCombatAnimations : CombatAnimations
 
     public void OnMuzzleFlashFinished() => MuzzleFlash.Visible = false;
 
-    public override async Task FinishAttack()
+    public override async void FinishAttack()
     {
         if (_hit)
         {
@@ -93,21 +93,22 @@ public partial class ShortTankCombatAnimations : CombatAnimations
         EmitSignal(SignalName.AnimationFinished);
     }
 
-    public override async Task Die()
+    public override async void Die()
     {
         DeathSound.Play();
         PropertyTweener animation = CreateTween().TweenProperty(this, new(PropertyName.Modulate), Colors.Transparent, DeathTime);
         await ToSignal(animation, PropertyTweener.SignalName.Finished);
+        EmitSignal(SignalName.AnimationFinished);
     }
 
     public override void Idle() => throw new NotImplementedException();
 
     // Tanks miss their shots rather than dodging and don't react to hits
-    public override Task BeginDodge(CombatAnimations attacker) => throw new NotImplementedException();
-    public override Task FinishDodge() => throw new NotImplementedException();
-    public override Task TakeHit(CombatAnimations attacker) => throw new NotImplementedException();
+    public override void BeginDodge(CombatAnimations attacker) => throw new NotImplementedException();
+    public override void FinishDodge() => throw new NotImplementedException();
+    public override void TakeHit(CombatAnimations attacker) => throw new NotImplementedException();
 
     // This class can't support its allies
-    public override Task BeginSupport(CombatAnimations target) => throw new NotImplementedException();
-    public override Task FinishSupport() => throw new NotImplementedException();
+    public override void BeginSupport(CombatAnimations target) => throw new NotImplementedException();
+    public override void FinishSupport() => throw new NotImplementedException();
 }
