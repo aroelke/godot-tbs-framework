@@ -1,0 +1,107 @@
+[gd_scene load_steps=16 format=3 uid="uid://cyferwqdl0soh"]
+
+[ext_resource type="Script" uid="uid://cylhfavav6mrl" path="res://demo/unit/TankMapAnimations.cs" id="1_vvb8s"]
+[ext_resource type="Texture2D" uid="uid://danuj6si5bj2r" path="res://demo/assets/map/tiles/long_tank_default.png" id="2_aand6"]
+[ext_resource type="Texture2D" uid="uid://bgqtmae6uy5c" path="res://demo/assets/map/tiles/tiles.png" id="3_1th3o"]
+[ext_resource type="AudioStream" uid="uid://cmoa4683y73tl" path="res://demo/assets/combat/sounds/defeat.wav" id="4_5fe11"]
+[ext_resource type="Texture2D" uid="uid://bj1mjj8uc43r3" path="res://demo/assets/combat/tanks/explosion_1.png" id="4_gmmdp"]
+[ext_resource type="Texture2D" uid="uid://ccnnep7hyih1o" path="res://demo/assets/combat/tanks/explosion_2.png" id="5_qely2"]
+[ext_resource type="Texture2D" uid="uid://dd0pingl14pj4" path="res://demo/assets/combat/tanks/long_explosion_3.png" id="6_gre6h"]
+[ext_resource type="Texture2D" uid="uid://c436wwgovwdk1" path="res://demo/assets/combat/tanks/long_explosion_4.png" id="7_ly37v"]
+[ext_resource type="Texture2D" uid="uid://b24i4fdvbo46d" path="res://demo/assets/combat/tanks/long_explosion_5.png" id="8_xub5h"]
+[ext_resource type="Texture2D" uid="uid://vq3m0ejplyah" path="res://demo/assets/combat/tanks/explosion_end.png" id="9_6x7r2"]
+[ext_resource type="AudioStream" uid="uid://djegutvubsy13" path="res://demo/assets/combat/sounds/shoot.wav" id="10_xub5h"]
+[ext_resource type="AudioStream" uid="uid://byawd1f1aatdq" path="res://demo/assets/combat/sounds/hit.wav" id="11_6x7r2"]
+[ext_resource type="AudioStream" uid="uid://7tj682jd1cii" path="res://demo/assets/combat/sounds/miss.wav" id="12_p7yfq"]
+[ext_resource type="AudioStream" uid="uid://o6mnkxwojrsj" path="res://demo/assets/combat/sounds/heal.wav" id="13_vc35b"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_p7yfq"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_gmmdp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_qely2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_gre6h")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_ly37v")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_xub5h")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_6x7r2")
+}],
+"loop": false,
+"name": &"default",
+"speed": 20.0
+}]
+
+[node name="TankMapAnimations" type="Node2D"]
+script = ExtResource("1_vvb8s")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+texture = ExtResource("2_aand6")
+offset = Vector2(8, 8)
+
+[node name="Inactive" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("2_aand6")
+offset = Vector2(8, 8)
+
+[node name="Health1" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("3_1th3o")
+offset = Vector2(8, 8)
+hframes = 18
+vframes = 11
+frame = 180
+
+[node name="Health10" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("3_1th3o")
+offset = Vector2(2, 8)
+hframes = 18
+vframes = 11
+frame = 180
+
+[node name="Heart" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("3_1th3o")
+offset = Vector2(8, 8)
+hframes = 18
+vframes = 11
+frame = 195
+
+[node name="HitExplosion" type="AnimatedSprite2D" parent="."]
+visible = false
+scale = Vector2(0.25, 0.25)
+sprite_frames = SubResource("SpriteFrames_p7yfq")
+offset = Vector2(32, 32)
+
+[node name="Bullet" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(8, 8)
+texture = ExtResource("3_1th3o")
+hframes = 18
+vframes = 11
+frame = 191
+
+[node name="ShootSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("10_xub5h")
+
+[node name="HitSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("11_6x7r2")
+
+[node name="MissSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("12_p7yfq")
+
+[node name="HealSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("13_vc35b")
+
+[node name="DeathSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_5fe11")

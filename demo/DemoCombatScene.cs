@@ -15,7 +15,7 @@ using TbsFramework.UI.Controls.Device;
 namespace TbsFramework.Demo;
 
 /// <summary>Example combat scene to display the results of two demo units engaging each other.</summary>
-public partial class DemoCombatScene : CombatScene
+public partial class DemoCombatScene : CombatController
 {
     [Signal] public delegate void TimeExpiredEventHandler();
 
@@ -54,9 +54,8 @@ public partial class DemoCombatScene : CombatScene
 
     public override void Initialize(UnitData left, UnitData right, IImmutableList<CombatAction> actions)
     {
-        foreach (CombatAction action in actions)
-            if (action.Actor != left && action.Actor != right)
-                throw new ArgumentException($"Unit at cell {action.Actor.Cell} is not a participant in combat");
+        base.Initialize(left, right, actions);
+
         _actions = actions;
 
         _animations[left] = left.Class.InstantiateCombatAnimations(left.Faction);
@@ -94,19 +93,23 @@ public partial class DemoCombatScene : CombatScene
             switch (action.Type)
             {
             case CombatActionType.Attack:
-                await _animations[action.Actor].BeginAttack(_animations[action.Target], action.Hit);
+                _animations[action.Actor].BeginAttack(_animations[action.Target], action.Hit);
+                await ToSignal(_animations[action.Actor], CombatAnimations.SignalName.AnimationFinished);
                 if (action.Hit)
                 {
                     _infos[action.Target].Health.Value -= (int)action.Damage;
                     Camera.Trauma += CameraShakeHitTrauma;
                 }
-                await Task.WhenAll(_animations[action.Actor].FinishAttack(), Delay(HitDelay));
+                _animations[action.Actor].FinishAttack();
+                await Task.WhenAll(this.AwaitSignal(_animations[action.Actor], CombatAnimations.SignalName.AnimationFinished), Delay(HitDelay));
                 break;
             case CombatActionType.Support:
-                await _animations[action.Actor].BeginSupport(_animations[action.Target]);
+                _animations[action.Actor].BeginSupport(_animations[action.Target]);
+                await ToSignal(_animations[action.Actor], CombatAnimations.SignalName.AnimationFinished);
                 _infos[action.Target].Health.Value -= (int)action.Damage;
                 await Delay(HitDelay);
-                await _animations[action.Actor].FinishSupport();
+                _animations[action.Actor].FinishSupport();
+                await ToSignal(_animations[action.Actor], CombatAnimations.SignalName.AnimationFinished);
                 break;
             default:
                 break;
@@ -117,7 +120,8 @@ public partial class DemoCombatScene : CombatScene
                 if (data.Health.Value <= 0)
                 {
                     await Delay(HitDelay);
-                    await _animations[unit].Die();
+                    _animations[unit].Die();
+                    await ToSignal(_animations[unit], CombatAnimations.SignalName.AnimationFinished);
                 }
             }
             await Delay(TurnDelay);
@@ -131,11 +135,19 @@ public partial class DemoCombatScene : CombatScene
     {
         if (!_canceled)
         {
+            // Don't bother signaling CombatEnded because the scene is being disposed anyway
             TransitionDelay.Stop();
             _canceled = true;
             SceneManager.Singleton.Connect<Node>(SceneManager.SignalName.SceneLoaded, _ => QueueFree(), (uint)ConnectFlags.OneShot);
             SceneManager.ReturnToPreviousScene();
         }
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+        if (!Engine.IsEditorHint())
+            SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, Start, (uint)ConnectFlags.OneShot);
     }
 
     public override void _Input(InputEvent @event)

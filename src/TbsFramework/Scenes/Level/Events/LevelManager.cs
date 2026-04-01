@@ -37,6 +37,7 @@ public partial class LevelManager : Node
 #endregion
 #region Declarations
     private readonly NodeCache _cache = null;
+    private CombatController _combat = null;
 
     private Path _path = null;
     private UnitData _selected = null, _target = null;
@@ -62,9 +63,6 @@ public partial class LevelManager : Node
     public LevelManager() : base() { _cache = new(this); }
 #endregion
 #region Exports
-    /// <summary>Path to the scene used to play combat animations.</summary>
-    [Export(PropertyHint.File, "*.tscn")] public string CombatScenePath = null;
-
     /// <summary>
     /// <see cref="Army"/> that gets the first turn and is controlled by the player. If null, use the first <see cref="Army"/>
     /// in the child list. After that, go down the child list in order, wrapping when at the end.
@@ -75,6 +73,18 @@ public partial class LevelManager : Node
     /// <summary>Turn count (including current turn, so it starts at 1).</summary>
     [ExportGroup("Turn Control")]
     [Export] public int Turn = 1;
+
+    /// <summary>Path to the scene used to play combat animations. If <c>null</c>, animations will play on map.</summary>
+    [ExportGroup("Combat Control")]
+    [Export(PropertyHint.File, "*.tscn")] public string CombatScenePath = null;
+
+    /// <summary>Force playing combat animations using map contents rather than in a separate scene.</summary>
+    [ExportGroup("Combat Control")]
+    [Export] public bool PlayCombatOnMap = false;
+
+    /// <summary>Skip playing combat animations entirely.</summary>
+    [ExportGroup("Combat Control")]
+    [Export] public bool SkipCombat = false;
 #endregion
 #region Begin Turn State
     /// <summary>Signal that a turn is about to begin.</summary>
@@ -308,16 +318,27 @@ public partial class LevelManager : Node
         else
             throw new NotSupportedException($"Unknown action {_command}");
 
-        if (_ff)
+        void skip()
         {
             ApplyCombatResults();
             State.SendEvent(DoneEvent);
         }
-        else
+
+        if (_ff || SkipCombat)
+            skip();
+        else if (!string.IsNullOrEmpty(CombatScenePath) && !PlayCombatOnMap)
         {
-            SceneManager.Singleton.Connect<CombatScene>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, [.. _combatResults]), (uint)ConnectFlags.OneShot);
+            SceneManager.Singleton.Connect<CombatController>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, [.. _combatResults]), (uint)ConnectFlags.OneShot);
             SceneManager.CallScene(CombatScenePath);
         }
+        else if (_combat is not null)
+        {
+            _combat.Initialize(_selected, _target, [.. _combatResults]);
+            _combat.Connect(CombatController.SignalName.CombatEnded, skip, (uint)ConnectFlags.OneShot);
+            _combat.Start();
+        }
+        else
+            skip();
     }
 
     /// <summary>Update the map to reflect combat results when it's added back to the tree.</summary>
@@ -442,6 +463,8 @@ public partial class LevelManager : Node
         {
             Grid grid = GetNode<Grid>("Grid");
             _grid = grid.Data;
+
+            _combat = GetChildren().OfType<CombatController>().FirstOrDefault();
 
             Camera.Limits = new(Vector2I.Zero, (Vector2I)(_grid.Size*grid.CellSize));
             LevelEvents.UpdateCameraBounds(Camera.Limits);

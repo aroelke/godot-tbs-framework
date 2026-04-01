@@ -30,6 +30,8 @@ public partial class DemoMap : Node
         ]).Any();
     }
 
+    public void OnCombatSceneToggled(bool enable) => GetNode<LevelManager>("LevelManager").PlayCombatOnMap = !enable;
+
     public override void _EnterTree()
     {
         base._EnterTree();
@@ -50,6 +52,7 @@ public partial class DemoMap : Node
         if (!Engine.IsEditorHint())
         {
             Input.SetCustomMouseCursor(MouseCursor);
+            OnCombatSceneToggled(GetNode<CheckBox>("CanvasLayer/CombatToggle").ButtonPressed);
         }
     }
 }

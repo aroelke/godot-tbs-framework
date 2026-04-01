@@ -13,7 +13,7 @@ This is a framework written in C# for building turn-based strategy games in Godo
    - Survive for some number of turns (or complete another objective within some number of turns)
    - Occupy a region of the map with an option to require an action be performed there and/or require multiple units to be there
    - Using any objective as failure rather than success (e.g. all player units being defeated leads to failure)
-- Display of combat using a cut scene where participating units attack each other _(currently this is mandatory)_
+- Display of combat using a cut scene where participating units attack each other or by playing animations directly on the map
 - Free switching between keyboard, mouse, and gamepad controls with free switching between joystick and dpad controls on gamepad
 ## How to Use the Framework
 ### Setting Up a Map Scene
@@ -25,6 +25,7 @@ and the turn order, among other things.
 
 The hierarchy looks like this:
 - [`LevelManager`](src/TbsFramework/Scenes/Level/Events/LevelManager.tscn)
+  - [`CombatController`] if combat animations should be playable on the map _(optional)_
   - [`Grid`](src/TbsFramework/Scenes/Level/Map/Grid.tscn)
     - "Ground" `TileMapLayer`
     - "Terrain" `TileMapLayer`
@@ -110,21 +111,30 @@ included:
 
 `SwitchCondition` also allows for its `Behavior` selection to revert if its `SwitchCondition` stops being satisfied.
 ### Connecting a Combat Scene
-_Note: Currently a separate combat scene is required. Future updates will add support for combat on the map._
-
 The combat scene is flexible and designed to support any kind of combat situation. Combat scenes should extend the
 [`CombatScene`](src/TbsFramework/Scenes/Combat/CombatScene.cs) abstract class,
-which only requires an implementation of a `Start()` method to initiate the combat sequence and an `End` method to indicate the end. Implementations
-of the `End()` method should call `SceneManager.ReturnToPreviousScene()` to return back to the map. This method can also be called anywhere else in
-the combat script to return to the map at any time.
+which only requires an implementation of an `Initialize()` method to indicate which units and actions will be in the animation, a `Start()` method to
+initiate the combat sequence, and an `End` method to indicate the end. Implementations of the `End()` method should call
+`SceneManager.ReturnToPreviousScene()` to return back to the map. This method can also be called anywhere else in the combat script to return to the
+map at any time.  Nodes in the combat scene can extend [`CombatAnimations`](src\TbsFramework\Nodes\Components\CombatAnimations.cs), which provides
+several methods that can be used to choreograph the combat sequence.
 
 Once the combat scene is created, it can be connected to the `LevelManager` by assigning the path to the .tscn file to the `LevelManager`'s
 `CombatScenePath` property. When a `Unit` initiates an interaction with another unit, the `LevelManager` will instantiate the `CombatScene` and switch
 to it to play the combat sequence.
 
+#### Playing Combat Animations on the Map
+To play combat animations directly on the map instead of in a separate scene, give the `LevelManager` a child node that extends the `CombatController`
+class.  Like with the separate scene, this node must implement the `Initialize()`, `Start()`, and `End()` methods, but it should indicate that the
+combat animation is over simply by raising `CombatEnded` signal rather than calling any `SceneManager` methods. The `CombatController` can make use
+of the methods provided by `UnitMapAnimations`, which is accessible via `UnitData.Renderer.Animations` to choreograph combat during the animation.
+
+`LevelManager` will automatically play combat animations on the map if it has a `CombatController` child and either there is no `CombatScene` scene
+assigned to it or if its `PlayCombatOnMap` property is set to `true`.
+
 #### Notes About Implementing Combat
-- Combat results are computed by the `LevelManager` before transitioning to the combat scene and automatically applied after returning. The combat
-  scene should not make changes to the state of the map.
+- Combat results are computed by the `LevelManager` before beginning the combat sequence and automatically applied after finishing. The combat
+  controller should not make changes to the state of the map except to play the combat animations of the `UnitMapAnimations` instances.
 - Updates to combat mechanics and unit stats can be made by manually modifying the code in the following places:
   - The [`Stats`](src/TbsFramework/Data/Stats.cs) resource to change what stats units have (make sure there's always an `AttackRange` property and
     `SupportRange` property)

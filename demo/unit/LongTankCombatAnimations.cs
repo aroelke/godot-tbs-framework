@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using Godot;
 using TbsFramework.Nodes.Components;
 
@@ -29,10 +28,6 @@ public partial class LongTankCombatAnimations : CombatAnimations
 
     private double ComputeLaunchAngle(double distance) => Math.Asin(Gravity*distance/(MissileSpeed*MissileSpeed))/2;
 
-    public override Vector2 ContactPoint => throw new NotImplementedException();
-    public override Rect2 BoundingBox => throw new NotImplementedException();
-    public override float AnimationSpeedScale { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
     /// <summary>Initial speed the projectile is fired at.</summary>
     [Export(PropertyHint.None, "suffix:px/s")] public double MissileSpeed = 600;
 
@@ -50,14 +45,9 @@ public partial class LongTankCombatAnimations : CombatAnimations
 
     public LongTankCombatAnimations() : base() { _cache = new(this); }
 
-    public override Task ActionCompleted()
-    {
-        throw new NotImplementedException();
-    }
-
     public override void SetFacing(Vector2 direction) => Transform = new(Transform.Rotation, new(direction == Vector2.Right ? 1 : -1, 1), Transform.Skew, Transform.Origin);
 
-    public async override Task BeginAttack(CombatAnimations target, bool hit)
+    public async override void BeginAttack(CombatAnimations target, bool hit)
     {
         _hit = hit;
         _target = target;
@@ -92,7 +82,7 @@ public partial class LongTankCombatAnimations : CombatAnimations
 
     public void OnMuzzleFlashFinished() => MuzzleFlash.Visible = false;
 
-    public override async Task FinishAttack()
+    public override async void FinishAttack()
     {
         if (_hit)
         {
@@ -129,7 +119,7 @@ public partial class LongTankCombatAnimations : CombatAnimations
         EmitSignal(SignalName.AnimationFinished);
     }
 
-    public override async Task BeginSupport(CombatAnimations target)
+    public override async void BeginSupport(CombatAnimations target)
     {
         _beam = HealBeam.Position;
         HealBeam.Visible = true;
@@ -147,24 +137,25 @@ public partial class LongTankCombatAnimations : CombatAnimations
         await ToSignal(animation, PropertyTweener.SignalName.Finished);
     }
 
-    public override Task FinishSupport()
+    public override void FinishSupport()
     {
         HealBeam.Position = HealCircle.Position = _beam;
         HealCircle.Visible = false;
-        return Task.CompletedTask;
+        Callable.From(() => EmitSignal(SignalName.AnimationFinished)).CallDeferred();
     }
 
-    public override async Task Die()
+    public override async void Die()
     {
         DeathSound.Play();
         PropertyTweener animation = CreateTween().TweenProperty(this, new(PropertyName.Modulate), Colors.Transparent, DeathTime);
         await ToSignal(animation, PropertyTweener.SignalName.Finished);
+        EmitSignal(SignalName.AnimationFinished);
     }
 
     public override void Idle() => throw new NotImplementedException();
 
     // Tanks miss their shots rather than dodging and don't react to hits
-    public override Task BeginDodge(CombatAnimations attacker) => throw new NotImplementedException();
-    public override Task FinishDodge() => throw new NotImplementedException();
-    public override Task TakeHit(CombatAnimations attacker) => throw new NotImplementedException();
+    public override void BeginDodge(CombatAnimations attacker) => throw new NotImplementedException();
+    public override void FinishDodge() => throw new NotImplementedException();
+    public override void TakeHit(CombatAnimations attacker) => throw new NotImplementedException();
 }
