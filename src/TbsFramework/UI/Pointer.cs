@@ -42,6 +42,7 @@ public partial class Pointer : BoundedNode2D
     private bool _accelerate = false;
     private bool _tracking = true;
     private Tween _flyer = null;
+    private bool _inWindow = true;
 
     private StateChart ControlState => _cache.GetNode<StateChart>("ControlState");
     private State DigitalState => _cache.GetNode<State>("%DigitalState");
@@ -257,11 +258,19 @@ public partial class Pointer : BoundedNode2D
 
     /// <summary>When the mouse enters the <see cref="Viewport"/>, warp to its entry position.</summary>
     /// <param name="position">Position the mouse entered the <see cref="Viewport"/> on.</param>
-    public void OnMouseEntered(Vector2 position) => Move(ViewportToWorld(position));
+    public void OnMouseEntered(Vector2 position)
+    {
+        _inWindow = true;
+        Move(ViewportToWorld(position));
+    }
 
     /// <summary>When the mouse exits the <see cref="Viewport"/> , warp to edge of the <see cref="Viewport"/> near where it exited.</summary>
     /// <param name="position">Position on <see cref="Viewport"/> close to where the mouse exited.</param>
-    public void OnMouseExited(Vector2 position) => Move(ViewportToWorld(position));
+    public void OnMouseExited(Vector2 position)
+    {
+        Move(ViewportToWorld(position));
+        _inWindow = false;
+    }
 
     /// <summary>When the cursor moves during digital input, warp to its location.</summary>
     /// <param name="region">New region enclosed by the cursor.</param>
@@ -345,8 +354,6 @@ public partial class Pointer : BoundedNode2D
         base._Process(delta);
 
         if (!Engine.IsEditorHint())
-        {
             Mouse.Position = WorldToViewport(Position);
-        }
     }
 }
