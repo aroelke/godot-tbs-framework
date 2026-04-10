@@ -53,11 +53,11 @@ modulate = Color(0, 0, 0, 0.390625)
 use_parent_material = true
 navigation_enabled = false
 
-[node name="Cursor" parent="." instance=ExtResource("2_rkggg")]
-
 [node name="UserInterface" type="CanvasLayer" parent="."]
 
 [node name="Pointer" parent="." instance=ExtResource("3_nkaji")]
+
+[node name="Cursor" parent="." instance=ExtResource("2_rkggg")]
 
 [node name="PathLayer" type="TileMapLayer" parent="."]
 
@@ -167,13 +167,13 @@ Event = &"finish"
 
 [node name="ZoneOffSound" type="AudioStreamPlayer" parent="SoundLibrary"]
 
-[connection signal="CellChanged" from="Cursor" to="State/Root/Active/Select/OnCursorCellChanged" method="React"]
-[connection signal="CellEntered" from="Cursor" to="State/Root/Active/Select/OnCursorCellEntered" method="React"]
-[connection signal="CursorMoved" from="Cursor" to="Pointer" method="OnCursorMoved"]
 [connection signal="FlightCompleted" from="Pointer" to="." method="OnPointerFlightCompleted"]
 [connection signal="FlightStarted" from="Pointer" to="." method="OnPointerFlightStarted"]
 [connection signal="PointerMoved" from="Pointer" to="Cursor" method="OnPointerMoved"]
 [connection signal="PointerStopped" from="Pointer" to="State/Root/Active/Select/OnPointerStopped" method="React"]
+[connection signal="CellChanged" from="Cursor" to="State/Root/Active/Select/OnCursorCellChanged" method="React"]
+[connection signal="CellEntered" from="Cursor" to="State/Root/Active/Select/OnCursorCellEntered" method="React"]
+[connection signal="CursorMoved" from="Cursor" to="Pointer" method="OnCursorMoved"]
 [connection signal="StateInput" from="State/Root/Ready/InputReaction" to="." method="OnReadyInput"]
 [connection signal="StateEntered" from="State/Root/Active/Select" to="." method="OnSelectEntered"]
 [connection signal="StateExited" from="State/Root/Active/Select" to="." method="OnSelectExited"]
@@ -184,10 +184,10 @@ Event = &"finish"
 [connection signal="Taken" from="State/Root/Active/Select/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="StateEntered" from="State/Root/Active/Path" to="." method="OnPathEntered"]
 [connection signal="StateExited" from="State/Root/Active/Path" to="." method="OnPathExited"]
-[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnCancel"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnPathCanceled"]
-[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnFinish"]
+[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnCancel" to="." method="OnCancel"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnPathFinished"]
+[connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="StateEntered" from="State/Root/Active/Command" to="." method="OnCommandEntered"]
 [connection signal="StateProcess" from="State/Root/Active/Command/OnProcess" to="." method="OnCommandProcess"]
 [connection signal="Taken" from="State/Root/Active/Command/ToReadyOnCancel" to="." method="OnCancel"]
@@ -195,8 +195,8 @@ Event = &"finish"
 [connection signal="StateEntered" from="State/Root/Active/Target" to="." method="OnTargetEntered"]
 [connection signal="StateExited" from="State/Root/Active/Target" to="." method="OnTargetExited"]
 [connection signal="StateInput" from="State/Root/Active/Target/OnInput" to="." method="OnTargetInput"]
-[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnCancel" to="." method="OnCancel"]
 [connection signal="Taken" from="State/Root/Active/Target/ToReadyOnCancel" to="." method="OnTargetCompleted"]
-[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnFinish" to="." method="OnFinish"]
+[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnCancel" to="." method="OnCancel"]
 [connection signal="Taken" from="State/Root/Active/Target/ToReadyOnFinish" to="." method="OnTargetCompleted"]
+[connection signal="Taken" from="State/Root/Active/Target/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="StateInput" from="State/Root/Active/OnInput" to="." method="OnActiveInput"]

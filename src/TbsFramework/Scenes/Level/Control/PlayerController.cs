@@ -462,7 +462,9 @@ public partial class PlayerController : ArmyController
         ActionLayers.Clear();
         ActionLayers.Modulate = ActionRangeHoverModulate;
 
-        OnSelectCursorCellEntered(Cursor.Data.Cell = Grid.CellOf(Pointer.Position));
+        if (Grid.Data.Contains(Grid.CellOf(Pointer.Position)))
+            Cursor.Data.Cell = Grid.CellOf(Pointer.Position);
+        OnSelectCursorCellEntered(Cursor.Data.Cell);
         Callable.From(() => State.SendEvent(SelectEvent)).CallDeferred();
     }
 
