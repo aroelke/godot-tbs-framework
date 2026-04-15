@@ -134,8 +134,16 @@ public class UnitData : GridObjectData
     /// <summary>The unit's behavior if CPU-controlled. Leave <c>null</c> for player-controlled units.</summary>
     public Behavior Behavior = null;
 
+    public Dictionary<Terrain, int> UniqueTerrainModifiers = [];
+
     /// <summary>Reference to the <see cref="Unit"/> rendering the unit's state on the map.</summary>
     public Unit Renderer = null;
+
+    public int CellCost(Vector2I cell)
+    {
+        Terrain terrain = Grid.Terrain.GetValueOrDefault(cell, Grid.DefaultTerrain);
+        return terrain.Cost + (Class.TerrainCostModifiers.TryGetValue(terrain, out int cc) ? cc : 0) + (UniqueTerrainModifiers.TryGetValue(terrain, out int uc) ? uc : 0);
+    }
 
     public UnitData() : base()
     {

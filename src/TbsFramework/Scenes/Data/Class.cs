@@ -120,6 +120,9 @@ public partial class Class : Resource
     /// </summary>
     public PackedScene DefaultCombatAnimationsScene => LoadDefaultCombatAnimations();
 
+    /// <summary>Modifiers to terrain cost for various types of terrain for each unit that belongs to this class.</summary>
+    [Export] public Godot.Collections.Dictionary<Terrain, int> TerrainCostModifiers = [];
+
     /// <summary>Mapping of factions onto sprites to display for units of this class in the editor.</summary>
     [Export] public Godot.Collections.Dictionary<Faction, Texture2D> EditorSprites = [];
 
