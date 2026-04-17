@@ -139,27 +139,6 @@ public class UnitData : GridObjectData
     /// <summary>Reference to the <see cref="Unit"/> rendering the unit's state on the map.</summary>
     public Unit Renderer = null;
 
-    public int CellCost(Vector2I cell)
-    {
-        Terrain terrain = Grid.Terrain.GetValueOrDefault(cell, Grid.DefaultTerrain);
-        return terrain.Cost + (Class.TerrainCostModifiers.TryGetValue(terrain, out int cc) ? cc : 0) + (UniqueTerrainModifiers.TryGetValue(terrain, out int uc) ? uc : 0);
-    }
-
-    /// <summary>Calculate the total movement cost of a list of cells on the unit's grid.</summary>
-    /// </remarks>The cells do not have to be adjacent.</summary>
-    public int PathCost(IReadOnlyList<Vector2I> path) => path.Count switch {
-        0 => 0,
-        1 => path[0] == Cell ? 0 : CellCost(path[0]),
-        _ => (path[0] == Cell ? path.TakeLast(path.Count - 1) : path[^1] == Cell ? path.Take(path.Count - 1) : path).Sum(CellCost)
-    };
-
-    /// <summary>
-    /// If the total cost of <paramref name="path"/> is greater than this unit's movement range, create a new path within the same set of cells representing the shortest
-    /// path between the starting and ending cells of <paramref name="path"/>.
-    /// </summary>
-    /// <remarks><b>Note</b>: if the shortest path is still too costly, it's still returned.</remarks>
-    public Path ClampPath(Path path) => PathCost(path) > Stats.Move ? path.Clear().Add(path[0]).Add(path[^1]) : path;
-
     public UnitData() : base()
     {
         _health.Maximum = _stats.Health;
@@ -183,6 +162,27 @@ public class UnitData : GridObjectData
         Renderer = original.Renderer;
     }
 
+    public int CellCost(Vector2I cell)
+    {
+        Terrain terrain = Grid.Terrain.GetValueOrDefault(cell, Grid.DefaultTerrain);
+        return terrain.Cost + (Class.TerrainCostModifiers.TryGetValue(terrain, out int cc) ? cc : 0) + (UniqueTerrainModifiers.TryGetValue(terrain, out int uc) ? uc : 0);
+    }
+
+    /// <summary>Calculate the total movement cost of a list of cells on the unit's grid.</summary>
+    /// </remarks>The cells do not have to be adjacent.</summary>
+    public int PathCost(IReadOnlyList<Vector2I> path) => path.Count switch {
+        0 => 0,
+        1 => path[0] == Cell ? 0 : CellCost(path[0]),
+        _ => (path[0] == Cell ? path.TakeLast(path.Count - 1) : path[^1] == Cell ? path.Take(path.Count - 1) : path).Sum(CellCost)
+    };
+
+    /// <summary>
+    /// If the total cost of <paramref name="path"/> is greater than this unit's movement range, create a new path within the same set of cells representing the shortest
+    /// path between the starting and ending cells of <paramref name="path"/>.
+    /// </summary>
+    /// <remarks><b>Note</b>: if the shortest path is still too costly, it's still returned.</remarks>
+    public Path ClampPath(Path path) => PathCost(path) > Stats.Move ? path.Clear().Add(path[0]).Add(path[^1]) : path;
+
     /// <returns><c>true</c> if this unit can move into or through <paramref name="cell"/>, and <c>false</c> otherwise.</returns>
     public bool IsCellTraversable(Vector2I cell) => !Grid.Occupants.TryGetValue(cell, out UnitData unit) || unit.Faction.AlliedTo(Faction);
 
@@ -201,7 +201,7 @@ public class UnitData : GridObjectData
 
             foreach (Vector2I neighbor in Grid.GetNeighbors(current))
             {
-                int cost = cells[current] + Grid.Terrain.GetValueOrDefault(neighbor, Grid.DefaultTerrain).Cost;
+                int cost = cells[current] + CellCost(neighbor);
                 if ((!cells.TryGetValue(neighbor, out int c) || c > cost) && IsCellTraversable(neighbor) && cost <= Stats.Move) // cost to get to cell is within range
                 {
                     cells[neighbor] = cost;
