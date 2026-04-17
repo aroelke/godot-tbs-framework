@@ -112,9 +112,6 @@ public class GridData
     /// <returns>A collection containing the indices of all cells within grid bounds at each distance from a center cell.</returns>
     public IEnumerable<Vector2I> GetCellsInRange(Vector2I center, IEnumerable<int> distances) => distances.SelectMany((r) => GetCellsAtDistance(center, r)).ToHashSet();
 
-    /// <summary>Calculate the total movement cost of a collection of cells on the grid.</summary>
-    public int PathCost(IEnumerable<Vector2I> path) => path.Sum((c) => Terrain.GetValueOrDefault(c, DefaultTerrain).Cost);
-
     /// <returns>A new grid of the same size with copies of all of the objects and other structures on it.</returns>
     public GridData Clone() => new(this);
 }

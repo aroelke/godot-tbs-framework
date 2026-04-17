@@ -659,7 +659,7 @@ public partial class PlayerController : ArmyController
                 // it to the path
                 if (!sources.Contains(_path[^1]))
                 {
-                    UpdatePath(sources.Select((c) => _path.Add(c).Clamp(_selected.Stats.Move)).OrderBy(
+                    UpdatePath(sources.Select((c) => _selected.ClampPath(_path.Add(c))).OrderBy(
                         (p) => new Vector2I(-(int)p[^1].DistanceTo(cell), (int)p[^1].DistanceTo(_path[^1])),
                         static (a, b) => a < b ? -1 : a > b ? 1 : 0
                     ).First());
@@ -667,7 +667,7 @@ public partial class PlayerController : ArmyController
             }
         }
         if (!sources.Any() && _traversable.Contains(cell))
-            UpdatePath(_path.Add(cell).Clamp(_selected.Stats.Move));
+            UpdatePath(_selected.ClampPath(_path.Add(cell)));
     }
 
     private void ConfirmPathSelection(Vector2I cell)

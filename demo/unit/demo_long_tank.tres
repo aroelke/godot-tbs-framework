@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Class" load_steps=13 format=3 uid="uid://8ni15si3ex81"]
+[gd_resource type="Resource" script_class="Class" load_steps=14 format=3 uid="uid://8ni15si3ex81"]
 
 [ext_resource type="Script" uid="uid://ddlp6kj6iah51" path="res://src/TbsFramework/Scenes/Data/Faction.cs" id="1_6hy2a"]
 [ext_resource type="Script" uid="uid://hpaxa78srpai" path="res://src/TbsFramework/Scenes/Data/Class.cs" id="2_cpej2"]
@@ -12,9 +12,13 @@
 [ext_resource type="Resource" uid="uid://chjjd5sn6y2jw" path="res://demo/factions/DemoAllyFaction.tres" id="9_krsmh"]
 [ext_resource type="Texture2D" uid="uid://cwk8mkpaj2bf6" path="res://demo/assets/map/tiles/long_tank_ally.png" id="10_tpu0i"]
 [ext_resource type="Script" uid="uid://d23lpjno16iad" path="res://src/TbsFramework/Scenes/Data/Terrain.cs" id="11_pnx3k"]
+[ext_resource type="Resource" uid="uid://2vm33ur3te17" path="res://demo/assets/terrain/trees.tres" id="12_xjiht"]
 
 [resource]
 script = ExtResource("2_cpej2")
+TerrainCostModifiers = Dictionary[ExtResource("11_pnx3k"), int]({
+ExtResource("12_xjiht"): -2
+})
 EditorSprites = Dictionary[ExtResource("1_6hy2a"), Texture2D]({
 ExtResource("3_pnx3k"): ExtResource("4_xjiht"),
 ExtResource("5_lne3p"): ExtResource("6_jgkha"),
