@@ -171,12 +171,15 @@ public class UnitData : GridObjectData
             (Stats.TerrainCostModifiers.TryGetValue(terrain, out int sc) ? sc : 0);
     }
 
-    /// <summary>Calculate the total movement cost of a list of cells on the unit's grid.</summary>
-    /// </remarks>The cells do not have to be adjacent.</summary>
+    /// <summary>
+    /// Calculate the total movement cost of a list of cells on the unit's grid. If the list of cells starts with this unit's cell, the cost of that
+    /// cell is ignored.
+    /// </summary>
+    /// </remarks>The cells do not have to be adjacent or start with this unit's cell.</summary>
     public int PathCost(IReadOnlyList<Vector2I> path) => path.Count switch {
         0 => 0,
         1 => path[0] == Cell ? 0 : CellCost(path[0]),
-        _ => (path[0] == Cell ? path.TakeLast(path.Count - 1) : path[^1] == Cell ? path.Take(path.Count - 1) : path).Sum(CellCost)
+        _ => (path[0] == Cell ? path.TakeLast(path.Count - 1) : path).Sum(CellCost)
     };
 
     /// <summary>
