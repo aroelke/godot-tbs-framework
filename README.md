@@ -88,6 +88,10 @@ on the map and in combat and the `Stats` resource is simply a collection of numb
 combat outcome and where on the map it can move and interact with other `Unit`s. A `Unit`'s `Faction` cannot be manually specified; instead,
 it is determined by the `Army` parent it has.
 
+`Unit`s can have customized modifiers to `Terrain` cost. `Class`, `Stats`, and `Unit` all have dictionary properties mapping different `Terrain`
+types to movement cost values that are added to the corresponding `Terrain`'s base `Cost` property.  The result is used to compute the `Unit`'s traversable cells when determining where it can move and to restrict the path it can move
+along when its destination is chosen.
+
 If a `Unit` is part of a CPU-controlled `Army`, it must have a `Behavior` child node providing the `AIController` information about what the
 unit is allowed to do on its turn. There are three main types of `Behavior`s:
 - [`StandBehavior`](src/TbsFramework/Scenes/Level/Control/StandBehavior.tscn): prevents its parent `Unit` from moving and optionally allows it

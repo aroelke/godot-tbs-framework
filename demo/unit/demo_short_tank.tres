@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Class" load_steps=12 format=3 uid="uid://c54fcxiunl1qa"]
+[gd_resource type="Resource" script_class="Class" load_steps=13 format=3 uid="uid://c54fcxiunl1qa"]
 
 [ext_resource type="Script" uid="uid://ddlp6kj6iah51" path="res://src/TbsFramework/Scenes/Data/Faction.cs" id="1_qva5q"]
 [ext_resource type="Texture2D" uid="uid://i8lrbs6m4l51" path="res://demo/assets/map/tiles/short_tank_default.png" id="2_2ur8b"]
@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://g8c38l54h1sw" path="res://demo/assets/map/tiles/short_tank_enemy2.png" id="8_6vhnh"]
 [ext_resource type="Resource" uid="uid://chjjd5sn6y2jw" path="res://demo/factions/DemoAllyFaction.tres" id="9_yho85"]
 [ext_resource type="Texture2D" uid="uid://cqx4yjbljfr62" path="res://demo/assets/map/tiles/short_tank_ally.png" id="10_0j1yr"]
+[ext_resource type="Script" uid="uid://d23lpjno16iad" path="res://src/TbsFramework/Scenes/Data/Terrain.cs" id="11_2ur8b"]
 [ext_resource type="Script" uid="uid://hpaxa78srpai" path="res://src/TbsFramework/Scenes/Data/Class.cs" id="11_wpctn"]
 
 [resource]
@@ -27,7 +28,7 @@ ExtResource("5_5i0kp"): "uid://dqylbcg18lmcd",
 ExtResource("7_x7bst"): "uid://duxcsoeqpx6rs",
 ExtResource("9_yho85"): "uid://dglwficlf2psv"
 })
-DefaultMapAnimationsPath = "uid://dpgift876c6df"
+DefaultMapAnimationsPath = "uid://cyferwqdl0soh"
 CombatAnimationsPaths = Dictionary[ExtResource("1_qva5q"), String]({
 ExtResource("3_p1cre"): "uid://dkjwgdk8qt35y",
 ExtResource("5_5i0kp"): "uid://camqtjdt7gx0r",

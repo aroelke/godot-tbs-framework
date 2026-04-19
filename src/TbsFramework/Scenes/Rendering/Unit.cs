@@ -109,6 +109,8 @@ public partial class Unit : GridNode
         set => UnitData.Stats = value;
     }
 
+    [Export] public Godot.Collections.Dictionary<Terrain, int> UniqueTerrainModifiers = [];
+
     [ExportGroup("Path Traversal", "Move")]
 
     /// <summary>Base speed, in world pixels/second, to move along the path while moving.</summary>
@@ -224,6 +226,8 @@ public partial class Unit : GridNode
             Path.Curve = new();
             MotionBox.Size = Size;
             SetProcess(false);
+
+            UnitData.UniqueTerrainModifiers = new(UniqueTerrainModifiers);
         }
 
         UnitData.AvailabilityUpdated += OnAvailabilityUpdated;

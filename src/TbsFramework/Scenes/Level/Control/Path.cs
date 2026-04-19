@@ -62,12 +62,6 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
 
     public Vector2I this[int index] => _cells[index];
 
-    /// <summary>
-    /// Movement <see cref="Terrain.Cost"/> to traverse the path from beginning to end. Since each cell's cost represents the cost to move onto it, the first cell
-    /// is ignored
-    /// </summary>
-    public int Cost => _grid.PathCost(_cells.TakeLast(_cells.Count - 1));
-
     public int Count => _cells.Count;
     public bool IsReadOnly => true;
     public bool IsSynchronized => false;
@@ -200,22 +194,6 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     /// </returns>
     /// <exception cref="NotImplementedException"></exception>
     public Path RemoveRange(int index, int count) => throw new NotImplementedException();
-
-    /// <summary>
-    /// If the total <see cref="Terrain.Cost"/> of the cells in the path, except for the first, is greater than the specified value, compute the shortest path
-    /// between the first and last cells.
-    /// </summary>
-    /// <param name="cost">Maximum <see cref="Cost"/> of the path.</param>
-    /// <returns>
-    /// The path if its <see cref="Cost"/> is less than or equal to <paramref name="cost"/>, and the shortest path between the endpoints otherwise.
-    /// </returns>
-    public Path Clamp(int cost)
-    {
-        if (Cost > cost)
-            return Clear().AddRange(_astar.GetPointPath(CellId(_cells[0]), CellId(_cells[^1])).Select((c) => (Vector2I)c));
-        else
-            return this;
-    }
 
     /// <returns>An empty path on the same grid and with the same set of traversable cells as this one.</returns>
     public Path Clear() => new(_grid, _astar, _traversable, []);

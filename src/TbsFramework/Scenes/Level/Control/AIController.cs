@@ -76,7 +76,7 @@ public partial class AIController : ArmyController
             set
             {
                 _destination = value;
-                PathCost = Path.Empty(Actor.Grid, Actor.GetTraversableCells()).Add(Start).Add(_destination).Cost;
+                PathCost = Actor.PathCost(Path.Empty(Actor.Grid, Actor.GetTraversableCells()).Add(Start).Add(_destination));
             }
         }
 
@@ -298,7 +298,7 @@ public partial class AIController : ArmyController
 
             IEnumerable<UnitData> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Cell));
             if (ordered.Any())
-                destination = selected.Behavior.Destinations(selected).OrderBy((c) => selected.Behavior.GetPath(selected, c).Cost).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
+                destination = selected.Behavior.Destinations(selected).OrderBy((c) => selected.PathCost(selected.Behavior.GetPath(selected, c))).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
             else
                 destination = selected.Cell;
             target = -Vector2I.One;

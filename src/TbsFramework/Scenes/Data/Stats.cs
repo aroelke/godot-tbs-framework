@@ -12,6 +12,8 @@ namespace TbsFramework.Scenes.Data;
 [GlobalClass, Tool]
 public partial class Stats : Resource
 {
+    private static readonly StringName TerrainCostModifiersPropertyName = "TerrainCostModifiers";
+
     public delegate void ValuesChangedEventHandler(Stats stats);
 
     public static Stats operator+(Stats a, Stats b) => new()
@@ -40,6 +42,7 @@ public partial class Stats : Resource
     private readonly ObservableProperty<int> _move = 5;
     private readonly ObservableProperty<int[]> _attackRange = new int[]{ 1 };
     private readonly ObservableProperty<int[]> _supportRange = Array.Empty<int>();
+    private readonly ObservableProperty<Godot.Collections.Dictionary<Terrain, int>> _terrainMods = new Godot.Collections.Dictionary<Terrain, int>();
 
     /// <summary>Max health stat. Determines the amount of damage a unit can take before being defeated.</summary>
     [Export] public int Health
@@ -113,6 +116,14 @@ public partial class Stats : Resource
         set => _supportRange.Value = value;
     }
 
+    /// <summary>Cost modifiers to move onto different types of terrain.</summary>
+    /// <remark>Don't directly change the value of the dictionary elements, as this won't raise <see cref="ValuesChanged"/>.</remarks>
+    [Export] public Godot.Collections.Dictionary<Terrain, int> TerrainCostModifiers
+    {
+        get => _terrainMods;
+        set => _terrainMods.Value = value;
+    }
+
     public Stats()
     {
         _health.ValueChanged += (_, _) => { if (ValuesChanged is not null) ValuesChanged(this); };
@@ -125,5 +136,6 @@ public partial class Stats : Resource
         _move.ValueChanged += (_, _) => { if (ValuesChanged is not null) ValuesChanged(this); };
         _attackRange.ValueChanged += (_, _) => { if (ValuesChanged is not null) ValuesChanged(this); };
         _supportRange.ValueChanged += (_, _) => { if (ValuesChanged is not null) ValuesChanged(this); };
+        _terrainMods.ValueChanged += (_, _) => { if (ValuesChanged is not null) ValuesChanged(this); };
     }
 }

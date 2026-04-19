@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="Terrain" load_steps=2 format=3 uid="uid://2vm33ur3te17"]
+
+[ext_resource type="Script" uid="uid://d23lpjno16iad" path="res://src/TbsFramework/Scenes/Data/Terrain.cs" id="1_kce3o"]
+
+[resource]
+script = ExtResource("1_kce3o")
+Cost = 3
+metadata/_custom_type_script = "uid://d23lpjno16iad"
