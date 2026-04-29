@@ -272,7 +272,7 @@ public partial class Pointer : BoundedNode2D
         _inWindow = false;
     }
 
-    /// <summary>When the cursor moves during digital input, warp to its location.</summary>
+    /// <summary>When the cursor moves during non-mouse input, warp to its location. During mouse input, fly there instead.</summary>
     /// <param name="region">New region enclosed by the cursor.</param>
     public void OnCursorMoved(Rect2 region)
     {
@@ -283,6 +283,14 @@ public partial class Pointer : BoundedNode2D
             else
                 Warp(region.GetCenter());
         }
+    }
+
+    /// <summary>When the cursor highlights a region during digital movement, warp to its location.</summary>
+    /// <param name="region">Region that was highlighted.</param>
+    public void OnCursorRegionHighlighted(Rect2 region)
+    {
+        if ((DigitalState.Active || (AnalogState.Active && !_tracking)) && !region.Contains(Position, perimeter:true))
+            Warp(region.GetCenter());
     }
 
     public override void _ValidateProperty(Godot.Collections.Dictionary property)

@@ -32,6 +32,9 @@ public partial class Cursor : GridNode
     /// <param name="cell">Coordinates of the cell that has been selected.</param>
     [Signal] public delegate void CellSelectedEventHandler(Vector2I cell);
 
+    /// <summary>Emitted when a cursor wants to emphasize a region.</summary>
+    [Signal] public delegate void RegionHighlightedEventHandler(Rect2 region);
+
     /// <summary>
     /// Compares two vector projections whose X values are their components along a direction and Y values are their components perpendicular
     /// to it such that vectors that are longer along the parallel axis are lesser. If they're the same distance, then ones that are shorter
@@ -118,6 +121,9 @@ public partial class Cursor : GridNode
         _halted = false;
         Visible = true;
     }
+
+    /// <summary>Whenever input mode changes, highlight the cursor's current cell so the pointer can center itself if need be.</summary>
+    public void OnInputModeChanged(InputMode mode) => EmitSignal(SignalName.RegionHighlighted, Grid.CellRect(Data.Cell));
 
     /// <summary>When a direction is pressed, move the cursor to the adjacent cell there and signal that the cell has been entered.</summary>
     /// <param name="direction">Direction that was pressed.</param>
@@ -237,8 +243,8 @@ public partial class Cursor : GridNode
             }
         }
 
-        EmitSignal(SignalName.CellChanged, to);
         EmitSignal(SignalName.CursorMoved, Grid.CellRect(to));
+        EmitSignal(SignalName.CellChanged, to);
         _previous = to;
     }
 
@@ -288,6 +294,13 @@ public partial class Cursor : GridNode
         }
     }
 
+    public override void _EnterTree()
+    {
+        base._EnterTree();
+        if (!Engine.IsEditorHint())
+            DeviceManager.Singleton.InputModeChanged += OnInputModeChanged;
+    }
+
     public override void _Ready()
     {
         base._Ready();
@@ -302,12 +315,22 @@ public partial class Cursor : GridNode
         if (!_halted)
         {
             if (@event.IsActionPressed(InputManager.Select))
-                EmitSignal(SignalName.CellSelected, Grid.CellOf(Position));
+            {
+                EmitSignal(SignalName.RegionHighlighted, Grid.CellRect(Data.Cell));
+                EmitSignal(SignalName.CellSelected, Data.Cell);
+            }
             
             if (@event.IsActionPressed(InputManager.Accelerate))
                 _skip = true;
             else if (@event.IsActionReleased(InputManager.Accelerate))
                 _skip = false;
         }
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+        if (!Engine.IsEditorHint())
+            DeviceManager.Singleton.InputModeChanged -= OnInputModeChanged;
     }
 }
