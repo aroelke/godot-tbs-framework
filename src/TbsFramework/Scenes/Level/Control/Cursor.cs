@@ -32,6 +32,9 @@ public partial class Cursor : GridNode
     /// <param name="cell">Coordinates of the cell that has been selected.</param>
     [Signal] public delegate void CellSelectedEventHandler(Vector2I cell);
 
+    /// <summary>Emitted when a cursor wants to emphasize a region.</summary>
+    [Signal] public delegate void RegionHighlightedEventHandler(Rect2 region);
+
     /// <summary>
     /// Compares two vector projections whose X values are their components along a direction and Y values are their components perpendicular
     /// to it such that vectors that are longer along the parallel axis are lesser. If they're the same distance, then ones that are shorter
@@ -237,8 +240,8 @@ public partial class Cursor : GridNode
             }
         }
 
-        EmitSignal(SignalName.CellChanged, to);
         EmitSignal(SignalName.CursorMoved, Grid.CellRect(to));
+        EmitSignal(SignalName.CellChanged, to);
         _previous = to;
     }
 
@@ -302,7 +305,11 @@ public partial class Cursor : GridNode
         if (!_halted)
         {
             if (@event.IsActionPressed(InputManager.Select))
-                EmitSignal(SignalName.CellSelected, Grid.CellOf(Position));
+            {
+                Vector2I cell = Grid.CellOf(Position);
+                EmitSignal(SignalName.RegionHighlighted, Grid.CellRect(cell));
+                EmitSignal(SignalName.CellSelected, cell);
+            }
             
             if (@event.IsActionPressed(InputManager.Accelerate))
                 _skip = true;
