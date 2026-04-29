@@ -289,7 +289,7 @@ public partial class Pointer : BoundedNode2D
     /// <param name="region">Region that was highlighted.</param>
     public void OnCursorRegionHighlighted(Rect2 region)
     {
-        if (DigitalState.Active && !region.Contains(Position, perimeter:true))
+        if ((DigitalState.Active || (AnalogState.Active && !_tracking)) && !region.Contains(Position, perimeter:true))
             Warp(region.GetCenter());
     }
 

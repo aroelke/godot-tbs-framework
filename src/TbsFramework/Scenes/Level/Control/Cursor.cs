@@ -122,6 +122,9 @@ public partial class Cursor : GridNode
         Visible = true;
     }
 
+    /// <summary>Whenever input mode changes, highlight the cursor's current cell so the pointer can center itself if need be.</summary>
+    public void OnInputModeChanged(InputMode mode) => EmitSignal(SignalName.RegionHighlighted, Grid.CellRect(Data.Cell));
+
     /// <summary>When a direction is pressed, move the cursor to the adjacent cell there and signal that the cell has been entered.</summary>
     /// <param name="direction">Direction that was pressed.</param>
     public void OnDirectionPressed(Vector2I direction)
@@ -291,6 +294,13 @@ public partial class Cursor : GridNode
         }
     }
 
+    public override void _EnterTree()
+    {
+        base._EnterTree();
+        if (!Engine.IsEditorHint())
+            DeviceManager.Singleton.InputModeChanged += OnInputModeChanged;
+    }
+
     public override void _Ready()
     {
         base._Ready();
@@ -306,9 +316,8 @@ public partial class Cursor : GridNode
         {
             if (@event.IsActionPressed(InputManager.Select))
             {
-                Vector2I cell = Grid.CellOf(Position);
-                EmitSignal(SignalName.RegionHighlighted, Grid.CellRect(cell));
-                EmitSignal(SignalName.CellSelected, cell);
+                EmitSignal(SignalName.RegionHighlighted, Grid.CellRect(Data.Cell));
+                EmitSignal(SignalName.CellSelected, Data.Cell);
             }
             
             if (@event.IsActionPressed(InputManager.Accelerate))
@@ -316,5 +325,12 @@ public partial class Cursor : GridNode
             else if (@event.IsActionReleased(InputManager.Accelerate))
                 _skip = false;
         }
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+        if (!Engine.IsEditorHint())
+            DeviceManager.Singleton.InputModeChanged -= OnInputModeChanged;
     }
 }
