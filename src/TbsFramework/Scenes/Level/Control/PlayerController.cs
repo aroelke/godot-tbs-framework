@@ -368,7 +368,7 @@ public partial class PlayerController : ArmyController
 #region State Independent
     private void OnCameraBoundsUpdated(Rect2I bounds) => Pointer.Bounds = bounds;
 
-    private void RequestAction(Vector2I cell, IEnumerable<ContextMenuOption> options, Action canceled=null, Action @finally=null)
+    private void RequestAction(Vector2I cell, IEnumerable<ContextMenuOption> options, Action canceled, Action @finally=null)
     {
         void PerformAction(StringName choice)
         {
@@ -514,7 +514,7 @@ public partial class PlayerController : ArmyController
                     new("Quit Game", () => GetTree().Quit()),
                     new("Cancel", Cancel)
                 ],
-                canceled:Cancel,
+                Cancel,
                 @finally:() => EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {
                     InputManager.DigitalMoveUp, InputManager.DigitalMoveLeft, InputManager.DigitalMoveRight, InputManager.DigitalMoveDown,
                     InputManager.AnalogMoveUp, InputManager.AnalogMoveLeft, InputManager.AnalogMoveRight, InputManager.AnalogMoveDown,
@@ -751,7 +751,7 @@ public partial class PlayerController : ArmyController
                     State.SendEvent(FinishEvent);
                     EmitSignal(SignalName.UnitCommanded, source.Cell, c);
                 }}),
-                canceled:() => {
+                () => {
                     State.SendEvent(CancelEvent);
                     EmitSignal(SignalName.UnitCommanded, source.Cell, cancel);
                 }
