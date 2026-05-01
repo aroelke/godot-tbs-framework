@@ -110,7 +110,7 @@ public partial class DemoMapCombatController : CombatController
         }
     }
 
-    public override async void Start() => ExecuteNextAction();
+    public override void Start() => ExecuteNextAction();
 
     public override void End()
     {
