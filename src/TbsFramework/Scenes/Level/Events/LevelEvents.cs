@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 using TbsFramework.Nodes;
 using TbsFramework.Scenes.Data;
@@ -53,7 +54,7 @@ public partial class LevelEvents : Node
     /// <summary>Signal that the camera should focus on its previous target.</summary>
     public static void RevertCameraFocus() { if (CameraFocusReverted is not null) CameraFocusReverted(); }
 #endregion
-#region Event Controllerz
+#region Event Controllers
     /// <summary>Signal that an event is complete, so the level can stop waiting for it.</summary>
     public static event Action EventCompleted;
 
@@ -71,6 +72,17 @@ public partial class LevelEvents : Node
 
     /// <summary>Signal that the level failure objective is complete.</summary>
     public static void FailureObjectiveComplete() { if (FailureObjectiveCompleted is not null) FailureObjectiveCompleted(); }
+#endregion
+#region Army Controllers
+    public delegate void ActionRequestEventHandler(Vector2I cell, IEnumerable<StringName> options);
+
+    public static event ActionRequestEventHandler ActionRequested;
+
+    public static event Action<StringName> ActionChosen;
+
+    public static void RequestAction(Vector2I cell, IEnumerable<StringName> options) { if (ActionRequested is not null) ActionRequested(cell, options); }
+
+    public static void ChooseAction(StringName action) { if (ActionChosen is not null) ActionChosen(action); }
 #endregion
 #region Units
     /// <summary>Signals that a unit has been defeated.</summary>

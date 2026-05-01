@@ -254,7 +254,7 @@ public partial class LevelManager : Node
     public void OnCommandingUnitCommanded(Vector2I cell, StringName command)
     {
         if (_grid.Occupants[cell] != _selected)
-            throw new InvalidOperationException($"Cannon command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
+            throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
         foreach (ContextMenuOption option in _options)
             if (option.Name == command)
                 option.Action();

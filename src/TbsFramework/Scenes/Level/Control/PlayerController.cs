@@ -300,44 +300,6 @@ public partial class PlayerController : ArmyController
                 ZoneOffSoundPlayer.Stream = value;
         }
     }
-
-    [Export, ExportGroup("Sounds")] public AudioStream MenuHighlightSound = null;
-#endregion
-#region Menus
-    private ContextMenu _menu = null;
-
-    private Vector2 MenuPosition(Rect2 rect, Vector2 size)
-    {
-        Rect2 viewportRect = Cursor.Grid.GetGlobalTransformWithCanvas()*rect;
-        float viewportCenter = GetViewport().GetVisibleRect().Position.X + GetViewport().GetVisibleRect().Size.X/2;
-        return new(
-            viewportCenter - viewportRect.Position.X < viewportRect.Size.X/2 ? viewportRect.Position.X - size.X : viewportRect.End.X,
-            Mathf.Clamp(viewportRect.Position.Y - (size.Y - viewportRect.Size.Y)/2, 0, GetViewport().GetVisibleRect().Size.Y - size.Y)
-        );
-    }
-
-    private ContextMenu ShowMenu(Rect2 rect, IEnumerable<ContextMenuOption> options)
-    {
-        Cursor.Halt(hide:true);
-        Pointer.StartWaiting(hide:false);
-
-        ContextMenu menu = ContextMenu.Instantiate(options, MenuHighlightSound);
-        menu.Wrap = true;
-        UserInterface.AddChild(menu);
-        menu.Visible = false;
-        menu.MenuClosed += LevelEvents.RevertCameraFocus;
-
-        LevelEvents.FocusCamera(null);
-
-        Callable.From<ContextMenu, Rect2>((m, r) => {
-            m.Visible = true;
-            if (DeviceManager.Mode != InputMode.Mouse)
-                m.GrabFocus();
-            m.Position = MenuPosition(r, m.Size);
-        }).CallDeferred(menu, rect);
-
-        return menu;
-    }
 #endregion
 #region Danger Zone
     private readonly HashSet<UnitData> _tracked = [];
@@ -405,6 +367,41 @@ public partial class PlayerController : ArmyController
 #endregion
 #region State Independent
     private void OnCameraBoundsUpdated(Rect2I bounds) => Pointer.Bounds = bounds;
+
+    private void RequestAction(Vector2I cell, IEnumerable<ContextMenuOption> options, Action canceled=null, Action @finally=null)
+    {
+        void PerformAction(StringName choice)
+        {
+            Action action = null;
+            if (choice is null)
+                action = canceled;
+            else
+            {
+                foreach (ContextMenuOption option in options)
+                {
+                    if (option.Name == choice)
+                    {
+                        action = option.Action;
+                        break;
+                    }
+                }
+            }
+            if (action is not null)
+            {
+                LevelEvents.ActionChosen -= PerformAction;
+                action();
+                if (@finally is not null)
+                    @finally();
+                LevelEvents.RevertCameraFocus();
+            }
+        }
+
+        Cursor.Halt(hide:true);
+        Pointer.StartWaiting(hide:false);
+        LevelEvents.FocusCamera(null);
+        LevelEvents.RequestAction(cell, options.Select((o) => o.Name));
+        LevelEvents.ActionChosen += PerformAction;
+    }
 
     public void OnCancel() => CancelSoundPlayer.Play();
     public void OnFinish() => SelectSoundPlayer.Play();
@@ -501,28 +498,31 @@ public partial class PlayerController : ArmyController
                 InputManager.UiHome, InputManager.UiHome,
                 InputManager.Select, InputManager.UiAccept, InputManager.Cancel
             });
-            ContextMenu menu = ShowMenu(Cursor.Grid.CellRect(cell), [
-                new("End Turn", () => {
-                    // Cursor is already halted
-                    Pointer.StartWaiting(hide:true);
+            RequestAction(
+                cell,
+                [
+                    new("End Turn", () => {
+                        // Cursor is already halted
+                        Pointer.StartWaiting(hide:true);
 
-                    foreach (UnitData unit in Faction.GetUnits(Grid.Data))
-                        unit.Active = false;
-                    State.SendEvent(FinishEvent);
-                    EmitSignal(SignalName.TurnFastForward);
-                    SelectSoundPlayer.Play();
-                }),
-                new("Quit Game", () => GetTree().Quit()),
-                new("Cancel", Cancel)
-            ]);
-            menu.MenuCanceled += Cancel;
-            menu.MenuClosed += () => EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {
-                InputManager.DigitalMoveUp, InputManager.DigitalMoveLeft, InputManager.DigitalMoveRight, InputManager.DigitalMoveDown,
-                InputManager.AnalogMoveUp, InputManager.AnalogMoveLeft, InputManager.AnalogMoveRight, InputManager.AnalogMoveDown,
-                InputManager.Previous, InputManager.Next,
-                InputManager.Select,
-                InputManager.ToggleDangerZone
-            });
+                        foreach (UnitData unit in Faction.GetUnits(Grid.Data))
+                            unit.Active = false;
+                        State.SendEvent(FinishEvent);
+                        EmitSignal(SignalName.TurnFastForward);
+                        SelectSoundPlayer.Play();
+                    }),
+                    new("Quit Game", () => GetTree().Quit()),
+                    new("Cancel", Cancel)
+                ],
+                canceled:Cancel,
+                @finally:() => EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {
+                    InputManager.DigitalMoveUp, InputManager.DigitalMoveLeft, InputManager.DigitalMoveRight, InputManager.DigitalMoveDown,
+                    InputManager.AnalogMoveUp, InputManager.AnalogMoveLeft, InputManager.AnalogMoveRight, InputManager.AnalogMoveDown,
+                    InputManager.Previous, InputManager.Next,
+                    InputManager.Select,
+                    InputManager.ToggleDangerZone
+                })
+            );
         }
     }
 
@@ -744,13 +744,18 @@ public partial class PlayerController : ArmyController
             State.SendEvent(CommandEvent);
 
             _selected = source;
-            _menu = ShowMenu(Cursor.Grid.CellRect(source.Cell), commands.Select((c) => new ContextMenuOption() { Name = c, Action = () => {
-                ActionLayers.Keep(c);
-                State.SendEvent(FinishEvent);
-                EmitSignal(SignalName.UnitCommanded, source.Cell, c);
-            }}));
-            _menu.MenuCanceled += () => EmitSignal(SignalName.UnitCommanded, source.Cell, cancel);
-            _menu.MenuClosed += () => _menu = null;
+            RequestAction(
+                source.Cell,
+                commands.Select((c) => new ContextMenuOption() { Name = c, Action = () => {
+                    ActionLayers.Keep(c);
+                    State.SendEvent(FinishEvent);
+                    EmitSignal(SignalName.UnitCommanded, source.Cell, c);
+                }}),
+                canceled:() => {
+                    State.SendEvent(CancelEvent);
+                    EmitSignal(SignalName.UnitCommanded, source.Cell, cancel);
+                }
+            );
         }).CallDeferred();
     }
 
@@ -763,8 +768,6 @@ public partial class PlayerController : ArmyController
             InputManager.Select, InputManager.UiAccept, InputManager.Cancel
         });
     }
-
-    public void OnCommandProcess(double delta) => _menu.Position = MenuPosition(Cursor.Grid.CellRect(_selected.Cell), _menu.Size);
 #endregion
 #region Target Selection
     private IEnumerable<Vector2I> _targets = null;
@@ -985,13 +988,6 @@ public partial class PlayerController : ArmyController
             Callable.From<BoundedNode2D>(LevelEvents.FocusCamera).CallDeferred(Pointer);
             Cursor.Halt();
         }
-    }
-
-    public override void _Process(double delta)
-    {
-        base._Process(delta);
-        if (_menu is not null)
-            _menu.Position = MenuPosition(Cursor.Grid.CellRect(_selected.Cell), _menu.Size);
     }
 
     public override void _ExitTree()
