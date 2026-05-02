@@ -4,14 +4,10 @@ using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes.Components;
+using TbsFramework.UI;
 using TbsFramework.UI.Controls.Device;
 
-namespace TbsFramework.UI;
-
-/// <summary><see cref="ContextMenu"/> item defining a name and action to perform when clicked.</summary>
-/// <param name="Name">String to display for the menu item.</param>
-/// <param name="Action">What to do when the item is selected.</param>
-public readonly record struct ContextMenuOption(StringName Name, Action Action);
+namespace TbsFramework.Demo;
 
 /// <summary>
 /// A context menu consisting of a vertical list of <see cref="Button"/>s.  Sends a signal when one of them is clicked, but also exposes them
@@ -47,7 +43,7 @@ public partial class ContextMenu : PanelContainer
     /// <param name="options">List of options to show and their actions.</param>
     /// <param name="highlight">Sound to play when a menu button gains focus.</param>
     /// <param name="scene">Scene to use to instantiate the menu. Leave <c>null</c> to use a basic menu with the default theme.</scene>
-    public static ContextMenu Instantiate(IEnumerable<ContextMenuOption> options, AudioStream highlight, PackedScene scene=null)
+    public static ContextMenu Instantiate(IEnumerable<NamedAction> options, AudioStream highlight, PackedScene scene=null)
     {
         ContextMenu menu = (scene ?? DefaultScene).Instantiate<ContextMenu>();
 

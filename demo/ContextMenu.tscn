@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://cxa8uah4pn4fg"]
 
-[ext_resource type="Script" uid="uid://7ahuos6rwf71" path="res://src/TbsFramework/UI/ContextMenu.cs" id="1_uyy67"]
+[ext_resource type="Script" uid="uid://7ahuos6rwf71" path="res://demo/ContextMenu.cs" id="1_uyy67"]
 [ext_resource type="PackedScene" uid="uid://croni4vvkdn0a" path="res://src/TbsFramework/Nodes/Components/MoveController.tscn" id="2_iqvij"]
 
 [node name="TestContextMenu" type="PanelContainer"]

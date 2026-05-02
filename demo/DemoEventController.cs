@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Scenes;
@@ -49,7 +48,7 @@ public partial class DemoEventController : EventController
     public void OnSuccessObjectiveCompleted() => OnObjectiveCompleted(true);
     public void OnFailureObjectiveCompleted() => OnObjectiveCompleted(false);
 
-    public void OnMenuShown(Vector2I cell, IEnumerable<ContextMenuOption> options, Action canceled, Action @finally)
+    public void OnMenuShown(Vector2I cell, IEnumerable<NamedAction> options, Action canceled, Action @finally)
     {
         _menuCell = cell;
         _menu = ContextMenu.Instantiate(options, MenuHighlightSound);

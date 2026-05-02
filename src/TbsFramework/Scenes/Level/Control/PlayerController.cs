@@ -368,7 +368,7 @@ public partial class PlayerController : ArmyController
 #region State Independent
     private void OnCameraBoundsUpdated(Rect2I bounds) => Pointer.Bounds = bounds;
 
-    private void ShowMenu(Vector2I cell, IEnumerable<ContextMenuOption> options, Action canceled, Action @finally=null)
+    private void ShowMenu(Vector2I cell, IEnumerable<NamedAction> options, Action canceled, Action @finally=null)
     {
         Cursor.Halt(hide:true);
         Pointer.StartWaiting(hide:false);
@@ -723,7 +723,7 @@ public partial class PlayerController : ArmyController
             _selected = source;
             ShowMenu(
                 source.Cell,
-                commands.Select((c) => new ContextMenuOption() { Name = c, Action = () => {
+                commands.Select((c) => new NamedAction() { Name = c, Action = () => {
                     ActionLayers.Keep(c);
                     State.SendEvent(FinishEvent);
                     EmitSignal(SignalName.UnitCommanded, source.Cell, c);

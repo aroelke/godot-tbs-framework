@@ -80,7 +80,7 @@ public partial class LevelEvents : Node
     /// <param name="options">Action options that can be performed and their names.</param>
     /// <param name="canceled">What to do if the menu is canceled.</param>
     /// <param name="finally">Action to perform after the menu is closed for any reason.</param>
-    public delegate void MenuShownEventHandler(Vector2I cell, IEnumerable<ContextMenuOption> options, Action canceled, Action @finally);
+    public delegate void MenuShownEventHandler(Vector2I cell, IEnumerable<NamedAction> options, Action canceled, Action @finally);
 
     /// <summary>Signals that a menu with options for actions to perform should be shown.</summary>
     public static event MenuShownEventHandler ActionsPresented;
@@ -90,7 +90,7 @@ public partial class LevelEvents : Node
     /// <param name="options">Action options that can be performed and their names.</param>
     /// <param name="canceled">What to do if the menu is canceled.</param>
     /// <param name="finally">Action to perform after the menu is closed for any reason.</param>
-    public static void ShowMenu(Vector2I cell, IEnumerable<ContextMenuOption> options, Action canceled, Action @finally) { if (ActionsPresented is not null) ActionsPresented(cell, options, canceled, @finally); }
+    public static void ShowMenu(Vector2I cell, IEnumerable<NamedAction> options, Action canceled, Action @finally) { if (ActionsPresented is not null) ActionsPresented(cell, options, canceled, @finally); }
 #endregion
 #region Units
     /// <summary>Signals that a unit has been defeated.</summary>

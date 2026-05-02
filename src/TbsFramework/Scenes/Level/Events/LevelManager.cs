@@ -215,7 +215,7 @@ public partial class LevelManager : Node
     }
 #endregion
 #region Unit Commanding State
-    private List<ContextMenuOption> _options = [];
+    private List<NamedAction> _options = [];
     private IEnumerable<Vector2I> _targets = [];
 
     public void OnCommandingEntered()
@@ -255,7 +255,7 @@ public partial class LevelManager : Node
     {
         if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        foreach (ContextMenuOption option in _options)
+        foreach (NamedAction option in _options)
             if (option.Name == command)
                 option.Action();
     }
