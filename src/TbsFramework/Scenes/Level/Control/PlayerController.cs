@@ -368,39 +368,16 @@ public partial class PlayerController : ArmyController
 #region State Independent
     private void OnCameraBoundsUpdated(Rect2I bounds) => Pointer.Bounds = bounds;
 
-    private void RequestAction(Vector2I cell, IEnumerable<ContextMenuOption> options, Action canceled, Action @finally=null)
+    private void ShowMenu(Vector2I cell, IEnumerable<ContextMenuOption> options, Action canceled, Action @finally=null)
     {
-        void PerformAction(StringName choice)
-        {
-            Action action = null;
-            if (choice is null)
-                action = canceled;
-            else
-            {
-                foreach (ContextMenuOption option in options)
-                {
-                    if (option.Name == choice)
-                    {
-                        action = option.Action;
-                        break;
-                    }
-                }
-            }
-            if (action is not null)
-            {
-                LevelEvents.ActionChosen -= PerformAction;
-                action();
-                if (@finally is not null)
-                    @finally();
-                LevelEvents.RevertCameraFocus();
-            }
-        }
-
         Cursor.Halt(hide:true);
         Pointer.StartWaiting(hide:false);
         LevelEvents.FocusCamera(null);
-        LevelEvents.RequestAction(cell, options.Select((o) => o.Name));
-        LevelEvents.ActionChosen += PerformAction;
+        LevelEvents.ShowMenu(cell, options, canceled, () => {
+            if (@finally is not null)
+                @finally();
+            LevelEvents.RevertCameraFocus();
+        });
     }
 
     public void OnCancel() => CancelSoundPlayer.Play();
@@ -498,7 +475,7 @@ public partial class PlayerController : ArmyController
                 InputManager.UiHome, InputManager.UiHome,
                 InputManager.Select, InputManager.UiAccept, InputManager.Cancel
             });
-            RequestAction(
+            ShowMenu(
                 cell,
                 [
                     new("End Turn", () => {
@@ -744,7 +721,7 @@ public partial class PlayerController : ArmyController
             State.SendEvent(CommandEvent);
 
             _selected = source;
-            RequestAction(
+            ShowMenu(
                 source.Cell,
                 commands.Select((c) => new ContextMenuOption() { Name = c, Action = () => {
                     ActionLayers.Keep(c);

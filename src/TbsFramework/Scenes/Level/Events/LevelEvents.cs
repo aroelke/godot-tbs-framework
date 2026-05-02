@@ -4,6 +4,7 @@ using Godot;
 using TbsFramework.Nodes;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Rendering;
+using TbsFramework.UI;
 
 namespace TbsFramework.Scenes.Level.Events;
 
@@ -74,15 +75,22 @@ public partial class LevelEvents : Node
     public static void FailureObjectiveComplete() { if (FailureObjectiveCompleted is not null) FailureObjectiveCompleted(); }
 #endregion
 #region Army Controllers
-    public delegate void ActionRequestEventHandler(Vector2I cell, IEnumerable<StringName> options);
+    /// <summary>Event handler for requests to show a menu.</summary>
+    /// <param name="cell">Grid cell where the menu should be shown.</param>
+    /// <param name="options">Action options that can be performed and their names.</param>
+    /// <param name="canceled">What to do if the menu is canceled.</param>
+    /// <param name="finally">Action to perform after the menu is closed for any reason.</param>
+    public delegate void MenuShownEventHandler(Vector2I cell, IEnumerable<ContextMenuOption> options, Action canceled, Action @finally);
 
-    public static event ActionRequestEventHandler ActionRequested;
+    /// <summary>Signals that a menu with options for actions to perform should be shown.</summary>
+    public static event MenuShownEventHandler ActionsPresented;
 
-    public static event Action<StringName> ActionChosen;
-
-    public static void RequestAction(Vector2I cell, IEnumerable<StringName> options) { if (ActionRequested is not null) ActionRequested(cell, options); }
-
-    public static void ChooseAction(StringName action) { if (ActionChosen is not null) ActionChosen(action); }
+    /// <summary>Show a menu with options for actions to perform. </summary>
+    /// <param name="cell">Grid cell where the menu should be shown.</param>
+    /// <param name="options">Action options that can be performed and their names.</param>
+    /// <param name="canceled">What to do if the menu is canceled.</param>
+    /// <param name="finally">Action to perform after the menu is closed for any reason.</param>
+    public static void ShowMenu(Vector2I cell, IEnumerable<ContextMenuOption> options, Action canceled, Action @finally) { if (ActionsPresented is not null) ActionsPresented(cell, options, canceled, @finally); }
 #endregion
 #region Units
     /// <summary>Signals that a unit has been defeated.</summary>

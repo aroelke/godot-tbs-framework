@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -48,18 +49,18 @@ public partial class DemoEventController : EventController
     public void OnSuccessObjectiveCompleted() => OnObjectiveCompleted(true);
     public void OnFailureObjectiveCompleted() => OnObjectiveCompleted(false);
 
-    public void OnActionRequested(Vector2I cell, IEnumerable<StringName> options)
+    public void OnMenuShown(Vector2I cell, IEnumerable<ContextMenuOption> options, Action canceled, Action @finally)
     {
         _menuCell = cell;
-        _menu = ContextMenu.Instantiate(options.Select((o) => new ContextMenuOption() { Name = o, Action = () => {} }), MenuHighlightSound);
+        _menu = ContextMenu.Instantiate(options, MenuHighlightSound);
         _menu.Wrap = true;
         UserInterface.AddChild(_menu);
         _menu.Visible = false;
-        _menu.ItemSelected += LevelEvents.ChooseAction;
-        _menu.MenuCanceled += () => LevelEvents.ChooseAction(null);
+        _menu.MenuCanceled += () => canceled();
         _menu.MenuClosed += () => {
             _menu = null;
             _menuCell = -Vector2I.One;
+            @finally();
         };
 
         Callable.From<ContextMenu, Rect2>((m, r) => {
@@ -78,7 +79,7 @@ public partial class DemoEventController : EventController
         {
             LevelEvents.SuccessObjectiveCompleted += OnSuccessObjectiveCompleted;
             LevelEvents.FailureObjectiveCompleted += OnFailureObjectiveCompleted;
-            LevelEvents.ActionRequested += OnActionRequested;
+            LevelEvents.ActionsPresented += OnMenuShown;
         }
     }
 
@@ -97,7 +98,7 @@ public partial class DemoEventController : EventController
         {
             LevelEvents.SuccessObjectiveCompleted -= OnSuccessObjectiveCompleted;
             LevelEvents.FailureObjectiveCompleted -= OnFailureObjectiveCompleted;
-            LevelEvents.ActionRequested -= OnActionRequested;
+            LevelEvents.ActionsPresented -= OnMenuShown;
         }
     }
 }
