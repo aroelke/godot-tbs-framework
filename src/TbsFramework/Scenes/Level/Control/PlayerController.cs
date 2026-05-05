@@ -489,7 +489,6 @@ public partial class PlayerController : ArmyController
                         SelectSoundPlayer.Play();
                     }),
                     new("Quit Game", () => GetTree().Quit()),
-                    new("Cancel", Cancel)
                 ],
                 Cancel,
                 @finally:() => EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {

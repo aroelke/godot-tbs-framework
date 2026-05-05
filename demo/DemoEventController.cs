@@ -51,7 +51,7 @@ public partial class DemoEventController : EventController
     public void OnMenuShown(Vector2I cell, IEnumerable<NamedAction> options, Action canceled, Action @finally)
     {
         _menuCell = cell;
-        _menu = ContextMenu.Instantiate(options, MenuHighlightSound);
+        _menu = ContextMenu.Instantiate(options, MenuHighlightSound, cancel:"Cancel");
         _menu.Wrap = true;
         UserInterface.AddChild(_menu);
         _menu.Visible = false;

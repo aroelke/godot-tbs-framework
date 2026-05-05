@@ -25,6 +25,7 @@ namespace TbsFramework.Scenes.Level.Events;
 public partial class LevelManager : Node
 {
 #region Constants
+    private static readonly StringName CancelCommand = "Cancel";
     // State chart events
     private static readonly StringName SelectEvent = "select";
     private static readonly StringName CancelEvent = "cancel";
@@ -246,18 +247,28 @@ public partial class LevelManager : Node
             }
         }
         _options.Add(new(UnitAction.EndAction, () => State.SendEvent(SkipEvent)));
-        _options.Add(new("Cancel", () => State.SendEvent(CancelEvent)));
 
-        _armies.Current.Controller.CommandUnit(_selected, [.. _options.Select(static (o) => o.Name)], "Cancel");
+        _armies.Current.Controller.CommandUnit(_selected, [.. _options.Select(static (o) => o.Name)], CancelCommand);
     }
 
     public void OnCommandingUnitCommanded(Vector2I cell, StringName command)
     {
         if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
+        if (command == CancelCommand)
+        {
+            State.SendEvent(CancelEvent);
+            return;
+        }
         foreach (NamedAction option in _options)
+        {
             if (option.Name == command)
+            {
                 option.Action();
+                return;
+            }
+        }
+        throw new ArgumentException($"Unknown command {command}");
     }
 
     /// <summary>Move the selected <see cref="Unit"/> and <see cref="Cursor"/> back to the cell the unit was at before it moved.</summary>
