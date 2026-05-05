@@ -355,8 +355,11 @@ Size = Vector2(16, 16)
 [node name="StandBehavior" parent="LevelManager/Ally/Ally" instance=ExtResource("16_6hgq8")]
 AttackInRange = true
 
-[node name="DemoEventController" parent="." node_paths=PackedStringArray("Success", "Failure") instance=ExtResource("24_c7alg")]
+[node name="DemoEventController" parent="." node_paths=PackedStringArray("Grid", "UserInterface", "Success", "Failure") instance=ExtResource("24_c7alg")]
+Grid = NodePath("../LevelManager/Grid")
+UserInterface = NodePath("../CanvasLayer")
 GameOverScreen = "uid://dx3e15oktmll8"
+MenuHighlightSound = ExtResource("11_npakb")
 Success = NodePath("SuccessObjective")
 Failure = NodePath("FailureObjective")
 

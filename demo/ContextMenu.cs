@@ -4,14 +4,10 @@ using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes.Components;
+using TbsFramework.UI;
 using TbsFramework.UI.Controls.Device;
 
-namespace TbsFramework.UI;
-
-/// <summary><see cref="ContextMenu"/> item defining a name and action to perform when clicked.</summary>
-/// <param name="Name">String to display for the menu item.</param>
-/// <param name="Action">What to do when the item is selected.</param>
-public readonly record struct ContextMenuOption(StringName Name, Action Action);
+namespace TbsFramework.Demo;
 
 /// <summary>
 /// A context menu consisting of a vertical list of <see cref="Button"/>s.  Sends a signal when one of them is clicked, but also exposes them
@@ -46,16 +42,23 @@ public partial class ContextMenu : PanelContainer
     /// <summary>Set up a context menu with a set of options mapped to actions.</summary>
     /// <param name="options">List of options to show and their actions.</param>
     /// <param name="highlight">Sound to play when a menu button gains focus.</param>
+    /// <param name="cancel">Text use for an optional cancel item. Leave <c>null</c> to omit the cancel option.</param>
     /// <param name="scene">Scene to use to instantiate the menu. Leave <c>null</c> to use a basic menu with the default theme.</scene>
-    public static ContextMenu Instantiate(IEnumerable<ContextMenuOption> options, AudioStream highlight, PackedScene scene=null)
+    public static ContextMenu Instantiate(IEnumerable<NamedAction> options, AudioStream highlight, StringName cancel=null, PackedScene scene=null)
     {
         ContextMenu menu = (scene ?? DefaultScene).Instantiate<ContextMenu>();
 
-        menu.Options = [.. options.Select(static (o) => o.Name)];
+        List<StringName> items = [.. options.Select(static (o) => o.Name)];
+        if (cancel is not null)
+            items.Add(cancel);
+        menu.Options = [.. items];
+
         // Do this with the ready signal to make sure the menu has been initialized (ready is emitted after _Ready is called)
         menu.Connect(SignalName.Ready, () => {
             foreach ((StringName name, Action action) in options)
                 menu._items[name].Pressed += action;
+            if (cancel is not null)
+                menu._items[cancel].Pressed += () => menu.EmitSignal(SignalName.MenuCanceled);
             menu.HighlightSound = highlight;
         }, (uint)ConnectFlags.OneShot);
 
@@ -137,6 +140,14 @@ public partial class ContextMenu : PanelContainer
     /// <inheritdoc cref="Control.GrabFocus"/>
     /// <remarks>Grabs focus of the button at index <see cref="DefaultFocus"/></remarks>
     public new void GrabFocus() => GrabFocus(DefaultFocus);
+
+    /// <summary>Close the menu without selecting an item.</summary>
+    public void Cancel()
+    {
+        EmitSignal(SignalName.MenuCanceled);
+        QueueFree();
+        EmitSignal(SignalName.MenuClosed);
+    }
 
     public void OnInputModeChanged(InputMode mode)
     {
@@ -241,10 +252,8 @@ public partial class ContextMenu : PanelContainer
 
         if (@event.IsActionPressed(InputManager.Cancel))
         {
-            EmitSignal(SignalName.MenuCanceled);
+            Cancel();
             GetViewport().SetInputAsHandled();
-            QueueFree();
-            EmitSignal(SignalName.MenuClosed);
         }
     }
 
