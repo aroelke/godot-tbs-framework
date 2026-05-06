@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Scenes;
@@ -50,6 +51,10 @@ public partial class DemoEventController : EventController
 
     public void OnMenuShown(Vector2I cell, IEnumerable<NamedAction> options, Action canceled, Action @finally)
     {
+        // If the cell where the menu is being brought up is empty, assume it's the system menu and not the command menu
+        if (!Grid.Data.Occupants.ContainsKey(cell))
+            options = options.Append(new() { Name = "Quit Game", Action = () => GetTree().Quit() });
+
         _menuCell = cell;
         _menu = ContextMenu.Instantiate(options, MenuHighlightSound, cancel:"Cancel");
         _menu.Wrap = true;

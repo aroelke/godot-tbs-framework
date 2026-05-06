@@ -477,19 +477,16 @@ public partial class PlayerController : ArmyController
             });
             ShowMenu(
                 cell,
-                [
-                    new("End Turn", () => {
-                        // Cursor is already halted
-                        Pointer.StartWaiting(hide:true);
+                [new("End Turn", () => {
+                    // Cursor is already halted
+                    Pointer.StartWaiting(hide:true);
 
-                        foreach (UnitData unit in Faction.GetUnits(Grid.Data))
-                            unit.Active = false;
-                        State.SendEvent(FinishEvent);
-                        EmitSignal(SignalName.TurnFastForward);
-                        SelectSoundPlayer.Play();
-                    }),
-                    new("Quit Game", () => GetTree().Quit()),
-                ],
+                    foreach (UnitData unit in Faction.GetUnits(Grid.Data))
+                        unit.Active = false;
+                    State.SendEvent(FinishEvent);
+                    EmitSignal(SignalName.TurnFastForward);
+                    SelectSoundPlayer.Play();
+                })],
                 Cancel,
                 @finally:() => EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {
                     InputManager.DigitalMoveUp, InputManager.DigitalMoveLeft, InputManager.DigitalMoveRight, InputManager.DigitalMoveDown,
