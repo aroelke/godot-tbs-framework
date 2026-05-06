@@ -45,7 +45,7 @@ public partial class PlayerController : ArmyController
 
     private UnitData _selected = null, _target = null;
     IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
-    private Path _path;
+    private Path _path = null;
 
     private StateChart        State               => _cache.GetNode<StateChart>("State");
     private ActionLayers      ActionLayers        => _cache.GetNode<ActionLayers>("ActionLayers");
@@ -477,19 +477,16 @@ public partial class PlayerController : ArmyController
             });
             ShowMenu(
                 cell,
-                [
-                    new("End Turn", () => {
-                        // Cursor is already halted
-                        Pointer.StartWaiting(hide:true);
+                [new("End Turn", () => {
+                    // Cursor is already halted
+                    Pointer.StartWaiting(hide:true);
 
-                        foreach (UnitData unit in Faction.GetUnits(Grid.Data))
-                            unit.Active = false;
-                        State.SendEvent(FinishEvent);
-                        EmitSignal(SignalName.TurnFastForward);
-                        SelectSoundPlayer.Play();
-                    }),
-                    new("Quit Game", () => GetTree().Quit()),
-                ],
+                    foreach (UnitData unit in Faction.GetUnits(Grid.Data))
+                        unit.Active = false;
+                    State.SendEvent(FinishEvent);
+                    EmitSignal(SignalName.TurnFastForward);
+                    SelectSoundPlayer.Play();
+                })],
                 Cancel,
                 @finally:() => EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {
                     InputManager.DigitalMoveUp, InputManager.DigitalMoveLeft, InputManager.DigitalMoveRight, InputManager.DigitalMoveDown,
@@ -573,17 +570,14 @@ public partial class PlayerController : ArmyController
         ActionLayers.Modulate = ActionRangeSelectModulate;
 
         _target = null;
-        Callable.From(() => {
-            State.SendEvent(PathEvent);
-
-            _selected = unit;
-            ActionLayers[MoveLayer.Name] = _traversable = _selected.GetTraversableCells();
-            ActionLayers[AttackLayer.Name] = _attackable = _selected.GetFilteredAttackableCellsInReach();
-            ActionLayers[SupportLayer.Name] = _supportable = _selected.GetFilteredSupportableCellsInReach();
-            Cursor.SoftRestriction = [.. _traversable];
-            Cursor.Data.Cell = _selected.Cell;
-            UpdatePath(Path.Empty(Cursor.Grid.Data, _traversable).Add(_selected.Cell));
-        }).CallDeferred();
+        _selected = unit;
+        State.SendEvent(PathEvent);
+        ActionLayers[MoveLayer.Name] = _traversable = _selected.GetTraversableCells();
+        ActionLayers[AttackLayer.Name] = _attackable = _selected.GetFilteredAttackableCellsInReach();
+        ActionLayers[SupportLayer.Name] = _supportable = _selected.GetFilteredSupportableCellsInReach();
+        Cursor.SoftRestriction = [.. _traversable];
+        Cursor.Data.Cell = _selected.Cell;
+        UpdatePath(Path.Empty(Cursor.Grid.Data, _traversable).Add(_selected.Cell));
     }
 
     private void UpdatePath(Path path)
@@ -720,18 +714,26 @@ public partial class PlayerController : ArmyController
             State.SendEvent(CommandEvent);
 
             _selected = source;
-            ShowMenu(
-                source.Cell,
-                commands.Select((c) => new NamedAction() { Name = c, Action = () => {
-                    ActionLayers.Keep(c);
-                    State.SendEvent(FinishEvent);
-                    EmitSignal(SignalName.UnitCommanded, source.Cell, c);
-                }}),
-                () => {
+            List<NamedAction> cmds = [.. commands.Select((c) => new NamedAction() { Name = c, Action = () => {
+                ActionLayers.Keep(c);
+                State.SendEvent(FinishEvent);
+                EmitSignal(SignalName.UnitCommanded, source.Cell, c);
+            }})];
+            if (_selected.Cell == _path[^1])
+            {
+                cmds.Add(new() { Name = "Deselect", Action = () => {
                     State.SendEvent(CancelEvent);
                     EmitSignal(SignalName.UnitCommanded, source.Cell, cancel);
-                }
-            );
+                    State.SendEvent(CancelEvent); // Now we're in path selection state, so also cancel that
+                    EmitSignal(SignalName.SelectionCanceled);
+                    OnCancel();
+                }});
+            }
+            ShowMenu(source.Cell, cmds, () => {
+                State.SendEvent(CancelEvent);
+                EmitSignal(SignalName.UnitCommanded, source.Cell, cancel);
+                OnCancel();
+            });
         }).CallDeferred();
     }
 
