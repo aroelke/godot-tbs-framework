@@ -719,7 +719,7 @@ public partial class PlayerController : ArmyController
                 State.SendEvent(FinishEvent);
                 EmitSignal(SignalName.UnitCommanded, source.Cell, c);
             }})];
-            if (_selected.Cell == _path[^1])
+            if (_path.Count == 1) // If there's only one cell in the path, it must be the selected unit's starting cell
             {
                 cmds.Add(new() { Name = "Deselect", Action = () => {
                     State.SendEvent(CancelEvent);
@@ -938,8 +938,8 @@ public partial class PlayerController : ArmyController
             property["usage"] = Variant.From(PropertyUsageFlags.None);
         base._ValidateProperty(property);
     }
-    #endregion
-    #region Engine Events
+#endregion
+#region Engine Events
     public override void _EnterTree()
     {
         base._EnterTree();
