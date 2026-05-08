@@ -14,6 +14,7 @@ grow_vertical = 2
 script = ExtResource("1_obbft")
 
 [node name="MoveController" parent="." instance=ExtResource("2_8wl4c")]
+EnableAnalog = true
 
 [node name="Dimmer" type="ColorRect" parent="."]
 layout_mode = 1
@@ -40,34 +41,18 @@ grow_vertical = 2
 
 [node name="QuitButton" type="Button" parent="Buttons"]
 layout_mode = 2
-focus_neighbor_left = NodePath("../ResumeButton")
-focus_neighbor_top = NodePath("../ResumeButton")
-focus_neighbor_right = NodePath("../RestartButton")
-focus_neighbor_bottom = NodePath("../RestartButton")
-focus_next = NodePath("../RestartButton")
-focus_previous = NodePath("../ResumeButton")
 text = "Quit Game"
 
 [node name="RestartButton" type="Button" parent="Buttons"]
 layout_mode = 2
-focus_neighbor_left = NodePath("../QuitButton")
-focus_neighbor_top = NodePath("../QuitButton")
-focus_neighbor_right = NodePath("../ResumeButton")
-focus_neighbor_bottom = NodePath("../ResumeButton")
-focus_next = NodePath("../ResumeButton")
-focus_previous = NodePath("../QuitButton")
 text = "Restart Game"
 
 [node name="ResumeButton" type="Button" parent="Buttons"]
 layout_mode = 2
-focus_neighbor_left = NodePath("../RestartButton")
-focus_neighbor_top = NodePath("../RestartButton")
-focus_neighbor_right = NodePath("../QuitButton")
-focus_neighbor_bottom = NodePath("../QuitButton")
-focus_next = NodePath("../QuitButton")
-focus_previous = NodePath("../RestartButton")
 text = "Resume"
 
+[connection signal="DirectionEchoed" from="MoveController" to="." method="OnDirectionPressed"]
+[connection signal="DirectionPressed" from="MoveController" to="." method="OnDirectionPressed"]
 [connection signal="pressed" from="Buttons/QuitButton" to="." method="OnQuitGamePressed"]
 [connection signal="pressed" from="Buttons/RestartButton" to="." method="OnRestartGamePressed"]
 [connection signal="pressed" from="Buttons/ResumeButton" to="." method="Resume"]
