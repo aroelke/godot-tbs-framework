@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://c2sogymeaqvpw"]
+[gd_scene load_steps=5 format=3 uid="uid://c2sogymeaqvpw"]
 
 [ext_resource type="Script" uid="uid://dsmssfwlkkecq" path="res://demo/DemoPauseOverlay.cs" id="1_obbft"]
 [ext_resource type="PackedScene" uid="uid://croni4vvkdn0a" path="res://src/TbsFramework/Nodes/Components/MoveController.tscn" id="2_8wl4c"]
+[ext_resource type="AudioStream" uid="uid://cw083osbudnfr" path="res://demo/assets/ui/sounds/cursor_move.ogg" id="3_2ryhe"]
+[ext_resource type="AudioStream" uid="uid://chh5seatf8dr3" path="res://demo/assets/ui/sounds/select.ogg" id="4_g72rc"]
 
 [node name="PauseOverlay" type="Control"]
 process_mode = 2
@@ -51,8 +53,23 @@ text = "Restart Game"
 layout_mode = 2
 text = "Resume"
 
+[node name="HighlightSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_2ryhe")
+
+[node name="SelectSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_g72rc")
+
 [connection signal="DirectionEchoed" from="MoveController" to="." method="OnDirectionPressed"]
 [connection signal="DirectionPressed" from="MoveController" to="." method="OnDirectionPressed"]
+[connection signal="focus_entered" from="Buttons/QuitButton" to="." method="OnButtonFocusEntered"]
+[connection signal="mouse_entered" from="Buttons/QuitButton" to="HighlightSound" method="play" binds= [0.0]]
 [connection signal="pressed" from="Buttons/QuitButton" to="." method="OnQuitGamePressed"]
+[connection signal="pressed" from="Buttons/QuitButton" to="SelectSound" method="play" binds= [0.0]]
+[connection signal="focus_entered" from="Buttons/RestartButton" to="." method="OnButtonFocusEntered"]
+[connection signal="mouse_entered" from="Buttons/RestartButton" to="HighlightSound" method="play" binds= [0.0]]
 [connection signal="pressed" from="Buttons/RestartButton" to="." method="OnRestartGamePressed"]
+[connection signal="pressed" from="Buttons/RestartButton" to="SelectSound" method="play" binds= [0.0]]
+[connection signal="focus_entered" from="Buttons/ResumeButton" to="." method="OnButtonFocusEntered"]
+[connection signal="mouse_entered" from="Buttons/ResumeButton" to="HighlightSound" method="play" binds= [0.0]]
 [connection signal="pressed" from="Buttons/ResumeButton" to="." method="Resume"]
+[connection signal="pressed" from="Buttons/ResumeButton" to="SelectSound" method="play" binds= [0.0]]

@@ -1,5 +1,6 @@
 using System.Linq;
 using Godot;
+using TbsFramework.Nodes.Components;
 using TbsFramework.Scenes;
 using TbsFramework.UI.Controls.Device;
 
@@ -12,7 +13,12 @@ public partial class DemoPauseOverlay : Control
     private int _selected = 0;
     private Button[] _buttons = null;
 
+    private NodeCache _cache = null;
+    private AudioStreamPlayer HighlightSound => _cache.GetNode<AudioStreamPlayer>("HighlightSound");
+
     [Export(PropertyHint.File, "*.tscn")] public string RestartTarget = null;
+
+    public DemoPauseOverlay() : base() { _cache = new(this); }
 
     public void Pause()
     {
@@ -20,6 +26,12 @@ public partial class DemoPauseOverlay : Control
         Visible = true;
         _buttons[_selected = 0].GrabFocus();
         EmitSignal(SignalName.GamePaused);
+    }
+
+    public void OnButtonFocusEntered()
+    {
+        if (DeviceManager.Mode != InputMode.Mouse)
+            HighlightSound.Play();
     }
 
     public void OnQuitGamePressed() => GetTree().Quit();
@@ -37,7 +49,10 @@ public partial class DemoPauseOverlay : Control
         EmitSignal(SignalName.GameResumed);
     }
 
-    public void OnDirectionPressed(Vector2I direction) => _buttons[_selected = (_selected + direction.Y) % _buttons.Length].GrabFocus();
+    public void OnDirectionPressed(Vector2I direction)
+    {
+        _buttons[_selected = (_selected + direction.Y) % _buttons.Length].GrabFocus();
+    }
 
     public override void _Ready()
     {
