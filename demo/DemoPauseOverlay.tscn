@@ -1,0 +1,73 @@
+[gd_scene load_steps=3 format=3 uid="uid://c2sogymeaqvpw"]
+
+[ext_resource type="Script" uid="uid://dsmssfwlkkecq" path="res://demo/DemoPauseOverlay.cs" id="1_obbft"]
+[ext_resource type="PackedScene" uid="uid://croni4vvkdn0a" path="res://src/TbsFramework/Nodes/Components/MoveController.tscn" id="2_8wl4c"]
+
+[node name="PauseOverlay" type="Control"]
+process_mode = 2
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_obbft")
+
+[node name="MoveController" parent="." instance=ExtResource("2_8wl4c")]
+
+[node name="Dimmer" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.25)
+
+[node name="Buttons" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="QuitButton" type="Button" parent="Buttons"]
+layout_mode = 2
+focus_neighbor_left = NodePath("../ResumeButton")
+focus_neighbor_top = NodePath("../ResumeButton")
+focus_neighbor_right = NodePath("../RestartButton")
+focus_neighbor_bottom = NodePath("../RestartButton")
+focus_next = NodePath("../RestartButton")
+focus_previous = NodePath("../ResumeButton")
+text = "Quit Game"
+
+[node name="RestartButton" type="Button" parent="Buttons"]
+layout_mode = 2
+focus_neighbor_left = NodePath("../QuitButton")
+focus_neighbor_top = NodePath("../QuitButton")
+focus_neighbor_right = NodePath("../ResumeButton")
+focus_neighbor_bottom = NodePath("../ResumeButton")
+focus_next = NodePath("../ResumeButton")
+focus_previous = NodePath("../QuitButton")
+text = "Restart Game"
+
+[node name="ResumeButton" type="Button" parent="Buttons"]
+layout_mode = 2
+focus_neighbor_left = NodePath("../RestartButton")
+focus_neighbor_top = NodePath("../RestartButton")
+focus_neighbor_right = NodePath("../QuitButton")
+focus_neighbor_bottom = NodePath("../QuitButton")
+focus_next = NodePath("../QuitButton")
+focus_previous = NodePath("../RestartButton")
+text = "Resume"
+
+[connection signal="pressed" from="Buttons/QuitButton" to="." method="OnQuitGamePressed"]
+[connection signal="pressed" from="Buttons/RestartButton" to="." method="OnRestartGamePressed"]
+[connection signal="pressed" from="Buttons/ResumeButton" to="." method="Resume"]

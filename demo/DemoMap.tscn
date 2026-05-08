@@ -1,4 +1,4 @@
-[gd_scene load_steps=49 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=50 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsFramework/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="Script" uid="uid://c2joupgp3ohcx" path="res://demo/DemoMap.cs" id="1_npakb"]
@@ -48,6 +48,7 @@
 [ext_resource type="Resource" uid="uid://bovrp7fmo4rn5" path="res://demo/assets/ui/input/icons/icon_map_button.tres" id="37_dxofe"]
 [ext_resource type="Resource" uid="uid://3nkmext8ildv" path="res://demo/assets/ui/input/icons/icon_map_axis.tres" id="38_v621i"]
 [ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/TbsFramework/UI/HUD/ControlHint.tscn" id="39_mogvl"]
+[ext_resource type="PackedScene" uid="uid://c2sogymeaqvpw" path="res://demo/DemoPauseOverlay.tscn" id="49_b5lsw"]
 
 [node name="DemoMap" type="Node"]
 script = ExtResource("1_npakb")
@@ -355,7 +356,6 @@ Size = Vector2(16, 16)
 AttackInRange = true
 
 [node name="DemoEventController" parent="." node_paths=PackedStringArray("Grid", "UserInterface", "PauseOverlay", "Success", "Failure") instance=ExtResource("24_c7alg")]
-process_mode = 3
 Grid = NodePath("../LevelManager/Grid")
 UserInterface = NodePath("../CanvasLayer")
 GameOverScreen = "uid://dx3e15oktmll8"
@@ -483,68 +483,8 @@ theme = ExtResource("35_dxofe")
 button_pressed = true
 text = "Use Combat Scene"
 
-[node name="PauseOverlay" type="Control" parent="CanvasLayer"]
-process_mode = 2
+[node name="PauseOverlay" parent="CanvasLayer" instance=ExtResource("49_b5lsw")]
 visible = false
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Dimmer" type="ColorRect" parent="CanvasLayer/PauseOverlay"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0, 0, 0, 0.25)
-
-[node name="Buttons" type="VBoxContainer" parent="CanvasLayer/PauseOverlay"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="QuitButton" type="Button" parent="CanvasLayer/PauseOverlay/Buttons"]
-layout_mode = 2
-focus_neighbor_left = NodePath("../ResumeButton")
-focus_neighbor_top = NodePath("../ResumeButton")
-focus_neighbor_right = NodePath("../RestartButton")
-focus_neighbor_bottom = NodePath("../RestartButton")
-focus_next = NodePath("../RestartButton")
-focus_previous = NodePath("../ResumeButton")
-text = "Quit Game"
-
-[node name="RestartButton" type="Button" parent="CanvasLayer/PauseOverlay/Buttons"]
-layout_mode = 2
-focus_neighbor_left = NodePath("../QuitButton")
-focus_neighbor_top = NodePath("../QuitButton")
-focus_neighbor_right = NodePath("../ResumeButton")
-focus_neighbor_bottom = NodePath("../ResumeButton")
-focus_next = NodePath("../ResumeButton")
-focus_previous = NodePath("../QuitButton")
-text = "Restart Game"
-
-[node name="ResumeButton" type="Button" parent="CanvasLayer/PauseOverlay/Buttons"]
-layout_mode = 2
-focus_neighbor_left = NodePath("../RestartButton")
-focus_neighbor_top = NodePath("../RestartButton")
-focus_neighbor_right = NodePath("../QuitButton")
-focus_neighbor_bottom = NodePath("../QuitButton")
-focus_next = NodePath("../QuitButton")
-focus_previous = NodePath("../RestartButton")
-text = "Resume"
 
 [connection signal="child_entered_tree" from="LevelManager/Player" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="EnabledInputActionsUpdated" from="LevelManager/Player/PlayerController" to="." method="OnEnabledInputActionsUpdated"]
@@ -552,6 +492,4 @@ text = "Resume"
 [connection signal="child_entered_tree" from="LevelManager/Enemy2" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Ally" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="toggled" from="CanvasLayer/CombatToggle" to="." method="OnCombatSceneToggled"]
-[connection signal="pressed" from="CanvasLayer/PauseOverlay/Buttons/QuitButton" to="DemoEventController" method="OnQuitGamePressed"]
-[connection signal="pressed" from="CanvasLayer/PauseOverlay/Buttons/RestartButton" to="DemoEventController" method="OnRestartGamePressed"]
-[connection signal="pressed" from="CanvasLayer/PauseOverlay/Buttons/ResumeButton" to="DemoEventController" method="OnResumePressed"]
+[connection signal="GameResumed" from="CanvasLayer/PauseOverlay" to="DemoEventController" method="OnResume"]

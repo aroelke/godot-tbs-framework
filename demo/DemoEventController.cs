@@ -36,7 +36,7 @@ public partial class DemoEventController : EventController
     [Export] public Grid Grid = null;
     [Export] public CanvasLayer UserInterface = null;
     [Export(PropertyHint.File, "*.tscn")] public string GameOverScreen = null;
-    [Export] public Control PauseOverlay = null;
+    [Export] public DemoPauseOverlay PauseOverlay = null;
     [Export] public AudioStream MenuHighlightSound = null;
 
     public async void OnObjectiveCompleted(bool success)
@@ -57,7 +57,6 @@ public partial class DemoEventController : EventController
     {
         void OnMenuClosed()
         {
-            GD.Print("close");
             _menu = null;
             _menuCell = -Vector2I.One;
             _menuOptions = null;
@@ -75,10 +74,9 @@ public partial class DemoEventController : EventController
         if (!Grid.Data.Occupants.ContainsKey(cell))
         {
             options = options.Append(new() { Name = "Pause", Action = () => {
-                GD.Print("action");
                 _menu.MenuClosed -= OnMenuClosed;
                 _menu = null;
-                OnPause();
+                PauseOverlay.Pause();
             }});
         }
         _menu = ContextMenu.Instantiate(options, MenuHighlightSound, cancel:"Cancel");
@@ -96,20 +94,8 @@ public partial class DemoEventController : EventController
         }).CallDeferred(_menu, Grid.CellRect(cell));
     }
 
-    public void OnPause()
+    public void OnResume()
     {
-        GetTree().Paused = true;
-        PauseOverlay.Visible = true;
-    }
-
-    public void OnQuitGamePressed() => GetTree().Quit();
-
-    public void OnRestartGamePressed() => GetTree().ReloadCurrentScene();
-
-    public void OnResumePressed()
-    {
-        PauseOverlay.Visible = false;
-        GetTree().Paused = false;
         if (_menuCell != -Vector2I.One)
             OnMenuShown(_menuCell, _menuOptions, _menuCanceled, _menuFinally);
     }
@@ -138,10 +124,8 @@ public partial class DemoEventController : EventController
         base._Input(@event);
         if (@event.IsActionPressed(InputManager.Pause))
         {
-            if (GetTree().Paused)
-                OnResumePressed();
-            else
-                OnPause();
+            PauseOverlay.Pause();
+            GetViewport().SetInputAsHandled();
         }
     }
 
