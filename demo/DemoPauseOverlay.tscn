@@ -1,8 +1,8 @@
 [gd_scene load_steps=5 format=3 uid="uid://c2sogymeaqvpw"]
 
 [ext_resource type="Script" uid="uid://dsmssfwlkkecq" path="res://demo/DemoPauseOverlay.cs" id="1_obbft"]
-[ext_resource type="PackedScene" uid="uid://croni4vvkdn0a" path="res://src/TbsFramework/Nodes/Components/MoveController.tscn" id="2_8wl4c"]
 [ext_resource type="AudioStream" uid="uid://cw083osbudnfr" path="res://demo/assets/ui/sounds/cursor_move.ogg" id="3_2ryhe"]
+[ext_resource type="PackedScene" uid="uid://cxa8uah4pn4fg" path="res://demo/ContextMenu.tscn" id="3_g72rc"]
 [ext_resource type="AudioStream" uid="uid://chh5seatf8dr3" path="res://demo/assets/ui/sounds/select.ogg" id="4_g72rc"]
 
 [node name="PauseOverlay" type="Control"]
@@ -15,9 +15,6 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_obbft")
 
-[node name="MoveController" parent="." instance=ExtResource("2_8wl4c")]
-EnableAnalog = true
-
 [node name="Dimmer" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -27,49 +24,20 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.25)
 
-[node name="Buttons" type="VBoxContainer" parent="."]
+[node name="Menu" parent="." instance=ExtResource("3_g72rc")]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
-
-[node name="QuitButton" type="Button" parent="Buttons"]
-layout_mode = 2
-text = "Quit Game"
-
-[node name="RestartButton" type="Button" parent="Buttons"]
-layout_mode = 2
-text = "Restart Game"
-
-[node name="ResumeButton" type="Button" parent="Buttons"]
-layout_mode = 2
-text = "Resume"
-
-[node name="HighlightSound" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("3_2ryhe")
+Options = [&"Quit Game", &"Restart Game", &"Resume"]
+HighlightSound = ExtResource("3_2ryhe")
+Persistent = true
 
 [node name="SelectSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("4_g72rc")
 
-[connection signal="DirectionEchoed" from="MoveController" to="." method="OnDirectionPressed"]
-[connection signal="DirectionPressed" from="MoveController" to="." method="OnDirectionPressed"]
-[connection signal="focus_entered" from="Buttons/QuitButton" to="." method="OnButtonFocusEntered"]
-[connection signal="mouse_entered" from="Buttons/QuitButton" to="HighlightSound" method="play" binds= [0.0]]
-[connection signal="pressed" from="Buttons/QuitButton" to="." method="OnQuitGamePressed"]
-[connection signal="pressed" from="Buttons/QuitButton" to="SelectSound" method="play" binds= [0.0]]
-[connection signal="focus_entered" from="Buttons/RestartButton" to="." method="OnButtonFocusEntered"]
-[connection signal="mouse_entered" from="Buttons/RestartButton" to="HighlightSound" method="play" binds= [0.0]]
-[connection signal="pressed" from="Buttons/RestartButton" to="." method="OnRestartGamePressed"]
-[connection signal="pressed" from="Buttons/RestartButton" to="SelectSound" method="play" binds= [0.0]]
-[connection signal="focus_entered" from="Buttons/ResumeButton" to="." method="OnButtonFocusEntered"]
-[connection signal="mouse_entered" from="Buttons/ResumeButton" to="HighlightSound" method="play" binds= [0.0]]
-[connection signal="pressed" from="Buttons/ResumeButton" to="." method="Resume"]
-[connection signal="pressed" from="Buttons/ResumeButton" to="SelectSound" method="play" binds= [0.0]]
+[connection signal="ItemSelected" from="Menu" to="." method="OnMenuItemSelected"]

@@ -1,5 +1,7 @@
-using System.Linq;
+using System;
+using System.Collections.Generic;
 using Godot;
+using TbsFramework.Demo;
 using TbsFramework.Nodes.Components;
 using TbsFramework.Scenes;
 using TbsFramework.UI.Controls.Device;
@@ -10,36 +12,40 @@ public partial class DemoPauseOverlay : Control
 
     [Signal] public delegate void GameResumedEventHandler();
 
-    private int _selected = 0;
-    private Button[] _buttons = null;
-
-    private NodeCache _cache = null;
-    private AudioStreamPlayer HighlightSound => _cache.GetNode<AudioStreamPlayer>("HighlightSound");
+    private readonly NodeCache _cache = null;
+    private ContextMenu       Menu => _cache.GetNode<ContextMenu>("Menu");
+    private AudioStreamPlayer SelectSound => _cache.GetNode<AudioStreamPlayer>("SelectSound");
+    private readonly Dictionary<StringName, Action> _actions = null;
 
     [Export(PropertyHint.File, "*.tscn")] public string RestartTarget = null;
 
-    public DemoPauseOverlay() : base() { _cache = new(this); }
+    public DemoPauseOverlay() : base()
+    {
+        _cache = new(this);
+        _actions = new()
+        {
+            { "Quit Game", () => GetTree().Quit() },
+            { "Restart Game", () => {
+                GetTree().Paused = false;
+                SceneManager.CallScene(RestartTarget);
+            }},
+            { "Resume", Resume }
+        };
+    }
 
     public void Pause()
     {
         GetTree().Paused = true;
         Visible = true;
-        _buttons[_selected = 0].GrabFocus();
+        if (DeviceManager.Mode != InputMode.Mouse)
+            Menu.GrabFocus();
         EmitSignal(SignalName.GamePaused);
     }
 
-    public void OnButtonFocusEntered()
+    public void OnMenuItemSelected(StringName item)
     {
-        if (DeviceManager.Mode != InputMode.Mouse)
-            HighlightSound.Play();
-    }
-
-    public void OnQuitGamePressed() => GetTree().Quit();
-
-    public void OnRestartGamePressed()
-    {
-        GetTree().Paused = false;
-        SceneManager.CallScene(RestartTarget);
+        SelectSound.Play();
+        _actions[item]();
     }
 
     public void Resume()
@@ -47,17 +53,6 @@ public partial class DemoPauseOverlay : Control
         Visible = false;
         GetTree().Paused = false;
         EmitSignal(SignalName.GameResumed);
-    }
-
-    public void OnDirectionPressed(Vector2I direction)
-    {
-        _buttons[_selected = (_selected + direction.Y) % _buttons.Length].GrabFocus();
-    }
-
-    public override void _Ready()
-    {
-        base._Ready();
-        _buttons = [.. GetNode("Buttons").GetChildren().OfType<Button>()];
     }
 
     public override void _Input(InputEvent @event)

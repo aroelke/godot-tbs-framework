@@ -14,6 +14,7 @@ namespace TbsFramework.Demo;
 /// individually if needed.  Either way, automatically frees itself once a button is clicked.  Menu can also be canceled without selecting an
 /// item.  Not meant to be reused and options list is not meant to be modified (even though the individual options can be).
 /// </summary>
+[Tool]
 public partial class ContextMenu : PanelContainer
 {
     /// <summary>Signals that one of the items has been selected.</summary>
@@ -31,13 +32,7 @@ public partial class ContextMenu : PanelContainer
 
     private const int NothingSelected = -1;
     private const string DefaultSceneUID = "uid://cxa8uah4pn4fg";
-    private static readonly PackedScene DefaultScene = null;
-
-    static ContextMenu()
-    {
-        if (!Engine.IsEditorHint())
-            DefaultScene = GD.Load<PackedScene>(DefaultSceneUID);
-    }
+    private static PackedScene DefaultScene = null;
 
     /// <summary>Set up a context menu with a set of options mapped to actions.</summary>
     /// <param name="options">List of options to show and their actions.</param>
@@ -46,7 +41,7 @@ public partial class ContextMenu : PanelContainer
     /// <param name="scene">Scene to use to instantiate the menu. Leave <c>null</c> to use a basic menu with the default theme.</scene>
     public static ContextMenu Instantiate(IEnumerable<NamedAction> options, AudioStream highlight, StringName cancel=null, PackedScene scene=null)
     {
-        ContextMenu menu = (scene ?? DefaultScene).Instantiate<ContextMenu>();
+        ContextMenu menu = (scene ?? (DefaultScene ??= GD.Load<PackedScene>(DefaultSceneUID))).Instantiate<ContextMenu>();
 
         List<StringName> items = [.. options.Select(static (o) => o.Name)];
         if (cancel is not null)
@@ -118,6 +113,9 @@ public partial class ContextMenu : PanelContainer
         }
     }
 
+    /// <summary>Whether or not the menu can be closed. If <c>true</c>, the menu doesn't close when an option is chosen and can't be canceled.</summary>
+    [Export] public bool Persistent = false;
+
     /// <summary>
     /// Whether or not pressing up or down at the top or bottom of the list of buttons, respectively, should select the last or first item,
     /// also respectively.
@@ -142,11 +140,15 @@ public partial class ContextMenu : PanelContainer
     public new void GrabFocus() => GrabFocus(DefaultFocus);
 
     /// <summary>Close the menu without selecting an item.</summary>
+    /// <remarks>If <see cref="Persistent"/> is <c>true</c>, this method does nothing.</remarks>
     public void Cancel()
     {
-        EmitSignal(SignalName.MenuCanceled);
-        QueueFree();
-        EmitSignal(SignalName.MenuClosed);
+        if (!Persistent)
+        {
+            EmitSignal(SignalName.MenuCanceled);
+            QueueFree();
+            EmitSignal(SignalName.MenuClosed);
+        }
     }
 
     public void OnInputModeChanged(InputMode mode)
@@ -222,10 +224,13 @@ public partial class ContextMenu : PanelContainer
                 };
                 _items[_options[index]].Pressed += () => {
                     EmitSignal(SignalName.ItemSelected, _options[index]);
-                    Callable.From(() => {
-                        EmitSignal(SignalName.MenuClosed);
-                        QueueFree();
-                    }).CallDeferred();
+                    if (!Persistent)
+                    {
+                        Callable.From(() => {
+                            EmitSignal(SignalName.MenuClosed);
+                            QueueFree();
+                        }).CallDeferred();
+                    }
                 };
 
                 _items[_options[index]].MouseEntered += () => {
