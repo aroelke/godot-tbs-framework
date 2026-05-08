@@ -106,7 +106,6 @@ CancelSound = ExtResource("15_1yav4")
 ErrorSound = ExtResource("16_fv6cu")
 ZoneOnSound = ExtResource("16_2ofvg")
 ZoneOffSound = ExtResource("17_fv6cu")
-MenuHighlightSound = ExtResource("11_npakb")
 PathTileSet = ExtResource("4_yu7ov")
 PathTilesSourceId = 1
 PathTerrainSet = 1
@@ -355,10 +354,12 @@ Size = Vector2(16, 16)
 [node name="StandBehavior" parent="LevelManager/Ally/Ally" instance=ExtResource("16_6hgq8")]
 AttackInRange = true
 
-[node name="DemoEventController" parent="." node_paths=PackedStringArray("Grid", "UserInterface", "Success", "Failure") instance=ExtResource("24_c7alg")]
+[node name="DemoEventController" parent="." node_paths=PackedStringArray("Grid", "UserInterface", "PauseOverlay", "Success", "Failure") instance=ExtResource("24_c7alg")]
+process_mode = 3
 Grid = NodePath("../LevelManager/Grid")
 UserInterface = NodePath("../CanvasLayer")
 GameOverScreen = "uid://dx3e15oktmll8"
+PauseOverlay = NodePath("../CanvasLayer/PauseOverlay")
 MenuHighlightSound = ExtResource("11_npakb")
 Success = NodePath("SuccessObjective")
 Failure = NodePath("FailureObjective")
@@ -482,9 +483,75 @@ theme = ExtResource("35_dxofe")
 button_pressed = true
 text = "Use Combat Scene"
 
+[node name="PauseOverlay" type="Control" parent="CanvasLayer"]
+process_mode = 2
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dimmer" type="ColorRect" parent="CanvasLayer/PauseOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.25)
+
+[node name="Buttons" type="VBoxContainer" parent="CanvasLayer/PauseOverlay"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="QuitButton" type="Button" parent="CanvasLayer/PauseOverlay/Buttons"]
+layout_mode = 2
+focus_neighbor_left = NodePath("../ResumeButton")
+focus_neighbor_top = NodePath("../ResumeButton")
+focus_neighbor_right = NodePath("../RestartButton")
+focus_neighbor_bottom = NodePath("../RestartButton")
+focus_next = NodePath("../RestartButton")
+focus_previous = NodePath("../ResumeButton")
+text = "Quit Game"
+
+[node name="RestartButton" type="Button" parent="CanvasLayer/PauseOverlay/Buttons"]
+layout_mode = 2
+focus_neighbor_left = NodePath("../QuitButton")
+focus_neighbor_top = NodePath("../QuitButton")
+focus_neighbor_right = NodePath("../ResumeButton")
+focus_neighbor_bottom = NodePath("../ResumeButton")
+focus_next = NodePath("../ResumeButton")
+focus_previous = NodePath("../QuitButton")
+text = "Restart Game"
+
+[node name="ResumeButton" type="Button" parent="CanvasLayer/PauseOverlay/Buttons"]
+layout_mode = 2
+focus_neighbor_left = NodePath("../RestartButton")
+focus_neighbor_top = NodePath("../RestartButton")
+focus_neighbor_right = NodePath("../QuitButton")
+focus_neighbor_bottom = NodePath("../QuitButton")
+focus_next = NodePath("../QuitButton")
+focus_previous = NodePath("../RestartButton")
+text = "Resume"
+
 [connection signal="child_entered_tree" from="LevelManager/Player" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="EnabledInputActionsUpdated" from="LevelManager/Player/PlayerController" to="." method="OnEnabledInputActionsUpdated"]
 [connection signal="child_entered_tree" from="LevelManager/Enemy1" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Enemy2" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Ally" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="toggled" from="CanvasLayer/CombatToggle" to="." method="OnCombatSceneToggled"]
+[connection signal="pressed" from="CanvasLayer/PauseOverlay/Buttons/QuitButton" to="DemoEventController" method="OnQuitGamePressed"]
+[connection signal="pressed" from="CanvasLayer/PauseOverlay/Buttons/RestartButton" to="DemoEventController" method="OnRestartGamePressed"]
+[connection signal="pressed" from="CanvasLayer/PauseOverlay/Buttons/ResumeButton" to="DemoEventController" method="OnResumePressed"]

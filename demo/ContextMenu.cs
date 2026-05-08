@@ -222,8 +222,10 @@ public partial class ContextMenu : PanelContainer
                 };
                 _items[_options[index]].Pressed += () => {
                     EmitSignal(SignalName.ItemSelected, _options[index]);
-                    QueueFree();
-                    EmitSignal(SignalName.MenuClosed);
+                    Callable.From(() => {
+                        EmitSignal(SignalName.MenuClosed);
+                        QueueFree();
+                    }).CallDeferred();
                 };
 
                 _items[_options[index]].MouseEntered += () => {

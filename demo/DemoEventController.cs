@@ -19,6 +19,9 @@ public partial class DemoEventController : EventController
 {
     private ContextMenu _menu = null;
     private Vector2I _menuCell = -Vector2I.One;
+    private IEnumerable<NamedAction> _menuOptions = null;
+    private Action _menuCanceled = null;
+    private Action _menuFinally = null;
 
     private Vector2 MenuPosition(Rect2 rect, Vector2 size)
     {
@@ -33,6 +36,7 @@ public partial class DemoEventController : EventController
     [Export] public Grid Grid = null;
     [Export] public CanvasLayer UserInterface = null;
     [Export(PropertyHint.File, "*.tscn")] public string GameOverScreen = null;
+    [Export] public Control PauseOverlay = null;
     [Export] public AudioStream MenuHighlightSound = null;
 
     public async void OnObjectiveCompleted(bool success)
@@ -51,21 +55,38 @@ public partial class DemoEventController : EventController
 
     public void OnMenuShown(Vector2I cell, IEnumerable<NamedAction> options, Action canceled, Action @finally)
     {
-        // If the cell where the menu is being brought up is empty, assume it's the system menu and not the command menu
-        if (!Grid.Data.Occupants.ContainsKey(cell))
-            options = options.Append(new() { Name = "Quit Game", Action = () => GetTree().Quit() });
+        void OnMenuClosed()
+        {
+            GD.Print("close");
+            _menu = null;
+            _menuCell = -Vector2I.One;
+            _menuOptions = null;
+            _menuCanceled = null;
+            _menuFinally = null;
+            @finally();
+        }
 
         _menuCell = cell;
+        _menuOptions = options;
+        _menuCanceled = canceled;
+        _menuFinally = @finally;
+
+        // If the cell where the menu is being brought up is empty, assume it's the system menu and not the command menu
+        if (!Grid.Data.Occupants.ContainsKey(cell))
+        {
+            options = options.Append(new() { Name = "Pause", Action = () => {
+                GD.Print("action");
+                _menu.MenuClosed -= OnMenuClosed;
+                _menu = null;
+                OnPause();
+            }});
+        }
         _menu = ContextMenu.Instantiate(options, MenuHighlightSound, cancel:"Cancel");
         _menu.Wrap = true;
         UserInterface.AddChild(_menu);
         _menu.Visible = false;
         _menu.MenuCanceled += () => canceled();
-        _menu.MenuClosed += () => {
-            _menu = null;
-            _menuCell = -Vector2I.One;
-            @finally();
-        };
+        _menu.MenuClosed += OnMenuClosed;
 
         Callable.From<ContextMenu, Rect2>((m, r) => {
             m.Visible = true;
@@ -73,6 +94,24 @@ public partial class DemoEventController : EventController
                 m.GrabFocus();
             m.Position = MenuPosition(r, m.Size);
         }).CallDeferred(_menu, Grid.CellRect(cell));
+    }
+
+    public void OnPause()
+    {
+        GetTree().Paused = true;
+        PauseOverlay.Visible = true;
+    }
+
+    public void OnQuitGamePressed() => GetTree().Quit();
+
+    public void OnRestartGamePressed() => GetTree().ReloadCurrentScene();
+
+    public void OnResumePressed()
+    {
+        PauseOverlay.Visible = false;
+        GetTree().Paused = false;
+        if (_menuCell != -Vector2I.One)
+            OnMenuShown(_menuCell, _menuOptions, _menuCanceled, _menuFinally);
     }
 
     public override void _EnterTree()
@@ -92,6 +131,18 @@ public partial class DemoEventController : EventController
         base._Process(delta);
         if (_menu is not null)
             _menu.Position = MenuPosition(Grid.CellRect(_menuCell), _menu.Size);
+    }
+
+    public override void _Input(InputEvent @event)
+    {
+        base._Input(@event);
+        if (@event.IsActionPressed(InputManager.Pause))
+        {
+            if (GetTree().Paused)
+                OnResumePressed();
+            else
+                OnPause();
+        }
     }
 
     public override void _ExitTree()
