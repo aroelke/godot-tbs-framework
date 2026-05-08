@@ -1,5 +1,6 @@
 using System.Linq;
 using Godot;
+using TbsFramework.Scenes;
 using TbsFramework.UI.Controls.Device;
 
 public partial class DemoPauseOverlay : Control
@@ -11,6 +12,8 @@ public partial class DemoPauseOverlay : Control
     private int _selected = 0;
     private Button[] _buttons = null;
 
+    [Export(PropertyHint.File, "*.tscn")] public string RestartTarget = null;
+
     public void Pause()
     {
         GetTree().Paused = true;
@@ -21,7 +24,11 @@ public partial class DemoPauseOverlay : Control
 
     public void OnQuitGamePressed() => GetTree().Quit();
 
-    public void OnRestartGamePressed() => GetTree().ReloadCurrentScene();
+    public void OnRestartGamePressed()
+    {
+        GetTree().Paused = false;
+        SceneManager.CallScene(RestartTarget);
+    }
 
     public void Resume()
     {

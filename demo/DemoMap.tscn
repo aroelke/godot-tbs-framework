@@ -485,6 +485,7 @@ text = "Use Combat Scene"
 
 [node name="PauseOverlay" parent="CanvasLayer" instance=ExtResource("49_b5lsw")]
 visible = false
+RestartTarget = "uid://dq2q8b0axoftt"
 
 [connection signal="child_entered_tree" from="LevelManager/Player" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="EnabledInputActionsUpdated" from="LevelManager/Player/PlayerController" to="." method="OnEnabledInputActionsUpdated"]
