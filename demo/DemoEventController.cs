@@ -124,6 +124,10 @@ public partial class DemoEventController : EventController
         base._Input(@event);
         if (@event.IsActionPressed(InputManager.Pause))
         {
+            // If there's a menu, delete it, making sure it doesn't signal being closed, so restoring it on return from the pause screen doesn't create a double
+            _menu?.QueueFree();
+            _menu = null;
+
             PauseOverlay.Pause();
             GetViewport().SetInputAsHandled();
         }
