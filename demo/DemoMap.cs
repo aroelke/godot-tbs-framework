@@ -11,6 +11,8 @@ namespace TbsFramework.Demo;
 /// <summary>Script for the demo map that controls events outside level progression, suc as UI updates.</summary>
 public partial class DemoMap : Node
 {
+    private CheckBox CombatToggle = null;
+
     [Export] public Texture2D MouseCursor = null;
 
     public void OnTurnBegan(int turn, Faction faction)
@@ -32,6 +34,10 @@ public partial class DemoMap : Node
 
     public void OnCombatSceneToggled(bool enable) => GetNode<LevelManager>("LevelManager").PlayCombatOnMap = !enable;
 
+    public void OnPause() => CombatToggle.Visible = true;
+
+    public void OnResume() => CombatToggle.Visible = false;
+
     public override void _EnterTree()
     {
         base._EnterTree();
@@ -52,7 +58,7 @@ public partial class DemoMap : Node
         if (!Engine.IsEditorHint())
         {
             Input.SetCustomMouseCursor(MouseCursor);
-            OnCombatSceneToggled(GetNode<CheckBox>("CanvasLayer/CombatToggle").ButtonPressed);
+            OnCombatSceneToggled((CombatToggle = GetNode<CheckBox>("CanvasLayer/PauseOverlay/CombatToggle")).ButtonPressed);
         }
     }
 }
