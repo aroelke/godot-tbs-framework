@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://didkiflqabwl4"]
+[gd_scene load_steps=10 format=3 uid="uid://didkiflqabwl4"]
 
 [ext_resource type="Script" uid="uid://b0772nvd2y455" path="res://demo/DemoCombatScene.cs" id="1_82dh7"]
 [ext_resource type="Theme" uid="uid://by6euruicgqv" path="res://demo/assets/ui/ui.tres" id="3_0swfn"]
@@ -8,9 +8,11 @@
 [ext_resource type="Resource" uid="uid://cu80svtcky350" path="res://demo/assets/ui/input/icons/icon_map_mouse.tres" id="6_n24vd"]
 [ext_resource type="Resource" uid="uid://scrs41kvnxyt" path="res://demo/assets/ui/input/icons/icon_map_keyboard.tres" id="7_fivgk"]
 [ext_resource type="Resource" uid="uid://bovrp7fmo4rn5" path="res://demo/assets/ui/input/icons/icon_map_button.tres" id="8_bd46v"]
+[ext_resource type="PackedScene" uid="uid://c2sogymeaqvpw" path="res://demo/DemoPauseOverlay.tscn" id="9_fivgk"]
 
-[node name="DemoCombatScene" type="Node"]
+[node name="DemoCombatScene" type="Node" node_paths=PackedStringArray("PauseOverlay")]
 script = ExtResource("1_82dh7")
+PauseOverlay = NodePath("CanvasLayer/PauseOverlay")
 
 [node name="Camera" parent="." instance=ExtResource("3_jlc87")]
 Limits = Rect2i(0, 0, 320, 240)
@@ -100,6 +102,10 @@ MouseMap = ExtResource("6_n24vd")
 KeyMap = ExtResource("7_fivgk")
 GamepadButtonIconMap = ExtResource("8_bd46v")
 Action = &"skip"
+
+[node name="PauseOverlay" parent="CanvasLayer" instance=ExtResource("9_fivgk")]
+visible = false
+RestartTarget = "uid://dq2q8b0axoftt"
 
 [node name="TransitionDelay" type="Timer" parent="."]
 wait_time = 0.9
