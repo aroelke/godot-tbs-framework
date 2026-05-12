@@ -9,7 +9,9 @@ namespace TbsFramework.Scenes.Level.Events;
 /// <summary>
 /// Object controlling scriptable aspects of a level.  Interacts with the <see cref="LevelManager"/> to advance the state of the level and handles
 /// objectives. Each event has an overridable method like <see cref="Node"/> does, which starts with an underscore for consistency with <see cref="Node"/>'s
-/// ones.
+/// ones. Make sure to signal that the event is complete by calling <see cref="LevelEvents.EventComplete"/> to continue with the turn. Note also that
+/// the event methods are called using <see cref="Callable.CallDeferred(Variant[])"/> so that any other objects listening for the event can perform
+/// their actions before the event controller signals the end of the event.
 /// </summary>
 public partial class EventController : Node
 {
@@ -47,25 +49,25 @@ public partial class EventController : Node
             LevelEvents.EventComplete();
     }
 
-    /// <summary>
-    /// Event to perform before an army's turn begins. By default, evaluates the objectives and signals to start the turn if not success or failure.
-    /// Overriding classes should signal <c>EventComplete</c> when they're ready for the turn to begin.
-    /// </summary>
+    /// <summary>Event to perform before an army's turn begins. By default, evaluates the objectives and signals to start the turn if not success or failure.</summary>
     /// <param name="turn">Turn number that's about to begin.</param>
     /// <param name="faction">Faction that's about to begin its turn.</param>
     public virtual void _TurnBegan (int turn, Faction faction) => SkipEvent();
-    public         void OnTurnBegan(int turn, Faction Faction) => _TurnBegan(turn, Faction);
+    public         void OnTurnBegan(int turn, Faction Faction) => Callable.From(() => _TurnBegan(turn, Faction)).CallDeferred();
 
     /// <summary>
     /// Event to perform just after a unit ends its action. By default, evaluates the objectives and signals to continue to the next action if not success
-    /// or failure. Overriding classes should signal <c>EventComplete</c> when they're ready for the turn to end.
+    /// or failure.
     /// </summary>
     /// <param name="unit">Unit that just acted.</param>
     public virtual void _ActionEnded (UnitData unit) => SkipEvent();
-    public         void OnActionEnded(UnitData unit) => _ActionEnded(unit);
+    public         void OnActionEnded(UnitData unit) => Callable.From(() => _ActionEnded(unit)).CallDeferred();
 
+    /// <summary>Event to perform before an army's turn ends. By default, evaluates the objectives and signals to end the turn if not success or failure.</summary>
+    /// <param name="turn">Turn number that's about to begin.</param>
+    /// <param name="faction">Faction that's about to begin its turn.</param>
     public virtual void _TurnEnded (int turn, Faction faction) => SkipEvent();
-    public         void OnTurnEnded(int turn, Faction faction) => _TurnEnded(turn, faction);
+    public         void OnTurnEnded(int turn, Faction faction) => Callable.From(() => _TurnEnded(turn, faction)).CallDeferred();
 
     public override void _EnterTree()
     {

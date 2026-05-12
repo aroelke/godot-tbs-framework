@@ -365,10 +365,10 @@ public partial class LevelManager : Node
     {
         _armies.Current.Controller.FinalizeAction();
         _selected.Active = false;
-        State.SetVariable(ActiveProperty, ((IEnumerable<Unit>)_armies.Current).Count(static (u) => u.UnitData.Active));
+        State.SetVariable(ActiveProperty, _armies.Current.Count(static (u) => u.UnitData.Active));
 
         UnitData selected = _selected;
-        Callable.From(() => LevelEvents.EndAction(selected)).CallDeferred();
+        LevelEvents.EndAction(selected);
     }
 
     /// <summary>Clean up at the end of the unit's turn.</summary>
@@ -396,7 +396,7 @@ public partial class LevelManager : Node
         {
             if (_armies.MoveNext() && _armies.Current == StartingArmy)
                 Turn++;
-        } while (!((IEnumerable<Unit>)_armies.Current).Any());
+        } while (!_armies.Current.Any());
     }
 #endregion
 #region State Independent
