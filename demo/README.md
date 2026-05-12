@@ -36,3 +36,9 @@ themselves.
 - Select: space bar/south button (Xbox A, Playstation X, etc.)/left click
 - Cancel/skip movement or CPU turn: Escape/east button (Xbox B, Playstation Circle, etc.)/right click
 - Toggle danger zone: C/north button (Xbox Y Playstation Triangle, etc.)/middle click
+- Pause: tab/start button (also in the context menu for an empty space)
+## Additional Controls
+- Zoom in or out: page up or down/right analog stick up or down/mouse wheel up or down
+- Go to previous or next unit: q or e/left or right shoulder (Xbox LB or RB, Playstation L1 or R1, etc.)
+- Increase pointer speed: hold right trigger (Xbox RT, Playstation R2, etc.)
+- Move cursor to edge of region: ctrl/hold right trigger + arrow keys/dpad
