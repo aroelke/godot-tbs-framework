@@ -1,4 +1,4 @@
-[gd_scene load_steps=49 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=50 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsFramework/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="Script" uid="uid://c2joupgp3ohcx" path="res://demo/DemoMap.cs" id="1_npakb"]
@@ -48,6 +48,7 @@
 [ext_resource type="Resource" uid="uid://bovrp7fmo4rn5" path="res://demo/assets/ui/input/icons/icon_map_button.tres" id="37_dxofe"]
 [ext_resource type="Resource" uid="uid://3nkmext8ildv" path="res://demo/assets/ui/input/icons/icon_map_axis.tres" id="38_v621i"]
 [ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/TbsFramework/UI/HUD/ControlHint.tscn" id="39_mogvl"]
+[ext_resource type="PackedScene" uid="uid://c2sogymeaqvpw" path="res://demo/DemoPauseOverlay.tscn" id="49_b5lsw"]
 
 [node name="DemoMap" type="Node"]
 script = ExtResource("1_npakb")
@@ -106,7 +107,6 @@ CancelSound = ExtResource("15_1yav4")
 ErrorSound = ExtResource("16_fv6cu")
 ZoneOnSound = ExtResource("16_2ofvg")
 ZoneOffSound = ExtResource("17_fv6cu")
-MenuHighlightSound = ExtResource("11_npakb")
 PathTileSet = ExtResource("4_yu7ov")
 PathTilesSourceId = 1
 PathTerrainSet = 1
@@ -355,10 +355,11 @@ Size = Vector2(16, 16)
 [node name="StandBehavior" parent="LevelManager/Ally/Ally" instance=ExtResource("16_6hgq8")]
 AttackInRange = true
 
-[node name="DemoEventController" parent="." node_paths=PackedStringArray("Grid", "UserInterface", "Success", "Failure") instance=ExtResource("24_c7alg")]
+[node name="DemoEventController" parent="." node_paths=PackedStringArray("Grid", "UserInterface", "PauseOverlay", "Success", "Failure") instance=ExtResource("24_c7alg")]
 Grid = NodePath("../LevelManager/Grid")
 UserInterface = NodePath("../CanvasLayer")
 GameOverScreen = "uid://dx3e15oktmll8"
+PauseOverlay = NodePath("../CanvasLayer/PauseOverlay")
 MenuHighlightSound = ExtResource("11_npakb")
 Success = NodePath("SuccessObjective")
 Failure = NodePath("FailureObjective")
@@ -465,13 +466,19 @@ KeyMap = ExtResource("36_npakb")
 GamepadButtonIconMap = ExtResource("37_dxofe")
 Action = &"skip"
 
-[node name="CombatToggle" type="CheckBox" parent="CanvasLayer"]
+[node name="PauseOverlay" parent="CanvasLayer" instance=ExtResource("49_b5lsw")]
+visible = false
+RestartTarget = "uid://dq2q8b0axoftt"
+
+[node name="CombatToggle" type="CheckBox" parent="CanvasLayer/PauseOverlay"]
+visible = false
+layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -94.0
+offset_left = -109.0
 offset_top = -26.0
 offset_right = 27.0
 offset_bottom = 5.0
@@ -487,4 +494,7 @@ text = "Use Combat Scene"
 [connection signal="child_entered_tree" from="LevelManager/Enemy1" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Enemy2" to="LevelManager" method="OnChildEnteredGroup"]
 [connection signal="child_entered_tree" from="LevelManager/Ally" to="LevelManager" method="OnChildEnteredGroup"]
-[connection signal="toggled" from="CanvasLayer/CombatToggle" to="." method="OnCombatSceneToggled"]
+[connection signal="GamePaused" from="CanvasLayer/PauseOverlay" to="." method="OnPause"]
+[connection signal="GameResumed" from="CanvasLayer/PauseOverlay" to="." method="OnResume"]
+[connection signal="GameResumed" from="CanvasLayer/PauseOverlay" to="DemoEventController" method="OnResume"]
+[connection signal="toggled" from="CanvasLayer/PauseOverlay/CombatToggle" to="." method="OnCombatSceneToggled"]

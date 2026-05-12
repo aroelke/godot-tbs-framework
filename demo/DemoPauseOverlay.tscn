@@ -1,0 +1,43 @@
+[gd_scene load_steps=5 format=3 uid="uid://c2sogymeaqvpw"]
+
+[ext_resource type="Script" uid="uid://dsmssfwlkkecq" path="res://demo/DemoPauseOverlay.cs" id="1_obbft"]
+[ext_resource type="AudioStream" uid="uid://cw083osbudnfr" path="res://demo/assets/ui/sounds/cursor_move.ogg" id="3_2ryhe"]
+[ext_resource type="PackedScene" uid="uid://cxa8uah4pn4fg" path="res://demo/ContextMenu.tscn" id="3_g72rc"]
+[ext_resource type="AudioStream" uid="uid://chh5seatf8dr3" path="res://demo/assets/ui/sounds/select.ogg" id="4_g72rc"]
+
+[node name="PauseOverlay" type="Control"]
+process_mode = 2
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_obbft")
+
+[node name="Dimmer" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.25)
+
+[node name="Menu" parent="." instance=ExtResource("3_g72rc")]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+Options = [&"Quit Game", &"Restart Game", &"Resume"]
+HighlightSound = ExtResource("3_2ryhe")
+Persistent = true
+
+[node name="SelectSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_g72rc")
+
+[connection signal="ItemSelected" from="Menu" to="." method="OnMenuItemSelected"]

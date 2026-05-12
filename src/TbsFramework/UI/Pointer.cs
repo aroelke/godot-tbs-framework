@@ -261,14 +261,16 @@ public partial class Pointer : BoundedNode2D
     public void OnMouseEntered(Vector2 position)
     {
         _inWindow = true;
-        Move(ViewportToWorld(position));
+        if (!GetTree().Paused)
+            Move(ViewportToWorld(position));
     }
 
     /// <summary>When the mouse exits the <see cref="Viewport"/> , warp to edge of the <see cref="Viewport"/> near where it exited.</summary>
     /// <param name="position">Position on <see cref="Viewport"/> close to where the mouse exited.</param>
     public void OnMouseExited(Vector2 position)
     {
-        Move(ViewportToWorld(position));
+        if (!GetTree().Paused)
+            Move(ViewportToWorld(position));
         _inWindow = false;
     }
 

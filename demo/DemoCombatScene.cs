@@ -50,6 +50,8 @@ public partial class DemoCombatScene : CombatController
     /// <summary>Magnitude of the camera shake when an attack connects.</summary>
     [Export] public double CameraShakeHitTrauma = 0.2;
 
+    [Export] public DemoPauseOverlay PauseOverlay = null;
+
     public DemoCombatScene() : base() { _cache = new(this); }
 
     public override void Initialize(UnitData left, UnitData right, IImmutableList<CombatAction> actions)
@@ -153,8 +155,14 @@ public partial class DemoCombatScene : CombatController
     public override void _Input(InputEvent @event)
     {
         base._Input(@event);
+
         if (@event.IsActionPressed(InputManager.Cancel))
             End();
+        else if (@event.IsActionPressed(InputManager.Pause))
+        {
+            PauseOverlay.Pause();
+            GetViewport().SetInputAsHandled();
+        }
     }
 
     public override void _Process(double delta)

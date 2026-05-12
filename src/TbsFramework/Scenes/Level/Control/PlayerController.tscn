@@ -187,7 +187,6 @@ Event = &"finish"
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnPathFinished"]
 [connection signal="Taken" from="State/Root/Active/Path/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="StateEntered" from="State/Root/Active/Command" to="." method="OnCommandEntered"]
-[connection signal="Taken" from="State/Root/Active/Command/ToReadyOnCancel" to="." method="OnCancel"]
 [connection signal="Taken" from="State/Root/Active/Command/ToReadyOnFinish" to="." method="OnFinish"]
 [connection signal="StateEntered" from="State/Root/Active/Target" to="." method="OnTargetEntered"]
 [connection signal="StateExited" from="State/Root/Active/Target" to="." method="OnTargetExited"]
