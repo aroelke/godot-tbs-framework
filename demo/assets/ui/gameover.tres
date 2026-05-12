@@ -1,0 +1,7 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://btua6kyja4lnh"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_pr44i"]
+
+[resource]
+Button/font_sizes/font_size = 50
+PanelContainer/styles/panel = SubResource("StyleBoxEmpty_pr44i")
