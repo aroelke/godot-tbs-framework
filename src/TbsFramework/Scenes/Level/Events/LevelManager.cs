@@ -379,7 +379,24 @@ public partial class LevelManager : Node
     }
 #endregion
 #region End Turn State
-    public void Turnover() => Callable.From<int, Faction>(LevelEvents.EndTurn).CallDeferred(Turn, _armies.Current.Faction);
+    Army ended = null;
+
+    public void Turnover()
+    {
+        int turn = Turn;
+        ended = _armies.Current;
+
+        foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
+            unit.UnitData.Active = true;
+
+        do
+        {
+            if (_armies.MoveNext() && _armies.Current == StartingArmy)
+                State.SetVariable(TurnoverProperty, true);
+        } while (!_armies.Current.Any());
+
+        LevelEvents.EndTurn(turn, ended.Faction);
+    }
 
     /// <summary>After a delay, signal that the turn is ending and wait for a response.</summary>
     public void OnEndTurnEntered() => TurnAdvance.Start();
@@ -388,16 +405,20 @@ public partial class LevelManager : Node
     public void OnEndTurnExited()
     {
         _ff = false;
-        _armies.Current.Controller.FinalizeTurn();
+        ended.Controller.FinalizeTurn();
+        ended = null;
+    }
+#endregion
+#region End Round State
+    public void OnRoundEndEntered()
+    {
+        Callable.From(() => State.SendEvent(DoneEvent)).CallDeferred();
+    }
 
-        foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
-            unit.UnitData.Active = true;
-
-        do
-        {
-            if (_armies.MoveNext() && _armies.Current == StartingArmy)
-                Turn++;
-        } while (!_armies.Current.Any());
+    public void OnRoundEndExited()
+    {
+        State.SetVariable(TurnoverProperty, false);
+        Turn++;
     }
 #endregion
 #region State Independent

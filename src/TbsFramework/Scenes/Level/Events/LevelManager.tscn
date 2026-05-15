@@ -17,7 +17,7 @@
 [ext_resource type="PackedScene" uid="uid://b7i65c130fgfs" path="res://src/TbsFramework/Nodes/StateChart/Reactions/EnterTreeReaction.tscn" id="29_o6hju"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -1567862870
+seed = 1576011400
 
 [sub_resource type="Resource" id="Resource_3lvnu"]
 script = ExtResource("27_kyhbc")
@@ -227,4 +227,6 @@ one_shot = true
 [connection signal="StateExited" from="State/Root/Running/EndAction" to="." method="OnEndActionExited"]
 [connection signal="StateEntered" from="State/Root/Running/EndTurn" to="." method="OnEndTurnEntered"]
 [connection signal="StateExited" from="State/Root/Running/EndTurn" to="." method="OnEndTurnExited"]
+[connection signal="StateEntered" from="State/Root/Running/EndRound" to="." method="OnRoundEndEntered"]
+[connection signal="StateExited" from="State/Root/Running/EndRound" to="." method="OnRoundEndExited"]
 [connection signal="timeout" from="TurnAdvance" to="." method="Turnover"]
