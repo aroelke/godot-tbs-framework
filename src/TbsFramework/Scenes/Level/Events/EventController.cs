@@ -69,6 +69,11 @@ public partial class EventController : Node
     public virtual void _TurnEnded (int turn, Faction faction) => SkipEvent();
     public         void OnTurnEnded(int turn, Faction faction) => Callable.From(() => _TurnEnded(turn, faction)).CallDeferred();
 
+    /// <summary>Event to perform before a round ends. By default, evaluates the objectives and signals to end the round if not success or failure.</summary>
+    /// <param name="round">Round number that's about to end.</param>
+    public virtual void _RoundEnded (int round) => SkipEvent();
+    public         void OnRoundEnded(int round) => Callable.From(() => _RoundEnded(round)).CallDeferred();
+
     public override void _EnterTree()
     {
         base._EnterTree();
@@ -78,6 +83,7 @@ public partial class EventController : Node
             LevelEvents.TurnBegan += OnTurnBegan;
             LevelEvents.ActionEnded += OnActionEnded;
             LevelEvents.TurnEnded += OnTurnEnded;
+            LevelEvents.RoundEnded += OnRoundEnded;
         }
     }
 
@@ -90,6 +96,7 @@ public partial class EventController : Node
             LevelEvents.TurnBegan -= OnTurnBegan;
             LevelEvents.ActionEnded -= OnActionEnded;
             LevelEvents.TurnEnded -= OnTurnEnded;
+            LevelEvents.RoundEnded -= OnRoundEnded;
         }
     }
 }

@@ -383,7 +383,6 @@ public partial class LevelManager : Node
 
     public void Turnover()
     {
-        int turn = Turn;
         ended = _armies.Current;
 
         foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
@@ -395,7 +394,7 @@ public partial class LevelManager : Node
                 State.SetVariable(TurnoverProperty, true);
         } while (!_armies.Current.Any());
 
-        LevelEvents.EndTurn(turn, ended.Faction);
+        LevelEvents.EndTurn(Turn, ended.Faction);
     }
 
     /// <summary>After a delay, signal that the turn is ending and wait for a response.</summary>
@@ -410,10 +409,7 @@ public partial class LevelManager : Node
     }
 #endregion
 #region End Round State
-    public void OnRoundEndEntered()
-    {
-        Callable.From(() => State.SendEvent(DoneEvent)).CallDeferred();
-    }
+    public void OnRoundEndEntered() => LevelEvents.EndRound(Turn);
 
     public void OnRoundEndExited()
     {
