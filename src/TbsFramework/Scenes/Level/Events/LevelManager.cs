@@ -35,6 +35,7 @@ public partial class LevelManager : Node
     // State chart conditions
     private readonly StringName TraversableProperty = "traversable"; // Current cell is traversable
     private readonly StringName ActiveProperty      = "active";      // Number of remaining active units
+    private readonly StringName TurnoverProperty    = "over";        // Advancing armies caused a round turnover
 #endregion
 #region Declarations
     private readonly NodeCache _cache = null;

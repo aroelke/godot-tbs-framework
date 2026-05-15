@@ -16,12 +16,10 @@
 [ext_resource type="PackedScene" uid="uid://b7i65c130fgfs" path="res://src/TbsFramework/Nodes/StateChart/Reactions/EnterTreeReaction.tscn" id="29_o6hju"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_spp7l"]
-seed = -1208260646
+seed = 1583289870
 
 [sub_resource type="Resource" id="Resource_3lvnu"]
 script = ExtResource("27_kyhbc")
-Value = 0
-Comparison = "="
 Number = &"active"
 
 [node name="LevelManager" type="Node"]
@@ -39,6 +37,7 @@ ShakeNoise = SubResource("FastNoiseLite_spp7l")
 Events = [&"select", &"cancel", &"skip", &"wait", &"done"]
 InitialVariableValues = Dictionary[StringName, Variant]({
 &"active": 0,
+&"over": false,
 &"traversable": false
 })
 
