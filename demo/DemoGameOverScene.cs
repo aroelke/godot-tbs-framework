@@ -1,5 +1,6 @@
 using Godot;
 using TbsFramework.Scenes;
+using TbsFramework.UI.Controls.Device;
 
 namespace TbsFramework.Demo;
 
@@ -25,6 +26,9 @@ public partial class DemoGameOverScene : Node
     {
         base._Ready();
         if (!Engine.IsEditorHint())
+        {
+            DeviceManager.EnableSystemMouse = true;
             GetNode<Label>("CanvasLayer/ResultLabel").Text = win ? "You win!" : "You lose...";
+        }
     }
 }
