@@ -236,45 +236,6 @@ src/TbsFramework/
   NamedAction.cs
   namespace.cs
   Pointer.cs
-test/addons/GD_NET_ScOUT/
- Assert.cs
- Dock.cs
- Extensions.cs
- GdNetScout.cs
- MethodResult.cs
- Result.cs
- SceneScout.cs
- ShowHideButton.cs
- test/
-  AssertTest.cs
-  AutoFailTest.cs
-  EmptySceneTest.cs
-  SkippedClassTest.cs
-  TestRunnerTest.cs
- TestAttribute.cs
- TestClass.cs
- TestFunction.cs
- TestLoader.cs
- TestResult.cs
- TestRunner.cs
- TestSceneRunner.cs
-test/
- assets/TestMapAnimations.cs
- math/
-  Collections.cs
-  Extensions.cs
- unit/TbsFramework/
-  MathExt/Collections/CollectionsTestScene.cs
-  Scenes/Data/
-   GridData/GridDataTestScene.cs
-   UnitData/UnitDataTestScene.cs
-  Scenes/Level/Control/AIController/
-   AIControllerScalabilityScene.cs
-   AIControllerTestScene.cs
-  Scenes/Level/Control/Behavior/
-   SwitchBehaviorTestScene.cs
-   SwitchConditionTestScene.cs
-  Scenes/Level/Control/TestAiAction.cs
 
 [metadataReferences]
 <DOTNET>/packs/Microsoft.NETCore.App.Ref/8.0.22/ref/net8.0/
