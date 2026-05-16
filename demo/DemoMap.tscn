@@ -388,8 +388,10 @@ Target = NodePath("../../../LevelManager/Player")
 [node name="DefeatUnitObjective" parent="DemoEventController/FailureObjective" node_paths=PackedStringArray("Target") instance=ExtResource("25_qahj2")]
 Target = NodePath("../../../LevelManager/Ally/Ally")
 
-[node name="TimeObjective" parent="DemoEventController/FailureObjective" instance=ExtResource("30_xri0l")]
+[node name="TimeObjective" parent="DemoEventController/FailureObjective" node_paths=PackedStringArray("Army") instance=ExtResource("30_xri0l")]
 Turns = 5
+Army = NodePath("../../../LevelManager/Ally")
+Trigger = 2
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 

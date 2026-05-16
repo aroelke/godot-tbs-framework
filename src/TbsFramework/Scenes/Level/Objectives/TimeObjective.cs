@@ -8,27 +8,69 @@ namespace TbsFramework.Scenes.Level.Objectives;
 [Tool]
 public partial class TimeObjective : Objective
 {
-    private int _turn = 0;
+    /// <summary>Possible turn events that can trigger the time objective to update and potentially become completed.</summary>
+    public enum TriggerEvent
+    {
+        /// <summary>Trigger at the beginning of the chosen army's first turn after the target turn count has expired.</summary>
+        TurnBegan,
+        /// <summary>Trigger at the end of the chosen army's target turn.</summary>
+        TurnEnded,
+        /// <summary>Trigger at the end of the target round, before any army can take a turn for the next round.</summary>
+        RoundEnded
+    }
 
-    private void OnTurnBegan(int turn, Faction _) => _turn = turn;
+    private int _turn = 0;
 
     /// <summary>Number of turns to elapse before completion.</summary>
     [Export(PropertyHint.Range, "1,10,or_greater")] public int Turns = 0;
 
-    public override bool Complete => _turn > Turns;
+    /// <summary>Army whose turn count is to be tracked. Leave <c>null</c> to track all armies.</summary>
+    [Export] public Army Army = null;
+
+    /// <summary>When to update the turn counter.</summary>
+    [Export] public TriggerEvent Trigger = TriggerEvent.TurnBegan;
+
+    public override bool Complete => Trigger switch {
+        TriggerEvent.TurnBegan  => _turn > Turns,
+        TriggerEvent.TurnEnded  => _turn >= Turns,
+        TriggerEvent.RoundEnded => _turn >= Turns,
+        _ => false
+    };
     public override string Description => $"Survive {Turns} Turns";
+
+    /// <summary>Update the turn count if it's the right event for the right army's turn.</summary>
+    /// <param name="turn">Turn to update to.</param>
+    /// <param name="faction">Faction whose turn it should be to update.</param>
+    /// <param name="trigger">Turn event to update the turn count on.</param>
+    public void UpdateTurnCount(int turn, Faction faction, TriggerEvent trigger)
+    {
+        if (Trigger == trigger && (Army is null || faction is null || Army.Faction == faction))
+            _turn = turn;
+    }
+
+    public void OnTurnBegan(int turn, Faction faction) => UpdateTurnCount(turn,  faction, TriggerEvent.TurnBegan);
+    public void OnTurnEnded(int turn, Faction faction) => UpdateTurnCount(turn,  faction, TriggerEvent.TurnEnded);
+    public void OnRoundEnded(int round)                => UpdateTurnCount(round, null,    TriggerEvent.RoundEnded);
 
     public override void _EnterTree()
     {
         base._EnterTree();
         if (!Engine.IsEditorHint())
-            LevelEvents.TurnBegan += OnTurnBegan;
+        {
+            LevelEvents.TurnBegan  += OnTurnBegan;
+            LevelEvents.TurnEnded  += OnTurnEnded;
+            LevelEvents.RoundEnded += OnRoundEnded;
+        }
     }
 
     public override void _ExitTree()
     {
         base._ExitTree();
         if (!Engine.IsEditorHint())
-            LevelEvents.TurnBegan -= OnTurnBegan;
+        {
+            LevelEvents.TurnBegan  -= OnTurnBegan;
+            LevelEvents.TurnEnded  -= OnTurnEnded;
+            LevelEvents.RoundEnded -= OnRoundEnded;
+        }
     }
 }

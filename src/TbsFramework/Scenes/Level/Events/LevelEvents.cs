@@ -28,6 +28,9 @@ public partial class LevelEvents : Node
     /// <summary>Signals that an army's turn has ended.</summary>
     public static event TurnPhaseEventHandler TurnEnded;
 
+    /// <summary>Signals that a round has ended.</summary>
+    public static event Action<int> RoundEnded;
+
     /// <summary>Signals that the region on the map the camera is allowed to see has been updated.</summary>
     public static event Action<Rect2I> CameraBoundsUpdated;
 
@@ -45,6 +48,9 @@ public partial class LevelEvents : Node
 
     /// <summary>Signal that the turn has ended for a faction.</summary>
     public static void EndTurn(int turn, Faction faction) { if (TurnEnded is not null) TurnEnded(turn, faction); }
+
+    /// <summary>Signal that the round has ended.</summary>
+    public static void EndRound(int round) { if (RoundEnded is not null) RoundEnded(round); }
 
     /// <summary>Signal that the camera bounds on the map have been updated.</summary>
     public static void UpdateCameraBounds(Rect2I bounds) { if (CameraBoundsUpdated is not null) CameraBoundsUpdated(bounds); }
