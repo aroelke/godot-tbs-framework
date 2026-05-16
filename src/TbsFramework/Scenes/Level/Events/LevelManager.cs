@@ -108,8 +108,11 @@ public partial class LevelManager : Node
 #endregion
 #region Idle State
     /// <summary>Update the UI when re-entering idle.</summary>
-    public void OnIdleEntered() => Callable.From(_armies.Current.Controller.SelectUnit).CallDeferred();
+    public void OnIdleEntered() => _armies.Current.Controller.SelectUnit();
 
+    /// <summary>When a unit is selected, move to the next state (choosing its destination).</summary>
+    /// <param name="cell">Cell containing hte selected unit.</param>
+    /// <exception cref="InvalidOperationException">If the cell doesn't contain an active unit of the current turn's army's faction.</exception>
     public void OnIdleUnitSelected(Vector2I cell)
     {
         _selected = _grid.Occupants[cell];
@@ -141,20 +144,16 @@ public partial class LevelManager : Node
         _armies.Current.Controller.MoveUnit(_selected);
     }
 
-    public void OnSelectedUnitCommanded(Vector2I cell, StringName command)
-    {
-        if (_grid.Occupants[cell] != _selected)
-            throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        _command = command;
-    }
-
-    public void OnSelectedTargetChosen(Vector2I source, Vector2I target)
-    {
-        if (_grid.Occupants[source] != _selected)
-            throw new InvalidOperationException($"Cannot choose action target for unselected unit at {source} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        _target = _grid.Occupants[target];
-    }
-
+    /// <summary>
+    /// Store the path chosen for the selected unit to move along, then go to the next state (path movement). If fast-forwarding, just send the unit to
+    /// its destination.
+    /// </summary>
+    /// <param name="cell">Cell containing the unit to move.</param>
+    /// <param name="path">Path along which the unit should move</param>
+    /// <exception cref="InvalidOperationException">
+    /// If <paramref name="cell"/> doesn't contain the selected unit, any element of <paramref name="path"/> is not traversable by the selected unit, or
+    /// the last element of <paramref name="path"/> is occupied (units can pass through other allied units).
+    /// </exception>
     public void OnSelectedPathConfirmed(Vector2I cell, Godot.Collections.Array<Vector2I> path)
     {
         UnitData unit = _grid.Occupants[cell];
@@ -178,6 +177,7 @@ public partial class LevelManager : Node
         }
     }
 
+    /// <summary>When selection is canceled, revert stored data.</summary>
     public void OnSelectedCanceled()
     {
         _initialCell = null;
@@ -185,17 +185,45 @@ public partial class LevelManager : Node
         _selected = null;
     }
 
+    /// <summary>Clean up after finishing destination decision.</summary>
     public void OnSelectedExited()
     {
         // Restore the camera zoom back to what it was before a unit was selected
         if (Camera.HasZoomMemory())
             Camera.PopZoom();
     }
+
+    /*
+     * It is possible to directly command a unit while choosing its destination by selecting a valid target at that time. When this happens, the selected
+     * will move to the cell at the end of the arrow and perform the action corresponding to the target, bypassing command and target selection states.
+     */
+
+    /// <summary>Store the command corresponding to the target chosen while selecting movement destination.</summary>
+    /// <param name="cell">Cell containing the unit to perform the command.</param>
+    /// <param name="command">Command to perform.</param>
+    /// <exception cref="InvalidOperationException">If <paramref name="cell"/> doesn't contain the selected unit.</exception>
+    public void OnSelectedUnitCommanded(Vector2I cell, StringName command)
+    {
+        if (_grid.Occupants[cell] != _selected)
+            throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
+        _command = command;
+    }
+
+    /// <summary>Store the unit at the cell containing the target for the action chosen while selecting movement destination.</summary>
+    /// <param name="source">Cell containing the unit to perform the action.</param>
+    /// <param name="target">Cell containing the target of the action.</param>
+    /// <exception cref="InvalidOperationException">If <paramref name="source"/> doesn't contain the selected unit.</exception>
+    public void OnSelectedTargetChosen(Vector2I source, Vector2I target)
+    {
+        if (_grid.Occupants[source] != _selected)
+            throw new InvalidOperationException($"Cannot choose action target for unselected unit at {source} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
+        _target = _grid.Occupants[target];
+    }
 #endregion
 #region Moving State
     private Vector4 _prevDeadzone = Vector4.Zero;
 
-    /// <summary>Begin moving the selected <see cref="Unit"/> and then wait for it to finish moving.</summary>
+    /// <summary>Begin moving the selected unit and wait for it to finish moving.</summary>
     public void OnMovingEntered()
     {
         // Track the unit as it's moving
@@ -220,6 +248,10 @@ public partial class LevelManager : Node
     private List<NamedAction> _options = [];
     private IEnumerable<Vector2I> _targets = [];
 
+    /// <summary>
+    /// Tell the current army controller what valid commands are available and the actions that correspond to them. Then wait for it to make
+    /// a selection.
+    /// </summary>
     public void OnCommandingEntered()
     {
         _targets = [];
@@ -252,6 +284,11 @@ public partial class LevelManager : Node
         _armies.Current.Controller.CommandUnit(_selected, [.. _options.Select(static (o) => o.Name)], CancelCommand);
     }
 
+    /// <summary>Initiate the command chosen by the selected unit.  See <see cref="OnCommandingEntered"/> for effects of commands.</summary>
+    /// <param name="cell">Cell containing the unit being commanded.</param>
+    /// <param name="command">Name of the command to perform.</param>
+    /// <exception cref="InvalidOperationException">If <paramref name="cell"/> does not contain the selected unit.</exception>
+    /// <exception cref="ArgumentException">If <paramref name="command"/> is not a recognized command or <see cref="CancelCommand"/></exception>
     public void OnCommandingUnitCommanded(Vector2I cell, StringName command)
     {
         if (_grid.Occupants[cell] != _selected)
@@ -272,7 +309,7 @@ public partial class LevelManager : Node
         throw new ArgumentException($"Unknown command {command}");
     }
 
-    /// <summary>Move the selected <see cref="Unit"/> and <see cref="Cursor"/> back to the cell the unit was at before it moved.</summary>
+    /// <summary>Go back to selecting a destination, moving the selected unit and cursor back the unit's original cell.</summary>
     public void OnCommandingCanceled()
     {
         _command = null;
@@ -282,17 +319,18 @@ public partial class LevelManager : Node
 
         _target = null;
     }
-
-    public void OnTurnEndCommand() => _target = null;
 #endregion
 #region Targeting State
     private List<CombatAction> _combatResults = null;
 
-    public void OnTargetingEntered()
-    {
-        _armies.Current.Controller.SelectTarget(_selected, _targets);
-    }
+    /// <summary>Instruct the current army's controller to choose a target for its action.</summary>
+    public void OnTargetingEntered() => _armies.Current.Controller.SelectTarget(_selected, _targets);
 
+    /// <summary>Save the chosen target and then begin combat.</summary>
+    /// <param name="source">Cell containing the unit that is performing the action.</param>
+    /// <param name="target">Cell containing the unit that is the target of the action.</param>
+    /// <exception cref="InvalidOperationException">If <paramref name="source"/> doesn't contain the selected unit.</exception>
+    /// <exception cref="ArgumentException">If the action is being performed on an illegal target.</exception>
     public void OnTargetChosen(Vector2I source, Vector2I target)
     {
         _target = _grid.Occupants[target];
@@ -303,6 +341,7 @@ public partial class LevelManager : Node
         State.SendEvent(DoneEvent);
     }
 
+    /// <summary>Go back to choosing a command.</summary>
     public void OnTargetingCanceled(Vector2I source) => State.SendEvent(CancelEvent);
 #endregion
 #region In Combat
@@ -321,6 +360,15 @@ public partial class LevelManager : Node
         _combatResults = null;
     }
 
+    /// <summary>
+    /// Compute the results of combat and then begin the combat choreography unless <see cref="SkipCombat"/> is <c>true</c> or the turn
+    /// is being fast-forwarded (see <see cref="OnTurnFastForward"/>).
+    /// </summary>
+    /// <exception cref="NotSupportedException">If the selected unit is not performing an action with an animation.</exception>
+    /// <remarks>
+    /// Note that combat results are not actually applied until returning from the combat scene if <see cref="PlayCombatOnMap"/>
+    /// is <c>false.</c>
+    /// </remarks>
     public void OnCombatEntered()
     {
         if (_command == UnitAction.AttackAction)
@@ -379,15 +427,14 @@ public partial class LevelManager : Node
     }
 #endregion
 #region End Turn State
-    Army ended = null;
+    private Army ended = null;
 
+    /// <summary>Signal that the turn is ending.</summary>
     public void Turnover()
     {
         ended = _armies.Current;
 
-        foreach (Unit unit in (IEnumerable<Unit>)_armies.Current)
-            unit.UnitData.Active = true;
-
+        // Compute the next army here so we know if the round needs to end
         do
         {
             if (_armies.MoveNext() && _armies.Current == StartingArmy)
@@ -400,17 +447,22 @@ public partial class LevelManager : Node
     /// <summary>After a delay, signal that the turn is ending and wait for a response.</summary>
     public void OnEndTurnEntered() => TurnAdvance.Start();
 
-    /// <summary>Refresh all the units in the army whose turn just ended so they aren't gray anymore and are animated.</summary>
+    /// <summary>Perform end-of-turn cleanup.</summary>
     public void OnEndTurnExited()
     {
+        foreach (Unit unit in (IEnumerable<Unit>)ended)
+            unit.UnitData.Active = true;
+
         _ff = false;
         ended.Controller.FinalizeTurn();
         ended = null;
     }
 #endregion
 #region End Round State
+    /// <summary>Signal that the round is ending.</summary>
     public void OnRoundEndEntered() => LevelEvents.EndRound(Turn);
 
+    /// <summary>Finish ending the round by incrementing the turn counter.</summary>
     public void OnRoundEndExited()
     {
         State.SetVariable(TurnoverProperty, false);
@@ -420,10 +472,14 @@ public partial class LevelManager : Node
 #region State Independent
     public void OnSelectionCanceled() => State.SendEvent(CancelEvent);
 
+    /// <summary>
+    /// If the current state is skippable, either immediately end the turn for player-controlled armies or compute the end result of the turn
+    /// for AI-controlled armies and apply it to the map, then end the turn.
+    /// </summary>
     public void OnTurnFastForward()
     {
         // Reuse this signal for skipping to the end of the current army's turn, which should only happen for player-controlled armies
-        if (!((IEnumerable<Unit>)_armies.Current).Any(static (u) => u.UnitData.Active))
+        if (!_armies.Current.Any(static (u) => u.UnitData.Active))
             State.SendEvent(SkipEvent);
         else if (!_ff)
         {
