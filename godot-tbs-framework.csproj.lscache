@@ -1,0 +1,463 @@
+version=1
+
+# This file caches language service data to improve the performance of C# Dev Kit.
+# It is not intended for manual editing. It can safely be deleted and will be
+# regenerated automatically. For more information, see https://aka.ms/lscache
+#
+# To control where cache files are stored, use the following VS Code setting:
+#   "dotnet.projectsystem.cacheInProjectFolder": true
+
+[project]
+language=C#
+primary
+lastDtbSucceeded
+
+[properties]
+AssemblyName=godot-tbs-framework
+CommandLineArgsForDesignTimeEvaluation=-langversion:12.0 -define:TRACE
+CompilerGeneratedFilesOutputPath=
+MaxSupportedLangVersion=12.0
+ProjectAssetsFile=<PATH>.godot/mono/temp/obj/project.assets.json
+RootNamespace=TbsFramework
+RunAnalyzers=
+RunAnalyzersDuringLiveAnalysis=
+SolutionPath=<PATH>godot-tbs-framework.sln
+TargetFrameworkIdentifier=.NETCoreApp
+TargetPath=<PATH>.godot/mono/temp/bin/Debug/godot-tbs-framework.dll
+TargetRefPath=<PATH>.godot/mono/temp/obj/Debug/ref/godot-tbs-framework.dll
+TemporaryDependencyNodeTargetIdentifier=net8.0
+
+[commandLineArguments]
+/noconfig
+/unsafe-
+/checked-
+/nowarn:1701,1702,1701,1702
+/fullpaths
+/nostdlib+
+/errorreport:prompt
+/warn:8
+/define:GODOT;GODOT_WINDOWS;GODOT_PC;GODOT4;GODOT4_5;GODOT4_5_1;GODOT4_OR_GREATER;GODOT4_0_OR_GREATER;GODOT4_1_OR_GREATER;GODOT4_2_OR_GREATER;GODOT4_3_OR_GREATER;GODOT4_4_OR_GREATER;GODOT4_5_OR_GREATER;GODOT4_5_0_OR_GREATER;GODOT4_5_1_OR_GREATER;TRACE;DEBUG;NET;NET8_0;NETCOREAPP;TOOLS;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP1_0_OR_GREATER;NETCOREAPP1_1_OR_GREATER;NETCOREAPP2_0_OR_GREATER;NETCOREAPP2_1_OR_GREATER;NETCOREAPP2_2_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER
+/highentropyva+
+/debug+
+/debug:portable
+/filealign:512
+/optimize-
+/out:"<PATH>.godot/mono/temp/obj/Debug/godot-tbs-framework.dll"
+/refout:"<PATH>.godot/mono/temp/obj/Debug/refint/godot-tbs-framework.dll"
+/target:library
+/warnaserror-
+/utf8output
+/deterministic+
+/langversion:12.0
+/warnaserror+:NU1605,SYSLIB0011
+
+[sourceFiles]
+.godot/mono/temp/obj/Debug/
+ .NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+ godot-tbs-framework.AssemblyInfo.cs
+demo/
+ CombatantData.cs
+ ContextMenu.cs
+ DemoCombatScene.cs
+ DemoEventController.cs
+ DemoGameOverScene.cs
+ DemoMap.cs
+ DemoMapCombatController.cs
+ DemoPauseOverlay.cs
+ unit/
+  LongTankCombatAnimations.cs
+  ShortTankCombatAnimations.cs
+  TankMapAnimations.cs
+src/TbsFramework/Extensions/
+ GodotObjectExtensions.cs
+ IDictionaryExtensions.cs
+ IEnumerableExtensions.cs
+ ImmutableListExtensions.cs
+ namespace.cs
+ Rect2Extensions.cs
+ VariantExtensions.cs
+ Vector2IExtensions.cs
+src/TbsFramework/
+ namespace.cs
+ Nodes/
+  AutoloadNodes.cs
+  BoundedNode2D.cs
+  Components/
+   CombatAnimations.cs
+   FastForwardComponent.cs
+   MoveController.cs
+   namespace.cs
+   NodeCache.cs
+   UnitMapAnimations.cs
+  namespace.cs
+  StateChart/
+   ChartNode.cs
+   Conditions/
+    AllCondition.cs
+    AnyCondition.cs
+    ExpressionCondition.cs
+    FlagCondition.cs
+    IntCondition.cs
+    InvertCondition.cs
+    namespace.cs
+    NumberCondition.cs
+    StateCondition.cs
+    StringCondition.cs
+    UnCondition.cs
+   namespace.cs
+   Reactions/
+    ActionReaction.cs
+    EnterTreeReaction.cs
+    InputReaction.cs
+    PhysicsProcessReaction.cs
+    ProcessReaction.cs
+    StateReaction.cs
+    StateReaction0.cs
+    StateReaction1.cs
+    StateReaction2.cs
+    UnhandledInputReaction.cs
+    Vector2IReaction.cs
+    Vector2Reaction.cs
+   StateChart.cs
+   StateRecord.cs
+   States/
+    CompositeState.cs
+    HistoryState.cs
+    namespace.cs
+    SimpleState.cs
+    State.cs
+    StateTransition.cs
+ Properties/
+  ClampedProperty.cs
+  namespace.cs
+  ObjectProperty.cs
+  ObservableDictionary.cs
+  ObservableProperty.cs
+ Scenes/Combat/
+  CombatAction.cs
+  CombatCalculations.cs
+  CombatController.cs
+  namespace.cs
+ Scenes/Data/
+  Class.cs
+  Faction.cs
+  GridData.cs
+  GridObjectData.cs
+  namespace.cs
+  SpecialActionRegionData.cs
+  Stats.cs
+  Terrain.cs
+  UnitData.cs
+ Scenes/Level/
+  Army.cs
+  Control/
+   AIController.cs
+   AreaSwitchCondition.cs
+   ArmyController.cs
+   Behavior.cs
+   Cursor.cs
+   InRangeSwitchCondition.cs
+   ManualSwitchCondition.cs
+   MoveBehavior.cs
+   namespace.cs
+   Path.cs
+   PlayerController.cs
+   RegionSwitchCondition.cs
+   StandBehavior.cs
+   SwitchBehavior.cs
+   SwitchCondition.cs
+   TurnSwitchCondition.cs
+   UnitAction.cs
+  Events/
+   EventController.cs
+   LevelEvents.cs
+   LevelManager.cs
+   namespace.cs
+   Reactions/
+    CommandReaction.cs
+    namespace.cs
+    PathReaction.cs
+    TargetReaction.cs
+    UnitReaction.cs
+  namespace.cs
+  Objectives/
+   ActionObjective.cs
+   AggregateObjective.cs
+   AllObjective.cs
+   AnyObjective.cs
+   DefeatUnitObjective.cs
+   namespace.cs
+   Objective.cs
+   OccupyObjective.cs
+   RouteObjective.cs
+   TimeObjective.cs
+ Scenes/
+  namespace.cs
+  Rendering/
+   ActionLayers.cs
+   Grid.cs
+   GridNode.cs
+   namespace.cs
+   SpecialActionRegion.cs
+   Unit.cs
+  SceneManager.cs
+  Transitions/
+   FadeToBlackTransition.cs
+   namespace.cs
+   SceneTransition.cs
+ UI/
+  Camera2DController.cs
+  Controls/Action/
+   AnalogDigitalConverter.cs
+   namespace.cs
+  Controls/Device/
+   DeviceManager.cs
+   InputManager.cs
+   InputMethod.cs
+   namespace.cs
+  Controls/IconMaps/
+   CompositeGamepadAxisIconMap.cs
+   CompositeGamepadButtonIconMap.cs
+   CompositeIconMap.cs
+   GamepadAxisIconMap.cs
+   GamepadButtonIconMap.cs
+   GenericIconMap.cs
+   IconMap.cs
+   IGamepadIconMap.cs
+   KeyIconMap.cs
+   MouseIconMap.cs
+   namespace.cs
+  Controls/namespace.cs
+  HUD/
+   ControlHint.cs
+   CursorHintIcon.cs
+   GamepadCursorHintIcon.cs
+   namespace.cs
+  NamedAction.cs
+  namespace.cs
+  Pointer.cs
+test/addons/GD_NET_ScOUT/
+ Assert.cs
+ Dock.cs
+ Extensions.cs
+ GdNetScout.cs
+ MethodResult.cs
+ Result.cs
+ SceneScout.cs
+ ShowHideButton.cs
+ test/
+  AssertTest.cs
+  AutoFailTest.cs
+  EmptySceneTest.cs
+  SkippedClassTest.cs
+  TestRunnerTest.cs
+ TestAttribute.cs
+ TestClass.cs
+ TestFunction.cs
+ TestLoader.cs
+ TestResult.cs
+ TestRunner.cs
+ TestSceneRunner.cs
+test/
+ assets/TestMapAnimations.cs
+ math/
+  Collections.cs
+  Extensions.cs
+ unit/TbsFramework/
+  MathExt/Collections/CollectionsTestScene.cs
+  Scenes/Data/
+   GridData/GridDataTestScene.cs
+   UnitData/UnitDataTestScene.cs
+  Scenes/Level/Control/AIController/
+   AIControllerScalabilityScene.cs
+   AIControllerTestScene.cs
+  Scenes/Level/Control/Behavior/
+   SwitchBehaviorTestScene.cs
+   SwitchConditionTestScene.cs
+  Scenes/Level/Control/TestAiAction.cs
+
+[metadataReferences]
+<DOTNET>/packs/Microsoft.NETCore.App.Ref/8.0.22/ref/net8.0/
+ Microsoft.CSharp.dll
+ Microsoft.VisualBasic.Core.dll
+ Microsoft.VisualBasic.dll
+ Microsoft.Win32.Primitives.dll
+ Microsoft.Win32.Registry.dll
+ mscorlib.dll
+ netstandard.dll
+ System.AppContext.dll
+ System.Buffers.dll
+ System.Collections.Concurrent.dll
+ System.Collections.dll
+ System.Collections.Immutable.dll
+ System.Collections.NonGeneric.dll
+ System.Collections.Specialized.dll
+ System.ComponentModel.Annotations.dll
+ System.ComponentModel.DataAnnotations.dll
+ System.ComponentModel.dll
+ System.ComponentModel.EventBasedAsync.dll
+ System.ComponentModel.Primitives.dll
+ System.ComponentModel.TypeConverter.dll
+ System.Configuration.dll
+ System.Console.dll
+ System.Core.dll
+ System.Data.Common.dll
+ System.Data.DataSetExtensions.dll
+ System.Data.dll
+ System.Diagnostics.Contracts.dll
+ System.Diagnostics.Debug.dll
+ System.Diagnostics.DiagnosticSource.dll
+ System.Diagnostics.FileVersionInfo.dll
+ System.Diagnostics.Process.dll
+ System.Diagnostics.StackTrace.dll
+ System.Diagnostics.TextWriterTraceListener.dll
+ System.Diagnostics.Tools.dll
+ System.Diagnostics.TraceSource.dll
+ System.Diagnostics.Tracing.dll
+ System.dll
+ System.Drawing.dll
+ System.Drawing.Primitives.dll
+ System.Dynamic.Runtime.dll
+ System.Formats.Asn1.dll
+ System.Formats.Tar.dll
+ System.Globalization.Calendars.dll
+ System.Globalization.dll
+ System.Globalization.Extensions.dll
+ System.IO.Compression.Brotli.dll
+ System.IO.Compression.dll
+ System.IO.Compression.FileSystem.dll
+ System.IO.Compression.ZipFile.dll
+ System.IO.dll
+ System.IO.FileSystem.AccessControl.dll
+ System.IO.FileSystem.dll
+ System.IO.FileSystem.DriveInfo.dll
+ System.IO.FileSystem.Primitives.dll
+ System.IO.FileSystem.Watcher.dll
+ System.IO.IsolatedStorage.dll
+ System.IO.MemoryMappedFiles.dll
+ System.IO.Pipes.AccessControl.dll
+ System.IO.Pipes.dll
+ System.IO.UnmanagedMemoryStream.dll
+ System.Linq.dll
+ System.Linq.Expressions.dll
+ System.Linq.Parallel.dll
+ System.Linq.Queryable.dll
+ System.Memory.dll
+ System.Net.dll
+ System.Net.Http.dll
+ System.Net.Http.Json.dll
+ System.Net.HttpListener.dll
+ System.Net.Mail.dll
+ System.Net.NameResolution.dll
+ System.Net.NetworkInformation.dll
+ System.Net.Ping.dll
+ System.Net.Primitives.dll
+ System.Net.Quic.dll
+ System.Net.Requests.dll
+ System.Net.Security.dll
+ System.Net.ServicePoint.dll
+ System.Net.Sockets.dll
+ System.Net.WebClient.dll
+ System.Net.WebHeaderCollection.dll
+ System.Net.WebProxy.dll
+ System.Net.WebSockets.Client.dll
+ System.Net.WebSockets.dll
+ System.Numerics.dll
+ System.Numerics.Vectors.dll
+ System.ObjectModel.dll
+ System.Reflection.DispatchProxy.dll
+ System.Reflection.dll
+ System.Reflection.Emit.dll
+ System.Reflection.Emit.ILGeneration.dll
+ System.Reflection.Emit.Lightweight.dll
+ System.Reflection.Extensions.dll
+ System.Reflection.Metadata.dll
+ System.Reflection.Primitives.dll
+ System.Reflection.TypeExtensions.dll
+ System.Resources.Reader.dll
+ System.Resources.ResourceManager.dll
+ System.Resources.Writer.dll
+ System.Runtime.CompilerServices.Unsafe.dll
+ System.Runtime.CompilerServices.VisualC.dll
+ System.Runtime.dll
+ System.Runtime.Extensions.dll
+ System.Runtime.Handles.dll
+ System.Runtime.InteropServices.dll
+ System.Runtime.InteropServices.JavaScript.dll
+ System.Runtime.InteropServices.RuntimeInformation.dll
+ System.Runtime.Intrinsics.dll
+ System.Runtime.Loader.dll
+ System.Runtime.Numerics.dll
+ System.Runtime.Serialization.dll
+ System.Runtime.Serialization.Formatters.dll
+ System.Runtime.Serialization.Json.dll
+ System.Runtime.Serialization.Primitives.dll
+ System.Runtime.Serialization.Xml.dll
+ System.Security.AccessControl.dll
+ System.Security.Claims.dll
+ System.Security.Cryptography.Algorithms.dll
+ System.Security.Cryptography.Cng.dll
+ System.Security.Cryptography.Csp.dll
+ System.Security.Cryptography.dll
+ System.Security.Cryptography.Encoding.dll
+ System.Security.Cryptography.OpenSsl.dll
+ System.Security.Cryptography.Primitives.dll
+ System.Security.Cryptography.X509Certificates.dll
+ System.Security.dll
+ System.Security.Principal.dll
+ System.Security.Principal.Windows.dll
+ System.Security.SecureString.dll
+ System.ServiceModel.Web.dll
+ System.ServiceProcess.dll
+ System.Text.Encoding.CodePages.dll
+ System.Text.Encoding.dll
+ System.Text.Encoding.Extensions.dll
+ System.Text.Encodings.Web.dll
+ System.Text.Json.dll
+ System.Text.RegularExpressions.dll
+ System.Threading.Channels.dll
+ System.Threading.dll
+ System.Threading.Overlapped.dll
+ System.Threading.Tasks.Dataflow.dll
+ System.Threading.Tasks.dll
+ System.Threading.Tasks.Extensions.dll
+ System.Threading.Tasks.Parallel.dll
+ System.Threading.Thread.dll
+ System.Threading.ThreadPool.dll
+ System.Threading.Timer.dll
+ System.Transactions.dll
+ System.Transactions.Local.dll
+ System.ValueTuple.dll
+ System.Web.dll
+ System.Web.HttpUtility.dll
+ System.Windows.dll
+ System.Xml.dll
+ System.Xml.Linq.dll
+ System.Xml.ReaderWriter.dll
+ System.Xml.Serialization.dll
+ System.Xml.XDocument.dll
+ System.Xml.XmlDocument.dll
+ System.Xml.XmlSerializer.dll
+ System.Xml.XPath.dll
+ System.Xml.XPath.XDocument.dll
+ WindowsBase.dll
+<NUGET>/
+ godotsharp/4.5.1/lib/net8.0/GodotSharp.dll
+ godotsharpeditor/4.5.1/lib/net8.0/GodotSharpEditor.dll
+
+[analyzerReferences]
+<DOTNET>/packs/Microsoft.NETCore.App.Ref/8.0.22/analyzers/dotnet/cs/
+ Microsoft.Interop.ComInterfaceGenerator.dll
+ Microsoft.Interop.JavaScript.JSImportGenerator.dll
+ Microsoft.Interop.LibraryImportGenerator.dll
+ Microsoft.Interop.SourceGeneration.dll
+ System.Text.Json.SourceGeneration.dll
+ System.Text.RegularExpressions.Generator.dll
+<DOTNET>/sdk/8.0.319/Sdks/Microsoft.NET.Sdk/analyzers/
+ Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll
+ Microsoft.CodeAnalysis.NetAnalyzers.dll
+<NUGET>/godot.sourcegenerators/4.5.1/analyzers/dotnet/cs/Godot.SourceGenerators.dll
+
+[analyzerConfigFiles]
+.godot/mono/temp/obj/Debug/godot-tbs-framework.GeneratedMSBuildEditorConfig.editorconfig
+<DOTNET>/sdk/8.0.319/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_8_default.globalconfig
