@@ -49,7 +49,7 @@ public partial class Unit : GridNode
             Animations.Grid = Grid;
             GetNode<PathFollow2D>("Path/Follow").AddChild(Animations);
 
-            Animations.SetHealthMax(UnitData.Stats.Health);
+            Animations.SetHealthMax(UnitData.Stats.MaxHealth);
             Animations.SetHealthValue(UnitData.Health);
         }
     }
@@ -84,8 +84,6 @@ public partial class Unit : GridNode
             UpdateVisuals(@class, UnitData.Faction);
     }
 
-    private void OnStatsUpdated(Stats stats) => Animations?.SetHealthMax(stats.Health);
-
     private void OnHealthUpdated(double _, double hp)
     {
         Animations?.SetHealthValue(hp);
@@ -103,7 +101,7 @@ public partial class Unit : GridNode
         set => UnitData.Class = value;
     }
 
-    [Export] public Stats Stats
+    [Export] public AbstractStats Stats
     {
         get => UnitData.Stats;
         set => UnitData.Stats = value;
@@ -170,7 +168,6 @@ public partial class Unit : GridNode
         UnitData.AvailabilityUpdated -= OnAvailabilityUpdated;
         UnitData.FactionUpdated      -= OnFactionUpdated;
         UnitData.ClassUpdated        -= OnClassUpdated;
-        UnitData.StatsUpdated        -= OnStatsUpdated;
         UnitData.HealthUpdated       -= OnHealthUpdated;
 
         UnitData.Grid = null;
@@ -233,7 +230,6 @@ public partial class Unit : GridNode
         UnitData.AvailabilityUpdated += OnAvailabilityUpdated;
         UnitData.FactionUpdated      += OnFactionUpdated;
         UnitData.ClassUpdated        += OnClassUpdated;
-        UnitData.StatsUpdated        += OnStatsUpdated;
         UnitData.HealthUpdated       += OnHealthUpdated;
     }
 

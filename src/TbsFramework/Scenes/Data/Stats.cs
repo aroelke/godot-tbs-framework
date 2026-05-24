@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsFramework.Properties;
+using TbsFramework.Scenes.Combat;
+using TbsFramework.Scenes.Level.Control;
 
 namespace TbsFramework.Scenes.Data;
 
@@ -10,9 +13,9 @@ namespace TbsFramework.Scenes.Data;
 /// create a final stat value for a character from components.
 /// </summary>
 [GlobalClass, Tool]
-public partial class Stats : Resource
+public partial class Stats : AbstractStats
 {
-    private static readonly StringName TerrainCostModifiersPropertyName = "TerrainCostModifiers";
+    private static readonly Random rnd = new();
 
     public delegate void ValuesChangedEventHandler(Stats stats);
 
@@ -123,6 +126,21 @@ public partial class Stats : Resource
         get => _terrainMods;
         set => _terrainMods.Value = value;
     }
+
+    public override double MaxHealth => Health;
+    public override int MoveDistance => Move;
+
+    public override int[] GetActionRange(StringName action)
+    {
+        if (action == UnitAction.AttackAction)
+            return AttackRange;
+        else if (action == UnitAction.SupportAction)
+            return SupportRange;
+        else
+            throw new ArgumentException($"Unknown action {action}");
+    }
+
+    public override int GetTerrainCostModifier(Terrain terrain) => TerrainCostModifiers.TryGetValue(terrain, out int cost) ? cost : 0;
 
     public Stats()
     {

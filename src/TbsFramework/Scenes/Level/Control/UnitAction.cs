@@ -3,7 +3,7 @@ using Godot;
 
 namespace TbsFramework.Scenes.Level.Control;
 
-/// <summary>Informationa about a unit's potential action.</summary>
+/// <summary>Information about a unit's potential action.</summary>
 /// <param name="Name">Name of the action.</param>
 /// <param name="Source">Cells the action could be performed from.</param>
 /// <param name="Target">Cell the action will be performed on.</param>
