@@ -444,23 +444,9 @@ public partial class PlayerController : ArmyController
 
     private void ConfirmCursorSelection(Vector2I cell)
     {
-        if (Cursor.Grid.Data.Occupants.TryGetValue(cell, out UnitData unit))
+        if (!Cursor.Grid.Data.Occupants.TryGetValue(cell, out UnitData unit) || !unit.Active)
         {
-            if (unit.Faction == Faction && unit.Active)
-            {
-                State.SendEvent(FinishEvent);
-                EmitSignal(SignalName.UnitSelected, unit.Cell);
-            }
-            else if (unit.Faction != Faction)
-            {
-                if (!_tracked.Remove(unit))
-                    _tracked.Add(unit);
-                ZoneUpdateSound(_tracked.Contains(unit)).Play();
-                UpdateDangerZones();
-            }
-        }
-        else
-        {
+            // Note that units are always active on other armies' turns
             void Cancel()
             {
                 CancelSoundPlayer.Play();
@@ -496,6 +482,21 @@ public partial class PlayerController : ArmyController
                     InputManager.ToggleDangerZone
                 })
             );
+        }
+        else
+        {
+            if (unit.Faction == Faction)
+            {
+                State.SendEvent(FinishEvent);
+                EmitSignal(SignalName.UnitSelected, unit.Cell);
+            }
+            else
+            {
+                if (!_tracked.Remove(unit))
+                    _tracked.Add(unit);
+                ZoneUpdateSound(_tracked.Contains(unit)).Play();
+                UpdateDangerZones();
+            }
         }
     }
 
