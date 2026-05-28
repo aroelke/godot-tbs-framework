@@ -4,6 +4,7 @@ using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Scenes;
+using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Events;
 using TbsFramework.Scenes.Rendering;
 using TbsFramework.UI;
@@ -70,8 +71,8 @@ public partial class DemoEventController : EventController
         _menuCanceled = canceled;
         _menuFinally = @finally;
 
-        // If the cell where the menu is being brought up is empty, assume it's the system menu and not the command menu
-        if (!Grid.Data.Occupants.ContainsKey(cell))
+        // If the cell where the menu is being brought up is empty or contains an inactive unit, assume it's the system menu and not the command menu
+        if (!Grid.Data.Occupants.TryGetValue(cell, out UnitData unit) || !unit.Active)
         {
             options = options.Append(new() { Name = "Pause", Action = () => {
                 _menu.MenuClosed -= OnMenuClosed;
