@@ -644,24 +644,25 @@ public partial class PlayerController : ArmyController
     private void ConfirmPathSelection(Vector2I cell)
     {
         bool occupied = Cursor.Grid.Data.Occupants.TryGetValue(cell, out UnitData occupant);
+        UnitData selected = _selected; // Store _selected because changing states could clear or change it, but it may still be needed after the transition
         if (!_traversable.Contains(cell) && !occupied)
         {
             State.SendEvent(CancelEvent);
             EmitSignal(SignalName.SelectionCanceled);
         }
-        else if (!occupied || occupant == _selected)
+        else if (!occupied || occupant == selected)
         {
             State.SendEvent(FinishEvent);
             EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {InputManager.Skip, InputManager.Accelerate});
-            EmitSignal(SignalName.PathConfirmed, _selected.Cell, new Godot.Collections.Array<Vector2I>(_path));
+            EmitSignal(SignalName.PathConfirmed, selected.Cell, new Godot.Collections.Array<Vector2I>(_path));
         }
         else if (occupied && (_attackable.Contains(occupant.Cell) || _supportable.Contains(occupant.Cell)))
         {
             State.SendEvent(FinishEvent);
             EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {InputManager.Skip, InputManager.Accelerate});
-            EmitSignal(SignalName.UnitCommanded, _selected.Cell, _command);
-            EmitSignal(SignalName.TargetChosen, _selected.Cell, occupant.Cell);
-            EmitSignal(SignalName.PathConfirmed, _selected.Cell, new Godot.Collections.Array<Vector2I>(_path));
+            EmitSignal(SignalName.UnitCommanded, selected.Cell, _command);
+            EmitSignal(SignalName.TargetChosen, selected.Cell, occupant.Cell);
+            EmitSignal(SignalName.PathConfirmed, selected.Cell, new Godot.Collections.Array<Vector2I>(_path));
         }
         else
             ErrorSoundPlayer.Play();
@@ -702,6 +703,7 @@ public partial class PlayerController : ArmyController
     {
         Cursor.CellChanged -= AddToPath;
         Cursor.CellSelected -= ConfirmPathSelection;
+        _selected = null;
     }
 #endregion
 #region Command Selection
@@ -714,7 +716,6 @@ public partial class PlayerController : ArmyController
         Callable.From(() => {
             State.SendEvent(CommandEvent);
 
-            _selected = source;
             List<NamedAction> cmds = [.. commands.Select((c) => new NamedAction() { Name = c, Action = () => {
                 ActionLayers.Keep(c);
                 State.SendEvent(FinishEvent);
@@ -769,10 +770,11 @@ public partial class PlayerController : ArmyController
 
     private void ConfirmTargetSelection(Vector2I cell)
     {
+        UnitData selected = _selected; // Store _selected because changing states could clear or change it, but it may still be needed after the transition
         if (Cursor.Data.Cell != Grid.CellOf(Pointer.Position))
         {
             State.SendEvent(CancelEvent);
-            EmitSignal(SignalName.TargetCanceled, _selected.Cell);
+            EmitSignal(SignalName.TargetCanceled, selected.Cell);
         }
         else if (Cursor.Grid.Data.Occupants.TryGetValue(cell, out UnitData target))
         {
@@ -780,7 +782,7 @@ public partial class PlayerController : ArmyController
             Pointer.StartWaiting(hide:false);
 
             State.SendEvent(FinishEvent);
-            EmitSignal(SignalName.TargetChosen, _selected.Cell, target.Cell);
+            EmitSignal(SignalName.TargetChosen, selected.Cell, target.Cell);
         }
     }
 
@@ -829,7 +831,11 @@ public partial class PlayerController : ArmyController
         Cursor.Wrap = false;
     }
 
-    public void OnTargetExited() => Cursor.CellSelected -= ConfirmTargetSelection;
+    public void OnTargetExited()
+    {
+        Cursor.CellSelected -= ConfirmTargetSelection;
+        _selected = null;
+    }
 #endregion
 #region Editor
     public override Godot.Collections.Array<Godot.Collections.Dictionary> _GetPropertyList()
