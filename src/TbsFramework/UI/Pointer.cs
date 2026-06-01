@@ -45,6 +45,7 @@ public partial class Pointer : BoundedNode2D
     private bool _inWindow = true;
 
     private StateChart  ControlState => _cache.GetNode<StateChart>("ControlState");
+    private State       ActiveState  => _cache.GetNode<State>("ControlState/Root/Active");
     private State       DigitalState => _cache.GetNode<State>("%DigitalState");
     private State       AnalogState  => _cache.GetNode<State>("%AnalogState");
     private State       MouseState   => _cache.GetNode<State>("%MouseState");
@@ -89,6 +90,8 @@ public partial class Pointer : BoundedNode2D
     [ExportGroup("Movement")]
     [Export(PropertyHint.None, "suffix:s")] public double DefaultFlightTime = 0.25;
 
+    public bool Active => ActiveState?.Active ?? false;
+
     /// <summary>Position of the pointer relative to the <see cref="Viewport"/>.</summary>
     public Vector2 ViewportPosition
     {
@@ -118,7 +121,7 @@ public partial class Pointer : BoundedNode2D
     /// <param name="target">Location to move to.</param>
     public void Warp(Vector2 target)
     {
-//        if (DeviceManager.Mode == InputMode.Mouse) // use this instead of MouseMode.Active in case the pointer is inactive
+        if (DeviceManager.Mode == InputMode.Mouse || !Active)
             GetViewport().WarpMouse(WorldToViewport(target));
         Move(target);
     }
