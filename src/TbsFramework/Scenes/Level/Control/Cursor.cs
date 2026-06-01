@@ -106,16 +106,7 @@ public partial class Cursor : GridNode
         }
     }
 
-    public Cursor() : base() {
-        _cache = new(this);
-        
-        void OnCellChanged(Vector2I _, Vector2I cell)
-        {
-            GD.Print($"Cursor moved to {cell}");
-//            foreach (StackFrame frame in new StackTrace(true).GetFrames())
-//                GD.Print($"\t{frame.GetMethod()}: line {frame.GetFileLineNumber()} in {frame.GetFileName()}");
-        }
-        Data.CellChanged += OnCellChanged; }
+    public Cursor() : base() { _cache = new(this); }
 
     /// <summary>Disable cursor movement.</summary>
     /// <param name="visible">Whether or not to hide the cursor while it's halted.</param>

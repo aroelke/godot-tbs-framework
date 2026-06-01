@@ -160,7 +160,6 @@ public partial class Pointer : BoundedNode2D
     /// <param name="hide">Whether or not to hide the mouse while waiting.</param>
     public void StartWaiting(bool hide=true)
     {
-        GD.Print("Pointer start waiting");
         DeviceManager.EnableSystemMouse = !hide;
         ControlState.SendEvent(WaitEvent);
         Mouse.Visible = false;
@@ -176,7 +175,6 @@ public partial class Pointer : BoundedNode2D
     /// <summary>When entering an active state, enable the system mouse during mouse control.</summary>
     public void OnActiveEntered()
     {
-        GD.Print($"Pointer stop waiting and move mouse to {Position} ({ViewportPosition})");
         GetViewport().WarpMouse(ViewportPosition);
         DeviceManager.EnableSystemMouse = true;
     }
@@ -225,10 +223,7 @@ public partial class Pointer : BoundedNode2D
     public void OnMouseStateEntered()
     {
         if (ViewportPosition != GetViewport().GetMousePosition())
-        {
-            GD.Print("Update mouse position");
             ViewportPosition = GetViewport().GetMousePosition();
-        }
         Mouse.Visible = false;
     }
 
@@ -290,15 +285,9 @@ public partial class Pointer : BoundedNode2D
         if (!region.Contains(Position, perimeter:true))
         {
             if (MouseState.Active)
-            {
-                GD.Print($"Move pointer to {region.GetCenter()} in mouse state");
                 Fly(region.GetCenter(), DefaultFlightTime);
-            }
             else
-            {
-                GD.Print($"Move pointer to {region.GetCenter()} out of mouse state");
                 Warp(region.GetCenter());
-            }
         }
     }
 
