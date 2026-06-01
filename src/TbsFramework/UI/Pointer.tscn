@@ -28,13 +28,14 @@ InitialVariableValues = Dictionary[StringName, Variant]({
 
 [node name="Root" parent="ControlState" node_paths=PackedStringArray("InitialState") instance=ExtResource("8_pjkcf")]
 process_mode = 4
-InitialState = NodePath("Active")
+InitialState = NodePath("Waiting")
 
 [node name="Active" parent="ControlState/Root" node_paths=PackedStringArray("InitialState") instance=ExtResource("8_pjkcf")]
 process_mode = 4
 InitialState = NodePath("DigitalState")
 
-[node name="History" parent="ControlState/Root/Active" instance=ExtResource("9_c3q4a")]
+[node name="History" parent="ControlState/Root/Active" node_paths=PackedStringArray("DefaultState") instance=ExtResource("9_c3q4a")]
+DefaultState = NodePath("../DigitalState")
 
 [node name="DigitalState" parent="ControlState/Root/Active" instance=ExtResource("10_fcy41")]
 unique_name_in_owner = true

@@ -44,11 +44,11 @@ public partial class Pointer : BoundedNode2D
     private Tween _flyer = null;
     private bool _inWindow = true;
 
-    private StateChart ControlState => _cache.GetNode<StateChart>("ControlState");
-    private State DigitalState => _cache.GetNode<State>("%DigitalState");
-    private State AnalogState => _cache.GetNode<State>("%AnalogState");
-    private State MouseState => _cache.GetNode<State>("%MouseState");
-    private TextureRect Mouse => _cache.GetNode<TextureRect>("%Mouse");
+    private StateChart  ControlState => _cache.GetNode<StateChart>("ControlState");
+    private State       DigitalState => _cache.GetNode<State>("%DigitalState");
+    private State       AnalogState  => _cache.GetNode<State>("%AnalogState");
+    private State       MouseState   => _cache.GetNode<State>("%MouseState");
+    private TextureRect Mouse        => _cache.GetNode<TextureRect>("%Mouse");
 
     /// <summary>Move the pointer to a new location that's not bounded by <see cref="Bounds"/>, and update listeners that the move occurred.</summary>
     /// <param name="position">Position to warp to.</param>
@@ -118,7 +118,7 @@ public partial class Pointer : BoundedNode2D
     /// <param name="target">Location to move to.</param>
     public void Warp(Vector2 target)
     {
-        if (DeviceManager.Mode == InputMode.Mouse) // use this instead of MouseMode.Active in case the pointer is inactive
+//        if (DeviceManager.Mode == InputMode.Mouse) // use this instead of MouseMode.Active in case the pointer is inactive
             GetViewport().WarpMouse(WorldToViewport(target));
         Move(target);
     }
@@ -160,6 +160,7 @@ public partial class Pointer : BoundedNode2D
     /// <param name="hide">Whether or not to hide the mouse while waiting.</param>
     public void StartWaiting(bool hide=true)
     {
+        GD.Print("Pointer start waiting");
         DeviceManager.EnableSystemMouse = !hide;
         ControlState.SendEvent(WaitEvent);
         Mouse.Visible = false;
@@ -173,7 +174,12 @@ public partial class Pointer : BoundedNode2D
     public void OnInputModeChanged(InputMode mode) => ControlState.SetVariable(ModeProperty, Enum.GetName(mode));
 
     /// <summary>When entering an active state, enable the system mouse during mouse control.</summary>
-    public void OnActiveEntered() => DeviceManager.EnableSystemMouse = true;
+    public void OnActiveEntered()
+    {
+        GD.Print($"Pointer stop waiting and move mouse to {Position} ({ViewportPosition})");
+        GetViewport().WarpMouse(ViewportPosition);
+        DeviceManager.EnableSystemMouse = true;
+    }
 
     /// <summary>When entering digital state, hide the virtual pointer, as the pointer is not used for control in that state.</summary>
     public void OnDigitalStateEntered() => Mouse.Visible = false;
@@ -219,7 +225,10 @@ public partial class Pointer : BoundedNode2D
     public void OnMouseStateEntered()
     {
         if (ViewportPosition != GetViewport().GetMousePosition())
+        {
+            GD.Print("Update mouse position");
             ViewportPosition = GetViewport().GetMousePosition();
+        }
         Mouse.Visible = false;
     }
 
@@ -281,9 +290,15 @@ public partial class Pointer : BoundedNode2D
         if (!region.Contains(Position, perimeter:true))
         {
             if (MouseState.Active)
+            {
+                GD.Print($"Move pointer to {region.GetCenter()} in mouse state");
                 Fly(region.GetCenter(), DefaultFlightTime);
+            }
             else
+            {
+                GD.Print($"Move pointer to {region.GetCenter()} out of mouse state");
                 Warp(region.GetCenter());
+            }
         }
     }
 

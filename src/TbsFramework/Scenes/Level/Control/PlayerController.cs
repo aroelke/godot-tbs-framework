@@ -335,10 +335,14 @@ public partial class PlayerController : ArmyController
         ZoneLayers.Visible = true;
 
         IEnumerable<UnitData> units = Faction.GetUnits(Grid.Data);
+        GD.Print("Setting cell to first unit");
         Cursor.Data.Cell = units.Any() ? units.First().Cell : Vector2I.Zero;
 
+        GD.Print("Resuming cursor");
         Cursor.Resume();
+        GD.Print("Resuming pointer");
         Pointer.StopWaiting();
+        GD.Print("Turn initialized");
     }
 
     public override void FinalizeAction()
@@ -437,7 +441,10 @@ public partial class PlayerController : ArmyController
         ActionLayers.Modulate = ActionRangeHoverModulate;
 
         if (Grid.Data.Contains(Grid.CellOf(Pointer.Position)))
+        {
+            GD.Print("Move cursor to pointer");
             Cursor.Data.Cell = Grid.CellOf(Pointer.Position);
+        }
         OnSelectCursorCellEntered(Cursor.Data.Cell);
         Callable.From(() => State.SendEvent(SelectEvent)).CallDeferred();
     }

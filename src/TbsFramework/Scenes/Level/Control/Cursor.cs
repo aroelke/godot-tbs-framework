@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
@@ -105,7 +106,16 @@ public partial class Cursor : GridNode
         }
     }
 
-    public Cursor() : base() { _cache = new(this); }
+    public Cursor() : base() {
+        _cache = new(this);
+        
+        void OnCellChanged(Vector2I _, Vector2I cell)
+        {
+            GD.Print($"Cursor moved to {cell}");
+//            foreach (StackFrame frame in new StackTrace(true).GetFrames())
+//                GD.Print($"\t{frame.GetMethod()}: line {frame.GetFileLineNumber()} in {frame.GetFileName()}");
+        }
+        Data.CellChanged += OnCellChanged; }
 
     /// <summary>Disable cursor movement.</summary>
     /// <param name="visible">Whether or not to hide the cursor while it's halted.</param>
