@@ -132,7 +132,7 @@ public partial class CompositeState : State
         base.RestoreHistory(record);
 
         if (Active)
-            _active = GetChildren().OfType<State>().Where((s) => s.Active).First();
+            _active = GetChildren().OfType<State>().First((s) => s.Active);
     }
 
     public void RestoreHistory(HistoryState history)
