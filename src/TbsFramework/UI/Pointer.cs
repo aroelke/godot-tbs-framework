@@ -176,11 +176,7 @@ public partial class Pointer : BoundedNode2D
     public void OnInputModeChanged(InputMode mode) => ControlState.SetVariable(ModeProperty, Enum.GetName(mode));
 
     /// <summary>When entering an active state, enable the system mouse during mouse control.</summary>
-    public void OnActiveEntered()
-    {
-        GetViewport().WarpMouse(ViewportPosition);
-        DeviceManager.EnableSystemMouse = true;
-    }
+    public void OnActiveEntered() => DeviceManager.EnableSystemMouse = true;
 
     /// <summary>When entering digital state, hide the virtual pointer, as the pointer is not used for control in that state.</summary>
     public void OnDigitalStateEntered() => Mouse.Visible = false;
