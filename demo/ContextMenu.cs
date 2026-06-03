@@ -153,23 +153,26 @@ public partial class ContextMenu : PanelContainer
 
     public void OnInputModeChanged(InputMode mode)
     {
-        if (Visible)
+        switch (mode)
         {
-            switch (mode)
+        case InputMode.Mouse:
+            foreach ((_, Button item) in _items)
+                item.MouseFilter = MouseFilterEnum.Stop;
+            if (Visible)
             {
-            case InputMode.Mouse:
-                foreach ((_, Button item) in _items)
-                    item.MouseFilter = MouseFilterEnum.Stop;
                 if (_selected != NothingSelected)
                 {
                     Input.WarpMouse(_items[_options[_selected]].GlobalPosition + _items[_options[_selected]].Size/2);
                     _items[_options[_selected]].ReleaseFocus();
                 }
-                break;
-            default:
+            }
+            break;
+        default:
+            foreach ((_, Button item) in _items)
+                item.MouseFilter = MouseFilterEnum.Ignore;
+            if (Visible)
+            {
                 _focus = _hovered == NothingSelected ? (_selected == NothingSelected ? 0 : _selected) : _hovered;
-                foreach ((_, Button item) in _items)
-                    item.MouseFilter = MouseFilterEnum.Ignore;
                 if (Input.IsActionPressed(InputManager.UiAccept))
                 {
                     GrabFocus(_focus);
@@ -178,8 +181,8 @@ public partial class ContextMenu : PanelContainer
                     GD.Print("handle");
                     GetViewport().SetInputAsHandled();
                 }
-                break;
             }
+            break;
         }
     }
 
