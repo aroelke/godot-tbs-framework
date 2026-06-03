@@ -121,7 +121,7 @@ public partial class Pointer : BoundedNode2D
     /// <param name="target">Location to move to.</param>
     public void Warp(Vector2 target)
     {
-        if (DeviceManager.Mode == InputMode.Mouse || !Active)
+        if (InputManager.IsMouseOnScreen() && (DeviceManager.Mode == InputMode.Mouse || !Active))
             GetViewport().WarpMouse(WorldToViewport(target));
         Move(target);
     }
@@ -145,7 +145,8 @@ public partial class Pointer : BoundedNode2D
         _flyer.SetTrans(Tween.TransitionType.Cubic).SetEase(Tween.EaseType.Out).TweenMethod(
             Callable.From((Vector2 position) => {
                 Position = position;
-                GetViewport().WarpMouse(ViewportPosition);
+                if (InputManager.IsMouseOnScreen())
+                    GetViewport().WarpMouse(ViewportPosition);
             }),
             Position,
             target,
@@ -213,7 +214,11 @@ public partial class Pointer : BoundedNode2D
     }
 
     /// <summary>When transitioning to the mouse state from other control states (not waiting ones), warp the mouse to the pointer's position.</summary>
-    public void OnToMouseStateTaken() => GetViewport().WarpMouse(WorldToViewport(Position));
+    public void OnToMouseStateTaken()
+    {
+        if (InputManager.IsMouseOnScreen())
+            GetViewport().WarpMouse(WorldToViewport(Position));
+    }
 
     /// <summary>
     /// When changing to mouse input, move the mouse to the pointer's location to ensure overall motion is contiguous and make the virtual pointer
