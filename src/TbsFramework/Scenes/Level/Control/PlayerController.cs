@@ -568,22 +568,25 @@ public partial class PlayerController : ArmyController
     {
         Cursor.Resume();
         Pointer.StopWaiting();
-        ActionLayers.Modulate = ActionRangeSelectModulate;
-
-        _target = null;
-        void UpdateSelected() => _selected = unit; // Can't use a lambda because Godot will try to capture variables and they aren't Variant-compatible
-        if (Grid.CellOf(Pointer.Position) != unit.Cell)
-            Pointer.Connect(Pointer.SignalName.FlightCompleted, Callable.From(UpdateSelected), (uint)ConnectFlags.OneShot);
-        else
-            UpdateSelected();
-
         State.SendEvent(PathEvent);
-        ActionLayers[MoveLayer.Name] = _traversable = unit.GetTraversableCells();
-        ActionLayers[AttackLayer.Name] = _attackable = unit.GetFilteredAttackableCellsInReach();
-        ActionLayers[SupportLayer.Name] = _supportable = unit.GetFilteredSupportableCellsInReach();
-        Cursor.SoftRestriction = [.. _traversable];
+
+        void InitializePathSelection()
+        {
+            ActionLayers.Modulate = ActionRangeSelectModulate;
+            _target = null;
+            _selected = unit;
+
+            ActionLayers[MoveLayer.Name] = _traversable = unit.GetTraversableCells();
+            ActionLayers[AttackLayer.Name] = _attackable = unit.GetFilteredAttackableCellsInReach();
+            ActionLayers[SupportLayer.Name] = _supportable = unit.GetFilteredSupportableCellsInReach();
+            Cursor.SoftRestriction = [.. _traversable];
+            UpdatePath(Path.Empty(Cursor.Grid.Data, _traversable).Add(unit.Cell));
+        }
+        if (Grid.CellOf(Pointer.Position) != unit.Cell)
+            Pointer.Connect(Pointer.SignalName.PointerMoved, Callable.From<Vector2>(_ => InitializePathSelection()), (uint)ConnectFlags.OneShot);
+        else
+            InitializePathSelection();
         Cursor.Data.Cell = unit.Cell;
-        UpdatePath(Path.Empty(Cursor.Grid.Data, _traversable).Add(unit.Cell));
     }
 
     private void UpdatePath(Path path)

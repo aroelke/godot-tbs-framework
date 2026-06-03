@@ -36,7 +36,7 @@ public partial class DemoPauseOverlay : Control
     public void Pause()
     {
         GetTree().Paused = true;
-        Visible = true;
+        Visible = Menu.Visible = true;
         if (DeviceManager.Mode != InputMode.Mouse)
             Menu.GrabFocus();
         EmitSignal(SignalName.GamePaused);
@@ -50,9 +50,15 @@ public partial class DemoPauseOverlay : Control
 
     public void Resume()
     {
-        Visible = false;
+        Visible = Menu.Visible = false;
         GetTree().Paused = false;
         EmitSignal(SignalName.GameResumed);
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+        Menu.Visible = Visible;
     }
 
     public override void _Input(InputEvent @event)
