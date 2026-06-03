@@ -764,16 +764,18 @@ public partial class PlayerController : ArmyController
     {
         Cursor.Resume();
         Pointer.StopWaiting();
+        State.SendEvent(TargetEvent);
 
+        void InitializeTargetSelection() => _selected = source;
+        Vector2I next = targets.OrderBy((c) => Cursor.Data.Cell.DistanceTo(c)).First();
         Pointer.AnalogTracking = false;
         Cursor.Wrap = true;
-
-        Callable.From(() => {
-            State.SendEvent(TargetEvent);
-
-            _selected = source;
-            Cursor.HardRestriction = [.. _targets=targets];
-        }).CallDeferred();
+        if (Grid.CellOf(Pointer.Position) != next)
+            Pointer.Connect(Pointer.SignalName.PointerMoved, Callable.From<Vector2>(_ => InitializeTargetSelection()), (uint)ConnectFlags.OneShot);
+        else
+            InitializeTargetSelection();
+        Cursor.Data.Cell = next;
+        Cursor.HardRestriction = [.. _targets=targets];
     }
 
     private void ConfirmTargetSelection(Vector2I cell)
