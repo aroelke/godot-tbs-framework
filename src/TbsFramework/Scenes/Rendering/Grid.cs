@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using TbsFramework.Nodes;
 using TbsFramework.Properties;
 using TbsFramework.Scenes.Data;
 
@@ -8,7 +9,7 @@ namespace TbsFramework.Scenes.Rendering;
 
 /// <summary>Defines the grid dimensions and attributes and contains the locations of the objects and terrain within it.</summary>
 [Tool]
-public partial class Grid : Node2D
+public partial class Grid : BoundedNode2D
 {
     private readonly StringName TerrainCustomDataProperty = "TerrainCustomDataName";
     private const string TerrainCustomDataDefault = "terrain";
@@ -30,6 +31,8 @@ public partial class Grid : Node2D
 
     /// <summary>Grid cell dimensions derived from the <see cref="TileSet"/>.  If there is no <see cref="TileSet"/>, the size is zero.</summary>
     public Vector2 CellSize => GroundLayer?.TileSet?.TileSize ?? Vector2.Zero;
+
+    public override Vector2 Size { get => Data.Size*CellSize; set {}}
 
     /// <summary>Find the position in pixels of a cell offset.</summary>
     /// <param name="offset">Cell offset to use for calculation (can be outside grid bounds).</param>
@@ -112,6 +115,13 @@ public partial class Grid : Node2D
     public override bool _PropertyCanRevert(StringName property) => property == TerrainCustomDataProperty || base._PropertyCanRevert(property);
 
     public override Variant _PropertyGetRevert(StringName property) => property == TerrainCustomDataProperty ? TerrainCustomDataDefault : base._PropertyGetRevert(property);
+
+    public override void _ValidateProperty(Godot.Collections.Dictionary property)
+    {
+        if (property["name"].As<StringName>() == PropertyName.Size)
+            property["usage"] = property["usage"].As<uint>() | (uint)PropertyUsageFlags.ReadOnly;
+        base._ValidateProperty(property);
+    }
 
     public override void _Ready()
     {

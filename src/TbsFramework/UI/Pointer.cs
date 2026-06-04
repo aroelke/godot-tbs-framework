@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes;
@@ -72,11 +73,13 @@ public partial class Pointer : BoundedNode2D
     /// <returns>Position in the <see cref="World"/> that's at the same place as the one in the <see cref="Viewport"/>.</returns>
     private Vector2 ViewportToWorld(Vector2 viewport) => World.GetGlobalTransformWithCanvas().AffineInverse()*viewport;
 
+    private bool MouseInWorld() => World.BoundingBox.Contains(ViewportToWorld(InputManager.GetMousePosition()), perimeter:true);
+
     /// <summary>Bounding rectangle where the pointer is allowed to move.</summary>
     [Export] public Rect2I Bounds = new(0, 0, 0, 0);
 
     /// <summary>Scene containing the pointer and things it can point to.</summary>
-    [Export] public CanvasItem World = null;
+    [Export] public BoundedNode2D World = null;
 
     /// <summary>Speed in screen pixels/second the pointer moves when in analog mode.</summary>
     [ExportGroup("Movement")]
@@ -121,7 +124,7 @@ public partial class Pointer : BoundedNode2D
     /// <param name="target">Location to move to.</param>
     public void Warp(Vector2 target)
     {
-        if (InputManager.IsMouseOnScreen() && (DeviceManager.Mode == InputMode.Mouse || !Active))
+        if (MouseInWorld() && (DeviceManager.Mode == InputMode.Mouse || !Active))
             GetViewport().WarpMouse(WorldToViewport(target));
         Move(target);
     }
@@ -145,7 +148,7 @@ public partial class Pointer : BoundedNode2D
         _flyer.SetTrans(Tween.TransitionType.Cubic).SetEase(Tween.EaseType.Out).TweenMethod(
             Callable.From((Vector2 position) => {
                 Position = position;
-                if (InputManager.IsMouseOnScreen())
+                if (MouseInWorld())
                     GetViewport().WarpMouse(ViewportPosition);
             }),
             Position,
@@ -216,7 +219,7 @@ public partial class Pointer : BoundedNode2D
     /// <summary>When transitioning to the mouse state from other control states (not waiting ones), warp the mouse to the pointer's position.</summary>
     public void OnToMouseStateTaken()
     {
-        if (InputManager.IsMouseOnScreen())
+        if (MouseInWorld())
             GetViewport().WarpMouse(WorldToViewport(Position));
     }
 
@@ -234,10 +237,14 @@ public partial class Pointer : BoundedNode2D
     /// <summary>During mouse control, move to the mouse position every step.</summary>
     public void OnMouseStateProcess(double delta)
     {
-        if (Position != ViewportToWorld(InputManager.GetMousePosition()))
+        if (MouseInWorld())
         {
-            ControlState.SendEvent(DoneEvent);
-            Move(ViewportToWorld(InputManager.GetMousePosition()));
+            Vector2 mouse = ViewportToWorld(InputManager.GetMousePosition());
+            if (Position != mouse)
+            {
+                ControlState.SendEvent(DoneEvent);
+                Move(mouse);
+            }
         }
     }
 
@@ -268,6 +275,7 @@ public partial class Pointer : BoundedNode2D
     /// <param name="position">Position the mouse entered the <see cref="Viewport"/> on.</param>
     public void OnMouseEntered(Vector2 position)
     {
+        GD.Print("mouse enter");
         _inWindow = true;
         if (!GetTree().Paused)
             Move(ViewportToWorld(position));
@@ -277,6 +285,7 @@ public partial class Pointer : BoundedNode2D
     /// <param name="position">Position on <see cref="Viewport"/> close to where the mouse exited.</param>
     public void OnMouseExited(Vector2 position)
     {
+        GD.Print("mouse exit");
         if (!GetTree().Paused)
             Move(ViewportToWorld(position));
         _inWindow = false;
@@ -288,6 +297,7 @@ public partial class Pointer : BoundedNode2D
     {
         if (!region.Contains(Position, perimeter:true))
         {
+            GD.Print($"cursor moved to {region} (pointer at {Position})");
             if (MouseState.Active)
                 Fly(region.GetCenter(), DefaultFlightTime);
             else
