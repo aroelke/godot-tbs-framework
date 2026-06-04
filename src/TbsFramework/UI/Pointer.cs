@@ -275,7 +275,6 @@ public partial class Pointer : BoundedNode2D
     /// <param name="position">Position the mouse entered the <see cref="Viewport"/> on.</param>
     public void OnMouseEntered(Vector2 position)
     {
-        GD.Print("mouse enter");
         _inWindow = true;
         if (!GetTree().Paused)
             Move(ViewportToWorld(position));
@@ -285,7 +284,6 @@ public partial class Pointer : BoundedNode2D
     /// <param name="position">Position on <see cref="Viewport"/> close to where the mouse exited.</param>
     public void OnMouseExited(Vector2 position)
     {
-        GD.Print("mouse exit");
         if (!GetTree().Paused)
             Move(ViewportToWorld(position));
         _inWindow = false;
@@ -297,7 +295,6 @@ public partial class Pointer : BoundedNode2D
     {
         if (!region.Contains(Position, perimeter:true))
         {
-            GD.Print($"cursor moved to {region} (pointer at {Position})");
             if (MouseState.Active)
                 Fly(region.GetCenter(), DefaultFlightTime);
             else
