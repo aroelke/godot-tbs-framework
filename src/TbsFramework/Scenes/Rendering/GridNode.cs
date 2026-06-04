@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Godot;
-using Godot.Collections;
 using TbsFramework.Nodes;
 using TbsFramework.Scenes.Data;
 
@@ -40,7 +39,7 @@ public abstract partial class GridNode : BoundedNode2D
     /// <summary>Set the position of the node relative to its grid.</summary>
     public void SetGridPosition(Vector2 position) => GlobalPosition = _grid.GlobalPosition + position;
 
-    public override void _ValidateProperty(Dictionary property)
+    public override void _ValidateProperty(Godot.Collections.Dictionary property)
     {
         if (property["name"].As<StringName>() == PropertyName.Size)
             property["usage"] = property["usage"].As<uint>() | (uint)PropertyUsageFlags.ReadOnly;

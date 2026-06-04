@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes;
@@ -44,11 +45,12 @@ public partial class Pointer : BoundedNode2D
     private Tween _flyer = null;
     private bool _inWindow = true;
 
-    private StateChart ControlState => _cache.GetNode<StateChart>("ControlState");
-    private State DigitalState => _cache.GetNode<State>("%DigitalState");
-    private State AnalogState => _cache.GetNode<State>("%AnalogState");
-    private State MouseState => _cache.GetNode<State>("%MouseState");
-    private TextureRect Mouse => _cache.GetNode<TextureRect>("%Mouse");
+    private StateChart  ControlState => _cache.GetNode<StateChart>("ControlState");
+    private State       ActiveState  => _cache.GetNode<State>("ControlState/Root/Active");
+    private State       DigitalState => _cache.GetNode<State>("%DigitalState");
+    private State       AnalogState  => _cache.GetNode<State>("%AnalogState");
+    private State       MouseState   => _cache.GetNode<State>("%MouseState");
+    private TextureRect Mouse        => _cache.GetNode<TextureRect>("%Mouse");
 
     /// <summary>Move the pointer to a new location that's not bounded by <see cref="Bounds"/>, and update listeners that the move occurred.</summary>
     /// <param name="position">Position to warp to.</param>
@@ -71,11 +73,13 @@ public partial class Pointer : BoundedNode2D
     /// <returns>Position in the <see cref="World"/> that's at the same place as the one in the <see cref="Viewport"/>.</returns>
     private Vector2 ViewportToWorld(Vector2 viewport) => World.GetGlobalTransformWithCanvas().AffineInverse()*viewport;
 
+    private bool MouseInWorld() => World.BoundingBox.Contains(ViewportToWorld(InputManager.GetMousePosition()), perimeter:true);
+
     /// <summary>Bounding rectangle where the pointer is allowed to move.</summary>
     [Export] public Rect2I Bounds = new(0, 0, 0, 0);
 
     /// <summary>Scene containing the pointer and things it can point to.</summary>
-    [Export] public CanvasItem World = null;
+    [Export] public BoundedNode2D World = null;
 
     /// <summary>Speed in screen pixels/second the pointer moves when in analog mode.</summary>
     [ExportGroup("Movement")]
@@ -88,6 +92,8 @@ public partial class Pointer : BoundedNode2D
     /// <summary>Default time to warp during mouse control.</summary>
     [ExportGroup("Movement")]
     [Export(PropertyHint.None, "suffix:s")] public double DefaultFlightTime = 0.25;
+
+    public bool Active => ActiveState?.Active ?? false;
 
     /// <summary>Position of the pointer relative to the <see cref="Viewport"/>.</summary>
     public Vector2 ViewportPosition
@@ -118,7 +124,7 @@ public partial class Pointer : BoundedNode2D
     /// <param name="target">Location to move to.</param>
     public void Warp(Vector2 target)
     {
-        if (DeviceManager.Mode == InputMode.Mouse) // use this instead of MouseMode.Active in case the pointer is inactive
+        if (MouseInWorld() && (DeviceManager.Mode == InputMode.Mouse || !Active))
             GetViewport().WarpMouse(WorldToViewport(target));
         Move(target);
     }
@@ -142,7 +148,8 @@ public partial class Pointer : BoundedNode2D
         _flyer.SetTrans(Tween.TransitionType.Cubic).SetEase(Tween.EaseType.Out).TweenMethod(
             Callable.From((Vector2 position) => {
                 Position = position;
-                GetViewport().WarpMouse(ViewportPosition);
+                if (MouseInWorld())
+                    GetViewport().WarpMouse(ViewportPosition);
             }),
             Position,
             target,
@@ -210,7 +217,11 @@ public partial class Pointer : BoundedNode2D
     }
 
     /// <summary>When transitioning to the mouse state from other control states (not waiting ones), warp the mouse to the pointer's position.</summary>
-    public void OnToMouseStateTaken() => GetViewport().WarpMouse(WorldToViewport(Position));
+    public void OnToMouseStateTaken()
+    {
+        if (MouseInWorld())
+            GetViewport().WarpMouse(WorldToViewport(Position));
+    }
 
     /// <summary>
     /// When changing to mouse input, move the mouse to the pointer's location to ensure overall motion is contiguous and make the virtual pointer
@@ -226,10 +237,14 @@ public partial class Pointer : BoundedNode2D
     /// <summary>During mouse control, move to the mouse position every step.</summary>
     public void OnMouseStateProcess(double delta)
     {
-        if (Position != ViewportToWorld(InputManager.GetMousePosition()))
+        if (MouseInWorld())
         {
-            ControlState.SendEvent(DoneEvent);
-            Move(ViewportToWorld(InputManager.GetMousePosition()));
+            Vector2 mouse = ViewportToWorld(InputManager.GetMousePosition());
+            if (Position != mouse)
+            {
+                ControlState.SendEvent(DoneEvent);
+                Move(mouse);
+            }
         }
     }
 

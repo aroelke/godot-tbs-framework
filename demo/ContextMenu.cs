@@ -178,7 +178,6 @@ public partial class ContextMenu : PanelContainer
                     GrabFocus(_focus);
                     _focus = NothingSelected;
                     // Prevent the focused button from being pressed at the same time as being focused on
-                    GD.Print("handle");
                     GetViewport().SetInputAsHandled();
                 }
             }
