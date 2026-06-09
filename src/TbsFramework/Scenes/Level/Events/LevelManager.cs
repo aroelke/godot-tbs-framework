@@ -267,8 +267,8 @@ public partial class LevelManager : Node
                 }));
             }
         }
-        AddActionOption(UnitAction.AttackAction, _selected.GetAttackableCells().Where((c) => !_grid.Occupants.GetValueOrDefault(c)?.Faction.AlliedTo(_selected) ?? false));
-        AddActionOption(UnitAction.SupportAction, _selected.GetSupportableCells().Where((c) => _grid.Occupants.GetValueOrDefault(c)?.Faction.AlliedTo(_selected) ?? false));
+        AddActionOption(ActionInfo.AttackAction, _selected.GetAttackableCells().Where((c) => !_grid.Occupants.GetValueOrDefault(c)?.Faction.AlliedTo(_selected) ?? false));
+        AddActionOption(ActionInfo.SupportAction, _selected.GetSupportableCells().Where((c) => _grid.Occupants.GetValueOrDefault(c)?.Faction.AlliedTo(_selected) ?? false));
         foreach (SpecialActionRegionData region in _grid.SpecialActionRegions)
         {
             if (region.CanPerform(_selected) && region.Cells.Contains(_selected.Cell))
@@ -279,7 +279,7 @@ public partial class LevelManager : Node
                 }));
             }
         }
-        _options.Add(new(UnitAction.EndAction, () => State.SendEvent(SkipEvent)));
+        _options.Add(new(ActionInfo.EndAction, () => State.SendEvent(SkipEvent)));
 
         _armies.Current.Controller.CommandUnit(_selected, [.. _options.Select(static (o) => o.Name)], CancelCommand);
     }
@@ -336,7 +336,7 @@ public partial class LevelManager : Node
         _target = _grid.Occupants[target];
         if (_grid.Occupants[source] != _selected)
             throw new InvalidOperationException($"Cannot choose target for unselected unit at {source} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        if ((_command == UnitAction.AttackAction && _target.Faction.AlliedTo(_selected)) || (_command == UnitAction.SupportAction && !_target.Faction.AlliedTo(_selected)))
+        if ((_command == ActionInfo.AttackAction && _target.Faction.AlliedTo(_selected)) || (_command == ActionInfo.SupportAction && !_target.Faction.AlliedTo(_selected)))
             throw new ArgumentException($"{_selected.Faction.Name} unit at {_selected.Cell} cannot {_command} unit at {target}");
         State.SendEvent(DoneEvent);
     }
@@ -371,9 +371,9 @@ public partial class LevelManager : Node
     /// </remarks>
     public void OnCombatEntered()
     {
-        if (_command == UnitAction.AttackAction)
+        if (_command == ActionInfo.AttackAction)
             _combatResults = CombatCalculations.AttackResults(_selected, _target, false);
-        else if (_command == UnitAction.SupportAction)
+        else if (_command == ActionInfo.SupportAction)
             _combatResults = [CombatCalculations.CreateSupportAction(_selected, _target)];
         else
             throw new NotSupportedException($"Unknown action {_command}");

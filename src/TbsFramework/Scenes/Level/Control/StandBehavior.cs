@@ -17,16 +17,16 @@ public partial class StandBehavior : Behavior
 
     public override IEnumerable<Vector2I> Destinations(UnitData unit) => [unit.Cell];
 
-    public override IEnumerable<UnitAction> Actions(UnitData unit)
+    public override IEnumerable<ActionInfo> Actions(UnitData unit)
     {
-        List<UnitAction> actions = [];
+        List<ActionInfo> actions = [];
 
-        actions.AddRange(unit.Grid.SpecialActionRegions.Where((r) => r.CanPerformIn(unit.Cell, unit)).Select((r) => new UnitAction(r.Action, [unit.Cell], unit.Cell, [unit.Cell])));
+        actions.AddRange(unit.Grid.SpecialActionRegions.Where((r) => r.CanPerformIn(unit.Cell, unit)).Select((r) => new ActionInfo(r.Action, [unit.Cell], unit.Cell, [unit.Cell])));
         if (AttackInRange)
         {
             IEnumerable<Vector2I> attackable = unit.GetAttackableCells();
             IEnumerable<UnitData> targets = unit.Grid.Occupants.Where((e) => attackable.Contains(e.Key) && e.Value is UnitData u && !unit.Faction.AlliedTo(u.Faction)).Select(static (p) => p.Value).OfType<UnitData>();
-            actions.AddRange(targets.Select((t) => new UnitAction(UnitAction.AttackAction, [unit.Cell], t.Cell, [unit.Cell])));
+            actions.AddRange(targets.Select((t) => new ActionInfo(ActionInfo.AttackAction, [unit.Cell], t.Cell, [unit.Cell])));
         }
         if (SupportInRange)
         {
@@ -37,7 +37,7 @@ public partial class StandBehavior : Behavior
             if (targets.Any())
             {
                 double lowest = targets.Min(static (u) => u.Health);
-                actions.AddRange(targets.Where((t) => t.Health == lowest).Select((t) => new UnitAction(UnitAction.SupportAction, [unit.Cell], t.Cell, [unit.Cell])));
+                actions.AddRange(targets.Where((t) => t.Health == lowest).Select((t) => new ActionInfo(ActionInfo.SupportAction, [unit.Cell], t.Cell, [unit.Cell])));
             }
         }
 
