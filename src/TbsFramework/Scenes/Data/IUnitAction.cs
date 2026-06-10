@@ -5,8 +5,12 @@ using TbsFramework.Scenes.Level.Control;
 
 namespace TbsFramework.Scenes.Data;
 
-public interface IUnitAction<T>
+public record struct UnitActionResult(object Result, UnitData Actor, Vector2I Target, IUnitAction Action);
+
+public interface IUnitAction
 {
+    StringName Name { get; }
+
     /// <returns><c>true</c> if <paramref name="unit"/> is allowed to perform this action, and <c>false</c> otherwise</returns>
     public bool CanPerform(UnitData unit);
 
@@ -44,14 +48,15 @@ public interface IUnitAction<T>
     /// <param name="target"></param>
     /// <returns>A data structure representing the result of <paramref name="unit"/> performing this action on cell <paramref name="target"/>.</returns>
     /// <exception cref="ArgumentException">If <paramref name="target"/> is not a valid target cell to perform this action on.</exception>
-    public T Perform(UnitData unit, Vector2I target);
+    public UnitActionResult Perform(UnitData unit, Vector2I target);
 
     /// <summary>
     /// Update a grid with the results of this action as computed by <see cref="Perform(UnitData, Vector2I)"/>.
     /// </summary>
     /// <param name="grid"></param>
-    /// <param name="results"></param>
-    public void UpdateGrid(GridData grid, T results);
+    /// <param name="result"></param>
+    /// <exception cref="ArgumentException">If <paramref name="result"/>.Result contains invalid data for performing this action.</exception>
+    public void UpdateGrid(GridData grid, UnitActionResult result);
 
     /// <summary>
     /// Simulate the results of this action, resolving any nondeterminism in some nonrandom way (such as by averaging possible results). Makes no changes

@@ -8,23 +8,33 @@ using TbsFramework.Scenes.Data;
 
 namespace TbsFramework.Demo;
 
-public class DemoSupportAction : IUnitAction<List<CombatAction>>
+public class DemoSupportAction : IUnitAction
 {
+    private static void ApplyResult(GridData grid, CombatAction action)
+    {
+        // Get the version of the action's actor on the input grid to avoid updating the wrong grid
+        UnitData target = grid.Occupants[action.Target.Cell];
+        // Remember that the amount of healing from a healing action is stored as negative damage
+        target.Health -= action.Damage;
+    }
+
+    public StringName Name => "Heal";
+
     public bool CanPerform(UnitData unit) => unit.Stats.Healing > 0;
 
     public bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => CanPerform(unit) && unit.Stats.SupportRange.Contains(source.ManhattanDistanceTo(target));
+
+    public IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => unit.GetSupportableCells(cell).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && occupant.Faction.AlliedTo(unit.Faction));
 
     public IEnumerable<Vector2I> ShowAllTargetCells(UnitData unit) => unit.GetSupportableCellsInReach();
 
     public IEnumerable<Vector2I> GetAllTargetCells(UnitData unit) => unit.GetFilteredSupportableCellsInReach();
 
-    public IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => unit.GetSupportableCells(cell);
-
-    public List<CombatAction> Perform(UnitData unit, Vector2I target)
+    public UnitActionResult Perform(UnitData unit, Vector2I target)
     {
         if (!unit.Grid.Occupants.TryGetValue(target, out UnitData occupant))
             throw new ArgumentException($"Cell {target} does not contain a unit to attack");
-        return [CombatCalculations.CreateSupportAction(unit, occupant)];
+        return new(CombatCalculations.CreateSupportAction(unit, occupant), unit, target, this);
     }
 
     public GridData Simulate(UnitData unit, Vector2I source, Vector2I target)
@@ -33,15 +43,14 @@ public class DemoSupportAction : IUnitAction<List<CombatAction>>
             throw new ArgumentException($"Cell {target} does not contain a unit to attack");
         CombatAction action = CombatCalculations.CreateSupportAction(unit, occupant);
         GridData copy = unit.Grid.Clone();
-        UpdateGrid(copy, [action]);
+        ApplyResult(copy, action);
         return copy;
     }
 
-    public void UpdateGrid(GridData grid, List<CombatAction> results)
+    public void UpdateGrid(GridData grid, UnitActionResult result)
     {
-        // Get the version of the action's actor on the input grid to avoid updating the wrong grid
-        UnitData target = grid.Occupants[results[0].Target.Cell];
-        // Remember that the amount of healing from a healing action is stored as negative damage
-        target.Health -= results[0].Damage;
+        if (result.Result is not CombatAction action)
+            throw new ArgumentException("Support action result is not a combat action");
+        ApplyResult(grid, action);
     }
 }

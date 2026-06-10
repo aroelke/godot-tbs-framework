@@ -11,6 +11,6 @@ namespace TbsFramework.Scenes.Level.Control;
 public record class ActionInfo(StringName Name, IEnumerable<Vector2I> Source, Vector2I Target, IEnumerable<Vector2I> Traversable)
 {
     public static readonly StringName AttackAction = "Attack";
-    public static readonly StringName SupportAction = "Support";
+    public static readonly StringName SupportAction = "Heal";
     public static readonly StringName EndAction = "End";
 }

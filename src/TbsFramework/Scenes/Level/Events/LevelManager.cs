@@ -14,6 +14,7 @@ using TbsFramework.Nodes.StateCharts.Reactions;
 using TbsFramework.Scenes.Level.Events.Reactions;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Rendering;
+using TbsFramework.Demo;
 
 namespace TbsFramework.Scenes.Level.Events;
 
@@ -256,19 +257,20 @@ public partial class LevelManager : Node
     {
         _targets = [];
         _options = [];
-        void AddActionOption(StringName name, IEnumerable<Vector2I> range)
+        void AddActionOption(IUnitAction action)
         {
-            if (range.Any())
+            IEnumerable<Vector2I> targets = action.GetTargetCells(_selected, _selected.Cell);
+            if (targets.Any())
             {
-                _options.Add(new(name, () => {
-                    _targets = range;
-                    _command = name;
+                _options.Add(new(action.Name, () => {
+                    _targets = targets;
+                    _command = action.Name;
                     State.SendEvent(SelectEvent);
                 }));
             }
         }
-        AddActionOption(ActionInfo.AttackAction, _selected.GetAttackableCells().Where((c) => !_grid.Occupants.GetValueOrDefault(c)?.Faction.AlliedTo(_selected) ?? false));
-        AddActionOption(ActionInfo.SupportAction, _selected.GetSupportableCells().Where((c) => _grid.Occupants.GetValueOrDefault(c)?.Faction.AlliedTo(_selected) ?? false));
+        AddActionOption(new DemoAttackAction());
+        AddActionOption(new DemoSupportAction());
         foreach (SpecialActionRegionData region in _grid.SpecialActionRegions)
         {
             if (region.CanPerform(_selected) && region.Cells.Contains(_selected.Cell))
