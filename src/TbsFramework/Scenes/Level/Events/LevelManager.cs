@@ -47,7 +47,8 @@ public partial class LevelManager : Node
     private IEnumerator<Army> _armies = null;
     private Vector2I? _initialCell = null;
     private readonly Stack<BoundedNode2D> _cameraHistory = [];
-    private StringName _command = null;
+    private StringName _cmdName = null;
+    private IUnitAction _command = null;
     private bool _ff = false;
 
     private GridData _grid = null;
@@ -140,7 +141,7 @@ public partial class LevelManager : Node
     {
         _selected.Renderer.Select();
         _initialCell = _selected.Cell;
-        _command = null;
+        _cmdName = null;
         _target = null;
         _armies.Current.Controller.MoveUnit(_selected);
     }
@@ -207,7 +208,7 @@ public partial class LevelManager : Node
     {
         if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        _command = command;
+        _cmdName = command;
     }
 
     /// <summary>Store the unit at the cell containing the target for the action chosen while selecting movement destination.</summary>
@@ -264,7 +265,8 @@ public partial class LevelManager : Node
             {
                 _options.Add(new(action.Name, () => {
                     _targets = targets;
-                    _command = action.Name;
+                    _cmdName = action.Name;
+                    _command = action;
                     State.SendEvent(SelectEvent);
                 }));
             }
@@ -314,6 +316,7 @@ public partial class LevelManager : Node
     /// <summary>Go back to selecting a destination, moving the selected unit and cursor back the unit's original cell.</summary>
     public void OnCommandingCanceled()
     {
+        _cmdName = null;
         _command = null;
 
         _selected.Cell = _initialCell.Value;
@@ -338,8 +341,8 @@ public partial class LevelManager : Node
         _target = _grid.Occupants[target];
         if (_grid.Occupants[source] != _selected)
             throw new InvalidOperationException($"Cannot choose target for unselected unit at {source} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        if ((_command == ActionInfo.AttackAction && _target.Faction.AlliedTo(_selected)) || (_command == ActionInfo.SupportAction && !_target.Faction.AlliedTo(_selected)))
-            throw new ArgumentException($"{_selected.Faction.Name} unit at {_selected.Cell} cannot {_command} unit at {target}");
+        if ((_cmdName == ActionInfo.AttackAction && _target.Faction.AlliedTo(_selected)) || (_cmdName == ActionInfo.SupportAction && !_target.Faction.AlliedTo(_selected)))
+            throw new ArgumentException($"{_selected.Faction.Name} unit at {_selected.Cell} cannot {_cmdName} unit at {target}");
         State.SendEvent(DoneEvent);
     }
 
@@ -373,12 +376,12 @@ public partial class LevelManager : Node
     /// </remarks>
     public void OnCombatEntered()
     {
-        if (_command == ActionInfo.AttackAction)
-            _combatResults = CombatCalculations.AttackResults(_selected, _target, false);
-        else if (_command == ActionInfo.SupportAction)
-            _combatResults = [CombatCalculations.CreateSupportAction(_selected, _target)];
+        if (_command.Name == ActionInfo.AttackAction)
+            _combatResults = _command.Perform(_selected, _target.Cell).Result as List<CombatAction>;
+        else if (_command.Name == ActionInfo.SupportAction)
+            _combatResults = [(CombatAction)_command.Perform(_selected, _target.Cell).Result];
         else
-            throw new NotSupportedException($"Unknown action {_command}");
+            throw new NotSupportedException($"Unknown action {_cmdName}");
 
         void skip()
         {
@@ -407,6 +410,7 @@ public partial class LevelManager : Node
     public void OnCombatEnteredTree()
     {
         ApplyCombatResults();
+        _command = null;
         SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, () => State.SendEvent(DoneEvent), (uint)ConnectFlags.OneShot);
     }
 #endregion
