@@ -15,6 +15,7 @@ using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Rendering;
 using TbsFramework.Demo;
 using GD_NET_ScOUT;
+using System.Diagnostics.Tracing;
 
 namespace TbsFramework.Scenes.Level.Events;
 
@@ -47,7 +48,6 @@ public partial class LevelManager : Node
     private IEnumerator<Army> _armies = null;
     private Vector2I? _initialCell = null;
     private readonly Stack<BoundedNode2D> _cameraHistory = [];
-    private StringName _cmdName = null;
     private IUnitAction _command = null;
     private bool _ff = false;
 
@@ -141,7 +141,6 @@ public partial class LevelManager : Node
     {
         _selected.Renderer.Select();
         _initialCell = _selected.Cell;
-        _cmdName = null;
         _target = null;
         _armies.Current.Controller.MoveUnit(_selected);
     }
@@ -208,7 +207,10 @@ public partial class LevelManager : Node
     {
         if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        _cmdName = command;
+        if (command == ActionInfo.AttackAction)
+            _command = new DemoAttackAction();
+        else if (command == ActionInfo.SupportAction)
+            _command = new DemoSupportAction();
     }
 
     /// <summary>Store the unit at the cell containing the target for the action chosen while selecting movement destination.</summary>
@@ -265,7 +267,6 @@ public partial class LevelManager : Node
             {
                 _options.Add(new(action.Name, () => {
                     _targets = targets;
-                    _cmdName = action.Name;
                     _command = action;
                     State.SendEvent(SelectEvent);
                 }));
@@ -316,7 +317,6 @@ public partial class LevelManager : Node
     /// <summary>Go back to selecting a destination, moving the selected unit and cursor back the unit's original cell.</summary>
     public void OnCommandingCanceled()
     {
-        _cmdName = null;
         _command = null;
 
         _selected.Cell = _initialCell.Value;
@@ -341,8 +341,8 @@ public partial class LevelManager : Node
         _target = _grid.Occupants[target];
         if (_grid.Occupants[source] != _selected)
             throw new InvalidOperationException($"Cannot choose target for unselected unit at {source} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        if ((_cmdName == ActionInfo.AttackAction && _target.Faction.AlliedTo(_selected)) || (_cmdName == ActionInfo.SupportAction && !_target.Faction.AlliedTo(_selected)))
-            throw new ArgumentException($"{_selected.Faction.Name} unit at {_selected.Cell} cannot {_cmdName} unit at {target}");
+        if (!_command.CanPerform(_selected, source, target))
+            throw new ArgumentException($"{_selected.Faction.Name} unit at {source} cannot {_command.Name} unit at {target}");
         State.SendEvent(DoneEvent);
     }
 
