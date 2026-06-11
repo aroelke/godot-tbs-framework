@@ -6,6 +6,7 @@ using Godot;
 using TbsFramework.Nodes.Components;
 using TbsFramework.Scenes.Combat;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Control;
 using TbsFramework.UI.Controls.Device;
 
 namespace TbsFramework.Demo;
@@ -57,9 +58,17 @@ public partial class DemoMapCombatController : CombatController
     /// <summary>Time, in seconds, after a combat action has completed to wait until beginning the next one.</summary>
     [Export(PropertyHint.None, "suffix:s")] public double TurnDelay = 0.2;
 
-    public override void Initialize(UnitData left, UnitData right, IImmutableList<CombatAction> actions)
+    public override void Initialize(UnitData left, UnitData right, UnitActionResult result)
     {
-        base.Initialize(left, right, actions);
+        base.Initialize(left, right, result);
+
+        List<CombatAction> actions;
+        if (result.Action.Name == ActionInfo.AttackAction)
+            actions = result.Result as List<CombatAction>;
+        else if (result.Action.Name == ActionInfo.SupportAction)
+            actions = [(CombatAction)result.Result];
+        else
+            throw new ArgumentException($"Unknown action {result.Action.Name}");
 
         _animations = new()
         {

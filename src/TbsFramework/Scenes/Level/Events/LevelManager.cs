@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
@@ -15,6 +14,7 @@ using TbsFramework.Scenes.Level.Events.Reactions;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Rendering;
 using TbsFramework.Demo;
+using GD_NET_ScOUT;
 
 namespace TbsFramework.Scenes.Level.Events;
 
@@ -326,7 +326,7 @@ public partial class LevelManager : Node
     }
 #endregion
 #region Targeting State
-    private List<CombatAction> _combatResults = null;
+    private UnitActionResult _result = default;
 
     /// <summary>Instruct the current army's controller to choose a target for its action.</summary>
     public void OnTargetingEntered() => _armies.Current.Controller.SelectTarget(_selected, _targets);
@@ -350,21 +350,6 @@ public partial class LevelManager : Node
     public void OnTargetingCanceled(Vector2I source) => State.SendEvent(CancelEvent);
 #endregion
 #region In Combat
-    private void ApplyCombatResults()
-    {
-        foreach (CombatAction action in _combatResults)
-        {
-            if (action.Hit)
-            {
-                action.Target.Health -= action.Damage;
-                if (action.Target.Health <= 0)
-                    action.Target.Renderer.Die();
-            }
-        }
-        _target = null;
-        _combatResults = null;
-    }
-
     /// <summary>
     /// Compute the results of combat and then begin the combat choreography unless <see cref="SkipCombat"/> is <c>true</c> or the turn
     /// is being fast-forwarded (see <see cref="OnTurnFastForward"/>).
@@ -376,16 +361,11 @@ public partial class LevelManager : Node
     /// </remarks>
     public void OnCombatEntered()
     {
-        if (_command.Name == ActionInfo.AttackAction)
-            _combatResults = _command.Perform(_selected, _target.Cell).Result as List<CombatAction>;
-        else if (_command.Name == ActionInfo.SupportAction)
-            _combatResults = [(CombatAction)_command.Perform(_selected, _target.Cell).Result];
-        else
-            throw new NotSupportedException($"Unknown action {_cmdName}");
+        _result = _command.Perform(_selected, _target.Cell);
 
         void skip()
         {
-            ApplyCombatResults();
+            _result.UpdateGrid(_selected.Grid);
             State.SendEvent(DoneEvent);
         }
 
@@ -393,12 +373,12 @@ public partial class LevelManager : Node
             skip();
         else if (!string.IsNullOrEmpty(CombatScenePath) && !PlayCombatOnMap)
         {
-            SceneManager.Singleton.Connect<CombatController>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, [.. _combatResults]), (uint)ConnectFlags.OneShot);
+            SceneManager.Singleton.Connect<CombatController>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, _result), (uint)ConnectFlags.OneShot);
             SceneManager.CallScene(CombatScenePath);
         }
         else if (_combat is not null)
         {
-            _combat.Initialize(_selected, _target, [.. _combatResults]);
+            _combat.Initialize(_selected, _target, _result);
             _combat.Connect(CombatController.SignalName.CombatEnded, skip, (uint)ConnectFlags.OneShot);
             _combat.Start();
         }
@@ -409,9 +389,15 @@ public partial class LevelManager : Node
     /// <summary>Update the map to reflect combat results when it's added back to the tree.</summary>
     public void OnCombatEnteredTree()
     {
-        ApplyCombatResults();
-        _command = null;
+        _result.UpdateGrid(_selected.Grid);
         SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, () => State.SendEvent(DoneEvent), (uint)ConnectFlags.OneShot);
+    }
+
+    /// <summary>Clear out the command and result when combat is over.</summary>
+    public void OnCombatExited()
+    {
+        _result = default;
+        _command = null;
     }
 #endregion
 #region End Action State

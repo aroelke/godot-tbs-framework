@@ -5,7 +5,10 @@ using TbsFramework.Scenes.Level.Control;
 
 namespace TbsFramework.Scenes.Data;
 
-public record struct UnitActionResult(object Result, UnitData Actor, Vector2I Target, IUnitAction Action);
+public record struct UnitActionResult(object Result, UnitData Actor, Vector2I Target, IUnitAction Action)
+{
+    public readonly void UpdateGrid(GridData grid) => Action.UpdateGrid(grid, this);
+}
 
 public interface IUnitAction
 {

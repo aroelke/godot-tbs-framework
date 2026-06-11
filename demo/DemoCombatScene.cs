@@ -9,6 +9,7 @@ using TbsFramework.Nodes.Components;
 using TbsFramework.Scenes;
 using TbsFramework.Scenes.Combat;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Control;
 using TbsFramework.UI;
 using TbsFramework.UI.Controls.Device;
 
@@ -54,11 +55,16 @@ public partial class DemoCombatScene : CombatController
 
     public DemoCombatScene() : base() { _cache = new(this); }
 
-    public override void Initialize(UnitData left, UnitData right, IImmutableList<CombatAction> actions)
+    public override void Initialize(UnitData left, UnitData right, UnitActionResult result)
     {
-        base.Initialize(left, right, actions);
+        base.Initialize(left, right, result);
 
-        _actions = actions;
+        if (result.Action.Name == ActionInfo.AttackAction)
+            _actions = [.. result.Result as List<CombatAction>];
+        else if (result.Action.Name == ActionInfo.SupportAction)
+            _actions = [(CombatAction)result.Result];
+        else
+            throw new ArgumentException($"Unknown action {result.Action.Name}");
 
         _animations[left] = left.Class.InstantiateCombatAnimations(left.Faction);
         _animations[left].SetFacing(Vector2.Right);
