@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="DemoAttackAction" load_steps=2 format=3 uid="uid://def34ulxsm784"]
+
+[ext_resource type="Script" uid="uid://db17qpe1j6t8u" path="res://demo/unit/DemoAttackAction.cs" id="1_f1r84"]
+
+[resource]
+script = ExtResource("1_f1r84")
+metadata/_custom_type_script = "uid://db17qpe1j6t8u"

@@ -56,6 +56,11 @@ public partial class DemoAttackAction : UnitAction
     {
         if (result.Result is not List<CombatAction> actions)
             throw new ArgumentException("Attack action result is not a list of combat actions");
+
         ApplyResults(grid, actions);
+        if (result.Actor.Health <= 0)
+            result.Actor.Renderer.Die();
+        if (grid.Occupants[result.Target].Health <= 0)
+            grid.Occupants[result.Target].Renderer.Die();
     }
 }

@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="DemoSupportAction" load_steps=2 format=3 uid="uid://uqhxljarr8cc"]
+
+[ext_resource type="Script" uid="uid://birqntuovj4nt" path="res://demo/unit/DemoSupportAction.cs" id="1_784qf"]
+
+[resource]
+script = ExtResource("1_784qf")
+metadata/_custom_type_script = "uid://birqntuovj4nt"

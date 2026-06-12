@@ -65,6 +65,9 @@ public partial class LevelManager : Node
     public LevelManager() : base() { _cache = new(this); }
 #endregion
 #region Exports
+    /// <summary>List of all possible actions that can be performed by units in this level.</summary>
+    [Export] public UnitAction[] AvailableActions = [];
+
     /// <summary>
     /// <see cref="Army"/> that gets the first turn and is controlled by the player. If null, use the first <see cref="Army"/>
     /// in the child list. After that, go down the child list in order, wrapping when at the end.
@@ -205,10 +208,9 @@ public partial class LevelManager : Node
     {
         if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        if (command == ActionInfo.AttackAction)
-            _command = new DemoAttackAction();
-        else if (command == ActionInfo.SupportAction)
-            _command = new DemoSupportAction();
+        foreach (UnitAction action in AvailableActions)
+            if (command == action.Name)
+                _command = action;
     }
 
     /// <summary>Store the unit at the cell containing the target for the action chosen while selecting movement destination.</summary>
@@ -258,7 +260,7 @@ public partial class LevelManager : Node
     {
         _targets = [];
         _options = [];
-        void AddActionOption(UnitAction action)
+        foreach (UnitAction action in AvailableActions)
         {
             IEnumerable<Vector2I> targets = action.GetTargetCells(_selected, _selected.Cell);
             if (targets.Any())
@@ -270,8 +272,6 @@ public partial class LevelManager : Node
                 }));
             }
         }
-        AddActionOption(new DemoAttackAction());
-        AddActionOption(new DemoSupportAction());
         foreach (SpecialActionRegionData region in _grid.SpecialActionRegions)
         {
             if (region.CanPerform(_selected) && region.Cells.Contains(_selected.Cell))
