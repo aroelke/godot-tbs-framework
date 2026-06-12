@@ -14,8 +14,6 @@ using TbsFramework.Scenes.Level.Events.Reactions;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Rendering;
 using TbsFramework.Demo;
-using GD_NET_ScOUT;
-using System.Diagnostics.Tracing;
 
 namespace TbsFramework.Scenes.Level.Events;
 
@@ -48,7 +46,7 @@ public partial class LevelManager : Node
     private IEnumerator<Army> _armies = null;
     private Vector2I? _initialCell = null;
     private readonly Stack<BoundedNode2D> _cameraHistory = [];
-    private IUnitAction _command = null;
+    private UnitAction _command = null;
     private bool _ff = false;
 
     private GridData _grid = null;
@@ -260,7 +258,7 @@ public partial class LevelManager : Node
     {
         _targets = [];
         _options = [];
-        void AddActionOption(IUnitAction action)
+        void AddActionOption(UnitAction action)
         {
             IEnumerable<Vector2I> targets = action.GetTargetCells(_selected, _selected.Cell);
             if (targets.Any())

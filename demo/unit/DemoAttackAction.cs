@@ -8,7 +8,8 @@ using TbsFramework.Scenes.Data;
 
 namespace TbsFramework.Demo;
 
-public class DemoAttackAction : IUnitAction
+[GlobalClass, Tool]
+public partial class DemoAttackAction : UnitAction
 {
     private static void ApplyResults(GridData grid, List<CombatAction> results)
     {
@@ -22,26 +23,26 @@ public class DemoAttackAction : IUnitAction
         }
     }
 
-    public StringName Name => "Attack";
+    public override StringName Name { get => "Attack"; set {}}
 
-    public bool CanPerform(UnitData unit) => unit.Stats.Attack > 0;
+    public override bool CanPerform(UnitData unit) => unit.Stats.Attack > 0;
 
-    public bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => CanPerform(unit) && unit.Stats.AttackRange.Contains(source.ManhattanDistanceTo(target));
+    public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => CanPerform(unit) && unit.Stats.AttackRange.Contains(source.ManhattanDistanceTo(target));
 
-    public IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => unit.GetAttackableCells(cell).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && !occupant.Faction.AlliedTo(unit.Faction));
+    public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => unit.GetAttackableCells(cell).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && !occupant.Faction.AlliedTo(unit.Faction));
 
-    public IEnumerable<Vector2I> ShowAllTargetCells(UnitData unit) => unit.GetAttackableCellsInReach();
+    public override IEnumerable<Vector2I> ShowAllTargetCells(UnitData unit) => unit.GetAttackableCellsInReach();
 
-    public IEnumerable<Vector2I> GetAllTargetCells(UnitData unit) => unit.GetFilteredAttackableCellsInReach();
+    public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit) => unit.GetFilteredAttackableCellsInReach();
 
-    public UnitActionResult Perform(UnitData unit, Vector2I target)
+    public override UnitActionResult Perform(UnitData unit, Vector2I target)
     {
         if (!unit.Grid.Occupants.TryGetValue(target, out UnitData occupant))
             throw new ArgumentException($"Cell {target} does not contain a unit to attack");
         return new(CombatCalculations.AttackResults(unit, occupant, false), unit, target, this);
     }
 
-    public GridData Simulate(UnitData unit, Vector2I source, Vector2I target)
+    public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target)
     {
         if (!unit.Grid.Occupants.TryGetValue(target, out UnitData occupant))
             throw new ArgumentException($"Cell {target} does not contain a unit to attack");
@@ -51,7 +52,7 @@ public class DemoAttackAction : IUnitAction
         return copy;
     }
 
-    public void UpdateGrid(GridData grid, UnitActionResult result)
+    public override void UpdateGrid(GridData grid, UnitActionResult result)
     {
         if (result.Result is not List<CombatAction> actions)
             throw new ArgumentException("Attack action result is not a list of combat actions");

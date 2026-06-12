@@ -8,7 +8,8 @@ using TbsFramework.Scenes.Data;
 
 namespace TbsFramework.Demo;
 
-public class DemoSupportAction : IUnitAction
+[GlobalClass, Tool]
+public partial class DemoSupportAction : UnitAction
 {
     private static void ApplyResult(GridData grid, CombatAction action)
     {
@@ -18,26 +19,26 @@ public class DemoSupportAction : IUnitAction
         target.Health -= action.Damage;
     }
 
-    public StringName Name => "Heal";
+    public override StringName Name { get => "Heal"; set {}}
 
-    public bool CanPerform(UnitData unit) => unit.Stats.Healing > 0;
+    public override bool CanPerform(UnitData unit) => unit.Stats.Healing > 0;
 
-    public bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => CanPerform(unit) && unit.Stats.SupportRange.Contains(source.ManhattanDistanceTo(target));
+    public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => CanPerform(unit) && unit.Stats.SupportRange.Contains(source.ManhattanDistanceTo(target));
 
-    public IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => unit.GetSupportableCells(cell).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && occupant.Faction.AlliedTo(unit.Faction));
+    public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => unit.GetSupportableCells(cell).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && occupant.Faction.AlliedTo(unit.Faction));
 
-    public IEnumerable<Vector2I> ShowAllTargetCells(UnitData unit) => unit.GetSupportableCellsInReach();
+    public override IEnumerable<Vector2I> ShowAllTargetCells(UnitData unit) => unit.GetSupportableCellsInReach();
 
-    public IEnumerable<Vector2I> GetAllTargetCells(UnitData unit) => unit.GetFilteredSupportableCellsInReach();
+    public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit) => unit.GetFilteredSupportableCellsInReach();
 
-    public UnitActionResult Perform(UnitData unit, Vector2I target)
+    public override UnitActionResult Perform(UnitData unit, Vector2I target)
     {
         if (!unit.Grid.Occupants.TryGetValue(target, out UnitData occupant))
             throw new ArgumentException($"Cell {target} does not contain a unit to attack");
         return new(CombatCalculations.CreateSupportAction(unit, occupant), unit, target, this);
     }
 
-    public GridData Simulate(UnitData unit, Vector2I source, Vector2I target)
+    public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target)
     {
         if (!unit.Grid.Occupants.TryGetValue(target, out UnitData occupant))
             throw new ArgumentException($"Cell {target} does not contain a unit to attack");
@@ -47,7 +48,7 @@ public class DemoSupportAction : IUnitAction
         return copy;
     }
 
-    public void UpdateGrid(GridData grid, UnitActionResult result)
+    public override void UpdateGrid(GridData grid, UnitActionResult result)
     {
         if (result.Result is not CombatAction action)
             throw new ArgumentException("Support action result is not a combat action");
