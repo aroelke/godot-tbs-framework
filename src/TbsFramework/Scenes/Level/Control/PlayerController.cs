@@ -51,7 +51,7 @@ public partial class PlayerController : ArmyController
     private ActionLayers      ActionLayers        => _cache.GetNode<ActionLayers>("ActionLayers");
     private TileMapLayer      MoveLayer           => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Move");
     private TileMapLayer      AttackLayer         => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Attack");
-    private TileMapLayer      SupportLayer        => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Support");
+    private TileMapLayer      SupportLayer        => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Heal");
     private ActionLayers      ZoneLayers          => _cache.GetNode<ActionLayers>("ZoneLayers");
     private TileMapLayer      AllyTraversableZone => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/TraversableZone");
     private TileMapLayer      LocalDangerZone     => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/LocalDangerZone");
@@ -718,8 +718,9 @@ public partial class PlayerController : ArmyController
     public override void CommandUnit(UnitData source, UnitAction[] commands, StringName cancel)
     {
         ActionLayers.Clear(MoveLayer.Name);
-        ActionLayers[AttackLayer.Name] = source.GetAttackableCells().Where((c) => !Grid.Data.Occupants.GetValueOrDefault(c)?.Faction.AlliedTo(source) ?? false);
-        ActionLayers[SupportLayer.Name] = source.GetSupportableCells().Where((c) => Grid.Data.Occupants.GetValueOrDefault(c)?.Faction.AlliedTo(source) ?? false);
+        foreach (UnitAction action in commands)
+            if (action.Name == AttackLayer.Name || action.Name == SupportLayer.Name)
+                ActionLayers[action.Name] = action.GetTargetCells(source, source.Cell);
 
         Callable.From(() => {
             State.SendEvent(CommandEvent);
