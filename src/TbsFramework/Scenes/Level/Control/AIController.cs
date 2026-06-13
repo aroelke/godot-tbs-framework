@@ -398,7 +398,7 @@ public partial class AIController : ArmyController
             ConfirmMove();
     }
 
-    public override void CommandUnit(UnitData source, Godot.Collections.Array<StringName> commands, StringName cancel)
+    public override void CommandUnit(UnitData source, UnitAction[] commands, StringName cancel)
     {
         EmitSignal(SignalName.UnitCommanded, source.Cell, _action);
     }

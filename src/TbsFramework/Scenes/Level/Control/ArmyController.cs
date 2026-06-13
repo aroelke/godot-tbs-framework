@@ -98,7 +98,7 @@ public abstract partial class ArmyController : Node
     /// <param name="source">Unit chosen to perform a command.</param>
     /// <param name="commands">List of commands available to perform.</param>
     /// <param name="cancel">Command to perform on cancel.</param>
-    public abstract void CommandUnit(UnitData source, Godot.Collections.Array<StringName> commands, StringName cancel);
+    public abstract void CommandUnit(UnitData source, UnitAction[] commands, StringName cancel);
 
     /// <summary>Choose the target for an action that was selected.</summary>
     /// <param name="source">Unit that will perform the action.</param>

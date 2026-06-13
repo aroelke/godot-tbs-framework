@@ -715,19 +715,19 @@ public partial class PlayerController : ArmyController
     }
 #endregion
 #region Command Selection
-    public override void CommandUnit(UnitData source, Godot.Collections.Array<StringName> commands, StringName cancel)
+    public override void CommandUnit(UnitData source, UnitAction[] commands, StringName cancel)
     {
         ActionLayers.Clear(MoveLayer.Name);
-        ActionLayers[AttackLayer.Name] = source.GetAttackableCells().Where((c) => !(Grid.Data.Occupants.GetValueOrDefault(c) as UnitData)?.Faction.AlliedTo(source) ?? false);
-        ActionLayers[SupportLayer.Name] = source.GetSupportableCells().Where((c) => (Grid.Data.Occupants.GetValueOrDefault(c) as UnitData)?.Faction.AlliedTo(source) ?? false);
+        ActionLayers[AttackLayer.Name] = source.GetAttackableCells().Where((c) => !Grid.Data.Occupants.GetValueOrDefault(c)?.Faction.AlliedTo(source) ?? false);
+        ActionLayers[SupportLayer.Name] = source.GetSupportableCells().Where((c) => Grid.Data.Occupants.GetValueOrDefault(c)?.Faction.AlliedTo(source) ?? false);
 
         Callable.From(() => {
             State.SendEvent(CommandEvent);
 
-            List<NamedAction> cmds = [.. commands.Select((c) => new NamedAction() { Name = c, Action = () => {
-                ActionLayers.Keep(c);
+            List<NamedAction> cmds = [.. commands.Select((c) => new NamedAction() { Name = c.Name, Action = () => {
+                ActionLayers.Keep(c.Name);
                 State.SendEvent(FinishEvent);
-                EmitSignal(SignalName.UnitCommanded, source.Cell, c);
+                EmitSignal(SignalName.UnitCommanded, source.Cell, c.Name);
             }})];
             if (_path.Count == 1) // If there's only one cell in the path, it must be the selected unit's starting cell
             {

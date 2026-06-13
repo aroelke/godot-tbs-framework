@@ -284,7 +284,7 @@ public partial class LevelManager : Node
         }
         _options.Add(new(ActionInfo.EndAction, () => State.SendEvent(SkipEvent)));
 
-        _armies.Current.Controller.CommandUnit(_selected, [.. _options.Select(static (o) => o.Name)], CancelCommand);
+        _armies.Current.Controller.CommandUnit(_selected, AvailableActions, CancelCommand);
     }
 
     /// <summary>Initiate the command chosen by the selected unit.  See <see cref="OnCommandingEntered"/> for effects of commands.</summary>
