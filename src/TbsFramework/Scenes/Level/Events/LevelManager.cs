@@ -249,8 +249,24 @@ public partial class LevelManager : Node
     }
 #endregion
 #region Unit Commanding State
+    private partial class UnperformableAction(StringName name) : UnitAction
+    {
+        public override StringName Name { get => name; set {}}
+
+        public override bool CanPerform(UnitData unit) => true;
+        public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => true;
+        public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => [];
+        public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit) => [];
+        public override IEnumerable<Vector2I> ShowAllTargetCells(UnitData unit) => [];
+        public override UnitActionResult Perform(UnitData unit, Vector2I target) => throw new InvalidOperationException("Cancel action can't be performed");
+        public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target) => throw new InvalidOperationException("Cancel action can't be simulated");
+        public override void UpdateGrid(GridData grid, UnitActionResult result) => throw new InvalidOperationException("Cancel action can't update the grid");
+    }
+
     private List<NamedAction> _options = [];
     private IEnumerable<Vector2I> _targets = [];
+    private readonly UnperformableAction _cancel = new(CancelCommand);
+    private readonly UnperformableAction _end = new(ActionInfo.EndAction);
 
     /// <summary>
     /// Tell the current army controller what valid commands are available and the actions that correspond to them. Then wait for it to make
@@ -284,7 +300,7 @@ public partial class LevelManager : Node
         }
         _options.Add(new(ActionInfo.EndAction, () => State.SendEvent(SkipEvent)));
 
-        _armies.Current.Controller.CommandUnit(_selected, AvailableActions, CancelCommand);
+        _armies.Current.Controller.CommandUnit(_selected, [..AvailableActions, _end], _cancel.Name);
     }
 
     /// <summary>Initiate the command chosen by the selected unit.  See <see cref="OnCommandingEntered"/> for effects of commands.</summary>
@@ -296,7 +312,7 @@ public partial class LevelManager : Node
     {
         if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        if (command == CancelCommand)
+        if (command == _cancel.Name)
         {
             State.SendEvent(CancelEvent);
             return;
