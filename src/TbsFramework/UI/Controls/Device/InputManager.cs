@@ -1,5 +1,6 @@
 using System.Linq;
 using Godot;
+using TbsFramework.Extensions;
 using TbsFramework.Nodes;
 
 namespace TbsFramework.UI.Controls.Device;
@@ -48,7 +49,7 @@ public partial class InputManager : Node2D
     public static InputManager Singleton => AutoloadNodes.GetNode<InputManager>("InputManager");
 
     /// <returns><c>true</c> if the mouse is in the <see cref="Viewport"/>, and <c>false</c> otherwise.</returns>
-    public static bool IsMouseOnScreen() => _lastKnownPointerPosition is null;
+    public static bool IsMouseOnScreen() => Singleton.GetViewport().GetVisibleRect().Contains(Singleton.GetViewport().GetMousePosition(), true);
 
     /// <returns>
     /// The position of the mouse on the <see cref="Viewport"/> or the position on the edge of the <see cref="Viewport"/> closest to where

@@ -583,10 +583,18 @@ public partial class PlayerController : ArmyController
             UpdatePath(Path.Empty(Cursor.Grid.Data, _traversable).Add(unit.Cell));
         }
         if (Grid.CellOf(Pointer.Position) != unit.Cell)
+        {
             Pointer.Connect(Pointer.SignalName.PointerMoved, Callable.From<Vector2>(_ => InitializePathSelection()), (uint)ConnectFlags.OneShot);
+            if (Cursor.Data.Cell == unit.Cell)
+                Cursor.OnCellChanged(Grid.CellOf(Pointer.Position), Cursor.Data.Cell);
+            else
+                Cursor.Data.Cell = unit.Cell;
+        }
         else
+        {
             InitializePathSelection();
-        Cursor.Data.Cell = unit.Cell;
+            Cursor.Data.Cell = unit.Cell;
+        }
     }
 
     private void UpdatePath(Path path)

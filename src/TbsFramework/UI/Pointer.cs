@@ -73,8 +73,6 @@ public partial class Pointer : BoundedNode2D
     /// <returns>Position in the <see cref="World"/> that's at the same place as the one in the <see cref="Viewport"/>.</returns>
     private Vector2 ViewportToWorld(Vector2 viewport) => World.GetGlobalTransformWithCanvas().AffineInverse()*viewport;
 
-    private bool MouseInWorld() => World.BoundingBox.Contains(ViewportToWorld(InputManager.GetMousePosition()), perimeter:true);
-
     /// <summary>Bounding rectangle where the pointer is allowed to move.</summary>
     [Export] public Rect2I Bounds = new(0, 0, 0, 0);
 
@@ -124,7 +122,7 @@ public partial class Pointer : BoundedNode2D
     /// <param name="target">Location to move to.</param>
     public void Warp(Vector2 target)
     {
-        if (MouseInWorld() && (DeviceManager.Mode == InputMode.Mouse || !Active))
+        if (InputManager.IsMouseOnScreen() && (DeviceManager.Mode == InputMode.Mouse || !Active))
             GetViewport().WarpMouse(WorldToViewport(target));
         Move(target);
     }
@@ -148,7 +146,7 @@ public partial class Pointer : BoundedNode2D
         _flyer.SetTrans(Tween.TransitionType.Cubic).SetEase(Tween.EaseType.Out).TweenMethod(
             Callable.From((Vector2 position) => {
                 Position = position;
-                if (MouseInWorld())
+                if (InputManager.IsMouseOnScreen())
                     GetViewport().WarpMouse(ViewportPosition);
             }),
             Position,
@@ -219,7 +217,7 @@ public partial class Pointer : BoundedNode2D
     /// <summary>When transitioning to the mouse state from other control states (not waiting ones), warp the mouse to the pointer's position.</summary>
     public void OnToMouseStateTaken()
     {
-        if (MouseInWorld())
+        if (InputManager.IsMouseOnScreen())
             GetViewport().WarpMouse(WorldToViewport(Position));
     }
 
@@ -237,7 +235,7 @@ public partial class Pointer : BoundedNode2D
     /// <summary>During mouse control, move to the mouse position every step.</summary>
     public void OnMouseStateProcess(double delta)
     {
-        if (MouseInWorld())
+        if (InputManager.IsMouseOnScreen())
         {
             Vector2 mouse = ViewportToWorld(InputManager.GetMousePosition());
             if (Position != mouse)
