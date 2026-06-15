@@ -732,7 +732,7 @@ public partial class PlayerController : ArmyController
     }
 #endregion
 #region Command Selection
-    public override void CommandUnit(UnitData source, UnitAction[] commands, StringName cancel)
+    public override void CommandUnit(UnitData source, UnitAction[] commands, UnitAction cancel)
     {
         ActionLayers.Clear(MoveLayer.Name);
         foreach (UnitAction action in commands)
@@ -751,7 +751,7 @@ public partial class PlayerController : ArmyController
             {
                 cmds.Add(new() { Name = "Deselect", Action = () => {
                     State.SendEvent(CancelEvent);
-                    EmitSignal(SignalName.UnitCommanded, source.Cell, cancel);
+                    EmitSignal(SignalName.UnitCommanded, source.Cell, cancel.Name);
                     State.SendEvent(CancelEvent); // Now we're in path selection state, so also cancel that
                     EmitSignal(SignalName.SelectionCanceled);
                     OnCancel();
@@ -759,7 +759,7 @@ public partial class PlayerController : ArmyController
             }
             ShowMenu(source.Cell, cmds, () => {
                 State.SendEvent(CancelEvent);
-                EmitSignal(SignalName.UnitCommanded, source.Cell, cancel);
+                EmitSignal(SignalName.UnitCommanded, source.Cell, cancel.Name);
                 OnCancel();
             });
         }).CallDeferred();
