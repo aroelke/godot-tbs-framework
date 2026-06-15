@@ -253,6 +253,8 @@ public partial class LevelManager : Node
     {
         public override StringName Name { get => name; set {}}
 
+        private UnperformableAction() : this("") {} // Required or Godot crashes after building the C# project
+
         public override bool CanPerform(UnitData unit) => true;
         public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => true;
         public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => [];
