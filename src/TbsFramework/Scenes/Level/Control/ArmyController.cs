@@ -88,7 +88,11 @@ public abstract partial class ArmyController : Node
     public abstract void FastForwardTurn();
 
     /// <summary>Choose a unit in the army to select. Once the unit has been selected, emit <c>UnitSelected</c>.</summary>
-    public abstract void SelectUnit();
+    /// <param name="actions">
+    /// Action ranges to display along with the highlighted unit's movement range. Order indicates priority when multiple actions can
+    /// be used, but it's up to the implementor to determine what that priority is.
+    /// </param>
+    public abstract void SelectUnit(UnitAction[] actions);
 
     /// <summary>Choose the path along which a unit will move. Once the path has been determined, emit <c>UnitMoved</c>.</summary>
     /// <param name="unit">Unit to move.</param>

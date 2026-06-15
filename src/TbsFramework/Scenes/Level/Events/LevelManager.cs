@@ -111,7 +111,7 @@ public partial class LevelManager : Node
 #endregion
 #region Idle State
     /// <summary>Update the UI when re-entering idle.</summary>
-    public void OnIdleEntered() => _armies.Current.Controller.SelectUnit();
+    public void OnIdleEntered() => _armies.Current.Controller.SelectUnit(AvailableActions);
 
     /// <summary>When a unit is selected, move to the next state (choosing its destination).</summary>
     /// <param name="cell">Cell containing hte selected unit.</param>

@@ -32,6 +32,7 @@ public partial class PlayerController : ArmyController
 
     private readonly NodeCache _cache = null;
     private Grid _grid = null;
+    private UnitAction[] _actions = [];
     private TileSet _overlayTiles = null;
     private TileSet _pathTiles = null;
     private int _pathTerrainSet = -1, _pathTerrain = -1;
@@ -429,8 +430,10 @@ public partial class PlayerController : ArmyController
     }
 #endregion
 #region Unit Selection
-    public override void SelectUnit()
+    public override void SelectUnit(UnitAction[] actions)
     {
+        _actions = actions;
+
         Cursor.Resume();
         Pointer.StopWaiting();
         ActionLayers.Clear();
@@ -552,8 +555,9 @@ public partial class PlayerController : ArmyController
         if (Grid.Data.Occupants.GetValueOrDefault(cell) is UnitData unit)
         {
             ActionLayers[MoveLayer.Name] = unit.GetTraversableCells();
-            ActionLayers[AttackLayer.Name] = unit.GetFilteredAttackableCellsInReach();
-            ActionLayers[SupportLayer.Name] = unit.GetFilteredSupportableCellsInReach();
+            foreach (UnitAction action in _actions)
+                if (action.Name == AttackLayer.Name || action.Name == SupportLayer.Name)
+                    ActionLayers[action.Name] = action.ShowAllTargetCells(unit);
         }
     }
 

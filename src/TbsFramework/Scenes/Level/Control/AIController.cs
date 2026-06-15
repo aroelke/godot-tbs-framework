@@ -378,7 +378,7 @@ public partial class AIController : ArmyController
         FastForwardTransition.TransitionOut();
     }
 
-    public override async void SelectUnit()
+    public override async void SelectUnit(UnitAction[] actions)
     {
         (_selected, _destination, _action, Vector2I target) = await Task.Run(() => ComputeAction(Faction.GetUnits(Grid.Data).Where(static (u) => u.Active)));
         if (Grid.Data.Occupants.TryGetValue(target, out UnitData unit))
