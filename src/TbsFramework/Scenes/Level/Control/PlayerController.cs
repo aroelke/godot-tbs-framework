@@ -32,7 +32,7 @@ public partial class PlayerController : ArmyController
 
     private readonly NodeCache _cache = null;
     private Grid _grid = null;
-    private UnitAction[] _actions = [];
+    private UnitAction[] _actions = null;
     private TileSet _overlayTiles = null;
     private TileSet _pathTiles = null;
     private int _pathTerrainSet = -1, _pathTerrain = -1;
@@ -563,12 +563,16 @@ public partial class PlayerController : ArmyController
 
     public void OnSelectedPointerStopped(Vector2 position) => OnSelectCursorCellEntered(Grid.CellOf(position));
 
-    public void OnSelectExited() => Cursor.CellSelected -= ConfirmCursorSelection;
+    public void OnSelectExited()
+    {
+        Cursor.CellSelected -= ConfirmCursorSelection;
+        _actions = null;
+    }
 #endregion
 #region Path Selection
     private StringName _command = null;
 
-    public override void MoveUnit(UnitData unit)
+    public override void MoveUnit(UnitData unit, UnitAction[] actions)
     {
         Cursor.Resume();
         Pointer.StopWaiting();
@@ -581,8 +585,9 @@ public partial class PlayerController : ArmyController
             _selected = unit;
 
             ActionLayers[MoveLayer.Name] = _traversable = unit.GetTraversableCells();
-            ActionLayers[AttackLayer.Name] = _attackable = unit.GetFilteredAttackableCellsInReach();
-            ActionLayers[SupportLayer.Name] = _supportable = unit.GetFilteredSupportableCellsInReach();
+            foreach (UnitAction action in actions)
+                if (action.Name == AttackLayer.Name || action.Name == SupportLayer.Name)
+                    ActionLayers[action.Name] = action.ShowAllTargetCells(unit);
             Cursor.SoftRestriction = [.. _traversable];
             UpdatePath(Path.Empty(Cursor.Grid.Data, _traversable).Add(unit.Cell));
         }

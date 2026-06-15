@@ -143,7 +143,7 @@ public partial class LevelManager : Node
         _selected.Renderer.Select();
         _initialCell = _selected.Cell;
         _target = null;
-        _armies.Current.Controller.MoveUnit(_selected);
+        _armies.Current.Controller.MoveUnit(_selected, AvailableActions);
     }
 
     /// <summary>

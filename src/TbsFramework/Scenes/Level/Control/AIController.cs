@@ -389,7 +389,7 @@ public partial class AIController : ArmyController
         EmitSignal(SignalName.UnitSelected, _selected.Cell);
     }
 
-    public override void MoveUnit(UnitData unit)
+    public override void MoveUnit(UnitData unit, UnitAction[] actions)
     {
         void ConfirmMove() => EmitSignal(SignalName.PathConfirmed, unit.Cell, new Godot.Collections.Array<Vector2I>(unit.Behavior.GetPath(unit, _destination)));
         if (FastForwardTransition.Active)

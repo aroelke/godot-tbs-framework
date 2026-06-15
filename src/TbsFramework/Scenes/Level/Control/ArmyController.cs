@@ -96,7 +96,11 @@ public abstract partial class ArmyController : Node
 
     /// <summary>Choose the path along which a unit will move. Once the path has been determined, emit <c>UnitMoved</c>.</summary>
     /// <param name="unit">Unit to move.</param>
-    public abstract void MoveUnit(UnitData unit);
+    /// <param name="actions">
+    /// Action ranges to display along with the highlighted unit's movement range. Order indicates priority when multiple actions can
+    /// be used, but it's up to the implementor to determine what that priority is.
+    /// </param>
+    public abstract void MoveUnit(UnitData unit, UnitAction[] actions);
 
     /// <summary>Choose an action for a unit to perform. Once a command has been selected, emit <c>UnitCommanded</c>.</summary>
     /// <param name="source">Unit chosen to perform a command.</param>
