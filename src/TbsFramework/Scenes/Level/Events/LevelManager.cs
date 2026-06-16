@@ -99,10 +99,10 @@ public partial class LevelManager : Node
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TurnFastForward, Callable.From(OnSkipTurnReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitSelected, Callable.From<Vector2I>(OnUnitSelectedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.PathConfirmed, Callable.From<Vector2I, Godot.Collections.Array<Vector2I>>(OnPathConfirmedReaction.React));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, StringName>(OnSelectedUnitCommandedReaction.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, UnitAction>(OnSelectedUnitCommandedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Vector2I, Vector2I>(OnSelectedTargetChosenReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetCanceled, Callable.From<Vector2I>(OnTargetingCanceled));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, StringName>(OnCommandingUnitCommandedReaction.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, UnitAction>(OnCommandingUnitCommandedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Vector2I, Vector2I>(OnTargetingTargetChosenReaction.React));
 
         _armies.Current.Controller.InitializeTurn();
@@ -204,13 +204,11 @@ public partial class LevelManager : Node
     /// <param name="cell">Cell containing the unit to perform the command.</param>
     /// <param name="command">Command to perform.</param>
     /// <exception cref="InvalidOperationException">If <paramref name="cell"/> doesn't contain the selected unit.</exception>
-    public void OnSelectedUnitCommanded(Vector2I cell, StringName command)
+    public void OnSelectedUnitCommanded(Vector2I cell, UnitAction command)
     {
         if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        foreach (UnitAction action in AvailableActions)
-            if (command == action.Name)
-                _command = action;
+        _command = command;
     }
 
     /// <summary>Store the unit at the cell containing the target for the action chosen while selecting movement destination.</summary>
@@ -307,27 +305,27 @@ public partial class LevelManager : Node
 
     /// <summary>Initiate the command chosen by the selected unit.  See <see cref="OnCommandingEntered"/> for effects of commands.</summary>
     /// <param name="cell">Cell containing the unit being commanded.</param>
-    /// <param name="command">Name of the command to perform.</param>
+    /// <param name="command">Command to perform.</param>
     /// <exception cref="InvalidOperationException">If <paramref name="cell"/> does not contain the selected unit.</exception>
     /// <exception cref="ArgumentException">If <paramref name="command"/> is not a recognized command or <see cref="CancelCommand"/></exception>
-    public void OnCommandingUnitCommanded(Vector2I cell, StringName command)
+    public void OnCommandingUnitCommanded(Vector2I cell, UnitAction command)
     {
         if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        if (command == _cancel.Name)
+        if (command == _cancel)
         {
             State.SendEvent(CancelEvent);
             return;
         }
         foreach (NamedAction option in _options)
         {
-            if (option.Name == command)
+            if (option.Name == command.Name)
             {
                 option.Action();
                 return;
             }
         }
-        throw new ArgumentException($"Unknown command {command}");
+        throw new ArgumentException($"Unknown command {command.Name}");
     }
 
     /// <summary>Go back to selecting a destination, moving the selected unit and cursor back the unit's original cell.</summary>

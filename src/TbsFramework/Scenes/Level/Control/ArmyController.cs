@@ -34,8 +34,8 @@ public abstract partial class ArmyController : Node
     [Signal] public delegate void PathConfirmedEventHandler(Vector2I cell, Godot.Collections.Array<Vector2I> path);
     /// <summary>Signals that an action has been chosen for a unit.</summary>
     /// <param name="cell">Cell containing the unit being commanded.</param>
-    /// <param name="command">String representing the action to perform.</param>
-    [Signal] public delegate void UnitCommandedEventHandler(Vector2I cell, StringName command);
+    /// <param name="command">Action to perform.</param>
+    [Signal] public delegate void UnitCommandedEventHandler(Vector2I cell, UnitAction command);
 
     /// <summary>Signals that a target for an action has been chosen.</summary>
     /// <param name="source">Cell containing the unit performing the action.</param>
