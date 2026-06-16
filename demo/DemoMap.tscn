@@ -57,9 +57,9 @@ script = ExtResource("1_npakb")
 MouseCursor = ExtResource("9_6hgq8")
 
 [node name="LevelManager" parent="." node_paths=PackedStringArray("StartingArmy") instance=ExtResource("1_3r8kd")]
+AvailableActions = [ExtResource("4_oa4p7"), ExtResource("5_i7a7m")]
 StartingArmy = NodePath("Player")
 CombatScenePath = "uid://didkiflqabwl4"
-AvailableActions = [ExtResource("4_oa4p7"), ExtResource("5_i7a7m")]
 
 [node name="DemoMapCombatController" parent="LevelManager" instance=ExtResource("34_3j3nk")]
 

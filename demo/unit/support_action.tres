@@ -4,4 +4,6 @@
 
 [resource]
 script = ExtResource("1_784qf")
+Name = &"Heal"
+RequiresTarget = true
 metadata/_custom_type_script = "uid://birqntuovj4nt"

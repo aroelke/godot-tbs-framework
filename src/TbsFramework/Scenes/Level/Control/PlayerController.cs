@@ -746,7 +746,7 @@ public partial class PlayerController : ArmyController
         Callable.From(() => {
             State.SendEvent(CommandEvent);
 
-            List<NamedAction> cmds = [.. commands.Select((c) => new NamedAction() { Name = c.Name, Action = () => {
+            List<NamedAction> cmds = [.. commands.Where((c) => !c.RequiresTarget || c.GetTargetCells(source, source.Cell).Any()).Select((c) => new NamedAction() { Name = c.Name, Action = () => {
                 ActionLayers.Keep(c.Name);
                 State.SendEvent(FinishEvent);
                 EmitSignal(SignalName.UnitCommanded, source.Cell, c);

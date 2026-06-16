@@ -4,4 +4,6 @@
 
 [resource]
 script = ExtResource("1_f1r84")
+Name = &"Attack"
+RequiresTarget = true
 metadata/_custom_type_script = "uid://db17qpe1j6t8u"

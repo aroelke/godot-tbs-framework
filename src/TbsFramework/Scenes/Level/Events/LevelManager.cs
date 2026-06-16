@@ -247,9 +247,13 @@ public partial class LevelManager : Node
     }
 #endregion
 #region Unit Commanding State
-    private partial class UnperformableAction(StringName name) : UnitAction
+    private partial class UnperformableAction : UnitAction
     {
-        public override StringName Name { get => name; set {}}
+        public UnperformableAction(StringName name) : base()
+        {
+            Name = name;
+            RequiresTarget = false;
+        }
 
         private UnperformableAction() : this("") {} // Required or Godot crashes after building the C# project
 

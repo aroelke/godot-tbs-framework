@@ -13,7 +13,9 @@ public record struct UnitActionResult(object Result, UnitData Actor, Vector2I Ta
 [GlobalClass, Tool]
 public abstract partial class UnitAction : Resource
 {
-    public abstract StringName Name { get; set; }
+    [Export] public StringName Name = "";
+
+    [Export] public bool RequiresTarget = false;
 
     /// <returns><c>true</c> if <paramref name="unit"/> is allowed to perform this action, and <c>false</c> otherwise</returns>
     public abstract bool CanPerform(UnitData unit);

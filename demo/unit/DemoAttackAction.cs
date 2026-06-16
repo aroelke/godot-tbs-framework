@@ -23,8 +23,6 @@ public partial class DemoAttackAction : UnitAction
         }
     }
 
-    public override StringName Name { get => "Attack"; set {}}
-
     public override bool CanPerform(UnitData unit) => unit.Stats.Attack > 0;
 
     public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => CanPerform(unit) && unit.Stats.AttackRange.Contains(source.ManhattanDistanceTo(target));

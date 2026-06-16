@@ -19,8 +19,6 @@ public partial class DemoSupportAction : UnitAction
         target.Health -= action.Damage;
     }
 
-    public override StringName Name { get => "Heal"; set {}}
-
     public override bool CanPerform(UnitData unit) => unit.Stats.Healing > 0;
 
     public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => CanPerform(unit) && unit.Stats.SupportRange.Contains(source.ManhattanDistanceTo(target));
