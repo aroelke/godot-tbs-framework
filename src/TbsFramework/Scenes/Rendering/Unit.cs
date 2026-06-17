@@ -174,7 +174,7 @@ public partial class Unit : GridNode
         UnitData.HealthUpdated       -= OnHealthUpdated;
 
         UnitData.Grid = null;
-        QueueFree();
+        Free();
     }
 
     /// <summary>Move the unit along a path of <see cref="Grid"/> cells.</summary>
