@@ -275,11 +275,11 @@ public partial class LevelManager : Node
             {
                 _options.Add(new(region.Action, () => {
                     region.Perform(_selected, _selected.Cell);
-                    State.SendEvent(SkipEvent);
+                    State.SendEvent(DoneEvent);
                 }));
             }
         }
-        _options.Add(new(UnitAction.EndAction, () => State.SendEvent(SkipEvent)));
+        _options.Add(new(UnitAction.EndAction, () => State.SendEvent(DoneEvent)));
 
         _armies.Current.Controller.CommandUnit(_selected, [.. _options.Select(static (o) => o.Name)], CancelCommand);
     }
