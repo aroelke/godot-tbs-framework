@@ -17,7 +17,7 @@ public partial class InRangeSwitchCondition : AreaSwitchCondition
 
     public override HashSet<Vector2I> GetRegion()
     {
-        List<Unit> sources = [.. SourceUnits];
+        List<Unit> sources = [.. SourceUnits.Where(IsInstanceValid)];
         foreach (Army army in SourceArmies)
             sources.AddRange(army);
         return [.. sources.SelectMany((u) => u.UnitData.GetFilteredAttackableCellsInReach())];
