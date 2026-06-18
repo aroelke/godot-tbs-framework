@@ -86,12 +86,7 @@ public partial class Unit : GridNode
 
     private void OnStatsUpdated(Stats stats) => Animations?.SetHealthMax(stats.Health);
 
-    private void OnHealthUpdated(double _, double hp)
-    {
-        Animations?.SetHealthValue(hp);
-        if (hp == 0)
-            LevelEvents.Singleton.EmitSignal(LevelEvents.SignalName.UnitDefeated, this);
-    }
+    private void OnHealthUpdated(double _, double hp) => Animations?.SetHealthValue(hp);
 
     public UnitData UnitData { get; init; } = new();
     public override GridObjectData Data => UnitData;
@@ -174,7 +169,7 @@ public partial class Unit : GridNode
         UnitData.HealthUpdated       -= OnHealthUpdated;
 
         UnitData.Grid = null;
-        QueueFree();
+        Free();
     }
 
     /// <summary>Move the unit along a path of <see cref="Grid"/> cells.</summary>
