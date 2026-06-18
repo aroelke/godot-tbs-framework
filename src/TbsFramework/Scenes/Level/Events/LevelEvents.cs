@@ -98,8 +98,4 @@ public partial class LevelEvents : Node
     /// <param name="finally">Action to perform after the menu is closed for any reason.</param>
     public static void ShowMenu(Vector2I cell, IEnumerable<NamedAction> options, Action canceled, Action @finally) { if (ActionsPresented is not null) ActionsPresented(cell, options, canceled, @finally); }
 #endregion
-#region Units
-    /// <summary>Signals that a unit has been defeated.</summary>
-    [Signal] public delegate void UnitDefeatedEventHandler(Unit defeated);
-#endregion
 }
