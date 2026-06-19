@@ -25,7 +25,6 @@ namespace TbsFramework.Scenes.Level.Events;
 public partial class LevelManager : Node
 {
 #region Constants
-    private static readonly StringName CancelCommand = "Cancel";
     // State chart events
     private static readonly StringName SelectEvent = "select";
     private static readonly StringName CancelEvent = "cancel";
@@ -281,21 +280,26 @@ public partial class LevelManager : Node
         }
         _options.Add(new(UnitAction.EndAction, () => State.SendEvent(DoneEvent)));
 
-        _armies.Current.Controller.CommandUnit(_selected, [.. _options.Select(static (o) => o.Name)], CancelCommand);
+        _armies.Current.Controller.CommandUnit(_selected, [.. _options.Select(static (o) => o.Name)], UnitAction.Cancel);
     }
 
     /// <summary>Initiate the command chosen by the selected unit.  See <see cref="OnCommandingEntered"/> for effects of commands.</summary>
     /// <param name="cell">Cell containing the unit being commanded.</param>
     /// <param name="command">Name of the command to perform.</param>
     /// <exception cref="InvalidOperationException">If <paramref name="cell"/> does not contain the selected unit.</exception>
-    /// <exception cref="ArgumentException">If <paramref name="command"/> is not a recognized command or <see cref="CancelCommand"/></exception>
+    /// <exception cref="ArgumentException">If <paramref name="command"/> is not a recognized command or <see cref="UnitAction.Cancel"/></exception>
     public void OnCommandingUnitCommanded(Vector2I cell, StringName command)
     {
         if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        if (command == CancelCommand)
+        if (command == UnitAction.Cancel)
         {
             State.SendEvent(CancelEvent);
+            return;
+        }
+        else if (command == UnitAction.Deselect)
+        {
+            State.SendEvent(SkipEvent);
             return;
         }
         foreach (NamedAction option in _options)

@@ -739,11 +739,9 @@ public partial class PlayerController : ArmyController
             }})];
             if (_path.Count == 1) // If there's only one cell in the path, it must be the selected unit's starting cell
             {
-                cmds.Add(new() { Name = "Deselect", Action = () => {
+                cmds.Add(new() { Name = UnitAction.Deselect, Action = () => {
                     State.SendEvent(CancelEvent);
-                    EmitSignal(SignalName.UnitCommanded, source.Cell, cancel);
-                    State.SendEvent(CancelEvent); // Now we're in path selection state, so also cancel that
-                    EmitSignal(SignalName.SelectionCanceled);
+                    EmitSignal(SignalName.UnitCommanded, source.Cell, UnitAction.Deselect);
                     OnCancel();
                 }});
             }
