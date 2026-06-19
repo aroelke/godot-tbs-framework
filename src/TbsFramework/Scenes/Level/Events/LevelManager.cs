@@ -61,11 +61,7 @@ public partial class LevelManager : Node
     private TargetReaction       OnTargetingTargetChosenReaction   => _cache.GetNode<TargetReaction>("State/Root/Running/Skippable/UnitTargeting/OnTargetChosen");
     private Timer                TurnAdvance                       => _cache.GetNode<Timer>("TurnAdvance");
 
-    public LevelManager() : base()
-    {
-        _cache = new(this);
-        _deselect = new(ActionInfo.Deselect, this);
-    }
+    public LevelManager() : base() { _cache = new(this); }
 #endregion
 #region Exports
     /// <summary>List of all possible actions that can be performed by units in this level.</summary>
@@ -250,54 +246,34 @@ public partial class LevelManager : Node
     }
 #endregion
 #region Unit Commanding State
-    private partial class UnperformableAction : UnitAction
+    private partial class InternalAction : UnitAction
     {
-        public UnperformableAction(StringName name) : base()
+        private readonly IEnumerable<Vector2I> _allowed = null;
+        private readonly Action _perform = null;
+
+        public InternalAction(StringName name, IEnumerable<Vector2I> allowed, Action perform) : base()
         {
+            _allowed = allowed;
+            _perform = perform;
+
             Name = name;
-            RequiresTarget = false;
+            RequiresTarget = allowed.Any();
         }
 
-        private UnperformableAction() : this("") {} // Required or Godot crashes after building the C# project
+        private InternalAction() : this(null, null, null) {} // Required or Godot crashes after building the C# project
 
         public override bool CanPerform(UnitData unit) => true;
-        public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => true;
-        public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => [];
-        public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit) => [];
+        public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => _allowed.Contains(source) && _allowed.Contains(target);
+        public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => _allowed.Contains(cell) ? [cell] : [];
+        public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit) => _allowed;
         public override IEnumerable<Vector2I> ShowAllTargetCells(UnitData unit) => [];
-        public override UnitActionResult Perform(UnitData unit, Vector2I target) => throw new InvalidOperationException("Cancel action can't be performed");
-        public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target) => throw new InvalidOperationException("Cancel action can't be simulated");
-        public override void UpdateGrid(GridData grid, UnitActionResult result) => throw new InvalidOperationException("Cancel action can't update the grid");
-    }
-
-    private partial class SelfAction : UnitAction
-    {
-        private LevelManager _manager;
-
-        public SelfAction(StringName name, LevelManager manager) : base()
-        {
-            _manager = manager;
-            Name = name;
-            RequiresTarget = true;
-        }
-
-        private SelfAction() : this("", null) {} // Required or Godot crashes after building the C# project
-
-        public override bool CanPerform(UnitData unit) => true;
-        public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => source == _manager._initialCell.Value;
-        public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => cell == _manager._initialCell.Value ? [_manager._initialCell.Value] : [];
-        public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit) => [];
-        public override IEnumerable<Vector2I> ShowAllTargetCells(UnitData unit) => [];
-        public override UnitActionResult Perform(UnitData unit, Vector2I target) => throw new InvalidOperationException("Cancel action can't be performed");
-        public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target) => throw new InvalidOperationException("Cancel action can't be simulated");
-        public override void UpdateGrid(GridData grid, UnitActionResult result) => throw new InvalidOperationException("Cancel action can't update the grid");
+        public override UnitActionResult Perform(UnitData unit, Vector2I target) => throw new InvalidOperationException("Manager actions can't be performed");
+        public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target) => throw new InvalidOperationException("Manager actions can't be simulated");
+        public override void UpdateGrid(GridData grid, UnitActionResult result) => _perform();
     }
 
     private List<NamedAction> _options = [];
     private IEnumerable<Vector2I> _targets = [];
-    private readonly UnperformableAction _cancel = new(ActionInfo.Cancel);
-    private readonly UnperformableAction _end = new(ActionInfo.EndAction);
-    private readonly SelfAction _deselect;
 
     /// <summary>
     /// Tell the current army controller what valid commands are available and the actions that correspond to them. Then wait for it to make
@@ -331,7 +307,10 @@ public partial class LevelManager : Node
         }
         _options.Add(new(ActionInfo.EndAction, () => State.SendEvent(DoneEvent)));
 
-        _armies.Current.Controller.CommandUnit(_selected, [..AvailableActions, _deselect, _end], _cancel);
+        InternalAction deselect = new(ActionInfo.Deselect, [_initialCell.Value], () => State.SendEvent(SkipEvent));
+        InternalAction end = new(ActionInfo.EndAction, [], () => State.SendEvent(DoneEvent));
+        InternalAction cancel = new(ActionInfo.Cancel, [], () => State.SendEvent(CancelEvent));
+        _armies.Current.Controller.CommandUnit(_selected, [..AvailableActions, deselect, end], cancel);
     }
 
     /// <summary>Initiate the command chosen by the selected unit.  See <see cref="OnCommandingEntered"/> for effects of commands.</summary>
@@ -343,14 +322,9 @@ public partial class LevelManager : Node
     {
         if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        if (command == _cancel)
+        if (command is InternalAction)
         {
-            State.SendEvent(CancelEvent);
-            return;
-        }
-        else if (command == _deselect)
-        {
-            State.SendEvent(SkipEvent);
+            command.UpdateGrid(_grid, default);
             return;
         }
         foreach (NamedAction option in _options)
