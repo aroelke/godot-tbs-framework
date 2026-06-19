@@ -13,4 +13,6 @@ public record class ActionInfo(StringName Name, IEnumerable<Vector2I> Source, Ve
     public static readonly StringName AttackAction = "Attack";
     public static readonly StringName SupportAction = "Heal";
     public static readonly StringName EndAction = "End";
+    public static readonly StringName Deselect = "Deselect";
+    public static readonly StringName Cancel = "Cancel";
 }

@@ -25,7 +25,6 @@ namespace TbsFramework.Scenes.Level.Events;
 public partial class LevelManager : Node
 {
 #region Constants
-    private static readonly StringName CancelCommand = "Cancel";
     // State chart events
     private static readonly StringName SelectEvent = "select";
     private static readonly StringName CancelEvent = "cancel";
@@ -62,7 +61,11 @@ public partial class LevelManager : Node
     private TargetReaction       OnTargetingTargetChosenReaction   => _cache.GetNode<TargetReaction>("State/Root/Running/Skippable/UnitTargeting/OnTargetChosen");
     private Timer                TurnAdvance                       => _cache.GetNode<Timer>("TurnAdvance");
 
-    public LevelManager() : base() { _cache = new(this); }
+    public LevelManager() : base()
+    {
+        _cache = new(this);
+        _deselect = new(ActionInfo.Deselect, this);
+    }
 #endregion
 #region Exports
     /// <summary>List of all possible actions that can be performed by units in this level.</summary>
@@ -267,10 +270,34 @@ public partial class LevelManager : Node
         public override void UpdateGrid(GridData grid, UnitActionResult result) => throw new InvalidOperationException("Cancel action can't update the grid");
     }
 
+    private partial class SelfAction : UnitAction
+    {
+        private LevelManager _manager;
+
+        public SelfAction(StringName name, LevelManager manager) : base()
+        {
+            _manager = manager;
+            Name = name;
+            RequiresTarget = true;
+        }
+
+        private SelfAction() : this("", null) {} // Required or Godot crashes after building the C# project
+
+        public override bool CanPerform(UnitData unit) => true;
+        public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => source == _manager._initialCell.Value;
+        public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => [_manager._initialCell.Value];
+        public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit) => [];
+        public override IEnumerable<Vector2I> ShowAllTargetCells(UnitData unit) => [];
+        public override UnitActionResult Perform(UnitData unit, Vector2I target) => throw new InvalidOperationException("Cancel action can't be performed");
+        public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target) => throw new InvalidOperationException("Cancel action can't be simulated");
+        public override void UpdateGrid(GridData grid, UnitActionResult result) => throw new InvalidOperationException("Cancel action can't update the grid");
+    }
+
     private List<NamedAction> _options = [];
     private IEnumerable<Vector2I> _targets = [];
-    private readonly UnperformableAction _cancel = new(CancelCommand);
+    private readonly UnperformableAction _cancel = new(ActionInfo.Cancel);
     private readonly UnperformableAction _end = new(ActionInfo.EndAction);
+    private readonly SelfAction _deselect;
 
     /// <summary>
     /// Tell the current army controller what valid commands are available and the actions that correspond to them. Then wait for it to make
@@ -298,13 +325,13 @@ public partial class LevelManager : Node
             {
                 _options.Add(new(region.Action, () => {
                     region.Perform(_selected, _selected.Cell);
-                    State.SendEvent(SkipEvent);
+                    State.SendEvent(DoneEvent);
                 }));
             }
         }
-        _options.Add(new(ActionInfo.EndAction, () => State.SendEvent(SkipEvent)));
+        _options.Add(new(ActionInfo.EndAction, () => State.SendEvent(DoneEvent)));
 
-        _armies.Current.Controller.CommandUnit(_selected, [..AvailableActions, _end], _cancel);
+        _armies.Current.Controller.CommandUnit(_selected, [..AvailableActions, _deselect, _end], _cancel);
     }
 
     /// <summary>Initiate the command chosen by the selected unit.  See <see cref="OnCommandingEntered"/> for effects of commands.</summary>
@@ -319,6 +346,11 @@ public partial class LevelManager : Node
         if (command == _cancel)
         {
             State.SendEvent(CancelEvent);
+            return;
+        }
+        else if (command == _deselect)
+        {
+            State.SendEvent(SkipEvent);
             return;
         }
         foreach (NamedAction option in _options)

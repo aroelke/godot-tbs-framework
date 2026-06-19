@@ -130,9 +130,13 @@ Event = &"select"
 To = NodePath("../../UnitSelected")
 Event = &"cancel"
 
+[node name="ToIdle" parent="State/Root/Running/Skippable/UnitCommanding" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
+To = NodePath("../../Idle")
+Event = &"skip"
+
 [node name="ToEndAction" parent="State/Root/Running/Skippable/UnitCommanding" node_paths=PackedStringArray("To") instance=ExtResource("20_p4yt1")]
 To = NodePath("../../../EndAction")
-Event = &"skip"
+Event = &"done"
 
 [node name="UnitTargeting" parent="State/Root/Running/Skippable" instance=ExtResource("19_o30vs")]
 
