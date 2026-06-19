@@ -285,7 +285,7 @@ public partial class LevelManager : Node
 
         public override bool CanPerform(UnitData unit) => true;
         public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => source == _manager._initialCell.Value;
-        public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => [_manager._initialCell.Value];
+        public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => cell == _manager._initialCell.Value ? [_manager._initialCell.Value] : [];
         public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit) => [];
         public override IEnumerable<Vector2I> ShowAllTargetCells(UnitData unit) => [];
         public override UnitActionResult Perform(UnitData unit, Vector2I target) => throw new InvalidOperationException("Cancel action can't be performed");
