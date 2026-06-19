@@ -421,7 +421,7 @@ public partial class LevelManager : Node
 
         if (_ff || SkipCombat)
             skip();
-        else if (!string.IsNullOrEmpty(CombatScenePath) && !PlayCombatOnMap)
+        else if (!_command.AnimateOnMap && !string.IsNullOrEmpty(CombatScenePath) && !PlayCombatOnMap)
         {
             SceneManager.Singleton.Connect<CombatController>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, _result), (uint)ConnectFlags.OneShot);
             SceneManager.CallScene(CombatScenePath);

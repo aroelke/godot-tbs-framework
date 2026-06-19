@@ -17,6 +17,8 @@ public abstract partial class UnitAction : Resource
 
     [Export] public bool RequiresTarget = false;
 
+    [Export] public bool AnimateOnMap = false;
+
     /// <returns><c>true</c> if <paramref name="unit"/> is allowed to perform this action, and <c>false</c> otherwise</returns>
     public abstract bool CanPerform(UnitData unit);
 
