@@ -354,8 +354,14 @@ public partial class LevelManager : Node
 #region Targeting State
     private UnitActionResult _result = default;
 
-    /// <summary>Instruct the current army's controller to choose a target for its action.</summary>
-    public void OnTargetingEntered() => _armies.Current.Controller.SelectTarget(_selected, _targets);
+    /// <summary>Instruct the current army's controller to choose a target for its action or skip to combat if there is none.</summary>
+    public void OnTargetingEntered()
+    {
+        if (_command.RequiresTarget)
+            _armies.Current.Controller.SelectTarget(_selected, _targets);
+        else
+            State.SendEvent(DoneEvent);
+    }
 
     /// <summary>Save the chosen target and then begin combat.</summary>
     /// <param name="source">Cell containing the unit that is performing the action.</param>
