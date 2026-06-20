@@ -310,7 +310,7 @@ public partial class AIController : ArmyController
     private readonly NodeCache _cache = null;
     private UnitData _selected = null;
     private Vector2I _destination = -Vector2I.One;
-    private UnitAction _action = null;
+    private StringName _action = null;
     private UnitData _target = null;
     private bool _ff = false;
 
@@ -380,10 +380,7 @@ public partial class AIController : ArmyController
 
     public override async void SelectUnit(UnitAction[] actions)
     {
-        (_selected, _destination, StringName choice, Vector2I target) = await Task.Run(() => ComputeAction(Faction.GetUnits(Grid.Data).Where(static (u) => u.Active)));
-        foreach (UnitAction action in actions)
-            if (action.Name == choice)
-                _action = action;
+        (_selected, _destination, _action, Vector2I target) = await Task.Run(() => ComputeAction(Faction.GetUnits(Grid.Data).Where(static (u) => u.Active)));
         if (Grid.Data.Occupants.TryGetValue(target, out UnitData unit))
             _target = unit;
         else
@@ -403,7 +400,14 @@ public partial class AIController : ArmyController
 
     public override void CommandUnit(UnitData source, UnitAction[] commands, UnitAction cancel)
     {
-        EmitSignal(SignalName.UnitCommanded, source.Cell, _action);
+        foreach (UnitAction action in commands)
+        {
+            if (action.Name == _action)
+            {
+                EmitSignal(SignalName.UnitCommanded, source.Cell, action);
+                break;
+            }
+        }
     }
 
     public override void SelectTarget(UnitData source, IEnumerable<Vector2I> targets)
