@@ -128,7 +128,7 @@ public class SpecialActionRegionData
     /// </returns>
     public bool Perform(UnitData unit, Vector2I cell)
     {
-        if (CanPerformIn(cell, unit))
+        if (!CanPerformIn(cell, unit))
             return false;
 
         Performed = Performed.Add(unit);
