@@ -297,11 +297,16 @@ public partial class LevelManager : Node
                 }));
             }
         }
+        List<InternalAction> _regions = [];
         foreach (SpecialActionRegionData region in _grid.SpecialActionRegions)
         {
             if (region.CanPerform(_selected) && region.Cells.Contains(_selected.Cell))
             {
                 _options.Add(new(region.Action, () => {
+                    region.Perform(_selected, _selected.Cell);
+                    State.SendEvent(DoneEvent);
+                }));
+                _regions.Add(new(region.Action, region.Cells, () => {
                     region.Perform(_selected, _selected.Cell);
                     State.SendEvent(DoneEvent);
                 }));
@@ -312,7 +317,7 @@ public partial class LevelManager : Node
         InternalAction deselect = new(ActionInfo.Deselect, [_initialCell.Value], () => State.SendEvent(SkipEvent));
         InternalAction end = new(ActionInfo.EndAction, [], () => State.SendEvent(DoneEvent));
         InternalAction cancel = new(ActionInfo.Cancel, [], () => State.SendEvent(CancelEvent));
-        _armies.Current.Controller.CommandUnit(_selected, [..AvailableActions, deselect, end], cancel);
+        _armies.Current.Controller.CommandUnit(_selected, [..AvailableActions, .._regions, deselect, end], cancel);
     }
 
     /// <summary>Initiate the command chosen by the selected unit.  See <see cref="OnCommandingEntered"/> for effects of commands.</summary>
