@@ -274,7 +274,6 @@ public partial class LevelManager : Node
         public override void UpdateGrid(GridData grid, UnitActionResult result) => _perform();
     }
 
-    private List<NamedAction> _options = [];
     private IEnumerable<Vector2I> _targets = [];
 
     /// <summary>
@@ -284,35 +283,17 @@ public partial class LevelManager : Node
     public void OnCommandingEntered()
     {
         _targets = [];
-        _options = [];
-        foreach (UnitAction action in AvailableActions)
-        {
-            IEnumerable<Vector2I> targets = action.GetTargetCells(_selected, _selected.Cell);
-            if (targets.Any())
-            {
-                _options.Add(new(action.Name, () => {
-                    _targets = targets;
-                    _command = action;
-                    State.SendEvent(SelectEvent);
-                }));
-            }
-        }
         List<InternalAction> _regions = [];
         foreach (SpecialActionRegionData region in _grid.SpecialActionRegions)
         {
             if (region.CanPerform(_selected) && region.Cells.Contains(_selected.Cell))
             {
-                _options.Add(new(region.Action, () => {
-                    region.Perform(_selected, _selected.Cell);
-                    State.SendEvent(DoneEvent);
-                }));
                 _regions.Add(new(region.Action, region.Cells, () => {
                     region.Perform(_selected, _selected.Cell);
                     State.SendEvent(DoneEvent);
                 }));
             }
         }
-        _options.Add(new(ActionInfo.EndAction, () => State.SendEvent(DoneEvent)));
 
         InternalAction deselect = new(ActionInfo.Deselect, [_initialCell.Value], () => State.SendEvent(SkipEvent));
         InternalAction end = new(ActionInfo.EndAction, [], () => State.SendEvent(DoneEvent));
@@ -333,15 +314,9 @@ public partial class LevelManager : Node
             @internal.Perform();
         else
         {
-            foreach (NamedAction option in _options)
-            {
-                if (option.Name == command.Name)
-                {
-                    option.Action();
-                    return;
-                }
-            }
-            throw new ArgumentException($"Unknown command {command.Name}");
+            _targets = command.GetTargetCells(_selected, _selected.Cell);
+            _command = command;
+            State.SendEvent(SelectEvent);
         }
     }
 
