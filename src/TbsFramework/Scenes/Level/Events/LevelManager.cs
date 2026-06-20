@@ -13,7 +13,6 @@ using TbsFramework.Nodes.StateCharts.Reactions;
 using TbsFramework.Scenes.Level.Events.Reactions;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Rendering;
-using TbsFramework.Demo;
 
 namespace TbsFramework.Scenes.Level.Events;
 
@@ -246,6 +245,7 @@ public partial class LevelManager : Node
     }
 #endregion
 #region Unit Commanding State
+    // This represents an "action" wrapping a QoS control like cancel or deselect (or "End," which could be considered a real action)
     private partial class InternalAction : UnitAction
     {
         private readonly IEnumerable<Vector2I> _allowed = null;
@@ -261,6 +261,8 @@ public partial class LevelManager : Node
         }
 
         private InternalAction() : this(null, null, null) {} // Required or Godot crashes after building the C# project
+
+        public void Perform() => _perform();
 
         public override bool CanPerform(UnitData unit) => true;
         public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => _allowed.Contains(source) && _allowed.Contains(target);
@@ -322,20 +324,20 @@ public partial class LevelManager : Node
     {
         if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        if (command is InternalAction)
+        if (command is InternalAction @internal)
+            @internal.Perform();
+        else
         {
-            command.UpdateGrid(_grid, default);
-            return;
-        }
-        foreach (NamedAction option in _options)
-        {
-            if (option.Name == command.Name)
+            foreach (NamedAction option in _options)
             {
-                option.Action();
-                return;
+                if (option.Name == command.Name)
+                {
+                    option.Action();
+                    return;
+                }
             }
+            throw new ArgumentException($"Unknown command {command.Name}");
         }
-        throw new ArgumentException($"Unknown command {command.Name}");
     }
 
     /// <summary>Go back to selecting a destination, moving the selected unit and cursor back the unit's original cell.</summary>
