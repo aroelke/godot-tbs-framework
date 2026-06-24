@@ -23,9 +23,7 @@ public partial class DemoAttackAction : UnitAction
         }
     }
 
-    public override bool CanPerform(UnitData unit) => unit.Stats.Attack > 0;
-
-    public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => CanPerform(unit) && unit.Stats.AttackRange.Contains(source.ManhattanDistanceTo(target));
+    public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => unit.Stats.Attack > 0 && unit.Stats.AttackRange.Contains(source.ManhattanDistanceTo(target));
 
     public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => unit.GetAttackableCells(cell).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && !occupant.Faction.AlliedTo(unit.Faction));
 

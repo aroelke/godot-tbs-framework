@@ -19,9 +19,6 @@ public abstract partial class UnitAction : Resource
 
     [Export] public bool AnimateOnMap = false;
 
-    /// <returns><c>true</c> if <paramref name="unit"/> is allowed to perform this action, and <c>false</c> otherwise</returns>
-    public abstract bool CanPerform(UnitData unit);
-
     /// <returns>
     /// <c>true</c> if <paramref name="unit"/> can perform this action from cell <paramref name="source"/> on cell <paramref name="target"/>,
     /// and <c>false</c> otherwise.

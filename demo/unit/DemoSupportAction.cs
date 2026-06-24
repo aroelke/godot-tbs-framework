@@ -19,9 +19,7 @@ public partial class DemoSupportAction : UnitAction
         target.Health -= action.Damage;
     }
 
-    public override bool CanPerform(UnitData unit) => unit.Stats.Healing > 0;
-
-    public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => CanPerform(unit) && unit.Stats.SupportRange.Contains(source.ManhattanDistanceTo(target));
+    public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => unit.Stats.Healing > 0 && unit.Stats.SupportRange.Contains(source.ManhattanDistanceTo(target));
 
     public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => unit.GetSupportableCells(cell).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && occupant.Faction.AlliedTo(unit.Faction));
 

@@ -264,7 +264,6 @@ public partial class LevelManager : Node
 
         public void Perform() => _perform();
 
-        public override bool CanPerform(UnitData unit) => true;
         public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => _allowed.Contains(source) && _allowed.Contains(target);
         public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => _allowed.Contains(cell) ? [cell] : [];
         public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit) => _allowed;
