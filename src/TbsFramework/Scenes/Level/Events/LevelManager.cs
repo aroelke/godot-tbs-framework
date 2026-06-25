@@ -257,7 +257,8 @@ public partial class LevelManager : Node
             _perform = perform;
 
             Name = name;
-            RequiresTarget = allowed.Any();
+            RequiresTarget = false;
+            AlwaysShow = !allowed.Any();
         }
 
         private InternalAction() : this(null, null, null) {} // Required or Godot crashes after building the C# project
@@ -282,22 +283,10 @@ public partial class LevelManager : Node
     public void OnCommandingEntered()
     {
         _targets = [];
-        List<InternalAction> _regions = [];
-        foreach (SpecialActionRegionData region in _grid.SpecialActionRegions)
-        {
-            if (region.CanPerform(_selected) && region.Cells.Contains(_selected.Cell))
-            {
-                _regions.Add(new(region.Action, region.Cells, () => {
-                    region.Perform(_selected, _selected.Cell);
-                    State.SendEvent(DoneEvent);
-                }));
-            }
-        }
-
         InternalAction deselect = new(ActionInfo.Deselect, [_initialCell.Value], () => State.SendEvent(SkipEvent));
         InternalAction end = new(ActionInfo.EndAction, [], () => State.SendEvent(DoneEvent));
         InternalAction cancel = new(ActionInfo.Cancel, [], () => State.SendEvent(CancelEvent));
-        _armies.Current.Controller.CommandUnit(_selected, [..AvailableActions, .._regions, deselect, end], cancel);
+        _armies.Current.Controller.CommandUnit(_selected, [..AvailableActions, deselect, end], cancel);
     }
 
     /// <summary>Initiate the command chosen by the selected unit.  See <see cref="OnCommandingEntered"/> for effects of commands.</summary>
@@ -339,7 +328,10 @@ public partial class LevelManager : Node
         if (_command.RequiresTarget)
             _armies.Current.Controller.SelectTarget(_selected, _targets);
         else
+        {
+            _target = _selected;
             State.SendEvent(DoneEvent);
+        }
     }
 
     /// <summary>Save the chosen target and then begin combat.</summary>

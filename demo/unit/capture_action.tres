@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="RegionUnitAction" load_steps=2 format=3 uid="uid://cpxw0quonngcy"]
+
+[ext_resource type="Script" uid="uid://vnt02tt022xp" path="res://src/TbsFramework/Scenes/Data/RegionUnitAction.cs" id="1_4ycaf"]
+
+[resource]
+script = ExtResource("1_4ycaf")
+RegionPath = NodePath("LevelManager/Grid/Capture")
+Name = &"Capture"
+RequiresTarget = false
+AnimateOnMap = true
+metadata/_custom_type_script = "uid://vnt02tt022xp"

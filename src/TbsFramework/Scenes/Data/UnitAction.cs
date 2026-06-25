@@ -15,13 +15,16 @@ public abstract partial class UnitAction : Resource
 {
     [Export] public StringName Name = "";
 
-    [Export] public bool RequiresTarget = false;
+    [Export] public bool RequiresTarget = true;
+
+    [Export] public bool AlwaysShow = false;
 
     [Export] public bool AnimateOnMap = false;
 
     /// <returns>
     /// <c>true</c> if <paramref name="unit"/> can perform this action from cell <paramref name="source"/> on cell <paramref name="target"/>,
-    /// and <c>false</c> otherwise.
+    /// and <c>false</c> otherwise. By convention, if the action doesn't require a target then <paramref name="source"/> and
+    /// <paramref name="target"/> should be the same.
     /// </returns>
     public abstract bool CanPerform(UnitData unit, Vector2I source, Vector2I target);
 
