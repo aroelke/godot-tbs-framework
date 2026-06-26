@@ -9,6 +9,8 @@ namespace TbsFramework.Scenes.Level.Actions;
 
 public partial class UnitAction : Resource
 {
+    [Export] public StringName Name = "";
+
     [Export] public bool IntersectPermission = false;
 
     [Export] public Godot.Collections.Array<ActionPermission> PermissionComponents = [];
@@ -22,6 +24,10 @@ public partial class UnitAction : Resource
     [Export] public Godot.Collections.Array<ActionRange> RangeComponents = [];
 
     [Export] public ActionExecute ExecuteComponent = null;
+
+    [Export] public bool AlwaysShow = false;
+
+    [Export] public bool AnimateOnMap = false;
 
     public bool CanPerform(UnitData unit, Vector2I source, Vector2I target)
     {
