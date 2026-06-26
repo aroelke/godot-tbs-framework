@@ -269,9 +269,9 @@ public partial class LevelManager : Node
         public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => _allowed.Contains(cell) ? [cell] : [];
         public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit) => _allowed;
         public override IEnumerable<Vector2I> ShowAllTargetCells(UnitData unit) => [];
-        public override UnitActionResult Perform(UnitData unit, Vector2I target) => throw new InvalidOperationException("Manager actions can't be performed");
+        public override FlatUnitActionResult Perform(UnitData unit, Vector2I target) => throw new InvalidOperationException("Manager actions can't be performed");
         public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target) => throw new InvalidOperationException("Manager actions can't be simulated");
-        public override void UpdateGrid(GridData grid, UnitActionResult result) => _perform();
+        public override void UpdateGrid(GridData grid, FlatUnitActionResult result) => _perform();
     }
 
     private IEnumerable<Vector2I> _targets = [];
@@ -320,7 +320,7 @@ public partial class LevelManager : Node
     }
 #endregion
 #region Targeting State
-    private UnitActionResult _result = default;
+    private FlatUnitActionResult _result = default;
 
     /// <summary>Instruct the current army's controller to choose a target for its action or skip to combat if there is none.</summary>
     public void OnTargetingEntered()

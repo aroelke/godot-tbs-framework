@@ -55,7 +55,7 @@ public partial class DemoCombatScene : CombatController
 
     public DemoCombatScene() : base() { _cache = new(this); }
 
-    public override void Initialize(UnitData left, UnitData right, UnitActionResult result)
+    public override void Initialize(UnitData left, UnitData right, FlatUnitActionResult result)
     {
         base.Initialize(left, right, result);
 

@@ -57,7 +57,7 @@ public partial class DemoMapCombatController : CombatController
     /// <summary>Time, in seconds, after a combat action has completed to wait until beginning the next one.</summary>
     [Export(PropertyHint.None, "suffix:s")] public double TurnDelay = 0.2;
 
-    public override void Initialize(UnitData left, UnitData right, UnitActionResult result)
+    public override void Initialize(UnitData left, UnitData right, FlatUnitActionResult result)
     {
         base.Initialize(left, right, result);
 

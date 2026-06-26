@@ -20,9 +20,9 @@ public partial class RegionUnitAction : FlatUnitAction
 
     public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => Region.Data.Cells.Contains(source) && Region.Data.CanPerformIn(source, unit);
 
-    public override UnitActionResult Perform(UnitData unit, Vector2I target) => new(Region.Data, unit, target, this);
+    public override FlatUnitActionResult Perform(UnitData unit, Vector2I target) => new(Region.Data, unit, target, this);
 
-    public override void UpdateGrid(GridData grid, UnitActionResult result)
+    public override void UpdateGrid(GridData grid, FlatUnitActionResult result)
     {
         if (result.Result is not null)
             GD.PushWarning($"Updating grid with result for action {Name} that isn't null. Should this have been used for a different action?");

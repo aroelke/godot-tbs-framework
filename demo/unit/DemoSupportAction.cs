@@ -27,7 +27,7 @@ public partial class DemoSupportAction : FlatUnitAction
 
     public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit) => unit.GetFilteredSupportableCellsInReach();
 
-    public override UnitActionResult Perform(UnitData unit, Vector2I target)
+    public override FlatUnitActionResult Perform(UnitData unit, Vector2I target)
     {
         if (!unit.Grid.Occupants.TryGetValue(target, out UnitData occupant))
             throw new ArgumentException($"Cell {target} does not contain a unit to attack");
@@ -44,7 +44,7 @@ public partial class DemoSupportAction : FlatUnitAction
         return copy;
     }
 
-    public override void UpdateGrid(GridData grid, UnitActionResult result)
+    public override void UpdateGrid(GridData grid, FlatUnitActionResult result)
     {
         if (result.Result is not CombatAction action)
             throw new ArgumentException("Support action result is not a combat action");
