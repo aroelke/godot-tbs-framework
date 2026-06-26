@@ -378,7 +378,7 @@ public partial class AIController : ArmyController
         FastForwardTransition.TransitionOut();
     }
 
-    public override async void SelectUnit(UnitAction[] actions)
+    public override async void SelectUnit(FlatUnitAction[] actions)
     {
         (_selected, _destination, _action, Vector2I target) = await Task.Run(() => ComputeAction(Faction.GetUnits(Grid.Data).Where(static (u) => u.Active)));
         if (Grid.Data.Occupants.TryGetValue(target, out UnitData unit))
@@ -389,7 +389,7 @@ public partial class AIController : ArmyController
         EmitSignal(SignalName.UnitSelected, _selected.Cell);
     }
 
-    public override void MoveUnit(UnitData unit, UnitAction[] actions)
+    public override void MoveUnit(UnitData unit, FlatUnitAction[] actions)
     {
         void ConfirmMove() => EmitSignal(SignalName.PathConfirmed, unit.Cell, new Godot.Collections.Array<Vector2I>(unit.Behavior.GetPath(unit, _destination)));
         if (FastForwardTransition.Active)
@@ -398,9 +398,9 @@ public partial class AIController : ArmyController
             ConfirmMove();
     }
 
-    public override void CommandUnit(UnitData source, UnitAction[] commands, UnitAction cancel)
+    public override void CommandUnit(UnitData source, FlatUnitAction[] commands, FlatUnitAction cancel)
     {
-        foreach (UnitAction action in commands)
+        foreach (FlatUnitAction action in commands)
         {
             if (action.Name == _action)
             {

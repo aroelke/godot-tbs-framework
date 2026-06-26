@@ -6,7 +6,7 @@ using TbsFramework.Scenes.Rendering;
 namespace TbsFramework.Scenes.Data;
 
 [GlobalClass, Tool]
-public partial class RegionUnitAction : UnitAction
+public partial class RegionUnitAction : FlatUnitAction
 {
     [Export(PropertyHint.NodePathValidTypes, "TileMapLayer")] public NodePath RegionPath = null;
 

@@ -9,7 +9,7 @@ using TbsFramework.Scenes.Data;
 namespace TbsFramework.Demo;
 
 [GlobalClass, Tool]
-public partial class DemoSupportAction : UnitAction
+public partial class DemoSupportAction : FlatUnitAction
 {
     private static void ApplyResult(GridData grid, CombatAction action)
     {

@@ -35,7 +35,7 @@ public abstract partial class ArmyController : Node
     /// <summary>Signals that an action has been chosen for a unit.</summary>
     /// <param name="cell">Cell containing the unit being commanded.</param>
     /// <param name="command">Action to perform.</param>
-    [Signal] public delegate void UnitCommandedEventHandler(Vector2I cell, UnitAction command);
+    [Signal] public delegate void UnitCommandedEventHandler(Vector2I cell, FlatUnitAction command);
 
     /// <summary>Signals that a target for an action has been chosen.</summary>
     /// <param name="source">Cell containing the unit performing the action.</param>
@@ -92,7 +92,7 @@ public abstract partial class ArmyController : Node
     /// Action ranges to display along with the highlighted unit's movement range. Order indicates priority when multiple actions can
     /// be used, but it's up to the implementor to determine what that priority is.
     /// </param>
-    public abstract void SelectUnit(UnitAction[] actions);
+    public abstract void SelectUnit(FlatUnitAction[] actions);
 
     /// <summary>Choose the path along which a unit will move. Once the path has been determined, emit <c>UnitMoved</c>.</summary>
     /// <param name="unit">Unit to move.</param>
@@ -100,13 +100,13 @@ public abstract partial class ArmyController : Node
     /// Action ranges to display along with the highlighted unit's movement range. Order indicates priority when multiple actions can
     /// be used, but it's up to the implementor to determine what that priority is.
     /// </param>
-    public abstract void MoveUnit(UnitData unit, UnitAction[] actions);
+    public abstract void MoveUnit(UnitData unit, FlatUnitAction[] actions);
 
     /// <summary>Choose an action for a unit to perform. Once a command has been selected, emit <c>UnitCommanded</c>.</summary>
     /// <param name="source">Unit chosen to perform a command.</param>
     /// <param name="commands">List of commands available to perform.</param>
     /// <param name="cancel">Command to perform on cancel.</param>
-    public abstract void CommandUnit(UnitData source, UnitAction[] commands, UnitAction cancel);
+    public abstract void CommandUnit(UnitData source, FlatUnitAction[] commands, FlatUnitAction cancel);
 
     /// <summary>Choose the target for an action that was selected.</summary>
     /// <param name="source">Unit that will perform the action.</param>

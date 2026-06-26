@@ -6,13 +6,13 @@ using TbsFramework.Scenes.Level.Events;
 
 namespace TbsFramework.Scenes.Data;
 
-public record struct UnitActionResult(object Result, UnitData Actor, Vector2I Target, UnitAction Action)
+public record struct UnitActionResult(object Result, UnitData Actor, Vector2I Target, FlatUnitAction Action)
 {
     public readonly void UpdateGrid(GridData grid) => Action.UpdateGrid(grid, this);
 }
 
 [GlobalClass, Tool]
-public abstract partial class UnitAction : Resource
+public abstract partial class FlatUnitAction : Resource
 {
     [Export] public StringName Name = "";
 
