@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Godot;
+using TbsFramework.Scenes.Level.Events;
 using TbsFramework.Scenes.Rendering;
 
 namespace TbsFramework.Scenes.Data;
@@ -7,7 +8,7 @@ namespace TbsFramework.Scenes.Data;
 [GlobalClass, Tool]
 public partial class RegionUnitAction : UnitAction
 {
-    [Export] public NodePath RegionPath = null;
+    [Export(PropertyHint.NodePathValidTypes, "TileMapLayer")] public NodePath RegionPath = null;
 
     public SpecialActionRegion Region = null;
 
@@ -34,5 +35,5 @@ public partial class RegionUnitAction : UnitAction
         throw new System.NotImplementedException();
     }
 
-    public override void Initialize() => Region = ((SceneTree)Engine.GetMainLoop()).CurrentScene.GetNodeOrNull<SpecialActionRegion>(RegionPath);
+    public override void Initialize(LevelManager manager) => Region = manager.GetNodeOrNull<SpecialActionRegion>(RegionPath);
 }

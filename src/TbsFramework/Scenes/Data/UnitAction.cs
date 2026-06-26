@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using TbsFramework.Scenes.Level.Control;
+using TbsFramework.Scenes.Level.Events;
 
 namespace TbsFramework.Scenes.Data;
 
@@ -77,7 +78,7 @@ public abstract partial class UnitAction : Resource
     /// <remarks><b>Note</b>: This is intended for use by <see cref="AIController"/> to evaluate actions.</remarks>
     public abstract GridData Simulate(UnitData unit, Vector2I source, Vector2I target);
 
-    public virtual void Initialize() {}
+    public virtual void Initialize(LevelManager manager) {}
 
-    public virtual void Reset() => Initialize();
+    public virtual void Reset(LevelManager manager) => Initialize(manager);
 }

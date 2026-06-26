@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_4ycaf")
-RegionPath = NodePath("LevelManager/Grid/Capture")
+RegionPath = NodePath("Grid/Capture")
 Name = &"Capture"
 RequiresTarget = false
 AnimateOnMap = true
