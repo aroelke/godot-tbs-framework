@@ -76,4 +76,8 @@ public abstract partial class UnitAction : Resource
     /// <returns>A new grid containing the result of the simulation of performing this action.</returns>
     /// <remarks><b>Note</b>: This is intended for use by <see cref="AIController"/> to evaluate actions.</remarks>
     public abstract GridData Simulate(UnitData unit, Vector2I source, Vector2I target);
+
+    public virtual void Initialize() {}
+
+    public virtual void Reset() => Initialize();
 }

@@ -9,7 +9,7 @@ public partial class RegionUnitAction : UnitAction
 {
     [Export] public NodePath RegionPath = null;
 
-    public SpecialActionRegion Region => ((SceneTree)Engine.GetMainLoop()).CurrentScene.GetNodeOrNull<SpecialActionRegion>(RegionPath);
+    public SpecialActionRegion Region = null;
 
     public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => Region.Data.CanPerformIn(cell, unit) ? [cell] : [];
 
@@ -33,4 +33,6 @@ public partial class RegionUnitAction : UnitAction
     {
         throw new System.NotImplementedException();
     }
+
+    public override void Initialize() => Region = ((SceneTree)Engine.GetMainLoop()).CurrentScene.GetNodeOrNull<SpecialActionRegion>(RegionPath);
 }

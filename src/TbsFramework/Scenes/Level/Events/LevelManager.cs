@@ -564,6 +564,10 @@ public partial class LevelManager : Node
                     if (!_armies.MoveNext())
                         break;
 
+            Callable.From(() => {
+                foreach (UnitAction action in AvailableActions)
+                    action.Initialize();
+            }).CallDeferred();
             Callable.From(() => State.SendEvent(DoneEvent)).CallDeferred();
         }
     }
