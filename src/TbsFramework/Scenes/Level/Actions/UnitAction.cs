@@ -7,6 +7,7 @@ using TbsFramework.Scenes.Level.Events;
 
 namespace TbsFramework.Scenes.Level.Actions;
 
+[GlobalClass, Tool]
 public partial class UnitAction : Resource
 {
     [Export] public StringName Name = "";
@@ -31,8 +32,8 @@ public partial class UnitAction : Resource
 
     public bool CanPerform(UnitData unit, Vector2I source, Vector2I target)
     {
-        bool hasPermission = IntersectPermission ? PermissionComponents.All((c) => c.CanPerform(unit)) : PermissionComponents.Any((c) => c.CanPerform(unit));
-        bool inDomain = IntersectDomains ? DomainComponents.All((c) => c.Contains(source)) : DomainComponents.Any((c) => c.Contains(source));
+        bool hasPermission = PermissionComponents.Count == 0 || (IntersectPermission ? PermissionComponents.All((c) => c.CanPerform(unit)) : PermissionComponents.Any((c) => c.CanPerform(unit)));
+        bool inDomain = DomainComponents.Count == 0 || (IntersectDomains ? DomainComponents.All((c) => c.Contains(source)) : DomainComponents.Any((c) => c.Contains(source)));
         bool inRange = RangeComponents.Count == 0 || (IntersectRanges ? RangeComponents.All((c) => c.InRange(unit, source, target)) : RangeComponents.Any((c) => c.InRange(unit, source, target)));
         return hasPermission && inDomain && inRange;
     }
