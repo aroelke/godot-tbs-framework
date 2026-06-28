@@ -13,6 +13,7 @@ using TbsFramework.Nodes.StateCharts.Reactions;
 using TbsFramework.Scenes.Level.Events.Reactions;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Rendering;
+using TbsFramework.Scenes.Level.Actions;
 
 namespace TbsFramework.Scenes.Level.Events;
 
@@ -44,7 +45,7 @@ public partial class LevelManager : Node
     private IEnumerator<Army> _armies = null;
     private Vector2I? _initialCell = null;
     private readonly Stack<BoundedNode2D> _cameraHistory = [];
-    private FlatUnitAction _command = null;
+    private UnitAction _command = null;
     private bool _ff = false;
 
     private GridData _grid = null;
@@ -64,7 +65,7 @@ public partial class LevelManager : Node
 #endregion
 #region Exports
     /// <summary>List of all possible actions that can be performed by units in this level.</summary>
-    [Export] public FlatUnitAction[] AvailableActions = [];
+    [Export] public UnitAction[] AvailableActions = [];
 
     /// <summary>
     /// <see cref="Army"/> that gets the first turn and is controlled by the player. If null, use the first <see cref="Army"/>
@@ -97,10 +98,10 @@ public partial class LevelManager : Node
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TurnFastForward, Callable.From(OnSkipTurnReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitSelected, Callable.From<Vector2I>(OnUnitSelectedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.PathConfirmed, Callable.From<Vector2I, Godot.Collections.Array<Vector2I>>(OnPathConfirmedReaction.React));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, FlatUnitAction>(OnSelectedUnitCommandedReaction.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, UnitAction>(OnSelectedUnitCommandedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Vector2I, Vector2I>(OnSelectedTargetChosenReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetCanceled, Callable.From<Vector2I>(OnTargetingCanceled));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, FlatUnitAction>(OnCommandingUnitCommandedReaction.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, UnitAction>(OnCommandingUnitCommandedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Vector2I, Vector2I>(OnTargetingTargetChosenReaction.React));
 
         _armies.Current.Controller.InitializeTurn();
@@ -202,7 +203,7 @@ public partial class LevelManager : Node
     /// <param name="cell">Cell containing the unit to perform the command.</param>
     /// <param name="command">Command to perform.</param>
     /// <exception cref="InvalidOperationException">If <paramref name="cell"/> doesn't contain the selected unit.</exception>
-    public void OnSelectedUnitCommanded(Vector2I cell, FlatUnitAction command)
+    public void OnSelectedUnitCommanded(Vector2I cell, UnitAction command)
     {
         if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
@@ -245,33 +246,18 @@ public partial class LevelManager : Node
     }
 #endregion
 #region Unit Commanding State
-    // This represents an "action" wrapping a QoS control like cancel or deselect (or "End," which could be considered a real action)
-    private partial class InternalAction : FlatUnitAction
+    // These represent components for an "action" wrapping a QoS control like cancel or deselect (or "End," which could be considered a real action)
+    private partial class InternalActionDomain(IEnumerable<Vector2I> allowed) : ActionDomain
     {
-        private readonly IEnumerable<Vector2I> _allowed = null;
-        private readonly Action _perform = null;
+        public override bool Contains(Vector2I cell) => allowed.Contains(cell);
+    }
 
-        public InternalAction(StringName name, IEnumerable<Vector2I> allowed, Action perform) : base()
-        {
-            _allowed = allowed;
-            _perform = perform;
+    private partial class InternalActionExecute(StateChart state, StringName @event) : ActionExecute
+    {
+        public override UnitActionExecuteResult Perform(UnitData unit, Vector2I target) => throw new InvalidOperationException("Internal actions don't have results");
+        public override void UpdateGrid(GridData grid, UnitActionExecuteResult result) => state.SendEvent(@event);
+        public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target) => throw new InvalidOperationException("Internal actions can't be simulated");
 
-            Name = name;
-            RequiresTarget = false;
-            AlwaysShow = !allowed.Any();
-        }
-
-        private InternalAction() : this(null, null, null) {} // Required or Godot crashes after building the C# project
-
-        public void Perform() => _perform();
-
-        public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => _allowed.Contains(source) && _allowed.Contains(target);
-        public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => _allowed.Contains(cell) ? [cell] : [];
-        public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit) => _allowed;
-        public override IEnumerable<Vector2I> ShowAllTargetCells(UnitData unit) => [];
-        public override FlatUnitActionResult Perform(UnitData unit, Vector2I target) => throw new InvalidOperationException("Manager actions can't be performed");
-        public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target) => throw new InvalidOperationException("Manager actions can't be simulated");
-        public override void UpdateGrid(GridData grid, FlatUnitActionResult result) => _perform();
     }
 
     private IEnumerable<Vector2I> _targets = [];
@@ -283,9 +269,9 @@ public partial class LevelManager : Node
     public void OnCommandingEntered()
     {
         _targets = [];
-        InternalAction deselect = new(ActionInfo.Deselect, [_initialCell.Value], () => State.SendEvent(SkipEvent));
-        InternalAction end = new(ActionInfo.EndAction, [], () => State.SendEvent(DoneEvent));
-        InternalAction cancel = new(ActionInfo.Cancel, [], () => State.SendEvent(CancelEvent));
+        UnitAction deselect = new() { Name = ActionInfo.Deselect, DomainComponents = [new InternalActionDomain([_initialCell.Value])], ExecuteComponent = new InternalActionExecute(State, SkipEvent) };
+        UnitAction end = new() { Name = ActionInfo.EndAction, AlwaysShow = true, ExecuteComponent = new InternalActionExecute(State, DoneEvent) };
+        UnitAction cancel = new() { Name = ActionInfo.Cancel, AlwaysShow = true, ExecuteComponent = new InternalActionExecute(State, CancelEvent) };
         _armies.Current.Controller.CommandUnit(_selected, [..AvailableActions, deselect, end], cancel);
     }
 
@@ -294,12 +280,12 @@ public partial class LevelManager : Node
     /// <param name="command">Command to perform.</param>
     /// <exception cref="InvalidOperationException">If <paramref name="cell"/> does not contain the selected unit.</exception>
     /// <exception cref="ArgumentException">If <paramref name="command"/> is not a recognized command or <see cref="CancelCommand"/></exception>
-    public void OnCommandingUnitCommanded(Vector2I cell, FlatUnitAction command)
+    public void OnCommandingUnitCommanded(Vector2I cell, UnitAction command)
     {
         if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        if (command is InternalAction @internal)
-            @internal.Perform();
+        if (command.ExecuteComponent is InternalActionExecute)
+            command.ExecuteComponent.UpdateGrid(_grid, default);
         else
         {
             _targets = command.GetTargetCells(_selected, _selected.Cell);
@@ -320,7 +306,7 @@ public partial class LevelManager : Node
     }
 #endregion
 #region Targeting State
-    private FlatUnitActionResult _result = default;
+    private UnitActionResult _result = default;
 
     /// <summary>Instruct the current army's controller to choose a target for its action or skip to combat if there is none.</summary>
     public void OnTargetingEntered()
@@ -564,7 +550,7 @@ public partial class LevelManager : Node
                     if (!_armies.MoveNext())
                         break;
 
-            foreach (FlatUnitAction action in AvailableActions)
+            foreach (UnitAction action in AvailableActions)
                 action.Initialize(this);
             Callable.From(() => State.SendEvent(DoneEvent)).CallDeferred();
         }

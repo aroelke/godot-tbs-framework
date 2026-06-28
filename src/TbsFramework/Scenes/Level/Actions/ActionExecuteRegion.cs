@@ -12,9 +12,9 @@ public partial class ActionExecuteRegion : ActionExecute
 
     public SpecialActionRegion Region = null;
 
-    public override UnitActionResult Perform(UnitData unit, Vector2I target) => new(Region.Data, unit, target, this);
+    public override UnitActionExecuteResult Perform(UnitData unit, Vector2I target) => new(Region.Data, unit, target, this);
 
-    public override void UpdateGrid(GridData grid, UnitActionResult result)
+    public override void UpdateGrid(GridData grid, UnitActionExecuteResult result)
     {
         if (result.Result is not null)
             GD.PushWarning($"Updating grid with result for ActionExecuteRegion that isn't null. Should this have been used for a different action?");

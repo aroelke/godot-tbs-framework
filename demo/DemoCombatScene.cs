@@ -9,6 +9,7 @@ using TbsFramework.Nodes.Components;
 using TbsFramework.Scenes;
 using TbsFramework.Scenes.Combat;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Actions;
 using TbsFramework.Scenes.Level.Control;
 using TbsFramework.UI;
 using TbsFramework.UI.Controls.Device;
@@ -55,7 +56,7 @@ public partial class DemoCombatScene : CombatController
 
     public DemoCombatScene() : base() { _cache = new(this); }
 
-    public override void Initialize(UnitData left, UnitData right, FlatUnitActionResult result)
+    public override void Initialize(UnitData left, UnitData right, UnitActionResult result)
     {
         base.Initialize(left, right, result);
 

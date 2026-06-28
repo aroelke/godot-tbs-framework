@@ -4,6 +4,7 @@ using TbsFramework.Scenes.Level.Events;
 
 namespace TbsFramework.Scenes.Level.Actions;
 
+[GlobalClass]
 public abstract partial class ActionPermission : Resource
 {
     public abstract bool CanPerform(UnitData unit);

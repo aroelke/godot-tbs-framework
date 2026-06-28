@@ -8,6 +8,7 @@ using TbsFramework.Nodes.Components;
 using TbsFramework.Nodes.StateCharts;
 using TbsFramework.Properties;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Actions;
 using TbsFramework.Scenes.Level.Events;
 using TbsFramework.Scenes.Rendering;
 using TbsFramework.UI;
@@ -32,7 +33,7 @@ public partial class PlayerController : ArmyController
 
     private readonly NodeCache _cache = null;
     private Grid _grid = null;
-    private FlatUnitAction[] _actions = null;
+    private UnitAction[] _actions = null;
     private TileSet _overlayTiles = null;
     private TileSet _pathTiles = null;
     private int _pathTerrainSet = -1, _pathTerrain = -1;
@@ -429,7 +430,7 @@ public partial class PlayerController : ArmyController
     }
 #endregion
 #region Unit Selection
-    public override void SelectUnit(FlatUnitAction[] actions)
+    public override void SelectUnit(UnitAction[] actions)
     {
         _actions = actions;
 
@@ -554,9 +555,9 @@ public partial class PlayerController : ArmyController
         if (Grid.Data.Occupants.GetValueOrDefault(cell) is UnitData unit)
         {
             ActionLayers[MoveLayer.Name] = unit.GetTraversableCells();
-            foreach (FlatUnitAction action in _actions)
+            foreach (UnitAction action in _actions)
                 if (action.Name == AttackLayer.Name || action.Name == SupportLayer.Name)
-                    ActionLayers[action.Name] = action.ShowAllTargetCells(unit);
+                    ActionLayers[action.Name] = action.GetAllTargetCells(unit);
         }
     }
 
@@ -571,9 +572,9 @@ public partial class PlayerController : ArmyController
 #region Path Selection
     private IEnumerable<Vector2I> _traversable = null;
     private IEnumerable<Vector2I>[] _ranges = null; // parallel to _actions
-    private FlatUnitAction _command = null;
+    private UnitAction _command = null;
 
-    public override void MoveUnit(UnitData unit, FlatUnitAction[] actions)
+    public override void MoveUnit(UnitData unit, UnitAction[] actions)
     {
         Cursor.Resume();
         Pointer.StopWaiting();
@@ -588,9 +589,9 @@ public partial class PlayerController : ArmyController
             ActionLayers[MoveLayer.Name] = _traversable = unit.GetTraversableCells();
             _actions = actions;
             _ranges = [.. _actions.Select((a) => a.GetAllTargetCells(_selected))];
-            foreach (FlatUnitAction action in _actions)
+            foreach (UnitAction action in _actions)
                 if (action.Name == AttackLayer.Name || action.Name == SupportLayer.Name)
-                    ActionLayers[action.Name] = action.ShowAllTargetCells(unit);
+                    ActionLayers[action.Name] = action.GetAllTargetCells(unit);
             Cursor.SoftRestriction = [.. _traversable];
             UpdatePath(Path.Empty(Cursor.Grid.Data, _traversable).Add(unit.Cell));
         }
@@ -637,7 +638,7 @@ public partial class PlayerController : ArmyController
         IEnumerable<Vector2I> sources = [];
         if (Cursor.Grid.Data.Occupants.GetValueOrDefault(cell) is UnitData target)
         {
-            foreach ((FlatUnitAction action, IEnumerable<Vector2I> range) in _actions.Zip(_ranges))
+            foreach ((UnitAction action, IEnumerable<Vector2I> range) in _actions.Zip(_ranges))
             {
                 if (((target != _selected && Faction.AlliedTo(target)) || !Faction.AlliedTo(target)) && range.Contains(cell))
                 {
@@ -736,21 +737,23 @@ public partial class PlayerController : ArmyController
     }
 #endregion
 #region Command Selection
-    public override void CommandUnit(UnitData source, FlatUnitAction[] commands, FlatUnitAction cancel)
+    public override void CommandUnit(UnitData source, UnitAction[] commands, UnitAction cancel)
     {
         ActionLayers.Clear(MoveLayer.Name);
-        foreach (FlatUnitAction action in commands)
+        foreach (UnitAction action in commands)
             if (action.Name == AttackLayer.Name || action.Name == SupportLayer.Name)
                 ActionLayers[action.Name] = action.GetTargetCells(source, source.Cell);
 
         Callable.From(() => {
             State.SendEvent(CommandEvent);
 
-            List<NamedAction> cmds = [.. commands.Where((c) => c.AlwaysShow || c.GetTargetCells(source, source.Cell).Any()).Select((c) => new NamedAction() { Name = c.Name, Action = () => {
-                ActionLayers.Keep(c.Name);
-                State.SendEvent(FinishEvent);
-                EmitSignal(SignalName.UnitCommanded, source.Cell, c);
-            }})];
+            List<NamedAction> cmds = [.. commands.Where((c) =>
+                c.AlwaysShow || (c.CanPerform(source, source.Cell) && (!c.RequiresTarget || c.GetTargetCells(source, source.Cell).Any()))).Select((c) =>
+                    new NamedAction() { Name = c.Name, Action = () => {
+                        ActionLayers.Keep(c.Name);
+                        State.SendEvent(FinishEvent);
+                        EmitSignal(SignalName.UnitCommanded, source.Cell, c);
+                    }})];
             ShowMenu(source.Cell, cmds, () => {
                 State.SendEvent(CancelEvent);
                 EmitSignal(SignalName.UnitCommanded, source.Cell, cancel);

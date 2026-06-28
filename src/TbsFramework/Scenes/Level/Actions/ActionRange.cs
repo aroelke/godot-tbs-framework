@@ -6,6 +6,7 @@ using TbsFramework.Scenes.Level.Events;
 
 namespace TbsFramework.Scenes.Level.Actions;
 
+[GlobalClass]
 public abstract partial class ActionRange : Resource
 {
     public abstract IEnumerable<Vector2I> GetAllCellsInRange(UnitData unit, Vector2I cell);

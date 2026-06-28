@@ -1,6 +1,7 @@
 using System;
 using Godot;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Actions;
 
 namespace TbsFramework.Scenes.Combat;
 
@@ -14,7 +15,7 @@ public abstract partial class CombatController : Node
     /// <param name="right">Unit on the right side of the screen.</param>
     /// <param name="actions">List of actions that will be performed each turn in combat. The length of the list determines the number of turns.</param>
     /// <exception cref="ArgumentException">If any <see cref="CombatAction"/> contains a unit who isn't participating in this combat.</exception>
-    public virtual void Initialize(UnitData left, UnitData right, FlatUnitActionResult result)
+    public virtual void Initialize(UnitData left, UnitData right, UnitActionResult result)
     {
         if (result.Actor != left && result.Actor != right)
             throw new ArgumentException($"Unit at cell {result.Actor.Cell} is not a participant in combat");

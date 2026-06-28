@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -6,6 +7,17 @@ using TbsFramework.Scenes.Level.Control;
 using TbsFramework.Scenes.Level.Events;
 
 namespace TbsFramework.Scenes.Level.Actions;
+
+public record struct UnitActionResult(object Result, UnitData Actor, Vector2I Target, UnitAction Action)
+{
+    public UnitActionResult(UnitActionExecuteResult execute, UnitAction action) : this(execute.Result, execute.Actor, execute.Target, action)
+    {
+        if (action.ExecuteComponent != execute.Action)
+            throw new ArgumentException($"Execute component of action {action.Name} does not match the one used to create this result");
+    }
+
+    public readonly void UpdateGrid(GridData grid) => Action.UpdateGrid(grid, this);
+}
 
 [GlobalClass, Tool]
 public partial class UnitAction : Resource
@@ -30,12 +42,19 @@ public partial class UnitAction : Resource
 
     [Export] public bool AnimateOnMap = false;
 
-    public bool CanPerform(UnitData unit, Vector2I source, Vector2I target)
+    public bool RequiresTarget => RangeComponents.Count > 0;
+
+    public bool CanPerform(UnitData unit, Vector2I source)
     {
         bool hasPermission = PermissionComponents.Count == 0 || (IntersectPermission ? PermissionComponents.All((c) => c.CanPerform(unit)) : PermissionComponents.Any((c) => c.CanPerform(unit)));
         bool inDomain = DomainComponents.Count == 0 || (IntersectDomains ? DomainComponents.All((c) => c.Contains(source)) : DomainComponents.Any((c) => c.Contains(source)));
+        return hasPermission && inDomain;
+    }
+
+    public bool CanPerform(UnitData unit, Vector2I source, Vector2I target)
+    {
         bool inRange = RangeComponents.Count == 0 || (IntersectRanges ? RangeComponents.All((c) => c.InRange(unit, source, target)) : RangeComponents.Any((c) => c.InRange(unit, source, target)));
-        return hasPermission && inDomain && inRange;
+        return CanPerform(unit, source) && inRange;
     }
 
     /// <summary>
@@ -46,8 +65,13 @@ public partial class UnitAction : Resource
     /// <returns></returns>
     public IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell)
     {
-        IEnumerable<HashSet<Vector2I>> ranges = RangeComponents.Select((c) => c.GetValidCellsInRange(unit, cell).ToHashSet());
-        return ranges.Aggregate(IntersectRanges ? (a, b) => a.Intersect(b).ToHashSet() : (a, b) => a.Union(b).ToHashSet());
+        if (RangeComponents.Count == 0)
+            return [];
+        else
+        {
+            IEnumerable<HashSet<Vector2I>> ranges = RangeComponents.Select((c) => c.GetValidCellsInRange(unit, cell).ToHashSet());
+            return ranges.Aggregate(IntersectRanges ? (a, b) => a.Intersect(b).ToHashSet() : (a, b) => a.Union(b).ToHashSet());
+        }
     }
 
     /// <summary>Get all cells a unit can reach to perform this action on from any cell it can move to from its current location for display on the map.</summary>
@@ -56,8 +80,13 @@ public partial class UnitAction : Resource
     /// <remarks>It is up to the implementor to determine if cells that are in reach but not valid targets should be included.</remarks>
     public IEnumerable<Vector2I> GetAllTargetCells(UnitData unit)
     {
-        IEnumerable<HashSet<Vector2I>> ranges = RangeComponents.Select((r) => unit.GetTraversableCells().SelectMany((c) => r.GetAllCellsInRange(unit, c)).ToHashSet());
-        return ranges.Aggregate(IntersectRanges ? (a, b) => a.Intersect(b).ToHashSet() : (a, b) => a.Union(b).ToHashSet());
+        if (RangeComponents.Count == 0)
+            return [];
+        else
+        {
+            IEnumerable<HashSet<Vector2I>> ranges = RangeComponents.Select((r) => unit.GetTraversableCells().SelectMany((c) => r.GetAllCellsInRange(unit, c)).ToHashSet());
+            return ranges.Aggregate(IntersectRanges ? (a, b) => a.Intersect(b).ToHashSet() : (a, b) => a.Union(b).ToHashSet());
+        }
     }
 
     /// <summary>
@@ -67,8 +96,13 @@ public partial class UnitAction : Resource
     /// <returns></returns>
     public IEnumerable<Vector2I> GetValidTargetCells(UnitData unit)
     {
-        IEnumerable<HashSet<Vector2I>> ranges = RangeComponents.Select((r) => unit.GetTraversableCells().SelectMany((c) => r.GetValidCellsInRange(unit, c)).ToHashSet());
-        return ranges.Aggregate(IntersectRanges ? (a, b) => a.Intersect(b).ToHashSet() : (a, b) => a.Union(b).ToHashSet());
+        if (RangeComponents.Count == 0)
+            return [];
+        else
+        {
+            IEnumerable<HashSet<Vector2I>> ranges = RangeComponents.Select((r) => unit.GetTraversableCells().SelectMany((c) => r.GetValidCellsInRange(unit, c)).ToHashSet());
+            return ranges.Aggregate(IntersectRanges ? (a, b) => a.Intersect(b).ToHashSet() : (a, b) => a.Union(b).ToHashSet());
+        }
     }
 
     /// <summary>
@@ -78,7 +112,7 @@ public partial class UnitAction : Resource
     /// <param name="target"></param>
     /// <returns>A data structure representing the result of <paramref name="unit"/> performing this action on cell <paramref name="target"/>.</returns>
     /// <exception cref="ArgumentException">If <paramref name="target"/> is not a valid target cell to perform this action on.</exception>
-    public UnitActionResult Perform(UnitData unit, Vector2I target) => ExecuteComponent.Perform(unit, target);
+    public UnitActionResult Perform(UnitData unit, Vector2I target) => new(ExecuteComponent.Perform(unit, target), this);
 
     /// <summary>
     /// Update a grid with the results of this action as computed by <see cref="Perform(UnitData, Vector2I)"/>.
@@ -86,7 +120,7 @@ public partial class UnitAction : Resource
     /// <param name="grid"></param>
     /// <param name="result"></param>
     /// <exception cref="ArgumentException">If <paramref name="result"/>.Result contains invalid data for performing this action.</exception>
-    public void UpdateGrid(GridData grid, UnitActionResult result) => ExecuteComponent.UpdateGrid(grid, result);
+    public void UpdateGrid(GridData grid, UnitActionResult result) => ExecuteComponent.UpdateGrid(grid, new(result));
 
     /// <summary>
     /// Simulate the results of this action, resolving any nondeterminism in some nonrandom way (such as by averaging possible results). Makes no changes
