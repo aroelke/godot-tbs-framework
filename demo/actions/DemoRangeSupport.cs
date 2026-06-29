@@ -16,4 +16,6 @@ public partial class DemoRangeSupport : ActionRange
 
     public override IEnumerable<Vector2I> GetValidCellsInRange(UnitData unit, Vector2I cell) =>
         GetAllCellsInRange(unit, cell).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && unit.Faction.AlliedTo(occupant.Faction));
+
+    public override IEnumerable<Vector2I> GetSources(UnitData unit, Vector2I target) => unit.GetSupportableCells(target);
 }

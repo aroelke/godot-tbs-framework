@@ -99,6 +99,17 @@ public partial class UnitAction : Resource
         }
     }
 
+    public IEnumerable<Vector2I> GetSourceCells(UnitData unit, Vector2I target)
+    {
+        if (RangeComponents.Count == 0)
+            return [];
+        else
+        {
+            IEnumerable<IEnumerable<Vector2I>> ranges = RangeComponents.Select((c) => c.GetSources(unit, target));
+            return ranges.Aggregate(IntersectRanges ? (a, b) => a.Intersect(b) : (a, b) => a.Union(b)).ToHashSet();
+        }
+    }
+
     /// <summary>
     /// Compute the result of performing this action.
     /// </summary>

@@ -15,5 +15,7 @@ public abstract partial class ActionRange : Resource
 
     public virtual bool InRange(UnitData unit, Vector2I source, Vector2I target) => GetValidCellsInRange(unit, source).Contains(target);
 
+    public abstract IEnumerable<Vector2I> GetSources(UnitData unit, Vector2I target);
+
     public virtual void Initialize(LevelManager manager) {}
 }

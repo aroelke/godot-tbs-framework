@@ -588,7 +588,7 @@ public partial class PlayerController : ArmyController
 
             ActionLayers[MoveLayer.Name] = _traversable = unit.GetTraversableCells();
             _actions = actions;
-            _ranges = [.. _actions.Select((a) => a.GetAllTargetCells(_selected))];
+            _ranges = [.. _actions.Select((a) => a.GetValidTargetCells(_selected))];
             foreach (UnitAction action in _actions)
                 if (action.Name == AttackLayer.Name || action.Name == SupportLayer.Name)
                     ActionLayers[action.Name] = action.GetAllTargetCells(unit);
@@ -640,10 +640,11 @@ public partial class PlayerController : ArmyController
         {
             foreach ((UnitAction action, IEnumerable<Vector2I> range) in _actions.Zip(_ranges))
             {
-                if (((target != _selected && Faction.AlliedTo(target)) || !Faction.AlliedTo(target)) && range.Contains(cell))
+                if (target != _selected && range.Contains(cell))
                 {
                     // Compute cells the highlighted unit could be targeted from
-                    sources = range.Where((c) => _traversable.Contains(c) && (!Cursor.Grid.Data.Occupants.TryGetValue(c, out UnitData occupant) || occupant == _selected));
+                    IEnumerable<Vector2I> allSources = action.GetSourceCells(_selected, cell);
+                    sources = _traversable.Where(allSources.Contains);
                     if (sources.Any())
                     {
                         _target = target;

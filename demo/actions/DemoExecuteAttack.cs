@@ -26,7 +26,6 @@ public partial class DemoExecuteAttack : ActionExecute
     {
         if (!unit.Grid.Occupants.TryGetValue(target, out UnitData occupant))
             throw new ArgumentException($"Cell {target} does not contain a unit to attack");
-        GD.Print($"{unit.Faction}@{unit.Cell} attacks {target}");
         return CombatCalculations.AttackResults(unit, occupant, false);
     }
 
