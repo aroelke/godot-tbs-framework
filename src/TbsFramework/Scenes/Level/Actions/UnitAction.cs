@@ -10,12 +10,6 @@ namespace TbsFramework.Scenes.Level.Actions;
 
 public record struct UnitActionResult(object Result, UnitData Actor, Vector2I Target, UnitAction Action)
 {
-    public UnitActionResult(UnitActionExecuteResult execute, UnitAction action) : this(execute.Result, execute.Actor, execute.Target, action)
-    {
-        if (action.ExecuteComponent != execute.Action)
-            throw new ArgumentException($"Execute component of action {action.Name} does not match the one used to create this result");
-    }
-
     public readonly void UpdateGrid(GridData grid) => Action.UpdateGrid(grid, this);
 }
 
@@ -112,7 +106,7 @@ public partial class UnitAction : Resource
     /// <param name="target"></param>
     /// <returns>A data structure representing the result of <paramref name="unit"/> performing this action on cell <paramref name="target"/>.</returns>
     /// <exception cref="ArgumentException">If <paramref name="target"/> is not a valid target cell to perform this action on.</exception>
-    public UnitActionResult Perform(UnitData unit, Vector2I target) => new(ExecuteComponent.Perform(unit, target), this);
+    public UnitActionResult Perform(UnitData unit, Vector2I target) => new(ExecuteComponent.Perform(unit, target), unit, target, this);
 
     /// <summary>
     /// Update a grid with the results of this action as computed by <see cref="Perform(UnitData, Vector2I)"/>.
@@ -120,7 +114,7 @@ public partial class UnitAction : Resource
     /// <param name="grid"></param>
     /// <param name="result"></param>
     /// <exception cref="ArgumentException">If <paramref name="result"/>.Result contains invalid data for performing this action.</exception>
-    public void UpdateGrid(GridData grid, UnitActionResult result) => ExecuteComponent.UpdateGrid(grid, new(result));
+    public void UpdateGrid(GridData grid, UnitActionResult result) => ExecuteComponent.UpdateGrid(grid, result.Actor, result.Target, result.Result);
 
     /// <summary>
     /// Simulate the results of this action, resolving any nondeterminism in some nonrandom way (such as by averaging possible results). Makes no changes

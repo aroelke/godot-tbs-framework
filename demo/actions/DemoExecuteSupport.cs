@@ -17,16 +17,16 @@ public partial class DemoExecuteSupport : ActionExecute
         target.Health -= action.Damage;
     }
 
-    public override UnitActionExecuteResult Perform(UnitData unit, Vector2I target)
+    public override object Perform(UnitData unit, Vector2I target)
     {
         if (!unit.Grid.Occupants.TryGetValue(target, out UnitData occupant))
             throw new ArgumentException($"Cell {target} does not contain a unit to attack");
-        return new(CombatCalculations.CreateSupportAction(unit, occupant), unit, target, this);
+        return CombatCalculations.CreateSupportAction(unit, occupant);
     }
 
-    public override void UpdateGrid(GridData grid, UnitActionExecuteResult result)
+    public override void UpdateGrid(GridData grid, UnitData actor, Vector2I target, object result)
     {
-        if (result.Result is not CombatAction action)
+        if (result is not CombatAction action)
             throw new ArgumentException("Support action result is not a combat action");
         ApplyResult(grid, action);
     }

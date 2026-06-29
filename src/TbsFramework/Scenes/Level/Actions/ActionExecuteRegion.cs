@@ -12,14 +12,14 @@ public partial class ActionExecuteRegion : ActionExecute
 
     public SpecialActionRegion Region = null;
 
-    public override UnitActionExecuteResult Perform(UnitData unit, Vector2I target) => new(Region.Data, unit, target, this);
+    public override object Perform(UnitData unit, Vector2I target) => null;
 
-    public override void UpdateGrid(GridData grid, UnitActionExecuteResult result)
+    public override void UpdateGrid(GridData grid, UnitData actor, Vector2I target, object result)
     {
-        if (result.Result is not null)
+        if (result is not null)
             GD.PushWarning($"Updating grid with result for ActionExecuteRegion that isn't null. Should this have been used for a different action?");
 
-        Region.Data.Perform(result.Actor, result.Target);
+        Region.Data.Perform(actor, target);
     }
 
     public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target)

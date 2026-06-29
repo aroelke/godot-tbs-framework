@@ -254,8 +254,8 @@ public partial class LevelManager : Node
 
     private partial class InternalActionExecute(StateChart state, StringName @event) : ActionExecute
     {
-        public override UnitActionExecuteResult Perform(UnitData unit, Vector2I target) => throw new InvalidOperationException("Internal actions don't have results");
-        public override void UpdateGrid(GridData grid, UnitActionExecuteResult result) => state.SendEvent(@event);
+        public override object Perform(UnitData unit, Vector2I target) => throw new InvalidOperationException("Internal actions don't have results");
+        public override void UpdateGrid(GridData grid, UnitData actor, Vector2I target, object result) => state.SendEvent(@event);
         public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target) => throw new InvalidOperationException("Internal actions can't be simulated");
 
     }
@@ -285,7 +285,7 @@ public partial class LevelManager : Node
         if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
         if (command.ExecuteComponent is InternalActionExecute)
-            command.ExecuteComponent.UpdateGrid(_grid, default);
+            command.ExecuteComponent.UpdateGrid(_grid, _selected, -Vector2I.One, null);
         else
         {
             _targets = command.GetTargetCells(_selected, _selected.Cell);
