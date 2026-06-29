@@ -19,14 +19,14 @@
 [ext_resource type="Resource" uid="uid://0dcwfdljw4ug" path="res://demo/factions/DemoEnemyFaction2.tres" id="8_edc7l"]
 [ext_resource type="Texture2D" uid="uid://ybe0dod1kvqr" path="res://demo/assets/map/tiles/cursor.png" id="8_s2xnc"]
 [ext_resource type="Texture2D" uid="uid://nhobvcrsi3w1" path="res://demo/assets/ui/input/cursor/cursor.png" id="9_6hgq8"]
-[ext_resource type="Script" uid="uid://bakc0y77381ee" path="res://demo/actions/DemoAttackRange.cs" id="9_061yb"]
+[ext_resource type="Script" uid="uid://bakc0y77381ee" path="res://demo/actions/DemoRangeAttack.cs" id="9_061yb"]
 [ext_resource type="PackedScene" uid="uid://ca6g5c6dsaqjb" path="res://src/TbsFramework/Scenes/Level/Control/AIController.tscn" id="9_s2xnc"]
 [ext_resource type="TileSet" uid="uid://bb7tjpm2de26x" path="res://demo/assets/map/overlay/overlay.tres" id="10_0kgrh"]
 [ext_resource type="PackedScene" uid="uid://cb1gfyilefvvj" path="res://demo/unit/Tank.tscn" id="10_1ger5"]
 [ext_resource type="Script" uid="uid://drv1f2tgworr0" path="res://demo/actions/DemoExecuteSupport.cs" id="11_g6g0k"]
 [ext_resource type="AudioStream" uid="uid://cw083osbudnfr" path="res://demo/assets/ui/sounds/cursor_move.ogg" id="11_npakb"]
 [ext_resource type="Script" uid="uid://cuqn37xuapre4" path="res://demo/actions/DemoCanSupport.cs" id="11_ttguu"]
-[ext_resource type="Script" uid="uid://cftulyr3whcpx" path="res://demo/actions/DemoSupportRange.cs" id="12_20nf1"]
+[ext_resource type="Script" uid="uid://cftulyr3whcpx" path="res://demo/actions/DemoRangeSupport.cs" id="12_20nf1"]
 [ext_resource type="Resource" uid="uid://8ni15si3ex81" path="res://demo/unit/demo_long_tank.tres" id="12_qidbu"]
 [ext_resource type="AudioStream" uid="uid://chh5seatf8dr3" path="res://demo/assets/ui/sounds/select.ogg" id="14_8l58o"]
 [ext_resource type="PackedScene" uid="uid://cseefrkj1yhgr" path="res://src/TbsFramework/Scenes/Level/Control/SwitchBehavior.tscn" id="14_d1c8n"]
@@ -71,7 +71,7 @@ metadata/_custom_type_script = "uid://bk8hbudn824qy"
 script = ExtResource("7_ls5jp")
 metadata/_custom_type_script = "uid://51gbmhpiyt6u"
 
-[sub_resource type="Resource" id="Resource_ttguu"]
+[sub_resource type="Resource" id="Resource_wn546"]
 script = ExtResource("9_061yb")
 metadata/_custom_type_script = "uid://bakc0y77381ee"
 
@@ -79,7 +79,7 @@ metadata/_custom_type_script = "uid://bakc0y77381ee"
 script = ExtResource("8_20nf1")
 Name = &"Attack"
 PermissionComponents = Array[ExtResource("6_061yb")]([SubResource("Resource_061yb")])
-RangeComponents = Array[ExtResource("7_ttguu")]([SubResource("Resource_ttguu")])
+RangeComponents = Array[ExtResource("7_ttguu")]([SubResource("Resource_wn546")])
 ExecuteComponent = SubResource("Resource_g6g0k")
 metadata/_custom_type_script = "uid://c4ceymst4wlpm"
 

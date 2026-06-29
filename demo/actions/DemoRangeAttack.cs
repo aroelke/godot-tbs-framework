@@ -8,7 +8,7 @@ using TbsFramework.Scenes.Level.Actions;
 namespace TbsFramework.Demo;
 
 [GlobalClass, Tool]
-public partial class DemoAttackRange : ActionRange
+public partial class DemoRangeAttack : ActionRange
 {
     public override bool InRange(UnitData unit, Vector2I source, Vector2I target) => unit.Stats.AttackRange.Contains(source.ManhattanDistanceTo(target));
 
