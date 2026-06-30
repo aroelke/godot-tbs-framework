@@ -9,7 +9,7 @@ namespace TbsFramework.Scenes.Level.Actions;
 [GlobalClass, Tool]
 public partial class ActionExecuteRegion : ActionExecute
 {
-    /// <summary>Scene path to the <see cref="SpecialActionRegion"/> relative to the parameter of <see cref="Initialize"/>.</summary>
+    /// <summary>Path in the current scene to the <see cref="SpecialActionRegion"/> relative to the parameter of <see cref="Initialize"/>.</summary>
     [Export(PropertyHint.NodePathValidTypes, nameof(SpecialActionRegion))] public NodePath RegionPath = null;
 
     /// <summary>Node resolved from <see cref="RegionPath"/> after <see cref="Initialize"/> completes.</summary>
