@@ -1,14 +1,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using TbsFramework.Extensions;
 using TbsFramework.Properties;
 
 namespace TbsFramework.Scenes.Data;
 
 /// <summary>Data structure for tracking information about the map and the objects on it.</summary>
-public class GridData
+public class GridData : IHasIdentity<long, GridData>
 {
+    private static long _id = 0;
+
     /// <summary>Handler for changes in a cell's terrain.</summary>
     /// <param name="cell">Cell where the terrain was changed.</param>
     /// <param name="old">Terrain before the change.</param>
@@ -21,6 +22,7 @@ public class GridData
 
     private GridData(GridData original) : this()
     {
+        Identity = original.Identity;
         _size = original._size;
         DefaultTerrain = original.DefaultTerrain;
         foreach ((Vector2I cell, Terrain terrain) in original.Terrain)
@@ -66,8 +68,12 @@ public class GridData
     /// <summary>Regions identifying special actions that units can perform.</summary>
     public readonly List<SpecialActionRegionData> SpecialActionRegions = [];
 
+    public long Identity { get; private set; }
+
     public GridData()
     {
+        Identity = _id++;
+
         _terrain.ItemsAdded += (items) => {
             if (TerrainUpdated is not null)
                 foreach ((Vector2I cell, Terrain terrain) in items)

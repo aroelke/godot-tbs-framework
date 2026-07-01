@@ -11,19 +11,19 @@ public partial class MoveBehavior : Behavior
 {
     public override IEnumerable<Vector2I> Destinations(UnitData unit) => unit.GetTraversableCells().Where((c) => !unit.Grid.Occupants.ContainsKey(c) || c == unit.Cell);
 
-    public override IEnumerable<UnitAction> Actions(UnitData unit)
+    public override IEnumerable<ActionInfo> Actions(UnitData unit)
     {
         IEnumerable<Vector2I> destinations = Destinations(unit);
-        List<UnitAction> actions = [];
+        List<ActionInfo> actions = [];
 
         foreach (SpecialActionRegionData region in unit.Grid.SpecialActionRegions)
         {
             IEnumerable<Vector2I> actionable = region.Cells.Intersect(destinations).Where((c) => region.CanPerformIn(c, unit));
-            actions.AddRange(actionable.Select((a) => new UnitAction(region.Action, [a], a, destinations)));
+            actions.AddRange(actionable.Select((a) => new ActionInfo(region.Action, [a], a, destinations)));
         }
 
         IEnumerable<Vector2I> enemies = destinations.SelectMany((c) => unit.GetAttackableCells(c)).ToHashSet().Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData u) && !u.Faction.AlliedTo(unit.Faction));
-        actions.AddRange(enemies.Select((e) => new UnitAction(UnitAction.AttackAction, unit.GetAttackableCells(e).Intersect(destinations), e, destinations)));
+        actions.AddRange(enemies.Select((e) => new ActionInfo(ActionInfo.AttackAction, unit.GetAttackableCells(e).Intersect(destinations), e, destinations)));
 
         IEnumerable<Vector2I> allyCells = destinations
             .SelectMany((c) => unit.GetSupportableCells(c)).ToHashSet()
@@ -32,7 +32,7 @@ public partial class MoveBehavior : Behavior
         {
             IEnumerable<UnitData> allies = allyCells.Select((c) => unit.Grid.Occupants[c]).OfType<UnitData>();
             double lowest = allies.Min(static (u) => u.Health);
-            actions.AddRange(allies.Where((u) => u.Health == lowest).Select((t) => new UnitAction(UnitAction.SupportAction, unit.GetSupportableCells(t.Cell).Intersect(destinations), t.Cell, destinations)));
+            actions.AddRange(allies.Where((u) => u.Health == lowest).Select((t) => new ActionInfo(ActionInfo.SupportAction, unit.GetSupportableCells(t.Cell).Intersect(destinations), t.Cell, destinations)));
         }
 
         return actions;

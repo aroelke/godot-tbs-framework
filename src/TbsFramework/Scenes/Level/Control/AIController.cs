@@ -8,6 +8,7 @@ using TbsFramework.Extensions;
 using TbsFramework.Nodes.Components;
 using TbsFramework.Scenes.Combat;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Actions;
 using TbsFramework.Scenes.Rendering;
 using TbsFramework.Scenes.Transitions;
 using TbsFramework.UI.Controls.Device;
@@ -139,7 +140,7 @@ public partial class AIController : ArmyController
             if ((diff = other.DefeatedAllies - DefeatedAllies) != 0)
                 return diff;
 
-            if ((Action == UnitAction.SupportAction || other.Action == UnitAction.SupportAction) && (diff = (int)((other.AllyHealthDifference - AllyHealthDifference)*HealthDiffPrecision)) != 0)
+            if ((Action == ActionInfo.SupportAction || other.Action == ActionInfo.SupportAction) && (diff = (int)((other.AllyHealthDifference - AllyHealthDifference)*HealthDiffPrecision)) != 0)
                 return diff;
 
             int smaller = Math.Min(_enemies.Count, other._enemies.Count);
@@ -170,7 +171,7 @@ public partial class AIController : ArmyController
         {
             if (obj is UnitData unit && unit.Faction == faction && unit.Active && unit.Health > 0)
             {
-                foreach (UnitAction action in unit.Behavior.Actions(unit))
+                foreach (ActionInfo action in unit.Behavior.Actions(unit))
                     actions.Add(new(unit, action.Name, action.Source, action.Target));
             }
         }
@@ -181,16 +182,16 @@ public partial class AIController : ArmyController
     {
         UnitData target = null;
         HashSet<Vector2I> destinations = [.. action.Sources];
-        if (action.Action == UnitAction.AttackAction)
+        if (action.Action == ActionInfo.AttackAction)
         {
             target = action.Actor.Grid.Occupants[action.Target];
             IEnumerable<Vector2I> safeCells = destinations.Where((c) => !target.Stats.AttackRange.Contains(c.ManhattanDistanceTo(target.Cell)));
             if (safeCells.Any())
                 destinations = [.. safeCells];
         }
-        else if (action.Action == UnitAction.SupportAction)
+        else if (action.Action == ActionInfo.SupportAction)
             target = action.Actor.Grid.Occupants[action.Target];
-        else if (action.Action == UnitAction.EndAction)
+        else if (action.Action == ActionInfo.EndAction)
             throw new InvalidOperationException($"End actions cannot be evaluated");
 
         List<Vector2I> choices = [];
@@ -204,14 +205,14 @@ public partial class AIController : ArmyController
             duplicate.Actor.Cell = duplicate.Destination = c;
             UnitData target = null;
 
-            if (duplicate.Action == UnitAction.AttackAction)
+            if (duplicate.Action == ActionInfo.AttackAction)
             {
                 target = duplicate.Actor.Grid.Occupants[duplicate.Target];
                 List<CombatAction> attacks = CombatCalculations.AttackResults(duplicate.Actor, target, true);
                 foreach (CombatAction attack in attacks)
                     attack.Target.Health -= attack.Damage;
             }
-            else if (duplicate.Action == UnitAction.SupportAction)
+            else if (duplicate.Action == ActionInfo.SupportAction)
             {
                 target = duplicate.Actor.Grid.Occupants[duplicate.Target];
                 CombatAction support = CombatCalculations.CreateSupportAction(duplicate.Actor, target);
@@ -235,7 +236,7 @@ public partial class AIController : ArmyController
                     if (!actions.Any((b) => a.Actor == b.Actor && a.Target == b.Target))
                         return true;
                     // Evaluate a if a or this action was not an attack action
-                    if (duplicate.Action != UnitAction.AttackAction || a.Action != UnitAction.AttackAction)
+                    if (duplicate.Action != ActionInfo.AttackAction || a.Action != ActionInfo.AttackAction)
                         return true;
                     // Don't evaluate a if a's target is defeated
                     if (a.Actor.Grid.Occupants[a.Target].Health <= 0)
@@ -294,7 +295,7 @@ public partial class AIController : ArmyController
             IEnumerable<UnitData> enemies = Grid.Data.Occupants.Values.Where((o) => o is UnitData u && !u.Faction.AlliedTo(Faction)).OfType<UnitData>();
 
             selected = enemies.Any() ? available.MinBy((u) => enemies.Min((e) => u.Cell.DistanceTo(e.Cell))) : available.First();
-            action = UnitAction.EndAction;
+            action = ActionInfo.EndAction;
 
             IEnumerable<UnitData> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Cell));
             if (ordered.Any())
@@ -378,7 +379,7 @@ public partial class AIController : ArmyController
         FastForwardTransition.TransitionOut();
     }
 
-    public override async void SelectUnit()
+    public override async void SelectUnit(UnitAction[] actions)
     {
         (_selected, _destination, _action, Vector2I target) = await Task.Run(() => ComputeAction(Faction.GetUnits(Grid.Data).Where(static (u) => u.Active)));
         if (Grid.Data.Occupants.TryGetValue(target, out UnitData unit))
@@ -389,7 +390,7 @@ public partial class AIController : ArmyController
         EmitSignal(SignalName.UnitSelected, _selected.Cell);
     }
 
-    public override void MoveUnit(UnitData unit)
+    public override void MoveUnit(UnitData unit, UnitAction[] actions)
     {
         void ConfirmMove() => EmitSignal(SignalName.PathConfirmed, unit.Cell, new Godot.Collections.Array<Vector2I>(unit.Behavior.GetPath(unit, _destination)));
         if (FastForwardTransition.Active)
@@ -398,9 +399,16 @@ public partial class AIController : ArmyController
             ConfirmMove();
     }
 
-    public override void CommandUnit(UnitData source, Godot.Collections.Array<StringName> commands, StringName cancel)
+    public override void CommandUnit(UnitData source, UnitAction[] commands, UnitAction cancel)
     {
-        EmitSignal(SignalName.UnitCommanded, source.Cell, _action);
+        foreach (UnitAction action in commands)
+        {
+            if (action.Name == _action)
+            {
+                EmitSignal(SignalName.UnitCommanded, source.Cell, action);
+                break;
+            }
+        }
     }
 
     public override void SelectTarget(UnitData source, IEnumerable<Vector2I> targets)

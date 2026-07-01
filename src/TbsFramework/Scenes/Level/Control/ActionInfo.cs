@@ -8,10 +8,10 @@ namespace TbsFramework.Scenes.Level.Control;
 /// <param name="Source">Cells the action could be performed from.</param>
 /// <param name="Target">Cell the action will be performed on.</param>
 /// <param name="Traversable">Cells the acting unit can move on.</param>
-public record class UnitAction(StringName Name, IEnumerable<Vector2I> Source, Vector2I Target, IEnumerable<Vector2I> Traversable)
+public record class ActionInfo(StringName Name, IEnumerable<Vector2I> Source, Vector2I Target, IEnumerable<Vector2I> Traversable)
 {
     public static readonly StringName AttackAction = "Attack";
-    public static readonly StringName SupportAction = "Support";
+    public static readonly StringName SupportAction = "Heal";
     public static readonly StringName EndAction = "End";
     public static readonly StringName Deselect = "Deselect";
     public static readonly StringName Cancel = "Cancel";
