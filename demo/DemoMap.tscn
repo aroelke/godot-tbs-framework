@@ -15,7 +15,7 @@
 [ext_resource type="PackedScene" uid="uid://drlrlusbfh208" path="res://src/TbsFramework/Scenes/Level/Control/PlayerController.tscn" id="7_tajn8"]
 [ext_resource type="Script" uid="uid://buoeah8l3kobp" path="res://src/TbsFramework/Scenes/Level/Actions/ActionRange.cs" id="7_ttguu"]
 [ext_resource type="Resource" uid="uid://dxvcd01bu3ovj" path="res://demo/factions/DemoEnemyFaction1.tres" id="7_yu7ov"]
-[ext_resource type="Script" uid="uid://c4ceymst4wlpm" path="res://src/TbsFramework/Scenes/Level/Actions/UnitAction.cs" id="8_20nf1"]
+[ext_resource type="Script" uid="uid://c4ceymst4wlpm" path="res://src/TbsFramework/Scenes/Level/Actions/GenericUnitAction.cs" id="8_20nf1"]
 [ext_resource type="Resource" uid="uid://0dcwfdljw4ug" path="res://demo/factions/DemoEnemyFaction2.tres" id="8_edc7l"]
 [ext_resource type="Texture2D" uid="uid://ybe0dod1kvqr" path="res://demo/assets/map/tiles/cursor.png" id="8_s2xnc"]
 [ext_resource type="Texture2D" uid="uid://nhobvcrsi3w1" path="res://demo/assets/ui/input/cursor/cursor.png" id="9_6hgq8"]

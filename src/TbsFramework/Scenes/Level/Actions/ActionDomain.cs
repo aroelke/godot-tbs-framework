@@ -5,7 +5,7 @@ namespace TbsFramework.Scenes.Level.Actions;
 
 /// <summary>
 /// Describes the cells a unit could perform an action from across the entire map. This does not take into account the cells a unit can move
-/// to from its current position. Can be combined with other instances of this class within <see cref="UnitAction"/> to construct complex
+/// to from its current position. Can be combined with other instances of this class within <see cref="GenericUnitAction"/> to construct complex
 /// action domains.
 /// </summary>
 [GlobalClass]

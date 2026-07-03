@@ -45,7 +45,7 @@ public partial class LevelManager : Node
     private IEnumerator<Army> _armies = null;
     private Vector2I? _initialCell = null;
     private readonly Stack<BoundedNode2D> _cameraHistory = [];
-    private UnitAction _command = null;
+    private GenericUnitAction _command = null;
     private bool _ff = false;
 
     private GridData _grid = null;
@@ -65,7 +65,7 @@ public partial class LevelManager : Node
 #endregion
 #region Exports
     /// <summary>List of all possible actions that can be performed by units in this level.</summary>
-    [Export] public UnitAction[] AvailableActions = [];
+    [Export] public GenericUnitAction[] AvailableActions = [];
 
     /// <summary>
     /// <see cref="Army"/> that gets the first turn and is controlled by the player. If null, use the first <see cref="Army"/>
@@ -98,10 +98,10 @@ public partial class LevelManager : Node
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TurnFastForward, Callable.From(OnSkipTurnReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitSelected, Callable.From<Vector2I>(OnUnitSelectedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.PathConfirmed, Callable.From<Vector2I, Godot.Collections.Array<Vector2I>>(OnPathConfirmedReaction.React));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, UnitAction>(OnSelectedUnitCommandedReaction.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, GenericUnitAction>(OnSelectedUnitCommandedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Vector2I, Vector2I>(OnSelectedTargetChosenReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetCanceled, Callable.From<Vector2I>(OnTargetingCanceled));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, UnitAction>(OnCommandingUnitCommandedReaction.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, GenericUnitAction>(OnCommandingUnitCommandedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Vector2I, Vector2I>(OnTargetingTargetChosenReaction.React));
 
         _armies.Current.Controller.InitializeTurn();
@@ -203,7 +203,7 @@ public partial class LevelManager : Node
     /// <param name="cell">Cell containing the unit to perform the command.</param>
     /// <param name="command">Command to perform.</param>
     /// <exception cref="InvalidOperationException">If <paramref name="cell"/> doesn't contain the selected unit.</exception>
-    public void OnSelectedUnitCommanded(Vector2I cell, UnitAction command)
+    public void OnSelectedUnitCommanded(Vector2I cell, GenericUnitAction command)
     {
         if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
@@ -269,9 +269,9 @@ public partial class LevelManager : Node
     public void OnCommandingEntered()
     {
         _targets = [];
-        UnitAction deselect = new() { Name = ActionInfo.Deselect, DomainComponents = [new InternalActionDomain([_initialCell.Value])], ExecuteComponent = new InternalActionExecute(State, SkipEvent) };
-        UnitAction end = new() { Name = ActionInfo.EndAction, AlwaysShow = true, ExecuteComponent = new InternalActionExecute(State, DoneEvent) };
-        UnitAction cancel = new() { Name = ActionInfo.Cancel, AlwaysShow = true, ExecuteComponent = new InternalActionExecute(State, CancelEvent) };
+        GenericUnitAction deselect = new() { Name = ActionInfo.Deselect, DomainComponents = [new InternalActionDomain([_initialCell.Value])], ExecuteComponent = new InternalActionExecute(State, SkipEvent) };
+        GenericUnitAction end = new() { Name = ActionInfo.EndAction, AlwaysShow = true, ExecuteComponent = new InternalActionExecute(State, DoneEvent) };
+        GenericUnitAction cancel = new() { Name = ActionInfo.Cancel, AlwaysShow = true, ExecuteComponent = new InternalActionExecute(State, CancelEvent) };
         _armies.Current.Controller.CommandUnit(_selected, [..AvailableActions, deselect, end], cancel);
     }
 
@@ -280,7 +280,7 @@ public partial class LevelManager : Node
     /// <param name="command">Command to perform.</param>
     /// <exception cref="InvalidOperationException">If <paramref name="cell"/> does not contain the selected unit.</exception>
     /// <exception cref="ArgumentException">If <paramref name="command"/> is not a recognized command or <see cref="CancelCommand"/></exception>
-    public void OnCommandingUnitCommanded(Vector2I cell, UnitAction command)
+    public void OnCommandingUnitCommanded(Vector2I cell, GenericUnitAction command)
     {
         if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
@@ -550,7 +550,7 @@ public partial class LevelManager : Node
                     if (!_armies.MoveNext())
                         break;
 
-            foreach (UnitAction action in AvailableActions)
+            foreach (GenericUnitAction action in AvailableActions)
                 action.Initialize(this);
             Callable.From(() => State.SendEvent(DoneEvent)).CallDeferred();
         }

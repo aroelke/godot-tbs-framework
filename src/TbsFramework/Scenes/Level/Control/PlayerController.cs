@@ -33,7 +33,7 @@ public partial class PlayerController : ArmyController
 
     private readonly NodeCache _cache = null;
     private Grid _grid = null;
-    private UnitAction[] _actions = null;
+    private GenericUnitAction[] _actions = null;
     private TileSet _overlayTiles = null;
     private TileSet _pathTiles = null;
     private int _pathTerrainSet = -1, _pathTerrain = -1;
@@ -430,7 +430,7 @@ public partial class PlayerController : ArmyController
     }
 #endregion
 #region Unit Selection
-    public override void SelectUnit(UnitAction[] actions)
+    public override void SelectUnit(GenericUnitAction[] actions)
     {
         _actions = actions;
 
@@ -555,7 +555,7 @@ public partial class PlayerController : ArmyController
         if (Grid.Data.Occupants.GetValueOrDefault(cell) is UnitData unit)
         {
             ActionLayers[MoveLayer.Name] = unit.GetTraversableCells();
-            foreach (UnitAction action in _actions)
+            foreach (GenericUnitAction action in _actions)
                 if (action.Name == AttackLayer.Name || action.Name == SupportLayer.Name)
                     ActionLayers[action.Name] = action.GetAllTargetCells(unit);
         }
@@ -572,9 +572,9 @@ public partial class PlayerController : ArmyController
 #region Path Selection
     private IEnumerable<Vector2I> _traversable = null;
     private IEnumerable<Vector2I>[] _ranges = null; // parallel to _actions
-    private UnitAction _command = null;
+    private GenericUnitAction _command = null;
 
-    public override void MoveUnit(UnitData unit, UnitAction[] actions)
+    public override void MoveUnit(UnitData unit, GenericUnitAction[] actions)
     {
         Cursor.Resume();
         Pointer.StopWaiting();
@@ -589,7 +589,7 @@ public partial class PlayerController : ArmyController
             ActionLayers[MoveLayer.Name] = _traversable = unit.GetTraversableCells();
             _actions = actions;
             _ranges = [.. _actions.Select((a) => a.GetValidTargetCells(_selected))];
-            foreach (UnitAction action in _actions)
+            foreach (GenericUnitAction action in _actions)
                 if (action.Name == AttackLayer.Name || action.Name == SupportLayer.Name)
                     ActionLayers[action.Name] = action.GetAllTargetCells(unit);
             Cursor.SoftRestriction = [.. _traversable];
@@ -638,7 +638,7 @@ public partial class PlayerController : ArmyController
         IEnumerable<Vector2I> sources = [];
         if (Cursor.Grid.Data.Occupants.GetValueOrDefault(cell) is UnitData target)
         {
-            foreach ((UnitAction action, IEnumerable<Vector2I> range) in _actions.Zip(_ranges))
+            foreach ((GenericUnitAction action, IEnumerable<Vector2I> range) in _actions.Zip(_ranges))
             {
                 if (target != _selected && range.Contains(cell))
                 {
@@ -738,10 +738,10 @@ public partial class PlayerController : ArmyController
     }
 #endregion
 #region Command Selection
-    public override void CommandUnit(UnitData source, UnitAction[] commands, UnitAction cancel)
+    public override void CommandUnit(UnitData source, GenericUnitAction[] commands, GenericUnitAction cancel)
     {
         ActionLayers.Clear(MoveLayer.Name);
-        foreach (UnitAction action in commands)
+        foreach (GenericUnitAction action in commands)
             if (action.Name == AttackLayer.Name || action.Name == SupportLayer.Name)
                 ActionLayers[action.Name] = action.GetTargetCells(source, source.Cell);
 
