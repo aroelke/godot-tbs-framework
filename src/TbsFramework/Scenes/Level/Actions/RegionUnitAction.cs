@@ -59,5 +59,7 @@ public partial class RegionUnitAction : UnitAction
     public override void Initialize(LevelManager manager)
     {
         Region = manager.GetNode<SpecialActionRegion>(RegionPath);
+        foreach (ActionPermission permission in AdditionalPermissions)
+            permission.Initialize(manager);
     }
 }

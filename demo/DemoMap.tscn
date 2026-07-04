@@ -110,7 +110,7 @@ metadata/_custom_type_script = "uid://dpctr7oust5rg"
 [sub_resource type="Resource" id="Resource_dvqlx"]
 script = ExtResource("14_5t6v1")
 RegionPath = NodePath("Grid/Capture")
-AdditionalPermissions = [SubResource("Resource_vhc0u")]
+AdditionalPermissions = Array[ExtResource("6_061yb")]([SubResource("Resource_vhc0u")])
 Name = &"Capture"
 AnimateOnMap = true
 metadata/_custom_type_script = "uid://bsn181216h4dr"

@@ -1,3 +1,5 @@
+global using UnitDataReferenceType = TbsFramework.Scenes.Rendering.Unit;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +12,7 @@ using TbsFramework.Scenes.Rendering;
 namespace TbsFramework.Scenes.Data;
 
 /// <summary>Data structure tracking information about a unit on the map.</summary>
-public class UnitData : GridObjectData, IHasIdentity<Unit, UnitData>
+public class UnitData : GridObjectData, IHasIdentity<UnitDataReferenceType, UnitData>
 {
     /// <summary>Signals that the unit has become active or inactive.</summary>
     public event Action<bool> AvailabilityUpdated;
@@ -139,7 +141,7 @@ public class UnitData : GridObjectData, IHasIdentity<Unit, UnitData>
     /// <summary>Reference to the <see cref="Unit"/> rendering the unit's state on the map.</summary>
     public Unit Renderer = null;
 
-    public Unit Identity => Renderer;
+    public UnitDataReferenceType Identity => Renderer;
 
     public UnitData() : base()
     {

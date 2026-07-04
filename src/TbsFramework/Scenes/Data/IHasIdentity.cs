@@ -2,9 +2,7 @@ using System.Collections.Generic;
 
 namespace TbsFramework.Scenes.Data;
 
-/// <summary>
-/// Object that can be used for comparing two <see cref="IHasIdentity{T, U}"/>s.
-/// </summary>
+/// <summary>Object that can be used for comparing two <see cref="IHasIdentity{T, U}"/>s.</summary>
 public static class HasIdentity
 {
     /// <returns>

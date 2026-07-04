@@ -15,12 +15,11 @@ public partial class ActionPermissionUnit : ActionPermission
     [Export] public NodePath[] AllowedUnitPaths = [];
 
     /// <summary>
-    /// Nodes resolved from <see cref="AllowedUnitPaths"/> after <see cref="Initialize"/> completes. If empty, any unit can perform
+    /// Identities of units resolved from <see cref="AllowedUnitPaths"/> after <see cref="Initialize"/> completes. If empty, any unit can perform
     /// the action.
     /// </summary>
-    public IEnumerable<UnitData> AllowedUnits = [];
+    public IEnumerable<UnitDataReferenceType> AllowedUnitIdentities = [];
 
-    public override bool CanPerform(UnitData unit) => !AllowedUnits.Any() || AllowedUnits.Contains(unit);
-
-    public override void Initialize(LevelManager manager) => AllowedUnits = AllowedUnitPaths.Select((p) => manager.GetNode<Unit>(p).UnitData);
+    public override bool CanPerform(UnitData unit) => !AllowedUnitIdentities.Any() || AllowedUnitIdentities.Any((u) => u == unit.Identity);
+    public override void Initialize(LevelManager manager) => AllowedUnitIdentities = AllowedUnitPaths.Select(manager.GetNode<Unit>);
 }
