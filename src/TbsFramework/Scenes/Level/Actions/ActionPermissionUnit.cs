@@ -18,8 +18,8 @@ public partial class ActionPermissionUnit : ActionPermission
     /// Identities of units resolved from <see cref="AllowedUnitPaths"/> after <see cref="Initialize"/> completes. If empty, any unit can perform
     /// the action.
     /// </summary>
-    public IEnumerable<UnitDataReferenceType> AllowedUnitIdentities = [];
+    public IEnumerable<UnitReferenceType> AllowedUnitIdentities = [];
 
     public override bool CanPerform(UnitData unit) => !AllowedUnitIdentities.Any() || AllowedUnitIdentities.Any((u) => u == unit.Identity);
-    public override void Initialize(LevelManager manager) => AllowedUnitIdentities = AllowedUnitPaths.Select(manager.GetNode<Unit>);
+    public override void Initialize(LevelManager manager) => AllowedUnitIdentities = AllowedUnitPaths.Select((p) => manager.GetNode<Unit>(p).UnitData.Identity);
 }

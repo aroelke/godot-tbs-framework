@@ -25,15 +25,15 @@ public partial class RegionUnitAction : UnitAction
     /// </summary>
     [Export] public Godot.Collections.Array<ActionPermission> AdditionalPermissions = [];
 
-    /// <summary>Node resolved from <see cref="RegionPath"/> after <see cref="Initialize"/> completes.</summary>
-    public SpecialActionRegion Region = null;
+    /// <summary>Identity of the region resolved from <see cref="RegionPath"/> after <see cref="Initialize"/> completes.</summary>
+    public SpecialActionRegionReferenceType RegionIdentity = null;
 
     public override bool RequiresTarget => false;
 
     public override bool CanPerform(UnitData unit, Vector2I source)
     {
         bool hasPermission = AdditionalPermissions.Count == 0 || (IntersectPermission ? AdditionalPermissions.All((c) => c.CanPerform(unit)) : AdditionalPermissions.Any((c) => c.CanPerform(unit)));
-        return hasPermission && Region.Data.CanPerformIn(source, unit);
+        return hasPermission && unit.Grid.SpecialActionRegions[RegionIdentity].CanPerformIn(source, unit);
     }
 
     public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => target == source && CanPerform(unit, source);
@@ -48,7 +48,7 @@ public partial class RegionUnitAction : UnitAction
         if (result.Result is not null)
             GD.PushWarning($"Updating grid with result for ActionExecuteRegion that isn't null. Should this have been used for a different action?");
 
-        Region.Data.Perform(result.Actor, result.Target);
+        grid.SpecialActionRegions[RegionIdentity].Perform(result.Actor, result.Target);
     }
 
     public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target)
@@ -58,7 +58,7 @@ public partial class RegionUnitAction : UnitAction
 
     public override void Initialize(LevelManager manager)
     {
-        Region = manager.GetNode<SpecialActionRegion>(RegionPath);
+        RegionIdentity = manager.GetNode<SpecialActionRegion>(RegionPath).Data.Identity;
         foreach (ActionPermission permission in AdditionalPermissions)
             permission.Initialize(manager);
     }

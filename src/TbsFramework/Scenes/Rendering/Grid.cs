@@ -166,7 +166,7 @@ public partial class Grid : BoundedNode2D
             foreach (SpecialActionRegion region in GetChildren().OfType<SpecialActionRegion>())
             {
                 region.Data.Grid = Data;
-                Data.SpecialActionRegions.Add(region.Data);
+                Data.SpecialActionRegions[region.Data.Identity] = region.Data;
             }
         }
     }
