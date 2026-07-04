@@ -33,7 +33,7 @@ public partial class PlayerController : ArmyController
 
     private readonly NodeCache _cache = null;
     private Grid _grid = null;
-    private GenericUnitAction[] _actions = null;
+    private UnitAction[] _actions = null;
     private TileSet _overlayTiles = null;
     private TileSet _pathTiles = null;
     private int _pathTerrainSet = -1, _pathTerrain = -1;
@@ -430,7 +430,7 @@ public partial class PlayerController : ArmyController
     }
 #endregion
 #region Unit Selection
-    public override void SelectUnit(GenericUnitAction[] actions)
+    public override void SelectUnit(UnitAction[] actions)
     {
         _actions = actions;
 
@@ -572,9 +572,9 @@ public partial class PlayerController : ArmyController
 #region Path Selection
     private IEnumerable<Vector2I> _traversable = null;
     private IEnumerable<Vector2I>[] _ranges = null; // parallel to _actions
-    private GenericUnitAction _command = null;
+    private UnitAction _command = null;
 
-    public override void MoveUnit(UnitData unit, GenericUnitAction[] actions)
+    public override void MoveUnit(UnitData unit, UnitAction[] actions)
     {
         Cursor.Resume();
         Pointer.StopWaiting();
@@ -638,7 +638,7 @@ public partial class PlayerController : ArmyController
         IEnumerable<Vector2I> sources = [];
         if (Cursor.Grid.Data.Occupants.GetValueOrDefault(cell) is UnitData target)
         {
-            foreach ((GenericUnitAction action, IEnumerable<Vector2I> range) in _actions.Zip(_ranges))
+            foreach ((UnitAction action, IEnumerable<Vector2I> range) in _actions.Zip(_ranges))
             {
                 if (target != _selected && range.Contains(cell))
                 {
@@ -738,7 +738,7 @@ public partial class PlayerController : ArmyController
     }
 #endregion
 #region Command Selection
-    public override void CommandUnit(UnitData source, GenericUnitAction[] commands, GenericUnitAction cancel)
+    public override void CommandUnit(UnitData source, UnitAction[] commands, UnitAction cancel)
     {
         ActionLayers.Clear(MoveLayer.Name);
         foreach (GenericUnitAction action in commands)
