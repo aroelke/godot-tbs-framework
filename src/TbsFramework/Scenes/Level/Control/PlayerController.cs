@@ -555,7 +555,7 @@ public partial class PlayerController : ArmyController
         if (Grid.Data.Occupants.GetValueOrDefault(cell) is UnitData unit)
         {
             ActionLayers[MoveLayer.Name] = unit.GetTraversableCells();
-            foreach (GenericUnitAction action in _actions)
+            foreach (UnitAction action in _actions)
                 if (action.Name == AttackLayer.Name || action.Name == SupportLayer.Name)
                     ActionLayers[action.Name] = action.GetAllTargetCells(unit);
         }
@@ -589,7 +589,7 @@ public partial class PlayerController : ArmyController
             ActionLayers[MoveLayer.Name] = _traversable = unit.GetTraversableCells();
             _actions = actions;
             _ranges = [.. _actions.Select((a) => a.GetValidTargetCells(_selected))];
-            foreach (GenericUnitAction action in _actions)
+            foreach (UnitAction action in _actions)
                 if (action.Name == AttackLayer.Name || action.Name == SupportLayer.Name)
                     ActionLayers[action.Name] = action.GetAllTargetCells(unit);
             Cursor.SoftRestriction = [.. _traversable];
@@ -741,7 +741,7 @@ public partial class PlayerController : ArmyController
     public override void CommandUnit(UnitData source, UnitAction[] commands, UnitAction cancel)
     {
         ActionLayers.Clear(MoveLayer.Name);
-        foreach (GenericUnitAction action in commands)
+        foreach (UnitAction action in commands)
             if (action.Name == AttackLayer.Name || action.Name == SupportLayer.Name)
                 ActionLayers[action.Name] = action.GetTargetCells(source, source.Cell);
 

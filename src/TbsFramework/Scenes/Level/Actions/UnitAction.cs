@@ -11,7 +11,7 @@ namespace TbsFramework.Scenes.Level.Actions;
 /// <param name="Actor">Unit performing the action.</param>
 /// <param name="Target">Cell on which the action will be performed or containing the unit on which it will be performed.</param>
 /// <param name="Action">Action to be performed.</param>
-public record struct UnitActionResult(object Result, UnitData Actor, Vector2I Target, GenericUnitAction Action)
+public record struct UnitActionResult(object Result, UnitData Actor, Vector2I Target, UnitAction Action)
 {
     /// <summary>Convenience method for updating the map based on the results of performing <see cref="Action"/>.</summary>
     /// <param name="grid">Grid to update.</param>
@@ -22,6 +22,7 @@ public record struct UnitActionResult(object Result, UnitData Actor, Vector2I Ta
 /// Represents an action that a unit can perform. Provides information on whether a given unit can perform the action, in which cells,
 /// and on which cells and computes the results of performing the action.
 /// </summary>
+[GlobalClass, Tool]
 public abstract partial class UnitAction : Resource
 {
     /// <summary>Name of the action for display in a menu.</summary>
