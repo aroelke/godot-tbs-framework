@@ -401,7 +401,7 @@ public partial class AIController : ArmyController
 
     public override void CommandUnit(UnitData source, UnitAction[] commands, UnitAction cancel)
     {
-        foreach (GenericUnitAction action in commands)
+        foreach (UnitAction action in commands)
         {
             if (action.Name == _action)
             {

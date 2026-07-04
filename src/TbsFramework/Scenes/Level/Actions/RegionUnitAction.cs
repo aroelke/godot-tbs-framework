@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Events;
@@ -12,12 +13,29 @@ public partial class RegionUnitAction : UnitAction
     /// <summary>Path in the current scene to the <see cref="SpecialActionRegion"/> relative to the parameter of <see cref="Initialize"/>.</summary>
     [Export(PropertyHint.NodePathValidTypes, nameof(SpecialActionRegion))] public NodePath RegionPath = null;
 
+    /// <summary>
+    /// Whether a unit must meet all (<c>true</c>) or any (<c>false</c>) additional permissions in order to be allowed to perform the action. It also
+    /// has to be in one of <see cref="Region"/>'s cells.
+    /// </summary>
+    [Export] public bool IntersectPermission = false;
+
+    /// <summary>
+    /// List of additional permissions that control whether or not a unit to perform this action beyond the set of
+    /// allowed cells.
+    /// </summary>
+    [Export] public Godot.Collections.Array<ActionPermission> AdditionalPermissions = [];
+
     /// <summary>Node resolved from <see cref="RegionPath"/> after <see cref="Initialize"/> completes.</summary>
     public SpecialActionRegion Region = null;
 
     public override bool RequiresTarget => false;
 
-    public override bool CanPerform(UnitData unit, Vector2I source) => Region.Data.CanPerformIn(source, unit);
+    public override bool CanPerform(UnitData unit, Vector2I source)
+    {
+        bool hasPermission = AdditionalPermissions.Count == 0 || (IntersectPermission ? AdditionalPermissions.All((c) => c.CanPerform(unit)) : AdditionalPermissions.Any((c) => c.CanPerform(unit)));
+        return hasPermission && Region.Data.CanPerformIn(source, unit);
+    }
+
     public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => target == source && CanPerform(unit, source);
     public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => [];
     public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit) => [];
