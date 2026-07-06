@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Control;
 using TbsFramework.Scenes.Level.Events;
 
 namespace TbsFramework.Scenes.Level.Actions;
@@ -33,6 +34,12 @@ public abstract partial class UnitAction : Resource
 
     /// <summary>Whether or not this action should always be performed using a map animation regardless of game settings.</summary>
     [Export] public bool AnimateOnMap = false;
+
+    /// <summary>
+    /// If a unit performs this action on another unit in an opposing faction, the second unit can retaliate in some way.  Used for helping
+    /// <see cref="AIController"/> with positioning.
+    /// </summary>
+    [Export] public bool RetaliationAllowed = false;
 
     /// <summary>Whether or not this action requires a target.</summary>
     public abstract bool RequiresTarget { get; }

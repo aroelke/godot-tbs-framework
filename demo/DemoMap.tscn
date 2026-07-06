@@ -80,6 +80,7 @@ PermissionComponents = Array[ExtResource("6_061yb")]([SubResource("Resource_061y
 RangeComponents = Array[ExtResource("7_ttguu")]([SubResource("Resource_wn546")])
 ExecuteComponent = SubResource("Resource_g6g0k")
 Name = &"Attack"
+RetaliationAllowed = true
 metadata/_custom_type_script = "uid://c4ceymst4wlpm"
 
 [sub_resource type="Resource" id="Resource_jaaus"]
