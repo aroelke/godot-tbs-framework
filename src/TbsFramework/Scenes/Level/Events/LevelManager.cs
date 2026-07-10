@@ -257,8 +257,11 @@ public partial class LevelManager : Node
         public override object Perform(UnitData unit, Vector2I target) => throw new InvalidOperationException("Internal actions don't have results");
         public override void UpdateGrid(GridData grid, UnitData actor, Vector2I target, object result) => state.SendEvent(@event);
         public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target) => throw new InvalidOperationException("Internal actions can't be simulated");
-
     }
+
+    private static readonly StringName DeselectAction = "Deselect";
+    private static readonly StringName EndAction      = "End";
+    private static readonly StringName CancelAction   = "Cancel";
 
     private IEnumerable<Vector2I> _targets = [];
 
@@ -269,9 +272,9 @@ public partial class LevelManager : Node
     public void OnCommandingEntered()
     {
         _targets = [];
-        GenericUnitAction deselect = new() { Name = ActionInfo.Deselect, DomainComponents = [new InternalActionDomain([_initialCell.Value])], ExecuteComponent = new InternalActionExecute(State, SkipEvent) };
-        GenericUnitAction end = new() { Name = ActionInfo.EndAction, AlwaysShow = true, ExecuteComponent = new InternalActionExecute(State, DoneEvent) };
-        GenericUnitAction cancel = new() { Name = ActionInfo.Cancel, AlwaysShow = true, ExecuteComponent = new InternalActionExecute(State, CancelEvent) };
+        GenericUnitAction deselect = new() { Name = DeselectAction, DomainComponents = [new InternalActionDomain([_initialCell.Value])], ExecuteComponent = new InternalActionExecute(State, SkipEvent) };
+        GenericUnitAction end = new() { Name = EndAction, AlwaysShow = true, ExecuteComponent = new InternalActionExecute(State, DoneEvent) };
+        GenericUnitAction cancel = new() { Name = CancelAction, AlwaysShow = true, ExecuteComponent = new InternalActionExecute(State, CancelEvent) };
         _armies.Current.Controller.CommandUnit(_selected, [..AvailableActions, deselect, end], cancel);
     }
 

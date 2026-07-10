@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Actions;
 
 namespace TbsFramework.Scenes.Level.Control;
 
@@ -44,8 +45,8 @@ public partial class SwitchBehavior : Behavior
         return _switched ? Final : Initial;
     }
 
-    public override IEnumerable<ActionInfo> Actions(UnitData unit) => TargetBehavior()?.Actions(unit) ?? [];
     public override IEnumerable<Vector2I> Destinations(UnitData unit) => TargetBehavior()?.Destinations(unit) ?? [];
+    public override IEnumerable<ActionInfo> Actions(UnitData unit, IEnumerable<UnitAction> available) => TargetBehavior()?.Actions(unit, available) ?? [];
 
     /// <summary>Reset the state of the behavior. Mainly intended to be used for testing.</summary>
     public void Reset() => _switched = false;

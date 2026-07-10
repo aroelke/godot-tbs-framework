@@ -96,14 +96,14 @@ public partial class GenericUnitAction : UnitAction
         }
     }
 
-    /// <returns>The set of cells within reach of <paramref name="unit"/> after moving to any cell it can traverse that contain valid targets for the action.</returns>
-    public override IEnumerable<Vector2I> GetValidTargetCells(UnitData unit)
+    /// <returns>The set of cells within reach of <paramref name="unit"/> after moving to any cell within <paramref name="traversable"/> that contain valid targets for the action.</returns>
+    public override IEnumerable<Vector2I> GetValidTargetCells(UnitData unit, IEnumerable<Vector2I> traversable)
     {
         if (RangeComponents.Count == 0)
             return [];
         else
         {
-            IEnumerable<HashSet<Vector2I>> ranges = RangeComponents.Select((r) => unit.GetTraversableCells().SelectMany((c) => r.GetValidCellsInRange(unit, c)).ToHashSet());
+            IEnumerable<HashSet<Vector2I>> ranges = RangeComponents.Select((r) => traversable.SelectMany((c) => r.GetValidCellsInRange(unit, c)).ToHashSet());
             return ranges.Aggregate(IntersectRanges ? (a, b) => a.Intersect(b).ToHashSet() : (a, b) => a.Union(b).ToHashSet());
         }
     }

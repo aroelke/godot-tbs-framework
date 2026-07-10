@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Actions;
 
 namespace TbsFramework.Scenes.Level.Control;
 
@@ -11,30 +12,9 @@ public partial class MoveBehavior : Behavior
 {
     public override IEnumerable<Vector2I> Destinations(UnitData unit) => unit.GetTraversableCells().Where((c) => !unit.Grid.Occupants.ContainsKey(c) || c == unit.Cell);
 
-    public override IEnumerable<ActionInfo> Actions(UnitData unit)
+    public override IEnumerable<ActionInfo> Actions(UnitData unit, IEnumerable<UnitAction> available)
     {
         IEnumerable<Vector2I> destinations = Destinations(unit);
-        List<ActionInfo> actions = [];
-
-        foreach ((_, SpecialActionRegionData region) in unit.Grid.SpecialActionRegions)
-        {
-            IEnumerable<Vector2I> actionable = region.Cells.Intersect(destinations).Where((c) => region.CanPerformIn(c, unit));
-            actions.AddRange(actionable.Select((a) => new ActionInfo(region.Action, [a], a, destinations)));
-        }
-
-        IEnumerable<Vector2I> enemies = destinations.SelectMany((c) => unit.GetAttackableCells(c)).ToHashSet().Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData u) && !u.Faction.AlliedTo(unit.Faction));
-        actions.AddRange(enemies.Select((e) => new ActionInfo(ActionInfo.AttackAction, unit.GetAttackableCells(e).Intersect(destinations), e, destinations)));
-
-        IEnumerable<Vector2I> allyCells = destinations
-            .SelectMany((c) => unit.GetSupportableCells(c)).ToHashSet()
-            .Where((c) => c != unit.Cell && unit.Grid.Occupants.TryGetValue(c, out UnitData u) && u.Faction.AlliedTo(unit.Faction) && u.Health < u.Stats.Health);
-        if (allyCells.Any())
-        {
-            IEnumerable<UnitData> allies = allyCells.Select((c) => unit.Grid.Occupants[c]).OfType<UnitData>();
-            double lowest = allies.Min(static (u) => u.Health);
-            actions.AddRange(allies.Where((u) => u.Health == lowest).Select((t) => new ActionInfo(ActionInfo.SupportAction, unit.GetSupportableCells(t.Cell).Intersect(destinations), t.Cell, destinations)));
-        }
-
-        return actions;
+        return available.SelectMany((a) => a.GetValidTargetCells(unit, destinations).Select((c) => new ActionInfo(a, a.GetSourceCells(unit, c), c, destinations)));
     }
 }

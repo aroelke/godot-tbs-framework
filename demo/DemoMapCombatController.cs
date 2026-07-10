@@ -66,13 +66,7 @@ public partial class DemoMapCombatController : CombatController
         _lastActor = null;
         if (left != right) // left == right indicates a region action, which has no animation in the demo
         {
-            List<CombatAction> actions;
-            if (result.Action.Name == ActionInfo.AttackAction)
-                actions = result.Result as List<CombatAction>;
-            else if (result.Action.Name == ActionInfo.SupportAction)
-                actions = [(CombatAction)result.Result];
-            else
-                throw new ArgumentException($"Unknown action {result.Action.Name}");
+            List<CombatAction> actions = (result.Result as List<CombatAction>) ?? [(CombatAction)result.Result];
 
             _animations = new()
             {

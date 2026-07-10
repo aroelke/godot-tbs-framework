@@ -41,6 +41,9 @@ public abstract partial class UnitAction : Resource
     /// </summary>
     [Export] public bool RetaliationAllowed = false;
 
+    /// <summary>Indicate that this action affects the health of its target. Used for AI action prioritization.</summary>
+    [Export] public bool AffectsHealth = false;
+
     /// <summary>Whether or not this action requires a target.</summary>
     public abstract bool RequiresTarget { get; }
 
@@ -66,8 +69,11 @@ public abstract partial class UnitAction : Resource
     /// <remarks>It is up to the implementor to determine if cells that are in reach but not valid targets should be included.</remarks>
     public abstract IEnumerable<Vector2I> GetAllTargetCells(UnitData unit);
 
+    /// <returns>The set of cells that contain valid targets for <paramref name="unit"/> from any cell within <paramref name="traversable"/>.</returns>
+    public abstract IEnumerable<Vector2I> GetValidTargetCells(UnitData unit, IEnumerable<Vector2I> traversable);
+
     /// <returns>The set of cells within reach of <paramref name="unit"/> after moving to any cell it can traverse that contain valid targets for the action.</returns>
-    public abstract IEnumerable<Vector2I> GetValidTargetCells(UnitData unit);
+    public virtual IEnumerable<Vector2I> GetValidTargetCells(UnitData unit) => GetValidTargetCells(unit, unit.GetTraversableCells());
 
     /// <returns>The set of cells from which <paramref name="unit"/> can perform this action on <paramref name="target"/>.</returns>
     public abstract IEnumerable<Vector2I> GetSourceCells(UnitData unit, Vector2I target);

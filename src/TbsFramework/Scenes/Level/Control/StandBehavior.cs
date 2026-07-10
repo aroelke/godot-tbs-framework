@@ -2,10 +2,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Actions;
 
 namespace TbsFramework.Scenes.Level.Control;
 
-/// <summary><see cref="Unit"/> behavior that prevents a unit from moving and can optionally prevent actions as well.</summary>
+/// <summary>Unit behavior that prevents a unit from moving and can optionally prevent actions as well.</summary>
 [Tool]
 public partial class StandBehavior : Behavior
 {
@@ -17,28 +18,26 @@ public partial class StandBehavior : Behavior
 
     public override IEnumerable<Vector2I> Destinations(UnitData unit) => [unit.Cell];
 
-    public override IEnumerable<ActionInfo> Actions(UnitData unit)
+    public override IEnumerable<ActionInfo> Actions(UnitData unit, IEnumerable<UnitAction> available)
     {
         List<ActionInfo> actions = [];
+        Dictionary<UnitAction, IEnumerable<Vector2I>> targets = available.Where((a) => a.RequiresTarget).ToDictionary((a) => a, (a) => a.GetTargetCells(unit, unit.Cell).Where((c) => a.CanPerform(unit, unit.Cell, c)));
 
-        actions.AddRange(unit.Grid.SpecialActionRegions.Values.Where((r) => r.CanPerformIn(unit.Cell, unit)).Select((r) => new ActionInfo(r.Action, [unit.Cell], unit.Cell, [unit.Cell])));
+        actions.AddRange(available.Where((a) => !a.RequiresTarget && a.CanPerform(unit, unit.Cell)).Select((a) => new ActionInfo(a, [unit.Cell], unit.Cell, [unit.Cell])));
+
         if (AttackInRange)
         {
-            IEnumerable<Vector2I> attackable = unit.GetAttackableCells();
-            IEnumerable<UnitData> targets = unit.Grid.Occupants.Where((e) => attackable.Contains(e.Key) && e.Value is UnitData u && !unit.Faction.AlliedTo(u.Faction)).Select(static (p) => p.Value).OfType<UnitData>();
-            actions.AddRange(targets.Select((t) => new ActionInfo(ActionInfo.AttackAction, [unit.Cell], t.Cell, [unit.Cell])));
+            foreach ((UnitAction action, IEnumerable<Vector2I> cells) in targets)
+                foreach (Vector2I cell in cells)
+                    if (!unit.Grid.Occupants[cell].Faction.AlliedTo(unit.Faction))
+                        actions.Add(new(action, action.GetSourceCells(unit, cell), cell, [unit.Cell]));
         }
         if (SupportInRange)
         {
-            IEnumerable<Vector2I> supportable = unit.GetSupportableCells();
-            IEnumerable<UnitData> targets = unit.Grid.Occupants
-                .Where((e) => supportable.Contains(e.Key) && e.Value is UnitData u && unit.Faction.AlliedTo(u.Faction) && u.Health < u.Stats.Health)
-                .Select(static (p) => p.Value).OfType<UnitData>();
-            if (targets.Any())
-            {
-                double lowest = targets.Min(static (u) => u.Health);
-                actions.AddRange(targets.Where((t) => t.Health == lowest).Select((t) => new ActionInfo(ActionInfo.SupportAction, [unit.Cell], t.Cell, [unit.Cell])));
-            }
+            foreach ((UnitAction action, IEnumerable<Vector2I> cells) in targets)
+                foreach (Vector2I cell in cells)
+                    if (unit.Grid.Occupants[cell].Faction.AlliedTo(unit.Faction))
+                        actions.Add(new(action, action.GetSourceCells(unit, cell), cell, [unit.Cell]));
         }
 
         return actions;

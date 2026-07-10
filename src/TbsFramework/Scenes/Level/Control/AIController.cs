@@ -35,7 +35,7 @@ public partial class AIController : ArmyController
         private Vector2I _destination = -Vector2I.One;
         private GridData _result = null;
 
-        public VirtualAction(UnitData actor, StringName action, IEnumerable<Vector2I> sources, Vector2I target)
+        public VirtualAction(UnitData actor, UnitAction action, IEnumerable<Vector2I> sources, Vector2I target)
         {
             Actor = actor;
             Action = action;
@@ -65,7 +65,7 @@ public partial class AIController : ArmyController
         }
 
         public UnitData Actor;
-        public StringName Action;
+        public UnitAction Action;
         public IEnumerable<Vector2I> Sources = [];
         public Vector2I Target = -Vector2I.One;
         public IEnumerable<Vector2I> Traversable;
@@ -140,7 +140,7 @@ public partial class AIController : ArmyController
             if ((diff = other.DefeatedAllies - DefeatedAllies) != 0)
                 return diff;
 
-            if ((Action == ActionInfo.SupportAction || other.Action == ActionInfo.SupportAction) && (diff = (int)((other.AllyHealthDifference - AllyHealthDifference)*HealthDiffPrecision)) != 0)
+            if (Action.AffectsHealth && (diff = (int)((other.AllyHealthDifference - AllyHealthDifference)*HealthDiffPrecision)) != 0)
                 return diff;
 
             int smaller = Math.Min(_enemies.Count, other._enemies.Count);
@@ -164,35 +164,38 @@ public partial class AIController : ArmyController
         public override int GetHashCode() => HashCode.Combine(Actor, Actor.Grid, Action, Target, Destination);
     }
 
-    private static List<VirtualAction> GetAvailableActions(GridData grid, Faction faction)
+    private static List<VirtualAction> GetAvailableActions(GridData grid, Faction faction, IEnumerable<UnitAction> available)
     {
         List<VirtualAction> actions = [];
         foreach ((_, GridObjectData obj) in grid.Occupants)
         {
             if (obj is UnitData unit && unit.Faction == faction && unit.Active && unit.Health > 0)
             {
-                foreach (ActionInfo action in unit.Behavior.Actions(unit))
-                    actions.Add(new(unit, action.Name, action.Source, action.Target));
+                foreach (ActionInfo action in unit.Behavior.Actions(unit, available))
+                    actions.Add(new(unit, action.Action, action.Source, action.Target));
             }
         }
         return actions;
     }
 
-    private static VirtualAction EvaluateAction(IEnumerable<VirtualAction> actions, VirtualAction action, Dictionary<GridData, VirtualAction> decisions, int remaining)
+    private static VirtualAction EvaluateAction(IEnumerable<VirtualAction> actions, VirtualAction action, Dictionary<GridData, VirtualAction> decisions, IEnumerable<UnitAction> available, int remaining)
     {
         UnitData target = null;
         HashSet<Vector2I> destinations = [.. action.Sources];
-        if (action.Action == ActionInfo.AttackAction)
+        if (action.Action.RequiresTarget && !action.Actor.Faction.AlliedTo(action.Actor.Grid.Occupants[action.Target]))
         {
             target = action.Actor.Grid.Occupants[action.Target];
-            IEnumerable<Vector2I> safeCells = destinations.Where((c) => !target.Stats.AttackRange.Contains(c.ManhattanDistanceTo(target.Cell)));
-            if (safeCells.Any())
-                destinations = [.. safeCells];
+            if (action.Action.RetaliationAllowed)
+            {
+                IEnumerable<Vector2I> safeCells = destinations.Where((c) => !target.Stats.AttackRange.Contains(c.ManhattanDistanceTo(target.Cell)));
+                if (safeCells.Any())
+                    destinations = [.. safeCells];
+            }
         }
-        else if (action.Action == ActionInfo.SupportAction)
+        else if (action.Action.RequiresTarget && action.Actor.Faction.AlliedTo(action.Actor.Grid.Occupants[action.Target]))
             target = action.Actor.Grid.Occupants[action.Target];
-        else if (action.Action == ActionInfo.EndAction)
-            throw new InvalidOperationException($"End actions cannot be evaluated");
+        else if (!action.Action.RequiresTarget)
+            throw new InvalidOperationException($"Non-targeted actions cannot be evaluated");
 
         List<Vector2I> choices = [];
         if (destinations.Contains(action.Actor.Cell))
@@ -205,14 +208,14 @@ public partial class AIController : ArmyController
             duplicate.Actor.Cell = duplicate.Destination = c;
             UnitData target = null;
 
-            if (duplicate.Action == ActionInfo.AttackAction)
+            if (duplicate.Action.RequiresTarget && !duplicate.Actor.Faction.AlliedTo(duplicate.Actor.Grid.Occupants[duplicate.Target]))
             {
                 target = duplicate.Actor.Grid.Occupants[duplicate.Target];
                 List<CombatAction> attacks = CombatCalculations.AttackResults(duplicate.Actor, target, true);
                 foreach (CombatAction attack in attacks)
                     attack.Target.Health -= attack.Damage;
             }
-            else if (duplicate.Action == ActionInfo.SupportAction)
+            else if (duplicate.Action.RequiresTarget && duplicate.Actor.Faction.AlliedTo(duplicate.Actor.Grid.Occupants[duplicate.Target]))
             {
                 target = duplicate.Actor.Grid.Occupants[duplicate.Target];
                 CombatAction support = CombatCalculations.CreateSupportAction(duplicate.Actor, target);
@@ -227,7 +230,7 @@ public partial class AIController : ArmyController
             if (decisions.TryGetValue(duplicate.Actor.Grid, out VirtualAction decision))
                 return decision;
 
-            IEnumerable<VirtualAction> further = GetAvailableActions(duplicate.Result, duplicate.Actor.Faction);
+            IEnumerable<VirtualAction> further = GetAvailableActions(duplicate.Result, duplicate.Actor.Faction, available);
             if (remaining == 0 || remaining > 1)
             {
                 remaining = Math.Max(0, remaining - 1);
@@ -236,7 +239,7 @@ public partial class AIController : ArmyController
                     if (!actions.Any((b) => a.Actor == b.Actor && a.Target == b.Target))
                         return true;
                     // Evaluate a if a or this action was not an attack action
-                    if (duplicate.Action != ActionInfo.AttackAction || a.Action != ActionInfo.AttackAction)
+                    if (!duplicate.Action.RequiresTarget)
                         return true;
                     // Don't evaluate a if a's target is defeated
                     if (a.Actor.Grid.Occupants[a.Target].Health <= 0)
@@ -252,7 +255,7 @@ public partial class AIController : ArmyController
                 if (reduced.Any())
                 {
                     decisions[duplicate.Actor.Grid] = duplicate.Clone();
-                    IEnumerable<VirtualAction> results = reduced.Select((a) => EvaluateAction(reduced, a, decisions, remaining));
+                    IEnumerable<VirtualAction> results = reduced.Select((a) => EvaluateAction(reduced, a, decisions, available, remaining));
                     decisions[duplicate.Actor.Grid].Result = results.Max().Result;
                 }
             }
@@ -267,23 +270,24 @@ public partial class AIController : ArmyController
         });
     }
 
-    public (UnitData selected, Vector2I destination, StringName action, Vector2I target) ComputeAction(IEnumerable<UnitData> available)
+    public (UnitData selected, Vector2I destination, UnitAction action, Vector2I target) ComputeAction(IEnumerable<UnitData> available, IEnumerable<UnitAction> actions)
     {
         UnitData selected = null;
         Vector2I destination = -Vector2I.One;
-        StringName action = null;
+        UnitAction action = null;
         Vector2I target;
 
-        List<VirtualAction> actions = [.. GetAvailableActions(Grid.Data, Faction)];
-        if (actions.Count != 0)
+        IEnumerable<UnitAction> targetable = actions.Where((a) => a.RequiresTarget);
+        List<VirtualAction> potential = [.. GetAvailableActions(Grid.Data, Faction, targetable)];
+        if (potential.Count != 0)
         {
             VirtualAction result;
             if (EvaluateWithThreads)
-                result = Task.WhenAll([.. actions.Select((a) => Task.Run(() => EvaluateAction(actions, a, [], MaxSearchDepth)))]).Result.Max();
+                result = Task.WhenAll([.. potential.Select((a) => Task.Run(() => EvaluateAction(potential, a, [], targetable, MaxSearchDepth)))]).Result.Max();
             else
             {
                 Dictionary<GridData, VirtualAction> decisions = [];
-                result = actions.Max((a) => EvaluateAction(actions, a, decisions, MaxSearchDepth));
+                result = potential.Max((a) => EvaluateAction(potential, a, decisions, targetable, MaxSearchDepth));
             }
             selected = result.Actor;
             destination = result.Destination;
@@ -295,7 +299,7 @@ public partial class AIController : ArmyController
             IEnumerable<UnitData> enemies = Grid.Data.Occupants.Values.Where((o) => o is UnitData u && !u.Faction.AlliedTo(Faction)).OfType<UnitData>();
 
             selected = enemies.Any() ? available.MinBy((u) => enemies.Min((e) => u.Cell.DistanceTo(e.Cell))) : available.First();
-            action = ActionInfo.EndAction;
+            action = actions.FirstOrDefault((a) => !a.RequiresTarget);
 
             IEnumerable<UnitData> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Cell));
             if (ordered.Any())
@@ -311,7 +315,7 @@ public partial class AIController : ArmyController
     private readonly NodeCache _cache = null;
     private UnitData _selected = null;
     private Vector2I _destination = -Vector2I.One;
-    private StringName _action = null;
+    private UnitAction _action = null;
     private UnitData _target = null;
     private bool _ff = false;
 
@@ -381,7 +385,7 @@ public partial class AIController : ArmyController
 
     public override async void SelectUnit(UnitAction[] actions)
     {
-        (_selected, _destination, _action, Vector2I target) = await Task.Run(() => ComputeAction(Faction.GetUnits(Grid.Data).Where(static (u) => u.Active)));
+        (_selected, _destination, _action, Vector2I target) = await Task.Run(() => ComputeAction(Faction.GetUnits(Grid.Data).Where(static (u) => u.Active), actions));
         if (Grid.Data.Occupants.TryGetValue(target, out UnitData unit))
             _target = unit;
         else
@@ -399,17 +403,7 @@ public partial class AIController : ArmyController
             ConfirmMove();
     }
 
-    public override void CommandUnit(UnitData source, UnitAction[] commands, UnitAction cancel)
-    {
-        foreach (UnitAction action in commands)
-        {
-            if (action.Name == _action)
-            {
-                EmitSignal(SignalName.UnitCommanded, source.Cell, action);
-                break;
-            }
-        }
-    }
+    public override void CommandUnit(UnitData source, UnitAction[] commands, UnitAction cancel) => EmitSignal(SignalName.UnitCommanded, source.Cell, _action);
 
     public override void SelectTarget(UnitData source, IEnumerable<Vector2I> targets)
     {

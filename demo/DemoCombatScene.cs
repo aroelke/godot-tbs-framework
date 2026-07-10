@@ -60,12 +60,7 @@ public partial class DemoCombatScene : CombatController
     {
         base.Initialize(left, right, result);
 
-        if (result.Action.Name == ActionInfo.AttackAction)
-            _actions = [.. result.Result as List<CombatAction>];
-        else if (result.Action.Name == ActionInfo.SupportAction)
-            _actions = [(CombatAction)result.Result];
-        else
-            throw new ArgumentException($"Unknown action {result.Action.Name}");
+        List<CombatAction> actions = (result.Result as List<CombatAction>) ?? [(CombatAction)result.Result];
 
         _animations[left] = left.Class.InstantiateCombatAnimations(left.Faction);
         _animations[left].SetFacing(Vector2.Right);

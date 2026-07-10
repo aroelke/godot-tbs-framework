@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Actions;
 
 namespace TbsFramework.Scenes.Level.Control;
 
@@ -18,7 +19,7 @@ public abstract partial class Behavior : Node
     /// <summary>Determine the actions a unit is able to perform and which cell(s) those actions can be performed on.</summary>
     /// <param name="unit">Unit that could act.</param>
     /// <returns>The set of actions that can be performed.</returns>
-    public abstract IEnumerable<ActionInfo> Actions(UnitData unit);
+    public abstract IEnumerable<ActionInfo> Actions(UnitData unit, IEnumerable<UnitAction> available);
 
     /// <summary>Determine the path the unit will traverse between two cells.</summary>
     /// <param name="unit">Unit that will move along the path.</param>
