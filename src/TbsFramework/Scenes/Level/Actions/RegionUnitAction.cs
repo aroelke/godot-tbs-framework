@@ -54,7 +54,10 @@ public partial class RegionUnitAction : UnitAction
 
     public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target)
     {
-        throw new System.NotImplementedException();
+        GridData grid = unit.Grid.Clone();
+        grid.Occupants[unit.Cell].Cell = source;
+        grid.SpecialActionRegions[RegionIdentity].Perform(grid.Occupants[unit.Cell], target);
+        return grid;
     }
 
     public override void Initialize(LevelManager manager)

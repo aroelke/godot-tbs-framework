@@ -15,7 +15,7 @@ using TbsFramework.UI.Controls.Device;
 
 namespace TbsFramework.Scenes.Level.Control;
 
-/// <summary>Automatically controls units based on their <see cref="UnitBehavior"/>s and the state of the level.</summary>
+/// <summary>Automatically controls units based on their <see cref="Behavior"/>s and the state of the level.</summary>
 [Icon("uid://bambqlpd7p4kr"), Tool]
 public partial class AIController : ArmyController
 {
@@ -35,27 +35,19 @@ public partial class AIController : ArmyController
         private Vector2I _destination = -Vector2I.One;
         private GridData _result = null;
 
-        public VirtualAction(UnitData actor, UnitAction action, IEnumerable<Vector2I> sources, Vector2I target)
+        public VirtualAction(UnitData actor, UnitAction action, Vector2I destination, Vector2I target, IEnumerable<Vector2I> traversable)
         {
             Actor = actor;
             Action = action;
-            Sources = sources;
+            Traversable = traversable;
+            Destination = destination;
             Target = target;
             Start = actor?.Cell ?? -Vector2I.One;
-
-            if (Actor is not null)
-            {
-                Traversable = Actor.GetTraversableCells();
-                _destination = Actor.Cell;
-            }
         }
 
-        private VirtualAction(VirtualAction original) : this(null, original.Action, original.Sources, original.Target)
+        private VirtualAction(VirtualAction original) : this(original.Actor.Grid.Clone().Occupants[original.Actor.Cell], original.Action, original.Destination, original.Target, original.Traversable)
         {
-            Actor = original.Actor.Grid.Clone().Occupants[original.Actor.Cell];
-            Traversable = original.Traversable;
             Start = original.Start;
-            Destination = original.Destination;
 
             Result = original.Result;
             SpecialActionsPerformed = original.SpecialActionsPerformed;
@@ -66,7 +58,6 @@ public partial class AIController : ArmyController
 
         public UnitData Actor;
         public UnitAction Action;
-        public IEnumerable<Vector2I> Sources = [];
         public Vector2I Target = -Vector2I.One;
         public IEnumerable<Vector2I> Traversable;
         public Vector2I Start = -Vector2I.One;
@@ -77,7 +68,7 @@ public partial class AIController : ArmyController
             set
             {
                 _destination = value;
-                PathCost = Actor.PathCost(Path.Empty(Actor.Grid, Actor.GetTraversableCells()).Add(Start).Add(_destination));
+                PathCost = Actor.PathCost(Path.Empty(Actor.Grid, Traversable).Add(Start).Add(_destination));
             }
         }
 
@@ -167,107 +158,80 @@ public partial class AIController : ArmyController
     private static List<VirtualAction> GetAvailableActions(GridData grid, Faction faction, IEnumerable<UnitAction> available)
     {
         List<VirtualAction> actions = [];
-        foreach ((_, GridObjectData obj) in grid.Occupants)
+        foreach ((_, UnitData unit) in grid.Occupants)
         {
-            if (obj is UnitData unit && unit.Faction == faction && unit.Active && unit.Health > 0)
+            if (unit.Faction == faction && unit.Active && unit.Health > 0)
             {
                 foreach (ActionInfo action in unit.Behavior.Actions(unit, available))
-                    actions.Add(new(unit, action.Action, action.Source, action.Target));
+                {
+                    IEnumerable<Vector2I> destinations = action.Action.GetSourceCells(unit, action.Target).Intersect(action.Traversable);
+                    UnitData target = action.Action.RequiresTarget ? unit.Grid.Occupants[action.Target] : null;
+
+                    // If the action allows for retaliation, prioritize cells that the target can't retaliate on
+                    if (action.Action.RequiresTarget && action.Action.RetaliationAllowed)
+                    {
+                        IEnumerable<Vector2I> safe = destinations.Where((c) => !action.Action.CanPerform(target, target.Cell, c));
+                        if (safe.Any())
+                            destinations = safe;
+                    }
+
+                    // Prioritize the destination closest to the actor's current cell, but if that cell is the actor's current cell then
+                    // also try the next-best one in case moving another unit to that cell afterward is overall better
+                    Vector2I best = destinations.MinBy((c) => c.ManhattanDistanceTo(unit.Cell));
+                    actions.Add(new(unit, action.Action, best, action.Target, action.Traversable));
+                    if (best == unit.Cell && destinations.Count() > 1)
+                        actions.Add(new(unit, action.Action, destinations.Where((c) => c != best).MinBy((c) => c.ManhattanDistanceTo(unit.Cell)), action.Target, action.Traversable));
+                }
             }
         }
+
         return actions;
     }
 
     private static VirtualAction EvaluateAction(IEnumerable<VirtualAction> actions, VirtualAction action, Dictionary<GridData, VirtualAction> decisions, IEnumerable<UnitAction> available, int remaining)
     {
-        UnitData target = null;
-        HashSet<Vector2I> destinations = [.. action.Sources];
-        if (action.Action.RequiresTarget && !action.Actor.Faction.AlliedTo(action.Actor.Grid.Occupants[action.Target]))
+        action.Result = action.Action.Simulate(action.Actor, action.Destination, action.Target);
+        action.Result.Occupants[action.Destination].Active = false;
+
+        // If this action results in a board state that was already explored, skip the rest of this branch and use that result
+        if (decisions.TryGetValue(action.Result, out VirtualAction decision))
+            return decision;
+
+        IEnumerable<VirtualAction> further = GetAvailableActions(action.Result, action.Actor.Faction, available);
+        if (remaining == 0 || remaining > 1)
         {
-            target = action.Actor.Grid.Occupants[action.Target];
-            if (action.Action.RetaliationAllowed)
+            remaining = Math.Max(0, remaining - 1);
+            IEnumerable<VirtualAction> reduced = further.Where((a) => {
+                // Evaluate a if a was not present in the previous set of actions that were evaluated (the other ones will either reappear or be evaluated later)
+                if (!actions.Any((b) => a.Actor == b.Actor && a.Target == b.Target))
+                    return true;
+                // Evaluate a if a or this action was not an attack action
+                if (!action.Action.RequiresTarget)
+                    return true;
+                // Don't evaluate a if a's target is defeated
+                if (a.Actor.Grid.Occupants[a.Target].Health <= 0)
+                    return false;
+                // Evaluate a if this action defeated its target to see if more enemies can be defeated down this branch
+                if (action.Result.Occupants[action.Target].Health <= 0)
+                    return true;
+                // Evaluate a if it has the same target as this action
+                if (a.Target == action.Target)
+                    return true;
+                return false;
+            });
+            if (reduced.Any())
             {
-                IEnumerable<Vector2I> safeCells = destinations.Where((c) => !target.Stats.AttackRange.Contains(c.ManhattanDistanceTo(target.Cell)));
-                if (safeCells.Any())
-                    destinations = [.. safeCells];
+                decisions[action.Result] = action.Clone();
+                IEnumerable<VirtualAction> results = reduced.Select((a) => EvaluateAction(reduced, a, decisions, available, remaining));
+                decisions[action.Result].Result = results.Max().Result;
             }
         }
-        else if (action.Action.RequiresTarget && action.Actor.Faction.AlliedTo(action.Actor.Grid.Occupants[action.Target]))
-            target = action.Actor.Grid.Occupants[action.Target];
-        else if (!action.Action.RequiresTarget)
-            throw new InvalidOperationException($"Non-targeted actions cannot be evaluated");
-
-        List<Vector2I> choices = [];
-        if (destinations.Contains(action.Actor.Cell))
-            choices.Add(action.Actor.Cell);
-        if (!destinations.Contains(action.Actor.Cell) || destinations.Count > 1)
-            choices.Add(destinations.Where((c) => c != action.Actor.Cell).MinBy((c) => c.ManhattanDistanceTo(action.Actor.Cell)));
-
-        return choices.Max((c) => {
-            VirtualAction duplicate = action.Clone();
-            duplicate.Actor.Cell = duplicate.Destination = c;
-            UnitData target = null;
-
-            if (duplicate.Action.RequiresTarget && !duplicate.Actor.Faction.AlliedTo(duplicate.Actor.Grid.Occupants[duplicate.Target]))
-            {
-                target = duplicate.Actor.Grid.Occupants[duplicate.Target];
-                List<CombatAction> attacks = CombatCalculations.AttackResults(duplicate.Actor, target, true);
-                foreach (CombatAction attack in attacks)
-                    attack.Target.Health -= attack.Damage;
-            }
-            else if (duplicate.Action.RequiresTarget && duplicate.Actor.Faction.AlliedTo(duplicate.Actor.Grid.Occupants[duplicate.Target]))
-            {
-                target = duplicate.Actor.Grid.Occupants[duplicate.Target];
-                CombatAction support = CombatCalculations.CreateSupportAction(duplicate.Actor, target);
-                support.Target.Health += -support.Damage;
-            }
-            else
-                duplicate.SpecialActionsPerformed++;
-            duplicate.Actor.Active = false;
-            duplicate.Result = duplicate.Actor.Grid;
-
-            // If this action results in a board state that was already explored, skip the rest of this branch and use that result
-            if (decisions.TryGetValue(duplicate.Actor.Grid, out VirtualAction decision))
-                return decision;
-
-            IEnumerable<VirtualAction> further = GetAvailableActions(duplicate.Result, duplicate.Actor.Faction, available);
-            if (remaining == 0 || remaining > 1)
-            {
-                remaining = Math.Max(0, remaining - 1);
-                IEnumerable<VirtualAction> reduced = further.Where((a) => {
-                    // Evaluate a if a was not present in the previous set of actions that were evaluated (the other ones will either reappear or be evaluated later)
-                    if (!actions.Any((b) => a.Actor == b.Actor && a.Target == b.Target))
-                        return true;
-                    // Evaluate a if a or this action was not an attack action
-                    if (!duplicate.Action.RequiresTarget)
-                        return true;
-                    // Don't evaluate a if a's target is defeated
-                    if (a.Actor.Grid.Occupants[a.Target].Health <= 0)
-                        return false;
-                    // Evaluate a if this action defeated its target to see if more enemies can be defeated down this branch
-                    if (target.Health <= 0)
-                        return true;
-                    // Evaluate a if it has the same target as this action
-                    if (a.Target == duplicate.Target)
-                        return true;
-                    return false;
-                });
-                if (reduced.Any())
-                {
-                    decisions[duplicate.Actor.Grid] = duplicate.Clone();
-                    IEnumerable<VirtualAction> results = reduced.Select((a) => EvaluateAction(reduced, a, decisions, available, remaining));
-                    decisions[duplicate.Actor.Grid].Result = results.Max().Result;
-                }
-            }
-            if (!decisions.TryGetValue(duplicate.Actor.Grid, out VirtualAction value))
-            {
-                value = duplicate.Clone();
-                decisions[duplicate.Actor.Grid] = value;
-                decisions[duplicate.Actor.Grid].RemainingActions = further.Count();
-            }
-            value.Actor = action.Actor; // Maintain original actor to keep its cell intact if it's chosen to act
-            return value;
-        });
+        if (!decisions.TryGetValue(action.Result, out VirtualAction value))
+        {
+            decisions[action.Result] = value = action;
+            decisions[action.Result].RemainingActions = further.Count();
+        }
+        return value;
     }
 
     public (UnitData selected, Vector2I destination, UnitAction action, Vector2I target) ComputeAction(IEnumerable<UnitData> available, IEnumerable<UnitAction> actions)

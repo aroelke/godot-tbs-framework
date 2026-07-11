@@ -47,6 +47,7 @@ public partial class DemoExecuteAttack : ActionExecute
             throw new ArgumentException($"Cell {target} does not contain a unit to attack");
         List<CombatAction> actions = CombatCalculations.AttackResults(unit, occupant, true);
         GridData copy = unit.Grid.Clone();
+        copy.Occupants[unit.Cell].Cell = source;
         ApplyResults(copy, actions);
         return copy;
     }
