@@ -43,11 +43,12 @@ public partial class DemoExecuteAttack : ActionExecute
 
     public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target)
     {
-        if (!unit.Grid.Occupants.TryGetValue(target, out UnitData occupant))
+        if (!unit.Grid.Occupants.ContainsKey(target))
             throw new ArgumentException($"Cell {target} does not contain a unit to attack");
-        List<CombatAction> actions = CombatCalculations.AttackResults(unit, occupant, true);
+
         GridData copy = unit.Grid.Clone();
         copy.Occupants[unit.Cell].Cell = source;
+        List<CombatAction> actions = CombatCalculations.AttackResults(copy.Occupants[source], copy.Occupants[target], true);
         ApplyResults(copy, actions);
         return copy;
     }
