@@ -38,11 +38,11 @@ public partial class AIController : ArmyController
         public VirtualAction(UnitData actor, UnitAction action, Vector2I destination, Vector2I target, IEnumerable<Vector2I> traversable)
         {
             Actor = actor;
+            Start = actor?.Cell ?? -Vector2I.One;
             Action = action;
             Traversable = traversable;
             Destination = destination;
             Target = target;
-            Start = actor?.Cell ?? -Vector2I.One;
         }
 
         private VirtualAction(VirtualAction original) : this(original.Actor.Grid.Clone().Occupants[original.Actor.Cell], original.Action, original.Destination, original.Target, original.Traversable)
