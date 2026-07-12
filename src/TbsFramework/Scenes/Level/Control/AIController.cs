@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes.Components;
-using TbsFramework.Scenes.Combat;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Actions;
 using TbsFramework.Scenes.Rendering;
@@ -87,6 +86,10 @@ public partial class AIController : ArmyController
             {
                 if ((_result = value) is not null)
                 {
+                    _allies.Clear();
+                    AllyHealthDifference = 0;
+                    _enemies.Clear();
+                    EnemyHealthDifference = 0;
                     foreach ((_, GridObjectData obj) in _result.Occupants)
                     {
                         if (obj is UnitData unit)
@@ -131,7 +134,7 @@ public partial class AIController : ArmyController
             if ((diff = other.DefeatedAllies - DefeatedAllies) != 0)
                 return diff;
 
-            if (Action.AffectsHealth && (diff = (int)((other.AllyHealthDifference - AllyHealthDifference)*HealthDiffPrecision)) != 0)
+            if (Action.RequiresTarget && Result.Occupants[Target].Faction.AlliedTo(Actor) && (diff = (int)((other.AllyHealthDifference - AllyHealthDifference)*HealthDiffPrecision)) != 0)
                 return diff;
 
             int smaller = Math.Min(_enemies.Count, other._enemies.Count);
@@ -219,11 +222,12 @@ public partial class AIController : ArmyController
                     return true;
                 return false;
             });
+            action.RemainingActions = reduced.Count();
             if (reduced.Any())
             {
-                decisions[action.Result] = action.Clone();
                 IEnumerable<VirtualAction> results = reduced.Select((a) => EvaluateAction(reduced, a, decisions, available, remaining));
-                decisions[action.Result].Result = results.Max().Result;
+                action.Result = results.Max().Result;
+                decisions[action.Result] = action;
             }
         }
         if (!decisions.TryGetValue(action.Result, out VirtualAction value))
