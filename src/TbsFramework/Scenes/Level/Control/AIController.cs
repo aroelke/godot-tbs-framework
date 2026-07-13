@@ -134,13 +134,10 @@ public partial class AIController : ArmyController
             if ((diff = other.DefeatedAllies - DefeatedAllies) != 0)
                 return diff;
 
-            if (Action.RequiresTarget && other.Action.RequiresTarget && Result.Occupants[Target].Faction.AlliedTo(Actor.Faction) == other.Result.Occupants[other.Target].Faction.AlliedTo(other.Actor.Faction))
+            if (Action.RequiresTarget && other.Action.RequiresTarget && Result.Occupants[Target].Faction.AlliedTo(Actor.Faction) && other.Result.Occupants[other.Target].Faction.AlliedTo(other.Actor.Faction))
             {
-                if (Result.Occupants[Target].Faction.AlliedTo(Actor.Faction) &&
-                    other.Result.Occupants[other.Target].Faction.AlliedTo(other.Actor.Faction) &&
-                    (diff = (int)(other.Actor.Grid.Occupants[other.Target].Health - Actor.Grid.Occupants[Target].Health)) != 0)
+                if ((diff = (int)(other.Actor.Grid.Occupants[other.Target].Health - Actor.Grid.Occupants[Target].Health)) != 0)
                     return diff;
-                GD.Print($"health diff: {other.AllyHealthDifference} {AllyHealthDifference}");
                 if ((diff = (int)((other.AllyHealthDifference - AllyHealthDifference)*HealthDiffPrecision)) != 0)
                     return diff;
             }
