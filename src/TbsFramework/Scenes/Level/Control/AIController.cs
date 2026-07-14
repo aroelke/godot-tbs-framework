@@ -42,6 +42,7 @@ public partial class AIController : ArmyController
             Traversable = traversable;
             Destination = destination;
             Target = target;
+            Friendly = action.RequiresTarget && actor.Grid.Occupants[target].Faction.AlliedTo(actor.Faction);
         }
 
         private VirtualAction(VirtualAction original) : this(original.Actor.Grid.Clone().Occupants[original.Actor.Cell], original.Action, original.Destination, original.Target, original.Traversable)
@@ -78,6 +79,7 @@ public partial class AIController : ArmyController
         public double EnemyHealthDifference = 0;
         public int PathCost = 0;
         public int RemainingActions = 0;
+        public bool Friendly = false;
 
         public GridData Result
         {
@@ -134,7 +136,7 @@ public partial class AIController : ArmyController
             if ((diff = other.DefeatedAllies - DefeatedAllies) != 0)
                 return diff;
 
-            if (Action.RequiresTarget && other.Action.RequiresTarget && Result.Occupants[Target].Faction.AlliedTo(Actor.Faction) && other.Result.Occupants[other.Target].Faction.AlliedTo(other.Actor.Faction))
+            if (Friendly && other.Friendly)
             {
                 if ((diff = (int)(other.Actor.Grid.Occupants[other.Target].Health - Actor.Grid.Occupants[Target].Health)) != 0)
                     return diff;
