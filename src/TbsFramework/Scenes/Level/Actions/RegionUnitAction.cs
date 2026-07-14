@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
-using TbsFramework.Scenes.Level.Events;
 using TbsFramework.Scenes.Rendering;
 
 namespace TbsFramework.Scenes.Level.Actions;
@@ -60,10 +59,10 @@ public partial class RegionUnitAction : UnitAction
         return grid;
     }
 
-    public override void Initialize(LevelManager manager)
+    public override void Initialize(Node owner)
     {
-        RegionIdentity = manager.GetNode<SpecialActionRegion>(RegionPath).Data.Identity;
+        RegionIdentity = owner.GetNode<SpecialActionRegion>(RegionPath).Data.Identity;
         foreach (ActionPermission permission in AdditionalPermissions)
-            permission.Initialize(manager);
+            permission.Initialize(owner);
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Godot;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Control;
-using TbsFramework.Scenes.Level.Events;
 
 namespace TbsFramework.Scenes.Level.Actions;
 
@@ -104,6 +103,6 @@ public abstract partial class UnitAction : Resource
     public abstract GridData Simulate(UnitData unit, Vector2I source, Vector2I target);
 
     /// <summary>Perform any initial setup of the action's components at the beginning of the level.</summary>
-    /// <param name="manager">Node providing access to the scene tree in case any information needs to be extracted from it.</param>
-    public abstract void Initialize(LevelManager manager);
+    /// <param name="owner">Node calling this function so it has access to the scene tree.</param>
+    public abstract void Initialize(Node owner);
 }

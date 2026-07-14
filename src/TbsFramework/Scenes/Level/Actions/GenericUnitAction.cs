@@ -4,7 +4,6 @@ using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Control;
-using TbsFramework.Scenes.Level.Events;
 
 namespace TbsFramework.Scenes.Level.Actions;
 
@@ -146,15 +145,15 @@ public partial class GenericUnitAction : UnitAction
     public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target) => ExecuteComponent.Simulate(unit, source, target);
 
     /// <summary>Perform any initial setup of the action's components at the beginning of the level.</summary>
-    /// <param name="manager">Node providing access to the scene tree in case any information needs to be extracted from it.</param>
-    public override void Initialize(LevelManager manager)
+    /// <param name="owner">Node calling this function to provide it access to the scene tree.</param>
+    public override void Initialize(Node owner)
     {
         foreach (ActionPermission component in PermissionComponents)
-            component.Initialize(manager);
+            component.Initialize(owner);
         foreach (ActionDomain component in DomainComponents)
-            component.Initialize(manager);
+            component.Initialize(owner);
         foreach (ActionRange component in RangeComponents)
-            component.Initialize(manager);
-        ExecuteComponent.Initialize(manager);
+            component.Initialize(owner);
+        ExecuteComponent.Initialize(owner);
     }
 }

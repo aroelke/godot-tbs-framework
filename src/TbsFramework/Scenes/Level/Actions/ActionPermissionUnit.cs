@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
-using TbsFramework.Scenes.Level.Events;
 using TbsFramework.Scenes.Rendering;
 
 namespace TbsFramework.Scenes.Level.Actions;
@@ -21,5 +20,5 @@ public partial class ActionPermissionUnit : ActionPermission
     public IEnumerable<UnitReferenceType> AllowedUnitIdentities = [];
 
     public override bool CanPerform(UnitData unit) => !AllowedUnitIdentities.Any() || AllowedUnitIdentities.Any((u) => u == unit.Identity);
-    public override void Initialize(LevelManager manager) => AllowedUnitIdentities = AllowedUnitPaths.Select((p) => manager.GetNode<Unit>(p).UnitData.Identity);
+    public override void Initialize(Node owner) => AllowedUnitIdentities = AllowedUnitPaths.Select((p) => owner.GetNode<Unit>(p).UnitData.Identity);
 }

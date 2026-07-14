@@ -1,5 +1,4 @@
 using Godot;
-using TbsFramework.Scenes.Level.Events;
 
 namespace TbsFramework.Scenes.Level.Actions;
 
@@ -15,6 +14,9 @@ public abstract partial class ActionDomain : Resource
     public abstract bool Contains(Vector2I cell);
 
     /// <summary>Perform any initial setup at the beginning of the level.</summary>
-    /// <param name="manager">Node providing access to the scene tree in case any information needs to be extracted from it.</param>
-    public virtual void Initialize(LevelManager manager) {}
+    /// <param name="owner">
+    /// Node calling <see cref="GenericUnitAction.Initialize(Events.LevelManager)">Initialize</see> of the parent <see cref="GenericUnitAction"/> for
+    /// providing access to the scene tree.
+    /// </param>
+    public virtual void Initialize(Node owner) {}
 }
