@@ -45,17 +45,6 @@ public partial class AIController : ArmyController
             Friendly = action.RequiresTarget && actor.Grid.Occupants[target].Faction.AlliedTo(actor.Faction);
         }
 
-        private VirtualAction(VirtualAction original) : this(original.Actor.Grid.Clone().Occupants[original.Actor.Cell], original.Action, original.Destination, original.Target, original.Traversable)
-        {
-            Start = original.Start;
-
-            Result = original.Result;
-            SpecialActionsPerformed = original.SpecialActionsPerformed;
-            DefeatedEnemies = original.DefeatedEnemies;
-            DefeatedAllies = original.DefeatedAllies;
-            RemainingActions = original.RemainingActions;
-        }
-
         public UnitData Actor;
         public UnitAction Action;
         public Vector2I Target = -Vector2I.One;
@@ -117,8 +106,6 @@ public partial class AIController : ArmyController
                 }
             }
         }
-
-        public VirtualAction Clone() => new(this);
 
         public bool Equals(VirtualAction other) => other is not null && Actor == other.Actor && Actor.Grid == other.Actor.Grid && Action == other.Action && Target == other.Target && Destination == other.Destination;
         public override bool Equals(object obj) => Equals(obj as VirtualAction);
