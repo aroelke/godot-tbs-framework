@@ -15,6 +15,14 @@ public partial class MoveBehavior : Behavior
     public override IEnumerable<ActionInfo> Actions(UnitData unit, IEnumerable<UnitAction> available)
     {
         IEnumerable<Vector2I> destinations = Destinations(unit);
-        return available.SelectMany((a) => a.GetValidTargetCells(unit, destinations).Select((c) => new ActionInfo(a, a.GetSourceCells(unit, c), c, destinations)));
+        return available.SelectMany((a) => {
+            if (a.RequiresTarget)
+                return a.GetValidTargetCells(unit, destinations).Select((c) => new ActionInfo(a, a.GetSourceCells(unit, c), c, destinations));
+            else
+            {
+                IEnumerable<Vector2I> allowed = destinations.Where((c) => a.CanPerform(unit, c));
+                return allowed.Any() ? [new ActionInfo(a, allowed, GridData.InvalidCell, destinations)] : [];
+            }
+        });
     }
 }
