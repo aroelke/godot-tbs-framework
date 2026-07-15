@@ -161,6 +161,7 @@ public partial class AIController : ArmyController
             {
                 foreach (ActionInfo action in unit.Behavior.Actions(unit, available))
                 {
+                    GD.Print($"Move unit@{unit.Cell} to {string.Join(',', action.Source)} and {action.Action.Name}");
                     IEnumerable<Vector2I> destinations;
 
                     if (action.Action.RequiresTarget)
@@ -176,7 +177,7 @@ public partial class AIController : ArmyController
                         }
                     }
                     else
-                        destinations = action.Traversable.Where((c) => action.Action.CanPerform(unit, c));
+                        destinations = action.Source;
 
                     // Prioritize the destination closest to the actor's current cell, but if that cell is the actor's current cell then
                     // also try the next-best one in case moving another unit to that cell afterward is overall better
@@ -193,6 +194,7 @@ public partial class AIController : ArmyController
 
     private static VirtualAction EvaluateAction(IEnumerable<VirtualAction> actions, VirtualAction action, Dictionary<GridData, VirtualAction> decisions, IEnumerable<UnitAction> available, int remaining)
     {
+        GD.Print($"Move unit@{action.Actor.Cell} to {action.Destination} and {action.Action.Name}");
         action.Result = action.Action.Simulate(action.Actor, action.Destination, action.Target);
         action.Result.Occupants[action.Destination].Active = false;
 
