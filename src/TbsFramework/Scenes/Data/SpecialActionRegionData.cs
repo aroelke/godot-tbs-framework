@@ -138,7 +138,8 @@ public class SpecialActionRegionData : IHasIdentity<SpecialActionRegionReference
         Performed = Performed.Add(unit);
         if (OneShot)
             Cells = Cells.Remove(cell);
-        ActionPerformed(Action, unit, cell);
+        if (ActionPerformed is not null)
+            ActionPerformed(Action, unit, cell);
         return true;
     }
 
