@@ -55,7 +55,7 @@ public partial class RegionUnitAction : UnitAction
     {
         GridData grid = unit.Grid.Clone();
         grid.Occupants[unit.Cell].Cell = source;
-        grid.SpecialActionRegions[RegionIdentity].Perform(grid.Occupants[unit.Cell], target);
+        grid.SpecialActionRegions[RegionIdentity].Perform(grid.Occupants[source], source);
         return grid;
     }
 
