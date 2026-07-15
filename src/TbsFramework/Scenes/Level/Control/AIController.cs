@@ -31,13 +31,13 @@ public partial class AIController : ArmyController
 
         private readonly List<UnitData> _enemies = [];
         private readonly HashSet<UnitData> _allies = [];
-        private Vector2I _destination = -Vector2I.One;
+        private Vector2I _destination = GridData.InvalidCell;
         private GridData _result = null;
 
         public VirtualAction(UnitData actor, UnitAction action, Vector2I destination, Vector2I target, IEnumerable<Vector2I> traversable)
         {
             Actor = actor;
-            Start = actor?.Cell ?? -Vector2I.One;
+            Start = actor?.Cell ?? GridData.InvalidCell;
             Action = action;
             Traversable = traversable;
             Destination = destination;
@@ -47,9 +47,9 @@ public partial class AIController : ArmyController
 
         public UnitData Actor;
         public UnitAction Action;
-        public Vector2I Target = -Vector2I.One;
+        public Vector2I Target = GridData.InvalidCell;
         public IEnumerable<Vector2I> Traversable;
-        public Vector2I Start = -Vector2I.One;
+        public Vector2I Start = GridData.InvalidCell;
 
         public Vector2I Destination
         {
@@ -235,21 +235,20 @@ public partial class AIController : ArmyController
     public (UnitData selected, Vector2I destination, UnitAction action, Vector2I target) ComputeAction(IEnumerable<UnitData> available, IEnumerable<UnitAction> actions)
     {
         UnitData selected = null;
-        Vector2I destination = -Vector2I.One;
+        Vector2I destination = GridData.InvalidCell;
         UnitAction action = null;
         Vector2I target;
 
-        IEnumerable<UnitAction> targetable = actions.Where((a) => a.RequiresTarget);
-        List<VirtualAction> potential = [.. GetAvailableActions(Grid.Data, Faction, targetable)];
+        List<VirtualAction> potential = [.. GetAvailableActions(Grid.Data, Faction, actions)];
         if (potential.Count != 0)
         {
             VirtualAction result;
             if (EvaluateWithThreads)
-                result = Task.WhenAll([.. potential.Select((a) => Task.Run(() => EvaluateAction(potential, a, [], targetable, MaxSearchDepth)))]).Result.Max();
+                result = Task.WhenAll([.. potential.Select((a) => Task.Run(() => EvaluateAction(potential, a, [], actions, MaxSearchDepth)))]).Result.Max();
             else
             {
                 Dictionary<GridData, VirtualAction> decisions = [];
-                result = potential.Max((a) => EvaluateAction(potential, a, decisions, targetable, MaxSearchDepth));
+                result = potential.Max((a) => EvaluateAction(potential, a, decisions, actions, MaxSearchDepth));
             }
             selected = result.Actor;
             destination = result.Destination;
@@ -258,6 +257,7 @@ public partial class AIController : ArmyController
         }
         else
         {
+            GD.Print("no target");
             IEnumerable<UnitData> enemies = Grid.Data.Occupants.Values.Where((o) => o is UnitData u && !u.Faction.AlliedTo(Faction)).OfType<UnitData>();
 
             selected = enemies.Any() ? available.MinBy((u) => enemies.Min((e) => u.Cell.DistanceTo(e.Cell))) : available.First();
@@ -268,7 +268,7 @@ public partial class AIController : ArmyController
                 destination = selected.Behavior.Destinations(selected).OrderBy((c) => selected.PathCost(selected.Behavior.GetPath(selected, c))).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
             else
                 destination = selected.Cell;
-            target = -Vector2I.One;
+            target = GridData.InvalidCell;
         }
 
         return (selected, destination, action, target);
@@ -276,7 +276,7 @@ public partial class AIController : ArmyController
 
     private readonly NodeCache _cache = null;
     private UnitData _selected = null;
-    private Vector2I _destination = -Vector2I.One;
+    private Vector2I _destination = GridData.InvalidCell;
     private UnitAction _action = null;
     private UnitData _target = null;
     private bool _ff = false;
@@ -328,7 +328,7 @@ public partial class AIController : ArmyController
     public override void InitializeTurn()
     {
         _selected = null;
-        _destination = -Vector2I.One;
+        _destination = GridData.InvalidCell;
         _action = null;
         _target = null;
 

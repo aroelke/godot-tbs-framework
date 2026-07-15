@@ -12,6 +12,8 @@ public class GridData : IHasIdentity<GridReferenceType, GridData>
 {
     private static long _id = 0;
 
+    public static readonly Vector2I InvalidCell = -Vector2I.One;
+
     /// <summary>Handler for changes in a cell's terrain.</summary>
     /// <param name="cell">Cell where the terrain was changed.</param>
     /// <param name="old">Terrain before the change.</param>

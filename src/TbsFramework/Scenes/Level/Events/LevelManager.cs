@@ -288,7 +288,7 @@ public partial class LevelManager : Node
         if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
         if (command is GenericUnitAction generic && generic.ExecuteComponent is InternalActionExecute)
-            generic.ExecuteComponent.UpdateGrid(_grid, _selected, -Vector2I.One, null);
+            generic.ExecuteComponent.UpdateGrid(_grid, _selected, GridData.InvalidCell, null);
         else
         {
             _targets = command.GetTargetCells(_selected, _selected.Cell);
@@ -318,7 +318,7 @@ public partial class LevelManager : Node
             _armies.Current.Controller.SelectTarget(_selected, _targets);
         else
         {
-            _target = _selected;
+            _target = null;
             State.SendEvent(DoneEvent);
         }
     }
@@ -353,7 +353,7 @@ public partial class LevelManager : Node
     /// </remarks>
     public void OnCombatEntered()
     {
-        _result = _command.Perform(_selected, _target.Cell);
+        _result = _command.Perform(_selected, _target?.Cell ?? GridData.InvalidCell);
 
         void skip()
         {

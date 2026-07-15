@@ -3,7 +3,6 @@ using System.Linq;
 using Godot;
 using System;
 using TbsFramework.Nodes.Components;
-using TbsFramework.Scenes.Level.Events;
 using TbsFramework.Scenes.Level.Control;
 using TbsFramework.Nodes;
 using TbsFramework.Scenes.Data;
@@ -23,7 +22,7 @@ public partial class Unit : GridNode
 
     private readonly NodeCache _cache = null;
     private Army _army = null;
-    private Vector2I _target = -Vector2I.One;
+    private Vector2I _target = GridData.InvalidCell;
 
     private Sprite2D             EditorSprite   => _cache.GetNode<Sprite2D>("EditorSprite");
     private FastForwardComponent Accelerate     => _cache.GetNode<FastForwardComponent>("Accelerate");
@@ -257,7 +256,7 @@ public partial class Unit : GridNode
                 Path.Curve.ClearPoints();
                 SetProcess(false);
                 Data.Cell = _target;
-                _target = -Vector2I.One;
+                _target = GridData.InvalidCell;
             }
         }
     }

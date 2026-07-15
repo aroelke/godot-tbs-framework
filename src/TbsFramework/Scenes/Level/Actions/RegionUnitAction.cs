@@ -35,7 +35,7 @@ public partial class RegionUnitAction : UnitAction
         return hasPermission && unit.Grid.SpecialActionRegions[RegionIdentity].CanPerformIn(source, unit);
     }
 
-    public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => target == source && CanPerform(unit, source);
+    public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => CanPerform(unit, source);
     public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => [];
     public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit) => [];
     public override IEnumerable<Vector2I> GetValidTargetCells(UnitData unit, IEnumerable<Vector2I> traversable) => [];

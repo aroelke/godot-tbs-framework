@@ -79,7 +79,10 @@ public abstract partial class UnitAction : Resource
 
     /// <summary>Compute the result of performing this action without updating the map.</summary>
     /// <param name="unit">Unit performing the action.</param>
-    /// <param name="target">Target cell or cell containing the target of this action.</param>
+    /// <param name="target">
+    /// Target cell or cell containing the target of this action. If <see cref="RequiresTarget"/> is <c>false</c>, use <see cref="GridData.InvalidCell"/>
+    /// instead.
+    /// </param>
     /// <returns>A data structure representing the result of <paramref name="unit"/> performing this action on cell <paramref name="target"/>.</returns>
     /// <exception cref="ArgumentException">
     /// If <paramref name="unit"/> is not allowed to perform this action, it isn't within this action's domain, or <paramref name="target"/> is not a valid
