@@ -37,7 +37,6 @@ public partial class PlayerController : ArmyController
     private TileSet _overlayTiles = null;
     private TileSet _pathTiles = null;
     private int _pathTerrainSet = -1, _pathTerrain = -1;
-    private Vector2I _pathUpArrow = -Vector2I.One, _pathRightArrow = -Vector2I.One, _pathDownArrow = -Vector2I.One, _pathLeftArrow = -Vector2I.One;
     private Color _move    = Colors.Blue  with { A = 100f/256f };
     private Color _attack  = Colors.Red   with { A = 100f/256f };
     private Color _support = Colors.Green with { A = 100f/256f };
