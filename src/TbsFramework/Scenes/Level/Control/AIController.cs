@@ -43,6 +43,7 @@ public partial class AIController : ArmyController
             Destination = destination;
             Target = target;
             Friendly = action.RequiresTarget && actor.Grid.Occupants[target].Faction.AlliedTo(actor.Faction);
+            SpecialActionsPerformed = Action is RegionUnitAction && !Action.RequiresTarget ? 1 : 0;
         }
 
         public UnitData Actor;
@@ -161,7 +162,6 @@ public partial class AIController : ArmyController
             {
                 foreach (ActionInfo action in unit.Behavior.Actions(unit, available))
                 {
-                    GD.Print($"Move unit@{unit.Cell} to {string.Join(',', action.Source)} and {action.Action.Name}");
                     IEnumerable<Vector2I> destinations;
 
                     if (action.Action.RequiresTarget)
@@ -194,7 +194,6 @@ public partial class AIController : ArmyController
 
     private static VirtualAction EvaluateAction(IEnumerable<VirtualAction> actions, VirtualAction action, Dictionary<GridData, VirtualAction> decisions, IEnumerable<UnitAction> available, int remaining)
     {
-        GD.Print($"Move unit@{action.Actor.Cell} to {action.Destination} and {action.Action.Name}");
         action.Result = action.Action.Simulate(action.Actor, action.Destination, action.Target);
         action.Result.Occupants[action.Destination].Active = false;
 
@@ -228,7 +227,9 @@ public partial class AIController : ArmyController
             if (reduced.Any())
             {
                 IEnumerable<VirtualAction> results = reduced.Select((a) => EvaluateAction(reduced, a, decisions, available, remaining));
-                action.Result = results.Max().Result;
+                VirtualAction result = results.Max();
+                action.SpecialActionsPerformed += result.SpecialActionsPerformed;
+                action.Result = result.Result;
                 decisions[action.Result] = action;
             }
         }
