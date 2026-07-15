@@ -23,7 +23,7 @@ public partial class StandBehavior : Behavior
         List<ActionInfo> actions = [];
         Dictionary<UnitAction, IEnumerable<Vector2I>> targets = available.Where((a) => a.RequiresTarget).ToDictionary((a) => a, (a) => a.GetTargetCells(unit, unit.Cell).Where((c) => a.CanPerform(unit, unit.Cell, c)));
 
-        actions.AddRange(available.Where((a) => !a.RequiresTarget && a.CanPerform(unit, unit.Cell)).Select((a) => new ActionInfo(a, [unit.Cell], unit.Cell, [unit.Cell])));
+        actions.AddRange(available.Where((a) => !a.RequiresTarget && a.CanPerform(unit, unit.Cell)).Select((a) => new ActionInfo(a, [unit.Cell], GridData.InvalidCell, [unit.Cell])));
 
         if (AttackInRange)
         {
