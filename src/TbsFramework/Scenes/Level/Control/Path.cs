@@ -10,17 +10,17 @@ using TbsFramework.Scenes.Data;
 namespace TbsFramework.Scenes.Level.Control;
 
 /// <summary>
-/// An ordered list of <see cref="Vector2I"/>s that guarantees sequential elements are (orthogonally) adjacent and there are no loops. When an attempt
+/// <para>An ordered list of <see cref="Vector2I"/>s that guarantees sequential elements are (orthogonally) adjacent and there are no loops. When an attempt
 /// is made to add a new element, if it's not adjacent to the last element, additional elements are added in between to make sure each element
 /// is adjacent to its neighbors in the list. Individual elements cannot be removed, as the space they were in would just need to be filled back
-/// in.
+/// in.</para>
 /// 
-/// Modifying elements within the list and removing sections are potentially planned future features that will be implemented as needed.
+/// <para>Modifying elements within the list and removing sections are potentially planned future features that will be implemented as needed.</para>
 /// 
-/// Paths are immutable, so any functions that cause changes instead return a new Path with the change made, preserving the old one, as in
-/// <see cref="ImmutableList{T}"/>.
+/// <para>Paths are immutable, so any functions that cause changes instead return a new Path with the change made, preserving the old one, as in
+/// <see cref="ImmutableList{T}"/>.</para>
 /// 
-/// Paths exist on a grid within traversable cells that they use to compute segments when needed.
+/// <para>Paths exist on a grid within traversable cells that they use to compute segments when needed.</para>
 /// </summary>
 public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyCollection<Vector2I>, IReadOnlyList<Vector2I>, ICollection, IEnumerable
 {
