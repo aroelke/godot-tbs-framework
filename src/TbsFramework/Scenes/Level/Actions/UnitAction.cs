@@ -40,9 +40,6 @@ public abstract partial class UnitAction : Resource
     /// </summary>
     [Export] public bool RetaliationAllowed = false;
 
-    /// <summary>Indicate that this action affects the health of its target. Used for AI action prioritization.</summary>
-    [Export] public bool AffectsHealth = false;
-
     /// <summary>Whether or not this action requires a target.</summary>
     public abstract bool RequiresTarget { get; }
 
