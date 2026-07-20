@@ -21,6 +21,15 @@ public abstract partial class Behavior : Node
     /// <returns>The set of actions that can be performed.</returns>
     public abstract IEnumerable<ActionInfo> Actions(UnitData unit, IEnumerable<UnitAction> available);
 
+    /// <summary>Choose a destination from a set of options. Destinations are assumed to all be valid for the action this decision is for.</summary>
+    /// <param name="unit">Unit whose destination is being determined.</param>
+    /// <param name="choices">Options for destination.</param>
+    /// <param name="traversable">Cells <paramref name="unit"/> can move on in case the decision involves pathing.</param>
+    public abstract Vector2I ChooseDestination(UnitData unit, IEnumerable<Vector2I> choices, IEnumerable<Vector2I> traversable);
+
+    /// <inheritdoc cref="ChooseDestination"/>
+    public Vector2I ChooseDestination(UnitData unit, IEnumerable<Vector2I> choices) => ChooseDestination(unit, choices, unit.GetTraversableCells());
+
     /// <summary>Determine the path the unit will traverse between two cells.</summary>
     /// <param name="unit">Unit that will move along the path.</param>
     /// <param name="from">Point to move from.</param>

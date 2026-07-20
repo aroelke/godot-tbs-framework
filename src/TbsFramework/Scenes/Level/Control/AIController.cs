@@ -160,6 +160,7 @@ public partial class AIController : ArmyController
         {
             if (unit.Faction == faction && unit.Active && unit.Health > 0)
             {
+                IEnumerable<Vector2I> traversable = unit.GetTraversableCells();
                 foreach (ActionInfo action in unit.Behavior.Actions(unit, available))
                 {
                     IEnumerable<Vector2I> destinations;
@@ -181,12 +182,10 @@ public partial class AIController : ArmyController
 
                     // Prioritize the destination closest to the actor's current cell, but if that cell is the actor's current cell then
                     // also try the next-best one in case moving another unit to that cell afterward is overall better
-                    IEnumerable<Vector2I> traversable = unit.GetTraversableCells();
-                    int BestPathLength(Vector2I a, Vector2I b) => Path.Empty(unit.Grid, traversable).Add(a).Add(b).Count;
-                    Vector2I best = destinations.MinBy((c) => BestPathLength(unit.Cell, c));
+                    Vector2I best = unit.Behavior.ChooseDestination(unit, destinations, traversable);
                     actions.Add(new(unit, action.Action, best, action.Target, action.Traversable));
                     if (best == unit.Cell && destinations.Count() > 1)
-                        actions.Add(new(unit, action.Action, destinations.Where((c) => c != best).MinBy((c) => BestPathLength(unit.Cell, c)), action.Target, action.Traversable));
+                        actions.Add(new(unit, action.Action, unit.Behavior.ChooseDestination(unit, destinations.Where((c) => c != best), traversable), action.Target, action.Traversable));
                 }
             }
         }

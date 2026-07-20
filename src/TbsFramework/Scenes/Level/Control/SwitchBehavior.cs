@@ -47,6 +47,7 @@ public partial class SwitchBehavior : Behavior
 
     public override IEnumerable<Vector2I> Destinations(UnitData unit) => TargetBehavior()?.Destinations(unit) ?? [];
     public override IEnumerable<ActionInfo> Actions(UnitData unit, IEnumerable<UnitAction> available) => TargetBehavior()?.Actions(unit, available) ?? [];
+    public override Vector2I ChooseDestination(UnitData unit, IEnumerable<Vector2I> choices, IEnumerable<Vector2I> traversable) => TargetBehavior()?.ChooseDestination(unit, choices, traversable) ?? GridData.InvalidCell;
 
     /// <summary>Reset the state of the behavior. Mainly intended to be used for testing.</summary>
     public void Reset() => _switched = false;

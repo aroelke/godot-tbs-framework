@@ -42,4 +42,6 @@ public partial class StandBehavior : Behavior
 
         return actions;
     }
+
+    public override Vector2I ChooseDestination(UnitData unit, IEnumerable<Vector2I> choices, IEnumerable<Vector2I> traversable) => unit.Cell;
 }
