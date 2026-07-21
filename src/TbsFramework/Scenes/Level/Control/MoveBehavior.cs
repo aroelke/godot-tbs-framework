@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -51,7 +50,28 @@ public partial class MoveBehavior : Behavior
         if (!choices.Any())
             throw new ArgumentException("No choices for destination");
 
-        int BestPathCost(Vector2I a, Vector2I b) => AccountForWalls ? Path.Empty(unit.Grid, traversable).Add(a).Add(b).Count : a.ManhattanDistanceTo(b);
+        AStar2D astar = null;
+        if (AccountForWalls)
+        {
+            astar = new();
+            for (int i = 0; i < unit.Grid.Size.X; i++)
+                for (int j = 0; j < unit.Grid.Size.Y; j++)
+                    astar.AddPoint(unit.Grid.Size.X*i + j, new(i, j), unit.Grid.Terrain.GetValueOrDefault(new(i, j), unit.Grid.DefaultTerrain).Cost);
+            for (int i = 0; i < unit.Grid.Size.X; i++)
+            {
+                for (int j = 0; j < unit.Grid.Size.Y; j++)
+                {
+                    foreach (Vector2I direction in Vector2IExtensions.Directions)
+                    {
+                        Vector2I neighbor = new Vector2I(i, j) + direction;
+                        if (unit.Grid.Contains(neighbor) && !astar.ArePointsConnected(unit.Grid.Size.X*i + j, unit.Grid.Size.X*neighbor.X + neighbor.Y))
+                            astar.ConnectPoints(unit.Grid.Size.X*i + j, unit.Grid.Size.X*neighbor.X + neighbor.Y);
+                    }
+                }
+            }
+        }
+
+        int BestPathCost(Vector2I a, Vector2I b) => AccountForWalls ? astar.GetPointPath(unit.Grid.Size.X*a.X + a.Y, unit.Grid.Size.X*b.X + b.Y).Length : a.ManhattanDistanceTo(b);
         Vector2I DefaultChoice() => choices.MinBy((c) => BestPathCost(unit.Cell, c));
 
         IEnumerable<Vector2I> units;
