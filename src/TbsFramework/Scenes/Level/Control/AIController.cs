@@ -146,7 +146,10 @@ public partial class AIController : ArmyController
             if ((diff = RemainingActions - other.RemainingActions) != 0)
                 return diff;
 
-            return other.PathCost - PathCost;
+            if ((diff = other.PathCost - PathCost) != 0)
+                return diff;
+
+            return other._enemies.Min((u) => other.Actor.Cell.ManhattanDistanceTo(u.Cell)) - _enemies.Min((u) => Actor.Cell.ManhattanDistanceTo(u.Cell));
         }
 
         public override string ToString() => $"Move {Actor.Faction.Name}@{Start} to {Destination} and {Action} {Target}";
