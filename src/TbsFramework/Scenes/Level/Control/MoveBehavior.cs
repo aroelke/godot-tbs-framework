@@ -8,11 +8,16 @@ using TbsFramework.Scenes.Level.Actions;
 
 namespace TbsFramework.Scenes.Level.Control;
 
+/// <summary>Options for methods to use for choosing a destination cell when multiple are available.</summary>
 public enum DestinationMethod
 {
+    /// <summary>Choose the option that's closest to the unit's current cell.</summary>
     ClosestToCurrent,
+    /// <summary>Choose the option that's closest to any enemy unit.</summary>
     ClosestToEnemy,
+    /// <summary>Choose the option that's furthest from any enemy unit.</summary>
     FurthestFromEnemy,
+    /// <summary>Choose the option that's closest to any other ally unit.</summary>
     ClosestToAlly
 }
 
@@ -20,6 +25,7 @@ public enum DestinationMethod
 [Tool]
 public partial class MoveBehavior : Behavior
 {
+    /// <summary>Method to use to choose a destination cell for an action when multiple are available.</summary>
     [Export] public DestinationMethod DestinationMethod = DestinationMethod.ClosestToCurrent;
 
     /// <summary>
@@ -100,7 +106,7 @@ public partial class MoveBehavior : Behavior
             units = unit.Grid.Occupants.Values.Where((u) => !u.Faction.AlliedTo(unit.Faction)).Select((u) => u.Cell);
             return units.Any() ? choices.MaxBy((c) => BestPathCost(c, units.MaxBy((u) => u.ManhattanDistanceTo(c)))) : DefaultChoice();
         case DestinationMethod.ClosestToAlly:
-            units = unit.Grid.Occupants.Values.Where((u) => u.Faction.AlliedTo(unit.Faction)).Select((u) => u.Cell);
+            units = unit.Grid.Occupants.Values.Where((u) => u.Faction.AlliedTo(unit.Faction) && u != unit).Select((u) => u.Cell);
             return units.Any() ? choices.MinBy((c) => BestPathCost(c, units.MinBy((u) => u.ManhattanDistanceTo(c)))) : DefaultChoice();
         default:
             throw new ArgumentException($"Unknown destination method {DestinationMethod}");
