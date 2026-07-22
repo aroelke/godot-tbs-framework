@@ -146,6 +146,7 @@ CursorSpriteTexture = ExtResource("8_s2xnc")
 CursorSpriteOffset = Vector2(8, 8)
 PointerSpriteTexture = ExtResource("9_6hgq8")
 ActionRangeTileSet = ExtResource("10_0kgrh")
+ZoneLocalDangerActions = [ExtResource("4_g6g0k")]
 CursorMoveSound = ExtResource("11_npakb")
 SelectSound = ExtResource("14_8l58o")
 CancelSound = ExtResource("15_1yav4")

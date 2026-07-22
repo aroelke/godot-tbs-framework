@@ -211,6 +211,8 @@ public partial class PlayerController : ArmyController
         }
     }
 
+    [Export, ExportGroup("Action Ranges")] public UnitAction[] ZoneLocalDangerActions = [];
+
     /// <summary>Color to use for highlighting which cells a tracked set of enemy units can attack.</summary>
     [Export, ExportGroup("Action Ranges")] public Color ZoneLocalDangerColor
     {
@@ -315,12 +317,12 @@ public partial class PlayerController : ArmyController
         else
             ZoneLayers.Clear(AllyTraversableZone.Name);
         if (enemies.Any())
-            ZoneLayers[LocalDangerZone.Name] = enemies.SelectMany(static (u) => u.GetAttackableCellsInReach());
+            ZoneLayers[LocalDangerZone.Name] = enemies.SelectMany((u) => ZoneLocalDangerActions.SelectMany((a) => a.GetAllTargetCells(u)));
         else
             ZoneLayers.Clear(LocalDangerZone.Name);
         
         if (_showGlobalDangerZone)
-            ZoneLayers[GlobalDangerZone.Name] = Grid.Data.Occupants.Values.OfType<UnitData>().Where((u) => !Faction.AlliedTo(u)).SelectMany(static (u) => u.GetAttackableCellsInReach());
+            ZoneLayers[GlobalDangerZone.Name] = Grid.Data.Occupants.Values.OfType<UnitData>().Where((u) => !Faction.AlliedTo(u)).SelectMany((u) => ZoneLocalDangerActions.SelectMany((a) => a.GetAllTargetCells(u)));
         else
             ZoneLayers.Clear(GlobalDangerZone.Name);
     }
