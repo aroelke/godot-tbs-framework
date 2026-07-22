@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
@@ -10,7 +9,6 @@ using TbsFramework.Scenes;
 using TbsFramework.Scenes.Combat;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Actions;
-using TbsFramework.Scenes.Level.Control;
 using TbsFramework.UI;
 using TbsFramework.UI.Controls.Device;
 
@@ -22,7 +20,7 @@ public partial class DemoCombatScene : CombatController
     [Signal] public delegate void TimeExpiredEventHandler();
 
     private readonly NodeCache _cache = null;
-    private IImmutableList<CombatAction> _actions = null;
+    private List<CombatAction> _actions = null;
     private readonly Dictionary<UnitData, CombatAnimations> _animations = [];
     private readonly Dictionary<UnitData, CombatantData> _infos = [];
     private double _remaining = 0;
@@ -60,7 +58,7 @@ public partial class DemoCombatScene : CombatController
     {
         base.Initialize(left, right, result);
 
-        List<CombatAction> actions = (result.Result as List<CombatAction>) ?? [(CombatAction)result.Result];
+        _actions = (result.Result as List<CombatAction>) ?? [(CombatAction)result.Result];
 
         _animations[left] = left.Class.InstantiateCombatAnimations(left.Faction);
         _animations[left].SetFacing(Vector2.Right);
