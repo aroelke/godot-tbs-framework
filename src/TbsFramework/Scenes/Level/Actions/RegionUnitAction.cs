@@ -48,7 +48,7 @@ public partial class RegionUnitAction : UnitAction
         if (result.Result is not null)
             GD.PushWarning($"Updating grid with result for ActionExecuteRegion that isn't null. Should this have been used for a different action?");
 
-        grid.SpecialActionRegions[RegionIdentity].Perform(result.Actor, result.Target);
+        grid.SpecialActionRegions[RegionIdentity].Perform(result.Actor, result.Actor.Cell);
     }
 
     public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target)
