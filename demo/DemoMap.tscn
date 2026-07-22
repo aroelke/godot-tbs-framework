@@ -1,17 +1,16 @@
-[gd_scene load_steps=72 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=66 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsFramework/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="Script" uid="uid://c2joupgp3ohcx" path="res://demo/DemoMap.cs" id="1_npakb"]
 [ext_resource type="PackedScene" uid="uid://dgsv1t18thon5" path="res://src/TbsFramework/Scenes/Rendering/Grid.tscn" id="2_oeidl"]
 [ext_resource type="Resource" uid="uid://420nufm5mgjd" path="res://demo/assets/terrain/plain.tres" id="3_akw2u"]
+[ext_resource type="Resource" uid="uid://cl7r1ra8bjpyh" path="res://demo/actions/DemoAttackAction.tres" id="4_g6g0k"]
 [ext_resource type="Script" uid="uid://dlqxoe0j1qsbe" path="res://src/TbsFramework/Scenes/Level/Actions/ActionDomain.cs" id="4_keg60"]
 [ext_resource type="TileSet" uid="uid://cqqq5romj5brh" path="res://demo/assets/map/tiles/tileset.tres" id="4_yu7ov"]
-[ext_resource type="Script" uid="uid://bk8hbudn824qy" path="res://demo/actions/DemoExecuteAttack.cs" id="5_ls5jp"]
 [ext_resource type="PackedScene" uid="uid://1ev2yxu31ow" path="res://src/TbsFramework/Scenes/Level/Army.tscn" id="5_oeidl"]
 [ext_resource type="Script" uid="uid://c2xkwl31g7her" path="res://src/TbsFramework/Scenes/Level/Actions/ActionPermission.cs" id="6_061yb"]
 [ext_resource type="Resource" uid="uid://broidqni4h8ak" path="res://demo/factions/DemoPlayerFaction.tres" id="6_akw2u"]
 [ext_resource type="PackedScene" uid="uid://bntay230afwxo" path="res://src/TbsFramework/Scenes/Rendering/SpecialActionRegion.tscn" id="6_qahj2"]
-[ext_resource type="Script" uid="uid://51gbmhpiyt6u" path="res://demo/actions/DemoCanAttack.cs" id="7_ls5jp"]
 [ext_resource type="PackedScene" uid="uid://drlrlusbfh208" path="res://src/TbsFramework/Scenes/Level/Control/PlayerController.tscn" id="7_tajn8"]
 [ext_resource type="Script" uid="uid://buoeah8l3kobp" path="res://src/TbsFramework/Scenes/Level/Actions/ActionRange.cs" id="7_ttguu"]
 [ext_resource type="Resource" uid="uid://dxvcd01bu3ovj" path="res://demo/factions/DemoEnemyFaction1.tres" id="7_yu7ov"]
@@ -19,7 +18,6 @@
 [ext_resource type="Resource" uid="uid://0dcwfdljw4ug" path="res://demo/factions/DemoEnemyFaction2.tres" id="8_edc7l"]
 [ext_resource type="Texture2D" uid="uid://ybe0dod1kvqr" path="res://demo/assets/map/tiles/cursor.png" id="8_s2xnc"]
 [ext_resource type="Texture2D" uid="uid://nhobvcrsi3w1" path="res://demo/assets/ui/input/cursor/cursor.png" id="9_6hgq8"]
-[ext_resource type="Script" uid="uid://bakc0y77381ee" path="res://demo/actions/DemoRangeAttack.cs" id="9_061yb"]
 [ext_resource type="PackedScene" uid="uid://ca6g5c6dsaqjb" path="res://src/TbsFramework/Scenes/Level/Control/AIController.tscn" id="9_s2xnc"]
 [ext_resource type="TileSet" uid="uid://bb7tjpm2de26x" path="res://demo/assets/map/overlay/overlay.tres" id="10_0kgrh"]
 [ext_resource type="PackedScene" uid="uid://cb1gfyilefvvj" path="res://demo/unit/Tank.tscn" id="10_1ger5"]
@@ -62,27 +60,6 @@
 [ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/TbsFramework/UI/HUD/ControlHint.tscn" id="39_mogvl"]
 [ext_resource type="PackedScene" uid="uid://c2sogymeaqvpw" path="res://demo/DemoPauseOverlay.tscn" id="49_b5lsw"]
 
-[sub_resource type="Resource" id="Resource_g6g0k"]
-script = ExtResource("5_ls5jp")
-metadata/_custom_type_script = "uid://bk8hbudn824qy"
-
-[sub_resource type="Resource" id="Resource_061yb"]
-script = ExtResource("7_ls5jp")
-metadata/_custom_type_script = "uid://51gbmhpiyt6u"
-
-[sub_resource type="Resource" id="Resource_wn546"]
-script = ExtResource("9_061yb")
-metadata/_custom_type_script = "uid://bakc0y77381ee"
-
-[sub_resource type="Resource" id="Resource_5t6v1"]
-script = ExtResource("8_20nf1")
-PermissionComponents = Array[ExtResource("6_061yb")]([SubResource("Resource_061yb")])
-RangeComponents = Array[ExtResource("7_ttguu")]([SubResource("Resource_wn546")])
-ExecuteComponent = SubResource("Resource_g6g0k")
-Name = &"Attack"
-RetaliationAllowed = true
-metadata/_custom_type_script = "uid://c4ceymst4wlpm"
-
 [sub_resource type="Resource" id="Resource_jaaus"]
 script = ExtResource("11_g6g0k")
 metadata/_custom_type_script = "uid://drv1f2tgworr0"
@@ -121,7 +98,7 @@ script = ExtResource("1_npakb")
 MouseCursor = ExtResource("9_6hgq8")
 
 [node name="LevelManager" parent="." node_paths=PackedStringArray("StartingArmy") instance=ExtResource("1_3r8kd")]
-AvailableActions = [SubResource("Resource_5t6v1"), SubResource("Resource_lq1v0"), SubResource("Resource_dvqlx")]
+AvailableActions = [ExtResource("4_g6g0k"), SubResource("Resource_lq1v0"), SubResource("Resource_dvqlx")]
 StartingArmy = NodePath("Player")
 CombatScenePath = "uid://didkiflqabwl4"
 
@@ -307,6 +284,7 @@ Size = Vector2(16, 16)
 [node name="SwitchBehavior" parent="LevelManager/Enemy1/GuardB" instance=ExtResource("14_d1c8n")]
 
 [node name="InRangeSwitchCondition" parent="LevelManager/Enemy1/GuardB/SwitchBehavior" node_paths=PackedStringArray("SourceUnits", "TriggerArmies") instance=ExtResource("17_ss7xl")]
+Action = ExtResource("4_g6g0k")
 SourceUnits = [NodePath("../..")]
 TriggerArmies = [NodePath("../../../../Player")]
 
@@ -326,6 +304,7 @@ Size = Vector2(16, 16)
 [node name="SwitchBehavior" parent="LevelManager/Enemy1/GuardC" instance=ExtResource("14_d1c8n")]
 
 [node name="InRangeSwitchCondition" parent="LevelManager/Enemy1/GuardC/SwitchBehavior" node_paths=PackedStringArray("SourceUnits", "TriggerArmies") instance=ExtResource("17_ss7xl")]
+Action = ExtResource("4_g6g0k")
 SourceUnits = [NodePath("../..")]
 TriggerArmies = [NodePath("../../../../Player")]
 
