@@ -223,6 +223,7 @@ Grid = NodePath("../../Grid")
 Size = Vector2(16, 16)
 
 [node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyA" instance=ExtResource("17_e23bw")]
+DestinationMethod = 1
 
 [node name="EnemyB" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(144, 208)
@@ -231,6 +232,7 @@ Grid = NodePath("../../Grid")
 Size = Vector2(16, 16)
 
 [node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyB" instance=ExtResource("17_e23bw")]
+DestinationMethod = 1
 
 [node name="EnemyC" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(160, 208)
@@ -239,6 +241,7 @@ Grid = NodePath("../../Grid")
 Size = Vector2(16, 16)
 
 [node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyC" instance=ExtResource("17_e23bw")]
+DestinationMethod = 1
 
 [node name="EnemyD" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(176, 208)
@@ -247,6 +250,7 @@ Grid = NodePath("../../Grid")
 Size = Vector2(16, 16)
 
 [node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyD" instance=ExtResource("17_e23bw")]
+DestinationMethod = 1
 
 [node name="EnemyE" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(144, 80)
@@ -255,6 +259,7 @@ Grid = NodePath("../../Grid")
 Size = Vector2(16, 16)
 
 [node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyE" instance=ExtResource("17_e23bw")]
+DestinationMethod = 1
 
 [node name="EnemyF" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(176, 80)
@@ -263,6 +268,7 @@ Grid = NodePath("../../Grid")
 Size = Vector2(16, 16)
 
 [node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyF" instance=ExtResource("17_e23bw")]
+DestinationMethod = 1
 
 [node name="EnemyG" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(192, 96)
@@ -271,6 +277,7 @@ Grid = NodePath("../../Grid")
 Size = Vector2(16, 16)
 
 [node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyG" instance=ExtResource("17_e23bw")]
+DestinationMethod = 1
 
 [node name="EnemyH" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(192, 128)
@@ -279,6 +286,7 @@ Grid = NodePath("../../Grid")
 Size = Vector2(16, 16)
 
 [node name="MoveBehavior" parent="LevelManager/Enemy1/EnemyH" instance=ExtResource("17_e23bw")]
+DestinationMethod = 1
 
 [node name="GuardA" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(288, 48)
@@ -307,6 +315,7 @@ AttackInRange = true
 SupportInRange = false
 
 [node name="MoveBehavior" parent="LevelManager/Enemy1/GuardB/SwitchBehavior" instance=ExtResource("17_e23bw")]
+DestinationMethod = 1
 
 [node name="GuardC" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(256, 48)
@@ -325,6 +334,7 @@ AttackInRange = true
 SupportInRange = false
 
 [node name="MoveBehavior" parent="LevelManager/Enemy1/GuardC/SwitchBehavior" instance=ExtResource("17_e23bw")]
+DestinationMethod = 1
 
 [node name="RoyalGuardA" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(288, 192)
@@ -371,6 +381,7 @@ AttackInRange = true
 SupportInRange = false
 
 [node name="MoveBehavior" parent="LevelManager/Enemy1/ReinforcementA/SwitchBehavior" instance=ExtResource("17_e23bw")]
+DestinationMethod = 1
 
 [node name="ReinforcementB" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(32, 0)
@@ -388,6 +399,7 @@ AttackInRange = true
 SupportInRange = false
 
 [node name="MoveBehavior" parent="LevelManager/Enemy1/ReinforcementB/SwitchBehavior" instance=ExtResource("17_e23bw")]
+DestinationMethod = 1
 
 [node name="Enemy2" parent="LevelManager" instance=ExtResource("5_oeidl")]
 Faction = ExtResource("8_edc7l")
