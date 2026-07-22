@@ -64,7 +64,7 @@ public partial class DemoMapCombatController : CombatController
 
         _canceled = false;
         _lastActor = null;
-        if (left != right) // left == right indicates a region action, which has no animation in the demo
+        if (result.Action.RequiresTarget) // untargeted indicates a region action for the demo, which has no animation
         {
             List<CombatAction> actions = (result.Result as List<CombatAction>) ?? [(CombatAction)result.Result];
 
