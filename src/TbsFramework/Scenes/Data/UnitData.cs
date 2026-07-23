@@ -223,9 +223,6 @@ public class UnitData : GridObjectData, IHasIdentity<UnitReferenceType, UnitData
         return cells.Keys;
     }
 
-    /// <returns>The set of cells this unit can end its movement in.</returns>
-    public IEnumerable<Vector2I> GetOccupiableCells() => GetTraversableCells().Where((c) => !Grid.Occupants.TryGetValue(c, out UnitData occupant) || occupant == this);
-
     /// <returns>A copy of this unit, except it maintains the same references to its faction, class, stats, and behavior.</returns>
     public UnitData Clone() => new(this);
 }
