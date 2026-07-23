@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using TbsFramework.Scenes.Data;
 
 namespace TbsFramework.Scenes.Combat;
@@ -66,32 +63,4 @@ public static class CombatCalculations
         <0 => (b, a),
         _  => null
     };
-
-    /// <summary>Compute the results of a combat between two units.  Assumes unit <paramref name="a"/> can reach <paramref name="b"/>.</summary>
-    /// <param name="a">One of the participants.</param>
-    /// <param name="b">One of the participants.</param>
-    /// <param name="estimate">Whether to average damage based on hit chance (<c>true</c>) or use full damage but have a chance to miss (<c>false</c>).</param>
-    /// <returns>A list of data structures specifying the action taken during each round of combat.</returns>
-    public static List<CombatAction> AttackResults(UnitData a, UnitData b, bool estimate)
-    {
-        Dictionary<UnitData, double> damage = new() {{ a, 0 }, { b, 0 }};
-        // Compute complete combat action list
-        List<CombatAction> actions = [CreateAttackAction(a, b, estimate)];
-        if (actions[^1].Hit)
-            damage[b] += actions[^1].Damage;
-        if (damage[b] < b.Health && b.GetAttackableCells().Contains(a.Cell))
-        {
-            actions.Add(CreateAttackAction(b, a, estimate));
-            if (actions[^1].Hit)
-                damage[a] += actions[^1].Damage;
-        }
-        if (FollowUp(a, b) is (UnitData doubler, UnitData doublee) && damage[doubler] < doubler.Health && doubler.GetAttackableCells().Contains(doublee.Cell))
-        {
-            actions.Add(CreateAttackAction(doubler, doublee, estimate));
-            if (actions[^1].Hit)
-                damage[doublee] += actions[^1].Damage;
-        }
-
-        return actions;
-    }
 }

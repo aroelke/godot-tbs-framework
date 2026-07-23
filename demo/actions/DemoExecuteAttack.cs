@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
+using TbsFramework.Extensions;
 using TbsFramework.Scenes.Combat;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Actions;
@@ -10,6 +12,29 @@ namespace TbsFramework.Demo;
 [GlobalClass, Tool]
 public partial class DemoExecuteAttack : ActionExecute
 {
+    private static List<CombatAction> AttackResults(UnitData a, UnitData b, bool estimate)
+    {
+        Dictionary<UnitData, double> damage = new() {{ a, 0 }, { b, 0 }};
+        // Compute complete combat action list
+        List<CombatAction> actions = [CombatCalculations.CreateAttackAction(a, b, estimate)];
+        if (actions[^1].Hit)
+            damage[b] += actions[^1].Damage;
+        if (damage[b] < b.Health && b.Stats.AttackRange.Contains(b.Cell.ManhattanDistanceTo(a.Cell)))
+        {
+            actions.Add(CombatCalculations.CreateAttackAction(b, a, estimate));
+            if (actions[^1].Hit)
+                damage[a] += actions[^1].Damage;
+        }
+        if (CombatCalculations.FollowUp(a, b) is (UnitData doubler, UnitData doublee) && damage[doubler] < doubler.Health && doubler.Stats.AttackRange.Contains(doubler.Cell.ManhattanDistanceTo(doublee.Cell)))
+        {
+            actions.Add(CombatCalculations.CreateAttackAction(doubler, doublee, estimate));
+            if (actions[^1].Hit)
+                damage[doublee] += actions[^1].Damage;
+        }
+
+        return actions;
+    }
+
     private static void ApplyResults(GridData grid, List<CombatAction> results)
     {
         foreach (CombatAction action in results)
@@ -26,7 +51,7 @@ public partial class DemoExecuteAttack : ActionExecute
     {
         if (!unit.Grid.Occupants.TryGetValue(target, out UnitData occupant))
             throw new ArgumentException($"Cell {target} does not contain a unit to attack");
-        return CombatCalculations.AttackResults(unit, occupant, false);
+        return AttackResults(unit, occupant, false);
     }
 
     public override void UpdateGrid(GridData grid, UnitData actor, Vector2I target, object result)
@@ -48,7 +73,7 @@ public partial class DemoExecuteAttack : ActionExecute
 
         GridData copy = unit.Grid.Clone();
         copy.Occupants[unit.Cell].Cell = source;
-        List<CombatAction> actions = CombatCalculations.AttackResults(copy.Occupants[source], copy.Occupants[target], true);
+        List<CombatAction> actions = AttackResults(copy.Occupants[source], copy.Occupants[target], true);
         ApplyResults(copy, actions);
         return copy;
     }
