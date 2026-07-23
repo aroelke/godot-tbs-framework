@@ -12,10 +12,10 @@ public partial class DemoRangeSupport : ActionRange
 {
     public override bool InRange(UnitData unit, Vector2I source, Vector2I target) => unit.Stats.SupportRange.Contains(source.ManhattanDistanceTo(target));
 
-    public override IEnumerable<Vector2I> GetAllCellsInRange(UnitData unit, Vector2I cell) => unit.GetSupportableCells(cell);
+    public override IEnumerable<Vector2I> GetAllCellsInRange(UnitData unit, Vector2I cell) => unit.Grid.GetCellsInRange(cell, unit.Stats.SupportRange);
 
     public override IEnumerable<Vector2I> GetValidCellsInRange(UnitData unit, Vector2I cell) =>
         GetAllCellsInRange(unit, cell).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && unit.Faction.AlliedTo(occupant.Faction) && unit != occupant);
 
-    public override IEnumerable<Vector2I> GetSources(UnitData unit, Vector2I target) => unit.GetSupportableCells(target);
+    public override IEnumerable<Vector2I> GetSources(UnitData unit, Vector2I target) => unit.Grid.GetCellsInRange(target, unit.Stats.SupportRange);
 }
