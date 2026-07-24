@@ -12,6 +12,8 @@ namespace TbsFramework.Demo;
 [GlobalClass, Tool]
 public partial class DemoSupportAction : UnitAction
 {
+    public static CombatAction CreateSupportAction(UnitData supporter, UnitData recipient) => new(supporter, recipient, CombatActionType.Support, -Math.Min(supporter.Stats.Healing, recipient.Stats.Health - recipient.Health), true);
+
     private static void ApplyResult(GridData grid, CombatAction action)
     {
         // Get the version of the action's actor on the input grid to avoid updating the wrong grid
@@ -35,7 +37,7 @@ public partial class DemoSupportAction : UnitAction
     {
         if (!unit.Grid.Occupants.TryGetValue(target, out UnitData occupant))
             throw new ArgumentException($"Cell {target} does not contain a unit to attack");
-        return new(CombatCalculations.CreateSupportAction(unit, occupant), unit, target, this);
+        return new(CreateSupportAction(unit, occupant), unit, target, this);
     }
 
     public override void UpdateGrid(GridData grid, UnitActionResult result)
@@ -51,7 +53,7 @@ public partial class DemoSupportAction : UnitAction
             throw new ArgumentException($"Cell {target} does not contain a unit to attack");
         GridData copy = unit.Grid.Clone();
         copy.Occupants[unit.Cell].Cell = source;
-        CombatAction action = CombatCalculations.CreateSupportAction(copy.Occupants[source], copy.Occupants[target]);
+        CombatAction action = CreateSupportAction(copy.Occupants[source], copy.Occupants[target]);
         ApplyResult(copy, action);
         return copy;
     }
