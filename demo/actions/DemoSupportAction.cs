@@ -35,7 +35,7 @@ public partial class DemoSupportAction : UnitAction
         unit.Grid.GetCellsInRange(cell, unit.Stats.SupportRange).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && unit.Faction.AlliedTo(occupant.Faction));
     public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit, IEnumerable<Vector2I> traversable) => traversable.SelectMany((c) => unit.Grid.GetCellsInRange(c, unit.Stats.SupportRange)).ToHashSet();
     public override IEnumerable<Vector2I> GetValidTargetCells(UnitData unit, IEnumerable<Vector2I> traversable) =>
-        GetAllTargetCells(unit, traversable).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && occupant.Faction.AlliedTo(unit.Faction));
+        GetAllTargetCells(unit, traversable).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && occupant != unit && occupant.Faction.AlliedTo(unit.Faction));
     public override IEnumerable<Vector2I> GetSourceCells(UnitData unit, Vector2I target) => unit.Grid.GetCellsInRange(target, unit.Stats.SupportRange);
 
     public override UnitActionResult Perform(UnitData unit, Vector2I target)
