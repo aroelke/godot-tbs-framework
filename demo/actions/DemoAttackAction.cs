@@ -13,22 +13,47 @@ namespace TbsFramework.Demo;
 [GlobalClass, Tool]
 public partial class DemoAttackAction : UnitAction
 {
+    private static readonly Random rnd = new();
+
     private static List<CombatAction> AttackResults(UnitData a, UnitData b, bool estimate)
     {
+        static int HitChance(UnitData attacker, UnitData defender) => attacker.Stats.Accuracy - defender.Stats.Evasion;
+
+        static CombatAction CreateAttackAction(UnitData attacker, UnitData defender, bool estimate) => new(
+            attacker, defender,
+            CombatActionType.Attack,
+            Math.Max(attacker.Stats.Attack - defender.Stats.Defense, 0)*(estimate ? HitChance(attacker, defender)/100.0 : 1),
+            estimate || rnd.Next(100) < HitChance(attacker, defender)
+        );
+
         Dictionary<UnitData, double> damage = new() {{ a, 0 }, { b, 0 }};
 
-        List<CombatAction> actions = [CombatCalculations.CreateAttackAction(a, b, estimate)];
+        List<CombatAction> actions = [CreateAttackAction(a, b, estimate)];
         if (actions[^1].Hit)
             damage[b] += actions[^1].Damage;
         if (damage[b] < b.Health && b.Stats.AttackRange.Contains(b.Cell.ManhattanDistanceTo(a.Cell)))
         {
-            actions.Add(CombatCalculations.CreateAttackAction(b, a, estimate));
+            actions.Add(CreateAttackAction(b, a, estimate));
             if (actions[^1].Hit)
                 damage[a] += actions[^1].Damage;
         }
-        if (CombatCalculations.FollowUp(a, b) is (UnitData doubler, UnitData doublee) && damage[doubler] < doubler.Health && doubler.Stats.AttackRange.Contains(doubler.Cell.ManhattanDistanceTo(doublee.Cell)))
+
+        UnitData doubler, doublee;
+        if (a.Stats.Agility > b.Stats.Agility)
         {
-            actions.Add(CombatCalculations.CreateAttackAction(doubler, doublee, estimate));
+            doubler = a;
+            doublee = b;
+        }
+        else if (a.Stats.Agility < b.Stats.Agility)
+        {
+            doubler = b;
+            doublee = a;
+        }
+        else
+            doubler = doublee = null;
+        if (doubler is not null && doublee is not null && damage[doubler] < doubler.Health && doubler.Stats.AttackRange.Contains(doubler.Cell.ManhattanDistanceTo(doublee.Cell)))
+        {
+            actions.Add(CreateAttackAction(doubler, doublee, estimate));
             if (actions[^1].Hit)
                 damage[doublee] += actions[^1].Damage;
         }

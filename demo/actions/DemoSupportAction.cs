@@ -12,7 +12,12 @@ namespace TbsFramework.Demo;
 [GlobalClass, Tool]
 public partial class DemoSupportAction : UnitAction
 {
-    public static CombatAction CreateSupportAction(UnitData supporter, UnitData recipient) => new(supporter, recipient, CombatActionType.Support, -Math.Min(supporter.Stats.Healing, recipient.Stats.Health - recipient.Health), true);
+    public static CombatAction CreateSupportAction(UnitData supporter, UnitData recipient) => new(
+        supporter, recipient,
+        CombatActionType.Support,
+        -Math.Min(supporter.Stats.Healing, recipient.Stats.Health - recipient.Health),
+        true
+    );
 
     private static void ApplyResult(GridData grid, CombatAction action)
     {
