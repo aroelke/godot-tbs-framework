@@ -67,7 +67,7 @@ public partial class DemoCombatScene : CombatController
         _infos[left].Health.Maximum = left.Stats.Health;
         _infos[left].Health.Value = left.Health;
         _infos[left].Damage = [.. _actions.Where((a) => a.Actor == left).Select(static (a) => (int)a.Damage)];
-        _infos[left].HitChance = _actions.Any((a) => a.Actor == left) ? Math.Min(CombatCalculations.HitChance(left, right), 100) : -1;
+        _infos[left].HitChance = _actions.Any((a) => a.Actor == left) ? Math.Min(DemoAttackAction.HitChance(left, right), 100) : -1;
         _infos[left].TransitionDuration = HitDelay;
 
         _animations[right] = right.Class.InstantiateCombatAnimations(right.Faction);
@@ -77,7 +77,7 @@ public partial class DemoCombatScene : CombatController
         _infos[right].Health.Maximum = right.Stats.Health;
         _infos[right].Health.Value = right.Health;
         _infos[right].Damage = [.. _actions.Where((a) => a.Actor == right).Select(static (a) => (int)a.Damage)];
-        _infos[right].HitChance = _actions.Any((a) => a.Actor == right) ? Math.Min(CombatCalculations.HitChance(right, left), 100) : -1;
+        _infos[right].HitChance = _actions.Any((a) => a.Actor == right) ? Math.Min(DemoAttackAction.HitChance(right, left), 100) : -1;
         _infos[right].TransitionDuration = HitDelay;
 
         foreach ((_, CombatAnimations animation) in _animations)

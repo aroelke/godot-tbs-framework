@@ -17,8 +17,6 @@ public partial class DemoAttackAction : UnitAction
 
     private static List<CombatAction> AttackResults(UnitData a, UnitData b, bool estimate)
     {
-        static int HitChance(UnitData attacker, UnitData defender) => attacker.Stats.Accuracy - defender.Stats.Evasion;
-
         static CombatAction CreateAttackAction(UnitData attacker, UnitData defender, bool estimate) => new(
             attacker, defender,
             CombatActionType.Attack,
@@ -72,6 +70,8 @@ public partial class DemoAttackAction : UnitAction
                 target.Health -= action.Damage;
         }
     }
+
+    public static int HitChance(UnitData attacker, UnitData defender) => attacker.Stats.Accuracy - defender.Stats.Evasion;
 
     public override bool RequiresTarget => true;
 
