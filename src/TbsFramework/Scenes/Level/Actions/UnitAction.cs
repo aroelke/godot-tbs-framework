@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Control;
@@ -59,17 +60,29 @@ public abstract partial class UnitAction : Resource
     public abstract IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell);
 
     /// <summary>
-    /// Get all cells <paramref name="unit"/> can reach to perform this action on from any cell it can move to from its current location regardless
+    /// Get all cells <paramref name="unit"/> can reach to perform this action on from any cell within <paramref name="traversable"/> regardless
     /// of whether or not those cells contain valid targets.
     /// </summary>
     /// <remarks>It is up to the implementor to determine if cells that are in reach but not valid targets should be included.</remarks>
-    public abstract IEnumerable<Vector2I> GetAllTargetCells(UnitData unit);
+    public abstract IEnumerable<Vector2I> GetAllTargetCells(UnitData unit, IEnumerable<Vector2I> traversable);
+
+    /// <returns>The set of cells within <paramref name="traversable"/> that <paramref name="unit"/> can perform this action from.</returns>
+    public virtual IEnumerable<Vector2I> GetSourceCells(UnitData unit, IEnumerable<Vector2I> traversable) => traversable.Where((c) => !unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) || occupant == unit);
+
+    /// <returns>The set of cells <paramref name="unit"/> can perform this action from within the cells it can traverse.</returns>
+    public virtual IEnumerable<Vector2I> GetSourceCells(UnitData unit) => GetSourceCells(unit, unit.GetTraversableCells());
+
+    /// <summary>
+    /// Get all cells <paramref name="unit"/> can reach to perform this action on from any cell it can traverse regardless of whether or not those
+    /// cells contain valid targets.
+    /// </summary>
+    public virtual IEnumerable<Vector2I> GetAllTargetCells(UnitData unit) => GetAllTargetCells(unit, GetSourceCells(unit));
 
     /// <returns>The set of cells that contain valid targets for <paramref name="unit"/> from any cell within <paramref name="traversable"/>.</returns>
     public abstract IEnumerable<Vector2I> GetValidTargetCells(UnitData unit, IEnumerable<Vector2I> traversable);
 
     /// <returns>The set of cells within reach of <paramref name="unit"/> after moving to any cell it can traverse that contain valid targets for the action.</returns>
-    public virtual IEnumerable<Vector2I> GetValidTargetCells(UnitData unit) => GetValidTargetCells(unit, unit.GetTraversableCells());
+    public virtual IEnumerable<Vector2I> GetValidTargetCells(UnitData unit) => GetValidTargetCells(unit, GetSourceCells(unit));
 
     /// <returns>The set of cells from which <paramref name="unit"/> can perform this action on <paramref name="target"/>.</returns>
     public abstract IEnumerable<Vector2I> GetSourceCells(UnitData unit, Vector2I target);

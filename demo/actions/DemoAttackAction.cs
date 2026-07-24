@@ -9,13 +9,14 @@ using TbsFramework.Scenes.Level.Actions;
 
 namespace TbsFramework.Demo;
 
+/// <summary><see cref="UnitAction"/> used in the demo for allowing units to attack other units in opposing factions.</summary>
 [GlobalClass, Tool]
-public partial class DemoExecuteAttack : ActionExecute
+public partial class DemoAttackAction : UnitAction
 {
     private static List<CombatAction> AttackResults(UnitData a, UnitData b, bool estimate)
     {
         Dictionary<UnitData, double> damage = new() {{ a, 0 }, { b, 0 }};
-        // Compute complete combat action list
+
         List<CombatAction> actions = [CombatCalculations.CreateAttackAction(a, b, estimate)];
         if (actions[^1].Hit)
             damage[b] += actions[^1].Damage;
@@ -47,23 +48,34 @@ public partial class DemoExecuteAttack : ActionExecute
         }
     }
 
-    public override object Perform(UnitData unit, Vector2I target)
+    public override bool RequiresTarget => true;
+
+    public override bool CanPerform(UnitData unit, Vector2I source) => unit.Stats.Attack > 0;
+    public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => CanPerform(unit, source) && unit.Stats.AttackRange.Contains(source.ManhattanDistanceTo(target));
+    public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) =>
+        unit.Grid.GetCellsInRange(cell, unit.Stats.AttackRange).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && !unit.Faction.AlliedTo(occupant.Faction));
+    public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit, IEnumerable<Vector2I> traversable) => traversable.SelectMany((c) => unit.Grid.GetCellsInRange(c, unit.Stats.AttackRange)).ToHashSet();
+    public override IEnumerable<Vector2I> GetValidTargetCells(UnitData unit, IEnumerable<Vector2I> traversable) =>
+        GetAllTargetCells(unit, traversable).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && !occupant.Faction.AlliedTo(unit.Faction));
+    public override IEnumerable<Vector2I> GetSourceCells(UnitData unit, Vector2I target) => unit.Grid.GetCellsInRange(target, unit.Stats.AttackRange);
+
+    public override UnitActionResult Perform(UnitData unit, Vector2I target)
     {
         if (!unit.Grid.Occupants.TryGetValue(target, out UnitData occupant))
             throw new ArgumentException($"Cell {target} does not contain a unit to attack");
-        return AttackResults(unit, occupant, false);
+        return new(AttackResults(unit, occupant, false), unit, target, this);
     }
 
-    public override void UpdateGrid(GridData grid, UnitData actor, Vector2I target, object result)
+    public override void UpdateGrid(GridData grid, UnitActionResult result)
     {
-        if (result is not List<CombatAction> actions)
+        if (result.Result is not List<CombatAction> actions)
             throw new ArgumentException("Attack action result is not a list of combat actions");
 
         ApplyResults(grid, actions);
-        if (actor.Health <= 0)
-            actor.Renderer.Die();
-        if (grid.Occupants[target].Health <= 0)
-            grid.Occupants[target].Renderer.Die();
+        if (result.Actor.Health <= 0)
+            result.Actor.Renderer.Die();
+        if (grid.Occupants[result.Target].Health <= 0)
+            grid.Occupants[result.Target].Renderer.Die();
     }
 
     public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target)
@@ -77,4 +89,6 @@ public partial class DemoExecuteAttack : ActionExecute
         ApplyResults(copy, actions);
         return copy;
     }
+
+    public override void Initialize(Node owner) {}
 }

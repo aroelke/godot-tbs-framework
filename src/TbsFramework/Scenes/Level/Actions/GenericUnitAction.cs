@@ -84,13 +84,13 @@ public partial class GenericUnitAction : UnitAction
     /// of whether or not those cells contain valid targets.
     /// </summary>
     /// <remarks>It is up to the implementor to determine if cells that are in reach but not valid targets should be included.</remarks>
-    public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit)
+    public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit, IEnumerable<Vector2I> traversable)
     {
         if (RangeComponents.Count == 0)
             return [];
         else
         {
-            IEnumerable<HashSet<Vector2I>> ranges = RangeComponents.Select((r) => unit.GetTraversableCells().SelectMany((c) => r.GetAllCellsInRange(unit, c)).ToHashSet());
+            IEnumerable<HashSet<Vector2I>> ranges = RangeComponents.Select((r) => traversable.SelectMany((c) => r.GetAllCellsInRange(unit, c)).ToHashSet());
             return ranges.Aggregate(IntersectRanges ? (a, b) => a.Intersect(b).ToHashSet() : (a, b) => a.Union(b).ToHashSet());
         }
     }

@@ -37,9 +37,8 @@ public partial class RegionUnitAction : UnitAction
 
     public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => CanPerform(unit, source);
     public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => [];
-    public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit) => [];
+    public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit, IEnumerable<Vector2I> traversable) => [];
     public override IEnumerable<Vector2I> GetValidTargetCells(UnitData unit, IEnumerable<Vector2I> traversable) => [];
-    public override IEnumerable<Vector2I> GetValidTargetCells(UnitData unit) => [];
     public override IEnumerable<Vector2I> GetSourceCells(UnitData unit, Vector2I target) => [];
     public override UnitActionResult Perform(UnitData unit, Vector2I target) => new(null, unit, target, this);
 
