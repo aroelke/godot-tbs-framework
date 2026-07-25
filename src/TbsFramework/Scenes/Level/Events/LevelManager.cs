@@ -246,17 +246,21 @@ public partial class LevelManager : Node
     }
 #endregion
 #region Unit Commanding State
-    // These represent components for an "action" wrapping a QoS control like cancel or deselect (or "End," which could be considered a real action)
-    private partial class InternalActionDomain(IEnumerable<Vector2I> allowed) : ActionDomain
+    // This represents an "action" wrapping a QoS control like cancel or deselect (or "End," which could be considered a real action)
+    private partial class InternalAction(IEnumerable<Vector2I> allowed, StateChart state, StringName @event) : UnitAction
     {
-        public override bool Contains(Vector2I cell) => allowed.Contains(cell);
-    }
+        public override bool RequiresTarget => false;
+        public override bool CanPerform(UnitData unit, Vector2I source) => !allowed.Any() || allowed.Contains(source);
+        public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => CanPerform(unit, source);
+        public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => [];
+        public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit, IEnumerable<Vector2I> traversable) => [];
+        public override IEnumerable<Vector2I> GetValidTargetCells(UnitData unit, IEnumerable<Vector2I> traversable) => [];
+        public override IEnumerable<Vector2I> GetSourceCells(UnitData unit, Vector2I target) => [];
+        public override void UpdateGrid(GridData grid, UnitActionResult result) => state.SendEvent(@event);
 
-    private partial class InternalActionExecute(StateChart state, StringName @event) : ActionExecute
-    {
-        public override object Perform(UnitData unit, Vector2I target) => throw new InvalidOperationException("Internal actions don't have results");
-        public override void UpdateGrid(GridData grid, UnitData actor, Vector2I target, object result) => state.SendEvent(@event);
-        public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target) => throw new InvalidOperationException("Internal actions can't be simulated");
+        public override UnitActionResult Perform(UnitData unit, Vector2I target) => throw new NotImplementedException();
+        public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target) => throw new NotImplementedException();
+        public override void Initialize(Node owner) => throw new NotImplementedException();
     }
 
     private static readonly StringName DeselectAction = "Deselect";
@@ -272,9 +276,9 @@ public partial class LevelManager : Node
     public void OnCommandingEntered()
     {
         _targets = [];
-        GenericUnitAction deselect = new() { Name = DeselectAction, DomainComponents = [new InternalActionDomain([_initialCell.Value])], ExecuteComponent = new InternalActionExecute(State, SkipEvent) };
-        GenericUnitAction end = new() { Name = EndAction, AlwaysShow = true, ExecuteComponent = new InternalActionExecute(State, DoneEvent) };
-        GenericUnitAction cancel = new() { Name = CancelAction, AlwaysShow = true, ExecuteComponent = new InternalActionExecute(State, CancelEvent) };
+        InternalAction deselect = new([_initialCell.Value], State, SkipEvent) { Name = DeselectAction };
+        InternalAction end = new([], State, DoneEvent) { Name = EndAction, AlwaysShow = true };
+        InternalAction cancel = new([], State, CancelEvent) { Name = CancelAction, AlwaysShow = true };
         _armies.Current.Controller.CommandUnit(_selected, [..AvailableActions, deselect, end], cancel);
     }
 
@@ -287,8 +291,8 @@ public partial class LevelManager : Node
     {
         if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        if (command is GenericUnitAction generic && generic.ExecuteComponent is InternalActionExecute)
-            generic.ExecuteComponent.UpdateGrid(_grid, _selected, GridData.InvalidCell, null);
+        if (command is InternalAction @internal)
+            @internal.UpdateGrid(_grid, default);
         else
         {
             _targets = command.GetTargetCells(_selected, _selected.Cell);
