@@ -1,4 +1,4 @@
-[gd_scene load_steps=57 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=54 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsFramework/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="Script" uid="uid://c2joupgp3ohcx" path="res://demo/DemoMap.cs" id="1_npakb"]
@@ -8,7 +8,6 @@
 [ext_resource type="TileSet" uid="uid://cqqq5romj5brh" path="res://demo/assets/map/tiles/tileset.tres" id="4_yu7ov"]
 [ext_resource type="Resource" uid="uid://20ewtipnso1k" path="res://demo/actions/DemoSupportAction.tres" id="5_keg60"]
 [ext_resource type="PackedScene" uid="uid://1ev2yxu31ow" path="res://src/TbsFramework/Scenes/Level/Army.tscn" id="5_oeidl"]
-[ext_resource type="Script" uid="uid://c2xkwl31g7her" path="res://src/TbsFramework/Scenes/Level/Actions/ActionPermission.cs" id="6_061yb"]
 [ext_resource type="Resource" uid="uid://broidqni4h8ak" path="res://demo/factions/DemoPlayerFaction.tres" id="6_akw2u"]
 [ext_resource type="PackedScene" uid="uid://bntay230afwxo" path="res://src/TbsFramework/Scenes/Rendering/SpecialActionRegion.tscn" id="6_qahj2"]
 [ext_resource type="PackedScene" uid="uid://drlrlusbfh208" path="res://src/TbsFramework/Scenes/Level/Control/PlayerController.tscn" id="7_tajn8"]
@@ -26,7 +25,6 @@
 [ext_resource type="PackedScene" uid="uid://cseefrkj1yhgr" path="res://src/TbsFramework/Scenes/Level/Control/SwitchBehavior.tscn" id="14_d1c8n"]
 [ext_resource type="Resource" uid="uid://bemo5afnyy4lq" path="res://demo/unit/stats_player.tres" id="14_xri0l"]
 [ext_resource type="AudioStream" uid="uid://dfj0anaew11iq" path="res://demo/assets/ui/sounds/cancel.ogg" id="15_1yav4"]
-[ext_resource type="Script" uid="uid://dpctr7oust5rg" path="res://src/TbsFramework/Scenes/Level/Actions/ActionPermissionFaction.cs" id="15_lq1v0"]
 [ext_resource type="PackedScene" uid="uid://sh1oy4xaqis2" path="res://src/TbsFramework/Scenes/Level/Control/TurnSwitchCondition.tscn" id="15_ss7xl"]
 [ext_resource type="AudioStream" uid="uid://byd0f8wekfypg" path="res://demo/assets/ui/sounds/zone_on.ogg" id="16_2ofvg"]
 [ext_resource type="PackedScene" uid="uid://nt5vqytk4pr3" path="res://src/TbsFramework/Scenes/Level/Control/StandBehavior.tscn" id="16_6hgq8"]
@@ -55,15 +53,10 @@
 [ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/TbsFramework/UI/HUD/ControlHint.tscn" id="39_mogvl"]
 [ext_resource type="PackedScene" uid="uid://c2sogymeaqvpw" path="res://demo/DemoPauseOverlay.tscn" id="49_b5lsw"]
 
-[sub_resource type="Resource" id="Resource_vhc0u"]
-script = ExtResource("15_lq1v0")
-AllowedFactions = [ExtResource("6_akw2u")]
-metadata/_custom_type_script = "uid://dpctr7oust5rg"
-
 [sub_resource type="Resource" id="Resource_dvqlx"]
 script = ExtResource("14_5t6v1")
 RegionPath = NodePath("Grid/Capture")
-AdditionalPermissions = Array[ExtResource("6_061yb")]([SubResource("Resource_vhc0u")])
+AllowedFactions = [ExtResource("6_akw2u")]
 Name = &"Capture"
 AnimateOnMap = true
 metadata/_custom_type_script = "uid://bsn181216h4dr"

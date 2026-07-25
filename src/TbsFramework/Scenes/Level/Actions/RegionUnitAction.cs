@@ -12,26 +12,25 @@ public partial class RegionUnitAction : UnitAction
     /// <summary>Path in the current scene to the <see cref="SpecialActionRegion"/> relative to the parameter of <see cref="Initialize"/>.</summary>
     [Export(PropertyHint.NodePathValidTypes, nameof(SpecialActionRegion))] public NodePath RegionPath = null;
 
-    /// <summary>
-    /// Whether a unit must meet all (<c>true</c>) or any (<c>false</c>) additional permissions in order to be allowed to perform the action. It also
-    /// has to be in one of <see cref="Region"/>'s cells.
-    /// </summary>
-    [Export] public bool IntersectPermission = false;
+    /// <summary>List of node paths in the current scene to the units to allow relative to the parameter of <see cref="Initialize"/></summary>
+    [Export(PropertyHint.TypeString, $"22/26:{nameof(Unit)}" /* Variant.Type.NodePath=22/PropertyHint.NodePathValidTypes=26 */)] public NodePath[] AllowedUnitPaths = [];
 
-    /// <summary>
-    /// List of additional permissions that control whether or not a unit to perform this action beyond the set of
-    /// allowed cells.
-    /// </summary>
-    [Export] public Godot.Collections.Array<ActionPermission> AdditionalPermissions = [];
+    [Export] public Faction[] AllowedFactions = [];
 
     /// <summary>Identity of the region resolved from <see cref="RegionPath"/> after <see cref="Initialize"/> completes.</summary>
     public SpecialActionRegionReferenceType RegionIdentity = null;
+
+    /// <summary>
+    /// Identities of units resolved from <see cref="AllowedUnitPaths"/> after <see cref="Initialize"/> completes. If empty, any unit can perform
+    /// the action.
+    /// </summary>
+    public IEnumerable<UnitReferenceType> AllowedUnitIdentities = null;
 
     public override bool RequiresTarget => false;
 
     public override bool CanPerform(UnitData unit, Vector2I source)
     {
-        bool hasPermission = AdditionalPermissions.Count == 0 || (IntersectPermission ? AdditionalPermissions.All((c) => c.CanPerform(unit)) : AdditionalPermissions.Any((c) => c.CanPerform(unit)));
+        bool hasPermission = (AllowedFactions.Length > 0 && AllowedFactions.Any(unit.Faction.AlliedTo)) || AllowedUnitIdentities.Contains(unit.Identity);
         return hasPermission && unit.Grid.SpecialActionRegions[RegionIdentity].CanPerformIn(source, unit);
     }
 
@@ -61,7 +60,6 @@ public partial class RegionUnitAction : UnitAction
     public override void Initialize(Node owner)
     {
         RegionIdentity = owner.GetNode<SpecialActionRegion>(RegionPath).Data.Identity;
-        foreach (ActionPermission permission in AdditionalPermissions)
-            permission.Initialize(owner);
+        AllowedUnitIdentities = AllowedUnitPaths.Select((p) => owner.GetNode<Unit>(p).UnitData.Identity);
     }
 }
