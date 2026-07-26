@@ -8,8 +8,6 @@ namespace TbsFramework.Scenes.Data;
 /// <summary>Data structure for tracking information about the map and the objects on it.</summary>
 public class GridData : IHasIdentity<GridIdentity, GridData>
 {
-    private static long _id = 0;
-
     public static readonly Vector2I InvalidCell = -Vector2I.One;
 
     /// <summary>Handler for changes in a cell's terrain.</summary>
