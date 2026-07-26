@@ -3,7 +3,6 @@ using System.Linq;
 using Godot;
 using TbsFramework.Properties;
 using TbsFramework.Scenes.Data;
-using TbsFramework.Scenes.Level;
 
 namespace TbsFramework.Scenes.Rendering;
 
@@ -25,18 +24,6 @@ public partial class SpecialActionRegion : TileMapLayer
 
     /// <summary>Short description of the action being performed for display in the UI (for example, in a <see cref="ContextMenu"/>).</summary>
     [Export] public StringName Action { get; set; } = "";
-
-    /// <summary>List of armies whose units are allowed to perform the action.</summary>
-    [Export] public Army[] AllowedArmies = [];
-
-    /// <summary>List of individual units who are allowed to perform the action.</summary>
-    [Export] public Unit[] AllowedUnits = [];
-
-    /// <summary>Whether or not an action should remove the cell it's performed in from the region.</summary>
-    [Export] public bool OneShot = false;
-
-    /// <summary>Whether or not an action should only be performed once per unit.</summary>
-    [Export] public bool SingleUse = false;
 
     /// <summary>Structure defining the state of the special action region.</summary>
     public readonly SpecialActionRegionData Data = new();
@@ -115,8 +102,6 @@ public partial class SpecialActionRegion : TileMapLayer
     {
         List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
 
-        if (AllowedArmies.Length == 0 && AllowedUnits.Length == 0)
-            warnings.Add("No units are allowed to perform the action. Action cannot be performed.");
         if (GetUsedCells().Count == 0)
             warnings.Add("No cells in region. Action cannot be performed.");
 
@@ -129,12 +114,6 @@ public partial class SpecialActionRegion : TileMapLayer
 
         Data.Action = Action;
         Data.Cells = [.. GetUsedCells()];
-        foreach (Army army in AllowedArmies)
-            Data.AllowedFactions.Add(army.Faction);
-        foreach (Unit unit in AllowedUnits)
-            Data.AllowedUnits.Add(unit.UnitData);
-        Data.OneShot = OneShot;
-        Data.SingleUse = SingleUse;
 
         Data.CellsUpdated += (cells) => {
             Clear();

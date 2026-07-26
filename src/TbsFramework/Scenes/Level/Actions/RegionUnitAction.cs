@@ -15,7 +15,14 @@ public partial class RegionUnitAction : UnitAction
     /// <summary>List of node paths in the current scene to the units to allow relative to the parameter of <see cref="Initialize"/></summary>
     [Export(PropertyHint.TypeString, $"22/26:{nameof(Unit)}" /* Variant.Type.NodePath=22/PropertyHint.NodePathValidTypes=26 */)] public NodePath[] AllowedUnitPaths = [];
 
+    /// <summary>Factions whose units are allowed to perform the action in the region.</summary>
     [Export] public Faction[] AllowedFactions = [];
+
+    /// <summary>Each unit can only perform this action once.</summary>
+    [Export] public bool OncePerUnit = false;
+
+    /// <summary>When this action is performed in a cell, that cell is removed from the region.</summary>
+    [Export] public bool OncePerCell = false;
 
     /// <summary>Identity of the region resolved from <see cref="RegionPath"/> after <see cref="Initialize"/> completes.</summary>
     public SpecialActionRegionReferenceType RegionIdentity = null;
@@ -28,10 +35,24 @@ public partial class RegionUnitAction : UnitAction
 
     public override bool RequiresTarget => false;
 
+    /// <returns>
+    /// The identities as defined by <see cref="IHasIdentity{T, U}"/> of all of the units in <paramref name="grid"/> that are allowed to perform
+    /// the action.
+    /// </returns>
+    public HashSet<UnitReferenceType> AllAllowedUnits(GridData grid)
+    {
+        HashSet<UnitReferenceType> units = [];
+        units.UnionWith(AllowedUnitIdentities);
+        units.UnionWith(AllowedFactions.SelectMany((f) => f.GetUnits(grid)).Select((u) => u.Identity));
+        return units;
+    }
+
     public override bool CanPerform(UnitData unit, Vector2I source)
     {
-        bool hasPermission = (AllowedFactions.Length > 0 && AllowedFactions.Any(unit.Faction.AlliedTo)) || AllowedUnitIdentities.Contains(unit.Identity);
-        return hasPermission && unit.Grid.SpecialActionRegions[RegionIdentity].CanPerformIn(source, unit);
+        bool allowed = (AllowedFactions.Length > 0 && AllowedFactions.Any(unit.Faction.AlliedTo)) || AllowedUnitIdentities.Contains(unit.Identity);
+        bool performed = unit.Grid.SpecialActionRegions[RegionIdentity].Performed.ContainsKey(unit.Identity);
+        bool within = unit.Grid.SpecialActionRegions[RegionIdentity].Cells.Contains(source);
+        return allowed && (!OncePerUnit || !performed) && within;
     }
 
     public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => CanPerform(unit, source);
@@ -46,14 +67,22 @@ public partial class RegionUnitAction : UnitAction
         if (result.Result is not null)
             GD.PushWarning($"Updating grid with result for ActionExecuteRegion that isn't null. Should this have been used for a different action?");
 
-        grid.SpecialActionRegions[RegionIdentity].Perform(result.Actor, result.Actor.Cell);
+        if (OncePerUnit)
+        {
+            if (!grid.SpecialActionRegions[RegionIdentity].Performed.ContainsKey(result.Actor.Identity))
+                grid.SpecialActionRegions[RegionIdentity].Performed[result.Actor.Identity] = 1;
+        }
+        else
+            grid.SpecialActionRegions[RegionIdentity].Performed[result.Actor.Identity] = grid.SpecialActionRegions[RegionIdentity].Performed.GetValueOrDefault(result.Actor.Identity, 0) + 1;
+        if (OncePerCell)
+            grid.SpecialActionRegions[RegionIdentity].Cells = grid.SpecialActionRegions[RegionIdentity].Cells.Remove(result.Actor.Cell);
     }
 
     public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target)
     {
         GridData grid = unit.Grid.Clone();
         grid.Occupants[unit.Cell].Cell = source;
-        grid.SpecialActionRegions[RegionIdentity].Perform(grid.Occupants[source], source);
+        UpdateGrid(grid, new(null, unit, GridData.InvalidCell, this));
         return grid;
     }
 
