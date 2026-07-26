@@ -1,5 +1,3 @@
-global using SpecialActionRegionReferenceType = Godot.StringName;
-
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -8,7 +6,7 @@ using Godot;
 namespace TbsFramework.Scenes.Data;
 
 /// <summary>Data specifying the information about a region in the grid in which a unit can perform a special action.</summary>
-public class SpecialActionRegionData : IHasIdentity<SpecialActionRegionReferenceType, SpecialActionRegionData>
+public class SpecialActionRegionData : IHasIdentity<ActionRegionIdentity, SpecialActionRegionData>
 {
     /// <summary>Handler for changes the cells defining the region in which the action can be performed.</summary>
     public delegate void CellsUpdatedEventHandler(ISet<Vector2I> cells);
@@ -69,7 +67,7 @@ public class SpecialActionRegionData : IHasIdentity<SpecialActionRegionReference
     /// <summary>Units that have performed the action.</summary>
     public Dictionary<UnitIdentity, int> Performed = [];
 
-    public SpecialActionRegionReferenceType Identity => Action;
+    public ActionRegionIdentity Identity { get; set; } = null;
 
     public SpecialActionRegionData() {}
 

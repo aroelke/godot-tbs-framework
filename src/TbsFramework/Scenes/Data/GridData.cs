@@ -36,7 +36,7 @@ public class GridData : IHasIdentity<GridReferenceType, GridData>
             _occupants[cell] = occupant.Clone();
             _occupants[cell].Grid = this;
         }
-        foreach ((SpecialActionRegionReferenceType id, SpecialActionRegionData region) in original.SpecialActionRegions)
+        foreach ((ActionRegionIdentity id, SpecialActionRegionData region) in original.SpecialActionRegions)
             SpecialActionRegions[id] = region.Clone();
     }
 
@@ -70,7 +70,7 @@ public class GridData : IHasIdentity<GridReferenceType, GridData>
     public IDictionary<Vector2I, UnitData> Occupants => _occupants;
 
     /// <summary>Regions identifying special actions that units can perform.</summary>
-    public readonly Dictionary<SpecialActionRegionReferenceType, SpecialActionRegionData> SpecialActionRegions = [];
+    public readonly Dictionary<ActionRegionIdentity, SpecialActionRegionData> SpecialActionRegions = [];
 
     public GridReferenceType Identity { get; private init; }
 

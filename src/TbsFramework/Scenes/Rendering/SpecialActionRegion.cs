@@ -22,6 +22,8 @@ public partial class SpecialActionRegion : TileMapLayer
     /// <param name="cell">Cell in which the unit performed the action.</param>
     [Signal] public delegate void SpecialActionPerformedEventHandler(StringName name, Unit performer, Vector2I cell);
 
+    [Export] public ActionRegionIdentity Identity = new();
+
     /// <summary>Short description of the action being performed for display in the UI (for example, in a <see cref="ContextMenu"/>).</summary>
     [Export] public StringName Action { get; set; } = "";
 
@@ -112,13 +114,17 @@ public partial class SpecialActionRegion : TileMapLayer
     {
         base._Ready();
 
-        Data.Action = Action;
-        Data.Cells = [.. GetUsedCells()];
+        if (!Engine.IsEditorHint())
+        {
+            Data.Action = Action;
+            Data.Cells = [.. GetUsedCells()];
+            Data.Identity = Identity;
 
-        Data.CellsUpdated += (cells) => {
-            Clear();
-            if (cells.Count > 0)
-                SetCellsTerrainConnect([.. cells], _set, _terrain);
-        };
+            Data.CellsUpdated += (cells) => {
+                Clear();
+                if (cells.Count > 0)
+                    SetCellsTerrainConnect([.. cells], _set, _terrain);
+            };
+        }
     }
 }
