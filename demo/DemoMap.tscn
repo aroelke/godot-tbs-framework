@@ -41,7 +41,7 @@
 [ext_resource type="Resource" uid="uid://bm5bvc8s4vh6n" path="res://demo/unit/stats_ally.tres" id="26_3brue"]
 [ext_resource type="PackedScene" uid="uid://b8dnpt7lcd2it" path="res://src/TbsFramework/Scenes/Level/Objectives/OccupyObjective.tscn" id="26_prinx"]
 [ext_resource type="PackedScene" uid="uid://blf1owsru7rvw" path="res://src/TbsFramework/Scenes/Level/Objectives/ActionObjective.tscn" id="27_c7alg"]
-[ext_resource type="Script" uid="uid://duxr5h215u3te" path="res://src/TbsFramework/Scenes/Data/UnitDataIdentity.cs" id="27_ls5jp"]
+[ext_resource type="Script" uid="uid://duxr5h215u3te" path="res://src/TbsFramework/Scenes/Data/UnitIdentity.cs" id="27_ls5jp"]
 [ext_resource type="PackedScene" uid="uid://bi38gny50edyk" path="res://src/TbsFramework/Scenes/Level/Objectives/RouteObjective.tscn" id="29_c7alg"]
 [ext_resource type="PackedScene" uid="uid://bdxrle0amq3ew" path="res://src/TbsFramework/Scenes/Level/Objectives/TimeObjective.tscn" id="30_xri0l"]
 [ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/TbsFramework/UI/HUD/CursorHintIcon.tscn" id="34_0sxdy"]

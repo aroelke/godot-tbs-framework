@@ -13,7 +13,7 @@ public partial class RegionUnitAction : UnitAction
     [Export(PropertyHint.NodePathValidTypes, nameof(SpecialActionRegion))] public NodePath RegionPath = null;
 
     /// <summary>Identities of units allowed to perform the action.</summary>
-    [Export] public UnitDataIdentity[] AllowedUnits = [];
+    [Export] public UnitIdentity[] AllowedUnits = [];
 
     /// <summary>Factions whose units are allowed to perform the action in the region.</summary>
     [Export] public Faction[] AllowedFactions = [];
@@ -33,7 +33,7 @@ public partial class RegionUnitAction : UnitAction
     /// The identities as defined by <see cref="IHasIdentity{T, U}"/> of all of the units in <paramref name="grid"/> that are allowed to perform
     /// the action.
     /// </returns>
-    public HashSet<UnitDataIdentity> AllAllowedUnits(GridData grid) => [..AllowedUnits, ..AllowedFactions.SelectMany((f) => f.GetUnits(grid)).Select((u) => u.Identity)];
+    public HashSet<UnitIdentity> AllAllowedUnits(GridData grid) => [..AllowedUnits, ..AllowedFactions.SelectMany((f) => f.GetUnits(grid)).Select((u) => u.Identity)];
 
     public override bool CanPerform(UnitData unit, Vector2I source)
     {

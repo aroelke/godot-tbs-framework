@@ -12,7 +12,7 @@ public partial class ActionPermissionUnit : ActionPermission
     /// Identities of units resolved from <see cref="AllowedUnitPaths"/> after <see cref="Initialize"/> completes. If empty, any unit can perform
     /// the action.
     /// </summary>
-    [Export] public UnitDataIdentity[] AllowedUnitIdentities = [];
+    [Export] public UnitIdentity[] AllowedUnitIdentities = [];
 
     public override bool CanPerform(UnitData unit) => AllowedUnitIdentities.Length == 0 || AllowedUnitIdentities.Any((u) => u == unit.Identity);
     public override void Initialize(Node owner) {}

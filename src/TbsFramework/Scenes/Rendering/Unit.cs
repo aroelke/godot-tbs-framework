@@ -90,7 +90,7 @@ public partial class Unit : GridNode
     public UnitData UnitData { get; init; } = new();
     public override GridObjectData Data => UnitData;
 
-    [Export] public UnitDataIdentity Identity = new();
+    [Export] public UnitIdentity Identity = new();
 
     /// <summary>Class this unit belongs to, defining some of its stats and animations.</summary>
     [Export] public Class Class

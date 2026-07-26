@@ -10,7 +10,7 @@ using TbsFramework.Scenes.Rendering;
 namespace TbsFramework.Scenes.Data;
 
 /// <summary>Data structure tracking information about a unit on the map.</summary>
-public class UnitData : GridObjectData, IHasIdentity<UnitDataIdentity, UnitData>
+public class UnitData : GridObjectData, IHasIdentity<UnitIdentity, UnitData>
 {
     /// <summary>Signals that the unit has become active or inactive.</summary>
     public event Action<bool> AvailabilityUpdated;
@@ -139,7 +139,7 @@ public class UnitData : GridObjectData, IHasIdentity<UnitDataIdentity, UnitData>
     /// <summary>Reference to the <see cref="Unit"/> rendering the unit's state on the map.</summary>
     public Unit Renderer = null;
 
-    public UnitDataIdentity Identity { get; set; } = null;
+    public UnitIdentity Identity { get; set; } = null;
 
     public UnitData() : base()
     {
