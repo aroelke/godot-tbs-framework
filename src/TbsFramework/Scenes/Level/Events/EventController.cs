@@ -2,6 +2,7 @@
 
 using Godot;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Actions;
 using TbsFramework.Scenes.Level.Objectives;
 
 namespace TbsFramework.Scenes.Level.Events;
@@ -59,9 +60,9 @@ public partial class EventController : Node
     /// Event to perform just after a unit ends its action. By default, evaluates the objectives and signals to continue to the next action if not success
     /// or failure.
     /// </summary>
-    /// <param name="unit">Unit that just acted.</param>
-    public virtual void _ActionEnded (UnitData unit) => SkipEvent();
-    public         void OnActionEnded(UnitData unit) => Callable.From(() => _ActionEnded(unit)).CallDeferred();
+    /// <param name="result">Result of the action that was just performed. The grid should already be updated based on it.</param>
+    public virtual void _ActionEnded (UnitActionResult result) => SkipEvent();
+    public         void OnActionEnded(UnitActionResult result) => Callable.From(() => _ActionEnded(result)).CallDeferred();
 
     /// <summary>Event to perform before an army's turn ends. By default, evaluates the objectives and signals to end the turn if not success or failure.</summary>
     /// <param name="turn">Turn number that's about to begin.</param>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Actions;
 using TbsFramework.Scenes.Level.Events;
 using TbsFramework.Scenes.Rendering;
 
@@ -46,8 +47,8 @@ public abstract partial class AreaSwitchCondition : SwitchCondition
     /// When a unit finishes its action, check if the condition is satisfied and then update its <see cref="Satisfied"/>
     /// property accordingly.
     /// </summary>
-    /// <param name="unit">Unit that finished moving.</param>
-    public void Update(UnitData unit)
+    /// <param name="result">Result of the action that just completed.</param>
+    public void Update(UnitActionResult result)
     {
         if (!GetTriggerUnits().Any())
             return;

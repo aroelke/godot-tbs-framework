@@ -292,7 +292,10 @@ public partial class LevelManager : Node
         if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
         if (command is InternalAction @internal)
+        {
+            _result = new(null, _selected, GridData.InvalidCell, command);
             @internal.UpdateGrid(_grid, default);
+        }
         else
         {
             _targets = command.GetTargetCells(_selected, _selected.Cell);
@@ -392,7 +395,6 @@ public partial class LevelManager : Node
     /// <summary>Clear out the command and result when combat is over.</summary>
     public void OnCombatExited()
     {
-        _result = default;
         _command = null;
     }
 #endregion
@@ -405,13 +407,14 @@ public partial class LevelManager : Node
         State.SetVariable(ActiveProperty, _armies.Current.Count(static (u) => u.UnitData.Active));
 
         UnitData selected = _selected;
-        LevelEvents.EndAction(selected);
+        LevelEvents.EndAction(_result);
     }
 
     /// <summary>Clean up at the end of the unit's turn.</summary>
     public void OnEndActionExited()
     {
         _selected = null;
+        _result = default;
     }
 #endregion
 #region End Turn State
