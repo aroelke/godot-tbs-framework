@@ -13,9 +13,6 @@ public class SpecialActionRegionData : IHasIdentity<SpecialActionRegionReference
     /// <summary>Handler for changes the cells defining the region in which the action can be performed.</summary>
     public delegate void CellsUpdatedEventHandler(ISet<Vector2I> cells);
 
-    /// <summary>Handler for when a unit performs the special action in a cell.</summary>
-    public delegate void ActionPerformedEventHandler(StringName action, UnitData unit, Vector2I cell);
-
     private GridData _grid = null;
     private ImmutableHashSet<Vector2I> _cells = [];
 
@@ -30,9 +27,6 @@ public class SpecialActionRegionData : IHasIdentity<SpecialActionRegionReference
 
     /// <summary>Event signaling that the cells defining the region have changed.</summary>
     public event CellsUpdatedEventHandler CellsUpdated;
-
-    /// <summary>Event signaling that the action has been performed.</summary>
-    public event ActionPerformedEventHandler ActionPerformed;
 
     /// <summary>Name of the region. Also is the string displayed when presenting the option to perform the action.</summary>
     public StringName Action = "";
