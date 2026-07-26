@@ -1,5 +1,3 @@
-global using GridReferenceType = long;
-
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -8,7 +6,7 @@ using TbsFramework.Properties;
 namespace TbsFramework.Scenes.Data;
 
 /// <summary>Data structure for tracking information about the map and the objects on it.</summary>
-public class GridData : IHasIdentity<GridReferenceType, GridData>
+public class GridData : IHasIdentity<GridIdentity, GridData>
 {
     private static long _id = 0;
 
@@ -72,12 +70,10 @@ public class GridData : IHasIdentity<GridReferenceType, GridData>
     /// <summary>Regions identifying special actions that units can perform.</summary>
     public readonly Dictionary<ActionRegionIdentity, SpecialActionRegionData> SpecialActionRegions = [];
 
-    public GridReferenceType Identity { get; private init; }
+    public GridIdentity Identity { get; set; } = null;
 
     public GridData()
     {
-        Identity = _id++;
-
         _terrain.ItemsAdded += (items) => {
             if (TerrainUpdated is not null)
                 foreach ((Vector2I cell, Terrain terrain) in items)
