@@ -12,8 +12,8 @@ public partial class RegionUnitAction : UnitAction
     /// <summary>Path in the current scene to the <see cref="SpecialActionRegion"/> relative to the parameter of <see cref="Initialize"/>.</summary>
     [Export(PropertyHint.NodePathValidTypes, nameof(SpecialActionRegion))] public NodePath RegionPath = null;
 
-    /// <summary>List of node paths in the current scene to the units to allow relative to the parameter of <see cref="Initialize"/></summary>
-    [Export(PropertyHint.TypeString, $"22/26:{nameof(Unit)}" /* Variant.Type.NodePath=22/PropertyHint.NodePathValidTypes=26 */)] public NodePath[] AllowedUnitPaths = [];
+    /// <summary>Identities of units allowed to perform the action.</summary>
+    [Export] public UnitDataIdentity[] AllowedUnits = [];
 
     /// <summary>Factions whose units are allowed to perform the action in the region.</summary>
     [Export] public Faction[] AllowedFactions = [];
@@ -27,29 +27,17 @@ public partial class RegionUnitAction : UnitAction
     /// <summary>Identity of the region resolved from <see cref="RegionPath"/> after <see cref="Initialize"/> completes.</summary>
     public SpecialActionRegionReferenceType RegionIdentity = null;
 
-    /// <summary>
-    /// Identities of units resolved from <see cref="AllowedUnitPaths"/> after <see cref="Initialize"/> completes. If empty, any unit can perform
-    /// the action.
-    /// </summary>
-    public IEnumerable<UnitReferenceType> AllowedUnitIdentities = null;
-
     public override bool RequiresTarget => false;
 
     /// <returns>
     /// The identities as defined by <see cref="IHasIdentity{T, U}"/> of all of the units in <paramref name="grid"/> that are allowed to perform
     /// the action.
     /// </returns>
-    public HashSet<UnitReferenceType> AllAllowedUnits(GridData grid)
-    {
-        HashSet<UnitReferenceType> units = [];
-        units.UnionWith(AllowedUnitIdentities);
-        units.UnionWith(AllowedFactions.SelectMany((f) => f.GetUnits(grid)).Select((u) => u.Identity));
-        return units;
-    }
+    public HashSet<UnitDataIdentity> AllAllowedUnits(GridData grid) => [..AllowedUnits, ..AllowedFactions.SelectMany((f) => f.GetUnits(grid)).Select((u) => u.Identity)];
 
     public override bool CanPerform(UnitData unit, Vector2I source)
     {
-        bool allowed = (AllowedFactions.Length > 0 && AllowedFactions.Any(unit.Faction.AlliedTo)) || AllowedUnitIdentities.Contains(unit.Identity);
+        bool allowed = (AllowedFactions.Length > 0 && AllowedFactions.Any(unit.Faction.AlliedTo)) || AllowedUnits.Contains(unit.Identity);
         bool performed = unit.Grid.SpecialActionRegions[RegionIdentity].Performed.ContainsKey(unit.Identity);
         bool within = unit.Grid.SpecialActionRegions[RegionIdentity].Cells.Contains(source);
         return allowed && (!OncePerUnit || !performed) && within;
@@ -89,6 +77,5 @@ public partial class RegionUnitAction : UnitAction
     public override void Initialize(Node owner)
     {
         RegionIdentity = owner.GetNode<SpecialActionRegion>(RegionPath).Data.Identity;
-        AllowedUnitIdentities = AllowedUnitPaths.Select((p) => owner.GetNode<Unit>(p).UnitData.Identity);
     }
 }

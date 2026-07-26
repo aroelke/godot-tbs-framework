@@ -90,6 +90,8 @@ public partial class Unit : GridNode
     public UnitData UnitData { get; init; } = new();
     public override GridObjectData Data => UnitData;
 
+    [Export] public UnitDataIdentity Identity = new();
+
     /// <summary>Class this unit belongs to, defining some of its stats and animations.</summary>
     [Export] public Class Class
     {
@@ -212,6 +214,7 @@ public partial class Unit : GridNode
         {
             UnitData.Behavior = GetChildren().OfType<Behavior>().FirstOrDefault();
             UnitData.Renderer = this;
+            UnitData.Identity = Identity;
 
             RemoveChild(EditorSprite);
             EditorSprite.QueueFree();

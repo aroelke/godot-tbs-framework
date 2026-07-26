@@ -67,7 +67,7 @@ public class SpecialActionRegionData : IHasIdentity<SpecialActionRegionReference
     }
 
     /// <summary>Units that have performed the action.</summary>
-    public Dictionary<UnitReferenceType, int> Performed = [];
+    public Dictionary<UnitDataIdentity, int> Performed = [];
 
     public SpecialActionRegionReferenceType Identity => Action;
 
