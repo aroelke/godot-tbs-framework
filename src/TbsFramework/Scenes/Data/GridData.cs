@@ -6,7 +6,7 @@ using TbsFramework.Properties;
 namespace TbsFramework.Scenes.Data;
 
 /// <summary>Data structure for tracking information about the map and the objects on it.</summary>
-public class GridData : IHasIdentity<GridIdentity, GridData>
+public class GridData
 {
     public static readonly Vector2I InvalidCell = -Vector2I.One;
 

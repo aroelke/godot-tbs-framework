@@ -6,7 +6,7 @@ using Godot;
 namespace TbsFramework.Scenes.Data;
 
 /// <summary>Data specifying the information about a region in the grid in which a unit can perform a special action.</summary>
-public class SpecialActionRegionData : IHasIdentity<ActionRegionIdentity, SpecialActionRegionData>
+public class SpecialActionRegionData
 {
     /// <summary>Handler for changes the cells defining the region in which the action can be performed.</summary>
     public delegate void CellsUpdatedEventHandler(ISet<Vector2I> cells);
