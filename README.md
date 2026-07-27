@@ -30,7 +30,7 @@ The hierarchy looks like this:
   - [`Grid`](src/TbsFramework/Scenes/Level/Map/Grid.tscn)
     - "Ground" `TileMapLayer`
     - "Terrain" `TileMapLayer`
-    - Any number of additional `TileMapLayer`s or [` `](src/TbsFramework/Scenes/Level/Layers/SpecialActionRegion.tscn)s
+    - Any number of additional `TileMapLayer`s or [`SpecialActionRegion`](src/TbsFramework/Scenes/Rendering/SpecialActionRegion.tscn)s
       representing special regions of the map
   - First [`Army`](src/TbsFramework/Scenes/Level/Object/Group/Army.tscn)
     - `ArmyController` (either [`PlayerController`](src/TbsFramework/Scenes/Level/Control/PlayerController.tscn) or
