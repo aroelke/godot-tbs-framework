@@ -159,10 +159,9 @@ tile_set = ExtResource("10_0kgrh")
 
 [node name="Capture" parent="LevelManager/Grid" instance=ExtResource("6_qahj2")]
 modulate = Color(1, 1, 1, 0.392157)
-tile_map_data = PackedByteArray("AAASAAMAAAABAAUAAAAHAAkAAAABAAUAAAA=")
+tile_map_data = PackedByteArray("AAASAAMAAAABAAUAAAA=")
 tile_set = ExtResource("10_0kgrh")
 Identity = ExtResource("13_keg60")
-Action = &"Capture"
 "Terrain Set" = 0
 Terrain = "selection"
 
