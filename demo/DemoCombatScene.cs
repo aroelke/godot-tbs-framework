@@ -8,7 +8,7 @@ using TbsFramework.Nodes.Components;
 using TbsFramework.Scenes;
 using TbsFramework.Scenes.Combat;
 using TbsFramework.Scenes.Data;
-using TbsFramework.Scenes.Level.Actions;
+using TbsFramework.Scenes.Level.Control;
 using TbsFramework.UI;
 using TbsFramework.UI.Controls.Device;
 

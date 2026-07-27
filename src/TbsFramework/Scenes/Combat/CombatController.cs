@@ -1,7 +1,7 @@
 using System;
 using Godot;
 using TbsFramework.Scenes.Data;
-using TbsFramework.Scenes.Level.Actions;
+using TbsFramework.Scenes.Level.Control;
 
 namespace TbsFramework.Scenes.Combat;
 

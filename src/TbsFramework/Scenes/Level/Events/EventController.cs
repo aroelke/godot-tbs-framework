@@ -2,7 +2,7 @@
 
 using Godot;
 using TbsFramework.Scenes.Data;
-using TbsFramework.Scenes.Level.Actions;
+using TbsFramework.Scenes.Level.Control;
 using TbsFramework.Scenes.Level.Objectives;
 
 namespace TbsFramework.Scenes.Level.Events;

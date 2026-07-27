@@ -117,7 +117,7 @@ included:
 `SwitchCondition` also allows for its `Behavior` selection to revert if its `SwitchCondition` stops being satisfied.
 
 ### Defining Actions
-Actions are defined using resources that derive from the [`UnitAction`](src/TbsFramework/Scenes/Level/Actions/UnitAction.cs) class. This class defines
+Actions are defined using resources that derive from the [`UnitAction`](src/TbsFramework/Scenes/Level/Control/UnitAction.cs) class. This class defines
 functions that its subclasses must implement that define:
 - Constraints on which units are allowed to perform the action
 - The cells in which a unit must occupy in order to be able to perform the action
@@ -141,7 +141,7 @@ which is then returned to the `AIController` for evaluation. `Perform` and `Upda
 
 #### Special Action Regions
 There is a built-in subclass of `UnitAction` for specifying actions that can only be performed in specific cells,
-[`RegionUnitAction`](src/TbsFramework/Scenes/Level/Actions/RegionUnitAction.cs). This resource is used to specify an action that can be performed only
+[`RegionUnitAction`](src/TbsFramework/Scenes/Level/Control/RegionUnitAction.cs). This resource is used to specify an action that can be performed only
 in a set of spaces defined by a `SpecialActionRegion`, which is a type of `TileMapLayer`, with additional properties to constrain which units and
 `Faction`s can perform the action. These actions do not use targets and can be configured to prevent a unit from performing it more than once and/or
 remove cells from the region when it is performed there.

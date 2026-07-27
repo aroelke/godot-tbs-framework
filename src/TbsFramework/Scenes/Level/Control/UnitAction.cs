@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
-using TbsFramework.Scenes.Level.Control;
 
-namespace TbsFramework.Scenes.Level.Actions;
+namespace TbsFramework.Scenes.Level.Control;
 
 /// <summary>Represents the computed result of performing an action before actually applying it to the map.</summary>
 /// <param name="Result">Object representing the result of the action.</param>

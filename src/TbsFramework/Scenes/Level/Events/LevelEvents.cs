@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using Godot;
 using TbsFramework.Nodes;
 using TbsFramework.Scenes.Data;
-using TbsFramework.Scenes.Level.Actions;
-using TbsFramework.Scenes.Rendering;
+using TbsFramework.Scenes.Level.Control;
 using TbsFramework.UI;
 
 namespace TbsFramework.Scenes.Level.Events;

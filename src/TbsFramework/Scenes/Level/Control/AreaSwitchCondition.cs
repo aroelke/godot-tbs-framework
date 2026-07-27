@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using TbsFramework.Scenes.Data;
-using TbsFramework.Scenes.Level.Actions;
 using TbsFramework.Scenes.Level.Events;
 using TbsFramework.Scenes.Rendering;
 
