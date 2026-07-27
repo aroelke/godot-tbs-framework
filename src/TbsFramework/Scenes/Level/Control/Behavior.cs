@@ -40,19 +40,25 @@ public abstract partial class Behavior : Node
     /// <param name="unit">Unit that will move along the path.</param>
     /// <param name="from">Point to move from.</param>
     /// <param name="to">Point to move to.</param>
+    /// <param name="traversable">Set of cells that can be traversed to make the path.</param>
     /// <returns>The path from <paramref name="from"/> to <paramref name="to"/> that <paramref name="unit"/> will traverse.</returns>
     /// <exception cref="ArgumentException">If either <paramref name="from"/> or <paramref name="to"/> is not traversable by <paramref name="unit"/>.</exception>
-    public virtual Path GetPath(UnitData unit, Vector2I from, Vector2I to)
+    public virtual Path GetPath(UnitData unit, Vector2I from, Vector2I to, IEnumerable<Vector2I> traversable)
     {
-        IEnumerable<Vector2I> traversable = unit.GetTraversableCells();
         if (!traversable.Contains(from) || !traversable.Contains(to))
             throw new ArgumentException($"Cannot compute path from {from} to {to}; at least one is not traversable.");
         return Path.Empty(unit.Grid, traversable).Add(from).Add(to);
     }
 
+    /// <inheritdoc cref="GetPath(UnitData, Vector2I, Vector2I, IEnumerable{Vector2I})"/>
+    public Path GetPath(UnitData unit, Vector2I from, Vector2I to) => GetPath(unit, from, to, unit.GetTraversableCells());
+
     /// <summary>Determine the path the unit will take from its cell to a destination.</summary>
     /// <param name="unit">Unit that will move along the path.</param>
     /// <param name="dest">Destination cell.</param>
     /// <returns>The path from <paramref name="unit"/>'s cell to <paramref name="dest"/> that <paramref name="unit"/> will take.</returns>
-    public Path GetPath(UnitData unit, Vector2I dest) => GetPath(unit, unit.Cell, dest);
+    public Path GetPath(UnitData unit, Vector2I dest, IEnumerable<Vector2I> traversable) => GetPath(unit, unit.Cell, dest, traversable);
+
+    /// <inheritdoc cref="GetPath(UnitData, Vector2I, IEnumerable{Vector2I})"/>
+    public Path GetPath(UnitData unit, Vector2I dest) => GetPath(unit, dest, unit.GetTraversableCells());
 }
