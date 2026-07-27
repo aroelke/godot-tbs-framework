@@ -6,6 +6,13 @@ using TbsFramework.Scenes.Data;
 
 namespace TbsFramework.Scenes.Level.Control;
 
+/// <summary>Information about a unit's potential action.</summary>
+/// <param name="Action">Resource describing the action.</param>
+/// <param name="Source">Cells the action could be performed from.</param>
+/// <param name="Target">Cell the action will be performed on.</param>
+/// <param name="Traversable">Cells the acting unit can move on.</param>
+public record class ActionInfo(UnitAction Action, IEnumerable<Vector2I> Source, Vector2I Target, IEnumerable<Vector2I> Traversable);
+
 /// <summary>A <see cref="Unit"/> component that provides information about how the AI uses it in a specific situation.</summary>
 [Tool, Icon("uid://cvtdbcchxcvon")]
 public abstract partial class Behavior : Node
