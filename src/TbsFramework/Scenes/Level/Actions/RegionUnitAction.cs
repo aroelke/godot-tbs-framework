@@ -9,8 +9,8 @@ namespace TbsFramework.Scenes.Level.Actions;
 [GlobalClass, Tool]
 public partial class RegionUnitAction : UnitAction
 {
-    /// <summary>Path in the current scene to the <see cref="SpecialActionRegion"/> relative to the parameter of <see cref="Initialize"/>.</summary>
-    [Export(PropertyHint.NodePathValidTypes, nameof(SpecialActionRegion))] public NodePath RegionPath = null;
+    /// <summary>Identity of the region.</summary>
+    [Export] public ActionRegionIdentity Region = null;
 
     /// <summary>Identities of units allowed to perform the action.</summary>
     [Export] public UnitIdentity[] AllowedUnits = [];
@@ -23,9 +23,6 @@ public partial class RegionUnitAction : UnitAction
 
     /// <summary>When this action is performed in a cell, that cell is removed from the region.</summary>
     [Export] public bool OncePerCell = false;
-
-    /// <summary>Identity of the region.</summary>
-    public ActionRegionIdentity Region = null;
 
     public override bool RequiresTarget => false;
 
@@ -74,8 +71,5 @@ public partial class RegionUnitAction : UnitAction
         return grid;
     }
 
-    public override void Initialize(Node owner)
-    {
-        Region = owner.GetNode<SpecialActionRegion>(RegionPath).Data.Identity;
-    }
+    public override void Initialize(Node owner) {}
 }

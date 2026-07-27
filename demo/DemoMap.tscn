@@ -1,4 +1,4 @@
-[gd_scene load_steps=76 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=77 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsFramework/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="Script" uid="uid://c2joupgp3ohcx" path="res://demo/DemoMap.cs" id="1_npakb"]
@@ -21,6 +21,7 @@
 [ext_resource type="PackedScene" uid="uid://cb1gfyilefvvj" path="res://demo/unit/Tank.tscn" id="10_1ger5"]
 [ext_resource type="AudioStream" uid="uid://cw083osbudnfr" path="res://demo/assets/ui/sounds/cursor_move.ogg" id="11_npakb"]
 [ext_resource type="Resource" uid="uid://8ni15si3ex81" path="res://demo/unit/demo_long_tank.tres" id="12_qidbu"]
+[ext_resource type="Resource" uid="uid://b7fjldvqn7j10" path="res://demo/CaptureRegionIdentity.tres" id="13_keg60"]
 [ext_resource type="AudioStream" uid="uid://chh5seatf8dr3" path="res://demo/assets/ui/sounds/select.ogg" id="14_8l58o"]
 [ext_resource type="PackedScene" uid="uid://cseefrkj1yhgr" path="res://src/TbsFramework/Scenes/Level/Control/SwitchBehavior.tscn" id="14_d1c8n"]
 [ext_resource type="Resource" uid="uid://bemo5afnyy4lq" path="res://demo/unit/stats_player.tres" id="14_xri0l"]
@@ -160,6 +161,7 @@ tile_set = ExtResource("10_0kgrh")
 modulate = Color(1, 1, 1, 0.392157)
 tile_map_data = PackedByteArray("AAASAAMAAAABAAUAAAAHAAkAAAABAAUAAAA=")
 tile_set = ExtResource("10_0kgrh")
+Identity = ExtResource("13_keg60")
 Action = &"Capture"
 "Terrain Set" = 0
 Terrain = "selection"
