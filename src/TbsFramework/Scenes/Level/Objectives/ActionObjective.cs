@@ -65,11 +65,11 @@ public partial class ActionObjective : Objective
             if (Action is null)
                 return "";
             else if (Action.OncePerCell)
-                return $"{_region.Action} in {(Target == 0 ? "all" : Target)} space(s) of {_region.Action}";
+                return $"{Action.Name} in {(Target == 0 ? "all" : Target)} space(s)";
             else if (Action.OncePerUnit)
-                return $"{_region.Action} with {(Target == 0 ? "all" : Target)} allowed unit(s)";
+                return $"{Action.Name} with {(Target == 0 ? "all" : Target)} allowed unit(s)";
             else
-                return $"{_region.Action} {Target} time(s)";
+                return $"{Action.Name} {Target} time(s)";
         }
     }
 

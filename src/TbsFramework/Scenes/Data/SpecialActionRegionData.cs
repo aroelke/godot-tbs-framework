@@ -18,16 +18,13 @@ public class SpecialActionRegionData : IHasIdentity<ActionRegionIdentity, Specia
     {
         if (!_cells.All(_grid.Contains))
         {
-            GD.PushWarning($"Some cells in region {Action} are outside the new grid bounds. They will be truncated.");
+            GD.PushWarning($"Some cells are outside the new grid bounds. They will be truncated.");
             Cells = [.. Cells.Where(_grid.Contains)];
         }
     }
 
     /// <summary>Event signaling that the cells defining the region have changed.</summary>
     public event CellsUpdatedEventHandler CellsUpdated;
-
-    /// <summary>Name of the region. Also is the string displayed when presenting the option to perform the action.</summary>
-    public StringName Action = "";
 
     /// <summary>Grid containing the action region.</summary>
     public GridData Grid
@@ -73,7 +70,6 @@ public class SpecialActionRegionData : IHasIdentity<ActionRegionIdentity, Specia
 
     private SpecialActionRegionData(SpecialActionRegionData original)
     {
-        Action = original.Action;
         _cells = original._cells;
         Performed = original.Performed;
     }

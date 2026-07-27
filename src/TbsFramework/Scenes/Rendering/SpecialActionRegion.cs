@@ -24,9 +24,6 @@ public partial class SpecialActionRegion : TileMapLayer
 
     [Export] public ActionRegionIdentity Identity = new();
 
-    /// <summary>Short description of the action being performed for display in the UI (for example, in a <see cref="ContextMenu"/>).</summary>
-    [Export] public StringName Action { get; set; } = "";
-
     /// <summary>Structure defining the state of the special action region.</summary>
     public readonly SpecialActionRegionData Data = new();
 
@@ -116,7 +113,6 @@ public partial class SpecialActionRegion : TileMapLayer
 
         if (!Engine.IsEditorHint())
         {
-            Data.Action = Action;
             Data.Cells = [.. GetUsedCells()];
             Data.Identity = Identity;
 
