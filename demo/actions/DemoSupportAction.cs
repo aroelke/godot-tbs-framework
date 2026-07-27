@@ -62,6 +62,4 @@ public partial class DemoSupportAction : UnitAction
         ApplyResult(copy, action);
         return copy;
     }
-
-    public override void Initialize(Node owner) {}
 }

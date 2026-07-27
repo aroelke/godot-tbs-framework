@@ -70,6 +70,4 @@ public partial class RegionUnitAction : UnitAction
         UpdateGrid(grid, new(null, unit, GridData.InvalidCell, this));
         return grid;
     }
-
-    public override void Initialize(Node owner) {}
 }

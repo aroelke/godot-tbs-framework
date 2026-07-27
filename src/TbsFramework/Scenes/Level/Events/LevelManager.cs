@@ -260,7 +260,6 @@ public partial class LevelManager : Node
 
         public override UnitActionResult Perform(UnitData unit, Vector2I target) => throw new NotImplementedException();
         public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target) => throw new NotImplementedException();
-        public override void Initialize(Node owner) => throw new NotImplementedException();
     }
 
     private static readonly StringName DeselectAction = "Deselect";
@@ -560,8 +559,6 @@ public partial class LevelManager : Node
                     if (!_armies.MoveNext())
                         break;
 
-            foreach (UnitAction action in AvailableActions)
-                action.Initialize(this);
             Callable.From(() => State.SendEvent(DoneEvent)).CallDeferred();
         }
     }

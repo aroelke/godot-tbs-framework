@@ -114,8 +114,4 @@ public abstract partial class UnitAction : Resource
     /// <returns>A new grid containing the result of the simulation of performing this action.</returns>
     /// <remarks><b>Note</b>: This is intended for use by <see cref="AIController"/> to evaluate actions.</remarks>
     public abstract GridData Simulate(UnitData unit, Vector2I source, Vector2I target);
-
-    /// <summary>Perform any initial setup of the action's components at the beginning of the level.</summary>
-    /// <param name="owner">Node calling this function so it has access to the scene tree.</param>
-    public abstract void Initialize(Node owner);
 }

@@ -114,6 +114,4 @@ public partial class DemoAttackAction : UnitAction
         ApplyResults(copy, actions);
         return copy;
     }
-
-    public override void Initialize(Node owner) {}
 }
