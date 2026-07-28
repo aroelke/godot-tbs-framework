@@ -64,7 +64,7 @@ public partial class DemoCombatScene : CombatController
         _animations[left].SetFacing(Vector2.Right);
         _animations[left].Position = LeftPosition;
         _infos[left] = GetNode<CombatantData>("%LeftData");
-        _infos[left].Health.Maximum = left.Stats.Health;
+        _infos[left].Health.Maximum = left.Stats.MaxHealth;
         _infos[left].Health.Value = left.Health;
         _infos[left].Damage = [.. _actions.Where((a) => a.Actor == left).Select(static (a) => (int)a.Damage)];
         _infos[left].HitChance = _actions.Any((a) => a.Actor == left) ? Math.Min(DemoAttackAction.HitChance(left, right), 100) : -1;
@@ -74,7 +74,7 @@ public partial class DemoCombatScene : CombatController
         _animations[right].SetFacing(Vector2.Left);
         _animations[right].Position = RightPosition;
         _infos[right] = GetNode<CombatantData>("%RightData");
-        _infos[right].Health.Maximum = right.Stats.Health;
+        _infos[right].Health.Maximum = right.Stats.MaxHealth;
         _infos[right].Health.Value = right.Health;
         _infos[right].Damage = [.. _actions.Where((a) => a.Actor == right).Select(static (a) => (int)a.Damage)];
         _infos[right].HitChance = _actions.Any((a) => a.Actor == right) ? Math.Min(DemoAttackAction.HitChance(right, left), 100) : -1;

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsFramework.Properties;
@@ -10,11 +11,9 @@ namespace TbsFramework.Scenes.Data;
 /// create a final stat value for a character from components.
 /// </summary>
 [GlobalClass, Tool]
-public partial class DemoStats : Resource
+public partial class DemoStats : AbstractStats
 {
     private static readonly StringName TerrainCostModifiersPropertyName = "TerrainCostModifiers";
-
-    public delegate void ValuesChangedEventHandler(DemoStats stats);
 
     public static DemoStats operator+(DemoStats a, DemoStats b) => new()
     {
@@ -29,8 +28,6 @@ public partial class DemoStats : Resource
         AttackRange  = [.. a.AttackRange.Concat(b.AttackRange).Distinct().Order()],
         SupportRange = [.. a.SupportRange.Concat(b.SupportRange).Distinct().Order()]
     };
-
-    public event ValuesChangedEventHandler ValuesChanged;
 
     private readonly ObservableProperty<int> _health = 10;
     private readonly ObservableProperty<int> _attack = 1;
@@ -101,7 +98,7 @@ public partial class DemoStats : Resource
     }
 
     /// <summary>Distance at which the unit can attack an enemy.</summary>
-    /// <remarks>Don't directly change the values of the array elements, as this won't raise <see cref="ValuesChanged"/>.</remarks>
+    /// <remarks>Don't directly change the values of the array elements, as this won't raise <see cref="DemoValuesChanged"/>.</remarks>
     [Export] public int[] AttackRange
     {
         get => _attackRange.Value;
@@ -109,7 +106,7 @@ public partial class DemoStats : Resource
     }
 
     /// <summary>Distance at which the unit can support an enemy.</summary>
-    /// <remarks>Don't directly change the values of the array elements, as this won't raise <see cref="ValuesChanged"/>.</remarks>
+    /// <remarks>Don't directly change the values of the array elements, as this won't raise <see cref="DemoValuesChanged"/>.</remarks>
     [Export] public int[] SupportRange
     {
         get => _supportRange;
@@ -117,25 +114,30 @@ public partial class DemoStats : Resource
     }
 
     /// <summary>Cost modifiers to move onto different types of terrain.</summary>
-    /// <remark>Don't directly change the value of the dictionary elements, as this won't raise <see cref="ValuesChanged"/>.</remarks>
+    /// <remark>Don't directly change the value of the dictionary elements, as this won't raise <see cref="DemoValuesChanged"/>.</remarks>
     [Export] public Godot.Collections.Dictionary<Terrain, int> TerrainCostModifiers
     {
         get => _terrainMods;
         set => _terrainMods.Value = value;
     }
 
+    public override double MaxHealth => Health;
+    public override int MoveDistance => Move;
+
+    public override int GetTerrainCostModifier(Terrain terrain) => _terrainMods.Value.GetValueOrDefault(terrain, 0);
+
     public DemoStats()
     {
-        _health.ValueChanged += (_, _) => { if (ValuesChanged is not null) ValuesChanged(this); };
-        _attack.ValueChanged += (_, _) => { if (ValuesChanged is not null) ValuesChanged(this); };
-        _defense.ValueChanged += (_, _) => { if (ValuesChanged is not null) ValuesChanged(this); };
-        _healing.ValueChanged += (_, _) => { if (ValuesChanged is not null) ValuesChanged(this); };
-        _accuracy.ValueChanged += (_, _) => { if (ValuesChanged is not null) ValuesChanged(this); };
-        _evasion.ValueChanged += (_, _) => { if (ValuesChanged is not null) ValuesChanged(this); };
-        _agility.ValueChanged += (_, _) => { if (ValuesChanged is not null) ValuesChanged(this); };
-        _move.ValueChanged += (_, _) => { if (ValuesChanged is not null) ValuesChanged(this); };
-        _attackRange.ValueChanged += (_, _) => { if (ValuesChanged is not null) ValuesChanged(this); };
-        _supportRange.ValueChanged += (_, _) => { if (ValuesChanged is not null) ValuesChanged(this); };
-        _terrainMods.ValueChanged += (_, _) => { if (ValuesChanged is not null) ValuesChanged(this); };
+        _health.ValueChanged += (_, _) => SignalValuesChanged();
+        _attack.ValueChanged += (_, _) => SignalValuesChanged();
+        _defense.ValueChanged += (_, _) => SignalValuesChanged();
+        _healing.ValueChanged += (_, _) => SignalValuesChanged();
+        _accuracy.ValueChanged += (_, _) => SignalValuesChanged();
+        _evasion.ValueChanged += (_, _) => SignalValuesChanged();
+        _agility.ValueChanged += (_, _) => SignalValuesChanged();
+        _move.ValueChanged += (_, _) => SignalValuesChanged();
+        _attackRange.ValueChanged += (_, _) => SignalValuesChanged();
+        _supportRange.ValueChanged += (_, _) => SignalValuesChanged();
+        _terrainMods.ValueChanged += (_, _) => SignalValuesChanged();
     }
 }

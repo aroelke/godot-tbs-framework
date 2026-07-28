@@ -90,14 +90,14 @@ public partial class AIController : ArmyController
                                 _allies.Add(unit);
                                 if (unit.Health <= 0)
                                     DefeatedAllies++;
-                                AllyHealthDifference += unit.Stats.Health - unit.Health;
+                                AllyHealthDifference += unit.Stats.MaxHealth - unit.Health;
                             }
                             else
                             {
                                 _enemies.Add(unit);
                                 if (unit.Health <= 0)
                                     DefeatedEnemies++;
-                                EnemyHealthDifference += unit.Stats.Health - unit.Health;
+                                EnemyHealthDifference += unit.Stats.MaxHealth - unit.Health;
                             }
                         }
                     }

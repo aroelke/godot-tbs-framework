@@ -19,7 +19,7 @@ public class UnitData : GridObjectData
     /// <summary>Signals that the unit's class has been changed.</summary>
     public event PropertyChangedEventHandler<Class> ClassUpdated;
     /// <summary>Signals that the reference to the structure containing the unit's stats has been changed.</summary>
-    public event Action<DemoStats> StatsUpdated;
+    public event Action<AbstractStats> StatsUpdated;
     /// <summary>Signals that the unit's current health value has changed.</summary>
     public event PropertyChangedEventHandler<double> HealthUpdated
     {
@@ -30,12 +30,11 @@ public class UnitData : GridObjectData
     private bool _active = true;
     private Faction _faction = null;
     private Class _class = null;
-    private DemoStats _stats = new();
+    private AbstractStats _stats = null;
     private readonly ClampedProperty<double> _health = new(0, double.PositiveInfinity);
 
     private void Initialize()
     {
-        _stats.ValuesChanged += OnStatValuesChanged;
         CellChanged += (from, to) => {
             if ((Grid?.Occupants.TryGetValue(to, out UnitData occupant) ?? false) && occupant != this)
                 throw new ArgumentException($"Cell {to} is already occupied");
@@ -55,7 +54,7 @@ public class UnitData : GridObjectData
         };
     }
 
-    private void OnStatValuesChanged(DemoStats stats) => _health.Maximum = stats.Health;
+    private void OnStatValuesChanged(AbstractStats stats) => _health.Maximum = stats.MaxHealth;
 
     /// <summary>Whether or not the unit is available to act.</summary>
     public bool Active
@@ -105,7 +104,7 @@ public class UnitData : GridObjectData
     }
 
     /// <summary>This unit's stats.</summary>
-    public DemoStats Stats
+    public AbstractStats Stats
     {
         get => _stats;
         set
@@ -114,12 +113,16 @@ public class UnitData : GridObjectData
                 throw new ArgumentException($"A unit's stats should never be null.");
             if (_stats != value)
             {
-                _stats.ValuesChanged -= OnStatValuesChanged;
+                bool init = _stats is null;
+                if (!init)
+                    _stats.ValuesChanged -= OnStatValuesChanged;
                 _stats = value;
                 _stats.ValuesChanged += OnStatValuesChanged;
                 if (StatsUpdated is not null)
                     StatsUpdated(_stats);
-                _health.Maximum = _stats.Health;
+                _health.Maximum = _stats.MaxHealth;
+                if (init)
+                    _health.Value = _stats.MaxHealth;
             }
         }
     }
@@ -141,13 +144,7 @@ public class UnitData : GridObjectData
 
     public UnitIdentity Identity { get; set; } = null;
 
-    public UnitData() : base()
-    {
-        _health.Maximum = _stats.Health;
-        _health.Value = _stats.Health;
-
-        Initialize();
-    }
+    public UnitData() : base() => Initialize();
 
     private UnitData(UnitData original) : base(original)
     {
@@ -171,7 +168,7 @@ public class UnitData : GridObjectData
         return terrain.Cost +
             (Class.TerrainCostModifiers.TryGetValue(terrain, out int cc) ? cc : 0) +
             (UniqueTerrainModifiers.TryGetValue(terrain, out int uc) ? uc : 0) +
-            (Stats.TerrainCostModifiers.TryGetValue(terrain, out int sc) ? sc : 0);
+            Stats.GetTerrainCostModifier(terrain);
     }
 
     /// <summary>
@@ -190,7 +187,7 @@ public class UnitData : GridObjectData
     /// path between the starting and ending cells of <paramref name="path"/>.
     /// </summary>
     /// <remarks><b>Note</b>: if the shortest path is still too costly, it's still returned.</remarks>
-    public Path ClampPath(Path path) => PathCost(path) > Stats.Move ? path.Clear().Add(path[0]).Add(path[^1]) : path;
+    public Path ClampPath(Path path) => PathCost(path) > Stats.MoveDistance ? path.Clear().Add(path[0]).Add(path[^1]) : path;
 
     /// <returns><c>true</c> if this unit can move into or through <paramref name="cell"/>, and <c>false</c> otherwise.</returns>
     public bool IsCellTraversable(Vector2I cell) => !Grid.Occupants.TryGetValue(cell, out UnitData unit) || unit.Faction.AlliedTo(Faction);
@@ -198,7 +195,7 @@ public class UnitData : GridObjectData
     /// <returns>The set of cells this unit can move into or through based on terrain and its movement stat.</returns>
     public IEnumerable<Vector2I> GetTraversableCells()
     {
-        int max = 2*(Stats.Move + 1)*(Stats.Move + 1) - 2*Stats.Move - 1;
+        int max = 2*(Stats.MoveDistance + 1)*(Stats.MoveDistance + 1) - 2*Stats.MoveDistance - 1;
 
         Dictionary<Vector2I, int> cells = new(max) {{ Cell, 0 }};
         Queue<Vector2I> potential = new(max);
@@ -211,7 +208,7 @@ public class UnitData : GridObjectData
             foreach (Vector2I neighbor in Grid.GetNeighbors(current))
             {
                 int cost = cells[current] + CellCost(neighbor);
-                if ((!cells.TryGetValue(neighbor, out int c) || c > cost) && IsCellTraversable(neighbor) && cost <= Stats.Move) // cost to get to cell is within range
+                if ((!cells.TryGetValue(neighbor, out int c) || c > cost) && IsCellTraversable(neighbor) && cost <= Stats.MoveDistance) // cost to get to cell is within range
                 {
                     cells[neighbor] = cost;
                     potential.Enqueue(neighbor);

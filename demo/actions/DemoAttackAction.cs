@@ -20,7 +20,7 @@ public partial class DemoAttackAction : UnitAction
         static CombatAction CreateAttackAction(UnitData attacker, UnitData defender, bool estimate) => new(
             attacker, defender,
             CombatActionType.Attack,
-            Math.Max(attacker.Stats.Attack - defender.Stats.Defense, 0)*(estimate ? HitChance(attacker, defender)/100.0 : 1),
+            Math.Max((attacker.Stats as DemoStats).Attack - (defender.Stats as DemoStats).Defense, 0)*(estimate ? HitChance(attacker, defender)/100.0 : 1),
             estimate || rnd.Next(100) < HitChance(attacker, defender)
         );
 
@@ -29,7 +29,7 @@ public partial class DemoAttackAction : UnitAction
         List<CombatAction> actions = [CreateAttackAction(a, b, estimate)];
         if (actions[^1].Hit)
             damage[b] += actions[^1].Damage;
-        if (damage[b] < b.Health && b.Stats.AttackRange.Contains(b.Cell.ManhattanDistanceTo(a.Cell)))
+        if (damage[b] < b.Health && (b.Stats as DemoStats).AttackRange.Contains(b.Cell.ManhattanDistanceTo(a.Cell)))
         {
             actions.Add(CreateAttackAction(b, a, estimate));
             if (actions[^1].Hit)
@@ -37,19 +37,19 @@ public partial class DemoAttackAction : UnitAction
         }
 
         UnitData doubler, doublee;
-        if (a.Stats.Agility > b.Stats.Agility)
+        if ((a.Stats as DemoStats).Agility > (b.Stats as DemoStats).Agility)
         {
             doubler = a;
             doublee = b;
         }
-        else if (a.Stats.Agility < b.Stats.Agility)
+        else if ((a.Stats as DemoStats).Agility < (b.Stats as DemoStats).Agility)
         {
             doubler = b;
             doublee = a;
         }
         else
             doubler = doublee = null;
-        if (doubler is not null && doublee is not null && damage[doubler] < doubler.Health && doubler.Stats.AttackRange.Contains(doubler.Cell.ManhattanDistanceTo(doublee.Cell)))
+        if (doubler is not null && doublee is not null && damage[doubler] < doubler.Health && (doubler.Stats as DemoStats).AttackRange.Contains(doubler.Cell.ManhattanDistanceTo(doublee.Cell)))
         {
             actions.Add(CreateAttackAction(doubler, doublee, estimate));
             if (actions[^1].Hit)
@@ -71,18 +71,18 @@ public partial class DemoAttackAction : UnitAction
         }
     }
 
-    public static int HitChance(UnitData attacker, UnitData defender) => attacker.Stats.Accuracy - defender.Stats.Evasion;
+    public static int HitChance(UnitData attacker, UnitData defender) => (attacker.Stats as DemoStats).Accuracy - (defender.Stats as DemoStats).Evasion;
 
     public override bool RequiresTarget => true;
 
-    public override bool CanPerform(UnitData unit, Vector2I source) => unit.Stats.Attack > 0;
-    public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => CanPerform(unit, source) && unit.Stats.AttackRange.Contains(source.ManhattanDistanceTo(target));
+    public override bool CanPerform(UnitData unit, Vector2I source) => (unit.Stats as DemoStats).Attack > 0;
+    public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => CanPerform(unit, source) && (unit.Stats as DemoStats).AttackRange.Contains(source.ManhattanDistanceTo(target));
     public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) =>
-        unit.Grid.GetCellsInRange(cell, unit.Stats.AttackRange).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && !unit.Faction.AlliedTo(occupant.Faction));
-    public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit, IEnumerable<Vector2I> traversable) => traversable.SelectMany((c) => unit.Grid.GetCellsInRange(c, unit.Stats.AttackRange)).ToHashSet();
+        unit.Grid.GetCellsInRange(cell, (unit.Stats as DemoStats).AttackRange).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && !unit.Faction.AlliedTo(occupant.Faction));
+    public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit, IEnumerable<Vector2I> traversable) => traversable.SelectMany((c) => unit.Grid.GetCellsInRange(c, (unit.Stats as DemoStats).AttackRange)).ToHashSet();
     public override IEnumerable<Vector2I> GetValidTargetCells(UnitData unit, IEnumerable<Vector2I> traversable) =>
         GetAllTargetCells(unit, traversable).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && !occupant.Faction.AlliedTo(unit.Faction));
-    public override IEnumerable<Vector2I> GetSourceCells(UnitData unit, Vector2I target) => unit.Grid.GetCellsInRange(target, unit.Stats.AttackRange);
+    public override IEnumerable<Vector2I> GetSourceCells(UnitData unit, Vector2I target) => unit.Grid.GetCellsInRange(target, (unit.Stats as DemoStats).AttackRange);
 
     public override UnitActionResult Perform(UnitData unit, Vector2I target)
     {

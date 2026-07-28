@@ -15,7 +15,7 @@ public partial class DemoSupportAction : UnitAction
     public static CombatAction CreateSupportAction(UnitData supporter, UnitData recipient) => new(
         supporter, recipient,
         CombatActionType.Support,
-        -Math.Min(supporter.Stats.Healing, recipient.Stats.Health - recipient.Health),
+        -Math.Min((supporter.Stats as DemoStats).Healing, (recipient.Stats as DemoStats).Health - recipient.Health),
         true
     );
 
@@ -29,14 +29,14 @@ public partial class DemoSupportAction : UnitAction
 
     public override bool RequiresTarget => true;
 
-    public override bool CanPerform(UnitData unit, Vector2I source) => unit.Stats.Healing > 0;
-    public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => CanPerform(unit, source) && unit.Stats.SupportRange.Contains(source.ManhattanDistanceTo(target));
+    public override bool CanPerform(UnitData unit, Vector2I source) => (unit.Stats as DemoStats).Healing > 0;
+    public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => CanPerform(unit, source) && (unit.Stats as DemoStats).SupportRange.Contains(source.ManhattanDistanceTo(target));
     public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) =>
-        unit.Grid.GetCellsInRange(cell, unit.Stats.SupportRange).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && unit.Faction.AlliedTo(occupant.Faction));
-    public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit, IEnumerable<Vector2I> traversable) => traversable.SelectMany((c) => unit.Grid.GetCellsInRange(c, unit.Stats.SupportRange)).ToHashSet();
+        unit.Grid.GetCellsInRange(cell, (unit.Stats as DemoStats).SupportRange).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && unit.Faction.AlliedTo(occupant.Faction));
+    public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit, IEnumerable<Vector2I> traversable) => traversable.SelectMany((c) => unit.Grid.GetCellsInRange(c, (unit.Stats as DemoStats).SupportRange)).ToHashSet();
     public override IEnumerable<Vector2I> GetValidTargetCells(UnitData unit, IEnumerable<Vector2I> traversable) =>
         GetAllTargetCells(unit, traversable).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && occupant != unit && occupant.Faction.AlliedTo(unit.Faction));
-    public override IEnumerable<Vector2I> GetSourceCells(UnitData unit, Vector2I target) => unit.Grid.GetCellsInRange(target, unit.Stats.SupportRange);
+    public override IEnumerable<Vector2I> GetSourceCells(UnitData unit, Vector2I target) => unit.Grid.GetCellsInRange(target, (unit.Stats as DemoStats).SupportRange);
 
     public override UnitActionResult Perform(UnitData unit, Vector2I target)
     {
