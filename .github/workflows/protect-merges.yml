@@ -1,0 +1,23 @@
+name: Ensure only dev can merge to main
+on:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - edited
+
+env:
+  SOURCE: dev
+  TARGET: main
+
+jobs:
+  check-branches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branches
+        run: |
+          if [ ${{ github.head_ref }} != "${SOURCE}" ] && [ ${{ github.base_ref }} == "${TARGET}" ]; then
+            echo "Merge requests to ${SOURCE} branch are only allowed from ${TARGET} branch."
+            exit 1
+          fi
