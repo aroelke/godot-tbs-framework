@@ -83,7 +83,7 @@ public partial class Unit : GridNode
             UpdateVisuals(@class, UnitData.Faction);
     }
 
-    private void OnStatsUpdated(Stats stats) => Animations?.SetHealthMax(stats.Health);
+    private void OnStatsUpdated(DemoStats stats) => Animations?.SetHealthMax(stats.Health);
 
     private void OnHealthUpdated(double _, double hp) => Animations?.SetHealthValue(hp);
 
@@ -99,7 +99,7 @@ public partial class Unit : GridNode
         set => UnitData.Class = value;
     }
 
-    [Export] public Stats Stats
+    [Export] public DemoStats Stats
     {
         get => UnitData.Stats;
         set => UnitData.Stats = value;

@@ -10,13 +10,13 @@ namespace TbsFramework.Scenes.Data;
 /// create a final stat value for a character from components.
 /// </summary>
 [GlobalClass, Tool]
-public partial class Stats : Resource
+public partial class DemoStats : Resource
 {
     private static readonly StringName TerrainCostModifiersPropertyName = "TerrainCostModifiers";
 
-    public delegate void ValuesChangedEventHandler(Stats stats);
+    public delegate void ValuesChangedEventHandler(DemoStats stats);
 
-    public static Stats operator+(Stats a, Stats b) => new()
+    public static DemoStats operator+(DemoStats a, DemoStats b) => new()
     {
         Health       = a.Health   + b.Health,
         Attack       = a.Attack   + b.Attack,
@@ -124,7 +124,7 @@ public partial class Stats : Resource
         set => _terrainMods.Value = value;
     }
 
-    public Stats()
+    public DemoStats()
     {
         _health.ValueChanged += (_, _) => { if (ValuesChanged is not null) ValuesChanged(this); };
         _attack.ValueChanged += (_, _) => { if (ValuesChanged is not null) ValuesChanged(this); };

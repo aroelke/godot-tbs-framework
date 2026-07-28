@@ -19,7 +19,7 @@ public class UnitData : GridObjectData
     /// <summary>Signals that the unit's class has been changed.</summary>
     public event PropertyChangedEventHandler<Class> ClassUpdated;
     /// <summary>Signals that the reference to the structure containing the unit's stats has been changed.</summary>
-    public event Action<Stats> StatsUpdated;
+    public event Action<DemoStats> StatsUpdated;
     /// <summary>Signals that the unit's current health value has changed.</summary>
     public event PropertyChangedEventHandler<double> HealthUpdated
     {
@@ -30,7 +30,7 @@ public class UnitData : GridObjectData
     private bool _active = true;
     private Faction _faction = null;
     private Class _class = null;
-    private Stats _stats = new();
+    private DemoStats _stats = new();
     private readonly ClampedProperty<double> _health = new(0, double.PositiveInfinity);
 
     private void Initialize()
@@ -55,7 +55,7 @@ public class UnitData : GridObjectData
         };
     }
 
-    private void OnStatValuesChanged(Stats stats) => _health.Maximum = stats.Health;
+    private void OnStatValuesChanged(DemoStats stats) => _health.Maximum = stats.Health;
 
     /// <summary>Whether or not the unit is available to act.</summary>
     public bool Active
@@ -105,7 +105,7 @@ public class UnitData : GridObjectData
     }
 
     /// <summary>This unit's stats.</summary>
-    public Stats Stats
+    public DemoStats Stats
     {
         get => _stats;
         set
