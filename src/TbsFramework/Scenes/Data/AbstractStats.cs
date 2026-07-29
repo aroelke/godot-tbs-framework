@@ -8,6 +8,7 @@ namespace TbsFramework.Scenes.Data;
 /// transient information about a unit's status, like current health, as it is not duplicated or updated during AI action
 /// evaluation.
 /// </summary>
+[GlobalClass, Tool]
 public abstract partial class AbstractStats : Resource
 {
     /// <summary>Indicates that one or more values of this set of stats have changed.</summary>

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsFramework.Properties;
+using TbsFramework.Scenes.Data;
 
-namespace TbsFramework.Scenes.Data;
+namespace TbsFramework.Demo;
 
 /// <summary>
 /// Structure defining the stats of an entity, such as a class or character. Can be added together to
@@ -13,8 +14,6 @@ namespace TbsFramework.Scenes.Data;
 [GlobalClass, Tool]
 public partial class DemoStats : AbstractStats
 {
-    private static readonly StringName TerrainCostModifiersPropertyName = "TerrainCostModifiers";
-
     public static DemoStats operator+(DemoStats a, DemoStats b) => new()
     {
         Health       = a.Health   + b.Health,
