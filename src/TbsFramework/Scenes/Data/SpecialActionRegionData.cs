@@ -64,7 +64,8 @@ public class SpecialActionRegionData
     /// <summary>Units that have performed the action.</summary>
     public Dictionary<UnitIdentity, int> Performed = [];
 
-    public ActionRegionIdentity Identity { get; set; } = null;
+    /// <summary>Identity of this action region. See <see cref="DataIdentity{T}"/>.</summary>
+    public ActionRegionIdentity Identity = null;
 
     public SpecialActionRegionData() {}
 

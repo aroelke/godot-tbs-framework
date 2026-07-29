@@ -68,7 +68,8 @@ public class GridData
     /// <summary>Regions identifying special actions that units can perform.</summary>
     public readonly Dictionary<ActionRegionIdentity, SpecialActionRegionData> SpecialActionRegions = [];
 
-    public GridIdentity Identity { get; set; } = null;
+    /// <summary>Identity of this grid. See <see cref="DataIdentity{T}"/>.</summary>
+    public GridIdentity Identity = null;
 
     public GridData()
     {

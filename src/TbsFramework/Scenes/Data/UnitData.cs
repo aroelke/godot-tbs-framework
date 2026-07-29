@@ -127,7 +127,7 @@ public class UnitData : GridObjectData
         }
     }
 
-    /// <summary>This unit's current health. Can't go below 0 or above <see cref="Stats.Health"/>.</summary>
+    /// <summary>This unit's current health. Can't go below 0 or above <see cref="AbstractStats.MaxHealth"/>.</summary>
     public double Health
     {
         get => _health.Value;
@@ -137,12 +137,14 @@ public class UnitData : GridObjectData
     /// <summary>The unit's behavior if CPU-controlled. Leave <c>null</c> for player-controlled units.</summary>
     public Behavior Behavior = null;
 
+    /// <summary>Additional costs to move onto certain types of terrain for this unit.</summary>
     public Dictionary<Terrain, int> UniqueTerrainModifiers = [];
 
     /// <summary>Reference to the <see cref="Unit"/> rendering the unit's state on the map.</summary>
     public Unit Renderer = null;
 
-    public UnitIdentity Identity { get; set; } = null;
+    /// <summary>Represents the identity of this unit. See <see cref="DataIdentity{T}"/>.</summary>
+    public UnitIdentity Identity = null;
 
     public UnitData() : base() => Initialize();
 
