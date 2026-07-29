@@ -22,6 +22,7 @@ public partial class Unit : GridNode
 
     private readonly NodeCache _cache = null;
     private Army _army = null;
+    private AbstractStats _stats = null;
     private Vector2I _target = GridData.InvalidCell;
 
     private Sprite2D             EditorSprite   => _cache.GetNode<Sprite2D>("EditorSprite");
@@ -101,8 +102,13 @@ public partial class Unit : GridNode
 
     [Export] public AbstractStats Stats
     {
-        get => UnitData.Stats;
-        set => UnitData.Stats = value;
+        get => _stats;
+        set
+        {
+            _stats = value;
+            if (!Engine.IsEditorHint())
+                UnitData.Stats = _stats;
+        }
     }
 
     [Export] public Godot.Collections.Dictionary<Terrain, int> UniqueTerrainModifiers = [];
@@ -207,6 +213,7 @@ public partial class Unit : GridNode
     public override void _Ready()
     {
         base._Ready();
+        UnitData.Stats = _stats;
 
         if (UnitData.Class is not null)
             UpdateVisuals(UnitData.Class, UnitData.Faction);

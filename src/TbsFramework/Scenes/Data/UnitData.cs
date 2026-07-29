@@ -109,7 +109,7 @@ public class UnitData : GridObjectData
         get => _stats;
         set
         {
-            if (value is null)
+            if (_stats is not null && value is null)
                 throw new ArgumentException($"A unit's stats should never be null.");
             if (_stats != value)
             {
