@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
-using TbsFramework.Scenes.Combat;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Control;
 
