@@ -85,11 +85,14 @@ turn. Subsequent turns follow the order each `Army` in the tree is listed.
 
 Each `Unit` has a [`Class`](src/TbsFramework/Data/Class.cs) property that specifies its appearance on the map and in combat and a `Stats`
 property that specifies its performance in battle. A `Class` is simply a mapping of `Faction` resources onto scenes to use to represent them
-on the map and in combat and the `Stats` resource is simply a collection of numbers that are combined with other `Unit`s' `Stats` to determine
-combat outcome and where on the map it can move and interact with other `Unit`s. A `Unit`'s `Faction` cannot be manually specified; instead,
-it is determined by the `Army` parent it has.
+on the map and in combat. A `Unit`'s `Faction` cannot be manually specified; instead, it is determined by the `Army` parent it has.
 
-`Unit`s can have customized modifiers to `Terrain` cost. `Class`, `Stats`, and `Unit` all have dictionary properties mapping different `Terrain`
+The `Stats` resource is abstract; in order to assign it to a `Unit`, a concrete subclass must be created first. Most of the information
+provided by `Stats` is only used in `UnitAction`s, which are also custom, so a `Stats` class need only supply basic data required for
+determining where a `Unit` can move and for `AIController` to be able to evaluate a grid. This includes movement distance, any additional
+movement cost modifiers applied to `Terrain`s, and a number representing the `Unit`'s maximum health.
+
+`Unit`s  and `Stats` can have customized modifiers to `Terrain` cost. `Class`, `Stats`, and `Unit` all have dictionary properties mapping different `Terrain`
 types to movement cost values that are added to the corresponding `Terrain`'s base `Cost` property.  The result is used to compute the `Unit`'s traversable cells when determining where it can move and to restrict the path it can move
 along when its destination is chosen.
 
