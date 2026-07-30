@@ -3,7 +3,7 @@ using Godot;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Control;
 
-namespace TbsFramework.Scenes.Combat;
+namespace TbsFramework.Scenes.Level;
 
 public abstract partial class CombatController : Node
 {

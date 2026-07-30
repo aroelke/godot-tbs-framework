@@ -5,7 +5,6 @@ using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes;
 using TbsFramework.UI;
-using TbsFramework.Scenes.Combat;
 using TbsFramework.Nodes.Components;
 using TbsFramework.Scenes.Level.Control;
 using TbsFramework.Nodes.StateCharts;

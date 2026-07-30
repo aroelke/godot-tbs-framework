@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsFramework.Nodes.Components;
-using TbsFramework.Scenes.Combat;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level;
 using TbsFramework.Scenes.Level.Control;
 using TbsFramework.UI.Controls.Device;
 
