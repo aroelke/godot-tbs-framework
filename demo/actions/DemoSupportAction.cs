@@ -33,7 +33,13 @@ public partial class DemoSupportAction : UnitAction
     public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => CanPerform(unit, source) && (unit.Stats as DemoStats).SupportRange.Contains(source.ManhattanDistanceTo(target));
     public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) =>
         unit.Grid.GetCellsInRange(cell, (unit.Stats as DemoStats).SupportRange).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && unit.Faction.AlliedTo(occupant.Faction));
-    public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit, IEnumerable<Vector2I> traversable) => traversable.SelectMany((c) => unit.Grid.GetCellsInRange(c, (unit.Stats as DemoStats).SupportRange)).ToHashSet();
+
+    public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit, IEnumerable<Vector2I> traversable)
+    {
+        DemoStats stats = unit.Stats as DemoStats;
+        return traversable.SelectMany((c) => unit.Grid.GetCellsInRange(c, stats.SupportRange)).ToHashSet();
+    }
+
     public override IEnumerable<Vector2I> GetValidTargetCells(UnitData unit, IEnumerable<Vector2I> traversable) =>
         GetAllTargetCells(unit, traversable).Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData occupant) && occupant != unit && occupant.Faction.AlliedTo(unit.Faction));
     public override IEnumerable<Vector2I> GetSourceCells(UnitData unit, Vector2I target) => unit.Grid.GetCellsInRange(target, (unit.Stats as DemoStats).SupportRange);
