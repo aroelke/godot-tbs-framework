@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Control;
 using TbsFramework.Scenes.Rendering;
 
 namespace TbsFramework.Scenes.Level.Objectives;
@@ -11,17 +12,18 @@ namespace TbsFramework.Scenes.Level.Objectives;
 public partial class ActionObjective : Objective
 {
     private SpecialActionRegionData _region = null;
-    private readonly List<UnitData> _units = [];
-    private readonly List<Vector2I> _spaces = [];
 
     /// <summary>Region to perform the action in.  Also defines which units can perform the action. Side effects are not implemented here.</summary>
     [Export] public SpecialActionRegion ActionRegion = null;
 
+    /// <summary>Action defining who can activate the region and what happens when the region is activated.</summary>
+    [Export] public RegionUnitAction Action = null;
+
     /// <summary>
     /// If the region is:
     /// <list type="bullet">
-    ///   <item>A one-shot region, represents the number of spaces the action must be performed in, with 0 representing "all of them"</item>
-    ///   <item>A single-use region, represents the number of different units that must perform the action, with 0 representing "all of them"</item>
+    ///   <item>A once-per-cell region, represents the number of spaces the action must be performed in, with 0 representing "all of them"</item>
+    ///   <item>A once-per-unit region, represents the number of different units that must perform the action, with 0 representing "all of them"</item>
     ///   <item>Neither, represents the number of times the action must be performed, with 0 being invalid</item>
     /// </list>
     /// </summary>
@@ -35,24 +37,24 @@ public partial class ActionObjective : Objective
     {
         get
         {
-            if (_region is null)
+            if (Action is null || _region is null)
                 return false;
-            else if (_region.OneShot)
+            else if (Action.OncePerCell)
             {
                 if (Target == 0)
                     return _region.Cells.Count == 0;
-                else
-                    return _spaces.Count >= Target;
+                else // if each cell can only be used once, then the number of times activated is the same as the number of cells activated
+                    return _region.Performed.Values.Sum() >= Target;
             }
-            else if (_region.SingleUse)
+            else if (Action.OncePerUnit)
             {
                 if (Target == 0)
-                    return !_region.AllAllowedUnits().Any();
+                    return Action.AllAllowedUnits(_region.Grid).SetEquals(_region.Performed.Keys);
                 else
                     return _region.Performed.Count >= Target;
             }
             else
-                return Target > 0 && _units.Count >= Target;
+                return Target > 0 && _region.Performed.Values.Sum() >= Target;
         }
     }
 
@@ -60,14 +62,14 @@ public partial class ActionObjective : Objective
     {
         get
         {
-            if (_region is null)
+            if (Action is null)
                 return "";
-            else if (_region.OneShot)
-                return $"{_region.Action} in {(Target == 0 ? "all" : Target)} space(s) of {_region.Action}";
-            else if (_region.SingleUse)
-                return $"{_region.Action} with {(Target == 0 ? "all" : Target)} allowed unit(s)";
+            else if (Action.OncePerCell)
+                return $"{Action.Name} in {(Target == 0 ? "all" : Target)} space(s)";
+            else if (Action.OncePerUnit)
+                return $"{Action.Name} with {(Target == 0 ? "all" : Target)} allowed unit(s)";
             else
-                return $"{_region.Action} {Target} time(s)";
+                return $"{Action.Name} {Target} time(s)";
         }
     }
 
@@ -85,12 +87,6 @@ public partial class ActionObjective : Objective
     {
         base._Ready();
         if (!Engine.IsEditorHint() && ActionRegion is not null)
-        {
             _region = ActionRegion.Data;
-            _region.ActionPerformed += (_, unit, cell) => {
-                _units.Add(unit);
-                _spaces.Add(cell);
-            };
-        }
     }
 }

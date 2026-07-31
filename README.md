@@ -4,6 +4,7 @@
 This is a framework written in C# for building turn-based strategy games in Godot 4.5 or later. It has the following features:
  - Support for a variable number of factions with customizable alliances that can be controlled either by player or CPU
  - Fully customizable units with classes and stats specified with resources
+ - A flexible system for specifying unit actions using resources
  - Multiple types of CPU behavior that can be specified per unit, including:
    - "Passive" or "guarding" behavior, which prevents movement and optionally also action
    - Aggressive behavior, where CPU units will chase and attack enemies
@@ -29,7 +30,7 @@ The hierarchy looks like this:
   - [`Grid`](src/TbsFramework/Scenes/Level/Map/Grid.tscn)
     - "Ground" `TileMapLayer`
     - "Terrain" `TileMapLayer`
-    - Any number of additional `TileMapLayer`s or [`SpecialActionRegion`](src/TbsFramework/Scenes/Level/Layers/SpecialActionRegion.tscn)s
+    - Any number of additional `TileMapLayer`s or [`SpecialActionRegion`](src/TbsFramework/Scenes/Rendering/SpecialActionRegion.tscn)s
       representing special regions of the map
   - First [`Army`](src/TbsFramework/Scenes/Level/Object/Group/Army.tscn)
     - `ArmyController` (either [`PlayerController`](src/TbsFramework/Scenes/Level/Control/PlayerController.tscn) or
@@ -84,13 +85,18 @@ turn. Subsequent turns follow the order each `Army` in the tree is listed.
 
 Each `Unit` has a [`Class`](src/TbsFramework/Data/Class.cs) property that specifies its appearance on the map and in combat and a `Stats`
 property that specifies its performance in battle. A `Class` is simply a mapping of `Faction` resources onto scenes to use to represent them
-on the map and in combat and the `Stats` resource is simply a collection of numbers that are combined with other `Unit`s' `Stats` to determine
-combat outcome and where on the map it can move and interact with other `Unit`s. A `Unit`'s `Faction` cannot be manually specified; instead,
-it is determined by the `Army` parent it has.
+on the map and in combat. A `Unit`'s `Faction` cannot be manually specified; instead, it is determined by the `Army` parent it has.
 
-`Unit`s can have customized modifiers to `Terrain` cost. `Class`, `Stats`, and `Unit` all have dictionary properties mapping different `Terrain`
-types to movement cost values that are added to the corresponding `Terrain`'s base `Cost` property.  The result is used to compute the `Unit`'s traversable cells when determining where it can move and to restrict the path it can move
-along when its destination is chosen.
+Stats are implemented using an `AbstractStats` resource which is abstract; in order to assign it to a `Unit`, a concrete subclass must
+be created first. Most of the information provided by stats is only used in `UnitAction`s, which are also custom, so a Stats class
+need only supply basic data required for determining where a `Unit` can move and for `AIController` to be able to evaluate a grid. This
+includes movement distance, any additional movement cost modifiers applied to `Terrain`s, and a number representing the `Unit`'s maximum
+health.
+
+`Unit`s  and `Stats` can have customized modifiers to `Terrain` cost. `Class`, and `Unit` all have dictionary properties mapping different `Terrain`
+types to movement cost values that are added to the corresponding `Terrain`'s base `Cost` property, while `AbstractStats` provides a method for
+getting that information. The result is used to compute the `Unit`'s traversable cells when determining where it can move and to restrict the
+path it can move along when its destination is chosen.
 
 If a `Unit` is part of a CPU-controlled `Army`, it must have a `Behavior` child node providing the `AIController` information about what the
 unit is allowed to do on its turn. There are three main types of `Behavior`s:
@@ -114,13 +120,46 @@ included:
   of turns have passed
 
 `SwitchCondition` also allows for its `Behavior` selection to revert if its `SwitchCondition` stops being satisfied.
+
+### Defining Actions
+Actions are defined using resources that derive from the [`UnitAction`](src/TbsFramework/Scenes/Level/Control/UnitAction.cs) class. This class defines
+functions that its subclasses must implement that define:
+- Constraints on which units are allowed to perform the action
+- The cells in which a unit must occupy in order to be able to perform the action
+- If the action requires a target and which cells can be targeted by units performing the action
+- What happens when the action is performed
+
+In this framework, actions are performed in two steps: first, compute the results of the action within the `UnitAction.Perform` method; second, update
+the grid based on those results using `UnitAction.UpdateGrid`. This separation allows the objects on the grid to be used to display the results of the
+action before actually applying them in case doing so changes them. This also makes it possible to preview those results before applying them (_Note:
+this feature is not yet built in but is planned for the future_). `UnitAction.Perform` returns a `UnitActionResult` data structure that contains a
+reference to the unit performing the action, the cell containing the target of the action, and another data structure specified by the developer that
+contains the actual results of the action. This structure should be used by `UnitAction.UpdateGrid` to update the grid.
+
+To make an action available for a map, it must be added to `LevelManager.AvailableActions`.
+
+#### Interacting with `AIController`
+CPU-controlled units make use of the same `UnitAction`s that are available to the player. In order to facilitate `AIController` to make decisions about
+these actions, subclasses of `UnitAction` must implement a `Simulate` method which performs the action and updates a copy of the grid with the result
+which is then returned to the `AIController` for evaluation. `Perform` and `UpdateGrid` are not called by `AIController`, but are still called by
+`LevelManager` during the CPU's turn just as they are during player-controlled turns.
+
+#### Special Action Regions
+There is a built-in subclass of `UnitAction` for specifying actions that can only be performed in specific cells,
+[`RegionUnitAction`](src/TbsFramework/Scenes/Level/Control/RegionUnitAction.cs). This resource is used to specify an action that can be performed only
+in a set of spaces defined by a `SpecialActionRegion`, which is a type of `TileMapLayer`, with additional properties to constrain which units and
+`Faction`s can perform the action. These actions do not use targets and can be configured to prevent a unit from performing it more than once and/or
+remove cells from the region when it is performed there.
+
+These actions do not have to be used as part of an objective, but they can be assigned to one using `ActionObjective.Action`.
+
 ### Connecting a Combat Scene
 The combat scene is flexible and designed to support any kind of combat situation. Combat scenes should extend the
 [`CombatScene`](src/TbsFramework/Scenes/Combat/CombatScene.cs) abstract class,
 which only requires an implementation of an `Initialize()` method to indicate which units and actions will be in the animation, a `Start()` method to
 initiate the combat sequence, and an `End` method to indicate the end. Implementations of the `End()` method should call
 `SceneManager.ReturnToPreviousScene()` to return back to the map. This method can also be called anywhere else in the combat script to return to the
-map at any time.  Nodes in the combat scene can extend [`CombatAnimations`](src\TbsFramework\Nodes\Components\CombatAnimations.cs), which provides
+map at any time.  Nodes in the combat scene can extend [`CombatAnimations`](src/TbsFramework/Nodes/Components/CombatAnimations.cs), which provides
 several methods that can be used to choreograph the combat sequence.
 
 Once the combat scene is created, it can be connected to the `LevelManager` by assigning the path to the .tscn file to the `LevelManager`'s
@@ -142,7 +181,6 @@ assigned to it or if its `PlayCombatOnMap` property is set to `true`.
 - Updates to combat mechanics and unit stats can be made by manually modifying the code in the following places:
   - The [`Stats`](src/TbsFramework/Data/Stats.cs) resource to change what stats units have (make sure there's always an `AttackRange` property and
     `SupportRange` property)
-  - The [`CombatCalculations`](src/TbsFramework/Scenes/Combat/Data/CombatCalculations.cs) static class to change the way combat results are calculated
 ### Controls
 The framework uses the following input actions:
 - `digital_move_up` (keyboard Up, dpad up), `digital_move_left` (keyboard Left, dpad left), `digital_move_down` (keyboard Down, dpad down),
@@ -166,6 +204,15 @@ target for an action is being chosen, in which case it will only make the move i
 selection when it isn't will cancel the target selection rather than confirm it.
 
 In addition to the above input actions, the built-in UI input actions (`ui_left`, etc.) are used to control context menus. 
+
+### Identities
+Several data structures in this framework, including `UnitData` and `SpecialActionRegionData`, include an `Identity` field that points to a corresponding
+resource. Since `AIController` makes copies of these structures when it evaluates actions, these `Identity`s are used to identify units and regions that
+represent the same objects on different grid copies, even after modifying the copies. Additionally, these `Identity`s are implemented using `Resource`s
+and exposed by the nodes containing the object data, which allows them to be saved and then referenced by other objects. For example, constraining a
+`RegionUnitAction` to be only allowed by a specific unit can be done by saving that unit's `Identity` and then adding it to the action's
+`AllowedUnits` property.
+
 ## Running the Demo
 This project includes a demo that indicates how to set up a simple scene with the framework located in the "demo" directory. To run it,
 open [DemoMap.tscn](demo/DemoMap.tscn) in the editor and click the "run current scene" button. There is no default scene set for this project.

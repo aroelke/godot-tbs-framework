@@ -8,7 +8,7 @@ public abstract partial class Objective : Node
 {
     /// <summary>Signals that the objective has switched status, either having been completed or uncompleted.</summary>
     /// <param name="complete">Whether or not the objective is complete.</param>
-    [Signal] public delegate void StatusChangedEventHandler(bool complete);
+    [Signal] public delegate void StatusChangedEventHandler(Objective objective, bool complete);
 
     private bool _complete = false;
 
@@ -35,7 +35,7 @@ public abstract partial class Objective : Node
         {
             bool complete = Complete; // Ensures "Complete" is only evaluated once per process frame, since it's used thrice below
             if (complete != _complete)
-                EmitSignal(SignalName.StatusChanged, complete);
+                EmitSignal(SignalName.StatusChanged, this, complete);
             _complete = complete;
         }
     }

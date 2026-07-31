@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="RegionUnitAction" load_steps=4 format=3 uid="uid://n0nb5qse2mk0"]
+
+[ext_resource type="Resource" uid="uid://broidqni4h8ak" path="res://demo/factions/DemoPlayerFaction.tres" id="1_inxew"]
+[ext_resource type="Resource" uid="uid://b7fjldvqn7j10" path="res://demo/CaptureRegionIdentity.tres" id="2_l3st3"]
+[ext_resource type="Script" uid="uid://bsn181216h4dr" path="res://src/TbsFramework/Scenes/Level/Control/RegionUnitAction.cs" id="2_qm38u"]
+
+[resource]
+script = ExtResource("2_qm38u")
+Region = ExtResource("2_l3st3")
+AllowedFactions = [ExtResource("1_inxew")]
+Name = &"Capture"
+AnimateOnMap = true
+metadata/_custom_type_script = "uid://bsn181216h4dr"

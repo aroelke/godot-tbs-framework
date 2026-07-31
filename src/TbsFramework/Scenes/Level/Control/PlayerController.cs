@@ -32,10 +32,10 @@ public partial class PlayerController : ArmyController
 
     private readonly NodeCache _cache = null;
     private Grid _grid = null;
+    private UnitAction[] _actions = null;
     private TileSet _overlayTiles = null;
     private TileSet _pathTiles = null;
     private int _pathTerrainSet = -1, _pathTerrain = -1;
-    private Vector2I _pathUpArrow = -Vector2I.One, _pathRightArrow = -Vector2I.One, _pathDownArrow = -Vector2I.One, _pathLeftArrow = -Vector2I.One;
     private Color _move    = Colors.Blue  with { A = 100f/256f };
     private Color _attack  = Colors.Red   with { A = 100f/256f };
     private Color _support = Colors.Green with { A = 100f/256f };
@@ -44,14 +44,13 @@ public partial class PlayerController : ArmyController
     private Color _global  = Colors.Black with { A = 100f/256f };
 
     private UnitData _selected = null, _target = null;
-    IEnumerable<Vector2I> _traversable = null, _attackable = null, _supportable = null;
     private Path _path = null;
 
     private StateChart        State               => _cache.GetNode<StateChart>("State");
     private ActionLayers      ActionLayers        => _cache.GetNode<ActionLayers>("ActionLayers");
     private TileMapLayer      MoveLayer           => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Move");
     private TileMapLayer      AttackLayer         => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Attack");
-    private TileMapLayer      SupportLayer        => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Support");
+    private TileMapLayer      SupportLayer        => _cache.GetNodeOrNull<TileMapLayer>("ActionLayers/Heal");
     private ActionLayers      ZoneLayers          => _cache.GetNode<ActionLayers>("ZoneLayers");
     private TileMapLayer      AllyTraversableZone => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/TraversableZone");
     private TileMapLayer      LocalDangerZone     => _cache.GetNodeOrNull<TileMapLayer>("ZoneLayers/LocalDangerZone");
@@ -211,6 +210,8 @@ public partial class PlayerController : ArmyController
         }
     }
 
+    [Export, ExportGroup("Action Ranges")] public UnitAction[] ZoneLocalDangerActions = [];
+
     /// <summary>Color to use for highlighting which cells a tracked set of enemy units can attack.</summary>
     [Export, ExportGroup("Action Ranges")] public Color ZoneLocalDangerColor
     {
@@ -315,12 +316,12 @@ public partial class PlayerController : ArmyController
         else
             ZoneLayers.Clear(AllyTraversableZone.Name);
         if (enemies.Any())
-            ZoneLayers[LocalDangerZone.Name] = enemies.SelectMany(static (u) => u.GetAttackableCellsInReach());
+            ZoneLayers[LocalDangerZone.Name] = enemies.SelectMany((u) => ZoneLocalDangerActions.SelectMany((a) => a.GetAllTargetCells(u)));
         else
             ZoneLayers.Clear(LocalDangerZone.Name);
         
         if (_showGlobalDangerZone)
-            ZoneLayers[GlobalDangerZone.Name] = Grid.Data.Occupants.Values.OfType<UnitData>().Where((u) => !Faction.AlliedTo(u)).SelectMany(static (u) => u.GetAttackableCellsInReach());
+            ZoneLayers[GlobalDangerZone.Name] = Grid.Data.Occupants.Values.OfType<UnitData>().Where((u) => !Faction.AlliedTo(u)).SelectMany((u) => ZoneLocalDangerActions.SelectMany((a) => a.GetAllTargetCells(u)));
         else
             ZoneLayers.Clear(GlobalDangerZone.Name);
     }
@@ -429,8 +430,10 @@ public partial class PlayerController : ArmyController
     }
 #endregion
 #region Unit Selection
-    public override void SelectUnit()
+    public override void SelectUnit(UnitAction[] actions)
     {
+        _actions = actions;
+
         Cursor.Resume();
         Pointer.StopWaiting();
         ActionLayers.Clear();
@@ -552,19 +555,26 @@ public partial class PlayerController : ArmyController
         if (Grid.Data.Occupants.GetValueOrDefault(cell) is UnitData unit)
         {
             ActionLayers[MoveLayer.Name] = unit.GetTraversableCells();
-            ActionLayers[AttackLayer.Name] = unit.GetFilteredAttackableCellsInReach();
-            ActionLayers[SupportLayer.Name] = unit.GetFilteredSupportableCellsInReach();
+            foreach (UnitAction action in _actions)
+                if (action.Name == AttackLayer.Name || action.Name == SupportLayer.Name)
+                    ActionLayers[action.Name] = action.GetAllTargetCells(unit);
         }
     }
 
     public void OnSelectedPointerStopped(Vector2 position) => OnSelectCursorCellEntered(Grid.CellOf(position));
 
-    public void OnSelectExited() => Cursor.CellSelected -= ConfirmCursorSelection;
+    public void OnSelectExited()
+    {
+        Cursor.CellSelected -= ConfirmCursorSelection;
+        _actions = null;
+    }
 #endregion
 #region Path Selection
-    private StringName _command = null;
+    private IEnumerable<Vector2I> _traversable = null;
+    private IEnumerable<Vector2I>[] _ranges = null; // parallel to _actions
+    private UnitAction _command = null;
 
-    public override void MoveUnit(UnitData unit)
+    public override void MoveUnit(UnitData unit, UnitAction[] actions)
     {
         Cursor.Resume();
         Pointer.StopWaiting();
@@ -577,8 +587,11 @@ public partial class PlayerController : ArmyController
             _selected = unit;
 
             ActionLayers[MoveLayer.Name] = _traversable = unit.GetTraversableCells();
-            ActionLayers[AttackLayer.Name] = _attackable = unit.GetFilteredAttackableCellsInReach();
-            ActionLayers[SupportLayer.Name] = _supportable = unit.GetFilteredSupportableCellsInReach();
+            _actions = actions;
+            _ranges = [.. _actions.Select((a) => a.GetValidTargetCells(_selected))];
+            foreach (UnitAction action in _actions)
+                if (action.Name == AttackLayer.Name || action.Name == SupportLayer.Name)
+                    ActionLayers[action.Name] = action.GetAllTargetCells(unit);
             Cursor.SoftRestriction = [.. _traversable];
             UpdatePath(Path.Empty(Cursor.Grid.Data, _traversable).Add(unit.Cell));
         }
@@ -616,7 +629,7 @@ public partial class PlayerController : ArmyController
     {
         // If the previous cell was an ally that could be supported and moved through, add it to the path as if it
         // had been added in the previous movement
-        if (_target is not null && _supportable.Contains(_target.Cell) && _traversable.Contains(_target.Cell))
+        if (_target is not null && _target.Faction.AlliedTo(_selected.Faction) && _traversable.Contains(_target.Cell) && _ranges.Any((r) => r.Contains(_target.Cell)))
             UpdatePath(_path.Add(_target.Cell));
 
         _target = null;
@@ -625,31 +638,30 @@ public partial class PlayerController : ArmyController
         IEnumerable<Vector2I> sources = [];
         if (Cursor.Grid.Data.Occupants.GetValueOrDefault(cell) is UnitData target)
         {
-            // Compute cells the highlighted unit could be targeted from (friend or foe)
-            if (target != _selected && Faction.AlliedTo(target) && _supportable.Contains(cell))
-                sources = _selected.GetSupportableCells(cell).Where(_traversable.Contains);
-            else if (!Faction.AlliedTo(target) && _attackable.Contains(cell))
-                sources = _selected.GetAttackableCells(cell).Where(_traversable.Contains);
-            sources = sources.Where((c) => !Cursor.Grid.Data.Occupants.TryGetValue(c, out UnitData occupant) || occupant == _selected);
-
-            if (sources.Any())
+            foreach ((UnitAction action, IEnumerable<Vector2I> range) in _actions.Zip(_ranges))
             {
-                _target = target;
-
-                // Store the action command related to selecting the target as if it were the command state
-                if (_attackable.Contains(cell))
-                    _command = UnitAction.AttackAction;
-                else if (_supportable.Contains(cell))
-                    _command = UnitAction.SupportAction;
-
-                // If the end of the path isn't a cell that could act on the target, find the furthest one that can and add
-                // it to the path
-                if (!sources.Contains(_path[^1]))
+                if (target != _selected && range.Contains(cell))
                 {
-                    UpdatePath(sources.Select((c) => _selected.ClampPath(_path.Add(c))).OrderBy(
-                        (p) => new Vector2I(-(int)p[^1].DistanceTo(cell), (int)p[^1].DistanceTo(_path[^1])),
-                        static (a, b) => a < b ? -1 : a > b ? 1 : 0
-                    ).First());
+                    // Compute cells the highlighted unit could be targeted from
+                    IEnumerable<Vector2I> allSources = action.GetSourceCells(_selected, cell);
+                    sources = _traversable.Where(allSources.Contains);
+                    if (sources.Any())
+                    {
+                        _target = target;
+                        _command = action;
+
+                        // If the end of the path isn't a cell that could act on the target, find the furthest one that can and add
+                        // it to the path
+                        if (!sources.Contains(_path[^1]))
+                        {
+                            UpdatePath(sources.Select((c) => _selected.ClampPath(_path.Add(c))).OrderBy(
+                                (p) => new Vector2I(-(int)p[^1].DistanceTo(cell), (int)p[^1].DistanceTo(_path[^1])),
+                                static (a, b) => a < b ? -1 : a > b ? 1 : 0
+                            ).First());
+                        }
+
+                        break;
+                    }
                 }
             }
         }
@@ -672,7 +684,7 @@ public partial class PlayerController : ArmyController
             EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {InputManager.Skip, InputManager.Accelerate});
             EmitSignal(SignalName.PathConfirmed, selected.Cell, new Godot.Collections.Array<Vector2I>(_path));
         }
-        else if (occupied && (_attackable.Contains(occupant.Cell) || _supportable.Contains(occupant.Cell)))
+        else if (occupied && _ranges.Any((r) => r.Contains(occupant.Cell)))
         {
             State.SendEvent(FinishEvent);
             EmitSignal(SignalName.EnabledInputActionsUpdated, new StringName[] {InputManager.Skip, InputManager.Accelerate});
@@ -720,31 +732,29 @@ public partial class PlayerController : ArmyController
         Cursor.CellChanged -= AddToPath;
         Cursor.CellSelected -= ConfirmPathSelection;
         _selected = null;
+        _traversable = null;
+        _actions = null;
+        _ranges = null;
     }
 #endregion
 #region Command Selection
-    public override void CommandUnit(UnitData source, Godot.Collections.Array<StringName> commands, StringName cancel)
+    public override void CommandUnit(UnitData source, UnitAction[] commands, UnitAction cancel)
     {
         ActionLayers.Clear(MoveLayer.Name);
-        ActionLayers[AttackLayer.Name] = source.GetAttackableCells().Where((c) => !(Grid.Data.Occupants.GetValueOrDefault(c) as UnitData)?.Faction.AlliedTo(source) ?? false);
-        ActionLayers[SupportLayer.Name] = source.GetSupportableCells().Where((c) => (Grid.Data.Occupants.GetValueOrDefault(c) as UnitData)?.Faction.AlliedTo(source) ?? false);
+        foreach (UnitAction action in commands)
+            if (action.Name == AttackLayer.Name || action.Name == SupportLayer.Name)
+                ActionLayers[action.Name] = action.GetTargetCells(source, source.Cell);
 
         Callable.From(() => {
             State.SendEvent(CommandEvent);
 
-            List<NamedAction> cmds = [.. commands.Select((c) => new NamedAction() { Name = c, Action = () => {
-                ActionLayers.Keep(c);
-                State.SendEvent(FinishEvent);
-                EmitSignal(SignalName.UnitCommanded, source.Cell, c);
-            }})];
-            if (_path.Count == 1) // If there's only one cell in the path, it must be the selected unit's starting cell
-            {
-                cmds.Add(new() { Name = UnitAction.Deselect, Action = () => {
-                    State.SendEvent(CancelEvent);
-                    EmitSignal(SignalName.UnitCommanded, source.Cell, UnitAction.Deselect);
-                    OnCancel();
-                }});
-            }
+            List<NamedAction> cmds = [.. commands.Where((c) =>
+                c.CanPerform(source, source.Cell) && (!c.RequiresTarget || c.GetTargetCells(source, source.Cell).Any())).Select((c) =>
+                    new NamedAction() { Name = c.Name, Action = () => {
+                        ActionLayers.Keep(c.Name);
+                        State.SendEvent(FinishEvent);
+                        EmitSignal(SignalName.UnitCommanded, source.Cell, c);
+                    }})];
             ShowMenu(source.Cell, cmds, () => {
                 State.SendEvent(CancelEvent);
                 EmitSignal(SignalName.UnitCommanded, source.Cell, cancel);

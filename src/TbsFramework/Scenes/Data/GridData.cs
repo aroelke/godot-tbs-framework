@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using TbsFramework.Extensions;
 using TbsFramework.Properties;
 
 namespace TbsFramework.Scenes.Data;
@@ -9,6 +8,8 @@ namespace TbsFramework.Scenes.Data;
 /// <summary>Data structure for tracking information about the map and the objects on it.</summary>
 public class GridData
 {
+    public static readonly Vector2I InvalidCell = -Vector2I.One;
+
     /// <summary>Handler for changes in a cell's terrain.</summary>
     /// <param name="cell">Cell where the terrain was changed.</param>
     /// <param name="old">Terrain before the change.</param>
@@ -21,6 +22,7 @@ public class GridData
 
     private GridData(GridData original) : this()
     {
+        Identity = original.Identity;
         _size = original._size;
         DefaultTerrain = original.DefaultTerrain;
         foreach ((Vector2I cell, Terrain terrain) in original.Terrain)
@@ -30,8 +32,8 @@ public class GridData
             _occupants[cell] = occupant.Clone();
             _occupants[cell].Grid = this;
         }
-        foreach (SpecialActionRegionData region in original.SpecialActionRegions)
-            SpecialActionRegions.Add(region.Clone());
+        foreach ((ActionRegionIdentity id, SpecialActionRegionData region) in original.SpecialActionRegions)
+            SpecialActionRegions[id] = region.Clone();
     }
 
     /// <summary>
@@ -64,7 +66,10 @@ public class GridData
     public IDictionary<Vector2I, UnitData> Occupants => _occupants;
 
     /// <summary>Regions identifying special actions that units can perform.</summary>
-    public readonly List<SpecialActionRegionData> SpecialActionRegions = [];
+    public readonly Dictionary<ActionRegionIdentity, SpecialActionRegionData> SpecialActionRegions = [];
+
+    /// <summary>Identity of this grid. See <see cref="DataIdentity{T}"/>.</summary>
+    public GridIdentity Identity = null;
 
     public GridData()
     {

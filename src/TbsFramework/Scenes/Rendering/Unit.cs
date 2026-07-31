@@ -3,7 +3,6 @@ using System.Linq;
 using Godot;
 using System;
 using TbsFramework.Nodes.Components;
-using TbsFramework.Scenes.Level.Events;
 using TbsFramework.Scenes.Level.Control;
 using TbsFramework.Nodes;
 using TbsFramework.Scenes.Data;
@@ -23,7 +22,8 @@ public partial class Unit : GridNode
 
     private readonly NodeCache _cache = null;
     private Army _army = null;
-    private Vector2I _target = -Vector2I.One;
+    private AbstractStats _stats = null;
+    private Vector2I _target = GridData.InvalidCell;
 
     private Sprite2D             EditorSprite   => _cache.GetNode<Sprite2D>("EditorSprite");
     private FastForwardComponent Accelerate     => _cache.GetNode<FastForwardComponent>("Accelerate");
@@ -49,7 +49,7 @@ public partial class Unit : GridNode
             Animations.Grid = Grid;
             GetNode<PathFollow2D>("Path/Follow").AddChild(Animations);
 
-            Animations.SetHealthMax(UnitData.Stats.Health);
+            Animations.SetHealthMax(UnitData.Stats.MaxHealth);
             Animations.SetHealthValue(UnitData.Health);
         }
     }
@@ -84,12 +84,14 @@ public partial class Unit : GridNode
             UpdateVisuals(@class, UnitData.Faction);
     }
 
-    private void OnStatsUpdated(Stats stats) => Animations?.SetHealthMax(stats.Health);
+    private void OnStatsUpdated(AbstractStats stats) => Animations?.SetHealthMax(stats.MaxHealth);
 
     private void OnHealthUpdated(double _, double hp) => Animations?.SetHealthValue(hp);
 
     public UnitData UnitData { get; init; } = new();
     public override GridObjectData Data => UnitData;
+
+    [Export] public UnitIdentity Identity = new();
 
     /// <summary>Class this unit belongs to, defining some of its stats and animations.</summary>
     [Export] public Class Class
@@ -98,10 +100,15 @@ public partial class Unit : GridNode
         set => UnitData.Class = value;
     }
 
-    [Export] public Stats Stats
+    [Export] public AbstractStats Stats
     {
-        get => UnitData.Stats;
-        set => UnitData.Stats = value;
+        get => _stats;
+        set
+        {
+            _stats = value;
+            if (!Engine.IsEditorHint())
+                UnitData.Stats = _stats;
+        }
     }
 
     [Export] public Godot.Collections.Dictionary<Terrain, int> UniqueTerrainModifiers = [];
@@ -206,6 +213,7 @@ public partial class Unit : GridNode
     public override void _Ready()
     {
         base._Ready();
+        UnitData.Stats = _stats;
 
         if (UnitData.Class is not null)
             UpdateVisuals(UnitData.Class, UnitData.Faction);
@@ -213,6 +221,7 @@ public partial class Unit : GridNode
         {
             UnitData.Behavior = GetChildren().OfType<Behavior>().FirstOrDefault();
             UnitData.Renderer = this;
+            UnitData.Identity = Identity;
 
             RemoveChild(EditorSprite);
             EditorSprite.QueueFree();
@@ -257,7 +266,7 @@ public partial class Unit : GridNode
                 Path.Curve.ClearPoints();
                 SetProcess(false);
                 Data.Cell = _target;
-                _target = -Vector2I.One;
+                _target = GridData.InvalidCell;
             }
         }
     }

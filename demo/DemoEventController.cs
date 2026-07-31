@@ -19,7 +19,7 @@ namespace TbsFramework.Demo;
 public partial class DemoEventController : EventController
 {
     private ContextMenu _menu = null;
-    private Vector2I _menuCell = -Vector2I.One;
+    private Vector2I _menuCell = GridData.InvalidCell;
     private IEnumerable<NamedAction> _menuOptions = null;
     private Action _menuCanceled = null;
     private Action _menuFinally = null;
@@ -59,7 +59,7 @@ public partial class DemoEventController : EventController
         void OnMenuClosed()
         {
             _menu = null;
-            _menuCell = -Vector2I.One;
+            _menuCell = GridData.InvalidCell;
             _menuOptions = null;
             _menuCanceled = null;
             _menuFinally = null;
@@ -97,7 +97,7 @@ public partial class DemoEventController : EventController
 
     public void OnResume()
     {
-        if (_menuCell != -Vector2I.One)
+        if (_menuCell != GridData.InvalidCell)
             OnMenuShown(_menuCell, _menuOptions, _menuCanceled, _menuFinally);
     }
 

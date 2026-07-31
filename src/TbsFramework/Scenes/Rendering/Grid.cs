@@ -129,6 +129,7 @@ public partial class Grid : BoundedNode2D
 
         if (!Engine.IsEditorHint())
         {
+            Data.Identity = new(); // Not an export because currently it doesn't need to be copied anywhere
             Data.Size = GroundLayer.GetUsedRect().End;
             Data.DefaultTerrain = DefaultTerrain;
             if (TerrainLayer is not null)
@@ -166,7 +167,7 @@ public partial class Grid : BoundedNode2D
             foreach (SpecialActionRegion region in GetChildren().OfType<SpecialActionRegion>())
             {
                 region.Data.Grid = Data;
-                Data.SpecialActionRegions.Add(region.Data);
+                Data.SpecialActionRegions[region.Data.Identity] = region.Data;
             }
         }
     }

@@ -12,7 +12,7 @@ namespace TbsFramework.Scenes.Data;
 public abstract class GridObjectData()
 {
     private GridData _grid = null;
-    private Vector2I _cell = -Vector2I.One;
+    private Vector2I _cell = GridData.InvalidCell;
 
     /// <summary>Signals that the grid object has moved to a new cell.</summary>
     public event PropertyChangedEventHandler<Vector2I> CellChanged;

@@ -1,40 +1,114 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using TbsFramework.Extensions;
 using TbsFramework.Scenes.Data;
 
 namespace TbsFramework.Scenes.Level.Control;
+
+/// <summary>Options for methods to use for choosing a destination cell when multiple are available.</summary>
+public enum DestinationMethod
+{
+    /// <summary>Choose the option that's closest to the unit's current cell.</summary>
+    ClosestToCurrent,
+    /// <summary>Choose the option that's closest to any enemy unit.</summary>
+    ClosestToEnemy,
+    /// <summary>Choose the option that's furthest from any enemy unit.</summary>
+    FurthestFromEnemy,
+    /// <summary>Choose the option that's closest to any other ally unit.</summary>
+    ClosestToAlly
+}
 
 /// <summary><see cref="Unit"/> behavior that allows the unit to move around the grid to perform actions.</summary>
 [Tool]
 public partial class MoveBehavior : Behavior
 {
+    /// <summary>Method to use to choose a destination cell for an action when multiple are available.</summary>
+    [Export] public DestinationMethod DestinationMethod = DestinationMethod.ClosestToCurrent;
+
+    /// <summary>
+    /// Performance option that decides whether or not distances to possible destinations should account for walls and terrain. If <c>true</c>,
+    /// destination methods will choose options based on path cost. Otherwise, it will decide based on Manhattan distance (which could cause a
+    /// unit to get stuck next to a wall).
+    /// </summary>
+    [Export] public bool AccountForWalls = true;
+
     public override IEnumerable<Vector2I> Destinations(UnitData unit) => unit.GetTraversableCells().Where((c) => !unit.Grid.Occupants.ContainsKey(c) || c == unit.Cell);
 
-    public override IEnumerable<UnitAction> Actions(UnitData unit)
+    public override IEnumerable<ActionInfo> Actions(UnitData unit, IEnumerable<UnitAction> available)
     {
         IEnumerable<Vector2I> destinations = Destinations(unit);
-        List<UnitAction> actions = [];
+        return available.SelectMany((a) => {
+            if (a.RequiresTarget)
+                return a.GetValidTargetCells(unit, destinations).Select((c) => new ActionInfo(a, a.GetSourceCells(unit, c), c, destinations));
+            else
+            {
+                IEnumerable<Vector2I> allowed = destinations.Where((c) => a.CanPerform(unit, c));
+                return allowed.Any() ? [new ActionInfo(a, allowed, GridData.InvalidCell, destinations)] : [];
+            }
+        });
+    }
 
-        foreach (SpecialActionRegionData region in unit.Grid.SpecialActionRegions)
+    public override Vector2I ChooseDestination(UnitData unit, IEnumerable<Vector2I> choices, IEnumerable<Vector2I> traversable)
+    {
+        if (!choices.Any())
+            throw new ArgumentException("No choices for destination");
+
+        AStar2D astar = null;
+        if (AccountForWalls)
         {
-            IEnumerable<Vector2I> actionable = region.Cells.Intersect(destinations).Where((c) => region.CanPerformIn(c, unit));
-            actions.AddRange(actionable.Select((a) => new UnitAction(region.Action, [a], a, destinations)));
+            bool IsCellValid(Vector2I cell) => unit.IsCellTraversable(cell) || (DestinationMethod switch {
+                DestinationMethod.ClosestToCurrent => !unit.Grid.Occupants.ContainsKey(cell),
+                DestinationMethod.ClosestToEnemy or DestinationMethod.FurthestFromEnemy => !unit.Grid.Occupants.TryGetValue(cell, out UnitData occupant) || !occupant.Faction.AlliedTo(unit.Faction),
+                DestinationMethod.ClosestToAlly => !unit.Grid.Occupants.TryGetValue(cell, out UnitData occupant) || occupant.Faction.AlliedTo(unit.Faction),
+                _ => false
+            });
+
+            astar = new();
+            for (int i = 0; i < unit.Grid.Size.X; i++)
+            {
+                for (int j = 0; j < unit.Grid.Size.Y; j++)
+                {
+                    Vector2I cell = new(i, j);
+                    if (IsCellValid(cell))
+                        astar.AddPoint(unit.Grid.Size.X*i + j, cell, unit.Grid.Terrain.GetValueOrDefault(cell, unit.Grid.DefaultTerrain).Cost);
+                }
+            }
+            for (int i = 0; i < unit.Grid.Size.X; i++)
+            {
+                for (int j = 0; j < unit.Grid.Size.Y; j++)
+                {
+                    Vector2I cell = new(i, j);
+                    foreach (Vector2I direction in Vector2IExtensions.Directions)
+                    {
+                        Vector2I neighbor = cell + direction;
+                        if (unit.Grid.Contains(neighbor) && !astar.ArePointsConnected(unit.Grid.Size.X*i + j, unit.Grid.Size.X*neighbor.X + neighbor.Y) && IsCellValid(cell) && IsCellValid(neighbor))
+                            astar.ConnectPoints(unit.Grid.Size.X*i + j, unit.Grid.Size.X*neighbor.X + neighbor.Y);
+                    }
+                }
+            }
         }
 
-        IEnumerable<Vector2I> enemies = destinations.SelectMany((c) => unit.GetAttackableCells(c)).ToHashSet().Where((c) => unit.Grid.Occupants.TryGetValue(c, out UnitData u) && !u.Faction.AlliedTo(unit.Faction));
-        actions.AddRange(enemies.Select((e) => new UnitAction(UnitAction.AttackAction, unit.GetAttackableCells(e).Intersect(destinations), e, destinations)));
+        int BestPathCost(Vector2I a, Vector2I b) => AccountForWalls ? astar.GetPointPath(unit.Grid.Size.X*a.X + a.Y, unit.Grid.Size.X*b.X + b.Y).Length : a.ManhattanDistanceTo(b);
+        Vector2I DefaultChoice() => choices.MinBy((c) => BestPathCost(unit.Cell, c));
 
-        IEnumerable<Vector2I> allyCells = destinations
-            .SelectMany((c) => unit.GetSupportableCells(c)).ToHashSet()
-            .Where((c) => c != unit.Cell && unit.Grid.Occupants.TryGetValue(c, out UnitData u) && u.Faction.AlliedTo(unit.Faction) && u.Health < u.Stats.Health);
-        if (allyCells.Any())
+        IEnumerable<Vector2I> units;
+        switch (DestinationMethod)
         {
-            IEnumerable<UnitData> allies = allyCells.Select((c) => unit.Grid.Occupants[c]).OfType<UnitData>();
-            double lowest = allies.Min(static (u) => u.Health);
-            actions.AddRange(allies.Where((u) => u.Health == lowest).Select((t) => new UnitAction(UnitAction.SupportAction, unit.GetSupportableCells(t.Cell).Intersect(destinations), t.Cell, destinations)));
+        case DestinationMethod.ClosestToCurrent:
+            return DefaultChoice();
+        case DestinationMethod.ClosestToEnemy:
+            units = unit.Grid.Occupants.Values.Where((u) => !u.Faction.AlliedTo(unit.Faction)).Select((u) => u.Cell);
+            return units.Any() ? choices.MinBy((c) => BestPathCost(c, units.MinBy((u) => u.ManhattanDistanceTo(c)))) : DefaultChoice();
+        case DestinationMethod.FurthestFromEnemy:
+            units = unit.Grid.Occupants.Values.Where((u) => !u.Faction.AlliedTo(unit.Faction)).Select((u) => u.Cell);
+            return units.Any() ? choices.MaxBy((c) => BestPathCost(c, units.MaxBy((u) => u.ManhattanDistanceTo(c)))) : DefaultChoice();
+        case DestinationMethod.ClosestToAlly:
+            units = unit.Grid.Occupants.Values.Where((u) => u.Faction.AlliedTo(unit.Faction) && u != unit).Select((u) => u.Cell);
+            return units.Any() ? choices.MinBy((c) => BestPathCost(c, units.MinBy((u) => u.ManhattanDistanceTo(c)))) : DefaultChoice();
+        default:
+            throw new ArgumentException($"Unknown destination method {DestinationMethod}");
         }
-
-        return actions;
     }
 }

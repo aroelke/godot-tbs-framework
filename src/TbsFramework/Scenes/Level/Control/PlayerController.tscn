@@ -29,7 +29,7 @@ modulate = Color(1, 0, 0, 0.390625)
 use_parent_material = true
 navigation_enabled = false
 
-[node name="Support" type="TileMapLayer" parent="ActionLayers"]
+[node name="Heal" type="TileMapLayer" parent="ActionLayers"]
 modulate = Color(0, 1, 0, 0.390625)
 use_parent_material = true
 navigation_enabled = false

@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="DemoSupportAction" load_steps=2 format=3 uid="uid://20ewtipnso1k"]
+
+[ext_resource type="Script" uid="uid://drhwoginjwlok" path="res://demo/actions/DemoSupportAction.cs" id="1_bx1p0"]
+
+[resource]
+script = ExtResource("1_bx1p0")
+Name = &"Heal"
+metadata/_custom_type_script = "uid://drhwoginjwlok"

@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using Godot;
 using TbsFramework.Nodes.Components;
-using TbsFramework.Scenes.Combat;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level;
+using TbsFramework.Scenes.Level.Control;
 using TbsFramework.UI.Controls.Device;
 
 namespace TbsFramework.Demo;
@@ -57,57 +57,65 @@ public partial class DemoMapCombatController : CombatController
     /// <summary>Time, in seconds, after a combat action has completed to wait until beginning the next one.</summary>
     [Export(PropertyHint.None, "suffix:s")] public double TurnDelay = 0.2;
 
-    public override void Initialize(UnitData left, UnitData right, IImmutableList<CombatAction> actions)
+    public override void Initialize(UnitData left, UnitData right, UnitActionResult result)
     {
-        base.Initialize(left, right, actions);
+        base.Initialize(left, right, result);
 
-        _animations = new()
-        {
-            { left,  left.Renderer.Animations  },
-            { right, right.Renderer.Animations }
-        };
         _canceled = false;
-
-        Dictionary<UnitData, double> damage = _animations.Keys.ToDictionary((k) => k, _ => 0.0);
-        foreach (CombatAction action in actions)
+        _lastActor = null;
+        if (result.Action.RequiresTarget) // untargeted indicates a region action for the demo, which has no animation
         {
-            double dmg = 0;
-            _actions.Enqueue((() => _animations[action.Actor].ZIndex = 1, this, null, 0));
-            switch (action.Type)
+            List<CombatAction> actions = (result.Result as List<CombatAction>) ?? [(CombatAction)result.Result];
+
+            _animations = new()
             {
-            case CombatActionType.Attack:
-                _actions.Enqueue((() => _animations[action.Actor].BeginAttack(action.Actor.Cell, action.Target.Cell, action.Hit), _animations[action.Actor], UnitMapAnimations.SignalName.AnimationFinished, 0));
-                if (action.Hit)
+                { left,  left.Renderer.Animations  },
+                { right, right.Renderer.Animations }
+            };
+
+            Dictionary<UnitData, double> damage = _animations.Keys.ToDictionary((k) => k, _ => 0.0);
+            foreach (CombatAction action in actions)
+            {
+                double dmg = 0;
+                _actions.Enqueue((() => _animations[action.Actor].ZIndex = 1, this, null, 0));
+                switch (action.Type)
                 {
+                case CombatActionType.Attack:
+                    _actions.Enqueue((() => _animations[action.Actor].BeginAttack(action.Actor.Cell, action.Target.Cell, action.Hit), _animations[action.Actor], UnitMapAnimations.SignalName.AnimationFinished, 0));
+                    if (action.Hit)
+                    {
+                        dmg = damage[action.Target] += action.Damage;
+                        _actions.Enqueue((() => _animations[action.Target].SetHealthValue(Math.Max(0, action.Target.Health - dmg)), this, null, 0));
+                    }
+                    _actions.Enqueue((() => _animations[action.Actor].FinishAttack(), _animations[action.Actor], UnitMapAnimations.SignalName.AnimationFinished, 0));
+                    break;
+                case CombatActionType.Support:
+                    _actions.Enqueue((() => _animations[action.Actor].BeginSupport(action.Actor.Cell, action.Target.Cell), _animations[action.Actor], UnitMapAnimations.SignalName.AnimationFinished, 0));
                     dmg = damage[action.Target] += action.Damage;
-                    _actions.Enqueue((() => _animations[action.Target].SetHealthValue(Math.Max(0, action.Target.Health - dmg)), this, null, 0));
+                    _actions.Enqueue((() => {
+                        _animations[action.Target].SetHealthValue(Math.Max(0, action.Target.Health - dmg));
+                        _animations[action.Actor].FinishSupport();
+                    }, _animations[action.Actor], UnitMapAnimations.SignalName.AnimationFinished, 0));
+                    break;
+                default:
+                    break;
                 }
-                _actions.Enqueue((() => _animations[action.Actor].FinishAttack(), _animations[action.Actor], UnitMapAnimations.SignalName.AnimationFinished, 0));
-                break;
-            case CombatActionType.Support:
-                _actions.Enqueue((() => _animations[action.Actor].BeginSupport(action.Actor.Cell, action.Target.Cell), _animations[action.Actor], UnitMapAnimations.SignalName.AnimationFinished, 0));
-                dmg = damage[action.Target] += action.Damage;
                 _actions.Enqueue((() => {
-                    _animations[action.Target].SetHealthValue(Math.Max(0, action.Target.Health - dmg));
-                    _animations[action.Actor].FinishSupport();
-                }, _animations[action.Actor], UnitMapAnimations.SignalName.AnimationFinished, 0));
-                break;
-            default:
-                break;
-            }
-            _actions.Enqueue((() => {
-                _animations[action.Actor].ZIndex = 0;
-                _animations[action.Actor].PlayIdle();
-            }, this, null, 0));
+                    _animations[action.Actor].ZIndex = 0;
+                    _animations[action.Actor].PlayIdle();
+                }, this, null, 0));
 
-            foreach ((UnitData unit, UnitMapAnimations animations) in _animations)
-            {
-                if (damage[unit] >= unit.Health)
-                    _actions.Enqueue((animations.PlayDie, animations, UnitMapAnimations.SignalName.AnimationFinished, 0));
-            }
+                foreach ((UnitData unit, UnitMapAnimations animations) in _animations)
+                {
+                    if (damage[unit] >= unit.Health)
+                        _actions.Enqueue((animations.PlayDie, animations, UnitMapAnimations.SignalName.AnimationFinished, 0));
+                }
 
-            _actions.Enqueue((() => {}, this, null, TurnDelay));
+                _actions.Enqueue((() => {}, this, null, TurnDelay));
+            }
         }
+        else
+            _animations = [];
     }
 
     public override void Start() => ExecuteNextAction();

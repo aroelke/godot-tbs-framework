@@ -1,6 +1,7 @@
 using System;
 using Godot;
 using TbsFramework.Nodes.Components;
+using TbsFramework.Scenes.Data;
 
 namespace TbsFramework.Demo;
 
@@ -11,9 +12,9 @@ public partial class TankMapAnimations : UnitMapAnimations
 
     private readonly NodeCache _cache = null;
     private Tween _tween = null;
-    private Vector2 _bulletOrigin = -Vector2I.One;
-    private Vector2I _source = -Vector2I.One;
-    private Vector2I _target = -Vector2I.One;
+    private Vector2 _bulletOrigin = GridData.InvalidCell;
+    private Vector2I _source = GridData.InvalidCell;
+    private Vector2I _target = GridData.InvalidCell;
     private bool _hit = false;
 
     private Sprite2D          Sprite       => _cache.GetNode<Sprite2D>("Sprite");
@@ -115,7 +116,7 @@ public partial class TankMapAnimations : UnitMapAnimations
             MissSound.Play();
             await ToSignal(MissSound, AudioStreamPlayer.SignalName.Finished);
         }
-        _source = _target = -Vector2I.One;
+        _source = _target = GridData.InvalidCell;
         _hit = false;
         EmitSignal(SignalName.AnimationFinished);
     }

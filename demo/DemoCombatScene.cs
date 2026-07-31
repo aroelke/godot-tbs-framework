@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes.Components;
 using TbsFramework.Scenes;
-using TbsFramework.Scenes.Combat;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level;
+using TbsFramework.Scenes.Level.Control;
 using TbsFramework.UI;
 using TbsFramework.UI.Controls.Device;
 
@@ -20,7 +20,7 @@ public partial class DemoCombatScene : CombatController
     [Signal] public delegate void TimeExpiredEventHandler();
 
     private readonly NodeCache _cache = null;
-    private IImmutableList<CombatAction> _actions = null;
+    private List<CombatAction> _actions = null;
     private readonly Dictionary<UnitData, CombatAnimations> _animations = [];
     private readonly Dictionary<UnitData, CombatantData> _infos = [];
     private double _remaining = 0;
@@ -54,30 +54,30 @@ public partial class DemoCombatScene : CombatController
 
     public DemoCombatScene() : base() { _cache = new(this); }
 
-    public override void Initialize(UnitData left, UnitData right, IImmutableList<CombatAction> actions)
+    public override void Initialize(UnitData left, UnitData right, UnitActionResult result)
     {
-        base.Initialize(left, right, actions);
+        base.Initialize(left, right, result);
 
-        _actions = actions;
+        _actions = (result.Result as List<CombatAction>) ?? [(CombatAction)result.Result];
 
         _animations[left] = left.Class.InstantiateCombatAnimations(left.Faction);
         _animations[left].SetFacing(Vector2.Right);
         _animations[left].Position = LeftPosition;
         _infos[left] = GetNode<CombatantData>("%LeftData");
-        _infos[left].Health.Maximum = left.Stats.Health;
+        _infos[left].Health.Maximum = left.Stats.MaxHealth;
         _infos[left].Health.Value = left.Health;
         _infos[left].Damage = [.. _actions.Where((a) => a.Actor == left).Select(static (a) => (int)a.Damage)];
-        _infos[left].HitChance = _actions.Any((a) => a.Actor == left) ? Math.Min(CombatCalculations.HitChance(left, right), 100) : -1;
+        _infos[left].HitChance = _actions.Any((a) => a.Actor == left) ? Math.Min(DemoAttackAction.HitChance(left, right), 100) : -1;
         _infos[left].TransitionDuration = HitDelay;
 
         _animations[right] = right.Class.InstantiateCombatAnimations(right.Faction);
         _animations[right].SetFacing(Vector2.Left);
         _animations[right].Position = RightPosition;
         _infos[right] = GetNode<CombatantData>("%RightData");
-        _infos[right].Health.Maximum = right.Stats.Health;
+        _infos[right].Health.Maximum = right.Stats.MaxHealth;
         _infos[right].Health.Value = right.Health;
         _infos[right].Damage = [.. _actions.Where((a) => a.Actor == right).Select(static (a) => (int)a.Damage)];
-        _infos[right].HitChance = _actions.Any((a) => a.Actor == right) ? Math.Min(CombatCalculations.HitChance(right, left), 100) : -1;
+        _infos[right].HitChance = _actions.Any((a) => a.Actor == right) ? Math.Min(DemoAttackAction.HitChance(right, left), 100) : -1;
         _infos[right].TransitionDuration = HitDelay;
 
         foreach ((_, CombatAnimations animation) in _animations)

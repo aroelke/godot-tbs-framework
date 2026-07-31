@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes;
 using TbsFramework.UI;
-using TbsFramework.Scenes.Combat;
 using TbsFramework.Nodes.Components;
 using TbsFramework.Scenes.Level.Control;
 using TbsFramework.Nodes.StateCharts;
@@ -45,7 +43,7 @@ public partial class LevelManager : Node
     private IEnumerator<Army> _armies = null;
     private Vector2I? _initialCell = null;
     private readonly Stack<BoundedNode2D> _cameraHistory = [];
-    private StringName _command = null;
+    private UnitAction _command = null;
     private bool _ff = false;
 
     private GridData _grid = null;
@@ -64,6 +62,9 @@ public partial class LevelManager : Node
     public LevelManager() : base() { _cache = new(this); }
 #endregion
 #region Exports
+    /// <summary>List of all possible actions that can be performed by units in this level.</summary>
+    [Export] public UnitAction[] AvailableActions = [];
+
     /// <summary>
     /// <see cref="Army"/> that gets the first turn and is controlled by the player. If null, use the first <see cref="Army"/>
     /// in the child list. After that, go down the child list in order, wrapping when at the end.
@@ -95,10 +96,10 @@ public partial class LevelManager : Node
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TurnFastForward, Callable.From(OnSkipTurnReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitSelected, Callable.From<Vector2I>(OnUnitSelectedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.PathConfirmed, Callable.From<Vector2I, Godot.Collections.Array<Vector2I>>(OnPathConfirmedReaction.React));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, StringName>(OnSelectedUnitCommandedReaction.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, UnitAction>(OnSelectedUnitCommandedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Vector2I, Vector2I>(OnSelectedTargetChosenReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetCanceled, Callable.From<Vector2I>(OnTargetingCanceled));
-        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, StringName>(OnCommandingUnitCommandedReaction.React));
+        _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.UnitCommanded, Callable.From<Vector2I, UnitAction>(OnCommandingUnitCommandedReaction.React));
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Vector2I, Vector2I>(OnTargetingTargetChosenReaction.React));
 
         _armies.Current.Controller.InitializeTurn();
@@ -107,7 +108,7 @@ public partial class LevelManager : Node
 #endregion
 #region Idle State
     /// <summary>Update the UI when re-entering idle.</summary>
-    public void OnIdleEntered() => _armies.Current.Controller.SelectUnit();
+    public void OnIdleEntered() => _armies.Current.Controller.SelectUnit(AvailableActions);
 
     /// <summary>When a unit is selected, move to the next state (choosing its destination).</summary>
     /// <param name="cell">Cell containing hte selected unit.</param>
@@ -138,9 +139,8 @@ public partial class LevelManager : Node
     {
         _selected.Renderer.Select();
         _initialCell = _selected.Cell;
-        _command = null;
         _target = null;
-        _armies.Current.Controller.MoveUnit(_selected);
+        _armies.Current.Controller.MoveUnit(_selected, AvailableActions);
     }
 
     /// <summary>
@@ -201,7 +201,7 @@ public partial class LevelManager : Node
     /// <param name="cell">Cell containing the unit to perform the command.</param>
     /// <param name="command">Command to perform.</param>
     /// <exception cref="InvalidOperationException">If <paramref name="cell"/> doesn't contain the selected unit.</exception>
-    public void OnSelectedUnitCommanded(Vector2I cell, StringName command)
+    public void OnSelectedUnitCommanded(Vector2I cell, UnitAction command)
     {
         if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
@@ -244,7 +244,26 @@ public partial class LevelManager : Node
     }
 #endregion
 #region Unit Commanding State
-    private List<NamedAction> _options = [];
+    // This represents an "action" wrapping a QoS control like cancel or deselect (or "End," which could be considered a real action)
+    private partial class InternalAction(IEnumerable<Vector2I> allowed, StateChart state, StringName @event) : UnitAction
+    {
+        public override bool RequiresTarget => false;
+        public override bool CanPerform(UnitData unit, Vector2I source) => !allowed.Any() || allowed.Contains(source);
+        public override bool CanPerform(UnitData unit, Vector2I source, Vector2I target) => CanPerform(unit, source);
+        public override IEnumerable<Vector2I> GetTargetCells(UnitData unit, Vector2I cell) => [];
+        public override IEnumerable<Vector2I> GetAllTargetCells(UnitData unit, IEnumerable<Vector2I> traversable) => [];
+        public override IEnumerable<Vector2I> GetValidTargetCells(UnitData unit, IEnumerable<Vector2I> traversable) => [];
+        public override IEnumerable<Vector2I> GetSourceCells(UnitData unit, Vector2I target) => [];
+        public override void UpdateGrid(GridData grid, UnitActionResult result) => state.SendEvent(@event);
+
+        public override UnitActionResult Perform(UnitData unit, Vector2I target) => throw new NotImplementedException();
+        public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target) => throw new NotImplementedException();
+    }
+
+    private static readonly StringName DeselectAction = "Deselect";
+    private static readonly StringName EndAction      = "End";
+    private static readonly StringName CancelAction   = "Cancel";
+
     private IEnumerable<Vector2I> _targets = [];
 
     /// <summary>
@@ -254,63 +273,32 @@ public partial class LevelManager : Node
     public void OnCommandingEntered()
     {
         _targets = [];
-        _options = [];
-        void AddActionOption(StringName name, IEnumerable<Vector2I> range)
-        {
-            if (range.Any())
-            {
-                _options.Add(new(name, () => {
-                    _targets = range;
-                    _command = name;
-                    State.SendEvent(SelectEvent);
-                }));
-            }
-        }
-        AddActionOption(UnitAction.AttackAction, _selected.GetAttackableCells().Where((c) => !_grid.Occupants.GetValueOrDefault(c)?.Faction.AlliedTo(_selected) ?? false));
-        AddActionOption(UnitAction.SupportAction, _selected.GetSupportableCells().Where((c) => _grid.Occupants.GetValueOrDefault(c)?.Faction.AlliedTo(_selected) ?? false));
-        foreach (SpecialActionRegionData region in _grid.SpecialActionRegions)
-        {
-            if (region.CanPerform(_selected) && region.Cells.Contains(_selected.Cell))
-            {
-                _options.Add(new(region.Action, () => {
-                    region.Perform(_selected, _selected.Cell);
-                    State.SendEvent(DoneEvent);
-                }));
-            }
-        }
-        _options.Add(new(UnitAction.EndAction, () => State.SendEvent(DoneEvent)));
-
-        _armies.Current.Controller.CommandUnit(_selected, [.. _options.Select(static (o) => o.Name)], UnitAction.Cancel);
+        InternalAction deselect = new([_initialCell.Value], State, SkipEvent) { Name = DeselectAction, AIAllowed = false };
+        InternalAction end = new([], State, DoneEvent) { Name = EndAction };
+        InternalAction cancel = new([], State, CancelEvent) { Name = CancelAction, AIAllowed = false };
+        _armies.Current.Controller.CommandUnit(_selected, [..AvailableActions, deselect, end], cancel);
     }
 
     /// <summary>Initiate the command chosen by the selected unit.  See <see cref="OnCommandingEntered"/> for effects of commands.</summary>
     /// <param name="cell">Cell containing the unit being commanded.</param>
-    /// <param name="command">Name of the command to perform.</param>
+    /// <param name="command">Command to perform.</param>
     /// <exception cref="InvalidOperationException">If <paramref name="cell"/> does not contain the selected unit.</exception>
-    /// <exception cref="ArgumentException">If <paramref name="command"/> is not a recognized command or <see cref="UnitAction.Cancel"/></exception>
-    public void OnCommandingUnitCommanded(Vector2I cell, StringName command)
+    /// <exception cref="ArgumentException">If <paramref name="command"/> is not a recognized command or <see cref="CancelCommand"/></exception>
+    public void OnCommandingUnitCommanded(Vector2I cell, UnitAction command)
     {
         if (_grid.Occupants[cell] != _selected)
             throw new InvalidOperationException($"Cannot command unselected unit at {cell} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        if (command == UnitAction.Cancel)
+        if (command is InternalAction @internal)
         {
-            State.SendEvent(CancelEvent);
-            return;
+            _result = new(null, _selected, GridData.InvalidCell, command);
+            @internal.UpdateGrid(_grid, default);
         }
-        else if (command == UnitAction.Deselect)
+        else
         {
-            State.SendEvent(SkipEvent);
-            return;
+            _targets = command.GetTargetCells(_selected, _selected.Cell);
+            _command = command;
+            State.SendEvent(SelectEvent);
         }
-        foreach (NamedAction option in _options)
-        {
-            if (option.Name == command)
-            {
-                option.Action();
-                return;
-            }
-        }
-        throw new ArgumentException($"Unknown command {command}");
     }
 
     /// <summary>Go back to selecting a destination, moving the selected unit and cursor back the unit's original cell.</summary>
@@ -325,10 +313,19 @@ public partial class LevelManager : Node
     }
 #endregion
 #region Targeting State
-    private List<CombatAction> _combatResults = null;
+    private UnitActionResult _result = default;
 
-    /// <summary>Instruct the current army's controller to choose a target for its action.</summary>
-    public void OnTargetingEntered() => _armies.Current.Controller.SelectTarget(_selected, _targets);
+    /// <summary>Instruct the current army's controller to choose a target for its action or skip to combat if there is none.</summary>
+    public void OnTargetingEntered()
+    {
+        if (_command.RequiresTarget)
+            _armies.Current.Controller.SelectTarget(_selected, _targets);
+        else
+        {
+            _target = null;
+            State.SendEvent(DoneEvent);
+        }
+    }
 
     /// <summary>Save the chosen target and then begin combat.</summary>
     /// <param name="source">Cell containing the unit that is performing the action.</param>
@@ -340,8 +337,8 @@ public partial class LevelManager : Node
         _target = _grid.Occupants[target];
         if (_grid.Occupants[source] != _selected)
             throw new InvalidOperationException($"Cannot choose target for unselected unit at {source} ({_selected.Faction.Name} unit at {_selected.Cell} is selected)");
-        if ((_command == UnitAction.AttackAction && _target.Faction.AlliedTo(_selected)) || (_command == UnitAction.SupportAction && !_target.Faction.AlliedTo(_selected)))
-            throw new ArgumentException($"{_selected.Faction.Name} unit at {_selected.Cell} cannot {_command} unit at {target}");
+        if (!_command.CanPerform(_selected, source, target))
+            throw new ArgumentException($"{_selected.Faction.Name} unit at {source} cannot {_command.Name} unit at {target}");
         State.SendEvent(DoneEvent);
     }
 
@@ -349,21 +346,6 @@ public partial class LevelManager : Node
     public void OnTargetingCanceled(Vector2I source) => State.SendEvent(CancelEvent);
 #endregion
 #region In Combat
-    private void ApplyCombatResults()
-    {
-        foreach (CombatAction action in _combatResults)
-        {
-            if (action.Hit)
-            {
-                action.Target.Health -= action.Damage;
-                if (action.Target.Health <= 0)
-                    action.Target.Renderer.Die();
-            }
-        }
-        _target = null;
-        _combatResults = null;
-    }
-
     /// <summary>
     /// Compute the results of combat and then begin the combat choreography unless <see cref="SkipCombat"/> is <c>true</c> or the turn
     /// is being fast-forwarded (see <see cref="OnTurnFastForward"/>).
@@ -375,29 +357,24 @@ public partial class LevelManager : Node
     /// </remarks>
     public void OnCombatEntered()
     {
-        if (_command == UnitAction.AttackAction)
-            _combatResults = CombatCalculations.AttackResults(_selected, _target, false);
-        else if (_command == UnitAction.SupportAction)
-            _combatResults = [CombatCalculations.CreateSupportAction(_selected, _target)];
-        else
-            throw new NotSupportedException($"Unknown action {_command}");
+        _result = _command.Perform(_selected, _target?.Cell ?? GridData.InvalidCell);
 
         void skip()
         {
-            ApplyCombatResults();
+            _result.UpdateGrid(_selected.Grid);
             State.SendEvent(DoneEvent);
         }
 
         if (_ff || SkipCombat)
             skip();
-        else if (!string.IsNullOrEmpty(CombatScenePath) && !PlayCombatOnMap)
+        else if (!_command.AnimateOnMap && !string.IsNullOrEmpty(CombatScenePath) && !PlayCombatOnMap)
         {
-            SceneManager.Singleton.Connect<CombatController>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, [.. _combatResults]), (uint)ConnectFlags.OneShot);
+            SceneManager.Singleton.Connect<CombatController>(SceneManager.SignalName.SceneLoaded, (s) => s.Initialize(_selected, _target, _result), (uint)ConnectFlags.OneShot);
             SceneManager.CallScene(CombatScenePath);
         }
         else if (_combat is not null)
         {
-            _combat.Initialize(_selected, _target, [.. _combatResults]);
+            _combat.Initialize(_selected, _target, _result);
             _combat.Connect(CombatController.SignalName.CombatEnded, skip, (uint)ConnectFlags.OneShot);
             _combat.Start();
         }
@@ -408,8 +385,14 @@ public partial class LevelManager : Node
     /// <summary>Update the map to reflect combat results when it's added back to the tree.</summary>
     public void OnCombatEnteredTree()
     {
-        ApplyCombatResults();
+        _result.UpdateGrid(_selected.Grid);
         SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, () => State.SendEvent(DoneEvent), (uint)ConnectFlags.OneShot);
+    }
+
+    /// <summary>Clear out the command and result when combat is over.</summary>
+    public void OnCombatExited()
+    {
+        _command = null;
     }
 #endregion
 #region End Action State
@@ -421,13 +404,14 @@ public partial class LevelManager : Node
         State.SetVariable(ActiveProperty, _armies.Current.Count(static (u) => u.UnitData.Active));
 
         UnitData selected = _selected;
-        LevelEvents.EndAction(selected);
+        LevelEvents.EndAction(_result);
     }
 
     /// <summary>Clean up at the end of the unit's turn.</summary>
     public void OnEndActionExited()
     {
         _selected = null;
+        _result = default;
     }
 #endregion
 #region End Turn State

@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="ActionRegionIdentity" load_steps=2 format=3 uid="uid://b7fjldvqn7j10"]
+
+[ext_resource type="Script" uid="uid://dd72eiobvrujo" path="res://src/TbsFramework/Scenes/Data/ActionRegionIdentity.cs" id="1_i58xa"]
+
+[resource]
+script = ExtResource("1_i58xa")
