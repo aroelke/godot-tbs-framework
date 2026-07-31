@@ -251,7 +251,7 @@ public partial class AIController : ArmyController
         UnitAction action = null;
         Vector2I target;
 
-        List<VirtualAction> potential = [.. GetAvailableActions(Grid.Data, Faction, actions)];
+        List<VirtualAction> potential = [.. GetAvailableActions(Grid.Data, Faction, actions.Where((a) => a.AIAllowed))];
         if (potential.Count != 0)
         {
             VirtualAction result;
@@ -273,7 +273,7 @@ public partial class AIController : ArmyController
 
             selected = enemies.Any() ? available.MinBy((u) => enemies.Min((e) => u.Cell.DistanceTo(e.Cell))) : available.First();
             IEnumerable<Vector2I> destinations = selected.Behavior.Destinations(selected);
-            action = actions.FirstOrDefault((a) => !a.RequiresTarget && destinations.Any((c) => a.CanPerform(selected, c)));
+            action = actions.FirstOrDefault((a) => a.AIAllowed && !a.RequiresTarget && destinations.Any((c) => a.CanPerform(selected, c)));
 
             IEnumerable<UnitData> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Cell));
             if (ordered.Any())
@@ -379,7 +379,7 @@ public partial class AIController : ArmyController
 
     public override void CommandUnit(UnitData source, UnitAction[] commands, UnitAction cancel)
     {
-        _action ??= commands.FirstOrDefault((a) => !a.RequiresTarget && a.CanPerform(_selected, _destination));
+        _action ??= commands.FirstOrDefault((a) => a.AIAllowed && !a.RequiresTarget && a.CanPerform(_selected, _destination));
         EmitSignal(SignalName.UnitCommanded, source.Cell, _action);
     }
 

@@ -31,11 +31,14 @@ public abstract partial class UnitAction : Resource
     /// <summary>Whether or not this action should always be performed using a map animation regardless of game settings.</summary>
     [Export] public bool AnimateOnMap = false;
 
+    /// <summary>If <c>false</c>, <see cref="AIController"/>-controlled armies will never select this action, even if it's the only one available.</summary>
+    [Export, ExportGroup("AI Control")] public bool AIAllowed = true;
+
     /// <summary>
     /// If a unit performs this action on another unit in an opposing faction, the second unit can retaliate in some way.  Used for helping
     /// <see cref="AIController"/> with positioning.
     /// </summary>
-    [Export] public bool RetaliationAllowed = false;
+    [Export, ExportGroup("AI Control")] public bool RetaliationAllowed = false;
 
     /// <summary>Whether or not this action requires a target.</summary>
     public abstract bool RequiresTarget { get; }
