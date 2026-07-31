@@ -246,8 +246,8 @@ public partial class AIController : ArmyController
 
     public (UnitData selected, Vector2I destination, UnitAction action, Vector2I target) ComputeAction(IEnumerable<UnitData> available, IEnumerable<UnitAction> actions)
     {
-        UnitData selected = null;
-        Vector2I destination = GridData.InvalidCell;
+        UnitData selected;
+        Vector2I destination;
         UnitAction action = null;
         Vector2I target;
 
@@ -272,11 +272,12 @@ public partial class AIController : ArmyController
             IEnumerable<UnitData> enemies = Grid.Data.Occupants.Values.Where((o) => o is UnitData u && !u.Faction.AlliedTo(Faction)).OfType<UnitData>();
 
             selected = enemies.Any() ? available.MinBy((u) => enemies.Min((e) => u.Cell.DistanceTo(e.Cell))) : available.First();
-            action = actions.FirstOrDefault((a) => !a.RequiresTarget);
+            IEnumerable<Vector2I> destinations = selected.Behavior.Destinations(selected);
+            action = actions.FirstOrDefault((a) => !a.RequiresTarget && destinations.Any((c) => a.CanPerform(selected, c)));
 
             IEnumerable<UnitData> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Cell));
             if (ordered.Any())
-                destination = selected.Behavior.Destinations(selected).OrderBy((c) => selected.PathCost(selected.Behavior.GetPath(selected, c))).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
+                destination = destinations.OrderBy((c) => selected.PathCost(selected.Behavior.GetPath(selected, c))).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
             else
                 destination = selected.Cell;
             target = GridData.InvalidCell;
@@ -376,7 +377,11 @@ public partial class AIController : ArmyController
             ConfirmMove();
     }
 
-    public override void CommandUnit(UnitData source, UnitAction[] commands, UnitAction cancel) => EmitSignal(SignalName.UnitCommanded, source.Cell, _action);
+    public override void CommandUnit(UnitData source, UnitAction[] commands, UnitAction cancel)
+    {
+        _action ??= commands.FirstOrDefault((a) => !a.RequiresTarget && a.CanPerform(_selected, _destination));
+        EmitSignal(SignalName.UnitCommanded, source.Cell, _action);
+    }
 
     public override void SelectTarget(UnitData source, IEnumerable<Vector2I> targets)
     {
