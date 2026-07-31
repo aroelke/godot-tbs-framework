@@ -274,8 +274,8 @@ public partial class LevelManager : Node
     {
         _targets = [];
         InternalAction deselect = new([_initialCell.Value], State, SkipEvent) { Name = DeselectAction };
-        InternalAction end = new([], State, DoneEvent) { Name = EndAction, AlwaysShow = true };
-        InternalAction cancel = new([], State, CancelEvent) { Name = CancelAction, AlwaysShow = true };
+        InternalAction end = new([], State, DoneEvent) { Name = EndAction };
+        InternalAction cancel = new([], State, CancelEvent) { Name = CancelAction };
         _armies.Current.Controller.CommandUnit(_selected, [..AvailableActions, deselect, end], cancel);
     }
 

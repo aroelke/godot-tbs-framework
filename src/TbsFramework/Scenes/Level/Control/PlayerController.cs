@@ -749,7 +749,7 @@ public partial class PlayerController : ArmyController
             State.SendEvent(CommandEvent);
 
             List<NamedAction> cmds = [.. commands.Where((c) =>
-                c.AlwaysShow || (c.CanPerform(source, source.Cell) && (!c.RequiresTarget || c.GetTargetCells(source, source.Cell).Any()))).Select((c) =>
+                c.CanPerform(source, source.Cell) && (!c.RequiresTarget || c.GetTargetCells(source, source.Cell).Any())).Select((c) =>
                     new NamedAction() { Name = c.Name, Action = () => {
                         ActionLayers.Keep(c.Name);
                         State.SendEvent(FinishEvent);

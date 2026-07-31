@@ -28,9 +28,6 @@ public abstract partial class UnitAction : Resource
     /// <summary>Name of the action for display in a menu.</summary>
     [Export] public StringName Name = "";
 
-    /// <summary>Whether or not this action should always be shown in a unit's action menu regardless of permissions or domain.</summary>
-    [Export] public bool AlwaysShow = false;
-
     /// <summary>Whether or not this action should always be performed using a map animation regardless of game settings.</summary>
     [Export] public bool AnimateOnMap = false;
 
