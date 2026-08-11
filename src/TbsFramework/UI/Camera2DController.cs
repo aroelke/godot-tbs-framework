@@ -160,7 +160,7 @@ public partial class Camera2DController : Node2D
     {
         _zoomTween?.Kill();
         _zoomTarget = _zoom = Engine.IsEditorHint() || !Camera.IsInsideTree() ? value : ClampZoom(value);
-        if (Camera != null)
+        if (Camera is not null)
             Camera.Zoom = _zoom;
     }
 
@@ -197,6 +197,13 @@ public partial class Camera2DController : Node2D
             {
                 (Camera.LimitLeft, Camera.LimitTop) = value.Position;
                 (Camera.LimitRight, Camera.LimitBottom) = value.End;
+                if (IsInsideTree())
+                {
+                    // Directly set zoom here instead of using SetZoom (which uses a tween) because the camera should never be outside its limits
+                    Vector2 zoom = ClampZoom(Zoom);
+                    if (zoom > Zoom && Camera is not null)
+                        Camera.Zoom = _zoom = zoom;
+                }
             }
         }
     }
