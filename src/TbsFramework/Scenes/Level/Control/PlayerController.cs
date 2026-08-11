@@ -308,6 +308,11 @@ public partial class PlayerController : ArmyController
 
     private void UpdateDangerZones()
     {
+        // Untrack any units that have been removed from the grid since last update
+        foreach (UnitData unit in _tracked)
+            if (unit.Grid is null)
+                _tracked.Remove(unit);
+
         IEnumerable<UnitData> allies = _tracked.Where((u) => Faction.AlliedTo(u.Faction));
         IEnumerable<UnitData> enemies = _tracked.Where((u) => !Faction.AlliedTo(u.Faction));
 
@@ -344,9 +349,6 @@ public partial class PlayerController : ArmyController
 
     public override void FinalizeAction()
     {
-        foreach (UnitData unit in _tracked)
-            if (unit.Grid is null)
-                _tracked.Remove(unit);
         UpdateDangerZones();
         IEnumerable<UnitData> units = Faction.GetUnits(Grid.Data);
         EmitSignal(
