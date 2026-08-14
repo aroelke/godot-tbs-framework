@@ -2,7 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Scenes.Data;
@@ -46,19 +48,17 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     private Path(GridData grid, IEnumerable<Vector2I> traversable, ImmutableList<Vector2I> initial) : this(grid, new(), traversable, initial)
     {
         foreach (Vector2I cell in traversable)
-            _astar.AddPoint(CellId(cell), cell, grid.Terrain.GetValueOrDefault(cell, grid.DefaultTerrain).Cost);
+            _astar.AddPoint(cell.Cantor(), cell, grid.Terrain.GetValueOrDefault(cell, grid.DefaultTerrain).Cost);
         foreach (Vector2I cell in traversable)
         {
             foreach (Vector2I direction in Vector2IExtensions.Directions)
             {
                 Vector2I neighbor = cell + direction;
-                if (!_astar.ArePointsConnected(CellId(cell), CellId(neighbor)) && traversable.Contains(neighbor))
-                    _astar.ConnectPoints(CellId(cell), CellId(neighbor));
+                if (traversable.Contains(neighbor) && !_astar.ArePointsConnected(cell.Cantor(), neighbor.Cantor()) && traversable.Contains(neighbor))
+                    _astar.ConnectPoints(cell.Cantor(), neighbor.Cantor());
             }
         }
     }
-
-    private int CellId(Vector2I cell) => cell.X*_grid.Size.X + cell.Y;
 
     public Vector2I this[int index] => _cells[index];
 
@@ -126,7 +126,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
         else
         {
             // Append the cell and the shortest path between it and the last cell in the path
-            cells = _cells.AddRange(_astar.GetPointPath(CellId(_cells[^1]), CellId(value)).Select(static (c) => (Vector2I)c));
+            cells = _cells.AddRange(_astar.GetPointPath(_cells[^1].Cantor(), value.Cantor()).Select(static (c) => (Vector2I)c));
         }
         cells = [.. cells.Disentangle()];
         return new(_grid, _astar, _traversable, cells);
