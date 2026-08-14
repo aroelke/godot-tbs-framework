@@ -47,7 +47,7 @@ public abstract partial class Behavior : Node
     {
         if (!traversable.Contains(from) || !traversable.Contains(to))
             throw new ArgumentException($"Cannot compute path from {from} to {to}; at least one is not traversable.");
-        return Path.Empty(unit.Grid, traversable).Add(from).Add(to);
+        return Path.Empty(traversable, unit.CellCost).Add(from).Add(to);
     }
 
     /// <inheritdoc cref="GetPath(UnitData, Vector2I, Vector2I, IEnumerable{Vector2I})"/>

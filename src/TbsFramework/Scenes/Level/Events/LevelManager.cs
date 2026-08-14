@@ -171,7 +171,7 @@ public partial class LevelManager : Node
         }
         else
         {
-            _path = Path.Empty(_grid, _selected.GetTraversableCells()).AddRange(path);
+            _path = Path.Empty(_selected.GetTraversableCells(), _selected.CellCost).AddRange(path);
             State.SendEvent(SelectEvent);
         }
     }

@@ -57,7 +57,7 @@ public partial class AIController : ArmyController
             set
             {
                 _destination = value;
-                PathCost = Actor.PathCost(Path.Empty(Actor.Grid, Traversable).Add(Start).Add(_destination));
+                PathCost = Actor.PathCost(Path.Empty(Traversable, Actor.CellCost).Add(Start).Add(_destination));
             }
         }
 
