@@ -55,42 +55,7 @@ public partial class MoveBehavior : Behavior
         if (!choices.Any())
             throw new ArgumentException("No choices for destination");
 
-        AStar2D astar = null;
-        if (AccountForWalls)
-        {
-            bool IsCellValid(Vector2I cell) => unit.IsCellTraversable(cell) || (DestinationMethod switch {
-                DestinationMethod.ClosestToCurrent => !unit.Grid.Occupants.ContainsKey(cell),
-                DestinationMethod.ClosestToEnemy or DestinationMethod.FurthestFromEnemy => !unit.Grid.Occupants.TryGetValue(cell, out UnitData occupant) || !occupant.Faction.AlliedTo(unit.Faction),
-                DestinationMethod.ClosestToAlly => !unit.Grid.Occupants.TryGetValue(cell, out UnitData occupant) || occupant.Faction.AlliedTo(unit.Faction),
-                _ => false
-            });
-
-            astar = new();
-            for (int i = 0; i < unit.Grid.Size.X; i++)
-            {
-                for (int j = 0; j < unit.Grid.Size.Y; j++)
-                {
-                    Vector2I cell = new(i, j);
-                    if (IsCellValid(cell))
-                        astar.AddPoint(unit.Grid.Size.X*i + j, cell, unit.Grid.Terrain.GetValueOrDefault(cell, unit.Grid.DefaultTerrain).Cost);
-                }
-            }
-            for (int i = 0; i < unit.Grid.Size.X; i++)
-            {
-                for (int j = 0; j < unit.Grid.Size.Y; j++)
-                {
-                    Vector2I cell = new(i, j);
-                    foreach (Vector2I direction in Vector2IExtensions.Directions)
-                    {
-                        Vector2I neighbor = cell + direction;
-                        if (unit.Grid.Contains(neighbor) && !astar.ArePointsConnected(unit.Grid.Size.X*i + j, unit.Grid.Size.X*neighbor.X + neighbor.Y) && IsCellValid(cell) && IsCellValid(neighbor))
-                            astar.ConnectPoints(unit.Grid.Size.X*i + j, unit.Grid.Size.X*neighbor.X + neighbor.Y);
-                    }
-                }
-            }
-        }
-
-        int BestPathCost(Vector2I a, Vector2I b) => AccountForWalls ? astar.GetPointPath(unit.Grid.Size.X*a.X + a.Y, unit.Grid.Size.X*b.X + b.Y).Length : a.ManhattanDistanceTo(b);
+        int BestPathCost(Vector2I a, Vector2I b) => AccountForWalls ? unit.PathCost(Path.Empty(unit.Grid.AllCells, unit.CellCost).Add(a).Add(b)) : a.ManhattanDistanceTo(b);
         Vector2I DefaultChoice() => choices.MinBy((c) => BestPathCost(unit.Cell, c));
 
         IEnumerable<Vector2I> units;
