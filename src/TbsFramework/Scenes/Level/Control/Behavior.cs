@@ -10,8 +10,8 @@ namespace TbsFramework.Scenes.Level.Control;
 /// <param name="Action">Resource describing the action.</param>
 /// <param name="Source">Cells the action could be performed from.</param>
 /// <param name="Target">Cell the action will be performed on.</param>
-/// <param name="Traversable">Cells the acting unit can move on.</param>
-public record class ActionInfo(UnitAction Action, IEnumerable<Vector2I> Source, Vector2I Target, IEnumerable<Vector2I> Traversable);
+/// <param name="Destinations">Cells the acting unit can move on.</param>
+public record class ActionInfo(UnitAction Action, IEnumerable<Vector2I> Source, Vector2I Target, IEnumerable<Vector2I> Destinations);
 
 /// <summary>A <see cref="Unit"/> component that provides information about how the AI uses it in a specific situation.</summary>
 [Tool, Icon("uid://cvtdbcchxcvon")]

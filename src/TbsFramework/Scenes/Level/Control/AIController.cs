@@ -169,7 +169,7 @@ public partial class AIController : ArmyController
 
                     if (action.Action.RequiresTarget)
                     {
-                        destinations = action.Action.GetSourceCells(unit, action.Target).Intersect(action.Traversable);
+                        destinations = action.Action.GetSourceCells(unit, action.Target).Intersect(action.Destinations);
 
                         // If the action allows for retaliation, prioritize cells that the target can't retaliate on
                         if (action.Action.RequiresTarget && action.Action.RetaliationAllowed)
@@ -185,9 +185,9 @@ public partial class AIController : ArmyController
                     // Prioritize the destination closest to the actor's current cell, but if that cell is the actor's current cell then
                     // also try the next-best one in case moving another unit to that cell afterward is overall better
                     Vector2I best = unit.Behavior.ChooseDestination(unit, destinations, traversable);
-                    actions.Add(new(unit, action.Action, best, action.Target, action.Traversable));
+                    actions.Add(new(unit, action.Action, best, action.Target, traversable));
                     if (best == unit.Cell && destinations.Count() > 1)
-                        actions.Add(new(unit, action.Action, unit.Behavior.ChooseDestination(unit, destinations.Where((c) => c != best), traversable), action.Target, action.Traversable));
+                        actions.Add(new(unit, action.Action, unit.Behavior.ChooseDestination(unit, destinations.Where((c) => c != best), traversable), action.Target, action.Destinations));
                 }
             }
         }
