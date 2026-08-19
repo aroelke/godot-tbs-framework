@@ -252,7 +252,14 @@ public partial class AIController : ArmyController
         action.Result = action.Action.Simulate(action.Actor, action.Destination, action.Target);
         action.Result.Occupants[action.Destination].Active = false;
         SimulatedAction simulated = new(action.Result, Faction, action.Path, action.Action);
+
+        // Compute the value of the action before cleaning up the grid so that units that need to be cleaned up can be accounted for in its value before they're removed
         double value = Evaluators.Select((e) => e.Key.Evaluate(simulated)*e.Value).DefaultIfEmpty(0).Sum();
+        if (action.Result.Occupants[action.Destination].Health <= 0)
+            action.Result.Occupants[action.Destination].Grid = null;
+        if (action.Action.RequiresTarget && action.Result.Occupants[action.Target].Health <= 0)
+            action.Result.Occupants[action.Target].Grid = null;
+
         IEnumerable<VirtualAction> next = GetAvailableActions(action.Result, action.Actor.Faction, available);
         return value + next.Select((a) => GetActionValue(a, available)).DefaultIfEmpty(0).Max();
     }
