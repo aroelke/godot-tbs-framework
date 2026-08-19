@@ -58,6 +58,10 @@ public class GridData
         set => _size.Value = value;
     }
 
+    /// <summary>
+    /// Linear collection of all valid cell indices in this grid. Typically <see cref="Contains"/> should be used to check if an index is valid; this is
+    /// mainly used for <see cref="Level.Control.Path">Path</see> to be usable for computing paths independently of unit traversal range.
+    /// </summary>
     public IEnumerable<Vector2I> AllCells => _all ??= Size.X > 0 && Size.Y > 0 ? Enumerable.Range(0, Size.X).SelectMany((x) => Enumerable.Range(0, Size.Y).Select((y) => new Vector2I(x, y))) : [];
 
     /// <summary>Terrain of the grid cells. This array is sparse, so only cells whose terrain isn't <see cref="DefaultTerrain"/> are present.</summary>
