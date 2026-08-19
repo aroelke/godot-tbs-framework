@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using Godot.Collections;
 using TbsFramework.Scenes.Data;
 
 namespace TbsFramework.Scenes.Level.Control;
@@ -69,7 +68,7 @@ public partial class DefeatedUnitsEvaluator : ActionEvaluator
         return ((double)included.Count((u) => u.Health <= 0))/included.Count();
     }
 
-    public override void _ValidateProperty(Dictionary property)
+    public override void _ValidateProperty(Godot.Collections.Dictionary property)
     {
         base._ValidateProperty(property);
         if (property["name"].AsStringName() == PropertyName.Factions && _allies && _enemies)
