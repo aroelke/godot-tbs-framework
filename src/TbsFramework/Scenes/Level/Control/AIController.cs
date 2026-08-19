@@ -51,13 +51,16 @@ public partial class AIController : ArmyController
         public IEnumerable<Vector2I> Traversable;
         public Vector2I Start = GridData.InvalidCell;
 
+        public Path Path { get; private set; }
+
         public Vector2I Destination
         {
             get => _destination;
             set
             {
                 _destination = value;
-                PathCost = Actor.PathCost(Path.Empty(Traversable, Actor.CellCost).Add(Start).Add(_destination));
+                Path = Path.Empty(Traversable, Actor.CellCost).Add(Start).Add(_destination);
+                PathCost = Actor.PathCost(Path);
             }
         }
 
@@ -244,6 +247,16 @@ public partial class AIController : ArmyController
         return value;
     }
 
+    private double GetActionValue(VirtualAction action, IEnumerable<UnitAction> available)
+    {
+        action.Result = action.Action.Simulate(action.Actor, action.Destination, action.Target);
+        action.Result.Occupants[action.Destination].Active = false;
+        SimulatedAction simulated = new(action.Result, Faction, action.Path, action.Action);
+        double value = Evaluators.Select((e) => e.Key.Evaluate(simulated)*e.Value).DefaultIfEmpty(0).Sum();
+        IEnumerable<VirtualAction> next = GetAvailableActions(action.Result, action.Actor.Faction, available);
+        return value + next.Select((a) => GetActionValue(a, available)).DefaultIfEmpty(0).Max();
+    }
+
     public (UnitData selected, Vector2I destination, UnitAction action, Vector2I target) ComputeAction(IEnumerable<UnitData> available, IEnumerable<UnitAction> actions)
     {
         UnitData selected;
@@ -256,11 +269,11 @@ public partial class AIController : ArmyController
         {
             VirtualAction result;
             if (EvaluateWithThreads)
-                result = Task.WhenAll([.. potential.Select((a) => Task.Run(() => EvaluateAction(potential, a, [], actions, MaxSearchDepth)))]).Result.Max();
+                result = potential.Zip(Task.WhenAll([.. potential.Select((a) => Task.Run(() => GetActionValue(a, actions)))]).Result).MaxBy((a) => a.Second).First;
             else
             {
                 Dictionary<GridData, VirtualAction> decisions = [];
-                result = potential.Max((a) => EvaluateAction(potential, a, decisions, actions, MaxSearchDepth));
+                result = potential.Zip(potential.Select((a) => GetActionValue(a, actions))).MaxBy((a) => a.Second).First;
             }
             selected = result.Actor;
             destination = result.Destination;
@@ -298,6 +311,8 @@ public partial class AIController : ArmyController
     private Timer                 IndicatorTimer        => _cache.GetNode<Timer>("IndicatorTimer");
 
     public override Grid Grid { get; set; } = null;
+
+    [Export] public Godot.Collections.Dictionary<ActionEvaluator, double> Evaluators = [];
 
     /// <summary>Sprite to use for the pseudocursor.</summary>
     [Export] public Texture2D CursorSprite
@@ -422,7 +437,6 @@ public partial class AIController : ArmyController
         FastForwardTransition.TransitionIn();
         EmitSignal(SignalName.FastForwardStateChanged, _ff = false);
     }
-
 
     public override void _Input(InputEvent @event)
     {

@@ -51,7 +51,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
             foreach (Vector2I direction in Vector2IExtensions.Directions)
             {
                 Vector2I neighbor = cell + direction;
-                if (traversable.Contains(neighbor) && !_astar.ArePointsConnected(cell.Cantor(), neighbor.Cantor()) && traversable.Contains(neighbor))
+                if (traversable.Contains(neighbor) && !_astar.ArePointsConnected(cell.Cantor(), neighbor.Cantor()))
                     _astar.ConnectPoints(cell.Cantor(), neighbor.Cantor());
             }
         }

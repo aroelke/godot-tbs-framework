@@ -1,4 +1,4 @@
-[gd_scene load_steps=77 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=89 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsFramework/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="Script" uid="uid://c2joupgp3ohcx" path="res://demo/DemoMap.cs" id="1_npakb"]
@@ -41,10 +41,15 @@
 [ext_resource type="Script" uid="uid://duxr5h215u3te" path="res://src/TbsFramework/Scenes/Data/UnitIdentity.cs" id="27_ls5jp"]
 [ext_resource type="Resource" uid="uid://bemo5afnyy4lq" path="res://demo/unit/stats_player.tres" id="27_u2627"]
 [ext_resource type="PackedScene" uid="uid://bi38gny50edyk" path="res://src/TbsFramework/Scenes/Level/Objectives/RouteObjective.tscn" id="29_c7alg"]
+[ext_resource type="Script" uid="uid://b6y6de76birq2" path="res://src/TbsFramework/Scenes/Level/Control/ActionEvaluator.cs" id="30_g6g0k"]
 [ext_resource type="Resource" uid="uid://b7pxcedeak8w6" path="res://demo/unit/stats_enemy.tres" id="30_keg60"]
 [ext_resource type="PackedScene" uid="uid://bdxrle0amq3ew" path="res://src/TbsFramework/Scenes/Level/Objectives/TimeObjective.tscn" id="30_xri0l"]
+[ext_resource type="Script" uid="uid://xhx4rvyr3l58" path="res://src/TbsFramework/Scenes/Level/Control/DefeatedUnitsEvaluator.cs" id="31_5t6v1"]
+[ext_resource type="Script" uid="uid://b57ctui2ox3yh" path="res://src/TbsFramework/Scenes/Level/Control/HealthDifferenceEvaluator.cs" id="32_lq1v0"]
+[ext_resource type="Script" uid="uid://v8q7q2m7s0dc" path="res://src/TbsFramework/Scenes/Level/Control/PathEvaluator.cs" id="33_xsbgo"]
 [ext_resource type="PackedScene" uid="uid://dar0v4k4aqvpv" path="res://src/TbsFramework/UI/HUD/CursorHintIcon.tscn" id="34_0sxdy"]
 [ext_resource type="PackedScene" uid="uid://tdcp5jyrdck7" path="res://demo/DemoMapCombatController.tscn" id="34_3j3nk"]
+[ext_resource type="Script" uid="uid://dfa4sbqn83t15" path="res://src/TbsFramework/Scenes/Level/Control/ProximityEvaluator.cs" id="34_jaaus"]
 [ext_resource type="Theme" uid="uid://by6euruicgqv" path="res://demo/assets/ui/ui.tres" id="35_dxofe"]
 [ext_resource type="Resource" uid="uid://cu80svtcky350" path="res://demo/assets/ui/input/icons/icon_map_mouse.tres" id="35_mogvl"]
 [ext_resource type="Resource" uid="uid://scrs41kvnxyt" path="res://demo/assets/ui/input/icons/icon_map_keyboard.tres" id="36_npakb"]
@@ -66,6 +71,44 @@ script = ExtResource("27_ls5jp")
 
 [sub_resource type="Resource" id="Resource_5t6v1"]
 script = ExtResource("27_ls5jp")
+
+[sub_resource type="Resource" id="Resource_vhc0u"]
+script = ExtResource("31_5t6v1")
+AllEnemies = true
+metadata/_custom_type_script = "uid://xhx4rvyr3l58"
+
+[sub_resource type="Resource" id="Resource_gkkdy"]
+script = ExtResource("31_5t6v1")
+AllAllies = true
+metadata/_custom_type_script = "uid://xhx4rvyr3l58"
+
+[sub_resource type="Resource" id="Resource_ie1ab"]
+script = ExtResource("32_lq1v0")
+AllEnemies = true
+IncludeDefeated = false
+TakeLargest = 4
+metadata/_custom_type_script = "uid://b57ctui2ox3yh"
+
+[sub_resource type="Resource" id="Resource_ry3ic"]
+script = ExtResource("32_lq1v0")
+AllEnemies = true
+IncludeDefeated = false
+metadata/_custom_type_script = "uid://b57ctui2ox3yh"
+
+[sub_resource type="Resource" id="Resource_ecetr"]
+script = ExtResource("32_lq1v0")
+AllAllies = true
+IncludeDefeated = false
+metadata/_custom_type_script = "uid://b57ctui2ox3yh"
+
+[sub_resource type="Resource" id="Resource_rg2rd"]
+script = ExtResource("33_xsbgo")
+metadata/_custom_type_script = "uid://v8q7q2m7s0dc"
+
+[sub_resource type="Resource" id="Resource_mq3ma"]
+script = ExtResource("34_jaaus")
+AnyEnemy = true
+metadata/_custom_type_script = "uid://dfa4sbqn83t15"
 
 [sub_resource type="Resource" id="Resource_xsbgo"]
 script = ExtResource("27_ls5jp")
@@ -224,6 +267,15 @@ Size = Vector2(16, 16)
 Faction = ExtResource("7_yu7ov")
 
 [node name="AIController" parent="LevelManager/Enemy1" instance=ExtResource("9_s2xnc")]
+Evaluators = Dictionary[ExtResource("30_g6g0k"), float]({
+SubResource("Resource_vhc0u"): 64.0,
+SubResource("Resource_gkkdy"): -32.0,
+SubResource("Resource_ie1ab"): 16.0,
+SubResource("Resource_ry3ic"): 8.0,
+SubResource("Resource_ecetr"): -4.0,
+SubResource("Resource_rg2rd"): 2.0,
+SubResource("Resource_mq3ma"): 1.0
+})
 CursorSprite = ExtResource("8_s2xnc")
 CursorOffset = Vector2(8, 8)
 EvaluateWithThreads = false
