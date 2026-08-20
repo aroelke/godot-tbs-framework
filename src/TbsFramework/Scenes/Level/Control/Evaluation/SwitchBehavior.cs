@@ -3,7 +3,7 @@ using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
 
-namespace TbsFramework.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>
 /// <see cref="Unit"/> behavior that can switch between two other behaviors based on a <see cref="SwitchCondition"/>. Can be configured to only

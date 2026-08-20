@@ -5,7 +5,7 @@ using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Scenes.Data;
 
-namespace TbsFramework.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>Options for methods to use for choosing a destination cell when multiple are available.</summary>
 public enum DestinationMethod

@@ -4,7 +4,7 @@ using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
 
-namespace TbsFramework.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>Information about a unit's potential action.</summary>
 /// <param name="Action">Resource describing the action.</param>
