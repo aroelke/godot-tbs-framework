@@ -107,7 +107,7 @@ metadata/_custom_type_script = "uid://v8q7q2m7s0dc"
 
 [sub_resource type="Resource" id="Resource_mq3ma"]
 script = ExtResource("34_jaaus")
-AnyEnemy = true
+AllEnemies = true
 metadata/_custom_type_script = "uid://dfa4sbqn83t15"
 
 [sub_resource type="Resource" id="Resource_xsbgo"]
