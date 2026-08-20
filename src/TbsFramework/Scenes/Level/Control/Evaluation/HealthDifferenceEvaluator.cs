@@ -1,13 +1,14 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
 
-namespace TbsFramework.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
-/// <summary>Evaluates actions based on the number of defeated units on the grid as the result of an action.</summary>
+/// <summary>Evaluates a grid based on the total health lost by a collection of units.</summary>
 [GlobalClass, Tool]
-public partial class DefeatedUnitsEvaluator : ActionEvaluator
+public partial class HealthDifferenceEvaluator : ActionEvaluator
 {
     private bool _allies = false, _enemies = false;
 
@@ -52,10 +53,24 @@ public partial class DefeatedUnitsEvaluator : ActionEvaluator
     /// <summary>Factions containing units to count.</summary>
     [Export] public Faction[] Factions = [];
 
+    /// <summary><c>true</c> if units that were defeated should be counted for total health lost.</summary>
+    [Export] public bool IncludeDefeated = true;
+
+    /// <summary>
+    /// Only count a number of units with the most health lost. If there are fewer than that many units in the group,
+    /// count all of them.
+    /// </summary>
+    [Export(PropertyHint.Range, "0,5,1,or_greater")] public int TakeLargest = 0;
+
+    /// <summary>If there are no units in the included group, use this value to evaluate the grid. Should be between 0 and 1.</summary>
+    [Export(PropertyHint.Range, "0,1,0.01")] public double NoUnitsValue = 0;
+
     public override double Evaluate(SimulatedAction action)
     {
         bool IsIncluded(UnitData u)
         {
+            if (!IncludeDefeated && u.Health <= 0)
+                return false;
             if (Factions.Contains(u.Faction))
                 return true;
             if (_allies && action.Faction.AlliedTo(u.Faction))
@@ -64,8 +79,16 @@ public partial class DefeatedUnitsEvaluator : ActionEvaluator
                 return true;
             return false;
         }
+
         IEnumerable<UnitData> included = action.Grid.Occupants.Values.Where(IsIncluded);
-        return ((double)included.Count((u) => u.Health <= 0))/included.Count();
+        if (!included.Any())
+            return NoUnitsValue;
+        else
+        {
+            if (TakeLargest > 0 && included.Count() > TakeLargest)
+                included = included.OrderByDescending((u) => u.Stats.MaxHealth - u.Health).Take(TakeLargest);
+            return included.Sum((u) => u.Stats.MaxHealth - u.Health)/included.Sum((u) => u.Stats.MaxHealth);
+        }
     }
 
     public override void _ValidateProperty(Godot.Collections.Dictionary property)

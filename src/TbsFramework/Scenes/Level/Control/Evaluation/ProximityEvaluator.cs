@@ -5,7 +5,7 @@ using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Scenes.Data;
 
-namespace TbsFramework.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>Strategy to use when making a decision based on distance between two cells.</summary>
 public enum DistanceStrategy

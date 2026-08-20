@@ -1,7 +1,7 @@
 using Godot;
 using TbsFramework.Scenes.Data;
 
-namespace TbsFramework.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>Structure containing information about a simulated action that can be used for evaluation.</summary>
 /// <param name="Grid">State of the grid that would result from performing the action.</param>

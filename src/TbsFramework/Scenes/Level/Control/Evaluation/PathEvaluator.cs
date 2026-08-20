@@ -1,6 +1,6 @@
 using Godot;
 
-namespace TbsFramework.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>Evaluates an action based on the length of the path the actor took to get to its destination.</summary>
 [GlobalClass, Tool]

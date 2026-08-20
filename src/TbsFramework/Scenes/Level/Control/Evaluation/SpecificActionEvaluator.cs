@@ -1,7 +1,7 @@
 using System.Linq;
 using Godot;
 
-namespace TbsFramework.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>Evaluates actions based on if they are part of a desired set.</summary>
 [GlobalClass, Tool]
