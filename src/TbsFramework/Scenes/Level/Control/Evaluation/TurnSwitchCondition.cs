@@ -2,7 +2,7 @@ using Godot;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Events;
 
-namespace TbsFramework.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>Behavior switch condition that triggers when a particular turn is reached.</summary>
 [Tool]

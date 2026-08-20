@@ -5,7 +5,7 @@ using Godot;
 using TbsFramework.Scenes.Level.Events;
 using TbsFramework.Scenes.Rendering;
 
-namespace TbsFramework.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>Behavior switching condition that triggers based on a unit from a set of units entering an area of the map.</summary>
 /// <remarks>

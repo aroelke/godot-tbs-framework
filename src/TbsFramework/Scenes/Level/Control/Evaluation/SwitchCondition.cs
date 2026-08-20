@@ -1,6 +1,6 @@
 using Godot;
 
-namespace TbsFramework.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>
 /// Represents a condition under which an AI-controlled unit's <see cref="Behavior"/> switches from one type

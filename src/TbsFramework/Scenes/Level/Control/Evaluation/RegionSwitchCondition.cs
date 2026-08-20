@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Godot;
 
-namespace TbsFramework.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>Behavior switch condition that triggers for units in a specified region of the map.</summary>
 [Tool]
