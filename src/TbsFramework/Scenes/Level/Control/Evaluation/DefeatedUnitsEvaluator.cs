@@ -65,7 +65,7 @@ public partial class DefeatedUnitsEvaluator : ActionEvaluator
             return false;
         }
         IEnumerable<UnitData> included = action.Grid.Occupants.Values.Where(IsIncluded);
-        return ((double)included.Count((u) => u.Health <= 0))/included.Count();
+        return included.Any() ? ((double)included.Count((u) => u.Health <= 0))/included.Count() : 0;
     }
 
     public override void _ValidateProperty(Godot.Collections.Dictionary property)
