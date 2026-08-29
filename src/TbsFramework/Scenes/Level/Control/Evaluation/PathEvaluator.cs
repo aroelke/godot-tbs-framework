@@ -11,7 +11,7 @@ public partial class PathEvaluator : ActionEvaluator
 
     public override double Evaluate(SimulatedAction action)
     {
-        double value = action.Traversed.Count == 0 ? 1 : ((double)action.Traversed.Count)/action.GetActor().Stats.MoveDistance;
+        double value = action.Traversed.Count == 0 ? 0 : ((double)action.Traversed.Count)/action.GetActor().Stats.MoveDistance;
         if (PreferShorter)
             return 1 - value;
         else
