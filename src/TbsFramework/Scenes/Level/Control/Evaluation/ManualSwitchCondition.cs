@@ -1,6 +1,6 @@
 using Godot;
 
-namespace TbsFramework.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>Switch condition that only switches when a function is called.</summary>
 [Tool]

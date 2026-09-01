@@ -4,14 +4,14 @@ using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
 
-namespace TbsFramework.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>Information about a unit's potential action.</summary>
 /// <param name="Action">Resource describing the action.</param>
 /// <param name="Source">Cells the action could be performed from.</param>
 /// <param name="Target">Cell the action will be performed on.</param>
-/// <param name="Traversable">Cells the acting unit can move on.</param>
-public record class ActionInfo(UnitAction Action, IEnumerable<Vector2I> Source, Vector2I Target, IEnumerable<Vector2I> Traversable);
+/// <param name="Destinations">Cells the acting unit can move on.</param>
+public record class ActionInfo(UnitAction Action, IEnumerable<Vector2I> Source, Vector2I Target, IEnumerable<Vector2I> Destinations);
 
 /// <summary>A <see cref="Unit"/> component that provides information about how the AI uses it in a specific situation.</summary>
 [Tool, Icon("uid://cvtdbcchxcvon")]
@@ -47,7 +47,7 @@ public abstract partial class Behavior : Node
     {
         if (!traversable.Contains(from) || !traversable.Contains(to))
             throw new ArgumentException($"Cannot compute path from {from} to {to}; at least one is not traversable.");
-        return Path.Empty(unit.Grid, traversable).Add(from).Add(to);
+        return Path.Empty(traversable, unit.CellCost).Add(from).Add(to);
     }
 
     /// <inheritdoc cref="GetPath(UnitData, Vector2I, Vector2I, IEnumerable{Vector2I})"/>

@@ -7,6 +7,7 @@ using TbsFramework.Scenes.Level.Control;
 using TbsFramework.Nodes;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level;
+using TbsFramework.Scenes.Level.Control.Evaluation;
 
 namespace TbsFramework.Scenes.Rendering;
 
@@ -91,7 +92,11 @@ public partial class Unit : GridNode
     public UnitData UnitData { get; init; } = new();
     public override GridObjectData Data => UnitData;
 
-    [Export] public UnitIdentity Identity = new();
+    /// <summary>
+    /// Resource representing the identity of this unit. Don't assign this a value in the editor unless it needs to be carried over from another scene
+    /// and/or it needs to be assigned to another object property so that object can refer to this unit.
+    /// </summary>
+    [Export] public UnitIdentity Identity = null;
 
     /// <summary>Class this unit belongs to, defining some of its stats and animations.</summary>
     [Export] public Class Class
@@ -221,7 +226,7 @@ public partial class Unit : GridNode
         {
             UnitData.Behavior = GetChildren().OfType<Behavior>().FirstOrDefault();
             UnitData.Renderer = this;
-            UnitData.Identity = Identity;
+            UnitData.Identity = Identity ??= new();
 
             RemoveChild(EditorSprite);
             EditorSprite.QueueFree();

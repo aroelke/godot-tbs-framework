@@ -3,7 +3,7 @@ using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Rendering;
 
-namespace TbsFramework.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>Behavior switch condition that triggers based on units being in range to perform an action on other units.</summary>
 [Tool]

@@ -3,7 +3,7 @@ using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
 
-namespace TbsFramework.Scenes.Level.Control;
+namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>Unit behavior that prevents a unit from moving and can optionally prevent actions as well.</summary>
 [Tool]

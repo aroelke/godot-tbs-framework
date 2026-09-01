@@ -5,7 +5,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
-using TbsFramework.Scenes.Data;
 
 namespace TbsFramework.Scenes.Level.Control;
 
@@ -25,40 +24,38 @@ namespace TbsFramework.Scenes.Level.Control;
 public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyCollection<Vector2I>, IReadOnlyList<Vector2I>, ICollection, IEnumerable
 {
     /// <summary>Create a new, empty path.</summary>
-    /// <param name="grid">Grid containing the cells the path goes through.</param>
     /// <param name="traversable">Collecton of traversable cells the path can use.</param>
+    /// <param name="cost">Function providing the cost of each cell in <paramref name="traversable"/>.</param>
     /// <returns>An empty path.</returns>
-    public static Path Empty(GridData grid, IEnumerable<Vector2I> traversable) => new(grid, traversable, []);
+    public static Path Empty(IEnumerable<Vector2I> traversable, Func<Vector2I, int> cost) => new(traversable, cost, []);
 
-    private readonly GridData _grid;
+    private readonly Func<Vector2I, int> _cost;
     private readonly AStar2D _astar;
     private readonly IEnumerable<Vector2I> _traversable;
     private readonly ImmutableList<Vector2I> _cells;
 
-    private Path(GridData grid, AStar2D astar, IEnumerable<Vector2I> traversable, ImmutableList<Vector2I> initial)
+    private Path(AStar2D astar, IEnumerable<Vector2I> traversable, Func<Vector2I, int> cost, ImmutableList<Vector2I> initial)
     {
-        _grid = grid;
+        _cost = cost;
         _astar = astar;
         _traversable = traversable;
         _cells = initial;
     }
 
-    private Path(GridData grid, IEnumerable<Vector2I> traversable, ImmutableList<Vector2I> initial) : this(grid, new(), traversable, initial)
+    private Path(IEnumerable<Vector2I> traversable, Func<Vector2I, int> cost, ImmutableList<Vector2I> initial) : this(new(), traversable, cost, initial)
     {
         foreach (Vector2I cell in traversable)
-            _astar.AddPoint(CellId(cell), cell, grid.Terrain.GetValueOrDefault(cell, grid.DefaultTerrain).Cost);
+            _astar.AddPoint(cell.Cantor(), cell, _cost(cell));
         foreach (Vector2I cell in traversable)
         {
             foreach (Vector2I direction in Vector2IExtensions.Directions)
             {
                 Vector2I neighbor = cell + direction;
-                if (!_astar.ArePointsConnected(CellId(cell), CellId(neighbor)) && traversable.Contains(neighbor))
-                    _astar.ConnectPoints(CellId(cell), CellId(neighbor));
+                if (traversable.Contains(neighbor) && !_astar.ArePointsConnected(cell.Cantor(), neighbor.Cantor()))
+                    _astar.ConnectPoints(cell.Cantor(), neighbor.Cantor());
             }
         }
     }
-
-    private int CellId(Vector2I cell) => cell.X*_grid.Size.X + cell.Y;
 
     public Vector2I this[int index] => _cells[index];
 
@@ -126,10 +123,10 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
         else
         {
             // Append the cell and the shortest path between it and the last cell in the path
-            cells = _cells.AddRange(_astar.GetPointPath(CellId(_cells[^1]), CellId(value)).Select(static (c) => (Vector2I)c));
+            cells = _cells.AddRange(_astar.GetPointPath(_cells[^1].Cantor(), value.Cantor()).Select(static (c) => (Vector2I)c));
         }
         cells = [.. cells.Disentangle()];
-        return new(_grid, _astar, _traversable, cells);
+        return new(_astar, _traversable, _cost, cells);
     }
 
     /// <summary>Add a collection of cells to the path, inserting segments before and between as needed to ensure that all neighbors are adjacent.</summary>
@@ -196,7 +193,7 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
     public Path RemoveRange(int index, int count) => throw new NotImplementedException();
 
     /// <returns>An empty path on the same grid and with the same set of traversable cells as this one.</returns>
-    public Path Clear() => new(_grid, _astar, _traversable, []);
+    public Path Clear() => new(_astar, _traversable, _cost, []);
 
     public bool Contains(Vector2I item) => _cells.Contains(item);
     public void CopyTo(Vector2I[] array, int arrayIndex) => _cells.CopyTo(array, arrayIndex);

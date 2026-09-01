@@ -7,6 +7,7 @@ using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes.Components;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Control.Evaluation;
 using TbsFramework.Scenes.Rendering;
 using TbsFramework.Scenes.Transitions;
 using TbsFramework.UI.Controls.Device;
@@ -51,13 +52,16 @@ public partial class AIController : ArmyController
         public IEnumerable<Vector2I> Traversable;
         public Vector2I Start = GridData.InvalidCell;
 
+        public Path Path { get; private set; }
+
         public Vector2I Destination
         {
             get => _destination;
             set
             {
                 _destination = value;
-                PathCost = Actor.PathCost(Path.Empty(Actor.Grid, Traversable).Add(Start).Add(_destination));
+                Path = Path.Empty(Traversable, Actor.CellCost).Add(Start).Add(_destination);
+                PathCost = Actor.PathCost(Path);
             }
         }
 
@@ -169,7 +173,7 @@ public partial class AIController : ArmyController
 
                     if (action.Action.RequiresTarget)
                     {
-                        destinations = action.Action.GetSourceCells(unit, action.Target).Intersect(action.Traversable);
+                        destinations = action.Action.GetSourceCells(unit, action.Target).Intersect(action.Destinations);
 
                         // If the action allows for retaliation, prioritize cells that the target can't retaliate on
                         if (action.Action.RequiresTarget && action.Action.RetaliationAllowed)
@@ -185,9 +189,9 @@ public partial class AIController : ArmyController
                     // Prioritize the destination closest to the actor's current cell, but if that cell is the actor's current cell then
                     // also try the next-best one in case moving another unit to that cell afterward is overall better
                     Vector2I best = unit.Behavior.ChooseDestination(unit, destinations, traversable);
-                    actions.Add(new(unit, action.Action, best, action.Target, action.Traversable));
+                    actions.Add(new(unit, action.Action, best, action.Target, traversable));
                     if (best == unit.Cell && destinations.Count() > 1)
-                        actions.Add(new(unit, action.Action, unit.Behavior.ChooseDestination(unit, destinations.Where((c) => c != best), traversable), action.Target, action.Traversable));
+                        actions.Add(new(unit, action.Action, unit.Behavior.ChooseDestination(unit, destinations.Where((c) => c != best), traversable), action.Target, action.Destinations));
                 }
             }
         }
@@ -244,6 +248,23 @@ public partial class AIController : ArmyController
         return value;
     }
 
+    private double GetActionValue(VirtualAction action, IEnumerable<UnitAction> available)
+    {
+        action.Result = action.Action.Simulate(action.Actor, action.Destination, action.Target);
+        action.Result.Occupants[action.Destination].Active = false;
+        SimulatedAction simulated = new(action.Result, Faction, action.Path, action.Action);
+
+        // Compute the value of the action before cleaning up the grid so that units that need to be cleaned up can be accounted for in its value before they're removed
+        double value = Evaluators.Select((e) => e.Key.Evaluate(simulated)*e.Value).DefaultIfEmpty(0).Sum();
+        if (action.Result.Occupants[action.Destination].Health <= 0)
+            action.Result.Occupants[action.Destination].Grid = null;
+        if (action.Action.RequiresTarget && action.Result.Occupants[action.Target].Health <= 0)
+            action.Result.Occupants[action.Target].Grid = null;
+
+        IEnumerable<VirtualAction> next = GetAvailableActions(action.Result, action.Actor.Faction, available);
+        return value + next.Select((a) => GetActionValue(a, available)).DefaultIfEmpty(0).Max();
+    }
+
     public (UnitData selected, Vector2I destination, UnitAction action, Vector2I target) ComputeAction(IEnumerable<UnitData> available, IEnumerable<UnitAction> actions)
     {
         UnitData selected;
@@ -256,11 +277,11 @@ public partial class AIController : ArmyController
         {
             VirtualAction result;
             if (EvaluateWithThreads)
-                result = Task.WhenAll([.. potential.Select((a) => Task.Run(() => EvaluateAction(potential, a, [], actions, MaxSearchDepth)))]).Result.Max();
+                result = potential.Zip(Task.WhenAll([.. potential.Select((a) => Task.Run(() => GetActionValue(a, actions)))]).Result).MaxBy((a) => a.Second).First;
             else
             {
                 Dictionary<GridData, VirtualAction> decisions = [];
-                result = potential.Max((a) => EvaluateAction(potential, a, decisions, actions, MaxSearchDepth));
+                result = potential.Zip(potential.Select((a) => GetActionValue(a, actions))).MaxBy((a) => a.Second).First;
             }
             selected = result.Actor;
             destination = result.Destination;
@@ -298,6 +319,8 @@ public partial class AIController : ArmyController
     private Timer                 IndicatorTimer        => _cache.GetNode<Timer>("IndicatorTimer");
 
     public override Grid Grid { get; set; } = null;
+
+    [Export] public Godot.Collections.Dictionary<ActionEvaluator, double> Evaluators = [];
 
     /// <summary>Sprite to use for the pseudocursor.</summary>
     [Export] public Texture2D CursorSprite
@@ -422,7 +445,6 @@ public partial class AIController : ArmyController
         FastForwardTransition.TransitionIn();
         EmitSignal(SignalName.FastForwardStateChanged, _ff = false);
     }
-
 
     public override void _Input(InputEvent @event)
     {

@@ -19,11 +19,13 @@ public class GridData
     private readonly ObservableProperty<Vector2I> _size = new(Vector2I.One);
     private readonly ObservableDictionary<Vector2I, Terrain> _terrain = [];
     private readonly ObservableDictionary<Vector2I, UnitData> _occupants = [];
+    private IEnumerable<Vector2I> _all = null;
 
     private GridData(GridData original) : this()
     {
         Identity = original.Identity;
         _size = original._size;
+        _all = original._all;
         DefaultTerrain = original.DefaultTerrain;
         foreach ((Vector2I cell, Terrain terrain) in original.Terrain)
             _terrain[cell] = terrain;
@@ -56,6 +58,12 @@ public class GridData
         set => _size.Value = value;
     }
 
+    /// <summary>
+    /// Linear collection of all valid cell indices in this grid. Typically <see cref="Contains"/> should be used to check if an index is valid; this is
+    /// mainly used for <see cref="Level.Control.Path">Path</see> to be usable for computing paths independently of unit traversal range.
+    /// </summary>
+    public IEnumerable<Vector2I> AllCells => _all ??= Size.X > 0 && Size.Y > 0 ? Enumerable.Range(0, Size.X).SelectMany((x) => Enumerable.Range(0, Size.Y).Select((y) => new Vector2I(x, y))) : [];
+
     /// <summary>Terrain of the grid cells. This array is sparse, so only cells whose terrain isn't <see cref="DefaultTerrain"/> are present.</summary>
     public IDictionary<Vector2I, Terrain> Terrain => _terrain;
 
@@ -73,6 +81,7 @@ public class GridData
 
     public GridData()
     {
+        _size.ValueChanged += (_, _) => _all = null;
         _terrain.ItemsAdded += (items) => {
             if (TerrainUpdated is not null)
                 foreach ((Vector2I cell, Terrain terrain) in items)

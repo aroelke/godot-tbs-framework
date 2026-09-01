@@ -595,7 +595,7 @@ public partial class PlayerController : ArmyController
                 if (action.Name == AttackLayer.Name || action.Name == SupportLayer.Name)
                     ActionLayers[action.Name] = action.GetAllTargetCells(unit);
             Cursor.SoftRestriction = [.. _traversable];
-            UpdatePath(Path.Empty(Cursor.Grid.Data, _traversable).Add(unit.Cell));
+            UpdatePath(Path.Empty(_traversable, _selected.CellCost).Add(unit.Cell));
         }
         if (Grid.CellOf(Pointer.Position) != unit.Cell)
         {
