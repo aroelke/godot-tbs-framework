@@ -14,6 +14,11 @@ public enum DistanceStrategy
     ManhattanDistance,
     /// <summary>Use the number of cells contained in the shortest path between the two cells (accounting for cell cost).</summary>
     PathLength,
+    /// <summary>
+    /// Use the number of cells contained in teh shortest path between the two cells only accounting for walls (defined as cells
+    /// whose cost is greater than the moving unit's movement range).
+    /// </summary>
+    PathLengthNoTerrain,
     /// <summary>Use the cost of moving along the shortest path between the two cells.</summary>
     PathCost
 }
@@ -97,15 +102,17 @@ public partial class ProximityEvaluator : ActionEvaluator
         {
             Vector2I destination = action.Traversed[^1];
             IEnumerable<int> costs = included.Select((u) => EvaluationStrategy switch {
-                DistanceStrategy.ManhattanDistance => destination.ManhattanDistanceTo(u.Cell),
-                DistanceStrategy.PathLength => Path.Empty(action.Grid.AllCells, _ => 1).Add(destination).Add(u.Cell).Count,
-                DistanceStrategy.PathCost => actor.PathCost(Path.Empty(action.Grid.AllCells, actor.CellCost).Add(destination).Add(u.Cell)),
+                DistanceStrategy.ManhattanDistance   => destination.ManhattanDistanceTo(u.Cell),
+                DistanceStrategy.PathLength          => Path.Empty(action.Grid.AllCells, actor.CellCost).Add(destination).Add(u.Cell).Count - 1,
+                DistanceStrategy.PathLengthNoTerrain => Path.Empty(action.Grid.AllCells, (c) => actor.CellCost(c) > actor.Stats.MoveDistance ? int.MaxValue : 1).Add(destination).Add(u.Cell).Count - 1,
+                DistanceStrategy.PathCost            => actor.PathCost(Path.Empty(action.Grid.AllCells, actor.CellCost).Add(destination).Add(u.Cell)),
                 _ => throw new ArgumentOutOfRangeException(PropertyName.EvaluationStrategy)
             });
+            int cost = costs.Min();
             if (MoveCloser)
-                return 1.0/costs.Min();
+                return cost == 0 ? 1.0 : 1.0/cost;
             else
-                return 1 - 1.0/costs.Min();
+                return cost == 0 ? 0 : 1 - 1.0/cost;
         }
     }
 
