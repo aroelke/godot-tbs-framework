@@ -22,7 +22,11 @@ public partial class SpecialActionRegion : TileMapLayer
     /// <param name="cell">Cell in which the unit performed the action.</param>
     [Signal] public delegate void SpecialActionPerformedEventHandler(StringName name, Unit performer, Vector2I cell);
 
-    [Export] public ActionRegionIdentity Identity = new();
+    /// <summary>
+    /// Resource representing the identity of this special action region. Don't set it in the editor unless it needs to be carried over
+    /// between scenes and/or another object needs to reference it.
+    /// </summary>
+    [Export] public ActionRegionIdentity Identity = null;
 
     /// <summary>Structure defining the state of the special action region.</summary>
     public readonly SpecialActionRegionData Data = new();
@@ -114,7 +118,7 @@ public partial class SpecialActionRegion : TileMapLayer
         if (!Engine.IsEditorHint())
         {
             Data.Cells = [.. GetUsedCells()];
-            Data.Identity = Identity;
+            Data.Identity = Identity ??= new();
 
             Data.CellsUpdated += (cells) => {
                 Clear();

@@ -92,6 +92,10 @@ public partial class Unit : GridNode
     public UnitData UnitData { get; init; } = new();
     public override GridObjectData Data => UnitData;
 
+    /// <summary>
+    /// Resource representing the identity of this unit. Don't assign this a value in the editor unless it needs to be carried over from another scene
+    /// and/or it needs to be assigned to another object property so that object can refer to this unit.
+    /// </summary>
     [Export] public UnitIdentity Identity = null;
 
     /// <summary>Class this unit belongs to, defining some of its stats and animations.</summary>
