@@ -1,4 +1,4 @@
-[gd_scene load_steps=89 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=66 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsFramework/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="Script" uid="uid://c2joupgp3ohcx" path="res://demo/DemoMap.cs" id="1_npakb"]
@@ -38,7 +38,6 @@
 [ext_resource type="PackedScene" uid="uid://7wc21qvj7n3n" path="res://src/TbsFramework/Scenes/Level/Objectives/DefeatUnitObjective.tscn" id="25_qahj2"]
 [ext_resource type="PackedScene" uid="uid://b8dnpt7lcd2it" path="res://src/TbsFramework/Scenes/Level/Objectives/OccupyObjective.tscn" id="26_prinx"]
 [ext_resource type="PackedScene" uid="uid://blf1owsru7rvw" path="res://src/TbsFramework/Scenes/Level/Objectives/ActionObjective.tscn" id="27_c7alg"]
-[ext_resource type="Script" uid="uid://duxr5h215u3te" path="res://src/TbsFramework/Scenes/Data/UnitIdentity.cs" id="27_ls5jp"]
 [ext_resource type="Resource" uid="uid://bemo5afnyy4lq" path="res://demo/unit/stats_player.tres" id="27_u2627"]
 [ext_resource type="PackedScene" uid="uid://bi38gny50edyk" path="res://src/TbsFramework/Scenes/Level/Objectives/RouteObjective.tscn" id="29_c7alg"]
 [ext_resource type="Script" uid="uid://b6y6de76birq2" path="res://src/TbsFramework/Scenes/Level/Control/Evaluation/ActionEvaluator.cs" id="30_g6g0k"]
@@ -59,18 +58,6 @@
 [ext_resource type="Resource" uid="uid://bm5bvc8s4vh6n" path="res://demo/unit/stats_ally.tres" id="39_ls5jp"]
 [ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/TbsFramework/UI/HUD/ControlHint.tscn" id="39_mogvl"]
 [ext_resource type="PackedScene" uid="uid://c2sogymeaqvpw" path="res://demo/DemoPauseOverlay.tscn" id="49_b5lsw"]
-
-[sub_resource type="Resource" id="Resource_keg60"]
-script = ExtResource("27_ls5jp")
-
-[sub_resource type="Resource" id="Resource_061yb"]
-script = ExtResource("27_ls5jp")
-
-[sub_resource type="Resource" id="Resource_20nf1"]
-script = ExtResource("27_ls5jp")
-
-[sub_resource type="Resource" id="Resource_5t6v1"]
-script = ExtResource("27_ls5jp")
 
 [sub_resource type="Resource" id="Resource_vhc0u"]
 script = ExtResource("31_5t6v1")
@@ -109,60 +96,6 @@ metadata/_custom_type_script = "uid://v8q7q2m7s0dc"
 script = ExtResource("34_jaaus")
 AllEnemies = true
 metadata/_custom_type_script = "uid://dfa4sbqn83t15"
-
-[sub_resource type="Resource" id="Resource_xsbgo"]
-script = ExtResource("27_ls5jp")
-
-[sub_resource type="Resource" id="Resource_dvqlx"]
-script = ExtResource("27_ls5jp")
-
-[sub_resource type="Resource" id="Resource_3c2io"]
-script = ExtResource("27_ls5jp")
-
-[sub_resource type="Resource" id="Resource_wn546"]
-script = ExtResource("27_ls5jp")
-
-[sub_resource type="Resource" id="Resource_e4bej"]
-script = ExtResource("27_ls5jp")
-
-[sub_resource type="Resource" id="Resource_tsdma"]
-script = ExtResource("27_ls5jp")
-
-[sub_resource type="Resource" id="Resource_3qhpb"]
-script = ExtResource("27_ls5jp")
-
-[sub_resource type="Resource" id="Resource_m00pu"]
-script = ExtResource("27_ls5jp")
-
-[sub_resource type="Resource" id="Resource_okd5f"]
-script = ExtResource("27_ls5jp")
-
-[sub_resource type="Resource" id="Resource_agpkr"]
-script = ExtResource("27_ls5jp")
-
-[sub_resource type="Resource" id="Resource_8tkgl"]
-script = ExtResource("27_ls5jp")
-
-[sub_resource type="Resource" id="Resource_3d8df"]
-script = ExtResource("27_ls5jp")
-
-[sub_resource type="Resource" id="Resource_wqwil"]
-script = ExtResource("27_ls5jp")
-
-[sub_resource type="Resource" id="Resource_8ghwr"]
-script = ExtResource("27_ls5jp")
-
-[sub_resource type="Resource" id="Resource_clhvn"]
-script = ExtResource("27_ls5jp")
-
-[sub_resource type="Resource" id="Resource_6qdid"]
-script = ExtResource("27_ls5jp")
-
-[sub_resource type="Resource" id="Resource_tcjvv"]
-script = ExtResource("27_ls5jp")
-
-[sub_resource type="Resource" id="Resource_whvqa"]
-script = ExtResource("27_ls5jp")
 
 [node name="DemoMap" type="Node"]
 script = ExtResource("1_npakb")
@@ -229,7 +162,6 @@ PathTerrain = 0
 
 [node name="PlayerA" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(96, 144)
-Identity = SubResource("Resource_keg60")
 Class = ExtResource("12_qidbu")
 Stats = ExtResource("27_u2627")
 MoveSpeed = 320.0
@@ -238,7 +170,6 @@ Size = Vector2(16, 16)
 
 [node name="PlayerB" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(112, 128)
-Identity = SubResource("Resource_061yb")
 Class = ExtResource("12_qidbu")
 Stats = ExtResource("27_u2627")
 MoveSpeed = 320.0
@@ -247,7 +178,6 @@ Size = Vector2(16, 16)
 
 [node name="PlayerC" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(128, 144)
-Identity = SubResource("Resource_20nf1")
 Class = ExtResource("12_qidbu")
 Stats = ExtResource("27_u2627")
 MoveSpeed = 320.0
@@ -256,7 +186,6 @@ Size = Vector2(16, 16)
 
 [node name="PlayerD" parent="LevelManager/Player" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(112, 160)
-Identity = SubResource("Resource_5t6v1")
 Class = ExtResource("12_qidbu")
 Stats = ExtResource("27_u2627")
 MoveSpeed = 320.0
@@ -282,7 +211,6 @@ EvaluateWithThreads = false
 
 [node name="EnemyA" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(128, 208)
-Identity = SubResource("Resource_xsbgo")
 Stats = ExtResource("30_keg60")
 MoveSpeed = 320.0
 Grid = NodePath("../../Grid")
@@ -293,7 +221,6 @@ DestinationMethod = 1
 
 [node name="EnemyB" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(144, 208)
-Identity = SubResource("Resource_dvqlx")
 Stats = ExtResource("30_keg60")
 MoveSpeed = 320.0
 Grid = NodePath("../../Grid")
@@ -304,7 +231,6 @@ DestinationMethod = 1
 
 [node name="EnemyC" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(160, 208)
-Identity = SubResource("Resource_3c2io")
 Stats = ExtResource("30_keg60")
 MoveSpeed = 320.0
 Grid = NodePath("../../Grid")
@@ -315,7 +241,6 @@ DestinationMethod = 1
 
 [node name="EnemyD" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(176, 208)
-Identity = SubResource("Resource_wn546")
 Stats = ExtResource("30_keg60")
 MoveSpeed = 320.0
 Grid = NodePath("../../Grid")
@@ -326,7 +251,6 @@ DestinationMethod = 1
 
 [node name="EnemyE" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(144, 80)
-Identity = SubResource("Resource_e4bej")
 Stats = ExtResource("30_keg60")
 MoveSpeed = 320.0
 Grid = NodePath("../../Grid")
@@ -337,7 +261,6 @@ DestinationMethod = 1
 
 [node name="EnemyF" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(176, 80)
-Identity = SubResource("Resource_tsdma")
 Stats = ExtResource("30_keg60")
 MoveSpeed = 320.0
 Grid = NodePath("../../Grid")
@@ -348,7 +271,6 @@ DestinationMethod = 1
 
 [node name="EnemyG" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(192, 96)
-Identity = SubResource("Resource_3qhpb")
 Stats = ExtResource("30_keg60")
 MoveSpeed = 320.0
 Grid = NodePath("../../Grid")
@@ -359,7 +281,6 @@ DestinationMethod = 1
 
 [node name="EnemyH" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(192, 128)
-Identity = SubResource("Resource_m00pu")
 Stats = ExtResource("30_keg60")
 MoveSpeed = 320.0
 Grid = NodePath("../../Grid")
@@ -370,7 +291,6 @@ DestinationMethod = 1
 
 [node name="GuardA" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(288, 48)
-Identity = SubResource("Resource_okd5f")
 Stats = ExtResource("30_keg60")
 MoveSpeed = 320.0
 Grid = NodePath("../../Grid")
@@ -382,7 +302,6 @@ SupportInRange = false
 
 [node name="GuardB" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(256, 32)
-Identity = SubResource("Resource_agpkr")
 Stats = ExtResource("30_keg60")
 MoveSpeed = 320.0
 Grid = NodePath("../../Grid")
@@ -404,7 +323,6 @@ DestinationMethod = 1
 
 [node name="GuardC" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(256, 48)
-Identity = SubResource("Resource_8tkgl")
 Stats = ExtResource("30_keg60")
 MoveSpeed = 320.0
 Grid = NodePath("../../Grid")
@@ -426,7 +344,6 @@ DestinationMethod = 1
 
 [node name="RoyalGuardA" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(288, 192)
-Identity = SubResource("Resource_3d8df")
 Stats = ExtResource("30_keg60")
 MoveSpeed = 320.0
 Grid = NodePath("../../Grid")
@@ -438,7 +355,6 @@ SupportInRange = false
 
 [node name="RoyalGuardB" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(272, 208)
-Identity = SubResource("Resource_wqwil")
 Stats = ExtResource("30_keg60")
 MoveSpeed = 320.0
 Grid = NodePath("../../Grid")
@@ -450,7 +366,6 @@ SupportInRange = false
 
 [node name="RoyalGuardC" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(256, 192)
-Identity = SubResource("Resource_8ghwr")
 Stats = ExtResource("30_keg60")
 MoveSpeed = 320.0
 Grid = NodePath("../../Grid")
@@ -461,7 +376,6 @@ AttackInRange = true
 SupportInRange = false
 
 [node name="ReinforcementA" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
-Identity = SubResource("Resource_clhvn")
 Stats = ExtResource("30_keg60")
 MoveSpeed = 320.0
 Grid = NodePath("../../Grid")
@@ -481,7 +395,6 @@ DestinationMethod = 1
 
 [node name="ReinforcementB" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(32, 0)
-Identity = SubResource("Resource_6qdid")
 Stats = ExtResource("30_keg60")
 MoveSpeed = 320.0
 Grid = NodePath("../../Grid")
@@ -508,7 +421,6 @@ CursorOffset = Vector2(8, 8)
 
 [node name="Boss" parent="LevelManager/Enemy2" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(272, 192)
-Identity = SubResource("Resource_tcjvv")
 Class = ExtResource("12_qidbu")
 Stats = ExtResource("37_keg60")
 MoveSpeed = 320.0
@@ -528,7 +440,6 @@ CursorOffset = Vector2(8, 8)
 
 [node name="Ally" parent="LevelManager/Ally" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(16, 112)
-Identity = SubResource("Resource_whvqa")
 Stats = ExtResource("39_ls5jp")
 MoveSpeed = 320.0
 Grid = NodePath("../../Grid")
