@@ -6,7 +6,7 @@ using TbsFramework.Scenes.Data;
 namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>
-/// <see cref="Unit"/> behavior that can switch between two other behaviors based on a <see cref="SwitchCondition"/>. Can be configured to only
+/// <see cref="Unit"/> behavior that can switch between two other behaviors based on a <see cref="SwitchConditionNode"/>. Can be configured to only
 /// switch once, even if the condition becomes unsatisfied later, or switch back and forth based on the condition's satisfaction.
 /// </summary>
 [Tool]
@@ -18,19 +18,19 @@ public partial class SwitchBehaviorNode : BehaviorNode
     [Export] public bool CanRevert = false;
 
     /// <summary>
-    /// If there are multiple <see cref="SwitchCondition"/> children of this node, <c>true</c> means a behavior switch occurs only if all of
+    /// If there are multiple <see cref="SwitchConditionNode"/> children of this node, <c>true</c> means a behavior switch occurs only if all of
     /// those conditions are satisfied, and <c>false</c> means a switch occurs if any of them are satisfied.
     /// </summary>
     [Export] public bool MeetAllConditions = false;
 
-    /// <summary>Behavior to use before the <see cref="SwitchCondition"/> is satisfied.</summary>
+    /// <summary>Behavior to use before the <see cref="SwitchConditionNode"/> is satisfied.</summary>
     public BehaviorNode Initial { get; private set; } = null;
 
-    /// <summary>Behavior to use after the <see cref="SwitchCondition"/> is satisfied.</summary>
+    /// <summary>Behavior to use after the <see cref="SwitchConditionNode"/> is satisfied.</summary>
     public BehaviorNode Final { get; private set; } = null;
 
     /// <summary>Conditions used to determine if the behavior should switch.</summary>
-    public IEnumerable<SwitchCondition> Conditions { get; private set; } = [];
+    public IEnumerable<SwitchConditionNode> Conditions { get; private set; } = [];
 
     /// <summary>Compute whether a behavior switch should occur.</summary>
     /// <returns>
@@ -61,7 +61,7 @@ public partial class SwitchBehaviorNode : BehaviorNode
         else if (behaviors > 2)
             warnings.Add("Too many behaviors to choose from. Only the first two will be used.");
         
-        if (!GetChildren().OfType<SwitchCondition>().Any())
+        if (!GetChildren().OfType<SwitchConditionNode>().Any())
             warnings.Add("No switching condition has been defined. It won't be possible to switch behaviors.");
 
         return [.. warnings];
@@ -77,6 +77,6 @@ public partial class SwitchBehaviorNode : BehaviorNode
         if (behaviors.Count > 1)
             Final = behaviors[1];
 
-        Conditions = GetChildren().OfType<SwitchCondition>();
+        Conditions = GetChildren().OfType<SwitchConditionNode>();
     }
 }

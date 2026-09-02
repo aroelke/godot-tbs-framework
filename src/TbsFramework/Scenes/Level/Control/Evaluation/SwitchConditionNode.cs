@@ -7,7 +7,7 @@ namespace TbsFramework.Scenes.Level.Control.Evaluation;
 /// to another.
 /// </summary>
 [Icon("uid://cuwdu4xclqbbu"), Tool]
-public abstract partial class SwitchCondition : Node
+public abstract partial class SwitchConditionNode : Node
 {
     /// <summary>Signals that a behavior switch has occurred.</summary>
     /// <param name="satisfied">Whether the switch occurred due to satisfying the condition or not.</param>
