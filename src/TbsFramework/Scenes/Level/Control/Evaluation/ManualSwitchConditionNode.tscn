@@ -2,5 +2,5 @@
 
 [ext_resource type="Script" uid="uid://cj6jaiqug8ugf" path="res://src/TbsFramework/Scenes/Level/Control/Evaluation/ManualSwitchConditionNode.cs" id="1_gd8ww"]
 
-[node name="ManualSwitchCondition" type="Node"]
+[node name="ManualSwitchConditionNode" type="Node"]
 script = ExtResource("1_gd8ww")
