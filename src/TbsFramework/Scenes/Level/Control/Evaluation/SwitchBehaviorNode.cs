@@ -10,7 +10,7 @@ namespace TbsFramework.Scenes.Level.Control.Evaluation;
 /// switch once, even if the condition becomes unsatisfied later, or switch back and forth based on the condition's satisfaction.
 /// </summary>
 [Tool]
-public partial class SwitchBehavior : BehaviorNode
+public partial class SwitchBehaviorNode : BehaviorNode
 {
     private bool _switched = false;
 
