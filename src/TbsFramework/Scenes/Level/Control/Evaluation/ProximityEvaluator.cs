@@ -7,22 +7,6 @@ using TbsFramework.Scenes.Data;
 
 namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
-/// <summary>Strategy to use when making a decision based on distance between two cells.</summary>
-public enum DistanceStrategy
-{
-    /// <summary>Use the Manhattan distance, or the sum of the differences between cell coordinates.</summary>
-    ManhattanDistance,
-    /// <summary>Use the number of cells contained in the shortest path between the two cells (accounting for cell cost).</summary>
-    PathLength,
-    /// <summary>
-    /// Use the number of cells contained in teh shortest path between the two cells only accounting for walls (defined as cells
-    /// whose cost is greater than the moving unit's movement range).
-    /// </summary>
-    PathLengthNoTerrain,
-    /// <summary>Use the cost of moving along the shortest path between the two cells.</summary>
-    PathCost
-}
-
 /// <summary>Evaluates an action based on the actor's proximity to the unit in a specified group that's closest to it.</summary>
 [GlobalClass, Tool]
 public partial class ProximityEvaluator : ActionEvaluator
@@ -101,13 +85,7 @@ public partial class ProximityEvaluator : ActionEvaluator
         else
         {
             Vector2I destination = action.Traversed[^1];
-            IEnumerable<int> costs = included.Select((u) => EvaluationStrategy switch {
-                DistanceStrategy.ManhattanDistance   => destination.ManhattanDistanceTo(u.Cell),
-                DistanceStrategy.PathLength          => Path.Empty(action.Grid.AllCells, actor.CellCost).Add(destination).Add(u.Cell).Count - 1,
-                DistanceStrategy.PathLengthNoTerrain => Path.Empty(action.Grid.AllCells, (c) => actor.CellCost(c) > actor.Stats.MoveDistance ? int.MaxValue : 1).Add(destination).Add(u.Cell).Count - 1,
-                DistanceStrategy.PathCost            => actor.PathCost(Path.Empty(action.Grid.AllCells, actor.CellCost).Add(destination).Add(u.Cell)),
-                _ => throw new ArgumentOutOfRangeException(PropertyName.EvaluationStrategy)
-            });
+            IEnumerable<int> costs = included.Select((u) => EvaluationStrategy.GetCost(destination, u.Cell, action.Grid.AllCells, actor));
             int cost = costs.Min();
             if (MoveCloser)
                 return cost == 0 ? 1.0 : 1.0/cost;
