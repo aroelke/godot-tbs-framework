@@ -31,7 +31,7 @@
 [ext_resource type="AudioStream" uid="uid://bj1dfsj4g652j" path="res://demo/assets/ui/sounds/error.ogg" id="16_fv6cu"]
 [ext_resource type="PackedScene" uid="uid://djsdk3bbrh181" path="res://src/TbsFramework/Scenes/Level/Control/Evaluation/MoveBehaviorNode.tscn" id="17_e23bw"]
 [ext_resource type="AudioStream" uid="uid://bsv4edb1voeu8" path="res://demo/assets/ui/sounds/zone_off.ogg" id="17_fv6cu"]
-[ext_resource type="PackedScene" uid="uid://bbanldfbqkktf" path="res://src/TbsFramework/Scenes/Level/Control/Evaluation/InRangeSwitchCondition.tscn" id="17_ss7xl"]
+[ext_resource type="PackedScene" uid="uid://bbanldfbqkktf" path="res://src/TbsFramework/Scenes/Level/Control/Evaluation/InRangeSwitchConditionNode.tscn" id="17_ss7xl"]
 [ext_resource type="Resource" uid="uid://chjjd5sn6y2jw" path="res://demo/factions/DemoAllyFaction.tres" id="20_6hgq8"]
 [ext_resource type="PackedScene" uid="uid://bottrwv1ptmbg" path="res://src/TbsFramework/Scenes/Level/Objectives/AnyObjective.tscn" id="24_0hb45"]
 [ext_resource type="PackedScene" uid="uid://ui4hxtcp2cgu" path="res://demo/DemoEventController.tscn" id="24_c7alg"]
