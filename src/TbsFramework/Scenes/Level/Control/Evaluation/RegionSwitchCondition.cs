@@ -5,7 +5,7 @@ namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>Behavior switch condition that triggers for units in a specified region of the map.</summary>
 [Tool]
-public partial class RegionSwitchCondition : AreaSwitchCondition
+public partial class RegionSwitchCondition : AreaSwitchConditionNode
 {
     /// <summary>Region that defines switch triggering.</summary>
     [Export] public TileMapLayer TriggerRegion = null;

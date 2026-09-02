@@ -7,7 +7,7 @@ namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>Behavior switch condition that triggers based on units being in range to perform an action on other units.</summary>
 [Tool]
-public partial class InRangeSwitchCondition : AreaSwitchCondition
+public partial class InRangeSwitchCondition : AreaSwitchConditionNode
 {
     /// <summary>Action whose range determines the region that controls the behavior switch.</summary>
     [Export] public UnitAction Action = null;

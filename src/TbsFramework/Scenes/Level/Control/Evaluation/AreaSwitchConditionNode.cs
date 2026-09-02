@@ -12,7 +12,7 @@ namespace TbsFramework.Scenes.Level.Control.Evaluation;
 /// Note that this condition is not checked continuously; it only updates via the <see cref="Update"/> function, which
 /// is automatically called every time a unit finishes its action.
 /// </remarks>
-public abstract partial class AreaSwitchCondition : SwitchConditionNode
+public abstract partial class AreaSwitchConditionNode : SwitchConditionNode
 {
     /// <summary>Set of units that can explicitly trigger the condition.</summary>
     [Export] public Unit[] TriggerUnits = [];
