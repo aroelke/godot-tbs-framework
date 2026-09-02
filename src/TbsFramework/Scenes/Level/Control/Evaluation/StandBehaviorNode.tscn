@@ -2,5 +2,5 @@
 
 [ext_resource type="Script" uid="uid://cgghxilpmuiig" path="res://src/TbsFramework/Scenes/Level/Control/Evaluation/StandBehaviorNode.cs" id="1_vfk7p"]
 
-[node name="StandBehavior" type="Node"]
+[node name="StandBehaviorNode" type="Node"]
 script = ExtResource("1_vfk7p")
