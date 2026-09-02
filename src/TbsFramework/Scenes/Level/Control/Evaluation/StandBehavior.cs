@@ -7,7 +7,7 @@ namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>Unit behavior that prevents a unit from moving and can optionally prevent actions as well.</summary>
 [Tool]
-public partial class StandBehavior : Behavior
+public partial class StandBehavior : BehaviorNode
 {
     /// <summary>Whether or not the unit should attack enemies in range.</summary>
     [Export] public bool AttackInRange = false;

@@ -22,7 +22,7 @@ public enum DestinationMethod
 
 /// <summary><see cref="Unit"/> behavior that allows the unit to move around the grid to perform actions.</summary>
 [Tool]
-public partial class MoveBehavior : Behavior
+public partial class MoveBehavior : BehaviorNode
 {
     /// <summary>Method to use to choose a destination cell for an action when multiple are available.</summary>
     [Export] public DestinationMethod DestinationMethod = DestinationMethod.ClosestToCurrent;

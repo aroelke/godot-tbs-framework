@@ -136,7 +136,7 @@ public class UnitData : GridObjectData
     }
 
     /// <summary>The unit's behavior if CPU-controlled. Leave <c>null</c> for player-controlled units.</summary>
-    public Behavior Behavior = null;
+    public BehaviorNode Behavior = null;
 
     /// <summary>Additional costs to move onto certain types of terrain for this unit.</summary>
     public Dictionary<Terrain, int> UniqueTerrainModifiers = [];

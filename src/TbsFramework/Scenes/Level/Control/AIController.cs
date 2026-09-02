@@ -14,7 +14,7 @@ using TbsFramework.UI.Controls.Device;
 
 namespace TbsFramework.Scenes.Level.Control;
 
-/// <summary>Automatically controls units based on their <see cref="Behavior"/>s and the state of the level.</summary>
+/// <summary>Automatically controls units based on their <see cref="BehaviorNode"/>s and the state of the level.</summary>
 [Icon("uid://bambqlpd7p4kr"), Tool]
 public partial class AIController : ArmyController
 {

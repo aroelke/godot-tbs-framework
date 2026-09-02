@@ -3,7 +3,7 @@ using Godot;
 namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>
-/// Represents a condition under which an AI-controlled unit's <see cref="Behavior"/> switches from one type
+/// Represents a condition under which an AI-controlled unit's <see cref="BehaviorNode"/> switches from one type
 /// to another.
 /// </summary>
 [Icon("uid://cuwdu4xclqbbu"), Tool]

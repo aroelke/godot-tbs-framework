@@ -10,7 +10,7 @@ namespace TbsFramework.Scenes.Level.Control.Evaluation;
 /// switch once, even if the condition becomes unsatisfied later, or switch back and forth based on the condition's satisfaction.
 /// </summary>
 [Tool]
-public partial class SwitchBehavior : Behavior
+public partial class SwitchBehavior : BehaviorNode
 {
     private bool _switched = false;
 
@@ -24,10 +24,10 @@ public partial class SwitchBehavior : Behavior
     [Export] public bool MeetAllConditions = false;
 
     /// <summary>Behavior to use before the <see cref="SwitchCondition"/> is satisfied.</summary>
-    public Behavior Initial { get; private set; } = null;
+    public BehaviorNode Initial { get; private set; } = null;
 
     /// <summary>Behavior to use after the <see cref="SwitchCondition"/> is satisfied.</summary>
-    public Behavior Final { get; private set; } = null;
+    public BehaviorNode Final { get; private set; } = null;
 
     /// <summary>Conditions used to determine if the behavior should switch.</summary>
     public IEnumerable<SwitchCondition> Conditions { get; private set; } = [];
@@ -37,7 +37,7 @@ public partial class SwitchBehavior : Behavior
     /// <see cref="Initial"/>, if a behavior switch has not occurred (or if it reverted), and <see cref="Final"/> if a switch
     /// has occurred.
     /// </returns>
-    public Behavior TargetBehavior()
+    public BehaviorNode TargetBehavior()
     {
         if (CanRevert || !_switched)
             _switched = MeetAllConditions ? Conditions.All(static (c) => c.Satisfied) : Conditions.Any(static (c) => c.Satisfied);
@@ -55,7 +55,7 @@ public partial class SwitchBehavior : Behavior
     {
         List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
 
-        int behaviors = GetChildren().OfType<Behavior>().Count();
+        int behaviors = GetChildren().OfType<BehaviorNode>().Count();
         if (behaviors < 2)
             warnings.Add("Not enough behaviors to switch between.");
         else if (behaviors > 2)
@@ -71,7 +71,7 @@ public partial class SwitchBehavior : Behavior
     {
         base._Ready();
 
-        List<Behavior> behaviors = [.. GetChildren().OfType<Behavior>()];
+        List<BehaviorNode> behaviors = [.. GetChildren().OfType<BehaviorNode>()];
         if (behaviors.Count > 0)
             Initial = behaviors[0];
         if (behaviors.Count > 1)

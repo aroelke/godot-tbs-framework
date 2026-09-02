@@ -15,7 +15,7 @@ public record class ActionInfo(UnitAction Action, IEnumerable<Vector2I> Source, 
 
 /// <summary>A <see cref="Unit"/> component that provides information about how the AI uses it in a specific situation.</summary>
 [Tool, Icon("uid://cvtdbcchxcvon")]
-public abstract partial class Behavior : Node
+public abstract partial class BehaviorNode : Node
 {
     
     /// <summary>Determine the cells a unit is allowed to end its movement on.</summary>

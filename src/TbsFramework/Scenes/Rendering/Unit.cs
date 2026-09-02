@@ -207,9 +207,9 @@ public partial class Unit : GridNode
     {
         List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
 
-        if (!GetChildren().OfType<Behavior>().Any() && (!GetParentOrNull<Army>()?.GetChildren().OfType<PlayerController>().Any() ?? false))
+        if (!GetChildren().OfType<BehaviorNode>().Any() && (!GetParentOrNull<Army>()?.GetChildren().OfType<PlayerController>().Any() ?? false))
             warnings.Add("This unit has no behavior. It may not be able to act.");
-        if (GetChildren().OfType<Behavior>().Count() > 1)
+        if (GetChildren().OfType<BehaviorNode>().Count() > 1)
             warnings.Add("More than one behavior is defined. Only the first one will be used.");
 
         return [.. warnings];
@@ -224,7 +224,7 @@ public partial class Unit : GridNode
             UpdateVisuals(UnitData.Class, UnitData.Faction);
         if (!Engine.IsEditorHint())
         {
-            UnitData.Behavior = GetChildren().OfType<Behavior>().FirstOrDefault();
+            UnitData.Behavior = GetChildren().OfType<BehaviorNode>().FirstOrDefault();
             UnitData.Renderer = this;
             UnitData.Identity = Identity ??= new();
 
