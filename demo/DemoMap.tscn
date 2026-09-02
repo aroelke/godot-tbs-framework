@@ -25,7 +25,7 @@
 [ext_resource type="AudioStream" uid="uid://chh5seatf8dr3" path="res://demo/assets/ui/sounds/select.ogg" id="14_8l58o"]
 [ext_resource type="PackedScene" uid="uid://cseefrkj1yhgr" path="res://src/TbsFramework/Scenes/Level/Control/Evaluation/SwitchBehaviorNode.tscn" id="14_d1c8n"]
 [ext_resource type="AudioStream" uid="uid://dfj0anaew11iq" path="res://demo/assets/ui/sounds/cancel.ogg" id="15_1yav4"]
-[ext_resource type="PackedScene" uid="uid://sh1oy4xaqis2" path="res://src/TbsFramework/Scenes/Level/Control/Evaluation/TurnSwitchCondition.tscn" id="15_ss7xl"]
+[ext_resource type="PackedScene" uid="uid://sh1oy4xaqis2" path="res://src/TbsFramework/Scenes/Level/Control/Evaluation/TurnSwitchConditionNode.tscn" id="15_ss7xl"]
 [ext_resource type="AudioStream" uid="uid://byd0f8wekfypg" path="res://demo/assets/ui/sounds/zone_on.ogg" id="16_2ofvg"]
 [ext_resource type="PackedScene" uid="uid://nt5vqytk4pr3" path="res://src/TbsFramework/Scenes/Level/Control/Evaluation/StandBehaviorNode.tscn" id="16_6hgq8"]
 [ext_resource type="AudioStream" uid="uid://bj1dfsj4g652j" path="res://demo/assets/ui/sounds/error.ogg" id="16_fv6cu"]

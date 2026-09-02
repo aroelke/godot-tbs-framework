@@ -6,7 +6,7 @@ namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>Behavior switch condition that triggers when a particular turn is reached.</summary>
 [Tool]
-public partial class TurnSwitchCondition : SwitchConditionNode
+public partial class TurnSwitchConditionNode : SwitchConditionNode
 {
     /// <summary>Turn that triggers the behavior switch.</summary>
     [Export(PropertyHint.Expression, "1,10,or_greater")] public int TriggerTurn = 1;
