@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using Godot;
 using TbsFramework.Extensions;
 
@@ -123,7 +124,10 @@ public class Path : ICollection<Vector2I>, IEnumerable<Vector2I>, IReadOnlyColle
         else
         {
             // Append the cell and the shortest path between it and the last cell in the path
-            cells = _cells.AddRange(_astar.GetPointPath(_cells[^1].Cantor(), value.Cantor()).Select(static (c) => (Vector2I)c));
+            IEnumerable<Vector2I> path = _astar.GetPointPath(_cells[^1].Cantor(), value.Cantor()).Select(static (c) => (Vector2I)c);
+            if (!path.Any())
+                throw new ArgumentException($"No traversable path from {_cells[^1]} to {value}");
+            cells = _cells.AddRange(path);
         }
         cells = [.. cells.Disentangle()];
         return new(_astar, _traversable, _cost, cells);
