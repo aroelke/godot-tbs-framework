@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -32,10 +33,7 @@ public partial class MoveBehavior : Behavior
     public override Vector2I ChooseDestination(UnitData unit, IEnumerable<Vector2I> destinations, IEnumerable<Vector2I> traversable)
     {
         if (!destinations.Any())
-        {
-            GD.PushWarning("MoveBehavior: no destinations to choose from");
-            return unit.Cell;
-        }
+            throw new ArgumentException("No destinations to choose from");
 
         Vector2I closest;
         switch (ApproachTarget)
@@ -54,14 +52,13 @@ public partial class MoveBehavior : Behavior
             closest = unit.Cell;
             break;
         default:
-            GD.PushError("MoveBehavior: unknown distance strategy");
-            closest = unit.Cell;
-            break;
+            throw new ArgumentException($"Unknown approach target strategy {Enum.GetName(ApproachTarget)}");
         }
+        int GetCost(Vector2I cell) => DistanceStrategy.GetCost(closest, cell, unit.Grid.AllCells, unit);
         if (MoveCloser)
-            return destinations.MinBy((c) => DistanceStrategy.GetCost(closest, c, unit.Grid.AllCells, unit));
+            return destinations.MinBy(GetCost);
         else
-            return destinations.MaxBy((c) => DistanceStrategy.GetCost(closest, c, unit.Grid.AllCells, unit));
+            return destinations.MaxBy(GetCost);
     }
 
     public override IEnumerable<PerformableAction> GetActions(UnitData unit, IEnumerable<UnitAction> available, IEnumerable<Vector2I> traversable)

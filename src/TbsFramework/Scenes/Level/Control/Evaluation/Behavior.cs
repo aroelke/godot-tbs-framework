@@ -26,39 +26,19 @@ public abstract partial class Behavior : Node
     /// <returns>The set of cells <paramref name="unit"/> is allowed to move through from its current cell.</returns>
     public virtual IEnumerable<Vector2I> GetTraversableCells(UnitData unit) => unit.GetTraversableCells();
 
-    /// <returns>
-    /// One of the elements of <paramref name="destinations"/> based on an implementation-defined decision based on the cells <paramref name="unit"/> can traverse.
-    /// If <paramref name="destinations"/> is empty or there is no path from <paramref name="unit"/>'s cell to any of them in <paramref name="traversable"/>, a valid
-    /// result should still be returned (such as <paramref name="unit"/>'s current cell).
-    /// </returns>
+    /// <returns>One of the elements of <paramref name="destinations"/> based on an implementation-defined decision based on the cells <paramref name="unit"/> can traverse.</returns>
+    /// <exception cref="ArgumentException">
+    /// If no path can be constructed from <paramref name="unit"/>'s cell to any cell in <paramref name="destinations"/> or if <paramref name="destinations"/>
+    /// is empty.
+    /// </exception>
     public abstract Vector2I ChooseDestination(UnitData unit, IEnumerable<Vector2I> destinations, IEnumerable<Vector2I> traversable);
 
     /// <inheritdoc cref="ChooseDestination(UnitData, IEnumerable{Vector2I}, IEnumerable{Vector2I})"/>
     public Vector2I ChooseDestination(UnitData unit, IEnumerable<Vector2I> destinations) => ChooseDestination(unit, destinations, GetTraversableCells(unit));
 
-    /// <returns>
-    /// A path <paramref name="unit"/> can traverse between <paramref name="start"/> and <paramref name="destination"/> through <paramref name="traversable"/>. If no
-    /// such path exists, a valid result still needs to be returned (such as a single-element path containing only <paramref name="unit"/>'s current cell.
-    /// </returns>
-    public virtual Path GetPath(UnitData unit, Vector2I start, Vector2I destination, IEnumerable<Vector2I> traversable)
-    {
-        Path path = Path.Empty(traversable, unit.CellCost);
-        if (!traversable.Contains(start))
-        {
-            GD.PushError($"Behavior: {start} not traversable");
-            return path.Add(unit.Cell);
-        }
-        path = path.Add(start);
-        try
-        {
-            return path.Add(destination);
-        }
-        catch (ArgumentException)
-        {
-            GD.PushError($"Behavior: no traversable path between {start} and {destination}");
-            return path;
-        }
-    }
+    /// <returns>A path <paramref name="unit"/> can traverse between <paramref name="start"/> and <paramref name="destination"/> through <paramref name="traversable"/>.</returns>
+    /// <exception cref="ArgumentException">If a path cannot be constructed between <paramref name="start"/> and <paramref name="destination"/> within <paramref name="traversable"/>.</exception>
+    public virtual Path GetPath(UnitData unit, Vector2I start, Vector2I destination, IEnumerable<Vector2I> traversable) => Path.Empty(traversable, unit.CellCost).Add(start).Add(destination);
 
     /// <inheritdoc cref="GetPath(UnitData, Vector2I, Vector2I, IEnumerable{Vector2I})"/>
     public Path GetPath(UnitData unit, Vector2I start, Vector2I destination) => GetPath(unit, start, destination, GetTraversableCells(unit));

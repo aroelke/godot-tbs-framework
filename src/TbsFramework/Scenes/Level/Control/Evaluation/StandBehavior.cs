@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -14,7 +15,7 @@ public partial class StandBehavior : Behavior
     public override Vector2I ChooseDestination(UnitData unit, IEnumerable<Vector2I> destinations, IEnumerable<Vector2I> traversable)
     {
         if (!destinations.Contains(unit.Cell))
-            GD.PushError("StandBehavior: unit cell not a destination option");
+            throw new ArgumentException("unit cell is not a destination option");
         return unit.Cell;
     }
 
@@ -27,7 +28,7 @@ public partial class StandBehavior : Behavior
     public override IEnumerable<PerformableAction> GetActions(UnitData unit, IEnumerable<UnitAction> available, IEnumerable<Vector2I> traversable)
     {
         if (!traversable.Contains(unit.Cell))
-            GD.PushError("StandBehavior: unit cell not a traversal option");
+            throw new ArgumentException("unit cell is not a destination option");
         IEnumerable<UnitAction> allowed = available.Where((a) => a.CanPerform(unit, unit.Cell));
 
         IEnumerable<PerformableAction> GetTargetedActions(bool allied)
