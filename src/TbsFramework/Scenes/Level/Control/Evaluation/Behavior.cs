@@ -11,7 +11,26 @@ namespace TbsFramework.Scenes.Level.Control.Evaluation;
 /// <param name="Actor">Unit that would perform <paramref name="Action"/>.</param>
 /// <param name="Target">Cell <paramref name="Action"/> would be performed on.</param>
 /// <param name="Sources">Cells from which <paramref name="Actor"/> could perform <paramref name="Action"/> on <paramref name="Target"/>.</param>
-public record struct PerformableAction(UnitAction Action, UnitData Actor, Vector2I Target, IEnumerable<Vector2I> Sources);
+public readonly record struct PerformableAction(UnitAction Action, UnitData Actor, Vector2I Target, IEnumerable<Vector2I> Sources)
+{
+    private const int initial = 50671;
+    private const int coefficient = 149;
+
+    public bool Equals(PerformableAction other)
+    {
+        if (Action != other.Action)
+            return false;
+        if (Actor != other.Actor)
+            return false;
+        if (Target != other.Target)
+            return false;
+        if (Sources.Count() != other.Sources.Count() || !Sources.ToHashSet().SetEquals(other.Sources))
+            return false;
+        return true;
+    }
+
+    public override int GetHashCode() => HashCode.Combine(Action, Actor, Target, Sources.Aggregate(initial, (hash, cell) => hash + coefficient*cell.GetHashCode()));
+}
 
 /// <summary>Provides an interface for customizable aspects of AI decision-making for each unit.</summary>
 [GlobalClass, Tool, Icon("uid://cvtdbcchxcvon")]
