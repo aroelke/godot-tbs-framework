@@ -66,7 +66,17 @@ public partial class MoveBehavior : Behavior
         IEnumerable<Vector2I> endable = traversable.Where((c) => c == unit.Cell || !unit.Grid.Occupants.ContainsKey(c));
         return available.SelectMany((a) => {
             if (a.RequiresTarget)
-                return a.GetValidTargetCells(unit, endable).Select((c) => new PerformableAction(a, unit, c, a.GetSourceCells(unit, c).Intersect(endable)));
+            {
+                bool IsValidTarget(Vector2I cell)
+                {
+                    if (AllowAttack && unit.Grid.Occupants.TryGetValue(cell, out UnitData occupant) && !occupant.Faction.AlliedTo(unit.Faction))
+                        return true;
+                    if (AllowSupport && unit.Grid.Occupants.TryGetValue(cell, out occupant) && occupant.Faction.AlliedTo(unit.Faction))
+                        return true;
+                    return false;
+                }
+                return a.GetValidTargetCells(unit, endable).Where(IsValidTarget).Select((c) => new PerformableAction(a, unit, c, a.GetSourceCells(unit, c).Intersect(endable)));
+            }
             else
             {
                 IEnumerable<Vector2I> allowed = endable.Where((c) => a.CanPerform(unit, c));
