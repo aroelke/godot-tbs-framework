@@ -18,6 +18,7 @@ public enum ApproachTarget
 }
 
 /// <summary>Specialized behavior for units that are allowed to move to new cells when performing actions.</summary>
+/// <remarks><b>Note</b>: All exported fields are shared by copies created by <see cref="Clone"/>.</remarks>
 [GlobalClass, Tool]
 public partial class MoveBehavior : Behavior
 {
@@ -84,4 +85,6 @@ public partial class MoveBehavior : Behavior
             }
         });
     }
+
+    public override Behavior Clone() => this;
 }

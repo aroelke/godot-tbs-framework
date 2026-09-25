@@ -7,6 +7,7 @@ using TbsFramework.Scenes.Data;
 namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>Specialized behavior for units that aren't allowed to move.</summary>
+/// <remarks><b>Note</b>: All exported fields are shared by copies created by <see cref="Clone"/>.</remarks>
 [GlobalClass, Tool]
 public partial class StandBehavior : Behavior
 {
@@ -48,4 +49,6 @@ public partial class StandBehavior : Behavior
             actions.AddRange(GetTargetedActions(true));
         return actions;
     }
+
+    public override Behavior Clone() => this;
 }

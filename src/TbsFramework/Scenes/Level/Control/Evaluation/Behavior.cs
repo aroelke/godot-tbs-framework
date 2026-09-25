@@ -73,4 +73,11 @@ public abstract partial class Behavior : Node
 
     /// <inheritdoc cref="GetActions(UnitData, IEnumerable{UnitAction}, IEnumerable{Vector2I})"/>
     public IEnumerable<PerformableAction> GetActions(UnitData unit, IEnumerable<UnitAction> available) => GetActions(unit, available, GetTraversableCells(unit));
+
+    /// Create a <see cref="Behavior"/> of the same type of this one with the same state.
+    /// <remarks>
+    /// <b>Note</b>: This function <i>may</i> return a pointer to this <see cref="Behavior"/> instead of a copy if it doesn't have state that's intended to be mutated at runtime. If that's
+    /// the case, any mutable fields should indicate that they change across all references.
+    /// </remarks>
+    public abstract Behavior Clone();
 }
