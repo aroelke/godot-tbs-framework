@@ -34,7 +34,7 @@ public readonly record struct PerformableAction(UnitAction Action, UnitData Acto
 
 /// <summary>Provides an interface for customizable aspects of AI decision-making for each unit.</summary>
 [GlobalClass, Tool, Icon("uid://cvtdbcchxcvon")]
-public abstract partial class Behavior : Node
+public abstract partial class Behavior : Resource
 {
     /// <summary>Whether or not the unit is allowed to perform actions that target opposing units.</summary>
     [Export] public bool AllowAttack = true;
