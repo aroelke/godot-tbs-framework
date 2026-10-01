@@ -85,6 +85,4 @@ public partial class MoveBehavior : Behavior
             }
         });
     }
-
-    public override Behavior Clone() => this;
 }

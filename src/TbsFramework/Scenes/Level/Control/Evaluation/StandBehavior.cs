@@ -49,6 +49,4 @@ public partial class StandBehavior : Behavior
             actions.AddRange(GetTargetedActions(true));
         return actions;
     }
-
-    public override Behavior Clone() => this;
 }
