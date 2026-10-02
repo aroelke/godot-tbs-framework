@@ -19,6 +19,9 @@ public partial class LevelEvents : Node
     /// <param name="faction">Faction whose turn phase began.</param>
     public delegate void TurnPhaseEventHandler(int turn, Faction faction);
 
+    /// <summary>Signals that scene initialization has completed and the first turn is about to begin.</summary>
+    public static event Action LevelBegan;
+
     /// <summary>Signals that an army's turn has begun.</summary>
     public static event TurnPhaseEventHandler TurnBegan;
 
@@ -31,6 +34,12 @@ public partial class LevelEvents : Node
     /// <summary>Signals that a round has ended.</summary>
     public static event Action<int> RoundEnded;
 
+    /// <summary>
+    /// Signal that the level has ended and is about to be transitioned away. No further events based on level progression
+    /// should fire after this for the current scene.
+    /// </summary>
+    public static event Action LevelEnded;
+
     /// <summary>Signals that the region on the map the camera is allowed to see has been updated.</summary>
     public static event Action<Rect2I> CameraBoundsUpdated;
 
@@ -39,6 +48,9 @@ public partial class LevelEvents : Node
 
     /// <summary>Signal that the camera should focus on the previous thing it was focusing on.</summary>
     public static event Action CameraFocusReverted;
+
+    /// <summary>Signal that the level is about to begin.</summary>
+    public static void BeginLevel() { if (LevelBegan is not null) LevelBegan(); }
 
     /// <summary>Signal that the turn has begun for a faction.</summary>
     public static void BeginTurn(int turn, Faction faction) { if (TurnBegan is not null) TurnBegan(turn, faction); }
@@ -51,6 +63,9 @@ public partial class LevelEvents : Node
 
     /// <summary>Signal that the round has ended.</summary>
     public static void EndRound(int round) { if (RoundEnded is not null) RoundEnded(round); }
+
+    /// <summary>Signal that the level has ended.</summary>
+    public static void EndLevel() { if (LevelEnded is not null) LevelEnded(); }
 
     /// <summary>Signal that the camera bounds on the map have been updated.</summary>
     public static void UpdateCameraBounds(Rect2I bounds) { if (CameraBoundsUpdated is not null) CameraBoundsUpdated(bounds); }

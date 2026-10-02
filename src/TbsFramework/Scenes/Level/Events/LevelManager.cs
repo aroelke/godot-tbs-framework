@@ -88,6 +88,9 @@ public partial class LevelManager : Node
     [ExportGroup("Combat Control")]
     [Export] public bool SkipCombat = false;
 #endregion
+#region Initializing State
+    public void OnInitializingExited() => LevelEvents.BeginLevel();
+#endregion
 #region Begin Turn State
     /// <summary>Signal that a turn is about to begin.</summary>
     public void OnBeginTurnEntered()
