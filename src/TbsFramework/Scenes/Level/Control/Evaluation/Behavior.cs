@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Events;
 
 namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
@@ -42,6 +43,12 @@ public abstract partial class Behavior : Resource
     /// <summary>Whether or not the unit is allowed to perform actions that target allied units.</summary>
     [Export] public bool AllowSupport = true;
 
+    public Behavior() : base()
+    {
+        Reset();
+        LevelEvents.LevelBegan += Reset;
+    }
+
     /// <returns>The set of cells <paramref name="unit"/> is allowed to move through from its current cell.</returns>
     public virtual IEnumerable<Vector2I> GetTraversableCells(UnitData unit) => unit.GetTraversableCells();
 
@@ -73,4 +80,7 @@ public abstract partial class Behavior : Resource
 
     /// <inheritdoc cref="GetActions(UnitData, IEnumerable{UnitAction}, IEnumerable{Vector2I})"/>
     public IEnumerable<PerformableAction> GetActions(UnitData unit, IEnumerable<UnitAction> available) => GetActions(unit, available, GetTraversableCells(unit));
+
+    /// <summary>Reset any persistent state used by this behavior.</summary>
+    public virtual void Reset() {}
 }
