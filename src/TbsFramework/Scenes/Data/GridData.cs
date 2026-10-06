@@ -77,6 +77,7 @@ public class GridData
     /// <summary>Regions identifying special actions that units can perform.</summary>
     public readonly Dictionary<ActionRegionIdentity, SpecialActionRegionData> SpecialActionRegions = [];
 
+    /// <summary>Indicates the current turn for this grid.</summary>
     public int Turn = 1;
 
     /// <summary>Identity of this grid. See <see cref="DataIdentity{T}"/>.</summary>
