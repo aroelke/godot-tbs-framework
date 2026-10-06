@@ -36,6 +36,7 @@ public class GridData
         }
         foreach ((ActionRegionIdentity id, SpecialActionRegionData region) in original.SpecialActionRegions)
             SpecialActionRegions[id] = region.Clone();
+        Turn = original.Turn;
     }
 
     /// <summary>
@@ -75,6 +76,8 @@ public class GridData
 
     /// <summary>Regions identifying special actions that units can perform.</summary>
     public readonly Dictionary<ActionRegionIdentity, SpecialActionRegionData> SpecialActionRegions = [];
+
+    public int Turn = 1;
 
     /// <summary>Identity of this grid. See <see cref="DataIdentity{T}"/>.</summary>
     public GridIdentity Identity = null;

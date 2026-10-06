@@ -69,23 +69,15 @@ public partial class LevelManager : Node
     /// <see cref="Army"/> that gets the first turn and is controlled by the player. If null, use the first <see cref="Army"/>
     /// in the child list. After that, go down the child list in order, wrapping when at the end.
     /// </summary>
-    [ExportGroup("Turn Control")]
     [Export] public Army StartingArmy = null;
 
-    /// <summary>Turn count (including current turn, so it starts at 1).</summary>
-    [ExportGroup("Turn Control")]
-    [Export] public int Turn = 1;
-
     /// <summary>Path to the scene used to play combat animations. If <c>null</c>, animations will play on map.</summary>
-    [ExportGroup("Combat Control")]
     [Export(PropertyHint.File, "*.tscn")] public string CombatScenePath = null;
 
     /// <summary>Force playing combat animations using map contents rather than in a separate scene.</summary>
-    [ExportGroup("Combat Control")]
     [Export] public bool PlayCombatOnMap = false;
 
     /// <summary>Skip playing combat animations entirely.</summary>
-    [ExportGroup("Combat Control")]
     [Export] public bool SkipCombat = false;
 #endregion
 #region Initializing State
@@ -106,7 +98,7 @@ public partial class LevelManager : Node
         _armies.Current.Controller.ConnectForTurn(ArmyController.SignalName.TargetChosen, Callable.From<Vector2I, Vector2I>(OnTargetingTargetChosenReaction.React));
 
         _armies.Current.Controller.InitializeTurn();
-        Callable.From<int, Faction>(LevelEvents.BeginTurn).CallDeferred(Turn, _armies.Current.Faction);
+        Callable.From<int, Faction>(LevelEvents.BeginTurn).CallDeferred(_grid.Turn, _armies.Current.Faction);
     }
 #endregion
 #region Idle State
@@ -432,7 +424,7 @@ public partial class LevelManager : Node
                 State.SetVariable(TurnoverProperty, true);
         } while (!_armies.Current.Any());
 
-        LevelEvents.EndTurn(Turn, ended.Faction);
+        LevelEvents.EndTurn(_grid.Turn, ended.Faction);
     }
 
     /// <summary>After a delay, signal that the turn is ending and wait for a response.</summary>
@@ -451,13 +443,13 @@ public partial class LevelManager : Node
 #endregion
 #region End Round State
     /// <summary>Signal that the round is ending.</summary>
-    public void OnRoundEndEntered() => LevelEvents.EndRound(Turn);
+    public void OnRoundEndEntered() => LevelEvents.EndRound(_grid.Turn);
 
     /// <summary>Finish ending the round by incrementing the turn counter.</summary>
     public void OnRoundEndExited()
     {
         State.SetVariable(TurnoverProperty, false);
-        Turn++;
+        _grid.Turn++;
     }
 #endregion
 #region State Independent
