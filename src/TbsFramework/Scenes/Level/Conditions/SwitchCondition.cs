@@ -1,6 +1,6 @@
 using Godot;
 
-namespace TbsFramework.Scenes.Level.Control.Evaluation;
+namespace TbsFramework.Scenes.Level.Conditions;
 
 [GlobalClass, Tool, Icon("uid://cuwdu4xclqbbu")]
 public abstract partial class SwitchCondition : Resource
