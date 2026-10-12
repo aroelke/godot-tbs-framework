@@ -167,14 +167,13 @@ public partial class AIController : ArmyController
             if (unit.Faction == faction && unit.Active && unit.Health > 0)
             {
                 IEnumerable<Vector2I> traversable = unit.GetTraversableCells();
-                foreach (ActionInfo action in unit.Behavior.Actions(unit, available))
+                foreach (PerformableAction action in unit.Behavior.GetActions(unit, available, traversable))
                 {
                     IEnumerable<Vector2I> destinations;
 
+                    destinations = action.Sources;
                     if (action.Action.RequiresTarget)
                     {
-                        destinations = action.Action.GetSourceCells(unit, action.Target).Intersect(action.Destinations);
-
                         // If the action allows for retaliation, prioritize cells that the target can't retaliate on
                         if (action.Action.RequiresTarget && action.Action.RetaliationAllowed)
                         {
@@ -183,15 +182,13 @@ public partial class AIController : ArmyController
                                 destinations = safe;
                         }
                     }
-                    else
-                        destinations = action.Source;
 
                     // Prioritize the destination closest to the actor's current cell, but if that cell is the actor's current cell then
                     // also try the next-best one in case moving another unit to that cell afterward is overall better
                     Vector2I best = unit.Behavior.ChooseDestination(unit, destinations, traversable);
                     actions.Add(new(unit, action.Action, best, action.Target, traversable));
                     if (best == unit.Cell && destinations.Count() > 1)
-                        actions.Add(new(unit, action.Action, unit.Behavior.ChooseDestination(unit, destinations.Where((c) => c != best), traversable), action.Target, action.Destinations));
+                        actions.Add(new(unit, action.Action, unit.Behavior.ChooseDestination(unit, destinations.Where((c) => c != best), traversable), action.Target, traversable));
                 }
             }
         }
@@ -261,8 +258,8 @@ public partial class AIController : ArmyController
         if (action.Action.RequiresTarget && action.Result.Occupants[action.Target].Health <= 0)
             action.Result.Occupants[action.Target].Grid = null;
 
-        IEnumerable<VirtualAction> next = GetAvailableActions(action.Result, action.Actor.Faction, available);
-        return value + next.Select((a) => GetActionValue(a, available)).DefaultIfEmpty(0).Max();
+//        IEnumerable<VirtualAction> next = GetAvailableActions(action.Result, action.Actor.Faction, available);
+        return value; // + next.Select((a) => GetActionValue(a, available)).DefaultIfEmpty(0).Max();
     }
 
     public (UnitData selected, Vector2I destination, UnitAction action, Vector2I target) ComputeAction(IEnumerable<UnitData> available, IEnumerable<UnitAction> actions)
@@ -293,14 +290,9 @@ public partial class AIController : ArmyController
             IEnumerable<UnitData> enemies = Grid.Data.Occupants.Values.Where((o) => o is UnitData u && !u.Faction.AlliedTo(Faction)).OfType<UnitData>();
 
             selected = enemies.Any() ? available.MinBy((u) => enemies.Min((e) => u.Cell.DistanceTo(e.Cell))) : available.First();
-            IEnumerable<Vector2I> destinations = selected.Behavior.Destinations(selected);
+            IEnumerable<Vector2I> destinations = selected.GetTraversableCells();
             action = actions.FirstOrDefault((a) => a.AIAllowed && !a.RequiresTarget && destinations.Any((c) => a.CanPerform(selected, c)));
-
-            IEnumerable<UnitData> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Cell));
-            if (ordered.Any())
-                destination = destinations.OrderBy((c) => selected.PathCost(selected.Behavior.GetPath(selected, c))).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
-            else
-                destination = selected.Cell;
+            destination = selected.Behavior.ChooseDestination(selected, destinations);
             target = GridData.InvalidCell;
         }
 

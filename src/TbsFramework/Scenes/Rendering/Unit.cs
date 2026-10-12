@@ -118,6 +118,8 @@ public partial class Unit : GridNode
 
     [Export] public Godot.Collections.Dictionary<Terrain, int> UniqueTerrainModifiers = [];
 
+    [Export] public Behavior Behavior = null;
+
     [ExportGroup("Path Traversal", "Move")]
 
     /// <summary>Base speed, in world pixels/second, to move along the path while moving.</summary>
@@ -203,18 +205,6 @@ public partial class Unit : GridNode
         }
     }
 
-    public override string[] _GetConfigurationWarnings()
-    {
-        List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
-
-        if (!GetChildren().OfType<BehaviorNode>().Any() && (!GetParentOrNull<Army>()?.GetChildren().OfType<PlayerController>().Any() ?? false))
-            warnings.Add("This unit has no behavior. It may not be able to act.");
-        if (GetChildren().OfType<BehaviorNode>().Count() > 1)
-            warnings.Add("More than one behavior is defined. Only the first one will be used.");
-
-        return [.. warnings];
-    }
-
     public override void _Ready()
     {
         base._Ready();
@@ -224,7 +214,7 @@ public partial class Unit : GridNode
             UpdateVisuals(UnitData.Class, UnitData.Faction);
         if (!Engine.IsEditorHint())
         {
-            UnitData.Behavior = GetChildren().OfType<BehaviorNode>().FirstOrDefault();
+            UnitData.Behavior = Behavior;
             UnitData.Renderer = this;
             UnitData.Identity = Identity ??= new();
 
