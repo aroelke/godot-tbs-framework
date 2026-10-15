@@ -390,7 +390,6 @@ SubResource("Resource_mq3ma"): 1.0
 })
 CursorSprite = ExtResource("8_s2xnc")
 CursorOffset = Vector2(8, 8)
-MaxSearchDepth = 1
 EvaluateWithThreads = false
 
 [node name="EnemyA" parent="LevelManager/Enemy1" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
