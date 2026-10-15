@@ -1,4 +1,4 @@
-[gd_scene load_steps=99 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=102 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsFramework/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="Script" uid="uid://c2joupgp3ohcx" path="res://demo/DemoMap.cs" id="1_npakb"]
@@ -145,21 +145,21 @@ script = ExtResource("36_5t6v1")
 AllowSupport = false
 metadata/_custom_type_script = "uid://xofktishkkvn"
 
-[sub_resource type="Resource" id="Resource_agpkr"]
+[sub_resource type="Resource" id="Resource_whvqa"]
 script = ExtResource("38_vhc0u")
-Units = [ExtResource("41_vhc0u")]
+Units = [ExtResource("37_dvqlx")]
 metadata/_custom_type_script = "uid://mlkxivicyhfb"
 
-[sub_resource type="Resource" id="Resource_mor6c"]
+[sub_resource type="Resource" id="Resource_hilfa"]
 script = ExtResource("38_vhc0u")
 Factions = [ExtResource("6_akw2u")]
 metadata/_custom_type_script = "uid://mlkxivicyhfb"
 
-[sub_resource type="Resource" id="Resource_okd5f"]
+[sub_resource type="Resource" id="Resource_nyqoh"]
 script = ExtResource("37_xsbgo")
-SourceUnits = SubResource("Resource_agpkr")
+SourceUnits = SubResource("Resource_whvqa")
 Action = ExtResource("4_g6g0k")
-TriggerUnits = SubResource("Resource_mor6c")
+TriggerUnits = SubResource("Resource_hilfa")
 metadata/_custom_type_script = "uid://doahrw4oa84ft"
 
 [sub_resource type="Resource" id="Resource_m00pu"]
@@ -176,9 +176,26 @@ metadata/_custom_type_script = "uid://xofktishkkvn"
 script = ExtResource("37_lq1v0")
 InitialBehavior = SubResource("Resource_3qhpb")
 FinalBehavior = SubResource("Resource_m00pu")
-Conditions = [SubResource("Resource_okd5f")]
+Conditions = [SubResource("Resource_nyqoh")]
 AllowSupport = false
 metadata/_custom_type_script = "uid://dkriln2jo7b77"
+
+[sub_resource type="Resource" id="Resource_agpkr"]
+script = ExtResource("38_vhc0u")
+Units = [ExtResource("41_vhc0u")]
+metadata/_custom_type_script = "uid://mlkxivicyhfb"
+
+[sub_resource type="Resource" id="Resource_mor6c"]
+script = ExtResource("38_vhc0u")
+Factions = [ExtResource("6_akw2u")]
+metadata/_custom_type_script = "uid://mlkxivicyhfb"
+
+[sub_resource type="Resource" id="Resource_okd5f"]
+script = ExtResource("37_xsbgo")
+SourceUnits = SubResource("Resource_agpkr")
+Action = ExtResource("4_g6g0k")
+TriggerUnits = SubResource("Resource_mor6c")
+metadata/_custom_type_script = "uid://doahrw4oa84ft"
 
 [sub_resource type="Resource" id="Resource_8tkgl"]
 script = ExtResource("35_g6g0k")
