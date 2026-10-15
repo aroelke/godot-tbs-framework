@@ -245,7 +245,7 @@ public partial class AIController : ArmyController
         return value;
     }
 
-    private double GetActionValue(VirtualAction action, IEnumerable<UnitAction> available)
+    private double GetActionValue(VirtualAction action, IEnumerable<UnitAction> available, int remaining)
     {
         action.Result = action.Action.Simulate(action.Actor, action.Destination, action.Target);
         action.Result.Occupants[action.Destination].Active = false;
@@ -258,8 +258,13 @@ public partial class AIController : ArmyController
         if (action.Action.RequiresTarget && action.Result.Occupants[action.Target].Health <= 0)
             action.Result.Occupants[action.Target].Grid = null;
 
-        IEnumerable<VirtualAction> next = GetAvailableActions(action.Result, action.Actor.Faction, available);
-        return value + next.Select((a) => GetActionValue(a, available)).DefaultIfEmpty(0).Max();
+        if (remaining > 1 || remaining == 0)
+        {
+            IEnumerable<VirtualAction> next = GetAvailableActions(action.Result, action.Actor.Faction, available);
+            return value + next.Select((a) => GetActionValue(a, available, remaining - 1)).DefaultIfEmpty(0).Max();
+        }
+        else
+            return value;
     }
 
     public (UnitData selected, Vector2I destination, UnitAction action, Vector2I target) ComputeAction(IEnumerable<UnitData> available, IEnumerable<UnitAction> actions)
@@ -274,11 +279,11 @@ public partial class AIController : ArmyController
         {
             VirtualAction result;
             if (EvaluateWithThreads)
-                result = potential.Zip(Task.WhenAll([.. potential.Select((a) => Task.Run(() => GetActionValue(a, actions)))]).Result).MaxBy((a) => a.Second).First;
+                result = potential.Zip(Task.WhenAll([.. potential.Select((a) => Task.Run(() => GetActionValue(a, actions, MaxSearchDepth)))]).Result).MaxBy((a) => a.Second).First;
             else
             {
                 Dictionary<GridData, VirtualAction> decisions = [];
-                result = potential.Zip(potential.Select((a) => GetActionValue(a, actions))).MaxBy((a) => a.Second).First;
+                result = potential.Zip(potential.Select((a) => GetActionValue(a, actions, MaxSearchDepth))).MaxBy((a) => a.Second).First;
             }
             selected = result.Actor;
             destination = result.Destination;
