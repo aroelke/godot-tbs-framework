@@ -290,7 +290,7 @@ public partial class AIController : ArmyController
             IEnumerable<UnitData> enemies = Grid.Data.Occupants.Values.Where((o) => o is UnitData u && !u.Faction.AlliedTo(Faction)).OfType<UnitData>();
 
             selected = enemies.Any() ? available.MinBy((u) => enemies.Min((e) => u.Cell.DistanceTo(e.Cell))) : available.First();
-            IEnumerable<Vector2I> destinations = selected.GetTraversableCells();
+            IEnumerable<Vector2I> destinations = selected.GetTraversableCells().Where((c) => c == selected.Cell || !Grid.Data.Occupants.ContainsKey(c));
             action = actions.FirstOrDefault((a) => a.AIAllowed && !a.RequiresTarget && destinations.Any((c) => a.CanPerform(selected, c)));
             destination = selected.Behavior.ChooseDestination(selected, destinations);
             target = GridData.InvalidCell;
