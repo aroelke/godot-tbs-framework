@@ -258,8 +258,8 @@ public partial class AIController : ArmyController
         if (action.Action.RequiresTarget && action.Result.Occupants[action.Target].Health <= 0)
             action.Result.Occupants[action.Target].Grid = null;
 
-//        IEnumerable<VirtualAction> next = GetAvailableActions(action.Result, action.Actor.Faction, available);
-        return value; // + next.Select((a) => GetActionValue(a, available)).DefaultIfEmpty(0).Max();
+        IEnumerable<VirtualAction> next = GetAvailableActions(action.Result, action.Actor.Faction, available);
+        return value + next.Select((a) => GetActionValue(a, available)).DefaultIfEmpty(0).Max();
     }
 
     public (UnitData selected, Vector2I destination, UnitAction action, Vector2I target) ComputeAction(IEnumerable<UnitData> available, IEnumerable<UnitAction> actions)
