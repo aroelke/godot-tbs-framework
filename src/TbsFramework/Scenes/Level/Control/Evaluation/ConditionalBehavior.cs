@@ -50,6 +50,6 @@ public partial class ConditionalBehavior() : Behavior
     public Behavior CurrentBehavior => Switched ? FinalBehavior : InitialBehavior;
 
     public override Vector2I ChooseDestination(UnitData unit, IEnumerable<Vector2I> destinations, IEnumerable<Vector2I> traversable) => CurrentBehavior.ChooseDestination(unit, destinations, traversable);
-    public override IEnumerable<PerformableAction> GetActions(UnitData unit, IEnumerable<UnitAction> available, IEnumerable<Vector2I> traversable) => GetActions(unit, available, traversable);
+    public override IEnumerable<PerformableAction> GetActions(UnitData unit, IEnumerable<UnitAction> available, IEnumerable<Vector2I> traversable) => CurrentBehavior.GetActions(unit, available, traversable);
     public override void Reset() => _switched = false;
 }
