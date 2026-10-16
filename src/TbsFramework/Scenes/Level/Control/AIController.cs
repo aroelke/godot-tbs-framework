@@ -267,7 +267,7 @@ public partial class AIController : ArmyController
             return value;
     }
 
-    public (UnitData selected, Vector2I destination, UnitAction action, Vector2I target) ComputeAction(IEnumerable<UnitData> available, IEnumerable<UnitAction> actions)
+    public (UnitData selected, Vector2I destination, UnitAction action, Vector2I target) ComputeAction(IEnumerable<UnitAction> actions)
     {
         UnitData selected;
         Vector2I destination;
@@ -294,6 +294,7 @@ public partial class AIController : ArmyController
         {
             IEnumerable<UnitData> enemies = Grid.Data.Occupants.Values.Where((o) => o is UnitData u && !u.Faction.AlliedTo(Faction)).OfType<UnitData>();
 
+            IEnumerable<UnitData> available = Faction.GetUnits(Grid.Data).Where((u) => u.Active);
             selected = enemies.Any() ? available.MinBy((u) => enemies.Min((e) => u.Cell.DistanceTo(e.Cell))) : available.First();
             IEnumerable<Vector2I> destinations = selected.GetTraversableCells().Where((c) => c == selected.Cell || !Grid.Data.Occupants.ContainsKey(c));
             action = actions.FirstOrDefault((a) => a.AIAllowed && !a.RequiresTarget && destinations.Any((c) => a.CanPerform(selected, c)));
@@ -379,7 +380,7 @@ public partial class AIController : ArmyController
 
     public override async void SelectUnit(UnitAction[] actions)
     {
-        (_selected, _destination, _action, Vector2I target) = await Task.Run(() => ComputeAction(Faction.GetUnits(Grid.Data).Where(static (u) => u.Active), actions));
+        (_selected, _destination, _action, Vector2I target) = await Task.Run(() => ComputeAction(actions));
         if (Grid.Data.Occupants.TryGetValue(target, out UnitData unit))
             _target = unit;
         else
