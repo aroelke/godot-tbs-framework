@@ -1,30 +1,21 @@
-using System.Linq;
+using System.Collections.Generic;
 using Godot;
 using TbsFramework.Scenes.Data;
 
 namespace TbsFramework.Scenes.Level.Conditions;
 
 /// <summary>
-/// Grid condition that tests if the number of units in a set satisfies an inequality.
+/// <para>Grid condition that tests if the number of units in a set satisfies an inequality.</para>
 /// 
-/// To implement a condition that checks for a boss defeat, set <see cref="Units"/> to track the desired unit,
-/// <see cref="Inequality"/> to <see cref="Inequality.Less"/>, and <see cref="Amount"/> to 1.
+/// <para>To implement a condition that checks for a boss defeat, set <see cref="AreaCondition.TriggerUnits">TriggerUnits</see> to track the desired unit,
+/// <see cref="AreaCondition.Inequality">Inequality</see> to <see cref="Inequality.Less"/>, and <see cref="AreaCondition.Amount">Amount</see> to 1.</para>
 /// 
-/// To implement a condition that checks for an entire army to be defeated, set <see cref="Units"/>  to track the
-/// desired <see cref="Faction"/>, <see cref="Inequality"/> to <see cref="Inequality.Less"/>, and <see cref="Amount"/>
-/// to 1.
+/// <para>To implement a condition that checks for an entire army to be defeated, set <see cref="AreaCondition.TriggerUnits">TriggerUnits</see>  to track the
+/// desired <see cref="Faction"/>, <see cref="Inequality"/> to <see cref="Inequality.Less"/>, and <see cref="AreaCondition.Amount">Amount</see>
+/// to 1.</para>
 /// </summary>
 [GlobalClass, Tool]
-public partial class UnitsRemainingCondition : GridCondition
+public partial class UnitsRemainingCondition : AreaCondition
 {
-    /// <summary>Set of units to test.</summary>
-    [Export] public UnitFilter Units = null;
-
-    /// <summary>Inequality to use to test the number of elements of <see cref="Units"/>.</summary>
-    [Export] public Inequality Inequality = Inequality.Less;
-
-    /// <summary>Value to test the number of elements of <see cref="Units"/> against.</summary>
-    [Export] public int Amount = 1;
-
-    public override bool IsSatisfied(GridData grid) => Units is not null && Inequality.Compare(Units.GetUnits(grid).Count((u) => u.Health > 0), Amount);
+    public override IEnumerable<Vector2I> GetRegion(GridData grid) => grid.AllCells;
 }
