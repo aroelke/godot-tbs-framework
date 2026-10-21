@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using TbsFramework.Collections;
 using TbsFramework.Properties;
 
 namespace TbsFramework.Scenes.Data;
@@ -19,7 +20,7 @@ public class GridData
     private readonly ObservableProperty<Vector2I> _size = new(Vector2I.One);
     private readonly ObservableDictionary<Vector2I, Terrain> _terrain = [];
     private readonly ObservableDictionary<Vector2I, UnitData> _occupants = [];
-    private IEnumerable<Vector2I> _all = null;
+    private RectangleSet _all = null;
 
     private GridData(GridData original) : this()
     {
@@ -63,7 +64,7 @@ public class GridData
     /// Linear collection of all valid cell indices in this grid. Typically <see cref="Contains"/> should be used to check if an index is valid; this is
     /// mainly used for <see cref="Level.Control.Path">Path</see> to be usable for computing paths independently of unit traversal range.
     /// </summary>
-    public IEnumerable<Vector2I> AllCells => _all ??= Size.X > 0 && Size.Y > 0 ? Enumerable.Range(0, Size.X).SelectMany((x) => Enumerable.Range(0, Size.Y).Select((y) => new Vector2I(x, y))) : [];
+    public IEnumerable<Vector2I> AllCells => _all ??= new(new(Vector2I.Zero, _size));
 
     /// <summary>Terrain of the grid cells. This array is sparse, so only cells whose terrain isn't <see cref="DefaultTerrain"/> are present.</summary>
     public IDictionary<Vector2I, Terrain> Terrain => _terrain;
