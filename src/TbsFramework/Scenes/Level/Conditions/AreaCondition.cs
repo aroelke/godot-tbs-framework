@@ -10,6 +10,8 @@ namespace TbsFramework.Scenes.Level.Conditions;
 [GlobalClass, Tool]
 public abstract partial class AreaCondition : GridCondition
 {
+    private bool _everyone = false;
+
     /// <summary>Units to test for presence in the area.</summary>
     [Export] public UnitFilter TriggerUnits = null;
 
@@ -17,7 +19,24 @@ public abstract partial class AreaCondition : GridCondition
     [Export] public bool Inside = true;
 
     /// <summary>Whether all applicable units must be inside or outside the area to satisfy the condition or only some of them need to be.</summary>
-    [Export] public bool RequiresEveryone = false;
+    [Export] public bool RequiresEveryone
+    {
+        get => _everyone;
+        set
+        {
+            if (value != _everyone)
+            {
+                _everyone = value;
+                NotifyPropertyListChanged();
+            }
+        }
+    }
+
+    /// <summary>Inequality to use to test the number of units in the region against <see cref="Amount"/> if <see cref="RequiresEveryone"/> is <c>false</c>.</summary>
+    [Export] public Inequality Inequality = Inequality.GreaterOrEqual;
+
+    /// <summary>Value to test the number of units in the region if <see cref="RequiresEveryone"/> is <c>false</c>.</summary>
+    [Export] public int Amount = 1;
 
     /// <returns>The set of cells on the <paramref name="grid"/> that define the area.</returns>
     public abstract IEnumerable<Vector2I> GetRegion(GridData grid);
@@ -27,8 +46,15 @@ public abstract partial class AreaCondition : GridCondition
         if (TriggerUnits is null)
             return false;
 
-        IEnumerable<UnitData> units = TriggerUnits.GetUnits(grid);
+        IEnumerable<UnitData> units = TriggerUnits.GetUnits(grid).Where((u) => u.Health > 0);
         Func<UnitData, bool> matches = Inside ? (u) => GetRegion(grid).Contains(u.Cell) : (u) => !GetRegion(grid).Contains(u.Cell);
-        return RequiresEveryone ? units.All(matches) : units.Any(matches);
+        return RequiresEveryone ? units.All(matches) : Inequality.Compare(units.Count(matches), Amount);
+    }
+
+    public override void _ValidateProperty(Godot.Collections.Dictionary property)
+    {
+        base._ValidateProperty(property);
+        if (Engine.IsEditorHint() && (property["name"].AsStringName() == PropertyName.Inequality || property["name"].AsStringName() == PropertyName.Amount) && _everyone)
+            property["usage"] = Variant.From(PropertyUsageFlags.NoEditor);
     }
 }

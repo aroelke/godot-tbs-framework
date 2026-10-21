@@ -969,9 +969,9 @@ public partial class PlayerController : ArmyController
 
     public override void _ValidateProperty(Godot.Collections.Dictionary property)
     {
+        base._ValidateProperty(property);
         if (property["name"].AsStringName() == PropertyName.PathArrowheadCoordinates && _pathTiles is null)
             property["usage"] = Variant.From(PropertyUsageFlags.None);
-        base._ValidateProperty(property);
     }
 #endregion
 #region Engine Events

@@ -19,12 +19,12 @@ public partial class RegionCondition : AreaCondition
 
     public override void _ValidateProperty(Godot.Collections.Dictionary property)
     {
+        base._ValidateProperty(property);
         if (Engine.IsEditorHint() && property["name"].AsStringName() == PropertyName.RegionName)
         {
             static IEnumerable<Node> GetDescendents(Node node) => node?.GetChildren().SelectMany((n) => (IEnumerable<Node>)[n, .. GetDescendents(n)]) ?? [];
             property["hint"] = Variant.From(PropertyHint.EnumSuggestion);
             property["hint_string"] = string.Join(',', GetDescendents(((SceneTree)Engine.GetMainLoop()).Root.GetChild(0)).OfType<TileMapLayer>().Select((n) => n.Name));
         }
-        base._ValidateProperty(property);
     }
 }
