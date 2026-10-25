@@ -39,6 +39,7 @@ public class GridData
         foreach ((ActionRegionIdentity id, SpecialActionRegionData region) in original.SpecialActionRegions)
             SpecialActionRegions[id] = region.Clone();
         Turn = original.Turn;
+        SwitchedBehaviors = [.. original.SwitchedBehaviors];
     }
 
     /// <summary>
