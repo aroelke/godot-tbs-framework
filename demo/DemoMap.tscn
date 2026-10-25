@@ -176,7 +176,7 @@ metadata/_custom_type_script = "uid://xofktishkkvn"
 script = ExtResource("37_lq1v0")
 InitialBehavior = SubResource("Resource_3qhpb")
 FinalBehavior = SubResource("Resource_m00pu")
-Conditions = [SubResource("Resource_nyqoh")]
+Condition = SubResource("Resource_nyqoh")
 AllowSupport = false
 metadata/_custom_type_script = "uid://dkriln2jo7b77"
 
@@ -211,7 +211,7 @@ metadata/_custom_type_script = "uid://xofktishkkvn"
 script = ExtResource("37_lq1v0")
 InitialBehavior = SubResource("Resource_pg08a")
 FinalBehavior = SubResource("Resource_8tkgl")
-Conditions = [SubResource("Resource_okd5f")]
+Condition = SubResource("Resource_okd5f")
 AllowSupport = false
 metadata/_custom_type_script = "uid://dkriln2jo7b77"
 
@@ -249,7 +249,7 @@ metadata/_custom_type_script = "uid://xofktishkkvn"
 script = ExtResource("37_lq1v0")
 InitialBehavior = SubResource("Resource_pcl8f")
 FinalBehavior = SubResource("Resource_8ghwr")
-Conditions = [SubResource("Resource_a5ypn")]
+Condition = SubResource("Resource_a5ypn")
 AllowSupport = false
 metadata/_custom_type_script = "uid://dkriln2jo7b77"
 
@@ -267,7 +267,7 @@ metadata/_custom_type_script = "uid://xofktishkkvn"
 script = ExtResource("37_lq1v0")
 InitialBehavior = SubResource("Resource_6qdid")
 FinalBehavior = SubResource("Resource_lkl55")
-Conditions = [SubResource("Resource_a5ypn")]
+Condition = SubResource("Resource_a5ypn")
 AllowSupport = false
 metadata/_custom_type_script = "uid://dkriln2jo7b77"
 

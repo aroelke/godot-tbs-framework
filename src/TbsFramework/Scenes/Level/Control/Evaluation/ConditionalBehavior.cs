@@ -18,11 +18,8 @@ public partial class ConditionalBehavior() : Behavior
     /// <summary>Behavior to use after the condition is triggered.</summary>
     [Export] public Behavior FinalBehavior = null;
 
-    /// <summary>Conditions that can trigger the switch.</summary>
-    [Export] public GridCondition[] Conditions = [];
-
-    /// <summary>Whether to trigger a swtich if all elements of <see cref="Conditions"/> are satisfied (<c>true</c>) or any of them are satisfied (<c>false</c>).</summary>
-    [Export] public bool MeetAllConditions = false;
+    /// <summary>Condition that triggers the switch.</summary>
+    [Export] public GridCondition Condition = null;
 
     /// <summary>
     /// Whether or not this behavior can switch back to <see cref="InitialBehavior"/> if the conditions stop being satisfied. If <c>false</c>, <see cref="FinalBehavior"/>
@@ -37,13 +34,11 @@ public partial class ConditionalBehavior() : Behavior
     /// </returns>
     public bool HasSwitched(GridData grid)
     {
-        bool triggered() => MeetAllConditions ? Conditions.All((c) => c.IsSatisfied(grid)) : Conditions.Any((c) => c.IsSatisfied(grid));
-
         if (CanRevert)
-            return triggered();
+            return Condition.IsSatisfied(grid);
         else if (grid.SwitchedBehaviors.Contains(this))
             return true;
-        else if (triggered())
+        else if (Condition.IsSatisfied(grid))
         {
             grid.SwitchedBehaviors.Add(this);
             return true;
