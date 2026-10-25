@@ -2,8 +2,10 @@
 
 using Godot;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Conditions;
 using TbsFramework.Scenes.Level.Control;
 using TbsFramework.Scenes.Level.Objectives;
+using TbsFramework.Scenes.Rendering;
 
 namespace TbsFramework.Scenes.Level.Events;
 
@@ -16,24 +18,27 @@ namespace TbsFramework.Scenes.Level.Events;
 /// </summary>
 public partial class EventController : Node
 {
+    /// <summary>Grid to evaluate events on.</summary>
+    [Export] public Grid Grid = null;
+
     /// <summary>Objective to complete for success of the level.</summary>
-    [Export] public Objective Success = null;
+    [Export] public GridCondition Success = null;
 
     /// <summary>Objective to complete for failure of the level.</summary>
-    [Export] public Objective Failure = null;
+    [Export] public GridCondition Failure = null;
 
     /// <summary>Evaluate the success and failure objectives.</summary>
     /// <param name="signal">Whether the <c>ObjectiveCompleted</c> signal should be emitted if either objective is complete.</param>
     /// <returns><c>true</c> if either objective is complete, and <c>false</c> otherwise.</returns>
     public bool EvaluateObjective(bool signal=true)
     {
-        if (Success?.Complete ?? false)
+        if (Success?.IsSatisfied(Grid.Data) ?? false)
         {
             if (signal)
                 LevelEvents.SuccessObjectiveComplete();
             return true;
         }
-        else if (Failure?.Complete ?? false)
+        else if (Failure?.IsSatisfied(Grid.Data) ?? false)
         {
             if (signal)
                 LevelEvents.FailureObjectiveComplete();

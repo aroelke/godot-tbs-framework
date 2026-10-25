@@ -1,4 +1,4 @@
-[gd_scene load_steps=102 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=118 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsFramework/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="Script" uid="uid://c2joupgp3ohcx" path="res://demo/DemoMap.cs" id="1_npakb"]
@@ -60,7 +60,15 @@
 [ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/TbsFramework/UI/HUD/ControlHint.tscn" id="39_mogvl"]
 [ext_resource type="Resource" uid="uid://cmvujupl5c32q" path="res://demo/unit/guard_c_identity.tres" id="41_vhc0u"]
 [ext_resource type="Script" uid="uid://dxf4h3581x7o0" path="res://src/TbsFramework/Scenes/Level/Conditions/TurnCondition.cs" id="42_vhc0u"]
+[ext_resource type="Resource" uid="uid://dwhb6qv3wa4qk" path="res://demo/unit/boss_identity.tres" id="44_vhc0u"]
+[ext_resource type="Resource" uid="uid://45tql55ctgpy" path="res://demo/factions/DemoEnemy1Filter.tres" id="48_dvqlx"]
+[ext_resource type="Script" uid="uid://bk5158j6777to" path="res://src/TbsFramework/Scenes/Level/Conditions/UnitsRemainingCondition.cs" id="48_jaaus"]
+[ext_resource type="Script" uid="uid://bt32p357t234i" path="res://src/TbsFramework/Scenes/Level/Conditions/AggregateCondition.cs" id="48_xsbgo"]
 [ext_resource type="PackedScene" uid="uid://c2sogymeaqvpw" path="res://demo/DemoPauseOverlay.tscn" id="49_b5lsw"]
+[ext_resource type="Resource" uid="uid://c3auwvhd8a4fs" path="res://demo/factions/DemoBossFilter.tres" id="51_3c2io"]
+[ext_resource type="Resource" uid="uid://cfixkyk211g3x" path="res://demo/factions/DemoPlayerFilter.tres" id="52_wn546"]
+[ext_resource type="Script" uid="uid://36rrrv3tfjje" path="res://src/TbsFramework/Scenes/Level/Conditions/RegionCondition.cs" id="53_ie1ab"]
+[ext_resource type="Resource" uid="uid://bt0fxksrqi7xt" path="res://demo/factions/DemoAllyFilter.tres" id="55_ie1ab"]
 
 [sub_resource type="Resource" id="Resource_vhc0u"]
 script = ExtResource("31_5t6v1")
@@ -279,6 +287,52 @@ metadata/_custom_type_script = "uid://xofktishkkvn"
 [sub_resource type="Resource" id="Resource_pkogd"]
 script = ExtResource("36_5t6v1")
 metadata/_custom_type_script = "uid://xofktishkkvn"
+
+[sub_resource type="Resource" id="Resource_2wk7w"]
+script = ExtResource("48_jaaus")
+TriggerUnits = ExtResource("48_dvqlx")
+Inequality = 4
+metadata/_custom_type_script = "uid://bk5158j6777to"
+
+[sub_resource type="Resource" id="Resource_dfkcd"]
+script = ExtResource("48_jaaus")
+TriggerUnits = ExtResource("51_3c2io")
+Inequality = 4
+metadata/_custom_type_script = "uid://bk5158j6777to"
+
+[sub_resource type="Resource" id="Resource_o4tuw"]
+script = ExtResource("53_ie1ab")
+RegionName = &"Occupy"
+TriggerUnits = ExtResource("52_wn546")
+Amount = 4
+metadata/_custom_type_script = "uid://36rrrv3tfjje"
+
+[sub_resource type="Resource" id="Resource_ctr2j"]
+script = ExtResource("48_xsbgo")
+Children = [SubResource("Resource_2wk7w"), SubResource("Resource_dfkcd"), SubResource("Resource_o4tuw")]
+metadata/_custom_type_script = "uid://bt32p357t234i"
+
+[sub_resource type="Resource" id="Resource_qevaf"]
+script = ExtResource("48_jaaus")
+TriggerUnits = ExtResource("52_wn546")
+Inequality = 4
+metadata/_custom_type_script = "uid://bk5158j6777to"
+
+[sub_resource type="Resource" id="Resource_qvain"]
+script = ExtResource("48_jaaus")
+TriggerUnits = ExtResource("55_ie1ab")
+Inequality = 4
+metadata/_custom_type_script = "uid://bk5158j6777to"
+
+[sub_resource type="Resource" id="Resource_1c06c"]
+script = ExtResource("42_vhc0u")
+Turn = 6
+metadata/_custom_type_script = "uid://dxf4h3581x7o0"
+
+[sub_resource type="Resource" id="Resource_kxjnb"]
+script = ExtResource("48_xsbgo")
+Children = [SubResource("Resource_qevaf"), SubResource("Resource_qvain"), SubResource("Resource_1c06c")]
+metadata/_custom_type_script = "uid://bt32p357t234i"
 
 [node name="DemoMap" type="Node"]
 script = ExtResource("1_npakb")
@@ -531,6 +585,7 @@ MaxSearchDepth = 1
 
 [node name="Boss" parent="LevelManager/Enemy2" node_paths=PackedStringArray("Grid") instance=ExtResource("10_1ger5")]
 position = Vector2(272, 192)
+Identity = ExtResource("44_vhc0u")
 Class = ExtResource("12_qidbu")
 Stats = ExtResource("37_keg60")
 Behavior = SubResource("Resource_tcjvv")
@@ -554,14 +609,15 @@ MoveSpeed = 320.0
 Grid = NodePath("../../Grid")
 Size = Vector2(16, 16)
 
-[node name="DemoEventController" parent="." node_paths=PackedStringArray("Grid", "UserInterface", "PauseOverlay", "Success", "Failure") instance=ExtResource("24_c7alg")]
+[node name="DemoEventController" parent="." node_paths=PackedStringArray("Grid", "UserInterface", "PauseOverlay", "Grid") instance=ExtResource("24_c7alg")]
 Grid = NodePath("../LevelManager/Grid")
 UserInterface = NodePath("../CanvasLayer")
 GameOverScreen = "uid://dx3e15oktmll8"
 PauseOverlay = NodePath("../CanvasLayer/PauseOverlay")
 MenuHighlightSound = ExtResource("11_npakb")
-Success = NodePath("SuccessObjective")
-Failure = NodePath("FailureObjective")
+Grid = NodePath("../LevelManager/Grid")
+Success = SubResource("Resource_ctr2j")
+Failure = SubResource("Resource_kxjnb")
 
 [node name="SuccessObjective" parent="DemoEventController" instance=ExtResource("24_0hb45")]
 

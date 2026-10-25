@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="UnitFilter" load_steps=3 format=3 uid="uid://bt0fxksrqi7xt"]
+
+[ext_resource type="Script" uid="uid://mlkxivicyhfb" path="res://src/TbsFramework/Scenes/Level/Conditions/UnitFilter.cs" id="1_jhntd"]
+[ext_resource type="Resource" uid="uid://chjjd5sn6y2jw" path="res://demo/factions/DemoAllyFaction.tres" id="1_phpfy"]
+
+[resource]
+script = ExtResource("1_jhntd")
+Factions = [ExtResource("1_phpfy")]
+metadata/_custom_type_script = "uid://mlkxivicyhfb"

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="UnitFilter" load_steps=3 format=3 uid="uid://cfixkyk211g3x"]
+
+[ext_resource type="Script" uid="uid://mlkxivicyhfb" path="res://src/TbsFramework/Scenes/Level/Conditions/UnitFilter.cs" id="1_a5gqd"]
+[ext_resource type="Resource" uid="uid://broidqni4h8ak" path="res://demo/factions/DemoPlayerFaction.tres" id="1_lqpbf"]
+
+[resource]
+script = ExtResource("1_a5gqd")
+Factions = [ExtResource("1_lqpbf")]
+metadata/_custom_type_script = "uid://mlkxivicyhfb"
