@@ -3,6 +3,7 @@ using System.Linq;
 using Godot;
 using TbsFramework.Collections;
 using TbsFramework.Properties;
+using TbsFramework.Scenes.Level.Control.Evaluation;
 
 namespace TbsFramework.Scenes.Data;
 
@@ -83,6 +84,9 @@ public class GridData
 
     /// <summary>Indicates the current turn for this grid.</summary>
     public int Turn = 1;
+
+    /// <summary>List of non-reverting conditional behaviors that have switched for this grid.</summary>
+    public readonly HashSet<ConditionalBehavior> SwitchedBehaviors = [];
 
     /// <summary>Identity of this grid. See <see cref="DataIdentity{T}"/>.</summary>
     public GridIdentity Identity = null;

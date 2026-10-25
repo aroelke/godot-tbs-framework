@@ -12,19 +12,9 @@ namespace TbsFramework.Scenes.Level.Conditions;
 [GlobalClass, Tool]
 public abstract partial class GridCondition : Resource
 {
-    /// <summary>
-    /// Indicates whether or not the predicate was satisfied the last time it was evaluated. Exposed as a public property
-    /// so its initial state can be set in the editor and it can be manaully toggled if desired. Normally this should not
-    /// be required.
-    /// </summary>
-    [Export] public bool Satisfied = false;
-
     /// <returns>
     /// <c>true</c> if <paramref name="grid"/> satisfies the predicate this resource represents, or
     /// <c>false</c> otherwise.
     /// <returns>
     public abstract bool IsSatisfied(GridData grid);
-
-    /// <summary>Evaluate the predicate and store the result.</summary>
-    public void Evaluate(GridData grid) => Satisfied = IsSatisfied(grid);
 }

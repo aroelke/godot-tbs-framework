@@ -12,8 +12,6 @@ namespace TbsFramework.Scenes.Level.Control.Evaluation;
 [GlobalClass, Tool]
 public partial class ConditionalBehavior() : Behavior
 {
-    private bool _switched = false;
-
     /// <summary>Behavior to use before the condition is triggered.</summary>
     [Export] public Behavior InitialBehavior = null;
 
@@ -32,24 +30,35 @@ public partial class ConditionalBehavior() : Behavior
     /// </summary>
     [Export] public bool CanRevert = false;
 
-    /// <summary>Whether or not the behavior is currently switched.</summary>
-    public bool Switched
+    /// <param name="grid">Grid to look at to determine if the switching conditions are satisfied.</param>
+    /// <returns>
+    /// <c>true</c> if the conditions are satisfied for <paramref name="grid"/> to switch behaviors or if this behavior can't revert and has already switched for
+    /// <paramref name="grid"/>, and <c>false</c> otherwise.
+    /// </returns>
+    public bool HasSwitched(GridData grid)
     {
-        get
-        {
-            bool triggered() => MeetAllConditions ? Conditions.All((c) => c.Satisfied) : Conditions.Any((c) => c.Satisfied);
+        bool triggered() => MeetAllConditions ? Conditions.All((c) => c.IsSatisfied(grid)) : Conditions.Any((c) => c.IsSatisfied(grid));
 
-            if (CanRevert)
-                return triggered();
-            else
-                return _switched || (_switched = triggered());
+        if (CanRevert)
+            return triggered();
+        else if (grid.SwitchedBehaviors.Contains(this))
+            return true;
+        else if (triggered())
+        {
+            grid.SwitchedBehaviors.Add(this);
+            return true;
         }
+        else
+            return false;
     }
 
-    /// <summary>Before switching, points to <see cref="InitialBehavior"/>. Afterwards, points to <see cref="FinalBehavior"/>.</summary>
-    public Behavior CurrentBehavior => Switched ? FinalBehavior : InitialBehavior;
+    /// <param name="grid">Grid to look at to determine if the switching conditions are satisfied.</param>
+    /// <returns>
+    /// <see cref="FinalBehavior"/> if <see cref="HasSwitched(GridData)"/> is <c>true</c> for <paramref name="grid"/> and <see cref="InitialBehavior"/>
+    /// if it doesn't.
+    /// </returns>
+    public Behavior GetCurrentBehavior(GridData grid) => HasSwitched(grid) ? FinalBehavior : InitialBehavior;
 
-    public override Vector2I ChooseDestination(UnitData unit, IEnumerable<Vector2I> destinations, IEnumerable<Vector2I> traversable) => CurrentBehavior.ChooseDestination(unit, destinations, traversable);
-    public override IEnumerable<PerformableAction> GetActions(UnitData unit, IEnumerable<UnitAction> available, IEnumerable<Vector2I> traversable) => CurrentBehavior.GetActions(unit, available, traversable);
-    public override void Reset() => _switched = false;
+    public override Vector2I ChooseDestination(UnitData unit, IEnumerable<Vector2I> destinations, IEnumerable<Vector2I> traversable) => GetCurrentBehavior(unit.Grid).ChooseDestination(unit, destinations, traversable);
+    public override IEnumerable<PerformableAction> GetActions(UnitData unit, IEnumerable<UnitAction> available, IEnumerable<Vector2I> traversable) => GetCurrentBehavior(unit.Grid).GetActions(unit, available, traversable);
 }
