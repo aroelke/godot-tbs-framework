@@ -5,6 +5,7 @@ using TbsFramework.Scenes.Data;
 namespace TbsFramework.Scenes.Level.Conditions;
 
 /// <summary>Grid condition that is satisfied based on the satisfaction of one or more other conditions.</summary>
+[GlobalClass, Tool]
 public partial class AggregateCondition : GridCondition
 {
     /// <summary>Conditions to combine to determine satisfaction.</summary>
