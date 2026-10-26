@@ -167,7 +167,7 @@ public class UnitData : GridObjectData
 
     public int CellCost(Vector2I cell)
     {
-        Terrain terrain = Grid.Terrain.GetValueOrDefault(cell, Grid.DefaultTerrain);
+        Terrain terrain = Grid.Terrain.TryGetValue(cell, out Terrain t) ? t : Grid.DefaultTerrain;
         return terrain.Cost +
             (Class.TerrainCostModifiers.TryGetValue(terrain, out int cc) ? cc : 0) +
             (UniqueTerrainModifiers.TryGetValue(terrain, out int uc) ? uc : 0) +
