@@ -246,6 +246,7 @@ metadata/_custom_type_script = "uid://dxf4h3581x7o0"
 
 [sub_resource type="Resource" id="Resource_8ghwr"]
 script = ExtResource("35_g6g0k")
+DistanceStrategy = 3
 AllowSupport = false
 metadata/_custom_type_script = "uid://c45u4xrlfji6e"
 
@@ -264,6 +265,7 @@ metadata/_custom_type_script = "uid://dkriln2jo7b77"
 
 [sub_resource type="Resource" id="Resource_lkl55"]
 script = ExtResource("35_g6g0k")
+DistanceStrategy = 3
 AllowSupport = false
 metadata/_custom_type_script = "uid://c45u4xrlfji6e"
 
