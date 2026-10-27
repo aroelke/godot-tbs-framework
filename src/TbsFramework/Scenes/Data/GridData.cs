@@ -3,6 +3,7 @@ using System.Linq;
 using Godot;
 using TbsFramework.Collections;
 using TbsFramework.Properties;
+using TbsFramework.Scenes.Level.Control;
 using TbsFramework.Scenes.Level.Control.Evaluation;
 
 namespace TbsFramework.Scenes.Data;
@@ -88,6 +89,12 @@ public class GridData
 
     /// <summary>List of non-reverting conditional behaviors that have switched for this grid.</summary>
     public readonly HashSet<ConditionalBehavior> SwitchedBehaviors = [];
+
+    /// <summary>Tracker for actions that have been performed by individual units.</summary>
+    public readonly Dictionary<UnitAction, Dictionary<UnitIdentity, int>> UnitPerformedActions = [];
+
+    /// <summary>Tracker for actions that have been performed by units belonging to factions.</summary>
+    public readonly Dictionary<UnitAction, Dictionary<Faction, int>> FactionPerformedActions = [];
 
     /// <summary>Identity of this grid. See <see cref="DataIdentity{T}"/>.</summary>
     public GridIdentity Identity = null;

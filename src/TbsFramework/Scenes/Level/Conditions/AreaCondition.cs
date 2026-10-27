@@ -43,10 +43,7 @@ public abstract partial class AreaCondition : GridCondition
 
     public override bool IsSatisfied(GridData grid)
     {
-        if (TriggerUnits is null)
-            return false;
-
-        IEnumerable<UnitData> units = TriggerUnits.GetUnits(grid).Where((u) => u.Health > 0);
+        IEnumerable<UnitData> units = (TriggerUnits is null ? grid.Occupants.Values : TriggerUnits.GetUnits(grid)).Where((u) => u.Health > 0);
         Func<UnitData, bool> matches = Inside ? (u) => GetRegion(grid).Contains(u.Cell) : (u) => !GetRegion(grid).Contains(u.Cell);
         return RequiresEveryone ? units.All(matches) : Inequality.Compare(units.Count(matches), Amount);
     }

@@ -399,6 +399,12 @@ public partial class LevelManager : Node
         State.SetVariable(ActiveProperty, _armies.Current.Count(static (u) => u.UnitData.Active));
 
         UnitData selected = _selected;
+        if (!_grid.UnitPerformedActions.ContainsKey(_result.Action))
+            _grid.UnitPerformedActions[_result.Action] = [];
+        if (!_grid.FactionPerformedActions.ContainsKey(_result.Action))
+            _grid.FactionPerformedActions[_result.Action] = [];
+        _grid.UnitPerformedActions[_result.Action][_result.Actor.Identity] = _grid.UnitPerformedActions[_result.Action].GetValueOrDefault(_result.Actor.Identity, 0) + 1;
+        _grid.FactionPerformedActions[_result.Action][_result.Actor.Faction] = _grid.FactionPerformedActions[_result.Action].GetValueOrDefault(_result.Actor.Faction, 0) + 1;
         LevelEvents.EndAction(_result);
     }
 
