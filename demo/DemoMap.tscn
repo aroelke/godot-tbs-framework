@@ -1,4 +1,4 @@
-[gd_scene load_steps=118 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=120 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsFramework/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="Script" uid="uid://c2joupgp3ohcx" path="res://demo/DemoMap.cs" id="1_npakb"]
@@ -68,6 +68,7 @@
 [ext_resource type="Resource" uid="uid://c3auwvhd8a4fs" path="res://demo/factions/DemoBossFilter.tres" id="51_3c2io"]
 [ext_resource type="Resource" uid="uid://cfixkyk211g3x" path="res://demo/factions/DemoPlayerFilter.tres" id="52_wn546"]
 [ext_resource type="Script" uid="uid://36rrrv3tfjje" path="res://src/TbsFramework/Scenes/Level/Conditions/RegionCondition.cs" id="53_ie1ab"]
+[ext_resource type="Script" uid="uid://bt6plcvivy6ri" path="res://src/TbsFramework/Scenes/Level/Conditions/ActionsPerformedCondition.cs" id="54_e4bej"]
 [ext_resource type="Resource" uid="uid://bt0fxksrqi7xt" path="res://demo/factions/DemoAllyFilter.tres" id="55_ie1ab"]
 
 [sub_resource type="Resource" id="Resource_vhc0u"]
@@ -307,9 +308,16 @@ TriggerUnits = ExtResource("52_wn546")
 Amount = 4
 metadata/_custom_type_script = "uid://36rrrv3tfjje"
 
+[sub_resource type="Resource" id="Resource_y66a2"]
+script = ExtResource("54_e4bej")
+Actions = [ExtResource("6_i7a7m")]
+Units = ExtResource("52_wn546")
+Amount = 1
+metadata/_custom_type_script = "uid://bt6plcvivy6ri"
+
 [sub_resource type="Resource" id="Resource_ctr2j"]
 script = ExtResource("48_xsbgo")
-Children = [SubResource("Resource_2wk7w"), SubResource("Resource_dfkcd"), SubResource("Resource_o4tuw")]
+Children = [SubResource("Resource_2wk7w"), SubResource("Resource_dfkcd"), SubResource("Resource_o4tuw"), SubResource("Resource_y66a2")]
 metadata/_custom_type_script = "uid://bt32p357t234i"
 
 [sub_resource type="Resource" id="Resource_qevaf"]
@@ -609,8 +617,7 @@ MoveSpeed = 320.0
 Grid = NodePath("../../Grid")
 Size = Vector2(16, 16)
 
-[node name="DemoEventController" parent="." node_paths=PackedStringArray("Grid", "UserInterface", "PauseOverlay", "Grid") instance=ExtResource("24_c7alg")]
-Grid = NodePath("../LevelManager/Grid")
+[node name="DemoEventController" parent="." node_paths=PackedStringArray("UserInterface", "PauseOverlay", "Grid") instance=ExtResource("24_c7alg")]
 UserInterface = NodePath("../CanvasLayer")
 GameOverScreen = "uid://dx3e15oktmll8"
 PauseOverlay = NodePath("../CanvasLayer/PauseOverlay")
