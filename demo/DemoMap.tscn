@@ -1,4 +1,4 @@
-[gd_scene load_steps=120 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=114 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsFramework/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="Script" uid="uid://c2joupgp3ohcx" path="res://demo/DemoMap.cs" id="1_npakb"]
@@ -28,16 +28,10 @@
 [ext_resource type="AudioStream" uid="uid://bj1dfsj4g652j" path="res://demo/assets/ui/sounds/error.ogg" id="16_fv6cu"]
 [ext_resource type="AudioStream" uid="uid://bsv4edb1voeu8" path="res://demo/assets/ui/sounds/zone_off.ogg" id="17_fv6cu"]
 [ext_resource type="Resource" uid="uid://chjjd5sn6y2jw" path="res://demo/factions/DemoAllyFaction.tres" id="20_6hgq8"]
-[ext_resource type="PackedScene" uid="uid://bottrwv1ptmbg" path="res://src/TbsFramework/Scenes/Level/Objectives/AnyObjective.tscn" id="24_0hb45"]
 [ext_resource type="PackedScene" uid="uid://ui4hxtcp2cgu" path="res://demo/DemoEventController.tscn" id="24_c7alg"]
-[ext_resource type="PackedScene" uid="uid://7wc21qvj7n3n" path="res://src/TbsFramework/Scenes/Level/Objectives/DefeatUnitObjective.tscn" id="25_qahj2"]
-[ext_resource type="PackedScene" uid="uid://b8dnpt7lcd2it" path="res://src/TbsFramework/Scenes/Level/Objectives/OccupyObjective.tscn" id="26_prinx"]
-[ext_resource type="PackedScene" uid="uid://blf1owsru7rvw" path="res://src/TbsFramework/Scenes/Level/Objectives/ActionObjective.tscn" id="27_c7alg"]
 [ext_resource type="Resource" uid="uid://bemo5afnyy4lq" path="res://demo/unit/stats_player.tres" id="27_u2627"]
-[ext_resource type="PackedScene" uid="uid://bi38gny50edyk" path="res://src/TbsFramework/Scenes/Level/Objectives/RouteObjective.tscn" id="29_c7alg"]
 [ext_resource type="Script" uid="uid://b6y6de76birq2" path="res://src/TbsFramework/Scenes/Level/Control/Evaluation/ActionEvaluator.cs" id="30_g6g0k"]
 [ext_resource type="Resource" uid="uid://b7pxcedeak8w6" path="res://demo/unit/stats_enemy.tres" id="30_keg60"]
-[ext_resource type="PackedScene" uid="uid://bdxrle0amq3ew" path="res://src/TbsFramework/Scenes/Level/Objectives/TimeObjective.tscn" id="30_xri0l"]
 [ext_resource type="Script" uid="uid://xhx4rvyr3l58" path="res://src/TbsFramework/Scenes/Level/Control/Evaluation/DefeatedUnitsEvaluator.cs" id="31_5t6v1"]
 [ext_resource type="Script" uid="uid://b57ctui2ox3yh" path="res://src/TbsFramework/Scenes/Level/Control/Evaluation/HealthDifferenceEvaluator.cs" id="32_lq1v0"]
 [ext_resource type="Script" uid="uid://v8q7q2m7s0dc" path="res://src/TbsFramework/Scenes/Level/Control/Evaluation/PathEvaluator.cs" id="33_xsbgo"]
@@ -627,36 +621,6 @@ MenuHighlightSound = ExtResource("11_npakb")
 Grid = NodePath("../LevelManager/Grid")
 Success = SubResource("Resource_ctr2j")
 Failure = SubResource("Resource_kxjnb")
-
-[node name="SuccessObjective" parent="DemoEventController" instance=ExtResource("24_0hb45")]
-
-[node name="RouteObjective" parent="DemoEventController/SuccessObjective" node_paths=PackedStringArray("Target") instance=ExtResource("29_c7alg")]
-Target = NodePath("../../../LevelManager/Enemy1")
-
-[node name="DefeatUnitObjective" parent="DemoEventController/SuccessObjective" node_paths=PackedStringArray("Target") instance=ExtResource("25_qahj2")]
-Target = NodePath("../../../LevelManager/Enemy2/Boss")
-
-[node name="OccupyObjective" parent="DemoEventController/SuccessObjective" node_paths=PackedStringArray("Region", "Army") instance=ExtResource("26_prinx")]
-Region = NodePath("../../../LevelManager/Grid/Occupy")
-Army = NodePath("../../../LevelManager/Player")
-Count = 4
-
-[node name="CaptureObjective" parent="DemoEventController/SuccessObjective" node_paths=PackedStringArray("ActionRegion") instance=ExtResource("27_c7alg")]
-ActionRegion = NodePath("../../../LevelManager/Grid/Capture")
-Action = ExtResource("6_i7a7m")
-
-[node name="FailureObjective" parent="DemoEventController" instance=ExtResource("24_0hb45")]
-
-[node name="RouteObjective" parent="DemoEventController/FailureObjective" node_paths=PackedStringArray("Target") instance=ExtResource("29_c7alg")]
-Target = NodePath("../../../LevelManager/Player")
-
-[node name="DefeatUnitObjective" parent="DemoEventController/FailureObjective" node_paths=PackedStringArray("Target") instance=ExtResource("25_qahj2")]
-Target = NodePath("../../../LevelManager/Ally/Ally")
-
-[node name="TimeObjective" parent="DemoEventController/FailureObjective" node_paths=PackedStringArray("Army") instance=ExtResource("30_xri0l")]
-Turns = 5
-Army = NodePath("../../../LevelManager/Ally")
-Trigger = 2
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 

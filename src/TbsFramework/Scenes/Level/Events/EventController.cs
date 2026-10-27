@@ -4,7 +4,6 @@ using Godot;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Conditions;
 using TbsFramework.Scenes.Level.Control;
-using TbsFramework.Scenes.Level.Objectives;
 using TbsFramework.Scenes.Rendering;
 
 namespace TbsFramework.Scenes.Level.Events;
