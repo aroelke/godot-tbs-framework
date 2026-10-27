@@ -41,6 +41,24 @@ public class GridData
             SpecialActionRegions[id] = region.Clone();
         Turn = original.Turn;
         SwitchedBehaviors = [.. original.SwitchedBehaviors];
+
+        UnitPerformedActions = [];
+        foreach ((UnitAction action, Dictionary<UnitIdentity, int> performers) in original.UnitPerformedActions)
+        {
+            if (!UnitPerformedActions.ContainsKey(action))
+                UnitPerformedActions[action] = [];
+            foreach ((UnitIdentity unit, int amount) in performers)
+                UnitPerformedActions[action][unit] = amount;
+        }
+
+        FactionPerformedActions = [];
+        foreach ((UnitAction action, Dictionary<Faction, int> performers) in original.FactionPerformedActions)
+        {
+            if (!FactionPerformedActions.ContainsKey(action))
+                FactionPerformedActions[action] = [];
+            foreach ((Faction faction, int amount) in performers)
+                FactionPerformedActions[action][faction] = amount;
+        }
     }
 
     /// <summary>
