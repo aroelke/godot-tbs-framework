@@ -171,7 +171,25 @@ public partial class Grid : BoundedNode2D
             }
 
             foreach (TileMapLayer region in GetChildren().OfType<TileMapLayer>())
+            {
                 Data.Regions[region.Name] = region.GetUsedCells();
+                if (region is HighlightedRegion highlighted)
+                {
+                    Data.Regions.ItemReplaced += (name, _, cells) => {
+                        if (name == highlighted.Name)
+                            highlighted.SetUsedCells(cells);
+                    };
+                    Data.Regions.ItemsRemoved += (items) => {
+                        if (items.Any((i) => highlighted.Name == i.Key))
+                            highlighted.Clear();
+                    };
+                    Data.Regions.ItemsAdded += (items) => {
+                        foreach ((StringName name, IEnumerable<Vector2I> cells) in items)
+                            if (highlighted.Name == name)
+                                highlighted.SetUsedCells(cells);
+                    };
+                }
+            }
         }
     }
 }

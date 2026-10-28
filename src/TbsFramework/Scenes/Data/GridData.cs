@@ -100,7 +100,7 @@ public class GridData
     public readonly Dictionary<ActionRegionIdentity, SpecialActionRegionData> SpecialActionRegions = [];
 
     /// <summary>Regions that have been marked on the map. They don't have to be visible.</summary>
-    public Dictionary<StringName, IEnumerable<Vector2I>> Regions = [];
+    public readonly ObservableDictionary<StringName, IEnumerable<Vector2I>> Regions = [];
 
     /// <summary>Indicates the current turn for this grid.</summary>
     public int Turn = 1;
