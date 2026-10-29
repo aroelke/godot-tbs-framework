@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using TbsFramework.Extensions;
 using TbsFramework.Properties;
 
 namespace TbsFramework.Scenes.Rendering;
@@ -12,6 +13,19 @@ namespace TbsFramework.Scenes.Rendering;
 [GlobalClass, Tool]
 public partial class HighlightedRegion : TileMapLayer
 {
+    /// <summary>Update a Godot object property to give it a list of options based on the map regions in the current scene.</summary>
+    /// <param name="property">Property to update.</param>
+    public static void AddRegionsToProperty(Godot.Collections.Dictionary property)
+    {
+        if (property["type"].As<Variant.Type>() != Variant.Type.StringName && property["type"].As<Variant.Type>() != Variant.Type.String)
+        {
+            GD.PushError($"Cannot set string options for non-string property {property["name"].AsStringName()}");
+            return;
+        }
+        property["hint"] = Variant.From(PropertyHint.EnumSuggestion);
+        property["hint_string"] = string.Join(',', ((SceneTree)Engine.GetMainLoop()).Root.GetDescendants().OfType<TileMapLayer>().Select((n) => n.Name));
+    }
+
     private static readonly StringName TerrainSet = "Terrain Set";
     private static readonly StringName Terrain = "Terrain";
     private static readonly StringName SourceId = "Source ID";

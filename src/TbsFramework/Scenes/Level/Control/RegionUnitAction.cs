@@ -4,6 +4,7 @@ using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Conditions;
+using TbsFramework.Scenes.Rendering;
 
 namespace TbsFramework.Scenes.Level.Control;
 
@@ -59,9 +60,6 @@ public partial class RegionUnitAction : UnitAction
     {
         base._ValidateProperty(property);
         if (Engine.IsEditorHint() && property["name"].AsStringName() == PropertyName.Region)
-        {
-            property["hint"] = Variant.From(PropertyHint.EnumSuggestion);
-            property["hint_string"] = string.Join(',', ((SceneTree)Engine.GetMainLoop()).Root.GetDescendants().OfType<TileMapLayer>().Select((n) => n.Name));
-        }
+            HighlightedRegion.AddRegionsToProperty(property);
     }
 }

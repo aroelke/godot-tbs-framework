@@ -3,6 +3,7 @@ using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Rendering;
 
 namespace TbsFramework.Scenes.Level.Conditions;
 
@@ -22,9 +23,6 @@ public partial class RegionCondition : AreaCondition
     {
         base._ValidateProperty(property);
         if (Engine.IsEditorHint() && property["name"].AsStringName() == PropertyName.RegionName)
-        {
-            property["hint"] = Variant.From(PropertyHint.EnumSuggestion);
-            property["hint_string"] = string.Join(',', ((SceneTree)Engine.GetMainLoop()).Root.GetDescendants().OfType<TileMapLayer>().Select((n) => n.Name));
-        }
+            HighlightedRegion.AddRegionsToProperty(property);
     }
 }
