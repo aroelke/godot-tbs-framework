@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using TbsFramework.Extensions;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Conditions;
 
 namespace TbsFramework.Scenes.Level.Control;
 
@@ -9,13 +11,9 @@ namespace TbsFramework.Scenes.Level.Control;
 public partial class RegionUnitAction : UnitAction
 {
     /// <summary>Identity of the region.</summary>
-    [Export] public ActionRegionIdentity Region = null;
+    [Export] public StringName Region = "";
 
-    /// <summary>Identities of units allowed to perform the action.</summary>
-    [Export] public UnitIdentity[] AllowedUnits = [];
-
-    /// <summary>Factions whose units are allowed to perform the action in the region.</summary>
-    [Export] public Faction[] AllowedFactions = [];
+    [Export] public UnitFilter Allowed = null;
 
     /// <summary>Each unit can only perform this action once.</summary>
     [Export] public bool OncePerUnit = false;
@@ -25,17 +23,11 @@ public partial class RegionUnitAction : UnitAction
 
     public override bool RequiresTarget => false;
 
-    /// <returns>
-    /// The identities as defined by <see cref="IHasIdentity{T, U}"/> of all of the units in <paramref name="grid"/> that are allowed to perform
-    /// the action.
-    /// </returns>
-    public HashSet<UnitIdentity> AllAllowedUnits(GridData grid) => [..AllowedUnits, ..AllowedFactions.SelectMany((f) => f.GetUnits(grid)).Select((u) => u.Identity)];
-
     public override bool CanPerform(UnitData unit, Vector2I source)
     {
-        bool allowed = (AllowedFactions.Length > 0 && AllowedFactions.Any(unit.Faction.AlliedTo)) || AllowedUnits.Contains(unit.Identity);
-        bool performed = unit.Grid.SpecialActionRegions[Region].Performed.ContainsKey(unit.Identity);
-        bool within = unit.Grid.SpecialActionRegions[Region].Cells.Contains(source);
+        bool allowed = Allowed?.IsIncluded(unit) ?? false;
+        bool performed = unit.Grid.UnitPerformedActions.GetValueOrDefault(this, []).GetValueOrDefault(unit.Identity, 0) > 0;
+        bool within = unit.Grid.Regions[Region].Contains(source);
         return allowed && (!OncePerUnit || !performed) && within;
     }
 
@@ -49,17 +41,10 @@ public partial class RegionUnitAction : UnitAction
     public override void UpdateGrid(GridData grid, UnitActionResult result)
     {
         if (result.Result is not null)
-            GD.PushWarning($"Updating grid with result for ActionExecuteRegion that isn't null. Should this have been used for a different action?");
+            GD.PushWarning($"Updating grid with result for RegionUnitAction that isn't null. Should this have been used for a different action?");
 
-        if (OncePerUnit)
-        {
-            if (!grid.SpecialActionRegions[Region].Performed.ContainsKey(result.Actor.Identity))
-                grid.SpecialActionRegions[Region].Performed[result.Actor.Identity] = 1;
-        }
-        else
-            grid.SpecialActionRegions[Region].Performed[result.Actor.Identity] = grid.SpecialActionRegions[Region].Performed.GetValueOrDefault(result.Actor.Identity, 0) + 1;
         if (OncePerCell)
-            grid.SpecialActionRegions[Region].Cells = grid.SpecialActionRegions[Region].Cells.Remove(result.Actor.Cell);
+            grid.Regions[Region] = grid.Regions[Region].Where((c) => c != result.Actor.Cell);
     }
 
     public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target)
@@ -68,5 +53,15 @@ public partial class RegionUnitAction : UnitAction
         grid.Occupants[unit.Cell].Cell = source;
         UpdateGrid(grid, new(null, unit, GridData.InvalidCell, this));
         return grid;
+    }
+
+    public override void _ValidateProperty(Godot.Collections.Dictionary property)
+    {
+        base._ValidateProperty(property);
+        if (Engine.IsEditorHint() && property["name"].AsStringName() == PropertyName.Region)
+        {
+            property["hint"] = Variant.From(PropertyHint.EnumSuggestion);
+            property["hint_string"] = string.Join(',', ((SceneTree)Engine.GetMainLoop()).Root.GetDescendants().OfType<TileMapLayer>().Select((n) => n.Name));
+        }
     }
 }
