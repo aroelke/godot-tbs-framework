@@ -200,6 +200,7 @@ public partial class AIController : ArmyController
     {
         action.Result = action.Action.Simulate(action.Actor, action.Destination, action.Target);
         action.Result.Occupants[action.Destination].Active = false;
+        action.Result.AddPerformedAction(action.Action, action.Actor);
 
         // If this action results in a board state that was already explored, skip the rest of this branch and use that result
         if (decisions.TryGetValue(action.Result, out VirtualAction decision))

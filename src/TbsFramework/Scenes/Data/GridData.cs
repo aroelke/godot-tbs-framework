@@ -161,6 +161,16 @@ public class GridData
     /// <returns>A collection containing the indices of all cells within grid bounds at each distance from a center cell.</returns>
     public IEnumerable<Vector2I> GetCellsInRange(Vector2I center, IEnumerable<int> distances) => distances.SelectMany((r) => GetCellsAtDistance(center, r)).ToHashSet();
 
+    public void AddPerformedAction(UnitAction action, UnitData actor)
+    {
+        if (!UnitPerformedActions.ContainsKey(action))
+            UnitPerformedActions[action] = [];
+        UnitPerformedActions[action][actor.Identity] = UnitPerformedActions[action].GetValueOrDefault(actor.Identity, 0) + 1;
+        if (!FactionPerformedActions.ContainsKey(action))
+            FactionPerformedActions[action] = [];
+        FactionPerformedActions[action][actor.Faction] = FactionPerformedActions[action].GetValueOrDefault(actor.Faction, 0) + 1;
+    }
+
     /// <returns>A new grid of the same size with copies of all of the objects and other structures on it.</returns>
     public GridData Clone() => new(this);
 }
