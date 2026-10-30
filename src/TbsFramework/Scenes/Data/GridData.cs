@@ -37,8 +37,6 @@ public class GridData
             _occupants[cell] = occupant.Clone();
             _occupants[cell].Grid = this;
         }
-        foreach ((ActionRegionIdentity id, SpecialActionRegionData region) in original.SpecialActionRegions)
-            SpecialActionRegions[id] = region.Clone();
         foreach ((StringName name, IEnumerable<Vector2I> region) in original.Regions)
             Regions[name] = region;
         Turn = original.Turn;
@@ -97,9 +95,6 @@ public class GridData
 
     /// <summary>Objects occupying the grid. Only one object tracked by this can be in a grid cell at a time.</summary>
     public IDictionary<Vector2I, UnitData> Occupants => _occupants;
-
-    /// <summary>Regions identifying special actions that units can perform.</summary>
-    public readonly Dictionary<ActionRegionIdentity, SpecialActionRegionData> SpecialActionRegions = [];
 
     /// <summary>Regions that have been marked on the map. They don't have to be visible.</summary>
     public readonly ObservableDictionary<StringName, IEnumerable<Vector2I>> Regions = [];

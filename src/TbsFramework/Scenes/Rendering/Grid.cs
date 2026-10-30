@@ -164,12 +164,6 @@ public partial class Grid : BoundedNode2D
                 };
             }
 
-            foreach (SpecialActionRegion region in GetChildren().OfType<SpecialActionRegion>())
-            {
-                region.Data.Grid = Data;
-                Data.SpecialActionRegions[region.Data.Identity] = region.Data;
-            }
-
             foreach (TileMapLayer region in GetChildren().OfType<TileMapLayer>())
             {
                 Data.Regions[region.Name] = region.GetUsedCells();

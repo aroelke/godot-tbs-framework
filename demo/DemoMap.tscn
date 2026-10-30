@@ -1,4 +1,4 @@
-[gd_scene load_steps=114 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=113 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsFramework/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="Script" uid="uid://c2joupgp3ohcx" path="res://demo/DemoMap.cs" id="1_npakb"]
@@ -10,7 +10,6 @@
 [ext_resource type="PackedScene" uid="uid://1ev2yxu31ow" path="res://src/TbsFramework/Scenes/Level/Army.tscn" id="5_oeidl"]
 [ext_resource type="Resource" uid="uid://broidqni4h8ak" path="res://demo/factions/DemoPlayerFaction.tres" id="6_akw2u"]
 [ext_resource type="Resource" uid="uid://n0nb5qse2mk0" path="res://demo/actions/DemoCaptureAction.tres" id="6_i7a7m"]
-[ext_resource type="PackedScene" uid="uid://bntay230afwxo" path="res://src/TbsFramework/Scenes/Rendering/SpecialActionRegion.tscn" id="6_qahj2"]
 [ext_resource type="PackedScene" uid="uid://drlrlusbfh208" path="res://src/TbsFramework/Scenes/Level/Control/PlayerController.tscn" id="7_tajn8"]
 [ext_resource type="Resource" uid="uid://dxvcd01bu3ovj" path="res://demo/factions/DemoEnemyFaction1.tres" id="7_yu7ov"]
 [ext_resource type="Resource" uid="uid://0dcwfdljw4ug" path="res://demo/factions/DemoEnemyFaction2.tres" id="8_edc7l"]
@@ -21,8 +20,8 @@
 [ext_resource type="PackedScene" uid="uid://cb1gfyilefvvj" path="res://demo/unit/Tank.tscn" id="10_1ger5"]
 [ext_resource type="AudioStream" uid="uid://cw083osbudnfr" path="res://demo/assets/ui/sounds/cursor_move.ogg" id="11_npakb"]
 [ext_resource type="Resource" uid="uid://8ni15si3ex81" path="res://demo/unit/demo_long_tank.tres" id="12_qidbu"]
-[ext_resource type="Resource" uid="uid://b7fjldvqn7j10" path="res://demo/CaptureRegionIdentity.tres" id="13_keg60"]
 [ext_resource type="AudioStream" uid="uid://chh5seatf8dr3" path="res://demo/assets/ui/sounds/select.ogg" id="14_8l58o"]
+[ext_resource type="Script" uid="uid://d14xmx1jw8opd" path="res://src/TbsFramework/Scenes/Rendering/HighlightedRegion.cs" id="14_vhc0u"]
 [ext_resource type="AudioStream" uid="uid://dfj0anaew11iq" path="res://demo/assets/ui/sounds/cancel.ogg" id="15_1yav4"]
 [ext_resource type="AudioStream" uid="uid://byd0f8wekfypg" path="res://demo/assets/ui/sounds/zone_on.ogg" id="16_2ofvg"]
 [ext_resource type="AudioStream" uid="uid://bj1dfsj4g652j" path="res://demo/assets/ui/sounds/error.ogg" id="16_fv6cu"]
@@ -369,17 +368,22 @@ tile_map_data = PackedByteArray("AAASAAIAAQAKAAMAAAABAAYAAQAKAAIAAAA=")
 tile_set = ExtResource("4_yu7ov")
 
 [node name="Occupy" type="TileMapLayer" parent="LevelManager/Grid"]
-modulate = Color(0, 1, 0, 0.392157)
-tile_map_data = PackedByteArray("AAAIAA4AAAAAAAMAAAAJAA4AAAABAAMAAAAKAA4AAAABAAMAAAALAA4AAAACAAMAAAA=")
+modulate = Color(0, 1, 0, 0.39200002)
+tile_map_data = PackedByteArray("AAALAA4AAAACAAMAAAAKAA4AAAABAAMAAAAJAA4AAAABAAMAAAAIAA4AAAAAAAMAAAA=")
 tile_set = ExtResource("10_0kgrh")
-
-[node name="Capture" parent="LevelManager/Grid" instance=ExtResource("6_qahj2")]
-modulate = Color(1, 1, 1, 0.392157)
-tile_map_data = PackedByteArray("AAASAAMAAAABAAUAAAA=")
-tile_set = ExtResource("10_0kgrh")
-Identity = ExtResource("13_keg60")
+script = ExtResource("14_vhc0u")
 "Terrain Set" = 0
 Terrain = "selection"
+metadata/_custom_type_script = "uid://d14xmx1jw8opd"
+
+[node name="Capture" type="TileMapLayer" parent="LevelManager/Grid"]
+modulate = Color(1, 1, 1, 0.39200002)
+tile_map_data = PackedByteArray("AAASAAMAAAABAAUAAAA=")
+tile_set = ExtResource("10_0kgrh")
+script = ExtResource("14_vhc0u")
+"Terrain Set" = 0
+Terrain = "selection"
+metadata/_custom_type_script = "uid://d14xmx1jw8opd"
 
 [node name="Player" parent="LevelManager" instance=ExtResource("5_oeidl")]
 Faction = ExtResource("6_akw2u")
