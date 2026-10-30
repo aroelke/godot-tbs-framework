@@ -26,9 +26,12 @@ public partial class RegionUnitAction : UnitAction
 
     public override bool CanPerform(UnitData unit, Vector2I source)
     {
+        if (!unit.Grid.Regions.ContainsKey(Region))
+            GD.PushWarning($"There is no region named {Region}. Deleting regions, rather than just removing all their cells, is not recommended.");
+
         bool allowed = Allowed?.IsIncluded(unit) ?? false;
         bool performed = unit.Grid.UnitPerformedActions.GetValueOrDefault(this, []).GetValueOrDefault(unit.Identity, 0) > 0;
-        bool within = unit.Grid.Regions[Region].Contains(source);
+        bool within = unit.Grid.Regions.GetValueOrDefault(Region, []).Contains(source);
         return allowed && (!OncePerUnit || !performed) && within;
     }
 
