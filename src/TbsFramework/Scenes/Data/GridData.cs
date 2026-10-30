@@ -39,6 +39,8 @@ public class GridData
         }
         foreach ((ActionRegionIdentity id, SpecialActionRegionData region) in original.SpecialActionRegions)
             SpecialActionRegions[id] = region.Clone();
+        foreach ((StringName name, IEnumerable<Vector2I> region) in original.Regions)
+            Regions[name] = region;
         Turn = original.Turn;
         SwitchedBehaviors = [.. original.SwitchedBehaviors];
 
