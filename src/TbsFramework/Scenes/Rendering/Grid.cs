@@ -129,7 +129,6 @@ public partial class Grid : BoundedNode2D
 
         if (!Engine.IsEditorHint())
         {
-            Data.Identity = new(); // Not an export because currently it doesn't need to be copied anywhere
             Data.Size = GroundLayer.GetUsedRect().End;
             Data.DefaultTerrain = DefaultTerrain;
             if (TerrainLayer is not null)

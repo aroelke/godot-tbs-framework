@@ -26,7 +26,6 @@ public class GridData
 
     private GridData(GridData original) : this()
     {
-        Identity = original.Identity;
         _size = original._size;
         _all = original._all;
         DefaultTerrain = original.DefaultTerrain;
@@ -110,9 +109,6 @@ public class GridData
 
     /// <summary>Tracker for actions that have been performed by units belonging to factions.</summary>
     public readonly Dictionary<UnitAction, Dictionary<Faction, int>> FactionPerformedActions = [];
-
-    /// <summary>Identity of this grid. See <see cref="DataIdentity{T}"/>.</summary>
-    public GridIdentity Identity = null;
 
     public GridData()
     {

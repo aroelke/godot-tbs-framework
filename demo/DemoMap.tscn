@@ -1,4 +1,4 @@
-[gd_scene load_steps=113 format=4 uid="uid://dq2q8b0axoftt"]
+[gd_scene load_steps=104 format=4 uid="uid://dq2q8b0axoftt"]
 
 [ext_resource type="PackedScene" uid="uid://p5cw5rndfqun" path="res://src/TbsFramework/Scenes/Level/Events/LevelManager.tscn" id="1_3r8kd"]
 [ext_resource type="Script" uid="uid://c2joupgp3ohcx" path="res://demo/DemoMap.cs" id="1_npakb"]
@@ -48,21 +48,16 @@
 [ext_resource type="Script" uid="uid://dkriln2jo7b77" path="res://src/TbsFramework/Scenes/Level/Control/Evaluation/ConditionalBehavior.cs" id="37_lq1v0"]
 [ext_resource type="Script" uid="uid://doahrw4oa84ft" path="res://src/TbsFramework/Scenes/Level/Conditions/InRangeCondition.cs" id="37_xsbgo"]
 [ext_resource type="Resource" uid="uid://3nkmext8ildv" path="res://demo/assets/ui/input/icons/icon_map_axis.tres" id="38_v621i"]
-[ext_resource type="Script" uid="uid://mlkxivicyhfb" path="res://src/TbsFramework/Scenes/Level/Conditions/UnitFilter.cs" id="38_vhc0u"]
 [ext_resource type="Resource" uid="uid://bm5bvc8s4vh6n" path="res://demo/unit/stats_ally.tres" id="39_ls5jp"]
 [ext_resource type="PackedScene" uid="uid://btlhiv0dyhf7o" path="res://src/TbsFramework/UI/HUD/ControlHint.tscn" id="39_mogvl"]
 [ext_resource type="Resource" uid="uid://cmvujupl5c32q" path="res://demo/unit/guard_c_identity.tres" id="41_vhc0u"]
 [ext_resource type="Script" uid="uid://dxf4h3581x7o0" path="res://src/TbsFramework/Scenes/Level/Conditions/TurnCondition.cs" id="42_vhc0u"]
 [ext_resource type="Resource" uid="uid://dwhb6qv3wa4qk" path="res://demo/unit/boss_identity.tres" id="44_vhc0u"]
-[ext_resource type="Resource" uid="uid://45tql55ctgpy" path="res://demo/factions/DemoEnemy1Filter.tres" id="48_dvqlx"]
 [ext_resource type="Script" uid="uid://bk5158j6777to" path="res://src/TbsFramework/Scenes/Level/Conditions/UnitsRemainingCondition.cs" id="48_jaaus"]
 [ext_resource type="Script" uid="uid://bt32p357t234i" path="res://src/TbsFramework/Scenes/Level/Conditions/AggregateCondition.cs" id="48_xsbgo"]
 [ext_resource type="PackedScene" uid="uid://c2sogymeaqvpw" path="res://demo/DemoPauseOverlay.tscn" id="49_b5lsw"]
-[ext_resource type="Resource" uid="uid://c3auwvhd8a4fs" path="res://demo/factions/DemoBossFilter.tres" id="51_3c2io"]
-[ext_resource type="Resource" uid="uid://cfixkyk211g3x" path="res://demo/factions/DemoPlayerFilter.tres" id="52_wn546"]
 [ext_resource type="Script" uid="uid://36rrrv3tfjje" path="res://src/TbsFramework/Scenes/Level/Conditions/RegionCondition.cs" id="53_ie1ab"]
 [ext_resource type="Script" uid="uid://bt6plcvivy6ri" path="res://src/TbsFramework/Scenes/Level/Conditions/ActionsPerformedCondition.cs" id="54_e4bej"]
-[ext_resource type="Resource" uid="uid://bt0fxksrqi7xt" path="res://demo/factions/DemoAllyFilter.tres" id="55_ie1ab"]
 
 [sub_resource type="Resource" id="Resource_vhc0u"]
 script = ExtResource("31_5t6v1")
@@ -147,21 +142,11 @@ script = ExtResource("36_5t6v1")
 AllowSupport = false
 metadata/_custom_type_script = "uid://xofktishkkvn"
 
-[sub_resource type="Resource" id="Resource_whvqa"]
-script = ExtResource("38_vhc0u")
-Units = [ExtResource("37_dvqlx")]
-metadata/_custom_type_script = "uid://mlkxivicyhfb"
-
-[sub_resource type="Resource" id="Resource_hilfa"]
-script = ExtResource("38_vhc0u")
-Factions = [ExtResource("6_akw2u")]
-metadata/_custom_type_script = "uid://mlkxivicyhfb"
-
 [sub_resource type="Resource" id="Resource_nyqoh"]
 script = ExtResource("37_xsbgo")
-SourceUnits = SubResource("Resource_whvqa")
+SourceUnits = ExtResource("37_dvqlx")
 Action = ExtResource("4_g6g0k")
-TriggerUnits = SubResource("Resource_hilfa")
+TriggerUnits = ExtResource("6_akw2u")
 metadata/_custom_type_script = "uid://doahrw4oa84ft"
 
 [sub_resource type="Resource" id="Resource_m00pu"]
@@ -182,21 +167,11 @@ Condition = SubResource("Resource_nyqoh")
 AllowSupport = false
 metadata/_custom_type_script = "uid://dkriln2jo7b77"
 
-[sub_resource type="Resource" id="Resource_agpkr"]
-script = ExtResource("38_vhc0u")
-Units = [ExtResource("41_vhc0u")]
-metadata/_custom_type_script = "uid://mlkxivicyhfb"
-
-[sub_resource type="Resource" id="Resource_mor6c"]
-script = ExtResource("38_vhc0u")
-Factions = [ExtResource("6_akw2u")]
-metadata/_custom_type_script = "uid://mlkxivicyhfb"
-
 [sub_resource type="Resource" id="Resource_okd5f"]
 script = ExtResource("37_xsbgo")
-SourceUnits = SubResource("Resource_agpkr")
+SourceUnits = ExtResource("41_vhc0u")
 Action = ExtResource("4_g6g0k")
-TriggerUnits = SubResource("Resource_mor6c")
+TriggerUnits = ExtResource("6_akw2u")
 metadata/_custom_type_script = "uid://doahrw4oa84ft"
 
 [sub_resource type="Resource" id="Resource_8tkgl"]
@@ -286,27 +261,23 @@ metadata/_custom_type_script = "uid://xofktishkkvn"
 
 [sub_resource type="Resource" id="Resource_2wk7w"]
 script = ExtResource("48_jaaus")
-TriggerUnits = ExtResource("48_dvqlx")
 Inequality = 4
 metadata/_custom_type_script = "uid://bk5158j6777to"
 
 [sub_resource type="Resource" id="Resource_dfkcd"]
 script = ExtResource("48_jaaus")
-TriggerUnits = ExtResource("51_3c2io")
 Inequality = 4
 metadata/_custom_type_script = "uid://bk5158j6777to"
 
 [sub_resource type="Resource" id="Resource_o4tuw"]
 script = ExtResource("53_ie1ab")
 RegionName = &"Occupy"
-TriggerUnits = ExtResource("52_wn546")
 Amount = 4
 metadata/_custom_type_script = "uid://36rrrv3tfjje"
 
 [sub_resource type="Resource" id="Resource_y66a2"]
 script = ExtResource("54_e4bej")
 Actions = [ExtResource("6_i7a7m")]
-Units = ExtResource("52_wn546")
 Amount = 1
 metadata/_custom_type_script = "uid://bt6plcvivy6ri"
 
@@ -317,13 +288,11 @@ metadata/_custom_type_script = "uid://bt32p357t234i"
 
 [sub_resource type="Resource" id="Resource_qevaf"]
 script = ExtResource("48_jaaus")
-TriggerUnits = ExtResource("52_wn546")
 Inequality = 4
 metadata/_custom_type_script = "uid://bk5158j6777to"
 
 [sub_resource type="Resource" id="Resource_qvain"]
 script = ExtResource("48_jaaus")
-TriggerUnits = ExtResource("55_ie1ab")
 Inequality = 4
 metadata/_custom_type_script = "uid://bk5158j6777to"
 

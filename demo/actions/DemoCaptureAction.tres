@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="RegionUnitAction" load_steps=3 format=3 uid="uid://n0nb5qse2mk0"]
 
-[ext_resource type="Resource" uid="uid://cfixkyk211g3x" path="res://demo/factions/DemoPlayerFilter.tres" id="1_inxew"]
+[ext_resource type="Resource" uid="uid://broidqni4h8ak" path="res://demo/factions/DemoPlayerFaction.tres" id="1_inxew"]
 [ext_resource type="Script" uid="uid://bsn181216h4dr" path="res://src/TbsFramework/Scenes/Level/Control/RegionUnitAction.cs" id="2_qm38u"]
 
 [resource]
