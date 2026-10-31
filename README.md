@@ -26,17 +26,16 @@ and the turn order, among other things.
 
 The hierarchy looks like this:
 - [`LevelManager`](src/TbsFramework/Scenes/Level/Events/LevelManager.tscn)
-  - [`CombatController`] if combat animations should be playable on the map _(optional)_
+  - [`CombatController`](src/TbsFramework/Scenes/Level/CombatController.cs) if combat animations should be playable on the map _(optional)_
   - [`Grid`](src/TbsFramework/Scenes/Level/Map/Grid.tscn)
     - "Ground" `TileMapLayer`
     - "Terrain" `TileMapLayer`
-    - Any number of additional `TileMapLayer`s or [`SpecialActionRegion`](src/TbsFramework/Scenes/Rendering/SpecialActionRegion.tscn)s
+    - Any number of additional `TileMapLayer`s or [`HighlightedRegion`](src/TbsFramework/Scenes/Rendering/HighlightedRegion.tscn)s
       representing special regions of the map
   - First [`Army`](src/TbsFramework/Scenes/Level/Object/Group/Army.tscn)
     - `ArmyController` (either [`PlayerController`](src/TbsFramework/Scenes/Level/Control/PlayerController.tscn) or
       [`AIController`](src/TbsFramework/Scenes/Level/Control/AIController.tscn))
     - Any number of [`Unit`](src/TbsFramework/Scenes/Level/Object/Unit.tscn)s
-      - Unit [`Behavior`](src/TbsFramework/Scenes/Level/Control/Behavior.cs) (if CPU controlled)
   - Second `Army`, etc.
 
 #### Event Controller
@@ -49,27 +48,28 @@ check that any objectives have been completed and then returns control to the `L
 `EventController` does not have to be in any specific place in the scene tree and could even be the root if desired.
 
 #### Map Objectives
-Map objectives are specified using a tree of `Objective` nodes. There are several types of `Objective`s available:
-- [`ActionObjective`](src/TbsFramework/Scenes/Level/Objectives/ActionObjective.tscn): One or more units must enter a specific region of the
-  map specified using a [`SpecialActionRegion`](src/TbsFramework/Scenes/Level/Layers/SpecialActionRegion.tscn), which is a special type of
-  `TileMapLayer` that defines a special action to be performed, and
-  perform that region's action
-- [`OccupyObjective`](src/TbsFramework/Scenes/Level/Objectives/OccupyObjective.tscn): One or more units must be in a specific region of the
-  map when the objective is evaluated
-- [`DefeatUnitObjective`](src/TbsFramework/Scenes/Level/Objectives/DefeatUnitObjective.tscn): A specific unit must be defeated
-- [`RouteObjective`](src/TbsFramework/Scenes/Level/Objectives/RouteObjective.tscn): All units in a specific faction must be defeated
-- [`TimeObjective`](src/TbsFramework/Scenes/Level/Objectives/TimeObjective.tscn): Automatically completed at the end of a specific turn
+Map objectives are specified using a tree of [`GridCondition`](src/TbsFramework/Scenes/Level/Conditions/GridCondition.cs) resources which
+can be assigned to the `Success` or `Failure` properties of the `EventController`. These `GridCondition`s represent flags whose conditions
+are satisfied based on the state of the grid. There are several types of `GridCondition`s available:
+- [`TurnCondition`](src/TbsFramework/Scenes/Level/Conditions/TurnCondition.cs): Satisfied when the turn counter reaches or exceeds a
+  specific value
+- [`UnitsRemainingCondition`](src/TbsFramework/Scenes/Level/Conditions/UnitsRemainingCondition.cs): Satisfied when the number of units
+  remaining on the grid from a collection passes a specified comparison to a specified value (e.g. there are no player units remaining)
+- [`InRangeCondition`](src/TbsFramework/Scenes/Level/Conditions/InRangeCondition.cs): Satisfied when the number of units in one group
+  within range of the units in another group passes a comparison to a value (e.g. when any player unit is within range of a specific
+  enemy unit)
+- [`RegionCondition`](src/TbsFramework/Scenes/Level/Conditions/RegionCondition.cs): Similar to `InRangeCondition`, except the tested
+  area is manually specified rather than being based on the position of a group of units (e.g. a player unit is on a castle gate)
 
-`Objective`s can be combined by adding them to the scene tree as children of an `AggregateObjective`. There are two types of
-`AggregateObjective`s: [`AllObjective`](src/TbsFramework/Scenes/Level/Objectives/AllObjective.tscn), which is only complete as long as all
-of its child objectives are complete; and [`AnyObjective`](src/TbsFramework/Scenes/Level/Objectives/AnyObjective.tscn), which is complete as
-long as any of its child objectives are complete.
+`GridCondition`s can be combined by adding them to the scene tree as children of an
+[`AggregateCondition`](src/TbsFramework/Scenes/Level/Conditions/AggregateCondition.cs) or negated using a
+[`NegativeCondition`](src/TbsFramework/Scenes/Level/Conditions/NegativeCondition.cs).
 
-`Objective`s do not have to be anywhere specific in the scene tree. They primarily interact with the `EventController` to be evaluated and
-determine the result of completion, which allows them to be interpreted in any way desired. The default `EventController` contains a property
-specifying an `Objective` to interpret as successful completion of the map and one that is interpreted as failure of the map. An `Objective`
-will raise its `StatusChanged` signal any process frame in which it is completed or uncompleted to signal the change in completion status,
-allowing it to be used for additional purposes beyond simple level completion, such as triggering mid-level changes.
+`GridCondition` does not store any information about a grid.  Instead, it can be used to test a grid using its `IsSatisfied(GridData)`
+method. The result of this can be used for any purpose.  For example, the `EventController` base class uses it to determine if a
+success or failure objective has been met and the `ConditionalBehavior` class uses it to select which of two `Behavior`s an AI-controlled
+unit will use to determine its available actions.
+
 #### Creating an Army
 Each [`Army`](src/TbsFramework/Scenes/Level/Object/Group/Army.tscn) has three main components:
 - A [`Faction`](src/TbsFramework/Data/Faction.cs) property which is specified using a `Faction` resource and determines the alliance it has
@@ -98,28 +98,16 @@ types to movement cost values that are added to the corresponding `Terrain`'s ba
 getting that information. The result is used to compute the `Unit`'s traversable cells when determining where it can move and to restrict the
 path it can move along when its destination is chosen.
 
-If a `Unit` is part of a CPU-controlled `Army`, it must have a `Behavior` child node providing the `AIController` information about what the
-unit is allowed to do on its turn. There are three main types of `Behavior`s:
-- [`StandBehavior`](src/TbsFramework/Scenes/Level/Control/StandBehavior.tscn): prevents its parent `Unit` from moving and optionally allows it
-  to act
-- [`MoveBehavior`](src/TbsFramework/Scenes/Level/Control/MoveBehavior.tscn): allows its parent `Unit` to move to a new location to perform its
-  action
-- [`SwitchBehavior`](src/TbsFramework/Scenes/Level/Control/SwitchBehavior.tscn): provides a mechanism for the `Unit` to change the way it acts
-  during the level
+If a `Unit` is part of a CPU-controlled `Army`, its `Behavior` property should be populated to provide the `AIController` information about
+what the unit is allowed to do on its turn. There are three main types of `Behavior`s:
+- [`StandBehavior`](src/TbsFramework/Scenes/Level/Control/Evaluation/StandBehavior.tscn): prevents a unit from moving, but it may
+  still act
+- [`MoveBehavior`](src/TbsFramework/Scenes/Level/Control/Evaluation/MoveBehavior.tscn): allows a unit to move to a new location to
+  perform an action
+- [`SwitchBehavior`](src/TbsFramework/Scenes/Level/Control/Evaluation/ConditionalBehavior.tscn): provides a mechanism for the unit to change the way it acts
+  during the level based on the evaluation of a `GridCondition`
 
-Each `SwitchBehavior` must have one or more `SwitchCondition` child nodes and exactly two `Behavior` child nodes. The `SwitchCondition` nodes
-specify when the parent `Unit` switches from the first `Behavior` in the list to the second one. There are several types of `SwitchCondition`s
-included:
-- [`RegionSwitchCondition`](src/TbsFramework/Scenes/Level/Control/RegionSwitchCondition.tscn): switch to the second behavior when one or more
-  `Unit`s have entered a region of the map specified using a `TileMapLayer`
-- [`InRangeSwitchCondition`](src/TbsFramework/Scenes/Level/Control/InRangeSwitchCondition.tscn): switch to the second behavior when one or more
-  `Unit`s have entered the total attack range of one or more other `Unit`s
-- [`ManualSwitchCondition`](src/TbsFramework/Scenes/Level/Control/ManualSwitchCondition.tscn): switch to the second behavior when the `Trigger()`
-  method is called (for example, when a signal is raised)
-- [`TurnSwitchCondition`](src/TbsFramework/Scenes/Level/Control/TurnSwitchCondition.tscn): switch to the second behavior after a certain number
-  of turns have passed
-
-`SwitchCondition` also allows for its `Behavior` selection to revert if its `SwitchCondition` stops being satisfied.
+`ConditionalBehavior` also allows for its `Behavior` selection to revert if its `GridCondition` stops being satisfied.
 
 ### Defining Actions
 Actions are defined using resources that derive from the [`UnitAction`](src/TbsFramework/Scenes/Level/Control/UnitAction.cs) class. This class defines
@@ -144,14 +132,16 @@ these actions, subclasses of `UnitAction` must implement a `Simulate` method whi
 which is then returned to the `AIController` for evaluation. `Perform` and `UpdateGrid` are not called by `AIController`, but are still called by
 `LevelManager` during the CPU's turn just as they are during player-controlled turns.
 
-#### Special Action Regions
+#### Action Regions
 There is a built-in subclass of `UnitAction` for specifying actions that can only be performed in specific cells,
-[`RegionUnitAction`](src/TbsFramework/Scenes/Level/Control/RegionUnitAction.cs). This resource is used to specify an action that can be performed only
-in a set of spaces defined by a `SpecialActionRegion`, which is a type of `TileMapLayer`, with additional properties to constrain which units and
-`Faction`s can perform the action. These actions do not use targets and can be configured to prevent a unit from performing it more than once and/or
-remove cells from the region when it is performed there.
-
-These actions do not have to be used as part of an objective, but they can be assigned to one using `ActionObjective.Action`.
+[`RegionUnitAction`](src/TbsFramework/Scenes/Level/Control/RegionUnitAction.cs). This resource is used to specify an action that can be
+performed only in a set of spaces defined by a `TileMapLayer`. It can be configured to restrict the units that can perform the action,
+further restrict them to only be able to perform the action once, and to allow it to only be performed once per cell in the defined region.
+To aid with visually updating the region in that case, there is an additional specialization of `TileMapLayer`
+available called
+[`HighlightedRegion`](src/TbsFramework/Scenes/Rendering/HighlightedRegion.cs) which will automatically update when a once-per-cell
+`RegionUnitAction` is performed to remove any cell in which the action is performed from the map. Normal `TileMapLayer`s can be used in
+this case, but they will not be automatically updated.
 
 ### Connecting a Combat Scene
 The combat scene is flexible and designed to support any kind of combat situation. Combat scenes should extend the
@@ -206,12 +196,12 @@ selection when it isn't will cancel the target selection rather than confirm it.
 In addition to the above input actions, the built-in UI input actions (`ui_left`, etc.) are used to control context menus. 
 
 ### Identities
-Several data structures in this framework, including `UnitData` and `SpecialActionRegionData`, include an `Identity` field that points to a corresponding
-resource. Since `AIController` makes copies of these structures when it evaluates actions, these `Identity`s are used to identify units and regions that
-represent the same objects on different grid copies, even after modifying the copies. Additionally, these `Identity`s are implemented using `Resource`s
-and exposed by the nodes containing the object data, which allows them to be saved and then referenced by other objects. For example, constraining a
-`RegionUnitAction` to be only allowed by a specific unit can be done by saving that unit's `Identity` and then adding it to the action's
-`AllowedUnits` property.
+`Unit`s in this framework have an `Identity` field that can be used to create a unique reference to that unit that persists across
+copies and can be used to carry information about the unit across scenes. Since `AIController` makes copies of these structures when
+it evaluates actions, these `Identity`s are primarily used to identify units that represent the same objects on different grid copies,
+even after modifying the copies. Additionally, these `Identity`s are implemented using `Resource`s and exposed by the nodes containing
+the object data, which allows them to be saved and then referenced by other objects. For example, constraining a `RegionUnitAction`
+to be only allowed by a specific unit can be done by saving that unit's `Identity` and then adding it to the action's `Allowed` property.
 
 ## Running the Demo
 This project includes a demo that indicates how to set up a simple scene with the framework located in the "demo" directory. To run it,

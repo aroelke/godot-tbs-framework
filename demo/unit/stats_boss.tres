@@ -1,17 +1,15 @@
-[gd_resource type="Resource" script_class="Stats" load_steps=2 format=3 uid="uid://yakjvmifix2m"]
+[gd_resource type="Resource" script_class="DemoStats" load_steps=3 format=3 uid="uid://yakjvmifix2m"]
 
 [ext_resource type="Script" uid="uid://cdy07gqijlx5a" path="res://demo/unit/DemoStats.cs" id="1_lglcp"]
+[ext_resource type="Script" uid="uid://d23lpjno16iad" path="res://src/TbsFramework/Scenes/Data/Terrain.cs" id="1_psdd5"]
 
 [resource]
 script = ExtResource("1_lglcp")
 Health = 10
 Attack = 5
 Defense = 3
-Healing = 0
 Accuracy = 125
-Evasion = 0
 Agility = 1
 Move = 5
 AttackRange = PackedInt32Array(1, 2)
-SupportRange = PackedInt32Array()
 metadata/_custom_type_script = "uid://cdy07gqijlx5a"
