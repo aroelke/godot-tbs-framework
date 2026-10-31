@@ -184,11 +184,13 @@ public partial class AIController : ArmyController
                     }
 
                     // Prioritize the destination closest to the actor's current cell, but if that cell is the actor's current cell then
-                    // also try the next-best one in case moving another unit to that cell afterward is overall better
-                    Vector2I best = unit.Behavior.ChooseDestination(unit, destinations, traversable);
+                    // also try the next-best one in case moving another unit to that cell afterward is overall better. Always use
+                    // Manhattan distance here rather than the behavior's destination preference for performance reasons and also because
+                    // there are paths to all choices anyway, so it doesn't matter how one is chosen
+                    Vector2I best = destinations.MinBy((c) => c.ManhattanDistanceTo(unit.Cell));
                     actions.Add(new(unit, action.Action, best, action.Target, traversable));
                     if (best == unit.Cell && destinations.Count() > 1)
-                        actions.Add(new(unit, action.Action, unit.Behavior.ChooseDestination(unit, destinations.Where((c) => c != best), traversable), action.Target, traversable));
+                        actions.Add(new(unit, action.Action, destinations.Where((c) => c != best).MinBy((c) => c.ManhattanDistanceTo(unit.Cell)), action.Target, traversable));
                 }
             }
         }
