@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Godot;
+using TbsFramework.Scenes.Level.Conditions;
 
 namespace TbsFramework.Scenes.Data;
 
-/// <summary>Defines global data about a faction in the game.</summary>
+/// <summary>
+/// Defines global data about a faction in the game. For convenience, this class can also be used in place of a <see cref="UnitFilter"/> to get all units on a grid that belong to
+/// this faction.
+/// </summary>
 [GlobalClass, Tool]
-public partial class Faction : Resource
+public partial class Faction : UnitFilter
 {
     private ImmutableDictionary<string, Faction> _allies = ImmutableDictionary<string, Faction>.Empty;
 
@@ -30,8 +34,8 @@ public partial class Faction : Resource
     /// <summary>Whether or not this faction is allied to a <see cref="Unit"/>'s faction.</summary>
     public bool AlliedTo(UnitData unit) => unit is not null && AlliedTo(unit.Faction);
 
-    /// <returns>Get all units in this faction on a grid.</returns>
-    public IEnumerable<UnitData> GetUnits(GridData grid) => grid.Occupants.Values.OfType<UnitData>().Where((u) => u.Faction == this);
+    public override IEnumerable<UnitData> GetUnits(GridData grid) => grid.Occupants.Values.OfType<UnitData>().Where((u) => u.Faction == this);
+    public override bool IsIncluded(UnitData unit) => unit.Faction == this;
 
     /// <summary>Find the unit that comes after the given one on its grid.</summary>
     /// <exception cref="ArgumentException">If <paramref name="unit"/> is not part of this faction.</exception>

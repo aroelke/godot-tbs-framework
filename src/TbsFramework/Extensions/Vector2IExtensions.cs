@@ -30,6 +30,9 @@ public static class Vector2IExtensions
     /// <returns>The sum of the two coordinates of the <see cref="Vector2I"/>.</returns>
     public static int Sum(this Vector2I a) => a.X + a.Y;
 
+    /// <returns>The value of the Cantor pairing function for the <see cref="Vector2I"/>.</returns>
+    public static int Cantor(this Vector2I a) => (a.X + a.Y)*(a.X + a.Y + 1)/2 + a.Y;
+
     /// <returns>
     /// The Manhattan distance (sum of the absolute values of the differences in coordinates) between <paramref name="a"/> and
     /// <paramref name="b"/>.

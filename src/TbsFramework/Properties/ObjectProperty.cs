@@ -10,7 +10,7 @@ namespace TbsFramework.Properties;
 /// <param name="Hint">String providing more information about the property's type.</param>
 /// <param name="HintString">String providing specific information pertaining to the <paramref name="Hint"/>.</param>
 /// <param name="Usage">Flags indicating usage of the property.</param>
-public readonly record struct ObjectProperty(StringName Name, Variant.Type Type, PropertyHint Hint=PropertyHint.None, string HintString=null, PropertyUsageFlags Usage=PropertyUsageFlags.Default)
+public readonly record struct ObjectProperty(StringName Name, Variant.Type Type, PropertyHint Hint=PropertyHint.None, string HintString=null, PropertyUsageFlags[] Usage=null)
 {
     public static implicit operator Godot.Collections.Dictionary(ObjectProperty property) => property.ToDictionary();
 
@@ -31,6 +31,6 @@ public readonly record struct ObjectProperty(StringName Name, Variant.Type Type,
         { "type" , Variant.From(Type) },
         { "hint", Variant.From(Hint) },
         { "hint_string", HintString },
-        { "usage", Variant.From(Usage) }
+        { "usage", Variant.From(Usage is null || Usage.Length == 0 ? (uint)PropertyUsageFlags.Default : Usage.Select((f) => (uint)f).Aggregate((a, b) => a | b)) }
     };
 }

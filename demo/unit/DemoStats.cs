@@ -28,115 +28,44 @@ public partial class DemoStats : AbstractStats
         SupportRange = [.. a.SupportRange.Concat(b.SupportRange).Distinct().Order()]
     };
 
-    private readonly ObservableProperty<int> _health = 10;
-    private readonly ObservableProperty<int> _attack = 1;
-    private readonly ObservableProperty<int> _defense = 0;
-    private readonly ObservableProperty<int> _healing = 0;
-    private readonly ObservableProperty<int> _accuracy = 100;
-    private readonly ObservableProperty<int> _evasion = 0;
-    private readonly ObservableProperty<int> _agility = 1;
-    private readonly ObservableProperty<int> _move = 5;
-    private readonly ObservableProperty<int[]> _attackRange = new int[]{ 1 };
-    private readonly ObservableProperty<int[]> _supportRange = Array.Empty<int>();
-    private readonly ObservableProperty<Godot.Collections.Dictionary<Terrain, int>> _terrainMods = new Godot.Collections.Dictionary<Terrain, int>();
-
     /// <summary>Max health stat. Determines the amount of damage a unit can take before being defeated.</summary>
-    [Export] public int Health
-    {
-        get => _health.Value;
-        set => _health.Value = value;
-    }
+    [Export] public int Health = 10;
 
     /// <summary>Temporary attack stat. Determines the amount of damage a unit deals whenn it attacks.</summary>
-    [Export] public int Attack
-    {
-        get => _attack.Value;
-        set => _attack.Value = value;
-    }
+    [Export] public int Attack = 1;
 
     /// <summary>Temporary defense stat. Reduce damage taken from attacks.</summary>
-    [Export] public int Defense
-    {
-        get => _defense.Value;
-        set => _defense.Value = value;
-    }
+    [Export] public int Defense = 0;
 
     /// <summary>Temporary healing stat. Determines amount of HP restored when supporting.</summary>
-    [Export] public int Healing
-    {
-        get => _healing.Value;
-        set => _healing.Value = value;
-    }
+    [Export] public int Healing = 0;
 
     /// <summary>Temporary accuracy stat. Increases chance of hitting when attacking.</summary>
-    [Export] public int Accuracy
-    {
-        get => _accuracy.Value;
-        set => _accuracy.Value = value;
-    }
+    [Export] public int Accuracy = 100;
 
     /// <summary>Temporary evasion stat. Decreases chance of being hit when attacking.</summary>
-    [Export] public int Evasion
-    {
-        get => _evasion.Value;
-        set => _evasion.Value = value;
-    }
+    [Export] public int Evasion = 0;
 
     /// <summary>Temporary agility stat. When higher than an enemy's, allows for a follow-up attack in combat.</summary>
-    [Export] public int Agility
-    {
-        get => _agility.Value;
-        set => _agility.Value = value;
-    }
+    [Export] public int Agility = 1;
 
     /// <summary>Movement range.</summary>
-    [Export] public int Move
-    {
-        get => _move.Value;
-        set => _move.Value = value;
-    }
+    [Export] public int Move = 5;
 
     /// <summary>Distance at which the unit can attack an enemy.</summary>
     /// <remarks>Don't directly change the values of the array elements, as this won't raise <see cref="DemoValuesChanged"/>.</remarks>
-    [Export] public int[] AttackRange
-    {
-        get => _attackRange.Value;
-        set => _attackRange.Value = value;
-    }
+    [Export] public int[] AttackRange = [1];
 
     /// <summary>Distance at which the unit can support an enemy.</summary>
     /// <remarks>Don't directly change the values of the array elements, as this won't raise <see cref="DemoValuesChanged"/>.</remarks>
-    [Export] public int[] SupportRange
-    {
-        get => _supportRange;
-        set => _supportRange.Value = value;
-    }
+    [Export] public int[] SupportRange = [];
 
     /// <summary>Cost modifiers to move onto different types of terrain.</summary>
     /// <remark>Don't directly change the value of the dictionary elements, as this won't raise <see cref="DemoValuesChanged"/>.</remarks>
-    [Export] public Godot.Collections.Dictionary<Terrain, int> TerrainCostModifiers
-    {
-        get => _terrainMods;
-        set => _terrainMods.Value = value;
-    }
+    [Export] public Godot.Collections.Dictionary<Terrain, int> TerrainCostModifiers = [];
 
     public override double MaxHealth => Health;
     public override int MoveDistance => Move;
 
-    public override int GetTerrainCostModifier(Terrain terrain) => _terrainMods.Value.GetValueOrDefault(terrain, 0);
-
-    public DemoStats()
-    {
-        _health.ValueChanged += (_, _) => SignalValuesChanged();
-        _attack.ValueChanged += (_, _) => SignalValuesChanged();
-        _defense.ValueChanged += (_, _) => SignalValuesChanged();
-        _healing.ValueChanged += (_, _) => SignalValuesChanged();
-        _accuracy.ValueChanged += (_, _) => SignalValuesChanged();
-        _evasion.ValueChanged += (_, _) => SignalValuesChanged();
-        _agility.ValueChanged += (_, _) => SignalValuesChanged();
-        _move.ValueChanged += (_, _) => SignalValuesChanged();
-        _attackRange.ValueChanged += (_, _) => SignalValuesChanged();
-        _supportRange.ValueChanged += (_, _) => SignalValuesChanged();
-        _terrainMods.ValueChanged += (_, _) => SignalValuesChanged();
-    }
+    public override int GetTerrainCostModifier(Terrain terrain) => TerrainCostModifiers.GetValueOrDefault(terrain, 0);
 }

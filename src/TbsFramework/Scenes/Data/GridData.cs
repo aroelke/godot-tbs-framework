@@ -1,7 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using TbsFramework.Collections;
 using TbsFramework.Properties;
+using TbsFramework.Scenes.Level.Control;
+using TbsFramework.Scenes.Level.Control.Evaluation;
 
 namespace TbsFramework.Scenes.Data;
 
@@ -19,11 +22,12 @@ public class GridData
     private readonly ObservableProperty<Vector2I> _size = new(Vector2I.One);
     private readonly ObservableDictionary<Vector2I, Terrain> _terrain = [];
     private readonly ObservableDictionary<Vector2I, UnitData> _occupants = [];
+    private RectangleSet _all = null;
 
     private GridData(GridData original) : this()
     {
-        Identity = original.Identity;
         _size = original._size;
+        _all = original._all;
         DefaultTerrain = original.DefaultTerrain;
         foreach ((Vector2I cell, Terrain terrain) in original.Terrain)
             _terrain[cell] = terrain;
@@ -32,8 +36,28 @@ public class GridData
             _occupants[cell] = occupant.Clone();
             _occupants[cell].Grid = this;
         }
-        foreach ((ActionRegionIdentity id, SpecialActionRegionData region) in original.SpecialActionRegions)
-            SpecialActionRegions[id] = region.Clone();
+        foreach ((StringName name, IEnumerable<Vector2I> region) in original.Regions)
+            Regions[name] = region;
+        Turn = original.Turn;
+        SwitchedBehaviors = [.. original.SwitchedBehaviors];
+
+        UnitPerformedActions = [];
+        foreach ((UnitAction action, Dictionary<UnitIdentity, int> performers) in original.UnitPerformedActions)
+        {
+            if (!UnitPerformedActions.ContainsKey(action))
+                UnitPerformedActions[action] = [];
+            foreach ((UnitIdentity unit, int amount) in performers)
+                UnitPerformedActions[action][unit] = amount;
+        }
+
+        FactionPerformedActions = [];
+        foreach ((UnitAction action, Dictionary<Faction, int> performers) in original.FactionPerformedActions)
+        {
+            if (!FactionPerformedActions.ContainsKey(action))
+                FactionPerformedActions[action] = [];
+            foreach ((Faction faction, int amount) in performers)
+                FactionPerformedActions[action][faction] = amount;
+        }
     }
 
     /// <summary>
@@ -56,6 +80,12 @@ public class GridData
         set => _size.Value = value;
     }
 
+    /// <summary>
+    /// Linear collection of all valid cell indices in this grid. Typically <see cref="Contains"/> should be used to check if an index is valid; this is
+    /// mainly used for <see cref="Level.Control.Path">Path</see> to be usable for computing paths independently of unit traversal range.
+    /// </summary>
+    public IEnumerable<Vector2I> AllCells => _all ??= new(new(Vector2I.Zero, _size));
+
     /// <summary>Terrain of the grid cells. This array is sparse, so only cells whose terrain isn't <see cref="DefaultTerrain"/> are present.</summary>
     public IDictionary<Vector2I, Terrain> Terrain => _terrain;
 
@@ -65,14 +95,24 @@ public class GridData
     /// <summary>Objects occupying the grid. Only one object tracked by this can be in a grid cell at a time.</summary>
     public IDictionary<Vector2I, UnitData> Occupants => _occupants;
 
-    /// <summary>Regions identifying special actions that units can perform.</summary>
-    public readonly Dictionary<ActionRegionIdentity, SpecialActionRegionData> SpecialActionRegions = [];
+    /// <summary>Regions that have been marked on the map. They don't have to be visible.</summary>
+    public readonly ObservableDictionary<StringName, IEnumerable<Vector2I>> Regions = [];
 
-    /// <summary>Identity of this grid. See <see cref="DataIdentity{T}"/>.</summary>
-    public GridIdentity Identity = null;
+    /// <summary>Indicates the current turn for this grid.</summary>
+    public int Turn = 1;
+
+    /// <summary>List of non-reverting conditional behaviors that have switched for this grid.</summary>
+    public readonly HashSet<ConditionalBehavior> SwitchedBehaviors = [];
+
+    /// <summary>Tracker for actions that have been performed by individual units.</summary>
+    public readonly Dictionary<UnitAction, Dictionary<UnitIdentity, int>> UnitPerformedActions = [];
+
+    /// <summary>Tracker for actions that have been performed by units belonging to factions.</summary>
+    public readonly Dictionary<UnitAction, Dictionary<Faction, int>> FactionPerformedActions = [];
 
     public GridData()
     {
+        _size.ValueChanged += (_, _) => _all = null;
         _terrain.ItemsAdded += (items) => {
             if (TerrainUpdated is not null)
                 foreach ((Vector2I cell, Terrain terrain) in items)
@@ -116,6 +156,16 @@ public class GridData
 
     /// <returns>A collection containing the indices of all cells within grid bounds at each distance from a center cell.</returns>
     public IEnumerable<Vector2I> GetCellsInRange(Vector2I center, IEnumerable<int> distances) => distances.SelectMany((r) => GetCellsAtDistance(center, r)).ToHashSet();
+
+    public void AddPerformedAction(UnitAction action, UnitData actor)
+    {
+        if (!UnitPerformedActions.ContainsKey(action))
+            UnitPerformedActions[action] = [];
+        UnitPerformedActions[action][actor.Identity] = UnitPerformedActions[action].GetValueOrDefault(actor.Identity, 0) + 1;
+        if (!FactionPerformedActions.ContainsKey(action))
+            FactionPerformedActions[action] = [];
+        FactionPerformedActions[action][actor.Faction] = FactionPerformedActions[action].GetValueOrDefault(actor.Faction, 0) + 1;
+    }
 
     /// <returns>A new grid of the same size with copies of all of the objects and other structures on it.</returns>
     public GridData Clone() => new(this);
