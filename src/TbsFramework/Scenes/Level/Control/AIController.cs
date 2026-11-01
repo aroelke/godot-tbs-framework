@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
@@ -248,7 +249,7 @@ public partial class AIController : ArmyController
         return value;
     }
 
-    private double GetActionValue(VirtualAction action, IEnumerable<UnitAction> available, int remaining)
+    private double GetActionValue(VirtualAction action, IEnumerable<UnitAction> available, int remaining, Dictionary<GridData, double> cache)
     {
         action.Result = action.Action.Simulate(action.Actor, action.Destination, action.Target);
         action.Result.Occupants[action.Destination].Active = false;
@@ -261,13 +262,35 @@ public partial class AIController : ArmyController
         if (action.Action.RequiresTarget && action.Result.Occupants[action.Target].Health <= 0)
             action.Result.Occupants[action.Target].Grid = null;
 
-        if (remaining > 1 || remaining == 0)
+        if (!cache.TryGetValue(action.Result, out value))
         {
-            IEnumerable<VirtualAction> next = GetAvailableActions(action.Result, action.Actor.Faction, available);
-            return value + next.Select((a) => GetActionValue(a, available, remaining - 1)).DefaultIfEmpty(0).Max();
+            if (remaining > 1 || remaining == 0)
+            {
+                IEnumerable<VirtualAction> next = GetAvailableActions(action.Result, action.Actor.Faction, available);
+                cache[action.Result] = value += next.Select((a) => GetActionValue(a, available, remaining - 1, cache)).DefaultIfEmpty(0).Max();
+            }
+            else
+                cache[action.Result] = value;
         }
-        else
-            return value;
+        return value;
+    }
+
+    private class GridDataEqualityComparer(int seed = 31333, int mod = 227) : IEqualityComparer<GridData>
+    {
+        public bool Equals(GridData x, GridData y)
+        {
+            if (x.Occupants.Count != y.Occupants.Count)
+                return false;
+            static int comparison(Vector2I a, Vector2I b) => a < b ? -1 : a == b ? 0 : 1;
+            IEnumerable<UnitData> xOccupants = x.Occupants.Values.OrderBy((u) => u.Cell, comparison);
+            IEnumerable<UnitData> yOccupants = y.Occupants.Values.OrderBy((u) => u.Cell, comparison);
+            foreach ((UnitData a, UnitData b) in xOccupants.Zip(yOccupants))
+                if (a.Cell != b.Cell || a.Identity != b.Identity || a.Health != b.Health)
+                    return false;
+            return true;
+        }
+
+        public int GetHashCode([DisallowNull] GridData obj) => obj.Occupants.Values.Select((u) => HashCode.Combine(u.Cell, u.Identity, u.Health)).Aggregate(seed, (a, b) => mod*a + b);
     }
 
     public (UnitData selected, Vector2I destination, UnitAction action, Vector2I target) ComputeAction(IEnumerable<UnitAction> actions)
@@ -280,13 +303,14 @@ public partial class AIController : ArmyController
         List<VirtualAction> potential = [.. GetAvailableActions(Grid.Data, Faction, actions.Where((a) => a.AIAllowed))];
         if (potential.Count != 0)
         {
+            Func<double> task(VirtualAction action) => () => GetActionValue(action, actions, MaxSearchDepth, new Dictionary<GridData, double>(new GridDataEqualityComparer()));
             VirtualAction result;
             if (EvaluateWithThreads)
-                result = potential.Zip(Task.WhenAll([.. potential.Select((a) => Task.Run(() => GetActionValue(a, actions, MaxSearchDepth)))]).Result).MaxBy((a) => a.Second).First;
+                result = potential.Zip(Task.WhenAll([.. potential.Select((a) => Task.Run(task(a)))]).Result).MaxBy((a) => a.Second).First;
             else
             {
                 Dictionary<GridData, VirtualAction> decisions = [];
-                result = potential.Zip(potential.Select((a) => GetActionValue(a, actions, MaxSearchDepth))).MaxBy((a) => a.Second).First;
+                result = potential.Zip(potential.Select((a) => task(a)())).MaxBy((a) => a.Second).First;
             }
             selected = result.Actor;
             destination = result.Destination;
