@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
@@ -15,6 +14,5 @@ public partial class CompositeUnitFilter : UnitFilter
     /// <summary>Factions containing units that should be part of the collection.</summary>
     [Export] public Faction[] Factions = [];
 
-    public override IEnumerable<UnitData> GetUnits(GridData grid) => grid.Occupants.Values.Where(IsIncluded);
     public override bool IsIncluded(UnitData unit) => Units.Contains(unit.Identity) || Factions.Contains(unit.Faction);
 }

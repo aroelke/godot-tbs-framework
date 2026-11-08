@@ -34,7 +34,6 @@ public partial class Faction : UnitFilter
     /// <summary>Whether or not this faction is allied to a <see cref="Unit"/>'s faction.</summary>
     public bool AlliedTo(UnitData unit) => unit is not null && AlliedTo(unit.Faction);
 
-    public override IEnumerable<UnitData> GetUnits(GridData grid) => grid.Occupants.Values.OfType<UnitData>().Where((u) => u.Faction == this);
     public override bool IsIncluded(UnitData unit) => unit.Faction == this;
 
     /// <summary>Find the unit that comes after the given one on its grid.</summary>

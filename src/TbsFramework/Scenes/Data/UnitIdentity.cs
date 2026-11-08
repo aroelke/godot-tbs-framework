@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Level.Conditions;
 
@@ -12,6 +10,5 @@ namespace TbsFramework.Scenes.Data;
 [GlobalClass, Tool]
 public partial class UnitIdentity : UnitFilter
 {
-    public override IEnumerable<UnitData> GetUnits(GridData grid) => grid.Occupants.Values.Where((u) => u.Identity == this);
     public override bool IsIncluded(UnitData unit) => unit.Identity == this;
 }
