@@ -267,7 +267,7 @@ public partial class AIController : ArmyController
             if (remaining > 1 || remaining == 0)
             {
                 IEnumerable<VirtualAction> next = GetAvailableActions(action.Result, action.Actor.Faction, available);
-                cache[action.Result] = value += next.Select((a) => GetActionValue(a, available, remaining - 1, cache)).DefaultIfEmpty(0).Max();
+                cache[action.Result] = value = next.Select((a) => GetActionValue(a, available, remaining - 1, cache)).DefaultIfEmpty(0).Max();
             }
             else
                 cache[action.Result] = value;
