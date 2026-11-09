@@ -22,6 +22,7 @@ public class GridData
     private readonly ObservableProperty<Vector2I> _size = new(Vector2I.One);
     private readonly ObservableDictionary<Vector2I, Terrain> _terrain = [];
     private readonly ObservableDictionary<Vector2I, UnitData> _occupants = [];
+    private readonly HashSet<UnitData> _removed = [];
     private RectangleSet _all = null;
 
     private GridData(GridData original) : this()
@@ -82,7 +83,7 @@ public class GridData
 
     /// <summary>
     /// Linear collection of all valid cell indices in this grid. Typically <see cref="Contains"/> should be used to check if an index is valid; this is
-    /// mainly used for <see cref="Level.Control.Path">Path</see> to be usable for computing paths independently of unit traversal range.
+    /// mainly used for <see cref="Path"/> to be usable for computing paths independently of unit traversal range.
     /// </summary>
     public IEnumerable<Vector2I> AllCells => _all ??= new(new(Vector2I.Zero, _size));
 
@@ -94,6 +95,9 @@ public class GridData
 
     /// <summary>Objects occupying the grid. Only one object tracked by this can be in a grid cell at a time.</summary>
     public IDictionary<Vector2I, UnitData> Occupants => _occupants;
+
+    // Set of units that have been removed from the grid, presumably because they've been defeated.
+    public IReadOnlySet<UnitData> Removed => _removed;
 
     /// <summary>Regions that have been marked on the map. They don't have to be visible.</summary>
     public readonly ObservableDictionary<StringName, IEnumerable<Vector2I>> Regions = [];
@@ -113,6 +117,8 @@ public class GridData
     public GridData()
     {
         _size.ValueChanged += (_, _) => _all = null;
+        _occupants.ItemsAdded += (items) => _removed.ExceptWith(items.Select((i) => i.Value));
+        _occupants.ItemsRemoved += (items) => _removed.UnionWith(items.Select((i) => i.Value));
         _terrain.ItemsAdded += (items) => {
             if (TerrainUpdated is not null)
                 foreach ((Vector2I cell, Terrain terrain) in items)
