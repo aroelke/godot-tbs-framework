@@ -80,7 +80,11 @@ public partial class HealthDifferenceEvaluator : ActionEvaluator
             return false;
         }
 
-        IEnumerable<UnitData> included = action.Grid.Occupants.Values.Where(IsIncluded);
+        IEnumerable<UnitData> included = action.Grid.Occupants.Values;
+        if (IncludeDefeated)
+            included = included.Concat(action.Grid.Removed);
+        included = included.Where(IsIncluded);
+
         if (!included.Any())
             return NoUnitsValue;
         else

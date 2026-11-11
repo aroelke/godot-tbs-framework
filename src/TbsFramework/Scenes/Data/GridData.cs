@@ -37,6 +37,7 @@ public class GridData
             _occupants[cell] = occupant.Clone();
             _occupants[cell].Grid = this;
         }
+        _removed = [.. original._removed.Select((u) => u.Clone())];
         foreach ((StringName name, IEnumerable<Vector2I> region) in original.Regions)
             Regions[name] = region;
         Turn = original.Turn;
