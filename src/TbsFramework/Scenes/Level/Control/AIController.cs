@@ -255,22 +255,18 @@ public partial class AIController : ArmyController
         action.Result.Occupants[action.Destination].Active = false;
         SimulatedAction simulated = new(action.Result, Faction, action.Path, action.Action);
 
-        // Compute the value of the action before cleaning up the grid so that units that need to be cleaned up can be accounted for in its value before they're removed
-        double value = Evaluators.Select((e) => e.Key.Evaluate(simulated)*e.Value).DefaultIfEmpty(0).Sum();
         if (action.Result.Occupants[action.Destination].Health <= 0)
             action.Result.Occupants[action.Destination].Grid = null;
         if (action.Action.RequiresTarget && action.Result.Occupants[action.Target].Health <= 0)
             action.Result.Occupants[action.Target].Grid = null;
 
-        if (!cache.TryGetValue(action.Result, out value))
+        if (!cache.TryGetValue(action.Result, out double value))
         {
-            if (remaining > 1 || remaining == 0)
-            {
-                IEnumerable<VirtualAction> next = GetAvailableActions(action.Result, action.Actor.Faction, available);
-                cache[action.Result] = value = next.Select((a) => GetActionValue(a, available, remaining - 1, cache)).DefaultIfEmpty(0).Max();
-            }
-            else
-                cache[action.Result] = value;
+            // Intentionally accumulate value over the whole tree to increase value of high-weight actions that happen earlier
+            value = CurrentActionCoefficient*Evaluators.Select((e) => e.Key.Evaluate(simulated)*e.Value).DefaultIfEmpty(0).Sum();
+            if (remaining > 1 || remaining == 0 && NextActionCoefficient != 0)
+                value += NextActionCoefficient*GetAvailableActions(action.Result, action.Actor.Faction, available).Select((a) => GetActionValue(a, available, remaining - 1, cache)).DefaultIfEmpty(0).Max();
+            cache[action.Result] = value;
         }
         return value;
     }
@@ -346,6 +342,10 @@ public partial class AIController : ArmyController
     public override Grid Grid { get; set; } = null;
 
     [Export] public Godot.Collections.Dictionary<ActionEvaluator, double> Evaluators = [];
+
+    [Export] public double CurrentActionCoefficient = 1;
+
+    [Export] public double NextActionCoefficient = 1;
 
     /// <summary>Sprite to use for the pseudocursor.</summary>
     [Export] public Texture2D CursorSprite
