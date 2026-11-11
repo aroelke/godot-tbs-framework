@@ -25,15 +25,9 @@ public partial class AIController : ArmyController
     /// <param name="enable"><c>true</c> if fast-forwarding is in progress, and <c>false</c> otherwise.</param>
     [Signal] public delegate void FastForwardStateChangedEventHandler(bool enable);
 
-    private class VirtualAction : IEquatable<VirtualAction>, IComparable<VirtualAction>
+    private class VirtualAction
     {
-        public static bool operator >(VirtualAction a, VirtualAction b) => a.CompareTo(b) > 0;
-        public static bool operator <(VirtualAction a, VirtualAction b) => a.CompareTo(b) < 0;
-
-        private readonly List<UnitData> _enemies = [];
-        private readonly HashSet<UnitData> _allies = [];
         private Vector2I _destination = GridData.InvalidCell;
-        private GridData _result = null;
 
         public VirtualAction(UnitData actor, UnitAction action, Vector2I destination, Vector2I target, IEnumerable<Vector2I> traversable)
         {
@@ -43,8 +37,6 @@ public partial class AIController : ArmyController
             Traversable = traversable;
             Destination = destination;
             Target = target;
-            Friendly = action.RequiresTarget && actor.Grid.Occupants[target].Faction.AlliedTo(actor.Faction);
-            SpecialActionsPerformed = Action is RegionUnitAction && !Action.RequiresTarget ? 1 : 0;
         }
 
         public UnitData Actor;
@@ -62,102 +54,10 @@ public partial class AIController : ArmyController
             {
                 _destination = value;
                 Path = Path.Empty(Traversable, Actor.CellCost).Add(Start).Add(_destination);
-                PathCost = Actor.PathCost(Path);
             }
         }
 
-        public int SpecialActionsPerformed = 0;
-        public int DefeatedEnemies = 0;
-        public int DefeatedAllies = 0;
-        public double AllyHealthDifference = 0;
-        public double EnemyHealthDifference = 0;
-        public int PathCost = 0;
-        public int RemainingActions = 0;
-        public bool Friendly = false;
-
-        public GridData Result
-        {
-            get => _result;
-            set
-            {
-                if ((_result = value) is not null)
-                {
-                    _allies.Clear();
-                    AllyHealthDifference = 0;
-                    _enemies.Clear();
-                    EnemyHealthDifference = 0;
-                    foreach ((_, GridObjectData obj) in _result.Occupants)
-                    {
-                        if (obj is UnitData unit)
-                        {
-                            if (Actor.Faction.AlliedTo(unit.Faction))
-                            {
-                                _allies.Add(unit);
-                                if (unit.Health <= 0)
-                                    DefeatedAllies++;
-                                AllyHealthDifference += unit.Stats.MaxHealth - unit.Health;
-                            }
-                            else
-                            {
-                                _enemies.Add(unit);
-                                if (unit.Health <= 0)
-                                    DefeatedEnemies++;
-                                EnemyHealthDifference += unit.Stats.MaxHealth - unit.Health;
-                            }
-                        }
-                    }
-
-                    _enemies.Sort((a, b) => (int)((a.Health - b.Health)*HealthDiffPrecision));
-                }
-            }
-        }
-
-        public bool Equals(VirtualAction other) => other is not null && Actor == other.Actor && Actor.Grid == other.Actor.Grid && Action == other.Action && Target == other.Target && Destination == other.Destination;
-        public override bool Equals(object obj) => Equals(obj as VirtualAction);
-
-        // Positive is better
-        public int CompareTo(VirtualAction other)
-        {
-            int diff;
-
-            if ((diff = SpecialActionsPerformed - other.SpecialActionsPerformed) != 0)
-                return diff;
-
-            if ((diff = DefeatedEnemies - other.DefeatedEnemies) != 0)
-                return diff;
-            if ((diff = other.DefeatedAllies - DefeatedAllies) != 0)
-                return diff;
-
-            if (Friendly && other.Friendly)
-            {
-                if ((diff = (int)(other.Actor.Grid.Occupants[other.Target].Health - Actor.Grid.Occupants[Target].Health)) != 0)
-                    return diff;
-                if ((diff = (int)((other.AllyHealthDifference - AllyHealthDifference)*HealthDiffPrecision)) != 0)
-                    return diff;
-            }
-
-            int smaller = Math.Min(_enemies.Count, other._enemies.Count);
-            for (int i = 0; i < smaller; i++)
-                if (_enemies[i].Health != other._enemies[i].Health)
-                    return (int)((other._enemies[i].Health - _enemies[i].Health)*HealthDiffPrecision);
-
-            if ((diff = (int)((EnemyHealthDifference - other.EnemyHealthDifference)*HealthDiffPrecision)) != 0)
-                return diff;
-
-            if ((diff = (int)((other.AllyHealthDifference - AllyHealthDifference)*HealthDiffPrecision)) != 0)
-                return diff;
-
-            if ((diff = RemainingActions - other.RemainingActions) != 0)
-                return diff;
-
-            if ((diff = other.PathCost - PathCost) != 0)
-                return diff;
-
-            return other._enemies.Min((u) => other.Actor.Cell.ManhattanDistanceTo(u.Cell)) - _enemies.Min((u) => Actor.Cell.ManhattanDistanceTo(u.Cell));
-        }
-
-        public override string ToString() => $"Move {Actor.Faction.Name}@{Start} to {Destination} and {Action} {Target}";
-        public override int GetHashCode() => HashCode.Combine(Actor, Actor.Grid, Action, Target, Destination);
+        public GridData Result = null;
     }
 
     private static List<VirtualAction> GetAvailableActions(GridData grid, Faction faction, IEnumerable<UnitAction> available)
@@ -197,56 +97,6 @@ public partial class AIController : ArmyController
         }
 
         return actions;
-    }
-
-    private static VirtualAction EvaluateAction(IEnumerable<VirtualAction> actions, VirtualAction action, Dictionary<GridData, VirtualAction> decisions, IEnumerable<UnitAction> available, int remaining)
-    {
-        action.Result = action.Action.Simulate(action.Actor, action.Destination, action.Target);
-        action.Result.Occupants[action.Destination].Active = false;
-        action.Result.AddPerformedAction(action.Action, action.Actor);
-
-        // If this action results in a board state that was already explored, skip the rest of this branch and use that result
-        if (decisions.TryGetValue(action.Result, out VirtualAction decision))
-            return decision;
-
-        IEnumerable<VirtualAction> further = GetAvailableActions(action.Result, action.Actor.Faction, available);
-        if (remaining == 0 || remaining > 1)
-        {
-            remaining = Math.Max(0, remaining - 1);
-            IEnumerable<VirtualAction> reduced = further.Where((a) => {
-                // Evaluate a if a was not present in the previous set of actions that were evaluated (the other ones will either reappear or be evaluated later)
-                if (!actions.Any((b) => a.Actor == b.Actor && a.Target == b.Target))
-                    return true;
-                // Evaluate a if a or this action was not an attack action
-                if (!action.Action.RequiresTarget)
-                    return true;
-                // Don't evaluate a if a's target is defeated
-                if (a.Actor.Grid.Occupants[a.Target].Health <= 0)
-                    return false;
-                // Evaluate a if this action defeated its target to see if more enemies can be defeated down this branch
-                if (action.Result.Occupants[action.Target].Health <= 0)
-                    return true;
-                // Evaluate a if it has the same target as this action
-                if (a.Target == action.Target)
-                    return true;
-                return false;
-            });
-            action.RemainingActions = reduced.Count();
-            if (reduced.Any())
-            {
-                IEnumerable<VirtualAction> results = reduced.Select((a) => EvaluateAction(reduced, a, decisions, available, remaining));
-                VirtualAction result = results.Max();
-                action.SpecialActionsPerformed += result.SpecialActionsPerformed;
-                action.Result = result.Result;
-                decisions[action.Result] = action;
-            }
-        }
-        if (!decisions.TryGetValue(action.Result, out VirtualAction value))
-        {
-            decisions[action.Result] = value = action;
-            decisions[action.Result].RemainingActions = further.Count();
-        }
-        return value;
     }
 
     private double GetActionValue(VirtualAction action, IEnumerable<UnitAction> available, int remaining, Dictionary<GridData, double> cache)
