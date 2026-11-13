@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://ygokv4gbxi01"]
+
+[ext_resource type="Script" uid="uid://d14xmx1jw8opd" path="res://src/TbsFramework/Scenes/Rendering/HighlightedRegion.cs" id="1_dbdty"]
+
+[node name="HighlightedRegion" type="TileMapLayer"]
+script = ExtResource("1_dbdty")

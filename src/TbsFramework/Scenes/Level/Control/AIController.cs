@@ -1,19 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Nodes.Components;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Control.Evaluation;
 using TbsFramework.Scenes.Rendering;
 using TbsFramework.Scenes.Transitions;
 using TbsFramework.UI.Controls.Device;
 
 namespace TbsFramework.Scenes.Level.Control;
 
-/// <summary>Automatically controls units based on their <see cref="Behavior"/>s and the state of the level.</summary>
+/// <summary>Automatically controls units based on their <see cref="BehaviorNode"/>s and the state of the level.</summary>
 [Icon("uid://bambqlpd7p4kr"), Tool]
 public partial class AIController : ArmyController
 {
@@ -23,15 +25,9 @@ public partial class AIController : ArmyController
     /// <param name="enable"><c>true</c> if fast-forwarding is in progress, and <c>false</c> otherwise.</param>
     [Signal] public delegate void FastForwardStateChangedEventHandler(bool enable);
 
-    private class VirtualAction : IEquatable<VirtualAction>, IComparable<VirtualAction>
+    private class VirtualAction
     {
-        public static bool operator >(VirtualAction a, VirtualAction b) => a.CompareTo(b) > 0;
-        public static bool operator <(VirtualAction a, VirtualAction b) => a.CompareTo(b) < 0;
-
-        private readonly List<UnitData> _enemies = [];
-        private readonly HashSet<UnitData> _allies = [];
         private Vector2I _destination = GridData.InvalidCell;
-        private GridData _result = null;
 
         public VirtualAction(UnitData actor, UnitAction action, Vector2I destination, Vector2I target, IEnumerable<Vector2I> traversable)
         {
@@ -41,8 +37,6 @@ public partial class AIController : ArmyController
             Traversable = traversable;
             Destination = destination;
             Target = target;
-            Friendly = action.RequiresTarget && actor.Grid.Occupants[target].Faction.AlliedTo(actor.Faction);
-            SpecialActionsPerformed = Action is RegionUnitAction && !Action.RequiresTarget ? 1 : 0;
         }
 
         public UnitData Actor;
@@ -51,108 +45,19 @@ public partial class AIController : ArmyController
         public IEnumerable<Vector2I> Traversable;
         public Vector2I Start = GridData.InvalidCell;
 
+        public Path Path { get; private set; }
+
         public Vector2I Destination
         {
             get => _destination;
             set
             {
                 _destination = value;
-                PathCost = Actor.PathCost(Path.Empty(Actor.Grid, Traversable).Add(Start).Add(_destination));
+                Path = Path.Empty(Traversable, Actor.CellCost).Add(Start).Add(_destination);
             }
         }
 
-        public int SpecialActionsPerformed = 0;
-        public int DefeatedEnemies = 0;
-        public int DefeatedAllies = 0;
-        public double AllyHealthDifference = 0;
-        public double EnemyHealthDifference = 0;
-        public int PathCost = 0;
-        public int RemainingActions = 0;
-        public bool Friendly = false;
-
-        public GridData Result
-        {
-            get => _result;
-            set
-            {
-                if ((_result = value) is not null)
-                {
-                    _allies.Clear();
-                    AllyHealthDifference = 0;
-                    _enemies.Clear();
-                    EnemyHealthDifference = 0;
-                    foreach ((_, GridObjectData obj) in _result.Occupants)
-                    {
-                        if (obj is UnitData unit)
-                        {
-                            if (Actor.Faction.AlliedTo(unit.Faction))
-                            {
-                                _allies.Add(unit);
-                                if (unit.Health <= 0)
-                                    DefeatedAllies++;
-                                AllyHealthDifference += unit.Stats.MaxHealth - unit.Health;
-                            }
-                            else
-                            {
-                                _enemies.Add(unit);
-                                if (unit.Health <= 0)
-                                    DefeatedEnemies++;
-                                EnemyHealthDifference += unit.Stats.MaxHealth - unit.Health;
-                            }
-                        }
-                    }
-
-                    _enemies.Sort((a, b) => (int)((a.Health - b.Health)*HealthDiffPrecision));
-                }
-            }
-        }
-
-        public bool Equals(VirtualAction other) => other is not null && Actor == other.Actor && Actor.Grid == other.Actor.Grid && Action == other.Action && Target == other.Target && Destination == other.Destination;
-        public override bool Equals(object obj) => Equals(obj as VirtualAction);
-
-        // Positive is better
-        public int CompareTo(VirtualAction other)
-        {
-            int diff;
-
-            if ((diff = SpecialActionsPerformed - other.SpecialActionsPerformed) != 0)
-                return diff;
-
-            if ((diff = DefeatedEnemies - other.DefeatedEnemies) != 0)
-                return diff;
-            if ((diff = other.DefeatedAllies - DefeatedAllies) != 0)
-                return diff;
-
-            if (Friendly && other.Friendly)
-            {
-                if ((diff = (int)(other.Actor.Grid.Occupants[other.Target].Health - Actor.Grid.Occupants[Target].Health)) != 0)
-                    return diff;
-                if ((diff = (int)((other.AllyHealthDifference - AllyHealthDifference)*HealthDiffPrecision)) != 0)
-                    return diff;
-            }
-
-            int smaller = Math.Min(_enemies.Count, other._enemies.Count);
-            for (int i = 0; i < smaller; i++)
-                if (_enemies[i].Health != other._enemies[i].Health)
-                    return (int)((other._enemies[i].Health - _enemies[i].Health)*HealthDiffPrecision);
-
-            if ((diff = (int)((EnemyHealthDifference - other.EnemyHealthDifference)*HealthDiffPrecision)) != 0)
-                return diff;
-
-            if ((diff = (int)((other.AllyHealthDifference - AllyHealthDifference)*HealthDiffPrecision)) != 0)
-                return diff;
-
-            if ((diff = RemainingActions - other.RemainingActions) != 0)
-                return diff;
-
-            if ((diff = other.PathCost - PathCost) != 0)
-                return diff;
-
-            return other._enemies.Min((u) => other.Actor.Cell.ManhattanDistanceTo(u.Cell)) - _enemies.Min((u) => Actor.Cell.ManhattanDistanceTo(u.Cell));
-        }
-
-        public override string ToString() => $"Move {Actor.Faction.Name}@{Start} to {Destination} and {Action} {Target}";
-        public override int GetHashCode() => HashCode.Combine(Actor, Actor.Grid, Action, Target, Destination);
+        public GridData Result = null;
     }
 
     private static List<VirtualAction> GetAvailableActions(GridData grid, Faction faction, IEnumerable<UnitAction> available)
@@ -163,14 +68,13 @@ public partial class AIController : ArmyController
             if (unit.Faction == faction && unit.Active && unit.Health > 0)
             {
                 IEnumerable<Vector2I> traversable = unit.GetTraversableCells();
-                foreach (ActionInfo action in unit.Behavior.Actions(unit, available))
+                foreach (PerformableAction action in unit.Behavior.GetActions(unit, available, traversable))
                 {
                     IEnumerable<Vector2I> destinations;
 
+                    destinations = action.Sources;
                     if (action.Action.RequiresTarget)
                     {
-                        destinations = action.Action.GetSourceCells(unit, action.Target).Intersect(action.Traversable);
-
                         // If the action allows for retaliation, prioritize cells that the target can't retaliate on
                         if (action.Action.RequiresTarget && action.Action.RetaliationAllowed)
                         {
@@ -179,15 +83,15 @@ public partial class AIController : ArmyController
                                 destinations = safe;
                         }
                     }
-                    else
-                        destinations = action.Source;
 
                     // Prioritize the destination closest to the actor's current cell, but if that cell is the actor's current cell then
-                    // also try the next-best one in case moving another unit to that cell afterward is overall better
-                    Vector2I best = unit.Behavior.ChooseDestination(unit, destinations, traversable);
-                    actions.Add(new(unit, action.Action, best, action.Target, action.Traversable));
+                    // also try the next-best one in case moving another unit to that cell afterward is overall better. Always use
+                    // Manhattan distance here rather than the behavior's destination preference for performance reasons and also because
+                    // there are paths to all choices anyway, so it doesn't matter how one is chosen
+                    Vector2I best = destinations.MinBy((c) => c.ManhattanDistanceTo(unit.Cell));
+                    actions.Add(new(unit, action.Action, best, action.Target, traversable));
                     if (best == unit.Cell && destinations.Count() > 1)
-                        actions.Add(new(unit, action.Action, unit.Behavior.ChooseDestination(unit, destinations.Where((c) => c != best), traversable), action.Target, action.Traversable));
+                        actions.Add(new(unit, action.Action, destinations.Where((c) => c != best).MinBy((c) => c.ManhattanDistanceTo(unit.Cell)), action.Target, traversable));
                 }
             }
         }
@@ -195,56 +99,47 @@ public partial class AIController : ArmyController
         return actions;
     }
 
-    private static VirtualAction EvaluateAction(IEnumerable<VirtualAction> actions, VirtualAction action, Dictionary<GridData, VirtualAction> decisions, IEnumerable<UnitAction> available, int remaining)
+    private double GetActionValue(VirtualAction action, IEnumerable<UnitAction> available, int remaining, Dictionary<GridData, double> cache)
     {
         action.Result = action.Action.Simulate(action.Actor, action.Destination, action.Target);
         action.Result.Occupants[action.Destination].Active = false;
+        SimulatedAction simulated = new(action.Result, Faction, action.Path, action.Action);
 
-        // If this action results in a board state that was already explored, skip the rest of this branch and use that result
-        if (decisions.TryGetValue(action.Result, out VirtualAction decision))
-            return decision;
+        if (action.Result.Occupants[action.Destination].Health <= 0)
+            action.Result.Occupants[action.Destination].Grid = null;
+        if (action.Action.RequiresTarget && action.Result.Occupants[action.Target].Health <= 0)
+            action.Result.Occupants[action.Target].Grid = null;
 
-        IEnumerable<VirtualAction> further = GetAvailableActions(action.Result, action.Actor.Faction, available);
-        if (remaining == 0 || remaining > 1)
+        if (!cache.TryGetValue(action.Result, out double value))
         {
-            remaining = Math.Max(0, remaining - 1);
-            IEnumerable<VirtualAction> reduced = further.Where((a) => {
-                // Evaluate a if a was not present in the previous set of actions that were evaluated (the other ones will either reappear or be evaluated later)
-                if (!actions.Any((b) => a.Actor == b.Actor && a.Target == b.Target))
-                    return true;
-                // Evaluate a if a or this action was not an attack action
-                if (!action.Action.RequiresTarget)
-                    return true;
-                // Don't evaluate a if a's target is defeated
-                if (a.Actor.Grid.Occupants[a.Target].Health <= 0)
-                    return false;
-                // Evaluate a if this action defeated its target to see if more enemies can be defeated down this branch
-                if (action.Result.Occupants[action.Target].Health <= 0)
-                    return true;
-                // Evaluate a if it has the same target as this action
-                if (a.Target == action.Target)
-                    return true;
-                return false;
-            });
-            action.RemainingActions = reduced.Count();
-            if (reduced.Any())
-            {
-                IEnumerable<VirtualAction> results = reduced.Select((a) => EvaluateAction(reduced, a, decisions, available, remaining));
-                VirtualAction result = results.Max();
-                action.SpecialActionsPerformed += result.SpecialActionsPerformed;
-                action.Result = result.Result;
-                decisions[action.Result] = action;
-            }
-        }
-        if (!decisions.TryGetValue(action.Result, out VirtualAction value))
-        {
-            decisions[action.Result] = value = action;
-            decisions[action.Result].RemainingActions = further.Count();
+            // Intentionally accumulate value over the whole tree to increase value of high-weight actions that happen earlier
+            value = CurrentActionCoefficient*Evaluators.Select((e) => e.Key.Evaluate(simulated)*e.Value).DefaultIfEmpty(0).Sum();
+            if (remaining > 1 || remaining == 0 && NextActionCoefficient != 0)
+                value += NextActionCoefficient*GetAvailableActions(action.Result, action.Actor.Faction, available).Select((a) => GetActionValue(a, available, remaining - 1, cache)).DefaultIfEmpty(0).Max();
+            cache[action.Result] = value;
         }
         return value;
     }
 
-    public (UnitData selected, Vector2I destination, UnitAction action, Vector2I target) ComputeAction(IEnumerable<UnitData> available, IEnumerable<UnitAction> actions)
+    private class GridDataEqualityComparer(int seed = 31333, int mod = 227) : IEqualityComparer<GridData>
+    {
+        public bool Equals(GridData x, GridData y)
+        {
+            if (x.Occupants.Count != y.Occupants.Count)
+                return false;
+            static int comparison(Vector2I a, Vector2I b) => a < b ? -1 : a == b ? 0 : 1;
+            IEnumerable<UnitData> xOccupants = x.Occupants.Values.OrderBy((u) => u.Cell, comparison);
+            IEnumerable<UnitData> yOccupants = y.Occupants.Values.OrderBy((u) => u.Cell, comparison);
+            foreach ((UnitData a, UnitData b) in xOccupants.Zip(yOccupants))
+                if (a.Cell != b.Cell || a.Identity != b.Identity || a.Health != b.Health)
+                    return false;
+            return true;
+        }
+
+        public int GetHashCode([DisallowNull] GridData obj) => obj.Occupants.Values.Select((u) => HashCode.Combine(u.Cell, u.Identity, u.Health)).Aggregate(seed, (a, b) => mod*a + b);
+    }
+
+    public (UnitData selected, Vector2I destination, UnitAction action, Vector2I target) ComputeAction(IEnumerable<UnitAction> actions)
     {
         UnitData selected;
         Vector2I destination;
@@ -254,13 +149,14 @@ public partial class AIController : ArmyController
         List<VirtualAction> potential = [.. GetAvailableActions(Grid.Data, Faction, actions.Where((a) => a.AIAllowed))];
         if (potential.Count != 0)
         {
+            Func<double> task(VirtualAction action) => () => GetActionValue(action, actions, MaxSearchDepth, new Dictionary<GridData, double>(new GridDataEqualityComparer()));
             VirtualAction result;
             if (EvaluateWithThreads)
-                result = Task.WhenAll([.. potential.Select((a) => Task.Run(() => EvaluateAction(potential, a, [], actions, MaxSearchDepth)))]).Result.Max();
+                result = potential.Zip(Task.WhenAll([.. potential.Select((a) => Task.Run(task(a)))]).Result).MaxBy((a) => a.Second).First;
             else
             {
                 Dictionary<GridData, VirtualAction> decisions = [];
-                result = potential.Max((a) => EvaluateAction(potential, a, decisions, actions, MaxSearchDepth));
+                result = potential.Zip(potential.Select((a) => task(a)())).MaxBy((a) => a.Second).First;
             }
             selected = result.Actor;
             destination = result.Destination;
@@ -271,15 +167,11 @@ public partial class AIController : ArmyController
         {
             IEnumerable<UnitData> enemies = Grid.Data.Occupants.Values.Where((o) => o is UnitData u && !u.Faction.AlliedTo(Faction)).OfType<UnitData>();
 
+            IEnumerable<UnitData> available = Faction.GetUnits(Grid.Data).Where((u) => u.Active);
             selected = enemies.Any() ? available.MinBy((u) => enemies.Min((e) => u.Cell.DistanceTo(e.Cell))) : available.First();
-            IEnumerable<Vector2I> destinations = selected.Behavior.Destinations(selected);
+            IEnumerable<Vector2I> destinations = selected.GetTraversableCells().Where((c) => c == selected.Cell || !Grid.Data.Occupants.ContainsKey(c));
             action = actions.FirstOrDefault((a) => a.AIAllowed && !a.RequiresTarget && destinations.Any((c) => a.CanPerform(selected, c)));
-
-            IEnumerable<UnitData> ordered = enemies.OrderBy((u) => u.Cell.DistanceTo(selected.Cell));
-            if (ordered.Any())
-                destination = destinations.OrderBy((c) => selected.PathCost(selected.Behavior.GetPath(selected, c))).OrderBy((c) => c.DistanceTo(ordered.First().Cell)).First();
-            else
-                destination = selected.Cell;
+            destination = selected.Behavior.ChooseDestination(selected, destinations);
             target = GridData.InvalidCell;
         }
 
@@ -298,6 +190,12 @@ public partial class AIController : ArmyController
     private Timer                 IndicatorTimer        => _cache.GetNode<Timer>("IndicatorTimer");
 
     public override Grid Grid { get; set; } = null;
+
+    [Export] public Godot.Collections.Dictionary<ActionEvaluator, double> Evaluators = [];
+
+    [Export] public double CurrentActionCoefficient = 1;
+
+    [Export] public double NextActionCoefficient = 1;
 
     /// <summary>Sprite to use for the pseudocursor.</summary>
     [Export] public Texture2D CursorSprite
@@ -359,7 +257,7 @@ public partial class AIController : ArmyController
 
     public override async void SelectUnit(UnitAction[] actions)
     {
-        (_selected, _destination, _action, Vector2I target) = await Task.Run(() => ComputeAction(Faction.GetUnits(Grid.Data).Where(static (u) => u.Active), actions));
+        (_selected, _destination, _action, Vector2I target) = await Task.Run(() => ComputeAction(actions));
         if (Grid.Data.Occupants.TryGetValue(target, out UnitData unit))
             _target = unit;
         else
@@ -422,7 +320,6 @@ public partial class AIController : ArmyController
         FastForwardTransition.TransitionIn();
         EmitSignal(SignalName.FastForwardStateChanged, _ff = false);
     }
-
 
     public override void _Input(InputEvent @event)
     {

@@ -34,7 +34,6 @@ public partial class DemoEventController : EventController
         );
     }
 
-    [Export] public Grid Grid = null;
     [Export] public CanvasLayer UserInterface = null;
     [Export(PropertyHint.File, "*.tscn")] public string GameOverScreen = null;
     [Export] public DemoPauseOverlay PauseOverlay = null;
