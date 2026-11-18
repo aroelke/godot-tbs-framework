@@ -25,46 +25,42 @@ public record struct ResolvedAction(UnitData Actor, UnitAction Action, Vector2I 
 public abstract partial class ActionSelector : Resource
 {
     /// <summary>
-    /// Compute all of the available actions available to units of a specific faction on a grid. Note that, if an action can be performed in multiple cells, only
+    /// Compute all of the available actions available to a list of units on a grid. Note that, if an action can be performed in multiple cells, only
     /// one of those cells will be chosen unless it is the unit's current cell, in which case a single second option will be chosen as well.
     /// </summary>
-    /// <param name="grid">Grid actions could be performed on.</param>
-    /// <param name="faction">Faction containing units to determine actions for.</param>
+    /// <param name="units">Units that could perform actions.</param>
     /// <param name="available">Available actions for units to perform.</param>
     /// <returns>A set of actions that can be performed, including which units can perform them and where they can be performed.</returns>
-    public static IEnumerable<ResolvedAction> GetAvailableActions(GridData grid, Faction faction, IEnumerable<UnitAction> available)
+    public static IEnumerable<ResolvedAction> GetAvailableActions(IEnumerable<UnitData> units, IEnumerable<UnitAction> available)
     {
         List<ResolvedAction> actions = [];
-        foreach ((_, UnitData unit) in grid.Occupants)
+        foreach (UnitData unit in units)
         {
-            if (unit.Faction == faction && unit.Active)
+            IEnumerable<Vector2I> traversable = unit.Behavior.GetTraversableCells(unit);
+            foreach (PerformableAction action in unit.Behavior.GetActions(unit, available, traversable))
             {
-                IEnumerable<Vector2I> traversable = unit.Behavior.GetTraversableCells(unit);
-                foreach (PerformableAction action in unit.Behavior.GetActions(unit, available, traversable))
+                IEnumerable<Vector2I> destinations;
+
+                destinations = action.Sources;
+                if (action.Action.RequiresTarget)
                 {
-                    IEnumerable<Vector2I> destinations;
-
-                    destinations = action.Sources;
-                    if (action.Action.RequiresTarget)
+                    // If the action allows for retaliation, prioritize cells that the target can't retaliate on
+                    if (action.Action.RequiresTarget && action.Action.RetaliationAllowed)
                     {
-                        // If the action allows for retaliation, prioritize cells that the target can't retaliate on
-                        if (action.Action.RequiresTarget && action.Action.RetaliationAllowed)
-                        {
-                            IEnumerable<Vector2I> safe = destinations.Where((c) => !action.Action.CanPerform(unit.Grid.Occupants[action.Target], action.Target, c));
-                            if (safe.Any())
-                                destinations = safe;
-                        }
+                        IEnumerable<Vector2I> safe = destinations.Where((c) => !action.Action.CanPerform(unit.Grid.Occupants[action.Target], action.Target, c));
+                        if (safe.Any())
+                            destinations = safe;
                     }
-
-                    // Prioritize the destination closest to the actor's current cell, but if that cell is the actor's current cell then
-                    // also try the next-best one in case moving another unit to that cell afterward is overall better. Always use
-                    // Manhattan distance here rather than the behavior's destination preference for performance reasons and also because
-                    // there are paths to all choices anyway, so it doesn't matter how one is chosen
-                    Vector2I best = destinations.MinBy((c) => c.ManhattanDistanceTo(unit.Cell));
-                    actions.Add(new(unit, action.Action, best, action.Target, traversable));
-                    if (best == unit.Cell && destinations.Count() > 1)
-                        actions.Add(new(unit, action.Action, destinations.Where((c) => c != best).MinBy((c) => c.ManhattanDistanceTo(unit.Cell)), action.Target, traversable));
                 }
+
+                // Prioritize the destination closest to the actor's current cell, but if that cell is the actor's current cell then
+                // also try the next-best one in case moving another unit to that cell afterward is overall better. Always use
+                // Manhattan distance here rather than the behavior's destination preference for performance reasons and also because
+                // there are paths to all choices anyway, so it doesn't matter how one is chosen
+                Vector2I best = destinations.MinBy((c) => c.ManhattanDistanceTo(unit.Cell));
+                actions.Add(new(unit, action.Action, best, action.Target, traversable));
+                if (best == unit.Cell && destinations.Count() > 1)
+                    actions.Add(new(unit, action.Action, destinations.Where((c) => c != best).MinBy((c) => c.ManhattanDistanceTo(unit.Cell)), action.Target, traversable));
             }
         }
 
