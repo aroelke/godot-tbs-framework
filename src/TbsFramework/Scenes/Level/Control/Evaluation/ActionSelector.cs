@@ -3,6 +3,7 @@ using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Conditions;
 
 namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
@@ -39,18 +40,14 @@ public abstract partial class ActionSelector : Resource
             IEnumerable<Vector2I> traversable = unit.Behavior.GetTraversableCells(unit);
             foreach (PerformableAction action in unit.Behavior.GetActions(unit, available, traversable))
             {
-                IEnumerable<Vector2I> destinations;
+                IEnumerable<Vector2I> destinations = action.Sources;
 
-                destinations = action.Sources;
-                if (action.Action.RequiresTarget)
+                // If the action allows for retaliation, prioritize cells that the target can't retaliate on
+                if (action.Action.RequiresTarget && action.Action.RetaliationAllowed)
                 {
-                    // If the action allows for retaliation, prioritize cells that the target can't retaliate on
-                    if (action.Action.RequiresTarget && action.Action.RetaliationAllowed)
-                    {
-                        IEnumerable<Vector2I> safe = destinations.Where((c) => !action.Action.CanPerform(unit.Grid.Occupants[action.Target], action.Target, c));
-                        if (safe.Any())
-                            destinations = safe;
-                    }
+                    IEnumerable<Vector2I> safe = destinations.Where((c) => !action.Action.CanPerform(unit.Grid.Occupants[action.Target], action.Target, c));
+                    if (safe.Any())
+                        destinations = safe;
                 }
 
                 // Prioritize the destination closest to the actor's current cell, but if that cell is the actor's current cell then
@@ -67,5 +64,7 @@ public abstract partial class ActionSelector : Resource
         return actions;
     }
 
-    public abstract ResolvedAction SelectAction(GridData grid, Faction faction, IEnumerable<UnitAction> available);
+    public abstract ResolvedAction SelectAction(IEnumerable<UnitData> units, IEnumerable<UnitAction> available);
+
+    public ResolvedAction SelectAction(GridData grid, UnitFilter units, IEnumerable<UnitAction> available) => SelectAction(units.GetUnits(grid).Where((u) => u.Active), available);
 }
