@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
@@ -13,7 +14,7 @@ namespace TbsFramework.Scenes.Level.Control.Evaluation;
 /// <param name="Destination">Cell <paramref name="Actor"/> will move to in order to the action.</param>
 /// <param name="Target">Cell containing the target of the action.</param>
 /// <param name="Traversable">Cells <paramref name="Actor"/> can traverse for pathfinding purposes.</param>
-public record struct ResolvedAction(UnitData Actor, UnitAction Action, Vector2I Destination, Vector2I Target, IEnumerable<Vector2I> Traversable)
+public record struct ResolvedAction([DisallowNull] UnitData Actor, [DisallowNull] UnitAction Action, Vector2I Destination, Vector2I Target, IEnumerable<Vector2I> Traversable)
 {
     /// <summary>Path Actor will follow from its current cell to Destination before performing the action.</summary>
     public readonly Path Path = Path.Empty(Traversable, Actor.CellCost).Add(Actor.Cell).Add(Destination);
