@@ -46,7 +46,14 @@ public abstract partial class Behavior : Resource
     /// <returns>The set of cells <paramref name="unit"/> is allowed to move through from its current cell.</returns>
     public virtual IEnumerable<Vector2I> GetTraversableCells(UnitData unit) => unit.GetTraversableCells();
 
-    /// <returns>One of the elements of <paramref name="destinations"/> based on an implementation-defined decision based on the cells <paramref name="unit"/> can traverse.</returns>
+    /// <summary>Determine a cell for a unit to move to from its current cell from a selection of possible destinations.</summary>
+    /// <param name="unit">Unit whose destination cell is to be chosen.</param>
+    /// <param name="destinations">Collection of cells elegible to be destinations. <paramref name="unit"/> <b>must</b> be able to end its movement in <b>all</b> of these cells.</param>
+    /// <param name="traversable">
+    /// Collection of cells <paramref name="unit"/> can move through. Each cell in <paramref name="destinations"/> <b>must</b> also be part of this collection and there <b>must</b> be a
+    /// path through these cells from <paramref name="unit"/>'s current cell to each cell in <paramref name="destinations"/>.
+    /// </param>
+    /// <returns>One of the elements of <paramref name="destinations"/> based on an implementation-defined decision based on the cells in <paramref name="traversable"/>.</returns>
     /// <exception cref="ArgumentException">
     /// If no path can be constructed from <paramref name="unit"/>'s cell to any cell in <paramref name="destinations"/> or if <paramref name="destinations"/>
     /// is empty.
@@ -54,6 +61,7 @@ public abstract partial class Behavior : Resource
     public abstract Vector2I ChooseDestination(UnitData unit, IEnumerable<Vector2I> destinations, IEnumerable<Vector2I> traversable);
 
     /// <inheritdoc cref="ChooseDestination(UnitData, IEnumerable{Vector2I}, IEnumerable{Vector2I})"/>
+    /// <remarks>The traversable cells are provided using <see cref="GetTraversableCells"/>.</remarks>
     public Vector2I ChooseDestination(UnitData unit, IEnumerable<Vector2I> destinations) => ChooseDestination(unit, destinations, GetTraversableCells(unit));
 
     /// <returns>A path <paramref name="unit"/> can traverse between <paramref name="start"/> and <paramref name="destination"/> through <paramref name="traversable"/>.</returns>
