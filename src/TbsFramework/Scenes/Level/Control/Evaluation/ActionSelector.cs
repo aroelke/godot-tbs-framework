@@ -65,7 +65,33 @@ public abstract partial class ActionSelector : Resource
         return actions;
     }
 
-    public abstract ResolvedAction SelectAction(IEnumerable<UnitData> units, IEnumerable<UnitAction> available);
+    /// <summary>Choose an action from among available ones along with a unit to perform it, a cell to perform it from, and a target to perform it on (if applicable).</summary>
+    /// <param name="units">Units that can perform actions.</param>
+    /// <param name="available">Available actions to perform.</param>
+    /// <returns>A structure containing all the information about how the chosen action should be performed, or <c>null</c> if no action could be chosen.</returns>
+    public abstract ResolvedAction? SelectAction(IEnumerable<UnitData> units, IEnumerable<UnitAction> available);
 
-    public ResolvedAction SelectAction(GridData grid, UnitFilter units, IEnumerable<UnitAction> available) => SelectAction(units.GetUnits(grid).Where((u) => u.Active), available);
+    /// <inheritdoc cref="SelectAction"/>
+    /// <param name="grid">Grid containing units that could perform actions.</param>
+    /// <param name="units">Filter specifying how to determine which active units on <paramref name="grid"/> to consider for performing an action.</param>
+    public ResolvedAction? SelectAction(GridData grid, UnitFilter units, IEnumerable<UnitAction> available) => SelectAction(units.GetUnits(grid).Where((u) => u.Active), available);
+
+    /// <summary>If <see cref="SelectAction"/> fails to find an action, a unit must still be chosen to perform a default action.</summary>
+    /// <param name="units">Collection of available units to act.</param>
+    /// <returns>A unit from <paramref name="units"/> to perform a default action.</returns>
+    public virtual UnitData GetDefaultUnit(IEnumerable<UnitData> units) => units.MinBy((u) => u.Grid.Occupants.Values.Where((o) => !o.Faction.AlliedTo(u)).Select((e) => u.Cell.ManhattanDistanceTo(e.Cell)).DefaultIfEmpty(0).Min());
+
+    /// <inheritdoc cref="GetDefaultUnit"/>
+    /// <param name="grid">Grid containing units to choose from.</param>
+    /// <param name="units">Filter specifying which active units are available to act.</param>
+    public UnitData GetDefaultUnit(GridData grid, UnitFilter units) => GetDefaultUnit(units.GetUnits(grid).Where((u) => u.Active));
+
+    /// <summary>If <see cref="SelectAction"/> fails to find an action, a cell for the unit chosen by <see cref="GetDefaultUnit"/> must be chosen for it to move to.</summary>
+    /// <param name="unit">Unit to move to the destination.</param>
+    /// <param name="traversable">Cells <paramref name="unit"/> can move through.</param>
+    /// <returns>The destination cell for <paramref name="unit"/> to move to.</returns>
+    public virtual Vector2I GetDefaultDestination(UnitData unit, IEnumerable<Vector2I> traversable) => unit.Behavior.ChooseDestination(unit, traversable.Where((c) => c == unit.Cell || !unit.Grid.Occupants.ContainsKey(c)), traversable);
+
+    /// <inheritdoc cref="GetDefaultDestination"/>
+    public Vector2I GetDefaultDestination(UnitData unit) => GetDefaultDestination(unit, unit.Behavior.GetTraversableCells(unit));
 }
