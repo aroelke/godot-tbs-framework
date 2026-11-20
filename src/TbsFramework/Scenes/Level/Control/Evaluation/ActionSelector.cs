@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -24,6 +25,7 @@ public record struct ResolvedAction([DisallowNull] UnitData Actor, [DisallowNull
 }
 
 /// <summary>Represents an algorithm usable by <see cref="AIController"/> to choose its next action to perform from among available ones.</summary>
+[GlobalClass, Tool]
 public abstract partial class ActionSelector : Resource
 {
     /// <summary>
@@ -69,6 +71,7 @@ public abstract partial class ActionSelector : Resource
     /// <param name="units">Units that can perform actions.</param>
     /// <param name="available">Available actions to perform.</param>
     /// <returns>A structure containing all the information about how the chosen action should be performed, or <c>null</c> if no action could be chosen.</returns>
+    /// <exception cref="ArgumentException">If <paramref name="units"/> is empty. This should never happen during gameplay as the faction's turn should end before then.</exception>
     public abstract ResolvedAction? SelectAction(IEnumerable<UnitData> units, IEnumerable<UnitAction> available);
 
     /// <inheritdoc cref="SelectAction"/>
@@ -79,7 +82,13 @@ public abstract partial class ActionSelector : Resource
     /// <summary>If <see cref="SelectAction"/> fails to find an action, a unit must still be chosen to perform a default action.</summary>
     /// <param name="units">Collection of available units to act.</param>
     /// <returns>A unit from <paramref name="units"/> to perform a default action.</returns>
-    public virtual UnitData GetDefaultUnit(IEnumerable<UnitData> units) => units.MinBy((u) => u.Grid.Occupants.Values.Where((o) => !o.Faction.AlliedTo(u)).Select((e) => u.Cell.ManhattanDistanceTo(e.Cell)).DefaultIfEmpty(0).Min());
+    /// <exception cref="ArgumentException">If <paramref name="units"/> is empty. This should never happen during gameplay as the faction's turn should end before then.</exception>
+    public virtual UnitData GetDefaultUnit(IEnumerable<UnitData> units)
+    {
+        if (!units.Any())
+            throw new ArgumentException("No units to choose from.");
+        return units.MinBy((u) => u.Grid.Occupants.Values.Where((o) => !o.Faction.AlliedTo(u)).Select((e) => u.Cell.ManhattanDistanceTo(e.Cell)).DefaultIfEmpty(0).Min());
+    }
 
     /// <inheritdoc cref="GetDefaultUnit"/>
     /// <param name="grid">Grid containing units to choose from.</param>
