@@ -341,6 +341,13 @@ public partial class LevelManager : Node
     public void OnTargetingCanceled(Vector2I source) => State.SendEvent(CancelEvent);
 #endregion
 #region In Combat
+    private void CleanUpDefeatedUnits()
+    {
+        foreach (UnitData dead in _grid.Removed)
+            if (IsInstanceValid(dead.Renderer))
+                dead.Renderer.Die();
+    }
+
     /// <summary>
     /// Compute the results of combat and then begin the combat choreography unless <see cref="SkipCombat"/> is <c>true</c> or the turn
     /// is being fast-forwarded (see <see cref="OnTurnFastForward"/>).
@@ -357,6 +364,7 @@ public partial class LevelManager : Node
         void skip()
         {
             _result.UpdateGrid(_selected.Grid);
+            CleanUpDefeatedUnits();
             State.SendEvent(DoneEvent);
         }
 
@@ -381,6 +389,7 @@ public partial class LevelManager : Node
     public void OnCombatEnteredTree()
     {
         _result.UpdateGrid(_selected.Grid);
+        CleanUpDefeatedUnits();
         SceneManager.Singleton.Connect(SceneManager.SignalName.TransitionCompleted, () => State.SendEvent(DoneEvent), (uint)ConnectFlags.OneShot);
     }
 
@@ -398,7 +407,6 @@ public partial class LevelManager : Node
         _selected.Active = false;
         State.SetVariable(ActiveProperty, _armies.Current.Count(static (u) => u.UnitData.Active));
 
-        UnitData selected = _selected;
         _grid.AddPerformedAction(_result.Action, _result.Actor);
         LevelEvents.EndAction(_result);
     }

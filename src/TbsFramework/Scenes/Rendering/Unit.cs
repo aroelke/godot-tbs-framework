@@ -176,14 +176,17 @@ public partial class Unit : GridNode
     /// <summary>Remove the unit from the map and delete its renderer.</summary>
     public void Die()
     {
+        if (UnitData.Grid is not null)
+            GD.PushWarning($"Dying UnitData backing {Name} still thinks it's on the grid.");
+
         UnitData.AvailabilityUpdated -= OnAvailabilityUpdated;
         UnitData.FactionUpdated      -= OnFactionUpdated;
         UnitData.ClassUpdated        -= OnClassUpdated;
         UnitData.StatsUpdated        -= OnStatsUpdated;
         UnitData.HealthUpdated       -= OnHealthUpdated;
+        UnitData.Renderer = null;
 
-        UnitData.Grid = null;
-        Free();
+        QueueFree();
     }
 
     /// <summary>Move the unit along a path of <see cref="Grid"/> cells.</summary>
