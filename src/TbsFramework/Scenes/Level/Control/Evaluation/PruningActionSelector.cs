@@ -10,15 +10,15 @@ namespace TbsFramework.Scenes.Level.Control.Evaluation;
 [GlobalClass, Tool]
 public partial class PruningActionSelector : ActionSelector
 {
-    private record class ActionTreeNode(SpecifiedAction Action, double Value, ActionTreeNode Parent = null)
+    private record class ActionTreeNode(SpecifiedAction Action, GridData Result, double Value, ActionTreeNode Parent = null)
     {
         public ActionTreeNode GetRoot() => Parent?.GetRoot() ?? this;
     }
 
     private ActionTreeNode CreateNode(SpecifiedAction action, ActionTreeNode parent = null)
     {
-        action.Result = action.Action.Simulate(action.Actor, action.Destination, action.Target);
-        return new(action, GetActionValue(action), parent);
+        GridData result = action.Action.Simulate(action.Actor, action.Destination, action.Target);
+        return new(action, result, GetActionValue(action, result), parent);
     }
 
     /// <summary>
@@ -39,7 +39,7 @@ public partial class PruningActionSelector : ActionSelector
             do
             {
                 current = next.OrderByDescending((n) => n.Value);
-                next = current.Take(MaxActionsPerRound).SelectMany((n) => GetAvailableActions(n.Action.Actor.Faction.GetUnits(n.Action.Result), available).Select((a) => CreateNode(a, parent:n)));
+                next = current.Take(MaxActionsPerRound).SelectMany((n) => GetAvailableActions(n.Action.Actor.Faction.GetUnits(n.Result), available).Select((a) => CreateNode(a, parent:n)));
             } while (next.Any());
             return current.First().GetRoot().Action;
         }

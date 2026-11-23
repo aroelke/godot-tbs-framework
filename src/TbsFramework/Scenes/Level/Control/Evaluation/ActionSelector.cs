@@ -19,9 +19,6 @@ public record struct SpecifiedAction([DisallowNull] UnitData Actor, [DisallowNul
 {
     /// <summary>Path Actor will follow from its current cell to Destination before performing the action.</summary>
     public readonly Path Path = Actor.Behavior.GetPath(Actor, Destination, Traversable);
-
-    /// <summary>Resulting grid after performing the action.</summary>
-    public GridData Result;
 }
 
 /// <summary>Represents an algorithm usable by <see cref="AIController"/> to choose its next action to perform from among available ones.</summary>
@@ -71,8 +68,9 @@ public abstract partial class ActionSelector : Resource
     [Export] public Godot.Collections.Dictionary<ActionEvaluator, double> Evaluators = [];
 
     /// <param name="action">Action to evaluate.</param>
+    /// <param name="result">State of the grid that would result from the action, computed by simulating it.</param>
     /// <returns>The value of <paramref name="action"/>.</returns>
-    public virtual double GetActionValue(SpecifiedAction action) => Evaluators.Select((i) => i.Value*i.Key.Evaluate(new(action.Result, action.Actor.Faction, action.Path, action.Action))).DefaultIfEmpty(0).Sum();
+    public virtual double GetActionValue(SpecifiedAction action, GridData result) => Evaluators.Select((i) => i.Value*i.Key.Evaluate(new(result, action.Actor.Faction, action.Path, action.Action))).DefaultIfEmpty(0).Sum();
 
     /// <summary>Choose an action from among available ones along with a unit to perform it, a cell to perform it from, and a target to perform it on (if applicable).</summary>
     /// <param name="units">Units that can perform actions.</param>
