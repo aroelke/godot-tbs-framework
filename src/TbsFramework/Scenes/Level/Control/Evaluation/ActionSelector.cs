@@ -67,6 +67,21 @@ public abstract partial class ActionSelector : Resource
         return actions;
     }
 
+    /// <summary>Mapping of action evaluators to use in <see cref="GetActionValue"/> to the weights to apply to their results.</summary>
+    [Export] public Godot.Collections.Dictionary<ActionEvaluator, double> Evaluators = [];
+
+    /// <param name="action">Action to evaluate.</param>
+    /// <returns>The value of <paramref name="action"/>.</returns>
+    public virtual double GetActionValue(ResolvedAction action)
+    {
+        action.Result = action.Action.Simulate(action.Actor, action.Destination, action.Target);
+        if (action.Result.Occupants[action.Destination].Health <= 0)
+            action.Result.Occupants[action.Destination].Grid = null;
+        if (action.Action.RequiresTarget && action.Result.Occupants.TryGetValue(action.Target, out UnitData target) && target.Health <= 0)
+            target.Grid = null;
+        return Evaluators.Select((i) => i.Value*i.Key.Evaluate(new(action.Actor.Grid, action.Actor.Faction, action.Path, action.Action))).DefaultIfEmpty(0).Sum();
+    }
+
     /// <summary>Choose an action from among available ones along with a unit to perform it, a cell to perform it from, and a target to perform it on (if applicable).</summary>
     /// <param name="units">Units that can perform actions.</param>
     /// <param name="available">Available actions to perform.</param>
