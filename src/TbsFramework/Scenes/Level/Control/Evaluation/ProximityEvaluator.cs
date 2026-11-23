@@ -71,21 +71,20 @@ public partial class ProximityEvaluator : ActionEvaluator
                 return true;
             if (Factions.Contains(u.Faction))
                 return true;
-            if (_allies && action.Faction.AlliedTo(u.Faction))
+            if (_allies && action.Actor.Faction.AlliedTo(u.Faction))
                 return true;
-            if (_enemies && !action.Faction.AlliedTo(u.Faction))
+            if (_enemies && !action.Actor.Faction.AlliedTo(u.Faction))
                 return true;
             return false;
         }
 
-        UnitData actor = action.GetActor();
-        IEnumerable<UnitData> included = action.Grid.Occupants.Values.Where((u) => u != actor && u.Health > 0 && IsIncluded(u));
+        IEnumerable<UnitData> included = action.Result.Occupants.Values.Where((u) => u != action.Actor && u.Health > 0 && IsIncluded(u));
         if (!included.Any())
             return 0;
         else
         {
             Vector2I destination = action.Traversed[^1];
-            IEnumerable<int> costs = included.Select((u) => EvaluationStrategy.GetCost(destination, u.Cell, action.Grid.AllCells, actor));
+            IEnumerable<int> costs = included.Select((u) => EvaluationStrategy.GetCost(destination, u.Cell, action.Result.AllCells, action.Actor));
             int cost = costs.Min();
             if (MoveCloser)
                 return cost == 0 ? 1.0 : 1.0/cost;

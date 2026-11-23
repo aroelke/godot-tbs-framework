@@ -58,14 +58,14 @@ public partial class DefeatedUnitsEvaluator : ActionEvaluator
         {
             if (Factions.Contains(u.Faction))
                 return true;
-            if (_allies && action.Faction.AlliedTo(u.Faction))
+            if (_allies && action.Actor.Faction.AlliedTo(u.Faction))
                 return true;
-            if (_enemies && !action.Faction.AlliedTo(u.Faction))
+            if (_enemies && !action.Actor.Faction.AlliedTo(u.Faction))
                 return true;
             return false;
         }
-        double alive = action.Grid.Occupants.Values.Count(IsIncluded);
-        double dead = action.Grid.Removed.Count((u) => IsIncluded(u) && u.Health == 0);
+        double alive = action.Result.Occupants.Values.Count(IsIncluded);
+        double dead = action.Result.Removed.Count((u) => IsIncluded(u) && u.Health == 0);
         return (dead > 0) ? dead/(alive + dead) : 0;
     }
 

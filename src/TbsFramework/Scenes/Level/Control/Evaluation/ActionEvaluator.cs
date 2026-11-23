@@ -1,23 +1,14 @@
-using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
 
 namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
 /// <summary>Structure containing information about a simulated action that can be used for evaluation.</summary>
-/// <param name="Grid">State of the grid that would result from performing the action.</param>
-/// <param name="Faction">Faction who performed the action.</param>
+/// <param name="Result">State of the grid that would result from performing the action.</param>
+/// <param name="Actor">Unit who performed the action.</param>
 /// <param name="Traversed">Path that the unit who performed the action traversed.</param>
 /// <param name="Action">Action that was simulated.</param>
-public record struct SimulatedAction(GridData Grid, Faction Faction, Path Traversed, UnitAction Action)
-{
-    /// <returns>The unit that performed the action.</returns>
-    public readonly UnitData GetActor()
-    {
-        Vector2I cell = Traversed[^1];
-        return Grid.Occupants.TryGetValue(cell, out UnitData actor) ? actor : Grid.Removed.First((u) => u.Cell == cell);
-    }
-}
+public record struct SimulatedAction(GridData Result, UnitData Actor, Path Traversed, UnitAction Action);
 
 /// <summary>
 /// <see cref="AIController"/> component that can be used to produce a value for the result of simulating a potential action.

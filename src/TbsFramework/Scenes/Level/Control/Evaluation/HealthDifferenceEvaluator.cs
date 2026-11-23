@@ -73,16 +73,16 @@ public partial class HealthDifferenceEvaluator : ActionEvaluator
                 return false;
             if (Factions.Contains(u.Faction))
                 return true;
-            if (_allies && action.Faction.AlliedTo(u.Faction))
+            if (_allies && action.Actor.Faction.AlliedTo(u.Faction))
                 return true;
-            if (_enemies && !action.Faction.AlliedTo(u.Faction))
+            if (_enemies && !action.Actor.Faction.AlliedTo(u.Faction))
                 return true;
             return false;
         }
 
-        IEnumerable<UnitData> included = action.Grid.Occupants.Values;
+        IEnumerable<UnitData> included = action.Result.Occupants.Values;
         if (IncludeDefeated)
-            included = included.Concat(action.Grid.Removed);
+            included = included.Concat(action.Result.Removed);
         included = included.Where(IsIncluded);
 
         if (!included.Any())

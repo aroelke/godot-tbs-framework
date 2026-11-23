@@ -70,7 +70,7 @@ public abstract partial class ActionSelector : Resource
     /// <param name="action">Action to evaluate.</param>
     /// <param name="result">State of the grid that would result from the action, computed by simulating it.</param>
     /// <returns>The value of <paramref name="action"/>.</returns>
-    public virtual double GetActionValue(SpecifiedAction action, GridData result) => Evaluators.Select((i) => i.Value*i.Key.Evaluate(new(result, action.Actor.Faction, action.Path, action.Action))).DefaultIfEmpty(0).Sum();
+    public virtual double GetActionValue(SpecifiedAction action, GridData result) => Evaluators.Select((i) => i.Value*i.Key.Evaluate(new(result, action.Actor, action.Path, action.Action))).DefaultIfEmpty(0).Sum();
 
     /// <summary>Choose an action from among available ones along with a unit to perform it, a cell to perform it from, and a target to perform it on (if applicable).</summary>
     /// <param name="units">Units that can perform actions.</param>
