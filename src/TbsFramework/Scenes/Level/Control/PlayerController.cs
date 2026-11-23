@@ -522,7 +522,7 @@ public partial class PlayerController : ArmyController
     {
         if (@event.IsActionPressed(InputManager.Previous) || @event.IsActionPressed(InputManager.Next))
         {
-            if (Cursor.Grid.Data.Occupants.GetValueOrDefault(Cursor.Data.Cell) is UnitData hovered)
+            if (Cursor.Grid.Data.Occupants.TryGetValue(Cursor.Data.Cell, out UnitData hovered))
             {
                 if (@event.IsActionPressed(InputManager.Previous) && hovered.Faction.GetUnitBefore(hovered) is UnitData prev)
                     Cursor.Data.Cell = prev.Cell;
@@ -554,7 +554,7 @@ public partial class PlayerController : ArmyController
 
     public void OnSelectCursorCellEntered(Vector2I cell)
     {
-        if (Grid.Data.Occupants.GetValueOrDefault(cell) is UnitData unit)
+        if (Grid.Data.Occupants.TryGetValue(cell, out UnitData unit))
         {
             ActionLayers[MoveLayer.Name] = unit.GetTraversableCells();
             foreach (UnitAction action in _actions)
@@ -595,7 +595,7 @@ public partial class PlayerController : ArmyController
                 if (action.Name == AttackLayer.Name || action.Name == SupportLayer.Name)
                     ActionLayers[action.Name] = action.GetAllTargetCells(unit);
             Cursor.SoftRestriction = [.. _traversable];
-            UpdatePath(Path.Empty(Cursor.Grid.Data, _traversable).Add(unit.Cell));
+            UpdatePath(Path.Empty(_traversable, _selected.CellCost).Add(unit.Cell));
         }
         if (Grid.CellOf(Pointer.Position) != unit.Cell)
         {
@@ -638,7 +638,7 @@ public partial class PlayerController : ArmyController
         _command = null;
 
         IEnumerable<Vector2I> sources = [];
-        if (Cursor.Grid.Data.Occupants.GetValueOrDefault(cell) is UnitData target)
+        if (Cursor.Grid.Data.Occupants.TryGetValue(cell, out UnitData target))
         {
             foreach ((UnitAction action, IEnumerable<Vector2I> range) in _actions.Zip(_ranges))
             {
@@ -969,9 +969,9 @@ public partial class PlayerController : ArmyController
 
     public override void _ValidateProperty(Godot.Collections.Dictionary property)
     {
+        base._ValidateProperty(property);
         if (property["name"].AsStringName() == PropertyName.PathArrowheadCoordinates && _pathTiles is null)
             property["usage"] = Variant.From(PropertyUsageFlags.None);
-        base._ValidateProperty(property);
     }
 #endregion
 #region Engine Events

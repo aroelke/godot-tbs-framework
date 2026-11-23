@@ -1,12 +1,12 @@
-[gd_resource type="Resource" script_class="Stats" load_steps=2 format=3 uid="uid://bemo5afnyy4lq"]
+[gd_resource type="Resource" script_class="DemoStats" load_steps=3 format=3 uid="uid://bemo5afnyy4lq"]
 
+[ext_resource type="Script" uid="uid://d23lpjno16iad" path="res://src/TbsFramework/Scenes/Data/Terrain.cs" id="1_3q3xq"]
 [ext_resource type="Script" uid="uid://cdy07gqijlx5a" path="res://demo/unit/DemoStats.cs" id="1_a48f0"]
 
 [resource]
 script = ExtResource("1_a48f0")
 Health = 10
 Attack = 5
-Defense = 0
 Healing = 5
 Accuracy = 100
 Evasion = 25

@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="UnitIdentity" load_steps=2 format=3 uid="uid://cmvujupl5c32q"]
+
+[ext_resource type="Script" uid="uid://duxr5h215u3te" path="res://src/TbsFramework/Scenes/Data/UnitIdentity.cs" id="1_0t68d"]
+
+[resource]
+script = ExtResource("1_0t68d")
+metadata/_custom_type_script = "uid://duxr5h215u3te"

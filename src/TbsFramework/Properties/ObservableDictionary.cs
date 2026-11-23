@@ -9,7 +9,7 @@ namespace TbsFramework.Properties;
 /// <summary>A generic collection of key/value pairs that raises events when contents change.</summary>
 /// <typeparam name="TKey">The type of keys in the dictionary.</typeparam>
 /// <typeparam name="TValue">The type of values in the dictionary.</typeparam>
-public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary
+public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue>
 {
     /// <summary>Handles events related to items being added or removed from the dictionary.</summary>
     /// <param name="updates">Key/value pairs that were added or removed.</param>
@@ -41,6 +41,9 @@ public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDi
     public object SyncRoot => Sync;
     ICollection IDictionary.Keys => _backend.Keys;
     ICollection IDictionary.Values => _backend.Values;
+    IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => Keys;
+    IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
+
 
     public TValue this[TKey key]
     {

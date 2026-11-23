@@ -104,9 +104,9 @@ public partial class DemoAttackAction : UnitAction
 
         ApplyResults(grid, actions);
         if (result.Actor.Health <= 0)
-            result.Actor.Renderer.Die();
+            result.Actor.Grid = null;
         if (grid.Occupants[result.Target].Health <= 0)
-            grid.Occupants[result.Target].Renderer.Die();
+            grid.Occupants[result.Target].Grid = null;
     }
 
     public override GridData Simulate(UnitData unit, Vector2I source, Vector2I target)
@@ -118,6 +118,10 @@ public partial class DemoAttackAction : UnitAction
         copy.Occupants[unit.Cell].Cell = source;
         List<CombatAction> actions = AttackResults(copy.Occupants[source], copy.Occupants[target], true);
         ApplyResults(copy, actions);
+        if (copy.Occupants[source].Health <= 0)
+            copy.Occupants[source].Grid = null;
+        if (copy.Occupants[target].Health <= 0)
+            copy.Occupants[target].Grid = null;
         return copy;
     }
 }

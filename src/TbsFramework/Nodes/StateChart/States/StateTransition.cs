@@ -57,7 +57,7 @@ public partial class StateTransition : ChartNode
             properties.Add(new ObjectProperty(
                 "Event",
                 Variant.Type.StringName,
-                Usage:PropertyUsageFlags.ReadOnly
+                Usage:[PropertyUsageFlags.ReadOnly]
             ));
         }
 

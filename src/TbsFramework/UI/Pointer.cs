@@ -310,9 +310,9 @@ public partial class Pointer : BoundedNode2D
 
     public override void _ValidateProperty(Godot.Collections.Dictionary property)
     {
+        base._ValidateProperty(property);
         if (property["name"].As<StringName>() == PropertyName.Size)
             property["usage"] = property["usage"].As<uint>() | (uint)PropertyUsageFlags.ReadOnly;
-        base._ValidateProperty(property);
     }
 
     public override string[] _GetConfigurationWarnings()

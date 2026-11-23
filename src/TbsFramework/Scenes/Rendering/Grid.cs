@@ -118,9 +118,9 @@ public partial class Grid : BoundedNode2D
 
     public override void _ValidateProperty(Godot.Collections.Dictionary property)
     {
+        base._ValidateProperty(property);
         if (property["name"].As<StringName>() == PropertyName.Size)
             property["usage"] = property["usage"].As<uint>() | (uint)PropertyUsageFlags.ReadOnly;
-        base._ValidateProperty(property);
     }
 
     public override void _Ready()
@@ -129,7 +129,6 @@ public partial class Grid : BoundedNode2D
 
         if (!Engine.IsEditorHint())
         {
-            Data.Identity = new(); // Not an export because currently it doesn't need to be copied anywhere
             Data.Size = GroundLayer.GetUsedRect().End;
             Data.DefaultTerrain = DefaultTerrain;
             if (TerrainLayer is not null)
@@ -164,10 +163,25 @@ public partial class Grid : BoundedNode2D
                 };
             }
 
-            foreach (SpecialActionRegion region in GetChildren().OfType<SpecialActionRegion>())
+            foreach (TileMapLayer region in GetChildren().OfType<TileMapLayer>())
             {
-                region.Data.Grid = Data;
-                Data.SpecialActionRegions[region.Data.Identity] = region.Data;
+                Data.Regions[region.Name] = region.GetUsedCells();
+                if (region is HighlightedRegion highlighted)
+                {
+                    Data.Regions.ItemReplaced += (name, _, cells) => {
+                        if (name == highlighted.Name)
+                            highlighted.SetUsedCells(cells);
+                    };
+                    Data.Regions.ItemsRemoved += (items) => {
+                        if (items.Any((i) => highlighted.Name == i.Key))
+                            highlighted.Clear();
+                    };
+                    Data.Regions.ItemsAdded += (items) => {
+                        foreach ((StringName name, IEnumerable<Vector2I> cells) in items)
+                            if (highlighted.Name == name)
+                                highlighted.SetUsedCells(cells);
+                    };
+                }
             }
         }
     }

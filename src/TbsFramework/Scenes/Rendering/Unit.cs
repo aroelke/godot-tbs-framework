@@ -7,6 +7,7 @@ using TbsFramework.Scenes.Level.Control;
 using TbsFramework.Nodes;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level;
+using TbsFramework.Scenes.Level.Control.Evaluation;
 
 namespace TbsFramework.Scenes.Rendering;
 
@@ -91,7 +92,11 @@ public partial class Unit : GridNode
     public UnitData UnitData { get; init; } = new();
     public override GridObjectData Data => UnitData;
 
-    [Export] public UnitIdentity Identity = new();
+    /// <summary>
+    /// Resource representing the identity of this unit. Don't assign this a value in the editor unless it needs to be carried over from another scene
+    /// and/or it needs to be assigned to another object property so that object can refer to this unit.
+    /// </summary>
+    [Export] public UnitIdentity Identity = null;
 
     /// <summary>Class this unit belongs to, defining some of its stats and animations.</summary>
     [Export] public Class Class
@@ -112,6 +117,8 @@ public partial class Unit : GridNode
     }
 
     [Export] public Godot.Collections.Dictionary<Terrain, int> UniqueTerrainModifiers = [];
+
+    [Export] public Behavior Behavior = null;
 
     [ExportGroup("Path Traversal", "Move")]
 
@@ -169,14 +176,17 @@ public partial class Unit : GridNode
     /// <summary>Remove the unit from the map and delete its renderer.</summary>
     public void Die()
     {
+        if (UnitData.Grid is not null)
+            GD.PushWarning($"Dying UnitData backing {Name} still thinks it's on the grid.");
+
         UnitData.AvailabilityUpdated -= OnAvailabilityUpdated;
         UnitData.FactionUpdated      -= OnFactionUpdated;
         UnitData.ClassUpdated        -= OnClassUpdated;
         UnitData.StatsUpdated        -= OnStatsUpdated;
         UnitData.HealthUpdated       -= OnHealthUpdated;
+        UnitData.Renderer = null;
 
-        UnitData.Grid = null;
-        Free();
+        QueueFree();
     }
 
     /// <summary>Move the unit along a path of <see cref="Grid"/> cells.</summary>
@@ -198,18 +208,6 @@ public partial class Unit : GridNode
         }
     }
 
-    public override string[] _GetConfigurationWarnings()
-    {
-        List<string> warnings = [.. base._GetConfigurationWarnings() ?? []];
-
-        if (!GetChildren().OfType<Behavior>().Any() && (!GetParentOrNull<Army>()?.GetChildren().OfType<PlayerController>().Any() ?? false))
-            warnings.Add("This unit has no behavior. It may not be able to act.");
-        if (GetChildren().OfType<Behavior>().Count() > 1)
-            warnings.Add("More than one behavior is defined. Only the first one will be used.");
-
-        return [.. warnings];
-    }
-
     public override void _Ready()
     {
         base._Ready();
@@ -219,9 +217,9 @@ public partial class Unit : GridNode
             UpdateVisuals(UnitData.Class, UnitData.Faction);
         if (!Engine.IsEditorHint())
         {
-            UnitData.Behavior = GetChildren().OfType<Behavior>().FirstOrDefault();
+            UnitData.Behavior = Behavior;
             UnitData.Renderer = this;
-            UnitData.Identity = Identity;
+            UnitData.Identity = Identity ??= new();
 
             RemoveChild(EditorSprite);
             EditorSprite.QueueFree();
