@@ -18,7 +18,7 @@ namespace TbsFramework.Scenes.Level.Control.Evaluation;
 public record struct SpecifiedAction([DisallowNull] UnitData Actor, [DisallowNull] UnitAction Action, Vector2I Destination, Vector2I Target, IEnumerable<Vector2I> Traversable)
 {
     /// <summary>Path Actor will follow from its current cell to Destination before performing the action.</summary>
-    public readonly Path Path = Path.Empty(Traversable, Actor.CellCost).Add(Actor.Cell).Add(Destination);
+    public readonly Path Path = Actor.Behavior.GetPath(Actor, Destination, Traversable);
 
     /// <summary>Resulting grid after performing the action.</summary>
     public GridData Result;
@@ -72,7 +72,7 @@ public abstract partial class ActionSelector : Resource
 
     /// <param name="action">Action to evaluate.</param>
     /// <returns>The value of <paramref name="action"/>.</returns>
-    public virtual double GetActionValue(SpecifiedAction action) => Evaluators.Select((i) => i.Value*i.Key.Evaluate(new(action.Actor.Grid, action.Actor.Faction, action.Path, action.Action))).DefaultIfEmpty(0).Sum();
+    public virtual double GetActionValue(SpecifiedAction action) => Evaluators.Select((i) => i.Value*i.Key.Evaluate(new(action.Result, action.Actor.Faction, action.Path, action.Action))).DefaultIfEmpty(0).Sum();
 
     /// <summary>Choose an action from among available ones along with a unit to perform it, a cell to perform it from, and a target to perform it on (if applicable).</summary>
     /// <param name="units">Units that can perform actions.</param>
