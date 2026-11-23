@@ -15,7 +15,11 @@ public partial class PruningActionSelector : ActionSelector
         public ActionTreeNode GetRoot() => Parent?.GetRoot() ?? this;
     }
 
-    private ActionTreeNode CreateNode(ResolvedAction action, ActionTreeNode parent = null) => new(action, GetActionValue(action), parent);
+    private ActionTreeNode CreateNode(ResolvedAction action, ActionTreeNode parent = null)
+    {
+        action.Result = action.Action.Simulate(action.Actor, action.Destination, action.Target);
+        return new(action, GetActionValue(action), parent);
+    }
 
     /// <summary>
     /// Maximum number of actions to retain each level of the tree. If fewer actions are available in a level, all of them will
