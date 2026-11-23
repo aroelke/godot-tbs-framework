@@ -15,7 +15,7 @@ namespace TbsFramework.Scenes.Level.Control.Evaluation;
 /// <param name="Destination">Cell <paramref name="Actor"/> will move to in order to the action.</param>
 /// <param name="Target">Cell containing the target of the action.</param>
 /// <param name="Traversable">Cells <paramref name="Actor"/> can traverse for pathfinding purposes.</param>
-public record struct ResolvedAction([DisallowNull] UnitData Actor, [DisallowNull] UnitAction Action, Vector2I Destination, Vector2I Target, IEnumerable<Vector2I> Traversable)
+public record struct SpecifiedAction([DisallowNull] UnitData Actor, [DisallowNull] UnitAction Action, Vector2I Destination, Vector2I Target, IEnumerable<Vector2I> Traversable)
 {
     /// <summary>Path Actor will follow from its current cell to Destination before performing the action.</summary>
     public readonly Path Path = Path.Empty(Traversable, Actor.CellCost).Add(Actor.Cell).Add(Destination);
@@ -35,9 +35,9 @@ public abstract partial class ActionSelector : Resource
     /// <param name="units">Units that could perform actions.</param>
     /// <param name="available">Available actions for units to perform.</param>
     /// <returns>A set of actions that can be performed, including which units can perform them and where they can be performed.</returns>
-    public static IEnumerable<ResolvedAction> GetAvailableActions(IEnumerable<UnitData> units, IEnumerable<UnitAction> available)
+    public static IEnumerable<SpecifiedAction> GetAvailableActions(IEnumerable<UnitData> units, IEnumerable<UnitAction> available)
     {
-        List<ResolvedAction> actions = [];
+        List<SpecifiedAction> actions = [];
         foreach (UnitData unit in units)
         {
             IEnumerable<Vector2I> traversable = unit.Behavior.GetTraversableCells(unit);
@@ -72,19 +72,19 @@ public abstract partial class ActionSelector : Resource
 
     /// <param name="action">Action to evaluate.</param>
     /// <returns>The value of <paramref name="action"/>.</returns>
-    public virtual double GetActionValue(ResolvedAction action) => Evaluators.Select((i) => i.Value*i.Key.Evaluate(new(action.Actor.Grid, action.Actor.Faction, action.Path, action.Action))).DefaultIfEmpty(0).Sum();
+    public virtual double GetActionValue(SpecifiedAction action) => Evaluators.Select((i) => i.Value*i.Key.Evaluate(new(action.Actor.Grid, action.Actor.Faction, action.Path, action.Action))).DefaultIfEmpty(0).Sum();
 
     /// <summary>Choose an action from among available ones along with a unit to perform it, a cell to perform it from, and a target to perform it on (if applicable).</summary>
     /// <param name="units">Units that can perform actions.</param>
     /// <param name="available">Available actions to perform.</param>
     /// <returns>A structure containing all the information about how the chosen action should be performed, or <c>null</c> if no action could be chosen.</returns>
     /// <exception cref="ArgumentException">If <paramref name="units"/> is empty. This should never happen during gameplay as the faction's turn should end before then.</exception>
-    public abstract ResolvedAction? SelectAction(IEnumerable<UnitData> units, IEnumerable<UnitAction> available);
+    public abstract SpecifiedAction? SelectAction(IEnumerable<UnitData> units, IEnumerable<UnitAction> available);
 
     /// <inheritdoc cref="SelectAction"/>
     /// <param name="grid">Grid containing units that could perform actions.</param>
     /// <param name="units">Filter specifying how to determine which active units on <paramref name="grid"/> to consider for performing an action.</param>
-    public ResolvedAction? SelectAction(GridData grid, UnitFilter units, IEnumerable<UnitAction> available) => SelectAction(units.GetUnits(grid).Where((u) => u.Active), available);
+    public SpecifiedAction? SelectAction(GridData grid, UnitFilter units, IEnumerable<UnitAction> available) => SelectAction(units.GetUnits(grid).Where((u) => u.Active), available);
 
     /// <summary>If <see cref="SelectAction"/> fails to find an action, a unit must still be chosen to perform a default action.</summary>
     /// <param name="units">Collection of available units to act.</param>

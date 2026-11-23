@@ -10,12 +10,12 @@ namespace TbsFramework.Scenes.Level.Control.Evaluation;
 [GlobalClass, Tool]
 public partial class PruningActionSelector : ActionSelector
 {
-    private record class ActionTreeNode(ResolvedAction Action, double Value, ActionTreeNode Parent = null)
+    private record class ActionTreeNode(SpecifiedAction Action, double Value, ActionTreeNode Parent = null)
     {
         public ActionTreeNode GetRoot() => Parent?.GetRoot() ?? this;
     }
 
-    private ActionTreeNode CreateNode(ResolvedAction action, ActionTreeNode parent = null)
+    private ActionTreeNode CreateNode(SpecifiedAction action, ActionTreeNode parent = null)
     {
         action.Result = action.Action.Simulate(action.Actor, action.Destination, action.Target);
         return new(action, GetActionValue(action), parent);
@@ -27,7 +27,7 @@ public partial class PruningActionSelector : ActionSelector
     /// </summary>
     [Export] public int MaxActionsPerRound = 10;
 
-    public override ResolvedAction? SelectAction(IEnumerable<UnitData> units, IEnumerable<UnitAction> available)
+    public override SpecifiedAction? SelectAction(IEnumerable<UnitData> units, IEnumerable<UnitAction> available)
     {
         if (!units.Any())
             throw new ArgumentException("No units to select an action for");
