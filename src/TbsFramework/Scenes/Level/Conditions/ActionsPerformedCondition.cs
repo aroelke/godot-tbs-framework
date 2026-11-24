@@ -24,15 +24,12 @@ public partial class ActionsPerformedCondition : GridCondition
     {
         int count;
         if (Units is null)
-            count = Actions.Sum((a) => grid.UnitPerformedActions.GetValueOrDefault(a, []).Values.Sum()); // Don't add factions also; this would be double-counting
+            count = Actions.Sum(grid.GetTotalPerformances);
         else
-            count = Units switch {
-                UnitIdentity id            => Actions.Sum((a) => grid.UnitPerformedActions.GetValueOrDefault(a, []).GetValueOrDefault(id, 0)),
-                Faction faction            => Actions.Sum((a) => grid.FactionPerformedActions.GetValueOrDefault(a, []).GetValueOrDefault(faction, 0)),
-                CompositeUnitFilter filter => filter.Units.Sum((u) => Actions.Sum((a) => grid.UnitPerformedActions.GetValueOrDefault(a, []).GetValueOrDefault(u, 0))) +
-                                              filter.Factions.Sum((f) => Actions.Sum((a) => grid.FactionPerformedActions.GetValueOrDefault(a, []).GetValueOrDefault(f, 0))),
-                _ => 0
-            };
+        {
+            Dictionary<UnitAction, int> performed = grid.GetPerformedActions(Units);
+            count = Actions.Sum((a) => performed.GetValueOrDefault(a, 0));
+        }
         return count >= Amount;
     }
 }

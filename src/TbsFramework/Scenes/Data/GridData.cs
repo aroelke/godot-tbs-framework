@@ -3,8 +3,10 @@ using System.Linq;
 using Godot;
 using TbsFramework.Collections;
 using TbsFramework.Properties;
+using TbsFramework.Scenes.Level.Conditions;
 using TbsFramework.Scenes.Level.Control;
 using TbsFramework.Scenes.Level.Control.Evaluation;
+using TbsFramework.Scenes.Rendering;
 
 namespace TbsFramework.Scenes.Data;
 
@@ -43,22 +45,14 @@ public class GridData
         Turn = original.Turn;
         SwitchedBehaviors = [.. original.SwitchedBehaviors];
 
-        UnitPerformedActions = [];
-        foreach ((UnitAction action, Dictionary<UnitIdentity, int> performers) in original.UnitPerformedActions)
+        PerformedActions = [];
+        foreach ((UnitData unit, Dictionary<UnitAction, int> actions) in original.PerformedActions)
         {
-            if (!UnitPerformedActions.ContainsKey(action))
-                UnitPerformedActions[action] = [];
-            foreach ((UnitIdentity unit, int amount) in performers)
-                UnitPerformedActions[action][unit] = amount;
-        }
-
-        FactionPerformedActions = [];
-        foreach ((UnitAction action, Dictionary<Faction, int> performers) in original.FactionPerformedActions)
-        {
-            if (!FactionPerformedActions.ContainsKey(action))
-                FactionPerformedActions[action] = [];
-            foreach ((Faction faction, int amount) in performers)
-                FactionPerformedActions[action][faction] = amount;
+            UnitData mine = _occupants[unit.Cell];
+            if (!PerformedActions.ContainsKey(unit))
+                PerformedActions[mine] = [];
+            foreach ((UnitAction action, int count) in actions)
+                PerformedActions[mine][action] = count;
         }
     }
 
@@ -110,10 +104,7 @@ public class GridData
     public readonly HashSet<ConditionalBehavior> SwitchedBehaviors = [];
 
     /// <summary>Tracker for actions that have been performed by individual units.</summary>
-    public readonly Dictionary<UnitAction, Dictionary<UnitIdentity, int>> UnitPerformedActions = [];
-
-    /// <summary>Tracker for actions that have been performed by units belonging to factions.</summary>
-    public readonly Dictionary<UnitAction, Dictionary<Faction, int>> FactionPerformedActions = [];
+    public readonly Dictionary<UnitData, Dictionary<UnitAction, int>> PerformedActions = [];
 
     public GridData()
     {
@@ -164,15 +155,34 @@ public class GridData
     /// <returns>A collection containing the indices of all cells within grid bounds at each distance from a center cell.</returns>
     public IEnumerable<Vector2I> GetCellsInRange(Vector2I center, IEnumerable<int> distances) => distances.SelectMany((r) => GetCellsAtDistance(center, r)).ToHashSet();
 
-    public void AddPerformedAction(UnitAction action, UnitData actor)
+    /// <summary>Log an action performed by a unit.</summary>
+    /// <param name="action">Action that was performed.</param>
+    /// <param name="actor">Unit that performed the action.</param>
+    /// <param name="amount">Amount of times the action was performed (normally 1).</param>
+    public void AddPerformedAction(UnitAction action, UnitData actor, int amount = 1)
     {
-        if (!UnitPerformedActions.ContainsKey(action))
-            UnitPerformedActions[action] = [];
-        UnitPerformedActions[action][actor.Identity] = UnitPerformedActions[action].GetValueOrDefault(actor.Identity, 0) + 1;
-        if (!FactionPerformedActions.ContainsKey(action))
-            FactionPerformedActions[action] = [];
-        FactionPerformedActions[action][actor.Faction] = FactionPerformedActions[action].GetValueOrDefault(actor.Faction, 0) + 1;
+        if (!PerformedActions.ContainsKey(actor))
+            PerformedActions[actor] = [];
+        PerformedActions[actor][action] = PerformedActions[actor].GetValueOrDefault(action, 0) + amount;
     }
+
+    /// <summary>Get the collective number of times each action was performed by a set of units.</summary>
+    /// <param name="units">Units to count actions for.</param>
+    /// <returns>A dictionary containing the actions that were performed and the number of times the specified units performed them.</returns>
+    public Dictionary<UnitAction, int> GetPerformedActions(UnitFilter units)
+    {
+        Dictionary<UnitAction, int> performed = [];
+        foreach ((UnitData unit, Dictionary<UnitAction, int> actions) in PerformedActions)
+            if (units.IsIncluded(unit))
+                foreach ((UnitAction action, int count) in actions)
+                    performed[action] = performed.GetValueOrDefault(action, 0) + count;
+        return performed;
+    }
+
+    /// <summary>Compute the total number of times an action was performed.</summary>
+    /// <param name="action">Action to track.</param>
+    /// <returns>The total number of times <paramref name="action"/> was performed by any unit.</returns>
+    public int GetTotalPerformances(UnitAction action) => PerformedActions.Values.Sum((v) => v.GetValueOrDefault(action, 0));
 
     /// <returns>A new grid of the same size with copies of all of the objects and other structures on it.</returns>
     public GridData Clone() => new(this);
