@@ -11,5 +11,10 @@ public partial class SpecificActionEvaluator : ActionEvaluator
     [Export] public UnitAction[] TrackedActions = [];
 
     // No need to check if the unit can perform the action because it already did
-    public override double Evaluate(SimulatedAction action) => TrackedActions.Contains(action.Action) ? 1 : 0;
+    public override double Evaluate(SimulatedAction action)
+    {
+        int total = action.Result.PerformedActions.Values.Sum((v) => v.Values.Sum());
+        int tracked = TrackedActions.Sum(action.Result.GetTotalPerformances);
+        return tracked/(double)total;
+    }
 }

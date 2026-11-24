@@ -7,8 +7,7 @@ namespace TbsFramework.Scenes.Level.Control.Evaluation;
 /// <param name="Result">State of the grid that would result from performing the action.</param>
 /// <param name="Actor">Unit who performed the action.</param>
 /// <param name="Traversed">Path that the unit who performed the action traversed.</param>
-/// <param name="Action">Action that was simulated.</param>
-public record struct SimulatedAction(GridData Result, UnitData Actor, Path Traversed, UnitAction Action);
+public record struct SimulatedAction(GridData Result, UnitData Actor, Path Traversed);
 
 /// <summary>
 /// <see cref="AIController"/> component that can be used to produce a value for the result of simulating a potential action.

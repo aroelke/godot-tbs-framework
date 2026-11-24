@@ -103,7 +103,7 @@ public partial class AIController : ArmyController
     {
         action.Result = action.Action.Simulate(action.Actor, action.Destination, action.Target);
         action.Result.Occupants[action.Destination].Active = false;
-        SimulatedAction simulated = new(action.Result, action.Result.Occupants[action.Destination], action.Path, action.Action);
+        SimulatedAction simulated = new(action.Result, action.Result.Occupants[action.Destination], action.Path);
 
         if (action.Result.Occupants[action.Destination].Health <= 0)
             action.Result.Occupants[action.Destination].Grid = null;
