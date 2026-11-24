@@ -34,18 +34,13 @@ public partial class PruningActionSelector : ActionSelector
         if (!units.Any())
             throw new ArgumentException("No units to select an action for");
 
+        IEnumerable<ActionTreeNode> current = null;
         IEnumerable<ActionTreeNode> next = GetAvailableActions(units, available).Select((a) => CreateNode(a));
-        if (next.Any())
+        while (next.Any())
         {
-            IEnumerable<ActionTreeNode> current;
-            do
-            {
-                current = next.OrderByDescending((n) => n.Value);
-                next = current.Take(MaxActionsPerRound).SelectMany((n) => GetAvailableActions(n.Action.Actor.Faction.GetUnits(n.Result).Where((u) => u.Active), available).Select((a) => CreateNode(a, parent:n)));
-            } while (next.Any());
-            return current.First().GetRoot().Action;
+            current = next.OrderByDescending((n) => n.Value);
+            next = current.Take(MaxActionsPerRound).SelectMany((n) => GetAvailableActions(n.Action.Actor.Faction.GetUnits(n.Result).Where((u) => u.Active), available).Select((a) => CreateNode(a, parent:n)));
         }
-        else
-            return null;
+        return current?.First().GetRoot().Action;
     }
 }
