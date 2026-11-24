@@ -18,6 +18,8 @@ public partial class PruningActionSelector : ActionSelector
     private ActionTreeNode CreateNode(SpecifiedAction action, ActionTreeNode parent = null)
     {
         GridData result = action.Action.Simulate(action.Actor, action.Destination, action.Target);
+        if (result.Occupants.TryGetValue(action.Destination, out UnitData actor))
+            actor.Active = false;
         return new(action, result, GetActionValue(action, result), parent);
     }
 
@@ -39,7 +41,7 @@ public partial class PruningActionSelector : ActionSelector
             do
             {
                 current = next.OrderByDescending((n) => n.Value);
-                next = current.Take(MaxActionsPerRound).SelectMany((n) => GetAvailableActions(n.Action.Actor.Faction.GetUnits(n.Result), available).Select((a) => CreateNode(a, parent:n)));
+                next = current.Take(MaxActionsPerRound).SelectMany((n) => GetAvailableActions(n.Action.Actor.Faction.GetUnits(n.Result).Where((u) => u.Active), available).Select((a) => CreateNode(a, parent:n)));
             } while (next.Any());
             return current.First().GetRoot().Action;
         }
