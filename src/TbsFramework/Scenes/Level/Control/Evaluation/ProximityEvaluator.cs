@@ -4,6 +4,7 @@ using System.Linq;
 using Godot;
 using TbsFramework.Extensions;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Conditions;
 
 namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
@@ -12,6 +13,8 @@ namespace TbsFramework.Scenes.Level.Control.Evaluation;
 public partial class ProximityEvaluator : ActionEvaluator
 {
     private bool _allies = false, _enemies = false;
+
+    [Export] public UnitFilter Included = null;
 
     /// <summary>Measure proximity to any allied unit.</summary>
     [Export] public bool AllAllies
@@ -51,12 +54,6 @@ public partial class ProximityEvaluator : ActionEvaluator
         }
     }
 
-    /// <summary>Specific units that are part of the group to measure proximity to.</summary>
-    [Export] public UnitIdentity[] Units = [];
-
-    /// <summary>Factions containing units that are part of the group to measure proximity to.</summary>
-    [Export] public Faction[] Factions = [];
-
     /// <summary><c>true</c> if being closer to the closest unit in the group results in a high value or <c>false</c> if being further away does.</summary>
     [Export] public bool MoveCloser = true;
 
@@ -67,9 +64,7 @@ public partial class ProximityEvaluator : ActionEvaluator
     {
         bool IsIncluded(UnitData u)
         {
-            if (Units.Contains(u.Identity))
-                return true;
-            if (Factions.Contains(u.Faction))
+            if (Included?.IsIncluded(u) ?? false)
                 return true;
             if (_allies && action.Actor.Faction.AlliedTo(u.Faction))
                 return true;
@@ -96,7 +91,7 @@ public partial class ProximityEvaluator : ActionEvaluator
     public override void _ValidateProperty(Godot.Collections.Dictionary property)
     {
         base._ValidateProperty(property);
-        if ((property["name"].AsStringName() == PropertyName.Factions || property["name"].AsStringName() == PropertyName.Units) && _allies && _enemies)
+        if (property["name"].AsStringName() == PropertyName.Included && _allies && _enemies)
             property["usage"] = (int)PropertyUsageFlags.NoEditor;
     }
 }
