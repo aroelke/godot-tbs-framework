@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using TbsFramework.Extensions;
 using TbsFramework.Scenes.Data;
 using TbsFramework.Scenes.Level.Conditions;
 
@@ -14,6 +12,7 @@ public partial class ProximityEvaluator : ActionEvaluator
 {
     private bool _allies = false, _enemies = false;
 
+    /// <summary>Units to count proximity to.</summary>
     [Export] public UnitFilter Included = null;
 
     /// <summary>Measure proximity to any allied unit.</summary>
