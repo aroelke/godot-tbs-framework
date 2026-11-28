@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Conditions;
 
 namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
@@ -11,6 +11,9 @@ namespace TbsFramework.Scenes.Level.Control.Evaluation;
 public partial class HealthDifferenceEvaluator : ActionEvaluator
 {
     private bool _allies = false, _enemies = false;
+
+    /// <summary>Units to count health difference for.</summary>
+    [Export] public UnitFilter Included = null;
 
     /// <summary><c>true</c> if all units in allied factions should be counted.</summary>
     [Export] public bool AllAllies
@@ -50,9 +53,6 @@ public partial class HealthDifferenceEvaluator : ActionEvaluator
         }
     }
 
-    /// <summary>Factions containing units to count.</summary>
-    [Export] public Faction[] Factions = [];
-
     /// <summary><c>true</c> if units that were defeated should be counted for total health lost.</summary>
     [Export] public bool IncludeDefeated = true;
 
@@ -71,7 +71,7 @@ public partial class HealthDifferenceEvaluator : ActionEvaluator
         {
             if (!IncludeDefeated && u.Health <= 0)
                 return false;
-            if (Factions.Contains(u.Faction))
+            if (Included?.IsIncluded(u) ?? false)
                 return true;
             if (_allies && action.Actor.Faction.AlliedTo(u.Faction))
                 return true;
@@ -98,7 +98,7 @@ public partial class HealthDifferenceEvaluator : ActionEvaluator
     public override void _ValidateProperty(Godot.Collections.Dictionary property)
     {
         base._ValidateProperty(property);
-        if (property["name"].AsStringName() == PropertyName.Factions && _allies && _enemies)
+        if (property["name"].AsStringName() == PropertyName.Included && _allies && _enemies)
             property["usage"] = (int)PropertyUsageFlags.NoEditor;
     }
 }

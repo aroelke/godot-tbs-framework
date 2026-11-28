@@ -11,6 +11,7 @@ public partial class DefeatedUnitsEvaluator : ActionEvaluator
 {
     private bool _allies = false, _enemies = false;
 
+    /// <summary>Units to include when counting defeated units.</summary>
     [Export] public UnitFilter Included = null;
 
     /// <summary><c>true</c> if all units in allied factions should be counted.</summary>
@@ -64,7 +65,7 @@ public partial class DefeatedUnitsEvaluator : ActionEvaluator
             return false;
         }
         double alive = action.Result.Occupants.Values.Count(IsIncluded);
-        double dead = action.Result.Removed.Count((u) => IsIncluded(u) && u.Health == 0);
+        double dead = action.Result.Removed.Count((u) => IsIncluded(u) && u.Health == 0); // Units could be removed for other reasons
         return (dead > 0) ? dead/(alive + dead) : 0;
     }
 
