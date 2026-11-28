@@ -1,7 +1,7 @@
-using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using TbsFramework.Scenes.Data;
+using TbsFramework.Scenes.Level.Conditions;
 
 namespace TbsFramework.Scenes.Level.Control.Evaluation;
 
@@ -10,6 +10,8 @@ namespace TbsFramework.Scenes.Level.Control.Evaluation;
 public partial class DefeatedUnitsEvaluator : ActionEvaluator
 {
     private bool _allies = false, _enemies = false;
+
+    [Export] public UnitFilter Included = null;
 
     /// <summary><c>true</c> if all units in allied factions should be counted.</summary>
     [Export] public bool AllAllies
@@ -49,14 +51,11 @@ public partial class DefeatedUnitsEvaluator : ActionEvaluator
         }
     }
 
-    /// <summary>Factions containing units to count.</summary>
-    [Export] public Faction[] Factions = [];
-
     public override double Evaluate(SimulatedAction action)
     {
         bool IsIncluded(UnitData u)
         {
-            if (Factions.Contains(u.Faction))
+            if (Included?.IsIncluded(u) ?? false)
                 return true;
             if (_allies && action.Actor.Faction.AlliedTo(u.Faction))
                 return true;
@@ -72,7 +71,7 @@ public partial class DefeatedUnitsEvaluator : ActionEvaluator
     public override void _ValidateProperty(Godot.Collections.Dictionary property)
     {
         base._ValidateProperty(property);
-        if (property["name"].AsStringName() == PropertyName.Factions && _allies && _enemies)
+        if (property["name"].AsStringName() == PropertyName.Included && _allies && _enemies)
             property["usage"] = (int)PropertyUsageFlags.NoEditor;
     }
 }
