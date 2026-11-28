@@ -48,8 +48,9 @@ public class GridData
         PerformedActions = [];
         foreach ((UnitData unit, Dictionary<UnitAction, int> actions) in original.PerformedActions)
         {
-            UnitData mine = _occupants[unit.Cell];
-            if (!PerformedActions.ContainsKey(unit))
+            if (!_occupants.TryGetValue(unit.Cell, out UnitData mine))
+                mine = unit.Clone();
+            if (!PerformedActions.ContainsKey(mine))
                 PerformedActions[mine] = [];
             foreach ((UnitAction action, int count) in actions)
                 PerformedActions[mine][action] = count;
